@@ -20,7 +20,7 @@ DATADIR = $(PREFIX)/share/pingus
 MANDIR  = $(PREFIX)/share/man
 BINDIR  = $(PREFIX)/bin
 
-build/pingus:
+build/pingus: ceu
 	mkdir -p build
 	scons src
 	scons
@@ -32,6 +32,9 @@ clean:
 	rm -rf build/
 	rm -f pingus
 	scons -c
+
+ceu:
+	cd ceu/ && ceu main.ceu && cp _ceu_app.c ../src/ && cp _ceu_app.h ../src/ && cd ../
 
 install: install-exec install-data install-man
 
@@ -69,6 +72,6 @@ install-data:
 install-man:
 	install -D doc/man/pingus.6 "$(DESTDIR)$(MANDIR)/man1/pingus.6"
 
-.PHONY : clean install install-exec install-data install-man
+.PHONY : clean install install-exec install-data install-man ceu
 
 # EOF #

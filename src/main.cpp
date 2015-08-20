@@ -18,9 +18,18 @@
 
 #include "pingus/pingus_main.hpp"
 
+#include "_ceu_app.c"
+tceu_app CEU_APP;
+
 int main(int argc, char** argv)
 {
   PingusMain app;
+
+  static char CEU_DATA[sizeof(CEU_Main)];
+  CEU_APP.data = (tceu_org*) &CEU_DATA;
+  CEU_APP.init = &ceu_app_init;
+  CEU_APP.init(&CEU_APP);
+
   return app.run(argc, argv);
 }
 
