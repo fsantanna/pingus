@@ -12,13 +12,22 @@ native do
 end
 native @pure _XXX_PTR2REF();
 
-#define AWAIT_UNTIL_MYSELF(EVT)                         \
-    do                                                  \
-        var _SpriteImpl&& me_ = await EVT               \
-                                until me_ == &&this.me; \
+#if 0
+#define XXX_NO_FIN(var,val) \
+    finalize                \
+        var = val;          \
+    with                    \
+        nothing;            \
+    end
+#endif
+
+#define AWAIT_UNTIL_MYSELF(TP,EVT)             \
+    do                                         \
+        var TP&& me_ = await EVT               \
+                       until me_ == &&this.me; \
     end
 
-#include "engine/display/sprite_impl.ceu"
+#include "engine/display/sprite.ceu"
 
 input int SDL_DT;
 

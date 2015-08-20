@@ -21,55 +21,89 @@
 #include "pingus/resource.hpp"
 #include "util/log.hpp"
 
+#include "ceu_vars.h"
+
+Sprite::Sprite(const Sprite& that)
+{
+    *this = that;
+    this->XXX_is_copy = true;
+}
+
 Sprite::Sprite() :
   impl()
 {
+//printf("1>>>>>[%p]\n", this);
+  void* this_ = this;
+  ceu_sys_go(&CEU_APP, CEU_IN_SPRITE_NEW_NONE, &this_);
 }
 
 Sprite::Sprite(const std::string& name) :
   impl()
 {
-  SpriteDescription* desc = Resource::load_sprite_desc(name);
-  if (desc)
-  {
-    impl = std::make_shared<SpriteImpl>(*desc);
-  }
-  else
-  {
-    SpriteDescription desc_;
-    desc_.filename = Pathname("images/core/misc/404.png", Pathname::DATA_PATH);
-    impl = std::make_shared<SpriteImpl>(desc_);
-  }
+  ///SpriteDescription* desc = Resource::load_sprite_desc(name);
+  ///if (desc)
+  ///{
+    ///impl = std::make_shared<SpriteImpl>(*desc);
+  ///}
+  ///else
+  ///{
+    ///SpriteDescription desc_;
+    ///desc_.filename = Pathname("images/core/misc/404.png", 
+    //Pathname::DATA_PATH);
+    ///impl = std::make_shared<SpriteImpl>(desc_);
+  ///}
+
+//printf("2>>>>>[%p]\n", this);
+  char* str = (char*)name.c_str();
+  tceu__Sprite___char_ p = {this, str};
+  ceu_sys_go(&CEU_APP, CEU_IN_SPRITE_NEW_NAME, &p);
 }
 
 Sprite::Sprite(const ResDescriptor& res_desc) :
   impl()
 {
-  SpriteDescription* desc = Resource::load_sprite_desc(res_desc.res_name);
-  if (desc)
-  {
-    impl = std::make_shared<SpriteImpl>(*desc, res_desc.modifier);
-  }
-  else
-  {
-    SpriteDescription desc_;
-    desc_.filename = Pathname("images/core/misc/404.png", Pathname::DATA_PATH);
-    impl = std::make_shared<SpriteImpl>(desc_);
-  }
+  ///SpriteDescription* desc = Resource::load_sprite_desc(res_desc.res_name);
+  ///if (desc)
+  ///{
+    ///impl = std::make_shared<SpriteImpl>(*desc, res_desc.modifier);
+  ///}
+  ///else
+  ///{
+    ///SpriteDescription desc_;
+    ///desc_.filename = Pathname("images/core/misc/404.png", //Pathname::DATA_PATH);
+    ///impl = std::make_shared<SpriteImpl>(desc_);
+  ///}
+
+//printf("3>>>>>[%p]\n", this);
+  tceu__Sprite___ResDescriptor_ p = {this, (ResDescriptor*)&res_desc};
+  ceu_sys_go(&CEU_APP, CEU_IN_SPRITE_NEW_RESDESCRIPTOR, &p);
 }
 
 Sprite::Sprite(const Surface& surface) :
-  impl(std::make_shared<SpriteImpl>(surface))
+  impl()
+  ///impl(std::make_shared<SpriteImpl>(surface))
 {
+//printf("4>>>>>[%p]\n", this);
+  tceu__Sprite___Surface_ p = {this, (Surface*)&surface};
+  ceu_sys_go(&CEU_APP, CEU_IN_SPRITE_NEW_SURFACE, &p);
 }
 
 Sprite::Sprite(const SpriteDescription& desc, ResourceModifier::Enum mod) :
-  impl(std::make_shared<SpriteImpl>(desc, mod))
+  impl()
+  ///impl(std::make_shared<SpriteImpl>(desc, mod))
 {
+//printf("5>>>>>[%p]\n", this);
+  tceu__Sprite___SpriteDescription___int p = {this, (SpriteDescription*)&desc, mod};
+  ceu_sys_go(&CEU_APP, CEU_IN_SPRITE_NEW_SPRITEDESCRIPTION, &p);
 }
 
 Sprite::~Sprite()
 {
+//printf("->>>>>[%p]\n", this);
+  if (! this->XXX_is_copy) {
+    void* this_ = this;
+    ceu_sys_go(&CEU_APP, CEU_IN_SPRITE_DELETE, &this_);
+  }
 }
 
 void

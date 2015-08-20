@@ -45,7 +45,7 @@ private:
 
   /** Current frame */
   int frame;
-  int tick_count;
+  ///int tick_count;
 
 public:
   SpriteImpl();

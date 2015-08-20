@@ -59,8 +59,14 @@ public:
   void finish();
   operator bool() const;
 
+  ///
+  Sprite(const Sprite& that);
+
 private:
   std::shared_ptr<SpriteImpl> impl;
+
+  ///
+  bool XXX_is_copy;
 };
 
 #endif

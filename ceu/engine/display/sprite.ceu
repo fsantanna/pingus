@@ -1,0 +1,167 @@
+#ifndef _SPRITE_CEU
+#define _SPRITE_CEU
+
+native/pre do
+    ##include "../src/engine/display/sprite.hpp"
+    ##include "engine/display/display.hpp"
+    ##include "engine/display/framebuffer.hpp"
+    ##include "engine/display/sprite_description.hpp"
+    ##include "pingus/resource.hpp"
+    ##define loop_ loop
+
+    ##define Resource__load_sprite_desc(name) Resource::load_sprite_desc(name)
+    ##define ResourceModifier__Enum ResourceModifier::Enum
+end
+native @plain _Sprite, _Surface, _SpriteDescription;
+native @plain _ResourceModifier__Enum;
+native @pure _Resource__load_sprite_desc(), _Pathname();
+
+#include "sprite_impl.ceu"
+
+input (_Sprite&&)                          SPRITE_NEW_NONE;
+input (_Sprite&&,char&&)                   SPRITE_NEW_NAME;
+input (_Sprite&&,_ResDescriptor&&)         SPRITE_NEW_RESDESCRIPTOR;
+input (_Sprite&&,_Surface&&)               SPRITE_NEW_SURFACE;
+input (_Sprite&&,_SpriteDescription&&,int) SPRITE_NEW_SPRITEDESCRIPTION;
+
+input _Sprite&&         SPRITE_DELETE;
+input (_Sprite&&,float) SPRITE_UPDATE;
+input _Sprite&&         SPRITE_RESTART;
+input _Sprite&&         SPRITE_FINISH;
+
+class Sprite with
+    var _Sprite& me;
+
+    // constructor
+    var _Surface&&           surface  = null;
+    var _SpriteDescription&& spr_desc = null;
+    var int                  modifier = {ResourceModifier::ROT0};
+    var _ResDescriptor&&     res_desc = null;
+    var char&&               name     = null;
+do
+#if 0
+    pool SpriteImpl[1] impls;
+    var SpriteImpl&&? impl;
+#endif
+
+    // constructor
+    do
+        if surface != null then
+            me.impl = {std::make_shared<SpriteImpl>}(*surface);
+                // shared pointer, destroyed when me.impl is destroyed
+#if 0
+            me.impl = spawn SpriteImpl in impls with
+                        this.surface = surface;
+                      end;
+#endif
+        else
+            var _SpriteDescription&& spr_desc_ = spr_desc;
+            {
+                SpriteDescription spr_desc_v;
+            };
+            if name != null then
+                spr_desc_ = _Resource__load_sprite_desc(name);
+            else/if res_desc != null then
+                spr_desc_ = _Resource__load_sprite_desc(res_desc:res_name);
+                modifier = res_desc:modifier;
+            end
+
+            if spr_desc_ == null then
+                _spr_desc_v.filename = _Pathname("images/core/misc/404.png",
+                                                 {Pathname::DATA_PATH});
+                spr_desc_ = &&_spr_desc_v;
+            end
+
+            _assert(spr_desc_ != null);
+            me.impl = {std::make_shared<SpriteImpl>}(
+                            *spr_desc_,
+                            (_ResourceModifier__Enum) modifier);
+                // shared pointer, destroyed when me.impl is destroyed
+#if 0
+            impl = spawn SpriteImpl in impls with
+                        this.spr_desc = spr_desc_;
+                        this.spr_mod  = res_desc.modifier;
+                   end;
+#endif
+        end
+        _assert(me.impl != null);
+    end
+
+    AWAIT_UNTIL_MYSELF(_Sprite,SPRITE_DELETE);
+    __sprite_deleting = __sprite_deleting + 1; // TODO(remove)
+//_printf("DIEING[%p] %d\n", &&me, __sprite_deleting);
+end
+
+class SpriteFactory with
+do
+    par do
+        every me_ in SPRITE_NEW_NONE do
+            spawn Sprite with
+//_printf("NEW   [%p] %d\n", me_, __sprite_deleting);
+                this.me = &_XXX_PTR2REF(me_);
+            end;
+        end
+    with
+        every (me_,name) in SPRITE_NEW_NAME do
+            spawn Sprite with
+//_printf("NEW   [%p] %d\n", me_, __sprite_deleting);
+                this.me   = &_XXX_PTR2REF(me_);
+                this.name = name;
+            end;
+        end
+    with
+        every (me_,res_desc) in SPRITE_NEW_RESDESCRIPTOR do
+            spawn Sprite with
+//_printf("NEW   [%p] %d\n", me_, __sprite_deleting);
+                this.me       = &_XXX_PTR2REF(me_);
+                this.res_desc = res_desc;
+            end;
+        end
+    with
+        every (me_,surface) in SPRITE_NEW_SURFACE do
+            spawn Sprite with
+//_printf("NEW   [%p] %d\n", me_, __sprite_deleting);
+                this.me      = &_XXX_PTR2REF(me_);
+                this.surface = surface;
+            end;
+        end
+    with
+        every (me_,spr_desc,mod) in SPRITE_NEW_SPRITEDESCRIPTION do
+            spawn Sprite with
+//_printf("NEW   [%p] %d\n", me_, __sprite_deleting);
+                this.me       = &_XXX_PTR2REF(me_);
+                this.spr_desc = spr_desc;
+                this.modifier = mod;
+            end;
+        end
+    end
+end
+
+var SpriteFactory _;
+
+// TODO(remove)
+class SpriteCheck__ with
+do
+    native do
+        // check if all DELETE effect exactly one instance
+        int _sprite_deleting = 0;
+    end
+    par do
+        every me_ in SPRITE_DELETE do
+            if __sprite_deleting != 1 then
+                _printf("ASR :: [%p] %d\n", me_, __sprite_deleting);
+                _assert(__sprite_deleting == 1);
+            end
+            __sprite_deleting = __sprite_deleting - 1;
+        end
+    with
+        every me_ in SPRITE_DELETE do
+            _assert(me_ != null);
+        end
+    end
+end
+
+var SpriteCheck__ _;
+
+#endif
+
