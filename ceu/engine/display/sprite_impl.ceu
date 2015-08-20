@@ -1,0 +1,63 @@
+#ifndef _SPRITE_IMPL_CEU
+#define _SPRITE_IMPL_CEU
+
+native/pre do
+    ##include "../src/engine/display/sprite.hpp"
+end
+native @plain _SpriteImpl;
+
+input _SpriteImpl&& SPRITE_IMPL_NEW;
+input _SpriteImpl&& SPRITE_IMPL_DELETE;
+
+// TODO(remove)
+class SpriteImplCheck__ with
+do
+    native do
+        // check if all DELETE effect exactly one instance
+        int _sprite_impl_ok = 0;
+    end
+    par do
+        every SPRITE_IMPL_DELETE do
+            if __sprite_impl_ok != 1 then
+                _printf("ASR :: %d\n", __sprite_impl_ok);
+                _assert(__sprite_impl_ok == 1);
+            end
+            __sprite_impl_ok = 0;
+        end
+    with
+        every me_ in SPRITE_IMPL_DELETE do
+            _assert(me_ != null);
+        end
+    end
+end
+
+class SpriteImpl with
+    var _SpriteImpl& me;
+do
+    par/or do
+        var _SpriteImpl&& me_ = await SPRITE_IMPL_DELETE
+                                until me_ == &&this.me;
+
+        // TODO(remove)
+        __sprite_impl_ok = __sprite_impl_ok + 1;
+    with
+        _printf("new sprite %p\n", &&this.me);
+        await FOREVER;
+    end
+    _printf("delete sprite %p\n", &&this.me);
+end
+
+class SpriteImplFactory with
+do
+    every me_ in SPRITE_IMPL_NEW do
+        spawn SpriteImpl with
+            this.me = &_XXX_PTR2REF(me_);
+            _printf("NEW %p vs %p\n", me_, &&this.me);
+        end;
+    end
+end
+
+var SpriteImplFactory _;
+var SpriteImplCheck__ _;
+
+#endif

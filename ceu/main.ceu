@@ -1,3 +1,14 @@
+#include "c.ceu"
+
+native do
+    ##include <assert.h>
+
+    ##define XXX_PTR2REF(x) x
+end
+native @pure _XXX_PTR2REF();
+
+#include "engine/display/sprite_impl.ceu"
+
 input int SDL_DT;
 
 _printf("[CEU] Hello World!\n");
@@ -10,4 +21,4 @@ end
 
 _printf("[CEU] Good Bye!\n");
 
-escape 0;
+await FOREVER;

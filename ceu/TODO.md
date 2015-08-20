@@ -1,3 +1,37 @@
+# PORTING
+
+```
+native/pre do
+    ##include "../src/engine/display/sprite.hpp"
+end
+native @plain _SpriteImpl;
+
+input _SpriteImpl&& SPRITE_IMPL_NEW;
+input _SpriteImpl&& SPRITE_IMPL_DELETE;
+
+class SpriteImpl with
+    var _SpriteImpl& me;
+do
+    par/or do
+        var _SpriteImpl&& me_ = await SPRITE_IMPL_DELETE
+                                until me_ == &&this.me;
+    with
+        <...>
+    end
+end
+
+class SpriteImplFactory with
+do
+    every me_ in SPRITE_IMPL_NEW do
+        spawn SpriteImpl with
+            this.me = &_XXX_PTR2REF(me_);
+        end;
+    end
+end
+
+var SpriteImplFactory _;
+```
+
 # BUGs
 
 ## multiple `delete`

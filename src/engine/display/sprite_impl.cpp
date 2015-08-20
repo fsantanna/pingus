@@ -21,6 +21,8 @@
 #include "engine/display/sprite_description.hpp"
 #include "util/log.hpp"
 
+#include "ceu_vars.h"
+
 FramebufferSurface load_framebuffer_surface(const Pathname& filename, ResourceModifier::Enum modifier)
 {
   // FIXME: Implement proper cache
@@ -56,6 +58,7 @@ SpriteImpl::SpriteImpl() :
   frame(),
   tick_count()
 {
+  ceu_sys_go(&CEU_APP, CEU_IN_SPRITE_IMPL_NEW, this);
 }
 
 SpriteImpl::SpriteImpl(const SpriteDescription& desc, ResourceModifier::Enum mod) :
@@ -88,6 +91,7 @@ SpriteImpl::SpriteImpl(const SpriteDescription& desc, ResourceModifier::Enum mod
 
   offset = calc_origin(desc.origin, frame_size) - desc.offset;
 
+  ceu_sys_go(&CEU_APP, CEU_IN_SPRITE_IMPL_NEW, this);
 }
 
 SpriteImpl::SpriteImpl(const Surface& surface) :
@@ -104,10 +108,12 @@ SpriteImpl::SpriteImpl(const Surface& surface) :
   frame(0),
   tick_count(0)
 {
+  ceu_sys_go(&CEU_APP, CEU_IN_SPRITE_IMPL_NEW, this);
 }
 
 SpriteImpl::~SpriteImpl()
 {
+  ceu_sys_go(&CEU_APP, CEU_IN_SPRITE_IMPL_DELETE, this);
 }
 
 void
