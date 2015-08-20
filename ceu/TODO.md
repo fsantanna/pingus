@@ -36,3 +36,4 @@ var SpriteImplFactory _;
 
 ## multiple `delete`
     ` _sprite_impl_ok`
+## copy constructor
