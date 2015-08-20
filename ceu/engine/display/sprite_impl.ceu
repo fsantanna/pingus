@@ -2,12 +2,94 @@
 #define _SPRITE_IMPL_CEU
 
 native/pre do
-    ##include "../src/engine/display/sprite.hpp"
+    ##include "../src/engine/display/sprite_impl.hpp"
+    ##define loop_ loop
 end
 native @plain _SpriteImpl;
 
-input _SpriteImpl&& SPRITE_IMPL_NEW;
-input _SpriteImpl&& SPRITE_IMPL_DELETE;
+input _SpriteImpl&&         SPRITE_IMPL_NEW;
+input _SpriteImpl&&         SPRITE_IMPL_DELETE;
+input (_SpriteImpl&&,float) SPRITE_IMPL_UPDATE;
+input _SpriteImpl&&         SPRITE_IMPL_RESTART;
+input _SpriteImpl&&         SPRITE_IMPL_FINISH;
+
+class SpriteImpl with
+    var _SpriteImpl& me;
+do
+    par/or do
+        AWAIT_UNTIL_MYSELF(SPRITE_IMPL_DELETE);
+
+        // TODO(remove)
+        __sprite_impl_ok = __sprite_impl_ok + 1;
+    with
+        if me.frame_delay != 0 then
+            var int total_time = me.frame_delay *
+                                (me.array.width * me.array.height);
+            loop do
+                var int frame__ = 0;
+_assert(frame__ == me.frame);
+                var bool loop_last_cycle__ = false;
+_assert(loop_last_cycle__ == me.loop_last_cycle);
+                var int tick_count = 0;
+                par/or do
+                    AWAIT_UNTIL_MYSELF(SPRITE_IMPL_RESTART);
+                with
+                    par/or do
+                        AWAIT_UNTIL_MYSELF(SPRITE_IMPL_FINISH);
+                    with
+                        loop do
+                            loop do
+                                var _SpriteImpl&& me_;
+                                var float dt;
+                                (me_, dt) = await SPRITE_IMPL_UPDATE
+                                            until me_ == &&this.me;
+                                tick_count = tick_count + (int)(dt * 1000);
+
+                                if tick_count >= total_time then
+                                    if me.loop_ then
+                                        tick_count = tick_count % total_time;
+_assert(tick_count == me.tick_count);
+                                        frame__ = tick_count / me.frame_delay;
+_assert(frame__ == me.frame);
+                                    end
+                                    break;
+                                else
+                                    loop_last_cycle__ = false;
+                                    frame__ = tick_count / me.frame_delay;
+_assert(frame__ == me.frame);
+_assert(tick_count == me.tick_count);
+                                end
+
+                            end
+                            if me.loop_ then
+                                loop_last_cycle__ = true;
+_assert(loop_last_cycle__ == me.loop_last_cycle);
+                            else
+                                break;
+                            end
+                        end
+                    end
+                    await FOREVER;
+                end
+_assert(frame__ == me.frame);
+            end
+        end
+        await FOREVER;
+    end
+    //_printf("delete sprite %p\n", &&this.me);
+end
+
+class SpriteImplFactory with
+do
+    every me_ in SPRITE_IMPL_NEW do
+        spawn SpriteImpl with
+            this.me = &_XXX_PTR2REF(me_);
+            //_printf("NEW %p vs %p\n", me_, &&this.me);
+        end;
+    end
+end
+
+var SpriteImplFactory _;
 
 // TODO(remove)
 class SpriteImplCheck__ with
@@ -31,33 +113,6 @@ do
     end
 end
 
-class SpriteImpl with
-    var _SpriteImpl& me;
-do
-    par/or do
-        var _SpriteImpl&& me_ = await SPRITE_IMPL_DELETE
-                                until me_ == &&this.me;
-
-        // TODO(remove)
-        __sprite_impl_ok = __sprite_impl_ok + 1;
-    with
-        _printf("new sprite %p\n", &&this.me);
-        await FOREVER;
-    end
-    _printf("delete sprite %p\n", &&this.me);
-end
-
-class SpriteImplFactory with
-do
-    every me_ in SPRITE_IMPL_NEW do
-        spawn SpriteImpl with
-            this.me = &_XXX_PTR2REF(me_);
-            _printf("NEW %p vs %p\n", me_, &&this.me);
-        end;
-    end
-end
-
-var SpriteImplFactory _;
 var SpriteImplCheck__ _;
 
 #endif

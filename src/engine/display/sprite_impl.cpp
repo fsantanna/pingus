@@ -50,15 +50,16 @@ SpriteImpl::SpriteImpl() :
   offset(),
   frame_pos(),
   frame_size(),
-  frame_delay(),
+  frame_delay(0),
   array(),
   loop(),
-  loop_last_cycle(),
+  loop_last_cycle(false),
   finished(),
   frame(),
   tick_count()
 {
-  ceu_sys_go(&CEU_APP, CEU_IN_SPRITE_IMPL_NEW, this);
+  void* this_ = this;
+  ceu_sys_go(&CEU_APP, CEU_IN_SPRITE_IMPL_NEW, &this_);
 }
 
 SpriteImpl::SpriteImpl(const SpriteDescription& desc, ResourceModifier::Enum mod) :
@@ -67,10 +68,10 @@ SpriteImpl::SpriteImpl(const SpriteDescription& desc, ResourceModifier::Enum mod
   offset(),
   frame_pos(),
   frame_size(),
-  frame_delay(),
+  frame_delay(0),
   array(),
   loop(),
-  loop_last_cycle(),
+  loop_last_cycle(false),
   finished(false),
   frame(0),
   tick_count(0)
@@ -91,7 +92,8 @@ SpriteImpl::SpriteImpl(const SpriteDescription& desc, ResourceModifier::Enum mod
 
   offset = calc_origin(desc.origin, frame_size) - desc.offset;
 
-  ceu_sys_go(&CEU_APP, CEU_IN_SPRITE_IMPL_NEW, this);
+  void* this_ = this;
+  ceu_sys_go(&CEU_APP, CEU_IN_SPRITE_IMPL_NEW, &this_);
 }
 
 SpriteImpl::SpriteImpl(const Surface& surface) :
@@ -108,12 +110,14 @@ SpriteImpl::SpriteImpl(const Surface& surface) :
   frame(0),
   tick_count(0)
 {
-  ceu_sys_go(&CEU_APP, CEU_IN_SPRITE_IMPL_NEW, this);
+  void* this_ = this;
+  ceu_sys_go(&CEU_APP, CEU_IN_SPRITE_IMPL_NEW, &this_);
 }
 
 SpriteImpl::~SpriteImpl()
 {
-  ceu_sys_go(&CEU_APP, CEU_IN_SPRITE_IMPL_DELETE, this);
+  void* this_ = this;
+  ceu_sys_go(&CEU_APP, CEU_IN_SPRITE_IMPL_DELETE, &this_);
 }
 
 void
@@ -142,6 +146,9 @@ SpriteImpl::update(float delta)
     loop_last_cycle = false;
     frame = tick_count / frame_delay;
   }
+
+  tceu__SpriteImpl___float p = {this, delta};
+  ceu_sys_go(&CEU_APP, CEU_IN_SPRITE_IMPL_UPDATE, &p);
 }
 
 void
@@ -161,12 +168,18 @@ SpriteImpl::restart()
   loop_last_cycle = false;
   frame = 0;
   tick_count = 0;
+
+  void* this_ = this;
+  ceu_sys_go(&CEU_APP, CEU_IN_SPRITE_IMPL_RESTART, &this_);
 }
 
 void
 SpriteImpl::finish()
 {
   finished = true;
+
+  void* this_ = this;
+  ceu_sys_go(&CEU_APP, CEU_IN_SPRITE_IMPL_FINISH, &this_);
 }
 
 /* EOF */

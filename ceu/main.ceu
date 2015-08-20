@@ -1,11 +1,22 @@
 #include "c.ceu"
 
+native/pre do
+    ##define private public
+    ##define protected public
+end
+
 native do
     ##include <assert.h>
 
     ##define XXX_PTR2REF(x) x
 end
 native @pure _XXX_PTR2REF();
+
+#define AWAIT_UNTIL_MYSELF(EVT)                         \
+    do                                                  \
+        var _SpriteImpl&& me_ = await EVT               \
+                                until me_ == &&this.me; \
+    end
 
 #include "engine/display/sprite_impl.ceu"
 
