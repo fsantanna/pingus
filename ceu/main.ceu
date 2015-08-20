@@ -1,2 +1,13 @@
+input int SDL_DT;
+
 _printf("[CEU] Hello World!\n");
+
+par/and do
+    await 1s;
+with
+    await SDL_DT;
+end
+
+_printf("[CEU] Good Bye!\n");
+
 escape 0;

@@ -27,6 +27,8 @@
 #include "pingus/fonts.hpp"
 #include "pingus/globals.hpp"
 
+#include "ceu_vars.h"
+
 template<class C>
 void write(std::ostream& out, const C& value)
 {
@@ -171,6 +173,8 @@ ScreenManager::display()
 
   while (!screens.empty())
   {
+    Uint32 dt;
+
     events.clear();
 
     // Get time and update Input::Events
@@ -184,17 +188,26 @@ ScreenManager::display()
       input_manager.update(previous_frame_time);
       input_controller->clear_events();
       read_events(std::cin, events);
+
+      dt = previous_frame_time*1000;
     }
     else
     {
       // Get Time
       Uint32 ticks = SDL_GetTicks();
       previous_frame_time  = float(ticks - last_ticks)/1000.0f;
+      dt = ticks - last_ticks;
       last_ticks = ticks;
 
       // Update InputManager and get Events
       input_manager.update(previous_frame_time);
       input_controller->poll_events(events);
+    }
+
+    {
+      s32 dt_us = 1000*dt;
+      ceu_out_go(&CEU_APP, CEU_IN__WCLOCK, &dt_us);
+      ceu_out_go(&CEU_APP, CEU_IN_SDL_DT,  &dt);
     }
 
     if (record_input)

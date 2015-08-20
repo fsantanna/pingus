@@ -18,6 +18,7 @@
 
 #include "pingus/pingus_main.hpp"
 
+#include "ceu_vars.h"
 #include "_ceu_app.c"
 tceu_app CEU_APP;
 
