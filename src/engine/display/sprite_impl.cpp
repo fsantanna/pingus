@@ -52,11 +52,11 @@ SpriteImpl::SpriteImpl() :
   frame_size(),
   frame_delay(0),
   array(),
-  loop(),
-  loop_last_cycle(false),
-  finished(),
-  frame(),
-  tick_count()
+  loop()///,
+  ///loop_last_cycle(false),
+  ///finished(),
+  ///frame(),
+  ///tick_count()
 {
   void* this_ = this;
   ceu_sys_go(&CEU_APP, CEU_IN_SPRITE_IMPL_NEW, &this_);
@@ -70,11 +70,11 @@ SpriteImpl::SpriteImpl(const SpriteDescription& desc, ResourceModifier::Enum mod
   frame_size(),
   frame_delay(0),
   array(),
-  loop(),
-  loop_last_cycle(false),
-  finished(false),
-  frame(0),
-  tick_count(0)
+  loop()///,
+  ///loop_last_cycle(false),
+  ///finished(false),
+  ///frame(0),
+  ///tick_count(0)
 {
   framebuffer_surface = load_framebuffer_surface(desc.filename, mod);
 
@@ -88,7 +88,7 @@ SpriteImpl::SpriteImpl(const SpriteDescription& desc, ResourceModifier::Enum mod
   frame_delay  = desc.speed;
 
   loop = desc.loop;
-  loop_last_cycle = false;
+  ///loop_last_cycle = false;
 
   offset = calc_origin(desc.origin, frame_size) - desc.offset;
 
@@ -104,11 +104,11 @@ SpriteImpl::SpriteImpl(const Surface& surface) :
   frame_size(surface.get_width(), surface.get_height()),
   frame_delay(0),
   array(1,1),
-  loop(true),
-  loop_last_cycle(false),
-  finished(false),
-  frame(0),
-  tick_count(0)
+  loop(true)///,
+  ///loop_last_cycle(false),
+  ///finished(false),
+  ///frame(0),
+  ///tick_count(0)
 {
   void* this_ = this;
   ceu_sys_go(&CEU_APP, CEU_IN_SPRITE_IMPL_NEW, &this_);
@@ -123,29 +123,29 @@ SpriteImpl::~SpriteImpl()
 void
 SpriteImpl::update(float delta)
 {
-  if (finished || frame_delay == 0)
-    return;
+  ///if (finished || frame_delay == 0)
+    ///return;
 
-  int total_time = frame_delay * (array.width * array.height);
-  tick_count += int(delta * 1000.0f);
-  if (tick_count >= total_time)
-  {
-    if (loop)
-    {
-      loop_last_cycle = true;
-      tick_count = tick_count % total_time;
-      frame = tick_count / frame_delay;
-    }
-    else
-    {
-      finished = true;
-    }
-  }
-  else
-  {
-    loop_last_cycle = false;
-    frame = tick_count / frame_delay;
-  }
+  ///int total_time = frame_delay * (array.width * array.height);
+  ///tick_count += int(delta * 1000.0f);
+  ///if (tick_count >= total_time)
+  ///{
+    ///if (loop)
+    ///{
+      ///loop_last_cycle = true;
+      ///tick_count = tick_count % total_time;
+      ///frame = tick_count / frame_delay;
+    ///}
+    ///else
+    ///{
+      ///finished = true;
+    ///}
+  ///}
+  ///else
+  ///{
+    ///loop_last_cycle = false;
+    ///frame = tick_count / frame_delay;
+  ///}
 
   tceu__SpriteImpl___float p = {this, delta};
   ceu_sys_go(&CEU_APP, CEU_IN_SPRITE_IMPL_UPDATE, &p);
@@ -164,10 +164,10 @@ SpriteImpl::render(int x, int y, Framebuffer& fb)
 void
 SpriteImpl::restart()
 {
-  finished = false;
-  loop_last_cycle = false;
-  frame = 0;
-  tick_count = 0;
+  ///finished = false;
+  ///loop_last_cycle = false;
+  ///frame = 0;
+  ///tick_count = 0;
 
   void* this_ = this;
   ceu_sys_go(&CEU_APP, CEU_IN_SPRITE_IMPL_RESTART, &this_);
@@ -176,7 +176,7 @@ SpriteImpl::restart()
 void
 SpriteImpl::finish()
 {
-  finished = true;
+  ///finished = true;
 
   void* this_ = this;
   ceu_sys_go(&CEU_APP, CEU_IN_SPRITE_IMPL_FINISH, &this_);

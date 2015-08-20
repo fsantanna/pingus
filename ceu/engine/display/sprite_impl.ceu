@@ -22,59 +22,58 @@ do
         // TODO(remove)
         __sprite_impl_ok = __sprite_impl_ok + 1;
     with
-        if me.frame_delay != 0 then
-            var int total_time = me.frame_delay *
-                                (me.array.width * me.array.height);
-            loop do
-                var int frame__ = 0;
-_assert(frame__ == me.frame);
-                var bool loop_last_cycle__ = false;
-_assert(loop_last_cycle__ == me.loop_last_cycle);
-                var int tick_count = 0;
+        var int total_time = me.frame_delay *
+                            (me.array.width * me.array.height);
+
+        // RESTART LOOP
+        loop do
+            me.loop_last_cycle = false;
+            me.finished = false;
+            me.frame = 0;
+
+            if me.frame_delay == 0 then
+                await FOREVER;
+            end
+
+            var int tick_count = 0;
+
+            par/or do
+                AWAIT_UNTIL_MYSELF(SPRITE_IMPL_RESTART);
+            with
                 par/or do
-                    AWAIT_UNTIL_MYSELF(SPRITE_IMPL_RESTART);
+                    AWAIT_UNTIL_MYSELF(SPRITE_IMPL_FINISH);
                 with
-                    par/or do
-                        AWAIT_UNTIL_MYSELF(SPRITE_IMPL_FINISH);
-                    with
+                    // CONTINUOUS SPRITES LOOP (this->loop==true)
+                    loop do
                         loop do
-                            loop do
-                                var _SpriteImpl&& me_;
-                                var float dt;
-                                (me_, dt) = await SPRITE_IMPL_UPDATE
-                                            until me_ == &&this.me;
-                                tick_count = tick_count + (int)(dt * 1000);
+                            var _SpriteImpl&& me_;
+                            var float dt;
+                            (me_, dt) = await SPRITE_IMPL_UPDATE
+                                        until me_ == &&this.me;
+                            tick_count = tick_count + (int)(dt * 1000);
 
-                                if tick_count >= total_time then
-                                    if me.loop_ then
-                                        tick_count = tick_count % total_time;
-_assert(tick_count == me.tick_count);
-                                        frame__ = tick_count / me.frame_delay;
-_assert(frame__ == me.frame);
-                                    end
-                                    break;
-                                else
-                                    loop_last_cycle__ = false;
-                                    frame__ = tick_count / me.frame_delay;
-_assert(frame__ == me.frame);
-_assert(tick_count == me.tick_count);
+                            if tick_count >= total_time then
+                                if me.loop_ then
+                                    me.loop_last_cycle = true;
+                                    tick_count = tick_count % total_time;
+                                    me.frame = tick_count / me.frame_delay;
                                 end
-
-                            end
-                            if me.loop_ then
-                                loop_last_cycle__ = true;
-_assert(loop_last_cycle__ == me.loop_last_cycle);
-                            else
                                 break;
+                            else
+                                me.loop_last_cycle = false;
+                                me.frame = tick_count / me.frame_delay;
                             end
+
+                        end
+                        if not me.loop_ then
+                            break;
                         end
                     end
-                    await FOREVER;
                 end
-_assert(frame__ == me.frame);
+                me.finished = true;
+                await FOREVER;
             end
         end
-        await FOREVER;
     end
     //_printf("delete sprite %p\n", &&this.me);
 end
