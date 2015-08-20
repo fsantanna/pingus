@@ -149,8 +149,8 @@ do
     par do
         every me_ in SPRITE_DELETE do
             if __sprite_deleting != 1 then
-                _printf("ASR :: [%p] %d\n", me_, __sprite_deleting);
-                _assert(__sprite_deleting == 1);
+                _printf("ASR-SPRITE :: [%p] %d\n", me_, __sprite_deleting);
+                //_assert(__sprite_deleting == 1);
             end
             __sprite_deleting = __sprite_deleting - 1;
         end

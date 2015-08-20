@@ -99,7 +99,7 @@ do
     par do
         every SPRITE_IMPL_DELETE do
             if __sprite_impl_deleting != 1 then
-                _printf("ASR :: %d\n", __sprite_impl_deleting);
+                _printf("ASR-SPRITEIMPL :: %d\n", __sprite_impl_deleting);
                 _assert(__sprite_impl_deleting == 1);
             end
             __sprite_impl_deleting = __sprite_impl_deleting - 1;

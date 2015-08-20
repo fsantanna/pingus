@@ -33,6 +33,7 @@ Sprite::Sprite() :
   impl()
 {
 //printf("1>>>>>[%p]\n", this);
+//assert(0);
   void* this_ = this;
   ceu_sys_go(&CEU_APP, CEU_IN_SPRITE_NEW_NONE, &this_);
 }
@@ -103,6 +104,8 @@ Sprite::~Sprite()
   if (! this->XXX_is_copy) {
     void* this_ = this;
     ceu_sys_go(&CEU_APP, CEU_IN_SPRITE_DELETE, &this_);
+  } else {
+    //printf("...\n");
   }
 }
 
