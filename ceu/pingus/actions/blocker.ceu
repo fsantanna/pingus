@@ -1,0 +1,57 @@
+#ifndef _BLOCKER_CEU
+#define _BLOCKER_CEU
+
+native/pre do
+    ##include "../src/pingus/pingu_holder.hpp"
+    ##include "../src/pingus/world.hpp"
+    ##include "../src/pingus/pingu.hpp"
+    ##include "../src/pingus/pingu_action.hpp"
+    ##include "../src/pingus/actions/blocker.hpp"
+    ##define Actions__Blocker Actions::Blocker
+end
+native @plain _Actions__Blocker;
+
+input (_Actions__Blocker&&) BLOCKER_NEW;
+input (_PinguAction&&)      PINGU_ACTION_DELETE;
+input (_Actions__Blocker&&) BLOCKER_UPDATE;
+
+class Blocker with
+    var _Actions__Blocker& me;
+do
+    par/or do
+        AWAIT_UNTIL_MYSELF(_PinguAction,PINGU_ACTION_DELETE);
+    with
+        loop do
+            AWAIT_UNTIL_MYSELF(_Actions__Blocker,BLOCKER_UPDATE);
+            if not me.standing_on_ground() then
+                me.pingu:set_action({ActionName::FALLER});
+                break;
+                ///escape {ActionName::FALLER};
+            end
+
+            // FIXME: PinguHolder iterations should be handled otherwise
+            {
+                /// XXX_CPP
+                PinguHolder* pingus = WorldObj::get_world()->get_pingus();
+                for(PinguIter i = pingus->begin(); i != pingus->end(); ++i)
+                    ((CEU_Blocker*)_STK_ORG)->me->catch_pingu(*i);
+            };
+            me.sprite.update();
+        end
+    end
+    ///escape {ActionName::WALKER};
+    await FOREVER;
+end
+
+class BlockerFactory with
+do
+    every me_ in BLOCKER_NEW do
+        spawn Blocker with
+            this.me = &_XXX_PTR2REF(me_);
+        end;
+    end
+end
+
+var BlockerFactory _;
+
+#endif

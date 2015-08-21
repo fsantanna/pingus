@@ -1,0 +1,101 @@
+#ifndef _BASHER_CEU
+#define _BASHER_CEU
+
+native/pre do
+    ##include "../src/engine/sound/sound.hpp"
+    ##include "../src/pingus/pingu_enums.hpp"
+    ##include "../src/pingus/pingu.hpp"
+    ##include "../src/pingus/pingu_action.hpp"
+    ##include "../src/pingus/actions/basher.hpp"
+    ##define Actions__Basher Actions::Basher
+end
+native @plain _Actions__Basher;
+
+input (_Actions__Basher&&) BASHER_NEW;
+input (_PinguAction&&)     PINGU_ACTION_DELETE;
+input (_Actions__Basher&&) BASHER_UPDATE;
+
+class Basher with
+    var _Actions__Basher& me;
+do
+    par/or do
+        AWAIT_UNTIL_MYSELF(_PinguAction,PINGU_ACTION_DELETE);
+    with
+        /// TODO: bug?
+        loop do
+            AWAIT_UNTIL_MYSELF(_Actions__Basher,BASHER_UPDATE);
+            ///me.sprite[me.pingu:direction].update();
+        end
+    with
+        loop i do
+            AWAIT_UNTIL_MYSELF(_Actions__Basher,BASHER_UPDATE);
+            me.sprite[me.pingu:direction].update(); /// TODO: bug?
+            AWAIT_UNTIL_MYSELF(_Actions__Basher,BASHER_UPDATE);
+            me.sprite[me.pingu:direction].update(); /// TODO: bug?
+            AWAIT_UNTIL_MYSELF(_Actions__Basher,BASHER_UPDATE);
+            me.sprite[me.pingu:direction].update(); /// TODO: bug?
+
+            if not me.walk_forward() then
+                // FIXME: set_action() in walk_forward() makes the Basher 
+                // object invalid, thus making all further access illegal and 
+                // thus forces the return here
+                break;
+            end
+
+            // If on walking forward the Basher has now walked on to water or lava
+            if me.rel_getpixel(0,-1) == {Groundtype::GP_WATER} or
+               me.rel_getpixel(0,-1) == {Groundtype::GP_LAVA}
+            then
+                me.pingu:set_action({ActionName::DROWN});
+                break;
+                ///escape {ActionName::DROWN};
+
+            // If walking on to something (i.e. hasn't fallen)
+            else/if me.rel_getpixel(0,-1) != {Groundtype::GP_NOTHING}
+            then
+                // If the Basher has walked into something that it won't be 
+                // able to bash
+                if me.rel_getpixel(0,0)             == {Groundtype::GP_SOLID} or
+                   me.rel_getpixel(0,_pingu_height) == {Groundtype::GP_SOLID}
+                then
+                    // Change direction and let walk code walk forward/up to get out.
+                    { Sound::PingusSound::play_sound("chink"); };
+                    me.pingu:direction.change();
+                    me.pingu:set_action({ActionName::WALKER});
+                    break;
+                    ///escape {ActionName::WALKER};
+                else/if me.have_something_to_dig() then
+                    // We only bash every second step, cause the Pingus would
+                    // get trapped otherwise in the bashing area.
+                    if i%2 == 1 then
+                        me.bash();
+                    end
+                else/if ((float)(me.sprite[me.pingu:direction].get_current_frame())) /
+                        ((float)(me.sprite[me.pingu:direction].get_frame_count()))
+                            > 0.6
+                    // FIXME: Game logic must be separate from Sprite
+                    // FIXME: EVIL! Engine must not relay on graphic
+                then
+                    me.pingu:set_action({ActionName::WALKER});
+                    break;
+                    ///escape {ActionName::WALKER};
+                end
+            end
+        end
+    end
+    ///escape {ActionName::WALKER};
+    await FOREVER;
+end
+
+class BasherFactory with
+do
+    every me_ in BASHER_NEW do
+        spawn Basher with
+            this.me = &_XXX_PTR2REF(me_);
+        end;
+    end
+end
+
+var BasherFactory _;
+
+#endif

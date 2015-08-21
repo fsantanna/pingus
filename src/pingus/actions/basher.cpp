@@ -25,13 +25,15 @@
 #include "pingus/worldobj.hpp"
 #include "util/log.hpp"
 
+#include "ceu_vars.h"
+
 namespace Actions {
 
 Basher::Basher (Pingu* p) :
   PinguAction(p),
   sprite(),
   bash_radius("pingus/common/bash_radius_gfx", "pingus/common/bash_radius"),
-  basher_c(0),
+  ///basher_c(0),
   first_bash(true),
   bash_reach()
 {
@@ -47,6 +49,9 @@ Basher::Basher (Pingu* p) :
   // Start a bash even so the action will stops instantly after the
   // first bash
   bash();
+
+  void* this_ = this;
+  ceu_sys_go(&CEU_APP, CEU_IN_BASHER_NEW, &this_);
 }
 
 void
@@ -58,8 +63,9 @@ Basher::draw (SceneContext& gc)
 void
 Basher::update ()
 {
-  sprite[pingu->direction].update();
+  ///sprite[pingu->direction].update();
 
+/*
   ++basher_c;
   if (basher_c % 3 == 0)
   {
@@ -104,6 +110,10 @@ Basher::update ()
       }
     }
   }
+*/
+
+  void* this_ = this;
+  ceu_sys_go(&CEU_APP, CEU_IN_BASHER_UPDATE, &this_);
 }
 
 void

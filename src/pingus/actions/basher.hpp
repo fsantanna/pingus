@@ -28,7 +28,7 @@ class Basher : public PinguAction
 private:
   StateSprite   sprite;
   CollisionMask bash_radius;
-  int  basher_c;
+  ///int  basher_c;
   bool first_bash;
 
   /** The no. of pixels ahead that a Basher checks for something bashable.

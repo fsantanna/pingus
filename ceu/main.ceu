@@ -34,10 +34,11 @@ native @nohold _delete();
                        until me_ == &&this.me; \
     end
 
+#include "pingus/actions/basher.ceu"
+#include "pingus/actions/blocker.ceu"
+#include "pingus/actions/jumper.ceu"
 #include "engine/display/sprite.ceu"
 #include "pingus/actions/waiter.ceu"
-#include "pingus/actions/jumper.ceu"
-#include "pingus/actions/blocker.ceu"
 
 input int SDL_DT;
 

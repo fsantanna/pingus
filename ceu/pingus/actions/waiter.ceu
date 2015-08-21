@@ -1,0 +1,49 @@
+#ifndef _WAITER_CEU
+#define _WAITER_CEU
+
+native/pre do
+    ##include "../src/pingus/pingu.hpp"
+    ##include "../src/pingus/pingu_action.hpp"
+    ##include "../src/pingus/actions/waiter.hpp"
+    ##define Actions__Waiter Actions::Waiter
+end
+native @plain _Actions__Waiter;
+
+input (_Actions__Waiter&&) WAITER_NEW;
+input (_PinguAction&&)     PINGU_ACTION_DELETE;
+input (_Actions__Waiter&&) WAITER_UPDATE;
+
+class Waiter with
+    var _Actions__Waiter& me;
+do
+    par/or do
+        AWAIT_UNTIL_MYSELF(_PinguAction,PINGU_ACTION_DELETE);
+    with
+        var float countdown = 2.0;
+        loop do
+            AWAIT_UNTIL_MYSELF(_Actions__Waiter,WAITER_UPDATE);
+            me.sprite.update();
+            if countdown < 0 then
+                me.pingu:set_action({ActionName::WALKER});
+                break;
+                ///escape {ActionName::WALKER};
+            end
+            countdown = countdown - 0.025;
+        end
+    end
+    ///escape {ActionName::WALKER};
+    await FOREVER;
+end
+
+class WaiterFactory with
+do
+    every me_ in WAITER_NEW do
+        spawn Waiter with
+            this.me = &_XXX_PTR2REF(me_);
+        end;
+    end
+end
+
+var WaiterFactory _;
+
+#endif
