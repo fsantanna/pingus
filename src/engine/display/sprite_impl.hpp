@@ -51,6 +51,7 @@ public:
   SpriteImpl();
   SpriteImpl(const SpriteDescription& desc, ResourceModifier::Enum mod = ResourceModifier::ROT0);
   SpriteImpl(const Surface& surface_);
+  SpriteImpl(const SpriteImpl& that) = delete;
   ~SpriteImpl();
 
   void update(float delta);

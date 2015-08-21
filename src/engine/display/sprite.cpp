@@ -112,121 +112,122 @@ Sprite::~Sprite()
 void
 Sprite::render(int x, int y, Framebuffer& fb)
 {
-  if (impl.get())
+  ///if (impl != NULL)
     impl->render(x, y, fb);
 }
 
 int
 Sprite::get_width() const
 {
-  if (impl.get())
+  ///if (impl != NULL)
     return impl->frame_size.width;
-  else
-    return 0;
+  ///else
+    ///return 0;
 }
 
 int
 Sprite::get_height() const
 {
-  if (impl.get())
+  ///if (impl != NULL)
     return impl->frame_size.height;
-  else
-    return 0;
+  ///else
+    ///return 0;
 }
 
 Sprite::operator bool() const
 {
-  return (impl.get() != 0);
+  ///return (impl != NULL != 0);
+  return true;
 }
 
 void
 Sprite::update(float delta)
 {
-  if (impl.get())
+  ///if (impl != NULL)
     impl->update(delta);
 }
 
 void
 Sprite::set_frame(int i)
 {
-  if (impl.get())
+  ///if (impl != NULL)
     impl->frame = i;
 }
 
 int
 Sprite::get_frame_count() const
 {
-  if (impl.get())
+  ///if (impl != NULL)
     return (impl->array.width * impl->array.height);
-  else
-    return 0;
+  ///else
+    ///return 0;
 }
 
 bool
 Sprite::is_finished() const
 {
-  if (impl.get())
+  ///if (impl != NULL)
     return impl->finished;
-  else
-    return true;
+  ///else
+    ///return true;
 }
 
 bool
 Sprite::is_looping() const
 {
-  if (impl.get())
+  ///if (impl != NULL)
     return impl->loop_last_cycle;
-  else
-    return false;
+  ///else
+    ///return false;
 }
 
 void
 Sprite::set_play_loop(bool loop)
 {
-  if (impl.get())
+  ///if (impl != NULL)
     impl->loop = loop;
 }
 
 int
 Sprite::get_current_frame() const
 {
-  if (impl.get())
+  ///if (impl != NULL)
     return impl->frame;
-  else
-    return 0;
+  ///else
+    ///return 0;
 }
 
 void
 Sprite::restart()
 {
-  if (impl.get())
+  ///if (impl != NULL)
     impl->restart();
 }
 
 void
 Sprite::finish()
 {
-  if (impl.get())
+  ///if (impl != NULL)
     impl->finish();
 }
 
 Vector2i
 Sprite::get_offset() const
 {
-  if (impl.get())
+  ///if (impl != NULL)
     return impl->offset;
-  else
-    return Vector2i();
+  ///else
+    ///return Vector2i();
 }
 
 void
 Sprite::set_hotspot(Origin origin, int x, int y)
 {
-  if (impl.get())
-  {
+  ///if (impl != NULL)
+  ///{
     // FIXME: offset and other stuff should be member of the Sprite, not the SpriteImpl
     impl->offset = calc_origin(origin, impl->frame_size) - Vector2i(x, y);
-  }
+  ///}
 }
 
 /* EOF */

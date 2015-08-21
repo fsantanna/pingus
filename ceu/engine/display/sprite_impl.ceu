@@ -7,110 +7,101 @@ native/pre do
 end
 native @plain _SpriteImpl;
 
-input _SpriteImpl&&         SPRITE_IMPL_NEW;
-input _SpriteImpl&&         SPRITE_IMPL_DELETE;
 input (_SpriteImpl&&,float) SPRITE_IMPL_UPDATE;
 input _SpriteImpl&&         SPRITE_IMPL_RESTART;
 input _SpriteImpl&&         SPRITE_IMPL_FINISH;
 
 class SpriteImpl with
-    var _SpriteImpl& me;
+    function (void)=>_SpriteImpl&& get;
+
+    // constructor
+    var _Surface&&              surface  = null;
+    var _SpriteDescription&&    spr_desc = null;
+    var _ResourceModifier__Enum spr_mod;
 do
-    par/or do
-        AWAIT_UNTIL_MYSELF(_SpriteImpl,SPRITE_IMPL_DELETE);
-        __sprite_impl_deleting = __sprite_impl_deleting + 1; // TODO(remove)
-//_printf("DELETE-IMPL %d\n", __sprite_impl_deleting);
-    with
-        var int total_time = me.frame_delay *
-                            (me.array.width * me.array.height);
+    var _SpriteImpl&? me__;
+    var _SpriteImpl&  me;
 
-        // RESTART LOOP
-        loop do
-            me.loop_last_cycle = false;
-            me.finished = false;
-            me.frame = 0;
-
-            if me.frame_delay == 0 then
-                await FOREVER;
-            end
-
-            var int tick_count = 0;
-
-            par/or do
-                AWAIT_UNTIL_MYSELF(_SpriteImpl,SPRITE_IMPL_RESTART);
+    // constructor
+    //do
+        if surface != null then
+            finalize
+                me__ = &({new SpriteImpl}(*surface));
             with
-                par/or do
-                    AWAIT_UNTIL_MYSELF(_SpriteImpl,SPRITE_IMPL_FINISH);
-                with
-                    // CONTINUOUS SPRITES LOOP (this->loop==true)
-                    loop do
-                        loop do
-                            var _SpriteImpl&& me_;
-                            var float dt;
-                            (me_, dt) = await SPRITE_IMPL_UPDATE
-                                        until me_ == &&this.me;
-                            tick_count = tick_count + (int)(dt * 1000);
+                //_delete(&&me__!);
+            end
+//_printf("NEW IMPL [%p] -> sfc\n", &&me__!);
+        else
+            _assert(spr_desc != null);
+            finalize
+                me__ = &({new SpriteImpl}(
+                        *spr_desc,
+                        (_ResourceModifier__Enum) spr_mod));
+            with
+                //_delete(&&me__!);
+            end
+//_printf("NEW IMPL [%p] -> dsc\n", &&me__!);
+        end
+        me = &me__!;
+    //end
 
-                            if tick_count >= total_time then
-                                if me.loop_ then
-                                    me.loop_last_cycle = true;
-                                    tick_count = tick_count % total_time;
-                                    me.frame = tick_count / me.frame_delay;
-                                end
-                                break;
-                            else
-                                me.loop_last_cycle = false;
+    function (void)=>_SpriteImpl& get do
+        return &&me;
+    end
+
+    var int total_time = me.frame_delay *
+                        (me.array.width * me.array.height);
+
+    // RESTART LOOP
+    loop do
+        me.loop_last_cycle = false;
+        me.finished = false;
+        me.frame = 0;
+
+        if me.frame_delay == 0 then
+            await FOREVER;
+        end
+
+        var int tick_count = 0;
+
+        par/or do
+            AWAIT_UNTIL_MYSELF(_SpriteImpl,SPRITE_IMPL_RESTART);
+        with
+            par/or do
+                AWAIT_UNTIL_MYSELF(_SpriteImpl,SPRITE_IMPL_FINISH);
+            with
+                // CONTINUOUS SPRITES LOOP (this->loop==true)
+                loop do
+                    loop do
+                        var _SpriteImpl&& me_;
+                        var float dt;
+                        (me_, dt) = await SPRITE_IMPL_UPDATE
+                                    until me_ == &&this.me;
+                        tick_count = tick_count + (int)(dt * 1000);
+
+                        if tick_count >= total_time then
+                            if me.loop_ then
+                                me.loop_last_cycle = true;
+                                tick_count = tick_count % total_time;
                                 me.frame = tick_count / me.frame_delay;
                             end
-
-                        end
-                        if not me.loop_ then
                             break;
+                        else
+                            me.loop_last_cycle = false;
+                            me.frame = tick_count / me.frame_delay;
                         end
+
+                    end
+                    if not me.loop_ then
+                        break;
                     end
                 end
-                me.finished = true;
-                await FOREVER;
             end
+            me.finished = true;
+            await FOREVER;
         end
     end
     //_printf("delete sprite %p\n", &&this.me);
 end
-
-class SpriteImplFactory with
-do
-    every me_ in SPRITE_IMPL_NEW do
-        spawn SpriteImpl with
-            this.me = &_XXX_PTR2REF(me_);
-            //_printf("NEW %p vs %p\n", me_, &&this.me);
-        end;
-    end
-end
-
-var SpriteImplFactory _;
-
-// TODO(remove)
-class SpriteImplCheck__ with
-do
-    native do
-        // check if all DELETE effect exactly one instance
-        int _sprite_impl_deleting = 0;
-    end
-    par do
-        every SPRITE_IMPL_DELETE do
-            if __sprite_impl_deleting != 1 then
-                _printf("ASR-SPRITEIMPL :: %d\n", __sprite_impl_deleting);
-                _assert(__sprite_impl_deleting == 1);
-            end
-            __sprite_impl_deleting = __sprite_impl_deleting - 1;
-        end
-    with
-        every me_ in SPRITE_IMPL_DELETE do
-            _assert(me_ != null);
-        end
-    end
-end
-
-var SpriteImplCheck__ _;
 
 #endif

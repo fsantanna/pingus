@@ -8,13 +8,7 @@ native/pre do
     ##include "engine/display/sprite_description.hpp"
     ##include "pingus/resource.hpp"
     ##define loop_ loop
-
-    ##define Resource__load_sprite_desc(name) Resource::load_sprite_desc(name)
-    ##define ResourceModifier__Enum ResourceModifier::Enum
 end
-native @plain _Sprite, _Surface, _SpriteDescription;
-native @plain _ResourceModifier__Enum;
-native @pure _Resource__load_sprite_desc(), _Pathname();
 
 #include "sprite_impl.ceu"
 
@@ -29,33 +23,29 @@ input (_Sprite&&,float) SPRITE_UPDATE;
 input _Sprite&&         SPRITE_RESTART;
 input _Sprite&&         SPRITE_FINISH;
 
+native do
+    SpriteDescription XXX_spr_desc;
+end
+
 class Sprite with
     var _Sprite& me;
 
     // constructor
-    var _Surface&&           surface  = null;
-    var _SpriteDescription&& spr_desc = null;
-    var int                  modifier = {ResourceModifier::ROT0};
-    var _ResDescriptor&&     res_desc = null;
-    var char&&               name     = null;
+    var _Surface&&              surface  = null;
+    var _SpriteDescription&&    spr_desc = null;
+    var _ResourceModifier__Enum modifier = {ResourceModifier::ROT0};
+    var _ResDescriptor&&        res_desc = null;
+    var char&&                  name     = null;
 do
-#if 0
-    pool SpriteImpl[1] impls;
-    var SpriteImpl&&? impl;
-#endif
-
     // constructor
+    var _SpriteDescription&& spr_desc_ = spr_desc;
     do
         if surface != null then
+#if 0
             me.impl = {std::make_shared<SpriteImpl>}(*surface);
                 // shared pointer, destroyed when me.impl is destroyed
-#if 0
-            me.impl = spawn SpriteImpl in impls with
-                        this.surface = surface;
-                      end;
 #endif
         else
-            var _SpriteDescription&& spr_desc_ = spr_desc;
             {
                 SpriteDescription spr_desc_v;
             };
@@ -67,25 +57,27 @@ do
             end
 
             if spr_desc_ == null then
-                _spr_desc_v.filename = _Pathname("images/core/misc/404.png",
-                                                 {Pathname::DATA_PATH});
-                spr_desc_ = &&_spr_desc_v;
+                _XXX_spr_desc.filename = _Pathname("images/core/misc/404.png",
+                                                   {Pathname::DATA_PATH});
+                spr_desc_ = &&_XXX_spr_desc;
             end
 
             _assert(spr_desc_ != null);
+#if 0
             me.impl = {std::make_shared<SpriteImpl>}(
                             *spr_desc_,
                             (_ResourceModifier__Enum) modifier);
                 // shared pointer, destroyed when me.impl is destroyed
-#if 0
-            impl = spawn SpriteImpl in impls with
-                        this.spr_desc = spr_desc_;
-                        this.spr_mod  = res_desc.modifier;
-                   end;
 #endif
         end
-        _assert(me.impl != null);
     end
+
+    var SpriteImpl impl with
+        this.surface  = surface;
+        this.spr_desc = spr_desc_;
+        this.spr_mod  = modifier;
+    end;
+    me.impl = impl.get();
 
     AWAIT_UNTIL_MYSELF(_Sprite,SPRITE_DELETE);
     __sprite_deleting = __sprite_deleting + 1; // TODO(remove)
@@ -131,7 +123,7 @@ do
 //_printf("NEW   [%p] %d\n", me_, __sprite_deleting);
                 this.me       = &_XXX_PTR2REF(me_);
                 this.spr_desc = spr_desc;
-                this.modifier = mod;
+                this.modifier = (_ResourceModifier__Enum)mod;
             end;
         end
     end
@@ -149,7 +141,7 @@ do
     par do
         every me_ in SPRITE_DELETE do
             if __sprite_deleting != 1 then
-                _printf("ASR-SPRITE :: [%p] %d\n", me_, __sprite_deleting);
+                //_printf("ASR-SPRITE :: [%p] %d\n", me_, __sprite_deleting);
                 //_assert(__sprite_deleting == 1);
             end
             __sprite_deleting = __sprite_deleting - 1;

@@ -80,6 +80,8 @@ Resource::load_surface(const ResDescriptor& desc_)
   else
   {
     log_error("failed to load surface: %1%", desc_.res_name);
+printf(">>> %s\n", desc_.res_name.c_str());
+assert(0);
     return Surface(Pathname("images/core/misc/404.png", Pathname::DATA_PATH));
   }
 }

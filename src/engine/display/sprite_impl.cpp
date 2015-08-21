@@ -37,6 +37,8 @@ FramebufferSurface load_framebuffer_surface(const Pathname& filename, ResourceMo
   }
   catch(const std::exception& err)
   {
+printf(">>> %s\n", filename.str().c_str());
+assert(0);
     // return a dummy surface for cases where the image file can't be found
     log_error("%1%", err.what());
     Surface surface(Pathname("images/core/misc/404.png", Pathname::DATA_PATH));
@@ -59,7 +61,7 @@ SpriteImpl::SpriteImpl() :
   ///tick_count()
 {
   void* this_ = this;
-  ceu_sys_go(&CEU_APP, CEU_IN_SPRITE_IMPL_NEW, &this_);
+  ///ceu_sys_go(&CEU_APP, CEU_IN_SPRITE_IMPL_NEW, &this_);
 }
 
 SpriteImpl::SpriteImpl(const SpriteDescription& desc, ResourceModifier::Enum mod) :
@@ -93,7 +95,7 @@ SpriteImpl::SpriteImpl(const SpriteDescription& desc, ResourceModifier::Enum mod
   offset = calc_origin(desc.origin, frame_size) - desc.offset;
 
   void* this_ = this;
-  ceu_sys_go(&CEU_APP, CEU_IN_SPRITE_IMPL_NEW, &this_);
+  ///ceu_sys_go(&CEU_APP, CEU_IN_SPRITE_IMPL_NEW, &this_);
 }
 
 SpriteImpl::SpriteImpl(const Surface& surface) :
@@ -111,13 +113,13 @@ SpriteImpl::SpriteImpl(const Surface& surface) :
   ///tick_count(0)
 {
   void* this_ = this;
-  ceu_sys_go(&CEU_APP, CEU_IN_SPRITE_IMPL_NEW, &this_);
+  ///ceu_sys_go(&CEU_APP, CEU_IN_SPRITE_IMPL_NEW, &this_);
 }
 
 SpriteImpl::~SpriteImpl()
 {
   void* this_ = this;
-  ceu_sys_go(&CEU_APP, CEU_IN_SPRITE_IMPL_DELETE, &this_);
+  ///ceu_sys_go(&CEU_APP, CEU_IN_SPRITE_IMPL_DELETE, &this_);
 }
 
 void
@@ -154,6 +156,9 @@ SpriteImpl::update(float delta)
 void
 SpriteImpl::render(int x, int y, Framebuffer& fb)
 {
+//printf("BAD IMPL [%p] %d,%d,%d\n", this, x-offset.x, y-offset.y, 
+//array.width);
+//fflush(stdout);
   fb.draw_surface(framebuffer_surface,
                   Rect(frame_pos + Vector2i(frame_size.width  * (frame%array.width),
                                             frame_size.height * (frame/array.width)),
