@@ -29,7 +29,7 @@ private:
   StateSprite   sprite;
   CollisionMask bash_radius;
   ///int  basher_c;
-  bool first_bash;
+  ///bool first_bash;
 
   /** The no. of pixels ahead that a Basher checks for something bashable.
       This is initialised using the size of the bash_radius surface. */

@@ -27,6 +27,7 @@ do
             ///me.sprite[me.pingu:direction].update();
         end
     with
+        var bool is_first_bash = true;
         loop i do
             AWAIT_UNTIL_MYSELF(_Actions__Basher,BASHER_UPDATE);
             me.sprite[me.pingu:direction].update(); /// TODO: bug?
@@ -64,7 +65,8 @@ do
                     me.pingu:set_action({ActionName::WALKER});
                     break;
                     ///escape {ActionName::WALKER};
-                else/if me.have_something_to_dig() then
+                else/if is_first_bash or me.have_something_to_dig() then
+                    is_first_bash = false;
                     // We only bash every second step, cause the Pingus would
                     // get trapped otherwise in the bashing area.
                     if i%2 == 1 then

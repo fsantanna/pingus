@@ -34,7 +34,7 @@ Basher::Basher (Pingu* p) :
   sprite(),
   bash_radius("pingus/common/bash_radius_gfx", "pingus/common/bash_radius"),
   ///basher_c(0),
-  first_bash(true),
+  ///first_bash(true),
   bash_reach()
 {
   assert(bash_radius.get_width() % 2 == 0);
@@ -157,12 +157,12 @@ Basher::walk_forward()
 bool
 Basher::have_something_to_dig()
 {
-  if (first_bash)
-  {
-    first_bash = false;
-    return true;
-  }
-  else
+  ///if (first_bash)
+  ///{
+    ///first_bash = false;
+    ///return true;
+  ///}
+  ///else
   {
     // Check that there is something "within" the Basher's reach
     for(int x = 0; x <= bash_reach; ++x)
