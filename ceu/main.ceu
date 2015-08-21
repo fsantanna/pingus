@@ -38,6 +38,7 @@ native @nohold _delete();
 #include "pingus/actions/blocker.ceu"
 #include "pingus/actions/bomber.ceu"
 #include "pingus/actions/digger.ceu"
+#include "pingus/actions/floater.ceu"
 #include "pingus/actions/jumper.ceu"
 #include "engine/display/sprite.ceu"
 #include "pingus/actions/waiter.ceu"

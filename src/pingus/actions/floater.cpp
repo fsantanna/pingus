@@ -20,6 +20,8 @@
 #include "pingus/groundtype.hpp"
 #include "pingus/pingu.hpp"
 
+#include "ceu_vars.h"
+
 namespace Actions {
 
 Floater::Floater(Pingu* p) :
@@ -29,11 +31,15 @@ Floater::Floater(Pingu* p) :
   sprite()
 {
   sprite = Sprite("pingus/player" + pingu->get_owner_str() + "/floater/left");
+
+  void* this_ = this;
+  ceu_sys_go(&CEU_APP, CEU_IN_FLOATER_NEW, &this_);
 }
 
 void
 Floater::update()
 {
+#if 0
   sprite.update ();
 
   pingu->set_velocity(Vector3f(0.0f, 1.0f));
@@ -51,6 +57,10 @@ Floater::update()
   {
     pingu->set_action (ActionName::WALKER);
   }
+#endif
+
+  void* this_ = this;
+  ceu_sys_go(&CEU_APP, CEU_IN_FLOATER_UPDATE, &this_);
 }
 
 void
