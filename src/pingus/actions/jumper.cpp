@@ -19,6 +19,8 @@
 #include "engine/display/scene_context.hpp"
 #include "pingus/pingu.hpp"
 
+#include "ceu_vars.h"
+
 namespace Actions {
 
 Jumper::Jumper (Pingu* p) :
@@ -29,6 +31,9 @@ Jumper::Jumper (Pingu* p) :
                                        pingu->get_owner_str() + "/jumper/left"));
   sprite.load(Direction::RIGHT, Sprite("pingus/player" +
                                        pingu->get_owner_str() + "/jumper/right"));
+
+  void* this_ = this;
+  ceu_sys_go(&CEU_APP, CEU_IN_JUMPER_NEW, &this_);
 }
 
 void
@@ -41,22 +46,25 @@ void
 Jumper::update ()
 {
   // if climber, do a wall-jump, else just jump forward
-  if ((pingu->get_previous_action() == ActionName::CLIMBER))
-    pingu->direction.change();
+  ///if ((pingu->get_previous_action() == ActionName::CLIMBER))
+    ///pingu->direction.change();
 
-  if (pingu->direction.is_left())
-  {
-    pingu->set_velocity(pingu->get_velocity() + Vector3f(-4.58f, -4.58f));
-  }
-  else // if (pingu->direction.is_right())
-  {
-    pingu->set_velocity(pingu->get_velocity() + Vector3f(4.58f, -4.58f));
-  }
+  ///if (pingu->direction.is_left())
+  ///{
+    ///pingu->set_velocity(pingu->get_velocity() + Vector3f(-4.58f, -4.58f));
+  ///}
+  ///else // if (pingu->direction.is_right())
+  ///{
+    ///pingu->set_velocity(pingu->get_velocity() + Vector3f(4.58f, -4.58f));
+  ///}
 
   // Move the pingu in the air, so that it can start 'falling'
-  pingu->set_y(pingu->get_y() - 1);
+  ///pingu->set_y(pingu->get_y() - 1);
 
-  pingu->set_action (ActionName::FALLER);
+  ///pingu->set_action (ActionName::FALLER);
+
+  void* this_ = this;
+  ceu_sys_go(&CEU_APP, CEU_IN_JUMPER_UPDATE, &this_);
 }
 
 } // namespace Actions

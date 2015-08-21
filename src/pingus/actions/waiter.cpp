@@ -19,28 +19,36 @@
 #include "engine/display/scene_context.hpp"
 #include "pingus/pingu.hpp"
 
+#include "ceu_vars.h"
+
 namespace Actions {
 
 Waiter::Waiter (Pingu* p) :
   PinguAction(p),
-  countdown(2.0f),
+  ///countdown(2.0f),
   sprite()
 {
   sprite = Sprite("pingus/player" + pingu->get_owner_str() + "/waiter/left");
+
+  void* this_ = this;
+  ceu_sys_go(&CEU_APP, CEU_IN_WAITER_NEW, &this_);
 }
 
 void
 Waiter::update ()
 {
-  sprite.update();
+  ///sprite.update();
 
-  if (countdown < 0)
-  {
-    pingu->set_action(ActionName::WALKER);
-    return;
-  }
+  ///if (countdown < 0)
+  ///{
+    ///pingu->set_action(ActionName::WALKER);
+    ///return;
+  ///}
 
-  countdown -= 0.025f;
+  ///countdown -= 0.025f;
+
+  void* this_ = this;
+  ceu_sys_go(&CEU_APP, CEU_IN_WAITER_UPDATE, &this_);
 }
 
 void

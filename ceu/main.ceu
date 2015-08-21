@@ -35,6 +35,9 @@ native @nohold _delete();
     end
 
 #include "engine/display/sprite.ceu"
+#include "pingus/actions/waiter.ceu"
+#include "pingus/actions/jumper.ceu"
+#include "pingus/actions/blocker.ceu"
 
 input int SDL_DT;
 

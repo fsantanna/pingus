@@ -28,7 +28,7 @@ namespace Actions {
 class Waiter : public PinguAction
 {
 private:
-  float countdown;
+  ///float countdown;
   Sprite sprite;
 
 public:
@@ -40,7 +40,7 @@ public:
   void update ();
 
 private:
-  Waiter (const Waiter&);
+  Waiter (const Waiter&) = delete;      ///
   Waiter& operator= (const Waiter&);
 };
 
