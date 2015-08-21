@@ -30,12 +30,13 @@ native @nohold _delete();
 
 #define AWAIT_UNTIL_MYSELF(TP,EVT)             \
     do                                         \
-        var TP&& me_ = await EVT               \
-                       until me_ == &&this.me; \
+        var TP&& abc = await EVT               \
+                       until abc == &&this.me; \
     end
 
 #include "pingus/actions/basher.ceu"
 #include "pingus/actions/blocker.ceu"
+#include "pingus/actions/bomber.ceu"
 #include "pingus/actions/jumper.ceu"
 #include "engine/display/sprite.ceu"
 #include "pingus/actions/waiter.ceu"

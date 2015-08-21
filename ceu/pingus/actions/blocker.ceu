@@ -32,7 +32,7 @@ do
             // FIXME: PinguHolder iterations should be handled otherwise
             {
                 /// XXX_CPP
-                PinguHolder* pingus = WorldObj::get_world()->get_pingus();
+                static PinguHolder* pingus = WorldObj::get_world()->get_pingus();
                 for(PinguIter i = pingus->begin(); i != pingus->end(); ++i)
                     ((CEU_Blocker*)_STK_ORG)->me->catch_pingu(*i);
             };

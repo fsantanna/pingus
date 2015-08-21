@@ -28,10 +28,10 @@ namespace Actions {
 class Bomber : public PinguAction
 {
 private:
-  bool particle_thrown;
-  bool sound_played;
+  ///bool particle_thrown;
+  ///bool sound_played;
   bool gfx_exploded;
-  bool colmap_exploded;
+  ///bool colmap_exploded;
 
   CollisionMask bomber_radius;
   StateSprite sprite;

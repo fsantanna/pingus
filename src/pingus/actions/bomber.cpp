@@ -24,14 +24,16 @@
 #include "pingus/pingu_enums.hpp"
 #include "pingus/world.hpp"
 
+#include "ceu_vars.h"
+
 namespace Actions {
 
 Bomber::Bomber (Pingu* p) :
   PinguAction(p),
-  particle_thrown(false),
-  sound_played(false),
+  ///particle_thrown(false),
+  ///sound_played(false),
   gfx_exploded(false),
-  colmap_exploded(false),
+  ///colmap_exploded(false),
   bomber_radius("other/bomber_radius_gfx", "other/bomber_radius"),
   sprite(),
   explo_surf(Sprite("pingus/player" + pingu->get_owner_str() + "/explo"))
@@ -40,6 +42,9 @@ Bomber::Bomber (Pingu* p) :
   sprite.load(Direction::RIGHT, "pingus/player" + pingu->get_owner_str() + "/bomber/right");
 
   WorldObj::get_world()->play_sound("ohno", pingu->get_pos ());
+
+  void* this_ = this;
+  ceu_sys_go(&CEU_APP, CEU_IN_BOMBER_NEW, &this_);
 }
 
 void
@@ -57,6 +62,7 @@ Bomber::draw (SceneContext& gc)
 void
 Bomber::update ()
 {
+#if 0
   sprite.update ();
 
   Movers::LinearMover mover(WorldObj::get_world(), pingu->get_pos());
@@ -110,6 +116,10 @@ Bomber::update ()
   {
     pingu->set_status(Pingu::PS_DEAD);
   }
+#endif
+
+  void* this_ = this;
+  ceu_sys_go(&CEU_APP, CEU_IN_BOMBER_UPDATE, &this_);
 }
 
 } // namespace Actions

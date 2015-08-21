@@ -21,20 +21,16 @@ do
     par/or do
         AWAIT_UNTIL_MYSELF(_PinguAction,PINGU_ACTION_DELETE);
     with
-        /// TODO: bug?
         loop do
             AWAIT_UNTIL_MYSELF(_Actions__Basher,BASHER_UPDATE);
-            ///me.sprite[me.pingu:direction].update();
+            me.sprite[me.pingu:direction].update();
         end
     with
         var bool is_first_bash = true;
         loop i do
             AWAIT_UNTIL_MYSELF(_Actions__Basher,BASHER_UPDATE);
-            me.sprite[me.pingu:direction].update(); /// TODO: bug?
             AWAIT_UNTIL_MYSELF(_Actions__Basher,BASHER_UPDATE);
-            me.sprite[me.pingu:direction].update(); /// TODO: bug?
             AWAIT_UNTIL_MYSELF(_Actions__Basher,BASHER_UPDATE);
-            me.sprite[me.pingu:direction].update(); /// TODO: bug?
 
             if not me.walk_forward() then
                 // FIXME: set_action() in walk_forward() makes the Basher 
