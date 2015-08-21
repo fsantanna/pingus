@@ -22,21 +22,27 @@
 #include "pingus/world.hpp"
 #include "pingus/worldobj.hpp"
 
+#include "ceu_vars.h"
+
 namespace Actions {
 
 Digger::Digger(Pingu* p) :
   PinguAction(p),
   digger_radius("pingus/common/digger_radius_gfx", "pingus/common/digger_radius"),
   digger_radius_final("pingus/common/digger_radius_final_gfx", "pingus/common/digger_radius_final_gfx"),
-  sprite(),
-  delay_count(0)
+  sprite()///,
+  ///delay_count(0)
 {
   sprite = Sprite("pingus/player" + pingu->get_owner_str() + "/digger/left");
+
+  void* this_ = this;
+  ceu_sys_go(&CEU_APP, CEU_IN_DIGGER_NEW, &this_);
 }
 
 void
 Digger::update()
 {
+#if 0
   sprite.update();
 
   delay_count += 1;
@@ -58,6 +64,10 @@ Digger::update()
       dig(false);
     }
   }
+#endif
+
+  void* this_ = this;
+  ceu_sys_go(&CEU_APP, CEU_IN_DIGGER_UPDATE, &this_);
 }
 
 bool

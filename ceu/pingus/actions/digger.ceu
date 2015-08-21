@@ -1,0 +1,59 @@
+#ifndef _DIGGER_CEU
+#define _DIGGER_CEU
+
+native/pre do
+    ##include "../src/pingus/pingu.hpp"
+    ##include "../src/pingus/pingu_action.hpp"
+    ##include "../src/pingus/actions/digger.hpp"
+    ##define Actions__Digger Actions::Digger
+end
+native @plain _Actions__Digger;
+
+input (_Actions__Digger&&) DIGGER_NEW;
+input (_PinguAction&&)     PINGU_ACTION_DELETE;
+input (_Actions__Digger&&) DIGGER_UPDATE;
+
+class Digger with
+    var _Actions__Digger& me;
+do
+    par/or do
+        AWAIT_UNTIL_MYSELF(_PinguAction,PINGU_ACTION_DELETE);
+    with
+        var int delay_count = 0;
+        loop do
+            AWAIT_UNTIL_MYSELF(_Actions__Digger,DIGGER_UPDATE);
+            me.sprite.update();
+            delay_count = delay_count + 1;
+
+            if me.rel_getpixel(0,-1) == {Groundtype::GP_WATER} or
+               me.rel_getpixel(0,-1) == {Groundtype::GP_LAVA}
+            then
+                me.pingu:set_action({ActionName::DROWN});
+                break;
+                ///escape {ActionName::DROWN};
+            else/if not me.have_something_to_dig() then
+                me.dig(true);
+                me.pingu:set_action({ActionName::WALKER});
+                break;
+                ///escape {ActionName::WALKER};
+            else/if delay_count%4 == 0 then
+                me.dig(false);
+            end
+        end
+    end
+    ///escape {ActionName::WALKER};
+    await FOREVER;
+end
+
+class DiggerFactory with
+do
+    every me_ in DIGGER_NEW do
+        spawn Digger with
+            this.me = &_XXX_PTR2REF(me_);
+        end;
+    end
+end
+
+var DiggerFactory _;
+
+#endif
