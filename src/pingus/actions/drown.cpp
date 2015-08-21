@@ -19,6 +19,8 @@
 #include "engine/display/scene_context.hpp"
 #include "pingus/pingu.hpp"
 
+#include "ceu_vars.h"
+
 namespace Actions {
 
 Drown::Drown (Pingu* p) :
@@ -29,6 +31,9 @@ Drown::Drown (Pingu* p) :
                                        pingu->get_owner_str() + "/drownfall/left"));
   sprite.load(Direction::RIGHT, Sprite("pingus/player" +
                                        pingu->get_owner_str() + "/drownfall/right"));
+
+  void* this_ = this;
+  ceu_sys_go(&CEU_APP, CEU_IN_DROWN_NEW, &this_);
 }
 
 void
@@ -40,11 +45,16 @@ Drown::draw (SceneContext& gc)
 void
 Drown::update ()
 {
+#if 0
   sprite[pingu->direction].update();
   if (sprite[pingu->direction].is_finished())
   {
     pingu->set_status(Pingu::PS_DEAD);
   }
+#endif
+
+  void* this_ = this;
+  ceu_sys_go(&CEU_APP, CEU_IN_DROWN_UPDATE, &this_);
 }
 
 } // namespace Actions

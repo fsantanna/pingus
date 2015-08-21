@@ -1,0 +1,47 @@
+#ifndef _DROWN_CEU
+#define _DROWN_CEU
+
+native/pre do
+    ##include "../src/pingus/pingu.hpp"
+    ##include "../src/pingus/pingu_action.hpp"
+    ##include "../src/pingus/actions/drown.hpp"
+    ##define Actions__Drown Actions::Drown
+end
+native @plain _Actions__Drown;
+
+input (_Actions__Drown&&) DROWN_NEW;
+input (_PinguAction&&)     PINGU_ACTION_DELETE;
+input (_Actions__Drown&&) DROWN_UPDATE;
+
+class Drown with
+    var _Actions__Drown& me;
+do
+    par/or do
+        AWAIT_UNTIL_MYSELF(_PinguAction,PINGU_ACTION_DELETE);
+    with
+        loop do
+            AWAIT_UNTIL_MYSELF(_Actions__Drown,DROWN_UPDATE);
+            me.sprite[me.pingu:direction].update();
+            if me.sprite[me.pingu:direction].is_finished() then
+                me.pingu:set_status({Pingu::PS_DEAD});
+                break;
+                ///escape {ActionName::PS_DEAD}; /// TODO: not an action
+            end
+        end
+    end
+    ///escape {ActionName::WALKER};
+    await FOREVER;
+end
+
+class DrownFactory with
+do
+    every me_ in DROWN_NEW do
+        spawn Drown with
+            this.me = &_XXX_PTR2REF(me_);
+        end;
+    end
+end
+
+var DrownFactory _;
+
+#endif

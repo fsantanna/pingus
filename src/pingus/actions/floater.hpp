@@ -25,8 +25,8 @@ namespace Actions {
 class Floater : public PinguAction
 {
 private:
-  int falling_depth;
-  int step;
+  ///int falling_depth;
+  ///int step;
   Sprite sprite;
 
 public:
