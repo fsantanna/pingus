@@ -28,7 +28,7 @@ do
             finalize
                 me__ = &({new SpriteImpl}(*surface));
             with
-                //_delete(&&me__!);
+                _delete(&&me__!);
             end
 //_printf("NEW IMPL [%p] -> sfc\n", &&me__!);
         else
@@ -38,7 +38,7 @@ do
                         *spr_desc,
                         (_ResourceModifier__Enum) spr_mod));
             with
-                //_delete(&&me__!);
+                _delete(&&me__!);
             end
 //_printf("NEW IMPL [%p] -> dsc\n", &&me__!);
         end
