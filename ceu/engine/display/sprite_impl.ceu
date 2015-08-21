@@ -30,7 +30,6 @@ do
             with
                 _delete(&&me__!);
             end
-//_printf("NEW IMPL [%p] -> sfc\n", &&me__!);
         else
             _assert(spr_desc != null);
             finalize
@@ -40,7 +39,6 @@ do
             with
                 _delete(&&me__!);
             end
-//_printf("NEW IMPL [%p] -> dsc\n", &&me__!);
         end
         me = &me__!;
     //end

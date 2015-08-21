@@ -143,8 +143,8 @@ Sprite::operator bool() const
 void
 Sprite::update(float delta)
 {
-  ///if (impl != NULL)
-    impl->update(delta);
+  tceu__SpriteImpl___float p = {impl, delta};
+  ceu_sys_go(&CEU_APP, CEU_IN_SPRITE_IMPL_UPDATE, &p);
 }
 
 void
@@ -200,15 +200,13 @@ Sprite::get_current_frame() const
 void
 Sprite::restart()
 {
-  ///if (impl != NULL)
-    impl->restart();
+  ceu_sys_go(&CEU_APP, CEU_IN_SPRITE_IMPL_RESTART, &impl);
 }
 
 void
 Sprite::finish()
 {
-  ///if (impl != NULL)
-    impl->finish();
+  ceu_sys_go(&CEU_APP, CEU_IN_SPRITE_IMPL_FINISH, &impl);
 }
 
 Vector2i

@@ -48,18 +48,13 @@ private:
   ///int tick_count;
 
 public:
-  SpriteImpl();
+  ///SpriteImpl();
   SpriteImpl(const SpriteDescription& desc, ResourceModifier::Enum mod = ResourceModifier::ROT0);
   SpriteImpl(const Surface& surface_);
   SpriteImpl(const SpriteImpl& that) = delete;
   ~SpriteImpl();
 
-  void update(float delta);
-
   void render(int x, int y, Framebuffer& fb);
-
-  void restart();
-  void finish();
 };
 
 #endif

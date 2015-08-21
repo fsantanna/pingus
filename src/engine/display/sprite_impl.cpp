@@ -46,6 +46,7 @@ assert(0);
   }
 }
 
+#if 0
 SpriteImpl::SpriteImpl() :
   filename(),
   framebuffer_surface(),
@@ -63,6 +64,7 @@ SpriteImpl::SpriteImpl() :
   void* this_ = this;
   ///ceu_sys_go(&CEU_APP, CEU_IN_SPRITE_IMPL_NEW, &this_);
 }
+#endif
 
 SpriteImpl::SpriteImpl(const SpriteDescription& desc, ResourceModifier::Enum mod) :
   filename(desc.filename),
@@ -123,37 +125,6 @@ SpriteImpl::~SpriteImpl()
 }
 
 void
-SpriteImpl::update(float delta)
-{
-  ///if (finished || frame_delay == 0)
-    ///return;
-
-  ///int total_time = frame_delay * (array.width * array.height);
-  ///tick_count += int(delta * 1000.0f);
-  ///if (tick_count >= total_time)
-  ///{
-    ///if (loop)
-    ///{
-      ///loop_last_cycle = true;
-      ///tick_count = tick_count % total_time;
-      ///frame = tick_count / frame_delay;
-    ///}
-    ///else
-    ///{
-      ///finished = true;
-    ///}
-  ///}
-  ///else
-  ///{
-    ///loop_last_cycle = false;
-    ///frame = tick_count / frame_delay;
-  ///}
-
-  tceu__SpriteImpl___float p = {this, delta};
-  ceu_sys_go(&CEU_APP, CEU_IN_SPRITE_IMPL_UPDATE, &p);
-}
-
-void
 SpriteImpl::render(int x, int y, Framebuffer& fb)
 {
 //printf("BAD IMPL [%p] %d,%d,%d\n", this, x-offset.x, y-offset.y, 
@@ -164,27 +135,6 @@ SpriteImpl::render(int x, int y, Framebuffer& fb)
                                             frame_size.height * (frame/array.width)),
                        frame_size),
                   Vector2i(x - offset.x, y - offset.y));
-}
-
-void
-SpriteImpl::restart()
-{
-  ///finished = false;
-  ///loop_last_cycle = false;
-  ///frame = 0;
-  ///tick_count = 0;
-
-  void* this_ = this;
-  ceu_sys_go(&CEU_APP, CEU_IN_SPRITE_IMPL_RESTART, &this_);
-}
-
-void
-SpriteImpl::finish()
-{
-  ///finished = true;
-
-  void* this_ = this;
-  ceu_sys_go(&CEU_APP, CEU_IN_SPRITE_IMPL_FINISH, &this_);
 }
 
 /* EOF */
