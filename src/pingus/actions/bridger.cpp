@@ -24,17 +24,19 @@
 #include "pingus/worldobj.hpp"
 #include "util/string_util.hpp"
 
+#include "ceu_vars.h"
+
 namespace Actions {
 
 Bridger::Bridger (Pingu* p) :
   PinguAction(p),
-  mode(B_BUILDING),
+  ///mode(B_BUILDING),
   walk_sprite(),
   build_sprite(),
   brick_l("other/brick_left"),
   brick_r("other/brick_right"),
   bricks(MAX_BRICKS),
-  block_build(false),
+  ///block_build(false),
   name(_("Bridger") + std::string(" (" + StringUtil::to_string(bricks) + ")"))
 {
   walk_sprite.load (Direction::LEFT,  Sprite("pingus/player" +
@@ -46,6 +48,9 @@ Bridger::Bridger (Pingu* p) :
                                              pingu->get_owner_str() + "/bridger/left"));
   build_sprite.load(Direction::RIGHT, Sprite("pingus/player" +
                                              pingu->get_owner_str() + "/bridger/right"));
+
+  void* this_ = this;
+  ceu_sys_go(&CEU_APP, CEU_IN_BRIDGER_NEW, &this_);
 }
 
 void
@@ -83,6 +88,7 @@ Bridger::draw(SceneContext& gc)
 void
 Bridger::update()
 {
+#if 0
   switch (mode)
   {
     case B_BUILDING:
@@ -93,8 +99,13 @@ Bridger::update()
       update_walk ();
       break;
   }
+#endif
+
+  void* this_ = this;
+  ceu_sys_go(&CEU_APP, CEU_IN_BRIDGER_UPDATE, &this_);
 }
 
+#if 0
 void
 Bridger::update_walk ()
 {
@@ -119,7 +130,9 @@ Bridger::update_walk ()
     walk_sprite.update ();
   }
 }
+#endif
 
+#if 0
 void
 Bridger::update_build ()
 {
@@ -143,7 +156,7 @@ Bridger::update_build ()
     }
     else // Out of bricks
     {
-      pingu->set_action(ActionName::WAITER);
+      pingu->set_action(ActionName::BRIDGER);
       return;
     }
   }
@@ -154,6 +167,7 @@ Bridger::update_build ()
     build_sprite[pingu->direction].restart();
   }
 }
+#endif
 
 // way_is_free() needs to stop BRIDGERS from getting stuck between a brick
 // and the ceiling.  The routine also stops cases of Bridgers building up but

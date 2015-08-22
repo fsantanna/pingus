@@ -17,15 +17,6 @@ input (_Actions__Bomber&&) BOMBER_NEW;
 input (_PinguAction&&)     PINGU_ACTION_DELETE;
 input (_Actions__Bomber&&) BOMBER_UPDATE;
 
-#define AWAIT_UNTIL_FRAME(nnn)                                              \
-    loop do                                                                 \
-        AWAIT_UNTIL_MYSELF(_Actions__Bomber,BOMBER_UPDATE);                 \
-        if me.sprite[me.pingu:direction].get_current_frame() == nnn then    \
-            break;                                                          \
-        end                                                                 \
-    end
-
-
 class Bomber with
     var _Actions__Bomber& me;
 do
@@ -71,7 +62,7 @@ do
             end
             xxx_escape = true;
         with
-            AWAIT_UNTIL_FRAME(10);
+            AWAIT_UNTIL_FRAME(_Actions__Bomber, BOMBER_UPDATE, me.sprite, 10);
         end
 
         if not xxx_escape then
@@ -80,7 +71,7 @@ do
                 WorldObj::get_world()->play_sound("plop",
                     ((CEU_Bomber*)_STK_ORG)->me->pingu->get_pos());
             };
-            AWAIT_UNTIL_FRAME(13);
+            AWAIT_UNTIL_FRAME(_Actions__Bomber, BOMBER_UPDATE, me.sprite, 13);
             {
                 WorldObj::get_world()->get_pingu_particle_holder()->
                     add_particle((int)(((CEU_Bomber*)_STK_ORG)->me->pingu->get_x()),
@@ -107,6 +98,7 @@ do
     end
     ///escape {ActionName::WALKER};
     ///await FOREVER;
+    await 100ms; /// TODO: bug
 end
 
 class BomberFactory with

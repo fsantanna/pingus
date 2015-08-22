@@ -44,6 +44,7 @@ do
 
     ///escape {ActionName::WALKER};
     ///await FOREVER;
+    await 100ms; /// TODO: bug
 end
 
 class JumperFactory with

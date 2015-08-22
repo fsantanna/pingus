@@ -31,13 +31,22 @@ native @nohold _delete();
 
 #define AWAIT_UNTIL_MYSELF(TP,EVT)             \
     do                                         \
-        var TP&& abc = await EVT               \
-                       until abc == &&this.me; \
+        var TP&& ptr = await EVT               \
+                       until ptr == &&this.me; \
+    end
+
+#define AWAIT_UNTIL_FRAME(T, E, sprite, nnn)                          \
+    loop do                                                           \
+        AWAIT_UNTIL_MYSELF(T,E);                                      \
+        if sprite[me.pingu:direction].get_current_frame() == nnn then \
+            break;                                                    \
+        end                                                           \
     end
 
 #include "pingus/actions/basher.ceu"
 #include "pingus/actions/blocker.ceu"
 #include "pingus/actions/bomber.ceu"
+#include "pingus/actions/bridger.ceu"
 #include "pingus/actions/digger.ceu"
 #include "pingus/actions/drown.ceu"
 #include "pingus/actions/faller.ceu"

@@ -40,7 +40,7 @@ private:
   int bricks;
   //int step;
   //int do_steps;
-  bool block_build;
+  ///bool block_build;
 
   std::string name;
 
@@ -51,8 +51,10 @@ public:
   ActionName::Enum get_type () const { return ActionName::BRIDGER; }
 
   void   update ();
+#if 0
   void   update_build ();
   void   update_walk ();
+#endif
 
   void   draw (SceneContext& gc);
 
