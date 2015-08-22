@@ -41,8 +41,12 @@ public:
   bool is_tumbling () const;
 
 private:
-  Faller (const Faller&);
-  Faller& operator= (const Faller&);
+  //Faller (const Faller&);
+  //Faller& operator= (const Faller&);
+
+  Faller(Faller const &) = delete;
+  void operator=(Faller const &t) = delete;
+  Faller(Faller &&) = delete;
 };
 
 } // namespace Actions

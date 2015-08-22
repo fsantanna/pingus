@@ -62,9 +62,14 @@ public:
   ///
   Sprite(const Sprite& that);
 
+static int NEW;
+static int CPY;
+static int DEL;
+
+
 private:
-  ///std::shared_ptr<SpriteImpl> impl;
-  SpriteImpl* impl = NULL;
+  std::shared_ptr<SpriteImpl> impl;
+  ///SpriteImpl* impl = NULL;
 
   ///
   bool XXX_is_copy = false;

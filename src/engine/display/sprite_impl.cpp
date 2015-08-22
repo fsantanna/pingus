@@ -121,7 +121,7 @@ SpriteImpl::SpriteImpl(const Surface& surface) :
 SpriteImpl::~SpriteImpl()
 {
   void* this_ = this;
-  ///ceu_sys_go(&CEU_APP, CEU_IN_SPRITE_IMPL_DELETE, &this_);
+  ceu_sys_go(&CEU_APP, CEU_IN_SPRITE_IMPL_DELETE, &this_);
 }
 
 void

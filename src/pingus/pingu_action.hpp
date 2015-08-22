@@ -107,8 +107,12 @@ public:
   static ActionType get_activation_mode(ActionName::Enum action_name);
 
 private:
-  PinguAction (const PinguAction&);
-  PinguAction& operator= (const PinguAction&);
+  //PinguAction (const PinguAction&);
+  //PinguAction& operator= (const PinguAction&);
+
+  PinguAction(PinguAction const &) = delete;
+  void operator=(PinguAction const &t) = delete;
+  PinguAction(PinguAction &&) = delete;
 };
 
 #endif /* PINGU_ACTION_HH */

@@ -82,7 +82,8 @@ do
         end
     end
     ///escape {ActionName::WALKER};
-    ///await FOREVER;
+    /// TODO: bug
+    await 100ms;
 end
 
 class BasherFactory with

@@ -25,6 +25,8 @@ input _Sprite&&         SPRITE_FINISH;
 
 native do
     SpriteDescription XXX_spr_desc;
+    static int SPRITE_TOT = 0;
+    static int SPRITE_CUR = 0;
 end
 
 pool SpriteImpl[] xxx_impls;
@@ -41,6 +43,12 @@ class Sprite with
     var _ResDescriptor&&        res_desc = null;
     var char&&                  name     = null;
 do
+    _SPRITE_TOT = _SPRITE_TOT + 1;
+    _SPRITE_CUR = _SPRITE_CUR + 1;
+    finalize with
+        _SPRITE_CUR = _SPRITE_CUR - 1;
+    end
+
     // constructor
     var _SpriteDescription&& spr_desc_ = spr_desc;
     do
@@ -82,7 +90,7 @@ do
             this.spr_desc = spr_desc_;
             this.spr_mod  = modifier;
         end;
-    me.impl = impl!:get();
+    me.impl.reset(impl!:get());
 
     AWAIT_UNTIL_MYSELF(_Sprite,SPRITE_DELETE);
     __sprite_deleting = __sprite_deleting + 1; // TODO(remove)

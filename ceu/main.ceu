@@ -50,10 +50,13 @@ input int SDL_DT;
 
 _printf("[CEU] Hello World!\n");
 
-par/and do
-    await 1s;
-with
-    await SDL_DT;
+every 1s do
+    _printf(">>> [%d] Sprite=%d/%d[%d+%d/%d]   Impl=%d/%d\n",
+        _CEU_SYS_GO_NTRAILS_MAX,
+        _SPRITE_CUR,      _SPRITE_TOT,
+        {Sprite::NEW}, {Sprite::CPY}, {Sprite::DEL},
+        _SPRITE_IMPL_CUR, _SPRITE_IMPL_TOT);
+    _CEU_SYS_GO_NTRAILS_MAX = 0;
 end
 
 _printf("[CEU] Good Bye!\n");

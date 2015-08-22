@@ -122,7 +122,8 @@ do
         end
     end
     ///escape {ActionName::WALKER};
-    ///await FOREVER;
+    /// TODO: bug
+    await 100ms;
 end
 
 class FallerFactory with

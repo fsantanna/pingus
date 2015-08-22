@@ -23,10 +23,15 @@
 
 #include "ceu_vars.h"
 
+int Sprite::NEW = 0;
+int Sprite::CPY = 0;
+int Sprite::DEL = 0;
+
 Sprite::Sprite(const Sprite& that)
 {
-    *this = that;
-    this->XXX_is_copy = true;
+  *this = that;
+  this->XXX_is_copy = true;
+  Sprite::CPY++;
 }
 
 Sprite::Sprite() :
@@ -34,6 +39,7 @@ Sprite::Sprite() :
 {
 //printf("1>>>>>[%p]\n", this);
 //assert(0);
+  Sprite::NEW++;
   void* this_ = this;
   ceu_sys_go(&CEU_APP, CEU_IN_SPRITE_NEW_NONE, &this_);
 }
@@ -55,6 +61,7 @@ Sprite::Sprite(const std::string& name) :
   ///}
 
 //printf("2>>>>>[%p]\n", this);
+  Sprite::NEW++;
   char* str = (char*)name.c_str();
   tceu__Sprite___char_ p = {this, str};
   ceu_sys_go(&CEU_APP, CEU_IN_SPRITE_NEW_NAME, &p);
@@ -76,6 +83,7 @@ Sprite::Sprite(const ResDescriptor& res_desc) :
   ///}
 
 //printf("3>>>>>[%p]\n", this);
+  Sprite::NEW++;
   tceu__Sprite___ResDescriptor_ p = {this, (ResDescriptor*)&res_desc};
   ceu_sys_go(&CEU_APP, CEU_IN_SPRITE_NEW_RESDESCRIPTOR, &p);
 }
@@ -85,6 +93,7 @@ Sprite::Sprite(const Surface& surface) :
   ///impl(std::make_shared<SpriteImpl>(surface))
 {
 //printf("4>>>>>[%p]\n", this);
+  Sprite::NEW++;
   tceu__Sprite___Surface_ p = {this, (Surface*)&surface};
   ceu_sys_go(&CEU_APP, CEU_IN_SPRITE_NEW_SURFACE, &p);
 }
@@ -94,6 +103,7 @@ Sprite::Sprite(const SpriteDescription& desc, ResourceModifier::Enum mod) :
   ///impl(std::make_shared<SpriteImpl>(desc, mod))
 {
 //printf("5>>>>>[%p]\n", this);
+  Sprite::NEW++;
   tceu__Sprite___SpriteDescription___int p = {this, (SpriteDescription*)&desc, mod};
   ceu_sys_go(&CEU_APP, CEU_IN_SPRITE_NEW_SPRITEDESCRIPTION, &p);
 }
@@ -102,6 +112,7 @@ Sprite::~Sprite()
 {
 //printf("->>>>>[%p]\n", this);
   if (! this->XXX_is_copy) {
+    Sprite::DEL++;
     void* this_ = this;
     ceu_sys_go(&CEU_APP, CEU_IN_SPRITE_DELETE, &this_);
   } else {
@@ -143,7 +154,7 @@ Sprite::operator bool() const
 void
 Sprite::update(float delta)
 {
-  tceu__SpriteImpl___float p = {impl, delta};
+  tceu__SpriteImpl___float p = {impl.get(), delta};
   ceu_sys_go(&CEU_APP, CEU_IN_SPRITE_IMPL_UPDATE, &p);
 }
 

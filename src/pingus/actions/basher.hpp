@@ -60,8 +60,12 @@ public:
   void bash ();
 
 private:
-  Basher (const Basher&);
-  Basher& operator= (const Basher&);
+  //Basher (const Basher&);
+  //Basher& operator= (const Basher&);
+
+  Basher(Basher const &) = delete;
+  void operator=(Basher const &t) = delete;
+  Basher(Basher &&) = delete;
 };
 
 } // namespace Actions
