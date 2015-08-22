@@ -55,7 +55,6 @@ void
 Faller::update ()
 {
 #if 0
-#endif
   if (is_tumbling())
   {
     tumbler[pingu->direction].update();
@@ -141,6 +140,7 @@ Faller::update ()
       pingu->set_velocity(velocity);
     }
   }
+#endif
 
   void* this_ = this;
   ceu_sys_go(&CEU_APP, CEU_IN_FALLER_UPDATE, &this_);
