@@ -9,6 +9,7 @@ native do
     ##include <assert.h>
 
     ##define XXX_PTR2REF(x) x
+    ##define ME(tp) (((tp*)_STK_ORG)->me)
 
     ##define Resource__load_sprite_desc(name) Resource::load_sprite_desc(name)
     ##define ResourceModifier__Enum ResourceModifier::Enum
@@ -39,6 +40,7 @@ native @nohold _delete();
 #include "pingus/actions/bomber.ceu"
 #include "pingus/actions/digger.ceu"
 #include "pingus/actions/drown.ceu"
+#include "pingus/actions/faller.ceu"
 #include "pingus/actions/floater.ceu"
 #include "pingus/actions/jumper.ceu"
 #include "engine/display/sprite.ceu"

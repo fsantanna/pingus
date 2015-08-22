@@ -24,6 +24,8 @@
 #include "pingus/world.hpp"
 #include "pingus/worldobj.hpp"
 
+#include "ceu_vars.h"
+
 namespace Actions {
 
 Faller::Faller (Pingu* p) :
@@ -42,6 +44,9 @@ Faller::Faller (Pingu* p) :
                                         pingu->get_owner_str() + "/tumbler/right"));
 
   // FIXME: add sprites for jumping here: if x_vel > y_vel, use them
+
+  void* this_ = this;
+  ceu_sys_go(&CEU_APP, CEU_IN_FALLER_NEW, &this_);
 }
 
 Faller::~Faller () { }
@@ -49,6 +54,8 @@ Faller::~Faller () { }
 void
 Faller::update ()
 {
+#if 0
+#endif
   if (is_tumbling())
   {
     tumbler[pingu->direction].update();
@@ -68,18 +75,15 @@ Faller::update ()
   pingu->set_velocity(pingu->get_velocity()
                       + Vector3f(0.0f, WorldObj::get_world()->get_gravity()) );
 
-  Vector3f velocity = pingu->get_velocity();
-  Vector3f move = velocity;
-  bool collided;
-
-  Movers::LinearMover mover(WorldObj::get_world(), pingu->get_pos());
-
   // Move the Pingu as far is it can go
+  Vector3f move =  pingu->get_velocity();
+  Movers::LinearMover mover(WorldObj::get_world(), pingu->get_pos());
   mover.update(move, Colliders::PinguCollider(pingu_height));
-
   pingu->set_pos(mover.get_pos());
 
-  collided = mover.collided();
+  Vector3f velocity = pingu->get_velocity();
+
+  bool collided = mover.collided();
 
   // If the Pingu collided with something...
   if (collided)
@@ -137,6 +141,9 @@ Faller::update ()
       pingu->set_velocity(velocity);
     }
   }
+
+  void* this_ = this;
+  ceu_sys_go(&CEU_APP, CEU_IN_FALLER_UPDATE, &this_);
 }
 
 void

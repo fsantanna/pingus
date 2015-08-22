@@ -1,0 +1,139 @@
+#ifndef _FALLER_CEU
+#define _FALLER_CEU
+
+native/pre do
+    ##include "../src/pingus/pingu.hpp"
+    ##include "../src/pingus/pingu_action.hpp"
+    ##include "../src/pingus/actions/faller.hpp"
+    ##define Actions__Faller Actions::Faller
+end
+native @plain _Actions__Faller;
+
+input (_Actions__Faller&&) FALLER_NEW;
+input (_PinguAction&&)     PINGU_ACTION_DELETE;
+input (_Actions__Faller&&) FALLER_UPDATE;
+
+class Faller with
+    var _Actions__Faller& me;
+do
+    par/or do
+        AWAIT_UNTIL_MYSELF(_PinguAction,PINGU_ACTION_DELETE);
+    with
+        var float countdown = 2.0;
+        loop do
+            AWAIT_UNTIL_MYSELF(_Actions__Faller,FALLER_UPDATE);
+
+            if me.is_tumbling() then
+                me.tumbler[me.pingu:direction].update();
+            else
+                me.faller[me.pingu:direction].update();
+            end
+
+            // FIXME: This should be triggered at a later point, when close to
+            // FIXME: deadly_velocity or something like that. A translation
+            // FIXME: animation for the floater might also help
+            if (me.pingu:get_velocity().y > 5.0 and
+                me.pingu:request_fall_action())
+            then
+                continue;
+            end
+
+            // Apply gravity
+            me.pingu:set_velocity(me.pingu:get_velocity() +
+                  {Vector3f(0.0f, WorldObj::get_world()->get_gravity())});
+
+            // Move the Pingu as far is it can go
+            // XXX_CPP
+            {
+                Vector3f move =  ME(CEU_Faller)->pingu->get_velocity();
+                Movers::LinearMover mover(WorldObj::get_world(),
+                                          ME(CEU_Faller)->pingu->get_pos());
+                mover.update(move, Colliders::PinguCollider(pingu_height));
+                ME(CEU_Faller)->pingu->set_pos(mover.get_pos());
+            };
+
+            if not _mover.collided() then
+                continue;
+            end
+
+            // If the Pingu collided with something...
+
+            // XXX_CPP
+            {
+                static Vector3f velocity = ME(CEU_Faller)->pingu->get_velocity();
+            };
+
+            if me.rel_getpixel(0,-1) == {Groundtype::GP_NOTHING} and
+               me.rel_getpixel(0,-2) == {Groundtype::GP_NOTHING} and
+               me.rel_getpixel(0,-3) == {Groundtype::GP_NOTHING} and
+               me.rel_getpixel(1, 0) != {Groundtype::GP_NOTHING} and
+               me.rel_getpixel(1, 0) != {Groundtype::GP_BRIDGE}
+            then
+                // Make Pingu bounce off wall
+                _velocity.x = -(_velocity.x / 3.0);
+
+                // Make the Pingu face the correct direction.  NB: Pingu 
+                // may previously have been facing in the opposite direction of its
+                // velocity because of an explosion.
+                if (_velocity.x > 0.0) then
+                    me.pingu:direction.right();
+                else
+                    me.pingu:direction.left();
+                end
+                me.pingu:set_velocity(_velocity);
+
+            else/if (_velocity.y > 0.0) then
+                // If the Pingu collided into something while moving 
+                // down...
+                if me.rel_getpixel(0,-1) == {Groundtype::GP_WATER} or
+                   me.rel_getpixel(0,-1) == {Groundtype::GP_LAVA}
+                then
+                    // Ping is on ground/water/something
+                    me.pingu:set_action({ActionName::DROWN});
+                else/if {Math::abs(((CEU_Faller*)_STK_ORG)->me->pingu->get_velocity().y)} >
+                         _deadly_velocity
+                then
+                    // Did we stop too fast?
+                    //log_info("Pingus splashed: " << 
+                    //me.pingu:get_velocity().y << " " << deadly_velocity);
+                    me.pingu:set_action({ActionName::SPLASHED});
+                else
+                    // This is where the jumper bug happens
+                    //log_info("Reached the unreachable: " << 
+                    //me.pingu:get_velocity().y);
+                    if me.pingu:get_previous_action() ==
+                       {ActionName::BLOCKER}
+                    then
+                        me.pingu:set_action(me.pingu:get_previous_action());
+                    else
+                        me.pingu:set_action({ActionName::WALKER});
+                    end
+                end
+                break;
+                ///escape {ActionName::???};
+
+            else // if (_velocity.y < 0.0f)
+                // If the Pingu collided into something while moving up...
+                // Don't make the Pingu go up any further.
+                _velocity.y = 0;
+                _velocity.x = (_velocity.x / 3.0);
+                me.pingu:set_velocity(_velocity);
+            end
+        end
+    end
+    ///escape {ActionName::WALKER};
+    await FOREVER;
+end
+
+class FallerFactory with
+do
+    every me_ in FALLER_NEW do
+        spawn Faller with
+            this.me = &_XXX_PTR2REF(me_);
+        end;
+    end
+end
+
+var FallerFactory _;
+
+#endif
