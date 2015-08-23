@@ -34,9 +34,6 @@ Digger::Digger(Pingu* p) :
   ///delay_count(0)
 {
   sprite = Sprite("pingus/player" + pingu->get_owner_str() + "/digger/left");
-
-  void* this_ = this;
-  ceu_sys_go(&CEU_APP, CEU_IN_DIGGER_NEW, &this_);
 }
 
 void

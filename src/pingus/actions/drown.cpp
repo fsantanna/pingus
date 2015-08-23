@@ -31,9 +31,6 @@ Drown::Drown (Pingu* p) :
                                        pingu->get_owner_str() + "/drownfall/left"));
   sprite.load(Direction::RIGHT, Sprite("pingus/player" +
                                        pingu->get_owner_str() + "/drownfall/right"));
-
-  void* this_ = this;
-  ceu_sys_go(&CEU_APP, CEU_IN_DROWN_NEW, &this_);
 }
 
 void

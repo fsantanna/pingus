@@ -16,36 +16,16 @@ input (_Actions__Floater&&) FLOATER_UPDATE;
 class Floater with
     var _Actions__Floater& me;
 do
-    par/or do
-        AWAIT_UNTIL_MYSELF(_PinguAction,PINGU_ACTION_DELETE);
-    with
-        me.pingu:set_velocity({Vector3f(0.0f, 1.0f)});
-        loop do
-            AWAIT_UNTIL_MYSELF(_Actions__Floater,FLOATER_UPDATE);
-            me.sprite.update();
-            if me.rel_getpixel(0,-1) == {Groundtype::GP_NOTHING} then
-                me.pingu:set_y(me.pingu:get_y() + 1);
-            else
-                me.pingu:set_action({ActionName::WALKER});
-                break;
-                ///escape {ActionName::WALKER};
-            end
+    me.pingu:set_velocity({Vector3f(0.0f, 1.0f)});
+    loop do
+        AWAIT_UNTIL_MYSELF(_Actions__Floater,FLOATER_UPDATE);
+        me.sprite.update();
+        if me.rel_getpixel(0,-1) == {Groundtype::GP_NOTHING} then
+            me.pingu:set_y(me.pingu:get_y() + 1);
+        else
+            escape {ActionName::WALKER};
         end
     end
-    ///escape {ActionName::WALKER};
-    ///await FOREVER;
-    await 100ms; /// TODO: bug
 end
-
-class FloaterFactory with
-do
-    every me_ in FLOATER_NEW do
-        spawn Floater with
-            this.me = &_XXX_PTR2REF(me_);
-        end;
-    end
-end
-
-var FloaterFactory _;
 
 #endif

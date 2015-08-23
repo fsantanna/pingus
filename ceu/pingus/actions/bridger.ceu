@@ -9,91 +9,63 @@ native/pre do
 end
 native @plain _Actions__Bridger;
 
-input (_Actions__Bridger&&) BRIDGER_NEW;
-input (_PinguAction&&)      PINGU_ACTION_DELETE;
 input (_Actions__Bridger&&) BRIDGER_UPDATE;
 
 class Bridger with
     var _Actions__Bridger& me;
 do
-    par/or do
-        AWAIT_UNTIL_MYSELF(_PinguAction,PINGU_ACTION_DELETE);
-    with
-        me.bricks = {Actions::Bridger::MAX_BRICKS};
+    me.bricks = {Actions::Bridger::MAX_BRICKS};
 
-        var bool blocked = do
-            loop i in {Actions::Bridger::MAX_BRICKS} do
+    loop i in {Actions::Bridger::MAX_BRICKS} do
 
-                // BUILDING
-                me.mode = {Actions::Bridger::B_BUILDING};
-                par/or do
-                    loop do
-                        AWAIT_UNTIL_MYSELF(_Actions__Bridger,BRIDGER_UPDATE);
-                        me.build_sprite[me.pingu:direction].update();
-                    end
-                with
-                    AWAIT_UNTIL_FRAME(_Actions__Bridger, BRIDGER_UPDATE,
-                                      me.build_sprite, 7);
-                    if me.brick_placement_allowed() then
-                        me.place_a_brick(); // me.bricks--;
-                    else
-                        escape true;    // BLOCKED!
-                    end
-                    var _Actions__Bridger&& ptr =
-                        await BRIDGER_UPDATE
-                        until (ptr == &&this.me) and 
-                              me.build_sprite[me.pingu:direction].is_finished();
-                end
-                me.build_sprite[me.pingu:direction].restart();
-
-                // SKIP the last WALKING
-                if i == {Actions::Bridger::MAX_BRICKS}-1 then
-                    break;
-                end
-
-                // WALKING
-                me.mode = {Actions::Bridger::B_WALKING};
-                loop do
-                    AWAIT_UNTIL_MYSELF(_Actions__Bridger,BRIDGER_UPDATE);
-
-                    // FIXME: Dangerous! might not be fixed timing
-                    if me.walk_sprite[me.pingu:direction].is_finished() then
-                        if me.way_is_free() then
-                            break;
-                        else // We reached a wall...
-                            escape true;    // BLOCKED!
-                        end
-                    else
-                        me.walk_sprite.update();
-                    end
-                end
-                me.walk_sprite[me.pingu:direction].restart();
-                me.walk_one_step_up();
+        // BUILDING
+        me.mode = {Actions::Bridger::B_BUILDING};
+        par/or do
+            loop do
+                AWAIT_UNTIL_MYSELF(_Actions__Bridger,BRIDGER_UPDATE);
+                me.build_sprite[me.pingu:direction].update();
             end
-            escape false;                   // not BLOCKED!
-        end;
-
-        if blocked then
-            me.pingu:direction.change();
-            me.pingu:set_action({ActionName::WALKER});
-        else
-            me.pingu:set_action({ActionName::WAITER});
+        with
+            AWAIT_UNTIL_FRAME(_Actions__Bridger, BRIDGER_UPDATE,
+                              me.build_sprite, 7);
+            if me.brick_placement_allowed() then
+                me.place_a_brick(); // me.bricks--;
+            else
+                me.pingu:direction.change();
+                escape {ActionName::WALKER};
+            end
+            var _Actions__Bridger&& ptr =
+                await BRIDGER_UPDATE
+                until (ptr == &&this.me) and 
+                      me.build_sprite[me.pingu:direction].is_finished();
         end
-    end
-    ///escape {ActionName::???};
-    ///await FOREVER;
-    await 100ms; /// TODO: bug
-end
+        me.build_sprite[me.pingu:direction].restart();
 
-class BridgerFactory with
-do
-    every me_ in BRIDGER_NEW do
-        spawn Bridger with
-            this.me = &_XXX_PTR2REF(me_);
-        end;
+        // SKIP the last WALKING
+        if i == {Actions::Bridger::MAX_BRICKS}-1 then
+            escape {ActionName::WAITER};
+        end
+
+        // WALKING
+        me.mode = {Actions::Bridger::B_WALKING};
+        loop do
+            AWAIT_UNTIL_MYSELF(_Actions__Bridger,BRIDGER_UPDATE);
+
+            // FIXME: Dangerous! might not be fixed timing
+            if me.walk_sprite[me.pingu:direction].is_finished() then
+                if me.way_is_free() then
+                    break;
+                else // We reached a wall...
+                    me.pingu:direction.change();
+                    escape {ActionName::WALKER};
+                end
+            else
+                me.walk_sprite.update();
+            end
+        end
+        me.walk_sprite[me.pingu:direction].restart();
+        me.walk_one_step_up();
     end
 end
-
-var BridgerFactory _;
 
 #endif

@@ -39,9 +39,6 @@ Walker::Walker (Pingu* p) :
 
   // Reset the velocity
   pingu->set_velocity(Vector3f());
-
-  void* this_ = this;
-  ceu_sys_go(&CEU_APP, CEU_IN_WALKER_NEW, &this_);
 }
 
 void
@@ -201,7 +198,7 @@ Walker::draw (SceneContext& gc)
 {
   gc.color().draw(walker[pingu->direction], pingu->get_pos());
 
-  if (pingu->get_fall_action() && pingu->get_fall_action()->get_type() == ActionName::FLOATER)
+  if (pingu->get_fall_action() == ActionName::FLOATER)
   {
     gc.color().draw(floaterlayer[pingu->direction], pingu->get_pos());
   }

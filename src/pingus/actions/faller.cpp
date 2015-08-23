@@ -44,9 +44,6 @@ Faller::Faller (Pingu* p) :
                                         pingu->get_owner_str() + "/tumbler/right"));
 
   // FIXME: add sprites for jumping here: if x_vel > y_vel, use them
-
-  void* this_ = this;
-  ceu_sys_go(&CEU_APP, CEU_IN_FALLER_NEW, &this_);
 }
 
 Faller::~Faller () { }

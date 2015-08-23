@@ -9,66 +9,42 @@ native/pre do
 end
 native @plain _Actions__Miner;
 
-input (_Actions__Miner&&) MINER_NEW;
-input (_PinguAction&&)    PINGU_ACTION_DELETE;
 input (_Actions__Miner&&) MINER_UPDATE;
 
 class Miner with
     var _Actions__Miner& me;
 do
-    par/or do
-        AWAIT_UNTIL_MYSELF(_PinguAction,PINGU_ACTION_DELETE);
-    with
-        loop delay_count do
-            AWAIT_UNTIL_MYSELF(_Actions__Miner,MINER_UPDATE);
-            me.sprite[me.pingu:direction].update();
+    loop delay_count do
+        AWAIT_UNTIL_MYSELF(_Actions__Miner,MINER_UPDATE);
+        me.sprite[me.pingu:direction].update();
 
-            if delay_count%4 != 0 then
-                continue;
+        if delay_count%4 != 0 then
+            continue;
+        end
+
+        if me.rel_getpixel(0,-1) == {Groundtype::GP_NOTHING} then
+            // stop mining when in the air
+            me.mine(true, delay_count);
+            escape {ActionName::WALKER};
+        else/if me.rel_getpixel(0,            -1) == {Groundtype::GP_SOLID} or
+                me.rel_getpixel(0, _pingu_height) == {Groundtype::GP_SOLID}
+        then
+            // stop mining when hitting solid ground
+            if (me.rel_getpixel(0, -1) == {Groundtype::GP_SOLID}) then
+                {Sound::PingusSound::play_sound("chink");};
             end
+            me.mine(true, delay_count);
 
-            if me.rel_getpixel(0,-1) == {Groundtype::GP_NOTHING} then
-                // stop mining when in the air
-                me.mine(true, delay_count);
-                me.pingu:set_action({ActionName::WALKER});
-                break;
-                ///escape {ActionName::WALKER};
-            else/if me.rel_getpixel(0,            -1) == {Groundtype::GP_SOLID} or
-                    me.rel_getpixel(0, _pingu_height) == {Groundtype::GP_SOLID}
-            then
-                // stop mining when hitting solid ground
-                if (me.rel_getpixel(0, -1) == {Groundtype::GP_SOLID}) then
-                    {Sound::PingusSound::play_sound("chink");};
-                end
-                me.mine(true, delay_count);
-
-                // stop pingu from walking further into the solid.
-                me.pingu:direction.change();
-                me.pingu:set_action({ActionName::WALKER});
-                break;
-                ///escape {ActionName::WALKER};
-            else
-                // mine and walk forward
-                me.mine(false, delay_count);
-                me.pingu:set_pos(me.pingu:get_xi() + me.pingu:direction,
-                                 me.pingu:get_yi() + 1);
-            end
+            // stop pingu from walking further into the solid.
+            me.pingu:direction.change();
+            escape {ActionName::WALKER};
+        else
+            // mine and walk forward
+            me.mine(false, delay_count);
+            me.pingu:set_pos(me.pingu:get_xi() + me.pingu:direction,
+                             me.pingu:get_yi() + 1);
         end
     end
-    ///escape {ActionName::WALKER};
-    ///await FOREVER;
-    await 100ms; /// TODO: bug
 end
-
-class MinerFactory with
-do
-    every me_ in MINER_NEW do
-        spawn Miner with
-            this.me = &_XXX_PTR2REF(me_);
-        end;
-    end
-end
-
-var MinerFactory _;
 
 #endif

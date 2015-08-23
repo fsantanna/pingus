@@ -43,9 +43,6 @@ Blocker::Blocker(Pingu* p) :
   {
     pingu->set_y(pingu->get_y() + 2);
   }
-
-  void* this_ = this;
-  ceu_sys_go(&CEU_APP, CEU_IN_BLOCKER_NEW, &this_);
 }
 
 void

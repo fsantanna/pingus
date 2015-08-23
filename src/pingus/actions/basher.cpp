@@ -49,9 +49,6 @@ Basher::Basher (Pingu* p) :
   // Start a bash even so the action will stops instantly after the
   // first bash
   bash();
-
-  void* this_ = this;
-  ceu_sys_go(&CEU_APP, CEU_IN_BASHER_NEW, &this_);
 }
 
 void

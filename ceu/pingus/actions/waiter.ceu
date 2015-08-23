@@ -9,42 +9,20 @@ native/pre do
 end
 native @plain _Actions__Waiter;
 
-input (_Actions__Waiter&&) WAITER_NEW;
-input (_PinguAction&&)     PINGU_ACTION_DELETE;
 input (_Actions__Waiter&&) WAITER_UPDATE;
 
 class Waiter with
     var _Actions__Waiter& me;
 do
-    par/or do
-        AWAIT_UNTIL_MYSELF(_PinguAction,PINGU_ACTION_DELETE);
-    with
-        var float countdown = 2.0;
-        loop do
-            AWAIT_UNTIL_MYSELF(_Actions__Waiter,WAITER_UPDATE);
-            me.sprite.update();
-            if countdown < 0 then
-                me.pingu:set_action({ActionName::WALKER});
-                break;
-                ///escape {ActionName::WALKER};
-            end
-            countdown = countdown - 0.025;
+    var float countdown = 2.0;
+    loop do
+        AWAIT_UNTIL_MYSELF(_Actions__Waiter,WAITER_UPDATE);
+        me.sprite.update();
+        if countdown < 0 then
+            escape {ActionName::WALKER};
         end
-    end
-    ///escape {ActionName::WALKER};
-    ///await FOREVER;
-    await 100ms; /// TODO: bug
-end
-
-class WaiterFactory with
-do
-    every me_ in WAITER_NEW do
-        spawn Waiter with
-            this.me = &_XXX_PTR2REF(me_);
-        end;
+        countdown = countdown - 0.025;
     end
 end
-
-var WaiterFactory _;
 
 #endif

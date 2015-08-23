@@ -31,9 +31,6 @@ Jumper::Jumper (Pingu* p) :
                                        pingu->get_owner_str() + "/jumper/left"));
   sprite.load(Direction::RIGHT, Sprite("pingus/player" +
                                        pingu->get_owner_str() + "/jumper/right"));
-
-  void* this_ = this;
-  ceu_sys_go(&CEU_APP, CEU_IN_JUMPER_NEW, &this_);
 }
 
 void

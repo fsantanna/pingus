@@ -13,16 +13,12 @@ native/pre do
 end
 native @plain _Actions__Bomber;
 
-input (_Actions__Bomber&&) BOMBER_NEW;
-input (_PinguAction&&)     PINGU_ACTION_DELETE;
 input (_Actions__Bomber&&) BOMBER_UPDATE;
 
 class Bomber with
     var _Actions__Bomber& me;
 do
-    par/or do
-        AWAIT_UNTIL_MYSELF(_PinguAction,PINGU_ACTION_DELETE);
-    with
+    par do
         loop do
             AWAIT_UNTIL_MYSELF(_Actions__Bomber,BOMBER_UPDATE);
             me.sprite.update();
@@ -34,10 +30,8 @@ do
             _mover.update(me.pingu:get_velocity(),
                           {Colliders::PinguCollider(pingu_height)});
             me.pingu:set_pos(_mover.get_pos());
-
         end
     with
-        var bool xxx_escape = false;    // TODO: workaround b/c cant escape yet
         // while the Bomber hasn't 'exploded' yet
         par/or do
             loop do
@@ -47,69 +41,46 @@ do
                 if me.rel_getpixel(0,-1) == {Groundtype::GP_WATER} or
                    me.rel_getpixel(0,-1) == {Groundtype::GP_LAVA}
                 then
-                    me.pingu:set_action({ActionName::DROWN});
-                    break;
-                    ///escape {ActionName::DROWN};
+                    escape {ActionName::DROWN};
 
                 // if it has hit the ground too quickly
                 else/if me.rel_getpixel(0,-1) != {Groundtype::GP_NOTHING} and
                         me.pingu:get_velocity().y > _deadly_velocity
                 then
-                    me.pingu:set_action({ActionName::SPLASHED});
-                    break;
-                    ///escape {ActionName::SPLASHED};
+                    escape {ActionName::SPLASHED};
                 end
             end
-            xxx_escape = true;
         with
             AWAIT_UNTIL_FRAME(_Actions__Bomber, BOMBER_UPDATE, me.sprite, 10);
         end
 
-        if not xxx_escape then
-            // Throwing particles
-            {
-                WorldObj::get_world()->play_sound("plop",
-                    ((CEU_Bomber*)_STK_ORG)->me->pingu->get_pos());
-            };
-            AWAIT_UNTIL_FRAME(_Actions__Bomber, BOMBER_UPDATE, me.sprite, 13);
-            {
-                WorldObj::get_world()->get_pingu_particle_holder()->
-                    add_particle((int)(((CEU_Bomber*)_STK_ORG)->me->pingu->get_x()),
-                                 (int)(((CEU_Bomber*)_STK_ORG)->me->pingu->get_y())-5);
-            };
-            {
-                WorldObj::get_world()->remove(((CEU_Bomber*)_STK_ORG)->me->bomber_radius,
-                    (int) ((int)(((CEU_Bomber*)_STK_ORG)->me->pingu->get_x()) -
-                                    (((CEU_Bomber*)_STK_ORG)->me->bomber_radius.get_width()/2)),
-                    (int) ((int)(((CEU_Bomber*)_STK_ORG)->me->pingu->get_y()) -
-                                    16 - (((CEU_Bomber*)_STK_ORG)->me->bomber_radius.get_width()/2)));
-            };
+        // Throwing particles
+        {
+            WorldObj::get_world()->play_sound("plop",
+                ((CEU_Bomber*)_STK_ORG)->me->pingu->get_pos());
+        };
+        AWAIT_UNTIL_FRAME(_Actions__Bomber, BOMBER_UPDATE, me.sprite, 13);
+        {
+            WorldObj::get_world()->get_pingu_particle_holder()->
+                add_particle((int)(((CEU_Bomber*)_STK_ORG)->me->pingu->get_x()),
+                             (int)(((CEU_Bomber*)_STK_ORG)->me->pingu->get_y())-5);
+        };
+        {
+            WorldObj::get_world()->remove(((CEU_Bomber*)_STK_ORG)->me->bomber_radius,
+                (int) ((int)(((CEU_Bomber*)_STK_ORG)->me->pingu->get_x()) -
+                                (((CEU_Bomber*)_STK_ORG)->me->bomber_radius.get_width()/2)),
+                (int) ((int)(((CEU_Bomber*)_STK_ORG)->me->pingu->get_y()) -
+                                16 - (((CEU_Bomber*)_STK_ORG)->me->bomber_radius.get_width()/2)));
+        };
 
-            // The pingu explode
-            loop do
-                AWAIT_UNTIL_MYSELF(_Actions__Bomber,BOMBER_UPDATE);
-                if me.sprite[me.pingu:direction].is_finished() then
-                    me.pingu:set_status({Pingu::PS_DEAD});
-                    break;
-                    ///escape {ActionName::PS_DEAD}; /// TODO: not an action
-                end
+        // The pingu explode
+        loop do
+            AWAIT_UNTIL_MYSELF(_Actions__Bomber,BOMBER_UPDATE);
+            if me.sprite[me.pingu:direction].is_finished() then
+                escape {ActionName::DEAD};
             end
         end
     end
-    ///escape {ActionName::WALKER};
-    ///await FOREVER;
-    await 100ms; /// TODO: bug
 end
-
-class BomberFactory with
-do
-    every me_ in BOMBER_NEW do
-        spawn Bomber with
-            this.me = &_XXX_PTR2REF(me_);
-        end;
-    end
-end
-
-var BomberFactory _;
 
 #endif

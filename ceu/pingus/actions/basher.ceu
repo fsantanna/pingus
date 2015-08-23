@@ -11,16 +11,12 @@ native/pre do
 end
 native @plain _Actions__Basher;
 
-input (_Actions__Basher&&) BASHER_NEW;
-input (_PinguAction&&)     PINGU_ACTION_DELETE;
 input (_Actions__Basher&&) BASHER_UPDATE;
 
 class Basher with
     var _Actions__Basher& me;
 do
-    par/or do
-        AWAIT_UNTIL_MYSELF(_PinguAction,PINGU_ACTION_DELETE);
-    with
+    par do
         loop do
             AWAIT_UNTIL_MYSELF(_Actions__Basher,BASHER_UPDATE);
             me.sprite[me.pingu:direction].update();
@@ -36,16 +32,14 @@ do
                 // FIXME: set_action() in walk_forward() makes the Basher 
                 // object invalid, thus making all further access illegal and 
                 // thus forces the return here
-                break;
+                continue;
             end
 
             // If on walking forward the Basher has now walked on to water or lava
             if me.rel_getpixel(0,-1) == {Groundtype::GP_WATER} or
                me.rel_getpixel(0,-1) == {Groundtype::GP_LAVA}
             then
-                me.pingu:set_action({ActionName::DROWN});
-                break;
-                ///escape {ActionName::DROWN};
+                escape {ActionName::DROWN};
 
             // If walking on to something (i.e. hasn't fallen)
             else/if me.rel_getpixel(0,-1) != {Groundtype::GP_NOTHING}
@@ -58,9 +52,7 @@ do
                     // Change direction and let walk code walk forward/up to get out.
                     { Sound::PingusSound::play_sound("chink"); };
                     me.pingu:direction.change();
-                    me.pingu:set_action({ActionName::WALKER});
-                    break;
-                    ///escape {ActionName::WALKER};
+                    escape {ActionName::WALKER};
                 else/if is_first_bash or me.have_something_to_dig() then
                     is_first_bash = false;
                     // We only bash every second step, cause the Pingus would
@@ -74,26 +66,11 @@ do
                     // FIXME: Game logic must be separate from Sprite
                     // FIXME: EVIL! Engine must not relay on graphic
                 then
-                    me.pingu:set_action({ActionName::WALKER});
-                    break;
-                    ///escape {ActionName::WALKER};
+                    escape {ActionName::WALKER};
                 end
             end
         end
     end
-    ///escape {ActionName::WALKER};
-    await 100ms; /// TODO: bug
 end
-
-class BasherFactory with
-do
-    every me_ in BASHER_NEW do
-        spawn Basher with
-            this.me = &_XXX_PTR2REF(me_);
-        end;
-    end
-end
-
-var BasherFactory _;
 
 #endif

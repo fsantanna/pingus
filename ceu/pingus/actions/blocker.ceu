@@ -11,48 +11,26 @@ native/pre do
 end
 native @plain _Actions__Blocker;
 
-input (_Actions__Blocker&&) BLOCKER_NEW;
-input (_PinguAction&&)      PINGU_ACTION_DELETE;
 input (_Actions__Blocker&&) BLOCKER_UPDATE;
 
 class Blocker with
     var _Actions__Blocker& me;
 do
-    par/or do
-        AWAIT_UNTIL_MYSELF(_PinguAction,PINGU_ACTION_DELETE);
-    with
-        loop do
-            AWAIT_UNTIL_MYSELF(_Actions__Blocker,BLOCKER_UPDATE);
-            if not me.standing_on_ground() then
-                me.pingu:set_action({ActionName::FALLER});
-                break;
-                ///escape {ActionName::FALLER};
-            end
-
-            // FIXME: PinguHolder iterations should be handled otherwise
-            {
-                /// XXX_CPP
-                static PinguHolder* pingus = WorldObj::get_world()->get_pingus();
-                for(PinguIter i = pingus->begin(); i != pingus->end(); ++i)
-                    ((CEU_Blocker*)_STK_ORG)->me->catch_pingu(*i);
-            };
-            me.sprite.update();
+    loop do
+        AWAIT_UNTIL_MYSELF(_Actions__Blocker,BLOCKER_UPDATE);
+        if not me.standing_on_ground() then
+            escape {ActionName::FALLER};
         end
-    end
-    ///escape {ActionName::WALKER};
-    ///await FOREVER;
-    await 100ms; /// TODO: bug
-end
 
-class BlockerFactory with
-do
-    every me_ in BLOCKER_NEW do
-        spawn Blocker with
-            this.me = &_XXX_PTR2REF(me_);
-        end;
+        // FIXME: PinguHolder iterations should be handled otherwise
+        {
+            /// XXX_CPP
+            static PinguHolder* pingus = WorldObj::get_world()->get_pingus();
+            for(PinguIter i = pingus->begin(); i != pingus->end(); ++i)
+                ((CEU_Blocker*)_STK_ORG)->me->catch_pingu(*i);
+        };
+        me.sprite.update();
     end
 end
-
-var BlockerFactory _;
 
 #endif

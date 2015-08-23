@@ -48,9 +48,6 @@ Bridger::Bridger (Pingu* p) :
                                              pingu->get_owner_str() + "/bridger/left"));
   build_sprite.load(Direction::RIGHT, Sprite("pingus/player" +
                                              pingu->get_owner_str() + "/bridger/right"));
-
-  void* this_ = this;
-  ceu_sys_go(&CEU_APP, CEU_IN_BRIDGER_NEW, &this_);
 }
 
 void

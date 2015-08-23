@@ -31,9 +31,6 @@ Floater::Floater(Pingu* p) :
   sprite()
 {
   sprite = Sprite("pingus/player" + pingu->get_owner_str() + "/floater/left");
-
-  void* this_ = this;
-  ceu_sys_go(&CEU_APP, CEU_IN_FLOATER_NEW, &this_);
 }
 
 void

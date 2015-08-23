@@ -42,9 +42,6 @@ Bomber::Bomber (Pingu* p) :
   sprite.load(Direction::RIGHT, "pingus/player" + pingu->get_owner_str() + "/bomber/right");
 
   WorldObj::get_world()->play_sound("ohno", pingu->get_pos ());
-
-  void* this_ = this;
-  ceu_sys_go(&CEU_APP, CEU_IN_BOMBER_NEW, &this_);
 }
 
 void

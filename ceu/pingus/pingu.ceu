@@ -169,6 +169,9 @@ with
                 end
                 if action == {ActionName::NONE} then
                     await FOREVER;
+                else/if action == {ActionName::DEAD} then
+                    me.set_status({Pingu::PS_DEAD});
+                    break;  // terminate loop/paror/class
                 else/if action == {ActionName::BASHER} then
                     action = DO_PINGU_ACTION(Basher);
                 else/if action == {ActionName::BLOCKER} then

@@ -41,9 +41,6 @@ Miner::Miner (Pingu* p) :
                                        pingu->get_owner_str() + "/miner/left"));
   sprite.load(Direction::RIGHT, Sprite("pingus/player" +
                                        pingu->get_owner_str() + "/miner/right"));
-
-  void* this_ = this;
-  ceu_sys_go(&CEU_APP, CEU_IN_MINER_NEW, &this_);
 }
 
 void

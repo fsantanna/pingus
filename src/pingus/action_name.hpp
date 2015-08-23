@@ -27,6 +27,7 @@ namespace ActionName {
 enum Enum
 {
   NONE,
+  DEAD,
   ANGEL,
   BASHER,
   BLOCKER,

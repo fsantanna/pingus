@@ -23,8 +23,6 @@
 #include "pingus/world.hpp"
 #include "pingus/worldobj.hpp"
 
-#include "ceu_vars.h"
-
 PinguAction::PinguAction (Pingu* p)
   : pingu (p)
 {
@@ -32,8 +30,6 @@ PinguAction::PinguAction (Pingu* p)
 
 PinguAction::~PinguAction ()
 {
-  void* this_ = this;
-  ceu_sys_go(&CEU_APP, CEU_IN_PINGU_ACTION_DELETE, &this_);
 }
 
 // Checks if the pingu action needs to catch another pingu (needed for

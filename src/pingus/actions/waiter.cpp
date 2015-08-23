@@ -29,24 +29,11 @@ Waiter::Waiter (Pingu* p) :
   sprite()
 {
   sprite = Sprite("pingus/player" + pingu->get_owner_str() + "/waiter/left");
-
-  void* this_ = this;
-  ceu_sys_go(&CEU_APP, CEU_IN_WAITER_NEW, &this_);
 }
 
 void
 Waiter::update ()
 {
-  ///sprite.update();
-
-  ///if (countdown < 0)
-  ///{
-    ///pingu->set_action(ActionName::WALKER);
-    ///return;
-  ///}
-
-  ///countdown -= 0.025f;
-
   void* this_ = this;
   ceu_sys_go(&CEU_APP, CEU_IN_WAITER_UPDATE, &this_);
 }
