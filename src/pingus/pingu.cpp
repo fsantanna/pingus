@@ -57,9 +57,9 @@ using namespace Actions;
 // Init a pingu at the given position while falling
 Pingu::Pingu (int arg_id, const Vector3f& arg_pos, int owner) :
   action(),
-  countdown_action(),
-  wall_action(),
-  fall_action(),
+  countdown_action(ActionName::NONE),
+  wall_action(ActionName::NONE),
+  fall_action(ActionName::NONE),
   previous_action(ActionName::FALLER),
   id(arg_id),
   action_time(-1),
@@ -72,12 +72,12 @@ Pingu::Pingu (int arg_id, const Vector3f& arg_pos, int owner) :
 {
   direction.left ();
 
-  void* this_ = this;
-  ceu_sys_go(&CEU_APP, CEU_IN_PINGU_NEW, &this_);
-
   // Initialisize the action, after this step the action ptr will
   // always be valid in the pingu class
-  action = create_action(ActionName::FALLER);
+  ///action = create_action(ActionName::FALLER);
+
+  void* this_ = this;
+  ceu_sys_go(&CEU_APP, CEU_IN_PINGU_NEW, &this_);
 }
 
 Pingu::~Pingu ()
@@ -173,7 +173,7 @@ Pingu::request_set_action(ActionName::Enum action_name)
         break;
 
       case WALL_TRIGGERED:
-        if (wall_action && wall_action->get_type() == action_name)
+        if (wall_action == action_name)
         {
           log_debug("Not using wall action, we have already");
           ret_val = false;
@@ -181,13 +181,13 @@ Pingu::request_set_action(ActionName::Enum action_name)
         else
         {
           log_debug("Setting wall action");
-          wall_action = create_action(action_name);
+          wall_action = action_name;
           ret_val = true;
         }
         break;
 
       case FALL_TRIGGERED:
-        if (fall_action && fall_action->get_type() == action_name)
+        if (fall_action == action_name)
         {
           log_debug("Not using fall action, we have already");
           ret_val = false;
@@ -195,14 +195,14 @@ Pingu::request_set_action(ActionName::Enum action_name)
         else
         {
           log_debug("Setting fall action");
-          fall_action = create_action(action_name);
+          fall_action = action_name;
           ret_val = true;
         }
         break;
 
       case COUNTDOWN_TRIGGERED:
         {
-          if (countdown_action && countdown_action->get_type() == action_name)
+          if (countdown_action == action_name)
           {
             log_debug("Not using countdown action, we have already");
             ret_val = false;
@@ -211,9 +211,9 @@ Pingu::request_set_action(ActionName::Enum action_name)
 
           log_debug("Setting countdown action");
           // We set the action and start the countdown
-          std::shared_ptr<PinguAction> act = create_action(action_name);
-          action_time = act->activation_time();
-          countdown_action = act;
+          ///std::shared_ptr<PinguAction> act = create_action(action_name);
+          action_time = -1;///act->activation_time();
+          countdown_action = action_name;
           ret_val = true;
         }
         break;
@@ -234,12 +234,7 @@ Pingu::request_set_action(ActionName::Enum action_name)
   return ret_val;
 }
 
-void
-Pingu::set_action (ActionName::Enum action_name)
-{
-  set_action(create_action(action_name));
-}
-
+#if 0
 // Sets an action without any checking
 void
 Pingu::set_action(std::shared_ptr<PinguAction> act)
@@ -250,11 +245,12 @@ Pingu::set_action(std::shared_ptr<PinguAction> act)
 
   action = act;
 }
+#endif
 
 bool
 Pingu::request_fall_action ()
 {
-  if (fall_action)
+  if (fall_action != ActionName::NONE)
   {
     set_action(fall_action);
     return true;
@@ -266,7 +262,7 @@ Pingu::request_fall_action ()
 bool
 Pingu::request_wall_action ()
 {
-  if (wall_action)
+  if (wall_action != ActionName::NONE)
   {
     set_action(wall_action);
     return true;
@@ -462,10 +458,18 @@ Pingu::catchable ()
   return action->catchable ();
 }
 
+void
+Pingu::set_action (ActionName::Enum action_name)
+{
+  assert(action_name != ActionName::NONE);
+  previous_action = action_name;
+#if 0
+  action = create_action(action_name);
+}
+
 std::shared_ptr<PinguAction>
 Pingu::create_action(ActionName::Enum action_)
 {
-#if 0
   switch(action_)
   {
     case ActionName::ANGEL:     return std::make_shared<Angel>(this);
@@ -493,12 +497,10 @@ Pingu::create_action(ActionName::Enum action_)
   }
 #endif
 
-  std::shared_ptr<PinguAction> ptr;
-  tceu__PinguAction_shared_ptr___Pingu___ActionName__Enum
-    p = {&ptr, this, action_};
+  tceu__Pingu___ActionName__Enum
+    p = {this, action_name};
   ceu_sys_go(&CEU_APP, CEU_IN_PINGU_SET_ACTION, &p);
 //printf("=== %p/%p\n", &ptr, ptr.get());
-  return ptr;
 }
 
 /* EOF */

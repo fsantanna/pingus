@@ -19,14 +19,14 @@ native/pre do
     ##define ActionName__Enum ActionName::Enum
     ##define PinguAction_shared_ptr std::shared_ptr<PinguAction>
 end
-native @plain _Pingu;
+native @plain _Pingu, _ActionName__Enum;
 
 input (_Pingu&&) PINGU_NEW;
 input (_Pingu&&) PINGU_DELETE;
 input (_Pingu&&) PINGU_UPDATE;
 
 input (_Pingu&&, bool&&, _ActionName__Enum) PINGU_REQUEST_SET_ACTION;
-input (_PinguAction_shared_ptr&&, _Pingu&&, _ActionName__Enum) PINGU_SET_ACTION;
+input (_Pingu&&, _ActionName__Enum)         PINGU_SET_ACTION;
 
 interface IAction with
     var _PinguAction& me;
@@ -59,10 +59,10 @@ do
             if me.action_time > -1 then
                 me.action_time = me.action_time - 1;
             end
-            if me.action_time==0 and me.countdown_action then
-                me.set_action(me.countdown_action);
+            if me.action_time==0 and (me.countdown_action!={ActionName::NONE}) then
                 // Reset the countdown action handlers
-                me.countdown_action = {std::shared_ptr<PinguAction>()};
+                me.countdown_action = {ActionName::NONE};
+                me.set_action(me.countdown_action);
                 me.action_time = -1;
                 break;
             end
@@ -100,39 +100,33 @@ do
                     *ret_val = false;
                 end
             else/if mode == {Pingu::WALL_TRIGGERED} then
-                if me.wall_action and
-                   me.wall_action:get_type() == action_name
-                then
+                if me.wall_action == action_name then
                     _log_debug("Not using wall action, we have already");
                     *ret_val = false;
                 else
                     _log_debug("Setting wall action");
-                    me.wall_action = me.create_action(action_name);
+                    me.wall_action = action_name;
                     *ret_val = true;
                 end
             else/if mode == {Pingu::FALL_TRIGGERED} then
-                if me.fall_action and
-                   me.fall_action:get_type() == action_name
-                then
+                if me.fall_action == action_name then
                     _log_debug("Not using fall action, we have already");
                     *ret_val = false;
                 else
                     _log_debug("Setting fall action");
-                    me.fall_action = me.create_action(action_name);
+                    me.fall_action = action_name;
                     *ret_val = true;
                 end
             else/if mode == {Pingu::COUNTDOWN_TRIGGERED} then
-                if me.countdown_action and
-                   me.countdown_action:get_type() == action_name
-                then
+                if me.countdown_action == action_name then
                     _log_debug("Not using countdown action, we have already");
                     *ret_val = false;
                 else
                     _log_debug("Setting countdown action");
                     // We set the action and start the countdown
-                    std::shared_ptr<PinguAction> act = me.create_action(action_name);
-                    me.action_time = me.act:activation_time();
-                    me.countdown_action = act;
+                    ///std::shared_ptr<PinguAction> act = me.create_action(action_name);
+                    me.action_time = -1;///me.act:activation_time();
+                    me.countdown_action = action_name;
                     *ret_val = true;
                 end
             else
@@ -145,54 +139,70 @@ do
         await FOREVER;
 #endif
     with
-        //var _PinguAction_shared_ptr&& ret;
-        //var _Pingu&&                  ptr;
-        //var _ActionName__Enum         action_;
 //_printf(">>> OK\n");
-        every (ret, ptr, action_) in PINGU_SET_ACTION do
-                                  //until ptr == &&this.me;
-//_printf(">>> SET %p vs %p\n", ptr, &&this.me);
-            if ptr != &&this.me then
-                continue;
-            end
-
-            #define PINGU_ACTION_SPAWN(T)                           \
-                var _##T&& action = _XXX_PURE({new T}(&&this.me)    \
-                                                 finalize with nothing; end); \
-                ret:reset(action)                                   \
-                    finalize with nothing; end;                     \
-//_printf("--- %p/%p\n", ret, ret:get()); \
-                var T&&? ret_ =                                     \
-                    spawn T in this.actions with                    \
-                        this.me = &_XXX_PTR2REF(action);            \
-                    end;
-
-            if action_ == {ActionName::BASHER} then
-                PINGU_ACTION_SPAWN(Basher);
-            else/if action_ == {ActionName::BLOCKER} then
-                PINGU_ACTION_SPAWN(Blocker);
-            else/if action_ == {ActionName::BOMBER} then
-                PINGU_ACTION_SPAWN(Bomber);
-            else/if action_ == {ActionName::BRIDGER} then
-                PINGU_ACTION_SPAWN(Bridger);
-            else/if action_ == {ActionName::DIGGER} then
-                PINGU_ACTION_SPAWN(Digger);
-            else/if action_ == {ActionName::DROWN} then
-                PINGU_ACTION_SPAWN(Drown);
-            else/if action_ == {ActionName::FALLER} then
-                PINGU_ACTION_SPAWN(Faller);
-            else/if action_ == {ActionName::FLOATER} then
-                PINGU_ACTION_SPAWN(Floater);
-            else/if action_ == {ActionName::MINER} then
-                PINGU_ACTION_SPAWN(Miner);
-            else/if action_ == {ActionName::WAITER} then
-                PINGU_ACTION_SPAWN(Waiter);
-            else/if action_ == {ActionName::WALKER} then
-                PINGU_ACTION_SPAWN(Walker);
-            else
-                _assert({!"Invalid action name provied"});
+        event _ActionName__Enum e_set_action;
+        var int bad = 0;
+par do
+    every (ptr,action) in PINGU_SET_ACTION do
+        if ptr == &&this.me then
+            bad = bad + 1;
+            emit e_set_action => action;
+        end
+    end
+with
+        var   _ActionName__Enum action = {ActionName::FALLER};
+        loop do
+            par/or do
+                action = await e_set_action;
+                bad = bad - 1;
+            with
+                #define DO_PINGU_ACTION(T)                          \
+                do                                                  \
+                    var _##T&& ptr = _XXX_PURE({new T}(&&this.me)   \
+                                                     finalize with nothing; end); \
+                    me.action.reset(ptr)                            \
+                        finalize with nothing; end;                 \
+                    var int a = do T with                           \
+                        this.me = &_XXX_PTR2REF(ptr);               \
+                    end;                                            \
+                    escape (_ActionName__Enum)a;                    \
+                end
+                if action == {ActionName::NONE} then
+                    await FOREVER;
+                else/if action == {ActionName::BASHER} then
+                    action = DO_PINGU_ACTION(Basher);
+                else/if action == {ActionName::BLOCKER} then
+                    action = DO_PINGU_ACTION(Blocker);
+                else/if action == {ActionName::BOMBER} then
+                    action = DO_PINGU_ACTION(Bomber);
+                else/if action == {ActionName::BRIDGER} then
+                    action = DO_PINGU_ACTION(Bridger);
+                else/if action == {ActionName::DIGGER} then
+                    action = DO_PINGU_ACTION(Digger);
+                else/if action == {ActionName::DROWN} then
+                    action = DO_PINGU_ACTION(Drown);
+                else/if action == {ActionName::FALLER} then
+                    action = DO_PINGU_ACTION(Faller);
+                else/if action == {ActionName::FLOATER} then
+                    action = DO_PINGU_ACTION(Floater);
+                else/if action == {ActionName::MINER} then
+                    action = DO_PINGU_ACTION(Miner);
+                else/if action == {ActionName::WAITER} then
+                    action = DO_PINGU_ACTION(Waiter);
+                else/if action == {ActionName::WALKER} then
+                    action = DO_PINGU_ACTION(Walker);
+                else
+                    _assert({!"Invalid action name provied"});
+                end
             end
         end
+with
+    every e_set_action do
+        if bad > 0 then
+            _assert({!"MISSED SET_ACTION"});
+        end
+    end
+end
     end
 //_printf(">>> DEAD\n");
 end

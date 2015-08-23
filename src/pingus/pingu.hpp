@@ -48,13 +48,13 @@ private:
 
   /** A secondary action which will turn active after a given amount of time
       The only example is currently the bomber. */
-  std::shared_ptr<PinguAction> countdown_action;
+  ActionName::Enum countdown_action;
 
   /** the action that gets triggered when the pingu hits a wall */
-  std::shared_ptr<PinguAction> wall_action;
+  ActionName::Enum wall_action;
 
   /** the action that gets triggered when the pingu falls */
-  std::shared_ptr<PinguAction> fall_action;
+  ActionName::Enum fall_action;
 
   /** The previous_action contains the action type that was in action
       before action got applied, its here to enable action to behave
@@ -80,9 +80,10 @@ private:
   Vector3f velocity;
 
 private:
+#if 0
   void set_action(std::shared_ptr<PinguAction>);
-
   std::shared_ptr<PinguAction> create_action(ActionName::Enum action);
+#endif
 
 public:
 
@@ -172,9 +173,9 @@ public:
   /// set the fall action if we have one
   bool request_fall_action ();
 
-  PinguAction* get_wall_action () { return wall_action.get(); }
+  ActionName::Enum get_wall_action () { return wall_action; }
 
-  PinguAction* get_fall_action () { return fall_action.get(); }
+  ActionName::Enum get_fall_action () { return fall_action; }
 
   /** Returns the `color' of the colmap in the walking direction
       Examples:
