@@ -1,0 +1,33 @@
+#ifndef _EXITER_CEU
+#define _EXITER_CEU
+
+native/pre do
+    ##include "../src/pingus/pingu.hpp"
+    ##include "../src/pingus/pingu_action.hpp"
+    ##include "../src/pingus/actions/exiter.hpp"
+    ##define Actions__Exiter Actions::Exiter
+end
+native @plain _Actions__Exiter;
+
+input (_Actions__Exiter&&) EXITER_UPDATE;
+
+class Exiter with
+    var _Actions__Exiter& me;
+do
+    var bool sound_played = false;
+    loop do
+        AWAIT_UNTIL_MYSELF(_Actions__Exiter,EXITER_UPDATE);
+        me.sprite[me.pingu:direction].update();
+
+        if not sound_played then
+            { Sound::PingusSound::play_sound("yipee"); };
+            sound_played = true;
+        end
+
+        if (me.sprite[me.pingu:direction].is_finished()) then
+            escape {ActionName::NONE};
+        end
+    end
+end
+
+#endif

@@ -20,6 +20,8 @@
 #include "engine/sound/sound.hpp"
 #include "pingus/pingu.hpp"
 
+#include "ceu_vars.h"
+
 namespace Actions {
 
 Exiter::Exiter (Pingu* p) :
@@ -36,21 +38,8 @@ Exiter::Exiter (Pingu* p) :
 void
 Exiter::update ()
 {
-  sprite[pingu->direction].update();
-
-  if (!sound_played)
-  {
-    sound_played = true;
-    Sound::PingusSound::play_sound("yipee");
-  }
-
-  if (sprite[pingu->direction].is_finished())
-  {
-    if (pingu->get_status() != Pingu::PS_EXITED)
-    {
-      pingu->set_status(Pingu::PS_EXITED);
-    }
-  }
+  void* this_ = this;
+  ceu_sys_go(&CEU_APP, CEU_IN_EXITER_UPDATE, &this_);
 }
 
 void

@@ -14,6 +14,7 @@ input (_Pingu&&, _ActionName__Enum)         PINGU_SET_ACTION;
 #include "actions/bridger.ceu"
 #include "actions/digger.ceu"
 #include "actions/drown.ceu"
+#include "actions/exiter.ceu"
 #include "actions/faller.ceu"
 #include "actions/floater.ceu"
 #include "actions/jumper.ceu"
@@ -168,7 +169,8 @@ with
                     await FOREVER;
                 else/if action == {ActionName::DEAD} then
                     me.set_status({Pingu::PS_DEAD});
-                    break;  // terminate loop/paror/class
+                    break;
+                    ///escape {Pingu:PS_DEAD};
                 else/if action == {ActionName::BASHER} then
                     action = DO_PINGU_ACTION(Basher);
                 else/if action == {ActionName::BLOCKER} then
@@ -181,6 +183,11 @@ with
                     action = DO_PINGU_ACTION(Digger);
                 else/if action == {ActionName::DROWN} then
                     action = DO_PINGU_ACTION(Drown);
+                else/if action == {ActionName::EXITER} then
+                    action = DO_PINGU_ACTION(Exiter);
+                    me.set_status({Pingu::PS_EXITED});
+                    await FOREVER;
+                    ///escape {Pingu:PS_EXITED};
                 else/if action == {ActionName::FALLER} then
                     action = DO_PINGU_ACTION(Faller);
                 else/if action == {ActionName::FLOATER} then
