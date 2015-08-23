@@ -22,6 +22,8 @@
 #include "pingus/pingu.hpp"
 #include "util/log.hpp"
 
+#include "ceu_vars.h"
+
 namespace Actions {
 
 Walker::Walker (Pingu* p) :
@@ -37,11 +39,15 @@ Walker::Walker (Pingu* p) :
 
   // Reset the velocity
   pingu->set_velocity(Vector3f());
+
+  void* this_ = this;
+  ceu_sys_go(&CEU_APP, CEU_IN_WALKER_NEW, &this_);
 }
 
 void
 Walker::update ()
 {
+#if 0
   // update the sprite
   walker[pingu->direction].update(0.033f);
   floaterlayer[pingu->direction].update(0.033f);
@@ -184,6 +190,10 @@ Walker::update ()
     pingu->set_pos(last_pos);
     return;
   }
+#endif
+
+  void* this_ = this;
+  ceu_sys_go(&CEU_APP, CEU_IN_WALKER_UPDATE, &this_);
 }
 
 void

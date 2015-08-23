@@ -72,12 +72,12 @@ Pingu::Pingu (int arg_id, const Vector3f& arg_pos, int owner) :
 {
   direction.left ();
 
+  void* this_ = this;
+  ceu_sys_go(&CEU_APP, CEU_IN_PINGU_NEW, &this_);
+
   // Initialisize the action, after this step the action ptr will
   // always be valid in the pingu class
   action = create_action(ActionName::FALLER);
-
-  void* this_ = this;
-  ceu_sys_go(&CEU_APP, CEU_IN_PINGU_NEW, &this_);
 }
 
 Pingu::~Pingu ()
@@ -225,6 +225,11 @@ Pingu::request_set_action(ActionName::Enum action_name)
         break;
     }
   }
+
+#if 0
+  tceu__Pingu___bool___int p = {this, &ret_val, action_name};
+  ceu_sys_go(&CEU_APP, CEU_IN_SPRITE_NEW_NAME, &p);
+#endif
 
   return ret_val;
 }
@@ -460,6 +465,7 @@ Pingu::catchable ()
 std::shared_ptr<PinguAction>
 Pingu::create_action(ActionName::Enum action_)
 {
+#if 0
   switch(action_)
   {
     case ActionName::ANGEL:     return std::make_shared<Angel>(this);
@@ -485,6 +491,14 @@ Pingu::create_action(ActionName::Enum action_)
     case ActionName::WALKER:    return std::make_shared<Walker>(this);
     default: assert(!"Invalid action name provied");
   }
+#endif
+
+  std::shared_ptr<PinguAction> ptr;
+  tceu__PinguAction_shared_ptr___Pingu___ActionName__Enum
+    p = {&ptr, this, action_};
+  ceu_sys_go(&CEU_APP, CEU_IN_PINGU_SET_ACTION, &p);
+printf("=== %p/%p\n", &ptr, ptr.get());
+  return ptr;
 }
 
 /* EOF */
