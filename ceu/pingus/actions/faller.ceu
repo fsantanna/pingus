@@ -104,7 +104,7 @@ do
                     escape (int){ActionName::WALKER};
                 end
             end
-            _assert(0);
+            //_assert(0);
 
         else // if (_velocity.y < 0.0f)
             // If the Pingu collided into something while moving up...

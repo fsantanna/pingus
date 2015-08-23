@@ -144,6 +144,7 @@ Pingu::request_set_action(ActionName::Enum action_name)
 {
   bool ret_val = false;
 
+#if 0
   if (status == PS_DEAD)
   {
     log_debug("Setting action to a dead pingu");
@@ -225,11 +226,10 @@ Pingu::request_set_action(ActionName::Enum action_name)
         break;
     }
   }
-
-#if 0
-  tceu__Pingu___bool___int p = {this, &ret_val, action_name};
-  ceu_sys_go(&CEU_APP, CEU_IN_SPRITE_NEW_NAME, &p);
 #endif
+
+  tceu__Pingu___bool___ActionName__Enum p = {this, &ret_val, action_name};
+  ceu_sys_go(&CEU_APP, CEU_IN_PINGU_REQUEST_SET_ACTION, &p);
 
   return ret_val;
 }

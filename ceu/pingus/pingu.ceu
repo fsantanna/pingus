@@ -1,6 +1,13 @@
 #ifndef _PINGU_CEU
 #define _PINGU_CEU
 
+input (_Pingu&&) PINGU_NEW;
+input (_Pingu&&) PINGU_DELETE;
+input (_Pingu&&) PINGU_UPDATE;
+
+input (_Pingu&&, bool&&, _ActionName__Enum) PINGU_REQUEST_SET_ACTION;
+input (_Pingu&&, _ActionName__Enum)         PINGU_SET_ACTION;
+
 #include "actions/basher.ceu"
 #include "actions/blocker.ceu"
 #include "actions/bomber.ceu"
@@ -21,13 +28,6 @@ native/pre do
 end
 native @plain _Pingu, _ActionName__Enum;
 
-input (_Pingu&&) PINGU_NEW;
-input (_Pingu&&) PINGU_DELETE;
-input (_Pingu&&) PINGU_UPDATE;
-
-input (_Pingu&&, bool&&, _ActionName__Enum) PINGU_REQUEST_SET_ACTION;
-input (_Pingu&&, _ActionName__Enum)         PINGU_SET_ACTION;
-
 interface IAction with
     var _PinguAction& me;
 end
@@ -36,6 +36,7 @@ class Pingu with
     var _Pingu& me;
     pool IAction[]& actions;
 do
+    event _ActionName__Enum e_set_action;
     par/or do
         AWAIT_UNTIL_MYSELF(_Pingu,PINGU_DELETE);
     with
@@ -70,36 +71,36 @@ do
             me.action:update();
         end
         await FOREVER;
-#if 0
     with
-        var bool&& ret;
         loop do
             var _Pingu&& ptr;
-            (ptr, ret, action_name) = await PINGU_REQUEST_SET_ACTION
-                                      until ptr == &&this.me;
+            var bool&&   ret_val;
+            var _ActionName__Enum action_name;
+            (ptr, ret_val, action_name) = await PINGU_REQUEST_SET_ACTION
+                                          until ptr == &&this.me;
+            *ret_val = false;
 
-            /// TODO(control)
             if me.status == {Pingu::PS_DEAD} then
                 _log_debug("Setting action to a dead pingu");
-                break;
+                continue;
             end
 
             var int mode = {PinguAction::get_activation_mode}(action_name);
 
-            if mode == {Pingu::INSTANT} then
+            if mode == {ActionType::INSTANT} then
                 if action_name == me.action:get_type() then
                     _log_debug("Pingu: Already have action");
                     *ret_val = false;
                 else/if me.action:change_allowed(action_name) then
                     _log_debug("setting instant action");
-                    me.set_action(action_name);
                     *ret_val = true;
+                    emit e_set_action => action_name;
                 else
                     _log_debug("change from action %1% not allowed",
                                me.action:get_name());
                     *ret_val = false;
                 end
-            else/if mode == {Pingu::WALL_TRIGGERED} then
+            else/if mode == {ActionType::WALL_TRIGGERED} then
                 if me.wall_action == action_name then
                     _log_debug("Not using wall action, we have already");
                     *ret_val = false;
@@ -108,7 +109,7 @@ do
                     me.wall_action = action_name;
                     *ret_val = true;
                 end
-            else/if mode == {Pingu::FALL_TRIGGERED} then
+            else/if mode == {ActionType::FALL_TRIGGERED} then
                 if me.fall_action == action_name then
                     _log_debug("Not using fall action, we have already");
                     *ret_val = false;
@@ -117,7 +118,7 @@ do
                     me.fall_action = action_name;
                     *ret_val = true;
                 end
-            else/if mode == {Pingu::COUNTDOWN_TRIGGERED} then
+            else/if mode == {ActionType::COUNTDOWN_TRIGGERED} then
                 if me.countdown_action == action_name then
                     _log_debug("Not using countdown action, we have already");
                     *ret_val = false;
@@ -132,15 +133,11 @@ do
             else
                 _log_debug("unknown action activation_mode");
                 *ret_val = false;
-                assert(0);
+                _assert(0);
             end
         end
-        *ret = false;
-        await FOREVER;
-#endif
     with
 //_printf(">>> OK\n");
-        event _ActionName__Enum e_set_action;
         var int bad = 0;
 par do
     every (ptr,action) in PINGU_SET_ACTION do
@@ -196,6 +193,7 @@ with
                     action = DO_PINGU_ACTION(Walker);
                 else
                     _assert({!"Invalid action name provied"});
+                    await FOREVER;
                 end
             end
         end

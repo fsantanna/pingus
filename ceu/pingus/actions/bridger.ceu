@@ -66,6 +66,8 @@ do
         me.walk_sprite[me.pingu:direction].restart();
         me.walk_one_step_up();
     end
+    _assert(0);
+    await FOREVER;
 end
 
 #endif
