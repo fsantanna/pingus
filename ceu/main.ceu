@@ -8,6 +8,8 @@ end
 native do
     ##include <assert.h>
 
+    ##define XXX_PURE(x) x
+    ##define XXX_NOHOLD(x) x
     ##define XXX_PTR2REF(x) x
     ##define ME(tp) (((tp*)_STK_ORG)->me)
 
@@ -17,7 +19,8 @@ end
 native @pure _Resource__load_sprite_desc(), _Pathname();
 native @plain _Sprite, _Surface, _SpriteDescription;
 native @plain _ResourceModifier__Enum;
-native @pure _XXX_PTR2REF();
+native @pure   _XXX_PURE(), _XXX_PTR2REF();
+native @nohold _XXX_NOHOLD();
 native @nohold _delete();
 
 #if 0

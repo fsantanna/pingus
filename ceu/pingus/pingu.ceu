@@ -12,10 +12,12 @@
 #include "actions/jumper.ceu"
 #include "actions/miner.ceu"
 #include "actions/waiter.ceu"
+#include "actions/walker.ceu"
 
-native do
+native/pre do
     using namespace Actions;
-    //##define ActionName__Enum ActionName::Enum
+    ##define ActionName__Enum ActionName::Enum
+    ##define PinguAction_shared_ptr std::shared_ptr<PinguAction>
 end
 native @plain _Pingu;
 
@@ -23,10 +25,16 @@ input (_Pingu&&) PINGU_NEW;
 input (_Pingu&&) PINGU_DELETE;
 input (_Pingu&&) PINGU_UPDATE;
 
-//input (bool&&, _ActionName__Enum) PINGU_REQUEST_SET_ACTION;
+input (_Pingu&&, bool&&, _ActionName__Enum) PINGU_REQUEST_SET_ACTION;
+input (_PinguAction_shared_ptr&&, _Pingu&&, _ActionName__Enum) PINGU_SET_ACTION;
+
+interface IAction with
+    var _PinguAction& me;
+end
 
 class Pingu with
     var _Pingu& me;
+    pool IAction[]& actions;
 do
     par/or do
         AWAIT_UNTIL_MYSELF(_Pingu,PINGU_DELETE);
@@ -62,18 +70,148 @@ do
             me.action:update();
         end
         await FOREVER;
+#if 0
+    with
+        var bool&& ret;
+        loop do
+            var _Pingu&& ptr;
+            (ptr, ret, action_name) = await PINGU_REQUEST_SET_ACTION
+                                      until ptr == &&this.me;
+
+            /// TODO(control)
+            if me.status == {Pingu::PS_DEAD} then
+                _log_debug("Setting action to a dead pingu");
+                break;
+            end
+
+            var int mode = {PinguAction::get_activation_mode}(action_name);
+
+            if mode == {Pingu::INSTANT} then
+                if action_name == me.action:get_type() then
+                    _log_debug("Pingu: Already have action");
+                    *ret_val = false;
+                else/if me.action:change_allowed(action_name) then
+                    _log_debug("setting instant action");
+                    me.set_action(action_name);
+                    *ret_val = true;
+                else
+                    _log_debug("change from action %1% not allowed",
+                               me.action:get_name());
+                    *ret_val = false;
+                end
+            else/if mode == {Pingu::WALL_TRIGGERED} then
+                if me.wall_action and
+                   me.wall_action:get_type() == action_name
+                then
+                    _log_debug("Not using wall action, we have already");
+                    *ret_val = false;
+                else
+                    _log_debug("Setting wall action");
+                    me.wall_action = me.create_action(action_name);
+                    *ret_val = true;
+                end
+            else/if mode == {Pingu::FALL_TRIGGERED} then
+                if me.fall_action and
+                   me.fall_action:get_type() == action_name
+                then
+                    _log_debug("Not using fall action, we have already");
+                    *ret_val = false;
+                else
+                    _log_debug("Setting fall action");
+                    me.fall_action = me.create_action(action_name);
+                    *ret_val = true;
+                end
+            else/if mode == {Pingu::COUNTDOWN_TRIGGERED} then
+                if me.countdown_action and
+                   me.countdown_action:get_type() == action_name
+                then
+                    _log_debug("Not using countdown action, we have already");
+                    *ret_val = false;
+                else
+                    _log_debug("Setting countdown action");
+                    // We set the action and start the countdown
+                    std::shared_ptr<PinguAction> act = me.create_action(action_name);
+                    me.action_time = me.act:activation_time();
+                    me.countdown_action = act;
+                    *ret_val = true;
+                end
+            else
+                _log_debug("unknown action activation_mode");
+                *ret_val = false;
+                assert(0);
+            end
+        end
+        *ret = false;
+        await FOREVER;
+#endif
+    with
+        //var _PinguAction_shared_ptr&& ret;
+        //var _Pingu&&                  ptr;
+        //var _ActionName__Enum         action_;
+//_printf(">>> OK\n");
+        every (ret, ptr, action_) in PINGU_SET_ACTION do
+                                  //until ptr == &&this.me;
+//_printf(">>> SET %p vs %p\n", ptr, &&this.me);
+            if ptr != &&this.me then
+                continue;
+            end
+
+            #define PINGU_ACTION_SPAWN(T)                           \
+                var _##T&& action = _XXX_PURE({new T}(&&this.me)    \
+                                                 finalize with nothing; end); \
+                ret:reset(action)                                   \
+                    finalize with nothing; end;                     \
+//_printf("--- %p/%p\n", ret, ret:get()); \
+                var T&&? ret_ =                                     \
+                    spawn T in this.actions with                    \
+                        this.me = &_XXX_PTR2REF(action);            \
+                    end;
+
+            if action_ == {ActionName::BASHER} then
+                PINGU_ACTION_SPAWN(Basher);
+            else/if action_ == {ActionName::BLOCKER} then
+                PINGU_ACTION_SPAWN(Blocker);
+            else/if action_ == {ActionName::BOMBER} then
+                PINGU_ACTION_SPAWN(Bomber);
+            else/if action_ == {ActionName::BRIDGER} then
+                PINGU_ACTION_SPAWN(Bridger);
+            else/if action_ == {ActionName::DIGGER} then
+                PINGU_ACTION_SPAWN(Digger);
+            else/if action_ == {ActionName::DROWN} then
+                PINGU_ACTION_SPAWN(Drown);
+            else/if action_ == {ActionName::FALLER} then
+                PINGU_ACTION_SPAWN(Faller);
+            else/if action_ == {ActionName::FLOATER} then
+                PINGU_ACTION_SPAWN(Floater);
+            else/if action_ == {ActionName::MINER} then
+                PINGU_ACTION_SPAWN(Miner);
+            else/if action_ == {ActionName::WAITER} then
+                PINGU_ACTION_SPAWN(Waiter);
+            else/if action_ == {ActionName::WALKER} then
+                PINGU_ACTION_SPAWN(Walker);
+            else
+                _assert({!"Invalid action name provied"});
+            end
+        end
     end
+//_printf(">>> DEAD\n");
 end
 
+pool IAction[] actions;
+
 class PinguFactory with
+    pool IAction[]& actions;
 do
     every me_ in PINGU_NEW do
         spawn Pingu with
-            this.me = &_XXX_PTR2REF(me_);
+            this.me      = &_XXX_PTR2REF(me_);
+            this.actions = &outer.actions;
         end;
     end
 end
 
-var PinguFactory _;
+var PinguFactory _ with
+    this.actions = &actions;
+end;
 
 #endif

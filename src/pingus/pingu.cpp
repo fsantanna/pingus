@@ -497,7 +497,7 @@ Pingu::create_action(ActionName::Enum action_)
   tceu__PinguAction_shared_ptr___Pingu___ActionName__Enum
     p = {&ptr, this, action_};
   ceu_sys_go(&CEU_APP, CEU_IN_PINGU_SET_ACTION, &p);
-printf("=== %p/%p\n", &ptr, ptr.get());
+//printf("=== %p/%p\n", &ptr, ptr.get());
   return ptr;
 }
 
