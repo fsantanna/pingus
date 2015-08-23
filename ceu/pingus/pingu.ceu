@@ -186,7 +186,7 @@ with
                 else/if action == {ActionName::EXITER} then
                     action = DO_PINGU_ACTION(Exiter);
                     me.set_status({Pingu::PS_EXITED});
-                    await FOREVER;
+                    break;
                     ///escape {Pingu:PS_EXITED};
                 else/if action == {ActionName::FALLER} then
                     action = DO_PINGU_ACTION(Faller);
@@ -199,6 +199,7 @@ with
                 else/if action == {ActionName::WALKER} then
                     action = DO_PINGU_ACTION(Walker);
                 else
+_printf("Oioio %d\n", action);
                     _assert({!"Invalid action name provied"});
                     await FOREVER;
                 end

@@ -79,12 +79,6 @@ private:
 
   Vector3f velocity;
 
-private:
-#if 0
-  void set_action(std::shared_ptr<PinguAction>);
-  std::shared_ptr<PinguAction> create_action(ActionName::Enum action);
-#endif
-
 public:
 
   //FIXME make me private

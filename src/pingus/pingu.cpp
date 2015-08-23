@@ -144,108 +144,11 @@ Pingu::request_set_action(ActionName::Enum action_name)
 {
   bool ret_val = false;
 
-#if 0
-  if (status == PS_DEAD)
-  {
-    log_debug("Setting action to a dead pingu");
-    ret_val =  false;
-  }
-  else
-  {
-    switch (PinguAction::get_activation_mode(action_name))
-    {
-      case INSTANT:
-        if (action_name == action->get_type())
-        {
-          log_debug("Pingu: Already have action");
-          ret_val = false;
-        }
-        else if (action->change_allowed(action_name))
-        {
-          log_debug("setting instant action");
-          set_action(action_name);
-          ret_val = true;
-        }
-        else
-        {
-          log_debug("change from action %1% not allowed", action->get_name());
-          ret_val = false;
-        }
-        break;
-
-      case WALL_TRIGGERED:
-        if (wall_action == action_name)
-        {
-          log_debug("Not using wall action, we have already");
-          ret_val = false;
-        }
-        else
-        {
-          log_debug("Setting wall action");
-          wall_action = action_name;
-          ret_val = true;
-        }
-        break;
-
-      case FALL_TRIGGERED:
-        if (fall_action == action_name)
-        {
-          log_debug("Not using fall action, we have already");
-          ret_val = false;
-        }
-        else
-        {
-          log_debug("Setting fall action");
-          fall_action = action_name;
-          ret_val = true;
-        }
-        break;
-
-      case COUNTDOWN_TRIGGERED:
-        {
-          if (countdown_action == action_name)
-          {
-            log_debug("Not using countdown action, we have already");
-            ret_val = false;
-            break;
-          }
-
-          log_debug("Setting countdown action");
-          // We set the action and start the countdown
-          ///std::shared_ptr<PinguAction> act = create_action(action_name);
-          action_time = -1;///act->activation_time();
-          countdown_action = action_name;
-          ret_val = true;
-        }
-        break;
-
-      default:
-        log_debug("unknown action activation_mode");
-        ret_val = false;
-        assert(0);
-        break;
-    }
-  }
-#endif
-
   tceu__Pingu___bool___ActionName__Enum p = {this, &ret_val, action_name};
   ceu_sys_go(&CEU_APP, CEU_IN_PINGU_REQUEST_SET_ACTION, &p);
 
   return ret_val;
 }
-
-#if 0
-// Sets an action without any checking
-void
-Pingu::set_action(std::shared_ptr<PinguAction> act)
-{
-  assert(act);
-
-  previous_action = action->get_type();
-
-  action = act;
-}
-#endif
 
 bool
 Pingu::request_fall_action ()
@@ -318,36 +221,6 @@ Pingu::dist(int x, int y)
 void
 Pingu::update()
 {
-#if 0
-  if (status == PS_DEAD)
-    return;
-
-  // FIXME: Out of screen check is ugly
-  /** The Pingu has hit the edge of the screen, a good time to let him
-      die. */
-  if (rel_getpixel(0, -1) == Groundtype::GP_OUTOFSCREEN)
-  {
-    //Sound::PingusSound::play_sound("die");
-    status = PS_DEAD;
-    return;
-  }
-
-  // if an countdown action is set, update the countdown time
-  if (action_time > -1)
-    --action_time;
-
-  if (action_time == 0 && countdown_action)
-  {
-    set_action(countdown_action);
-    // Reset the countdown action handlers
-    countdown_action = std::shared_ptr<PinguAction>();
-    action_time = -1;
-    return;
-  }
-
-  action->update();
-#endif
-
   void* this_ = this;
   ceu_sys_go(&CEU_APP, CEU_IN_PINGU_UPDATE, &this_);
 }
@@ -463,39 +336,6 @@ Pingu::set_action (ActionName::Enum action_name)
 {
   assert(action_name != ActionName::NONE);
   previous_action = action_name;
-#if 0
-  action = create_action(action_name);
-}
-
-std::shared_ptr<PinguAction>
-Pingu::create_action(ActionName::Enum action_)
-{
-  switch(action_)
-  {
-    case ActionName::ANGEL:     return std::make_shared<Angel>(this);
-    case ActionName::BASHER:    return std::make_shared<Basher>(this);
-    case ActionName::BLOCKER:   return std::make_shared<Blocker>(this);
-    case ActionName::BOARDER:   return std::make_shared<Boarder>(this);
-    case ActionName::BOMBER:    return std::make_shared<Bomber>(this);
-    case ActionName::BRIDGER:   return std::make_shared<Bridger>(this);
-    case ActionName::CLIMBER:   return std::make_shared<Climber>(this);
-    case ActionName::DIGGER:    return std::make_shared<Digger>(this);
-    case ActionName::DROWN:     return std::make_shared<Drown>(this);
-    case ActionName::EXITER:    return std::make_shared<Exiter>(this);
-    case ActionName::FALLER:    return std::make_shared<Faller>(this);
-    case ActionName::FLOATER:   return std::make_shared<Floater>(this);
-    case ActionName::JUMPER:    return std::make_shared<Jumper>(this);
-    case ActionName::LASERKILL: return std::make_shared<LaserKill>(this);
-    case ActionName::MINER:     return std::make_shared<Miner>(this);
-    case ActionName::SLIDER:    return std::make_shared<Slider>(this);
-    case ActionName::SMASHED:   return std::make_shared<Smashed>(this);
-    case ActionName::SPLASHED:  return std::make_shared<Splashed>(this);
-    case ActionName::SUPERMAN:  return std::make_shared<Superman>(this);
-    case ActionName::WAITER:    return std::make_shared<Waiter>(this);
-    case ActionName::WALKER:    return std::make_shared<Walker>(this);
-    default: assert(!"Invalid action name provied");
-  }
-#endif
 
   tceu__Pingu___ActionName__Enum
     p = {this, action_name};
