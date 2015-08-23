@@ -1,0 +1,79 @@
+#ifndef _PINGU_CEU
+#define _PINGU_CEU
+
+#include "actions/basher.ceu"
+#include "actions/blocker.ceu"
+#include "actions/bomber.ceu"
+#include "actions/bridger.ceu"
+#include "actions/digger.ceu"
+#include "actions/drown.ceu"
+#include "actions/faller.ceu"
+#include "actions/floater.ceu"
+#include "actions/jumper.ceu"
+#include "actions/miner.ceu"
+#include "actions/waiter.ceu"
+
+native do
+    using namespace Actions;
+    //##define ActionName__Enum ActionName::Enum
+end
+native @plain _Pingu;
+
+input (_Pingu&&) PINGU_NEW;
+input (_Pingu&&) PINGU_DELETE;
+input (_Pingu&&) PINGU_UPDATE;
+
+//input (bool&&, _ActionName__Enum) PINGU_REQUEST_SET_ACTION;
+
+class Pingu with
+    var _Pingu& me;
+do
+    par/or do
+        AWAIT_UNTIL_MYSELF(_Pingu,PINGU_DELETE);
+    with
+        loop do
+            AWAIT_UNTIL_MYSELF(_Pingu,PINGU_UPDATE);
+
+            /// TODO(control)
+            // FIXME: Out of screen check is ugly
+            /* The Pingu has hit the edge of the screen, a good time to let
+               him die.
+             */
+            if me.rel_getpixel(0,-1) == {Groundtype::GP_OUTOFSCREEN} then
+                //Sound::PingusSound::play_sound("die");
+                me.status = {Pingu::PS_DEAD};
+            end
+            if me.status == {Pingu::PS_DEAD} then
+                break;
+            end
+
+            // if an countdown action is set, update the countdown time
+            if me.action_time > -1 then
+                me.action_time = me.action_time - 1;
+            end
+            if me.action_time==0 and me.countdown_action then
+                me.set_action(me.countdown_action);
+                // Reset the countdown action handlers
+                me.countdown_action = {std::shared_ptr<PinguAction>()};
+                me.action_time = -1;
+                break;
+            end
+
+            me.action:update();
+        end
+        await FOREVER;
+    end
+end
+
+class PinguFactory with
+do
+    every me_ in PINGU_NEW do
+        spawn Pingu with
+            this.me = &_XXX_PTR2REF(me_);
+        end;
+    end
+end
+
+var PinguFactory _;
+
+#endif

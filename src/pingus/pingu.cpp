@@ -50,6 +50,8 @@
 
 #include "util/log.hpp"
 
+#include "ceu_vars.h"
+
 using namespace Actions;
 
 // Init a pingu at the given position while falling
@@ -73,10 +75,15 @@ Pingu::Pingu (int arg_id, const Vector3f& arg_pos, int owner) :
   // Initialisize the action, after this step the action ptr will
   // always be valid in the pingu class
   action = create_action(ActionName::FALLER);
+
+  void* this_ = this;
+  ceu_sys_go(&CEU_APP, CEU_IN_PINGU_NEW, &this_);
 }
 
 Pingu::~Pingu ()
 {
+  void* this_ = this;
+  ceu_sys_go(&CEU_APP, CEU_IN_PINGU_DELETE, &this_);
 }
 
 unsigned int
@@ -310,6 +317,7 @@ Pingu::dist(int x, int y)
 void
 Pingu::update()
 {
+#if 0
   if (status == PS_DEAD)
     return;
 
@@ -337,6 +345,10 @@ Pingu::update()
   }
 
   action->update();
+#endif
+
+  void* this_ = this;
+  ceu_sys_go(&CEU_APP, CEU_IN_PINGU_UPDATE, &this_);
 }
 
 // Draws the pingu on the screen with the given offset

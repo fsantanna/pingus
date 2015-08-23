@@ -231,8 +231,12 @@ public:
   ActionName::Enum get_previous_action() const { return previous_action; }
 
 private:
-  Pingu (const Pingu&);
-  Pingu& operator= (const Pingu&);
+  ///Pingu (const Pingu&);
+  ///Pingu& operator= (const Pingu&);
+
+  Pingu(Pingu const &) = delete;
+  void operator=(Pingu const &t) = delete;
+  Pingu(Pingu &&) = delete;
 };
 
 #endif
