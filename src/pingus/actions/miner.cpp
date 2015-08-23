@@ -25,6 +25,8 @@
 #include "pingus/worldobj.hpp"
 #include "util/log.hpp"
 
+#include "ceu_vars.h"
+
 namespace Actions {
 
 Miner::Miner (Pingu* p) :
@@ -32,18 +34,22 @@ Miner::Miner (Pingu* p) :
   miner_radius("pingus/common/miner_radius_gfx", "pingus/common/miner_radius"),
   miner_radius_left("pingus/common/miner_radius_left_gfx", "pingus/common/miner_radius_left"),
   miner_radius_right("pingus/common/miner_radius_right_gfx", "pingus/common/miner_radius_right"),
-  sprite(),
-  delay_count(0)
+  sprite()///,
+  ///delay_count(0)
 {
   sprite.load(Direction::LEFT,  Sprite("pingus/player" +
                                        pingu->get_owner_str() + "/miner/left"));
   sprite.load(Direction::RIGHT, Sprite("pingus/player" +
                                        pingu->get_owner_str() + "/miner/right"));
+
+  void* this_ = this;
+  ceu_sys_go(&CEU_APP, CEU_IN_MINER_NEW, &this_);
 }
 
 void
 Miner::update ()
 {
+#if 0
   sprite[pingu->direction].update();
 
   delay_count += 1;
@@ -78,10 +84,14 @@ Miner::update ()
                      pingu->get_yi() + 1);
     }
   }
+#endif
+
+  void* this_ = this;
+  ceu_sys_go(&CEU_APP, CEU_IN_MINER_UPDATE, &this_);
 }
 
 void
-Miner::mine(bool final)
+Miner::mine(bool final, int delay_count)
 {
   if (!final)
   {

@@ -31,7 +31,7 @@ private:
   CollisionMask miner_radius_right;
 
   StateSprite sprite;
-  int delay_count;
+  ///int delay_count;
 
 public:
   Miner (Pingu* p);
@@ -43,7 +43,7 @@ public:
   void update ();
 
 private:
-  void mine(bool final);
+  void mine(bool final, int delay_count);
 
 private:
   Miner (const Miner&);

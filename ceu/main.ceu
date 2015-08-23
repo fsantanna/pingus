@@ -52,12 +52,11 @@ native @nohold _delete();
 #include "pingus/actions/faller.ceu"
 #include "pingus/actions/floater.ceu"
 #include "pingus/actions/jumper.ceu"
+#include "pingus/actions/miner.ceu"
 #include "engine/display/sprite.ceu"
 #include "pingus/actions/waiter.ceu"
 
 input int SDL_DT;
-
-_printf("[CEU] Hello World!\n");
 
 every 1s do
     _printf(">>> [%d] Sprite=%d/%d[%d+%d/%d]   Impl=%d/%d\n",
@@ -67,7 +66,3 @@ every 1s do
         _SPRITE_IMPL_CUR, _SPRITE_IMPL_TOT);
     _CEU_SYS_GO_NTRAILS_MAX = 0;
 end
-
-_printf("[CEU] Good Bye!\n");
-
-await FOREVER;
