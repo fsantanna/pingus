@@ -48,6 +48,7 @@ do
     finalize with
         _SPRITE_CUR = _SPRITE_CUR - 1;
     end
+    me.XXX_is_copy = false;
 
     // constructor
     var _SpriteDescription&& spr_desc_ = spr_desc;
@@ -84,6 +85,8 @@ do
         end
     end
 
+    /// XXX: has to be spawned because multiple CPP Sprite copies share the 
+    //same "me.impl"
     var SpriteImpl&&? impl =
         spawn SpriteImpl in xxx_impls with
             this.surface  = surface;

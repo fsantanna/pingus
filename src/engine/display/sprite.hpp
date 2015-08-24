@@ -61,10 +61,13 @@ public:
 
   ///
   Sprite(const Sprite& that);
+  Sprite& operator=(Sprite const &that);
+  Sprite(const Sprite &&that);
 
 static int NEW;
+static int NEW_DEL;
 static int CPY;
-static int DEL;
+static int CPY_DEL;
 
 
 private:

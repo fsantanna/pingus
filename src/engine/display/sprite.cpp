@@ -23,15 +23,31 @@
 
 #include "ceu_vars.h"
 
-int Sprite::NEW = 0;
-int Sprite::CPY = 0;
-int Sprite::DEL = 0;
+int Sprite::NEW     = 0;
+int Sprite::NEW_DEL = 0;
+int Sprite::CPY     = 0;
+int Sprite::CPY_DEL = 0;
 
 Sprite::Sprite(const Sprite& that)
 {
   *this = that;
   this->XXX_is_copy = true;
   Sprite::CPY++;
+}
+Sprite::Sprite(const Sprite&& that)
+{
+  *this = that;
+  this->XXX_is_copy = true;
+  Sprite::CPY++;
+}
+#if 0
+#endif
+Sprite& Sprite::operator=(Sprite const &that)
+{
+  this->impl = that.impl;
+  this->XXX_is_copy = true;
+  Sprite::CPY++;
+  return *this;
 }
 
 Sprite::Sprite() :
@@ -112,10 +128,11 @@ Sprite::~Sprite()
 {
 //printf("->>>>>[%p]\n", this);
   if (! this->XXX_is_copy) {
-    Sprite::DEL++;
+    Sprite::NEW_DEL++;
     void* this_ = this;
     ceu_sys_go(&CEU_APP, CEU_IN_SPRITE_DELETE, &this_);
   } else {
+    Sprite::CPY_DEL++;
     //printf("...\n");
   }
 }
