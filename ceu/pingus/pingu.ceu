@@ -215,7 +215,7 @@ with
                 else/if action == {ActionName::JUMPER} then
                     action = DO_PINGU_ACTION_(Jumper,true);
                 else/if action == {ActionName::MINER} then
-                    action = DO_PINGU_ACTION(Miner);
+                    action = DO_PINGU_ACTION_(Miner,true);
                 else/if action == {ActionName::WAITER} then
                     action = DO_PINGU_ACTION(Waiter);
                 else/if action == {ActionName::WALKER} then

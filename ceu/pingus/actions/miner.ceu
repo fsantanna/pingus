@@ -1,49 +1,122 @@
 #ifndef _MINER_CEU
 #define _MINER_CEU
 
-native/pre do
-    ##include "../src/pingus/pingu.hpp"
-    ##include "../src/pingus/pingu_action.hpp"
-    ##include "../src/pingus/actions/miner.hpp"
-    ##define Actions__Miner Actions::Miner
-end
-native @plain _Actions__Miner;
+#include "../pingu_action.ceu"
+#include "../right_left_sprites.ceu"
 
-input (_Actions__Miner&&) MINER_UPDATE;
+#if 0
+native do
+    ##include "../../../src/pingus/collision_mask.hpp"
+    static CollisionMask miner_radius(
+            "pingus/common/miner_radius_gfx",
+            "pingus/common/miner_radius");
+    static CollisionMask miner_radius_left(
+            "pingus/common/miner_radius_left_gfx",
+            "pingus/common/miner_radius_left");
+    static CollisionMask miner_radius_right(
+            "pingus/common/miner_radius_right_gfx",
+            "pingus/common/miner_radius_right");
+end
+#endif
 
 class Miner with
-    var _Actions__Miner& me;
+    interface IPinguAction;
 do
-    loop delay_count do
-        AWAIT_UNTIL_MYSELF(_Actions__Miner,MINER_UPDATE);
-        me.sprite[me.pingu:direction].update();
+    function (bool final, int delay_count) => void mine;
 
-        if delay_count%4 != 0 then
-            continue;
-        end
+    var char[] left  = [] .. "pingus/player"
+                          .. (char&&)*this.pingu.me.get_owner_str().c_str()
+                          .. "/miner/left";
+    var char[] right = [] .. "pingus/player"
+                          .. (char&&)*this.pingu.me.get_owner_str().c_str()
+                          .. "/miner/right";
+    var RightLeftSprites sprites with
+        this.left  = &left;
+        this.right = &right;
+    end;
 
-        if me.rel_getpixel(0,-1) == {Groundtype::GP_NOTHING} then
-            // stop mining when in the air
-            me.mine(true, delay_count);
-            escape {ActionName::WALKER};
-        else/if me.rel_getpixel(0,            -1) == {Groundtype::GP_SOLID} or
-                me.rel_getpixel(0, _pingu_height) == {Groundtype::GP_SOLID}
-        then
-            // stop mining when hitting solid ground
-            if (me.rel_getpixel(0, -1) == {Groundtype::GP_SOLID}) then
-                {Sound::PingusSound::play_sound("chink");};
+    par do
+        every (me_,gc) in PINGU_DRAW do
+            if me_ != &&this.pingu.me then
+                continue;
             end
-            me.mine(true, delay_count);
-
-            // stop pingu from walking further into the solid.
-            me.pingu:direction.change();
-            escape {ActionName::WALKER};
-        else
-            // mine and walk forward
-            me.mine(false, delay_count);
-            me.pingu:set_pos(me.pingu:get_xi() + me.pingu:direction,
-                             me.pingu:get_yi() + 1);
+            _GC_COLOR_DRAW(gc, sprites.get(this.pingu.me.direction).me,
+                               this.pingu.me.get_pos());
         end
+    with
+        loop delay_count do
+            AWAIT_UNTIL_PINGU(PINGU_UPDATE);
+            sprites.get(this.pingu.me.direction).me.update();
+
+            if delay_count%4 != 0 then
+                continue;
+            end
+
+            if me.rel_getpixel(0,-1) == {Groundtype::GP_NOTHING} then
+                // stop mining when in the air
+                this.mine(true, delay_count);
+                escape {ActionName::WALKER};
+            else/if me.rel_getpixel(0,            -1) == {Groundtype::GP_SOLID} or
+                    me.rel_getpixel(0, _pingu_height) == {Groundtype::GP_SOLID}
+            then
+                // stop mining when hitting solid ground
+                if (me.rel_getpixel(0, -1) == {Groundtype::GP_SOLID}) then
+                    {Sound::PingusSound::play_sound("chink");};
+                end
+                this.mine(true, delay_count);
+
+                // stop pingu from walking further into the solid.
+                this.pingu.me.direction.change();
+                escape {ActionName::WALKER};
+            else
+                // mine and walk forward
+                this.mine(false, delay_count);
+                this.pingu.me.set_pos(this.pingu.me.get_xi() + this.pingu.me.direction,
+                                      this.pingu.me.get_yi() + 1);
+            end
+        end
+    end
+
+    /* PRIVATE */
+
+    function (bool final, int delay_count) => void mine do
+#if 0
+        if not final then
+            if delay_count%2 == 0 then
+                // regular mine action
+                call {WorldObj::get_world()->remove}(
+                    _miner_radius,
+                    this.pingu.me.get_xi() - (_miner_radius.get_width()/2)
+                        + this.pingu.me.direction,
+                    this.pingu.me.get_yi() - _miner_radius.get_height() + 2
+                );
+            end
+
+        // the last mine action before switching to another action
+        else/if this.pingu.me.direction == {Direction::LEFT} then
+            call {WorldObj::get_world()->remove}(
+                    _miner_radius_left,
+                    this.pingu.me.get_xi() - (_miner_radius_left.get_width()/2)
+                        + this.pingu.me.direction,
+                    this.pingu.me.get_yi() - _miner_radius_left.get_height() + 
+            2
+            );
+        else    // RIGHT
+            call {WorldObj::get_world()->remove}(
+                    _miner_radius_right,
+                    this.pingu.me.get_xi() - (_miner_radius_right.get_width()/2)
+                        + this.pingu.me.direction,
+                    this.pingu.me.get_yi() - _miner_radius_right.get_height() + 
+            2
+            );
+        end
+#endif
+    end
+
+    /* PUBLIC */
+
+    function (_ActionName__Enum action_name) => bool change_allowed do
+        return true;
     end
 end
 

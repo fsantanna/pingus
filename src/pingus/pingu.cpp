@@ -40,7 +40,7 @@
 #include "pingus/actions/floater.hpp"
 ///#include "pingus/actions/jumper.hpp"
 #include "pingus/actions/laser_kill.hpp"
-#include "pingus/actions/miner.hpp"
+///#include "pingus/actions/miner.hpp"
 #include "pingus/actions/slider.hpp"
 #include "pingus/actions/smashed.hpp"
 #include "pingus/actions/splashed.hpp"
