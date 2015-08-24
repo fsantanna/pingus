@@ -3,13 +3,18 @@
 
 native/pre do
     ##include "../src/pingus/pingu_action.hpp"
-    ##include "../src/engine/display/scene_context.hpp"
-    ##define GC_COLOR_DRAW(gc,x,y) gc->color().draw(x,y)
 end
 native @plain  _PinguAction;
-native @nohold _GC_COLOR_DRAW();
 
-input (_PinguAction&&)                  PINGUACTION_UPDATE;
-input (_PinguAction&&, _SceneContext&&) PINGUACTION_DRAW;
+interface IPinguAction with
+    var _PinguAction& me;
+    var IPingu&       pingu;
+end
+
+#define AWAIT_UNTIL_PINGU(EVT)                           \
+    do                                                   \
+        var _Pingu&& ptr = await EVT                     \
+                           until ptr == &&this.pingu.me; \
+    end
 
 #endif

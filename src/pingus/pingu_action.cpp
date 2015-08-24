@@ -45,14 +45,10 @@ PinguAction::~PinguAction ()
 void
 PinguAction::update ()
 {
-  void* this_ = this;
-  ceu_sys_go(&CEU_APP, CEU_IN_PINGUACTION_UPDATE, &this_);
 }
 void
 PinguAction::draw (SceneContext& gc)
 {
-  tceu__PinguAction___SceneContext_ p = {this, &gc};
-  ceu_sys_go(&CEU_APP, CEU_IN_PINGUACTION_DRAW, &p);
 }
 
 

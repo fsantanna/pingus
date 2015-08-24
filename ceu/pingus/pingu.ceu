@@ -1,12 +1,25 @@
 #ifndef _PINGU_CEU
 #define _PINGU_CEU
 
+native do
+    ##include "../src/engine/display/scene_context.hpp"
+    ##define GC_COLOR_DRAW(gc,x,y) gc->color().draw(x,y)
+end
+native @nohold _GC_COLOR_DRAW();
+
 input (_Pingu&&) PINGU_NEW;
 input (_Pingu&&) PINGU_DELETE;
 input (_Pingu&&) PINGU_UPDATE;
+input (_Pingu&&, _SceneContext&&) PINGU_DRAW;
 
 input (_Pingu&&, bool&&, _ActionName__Enum) PINGU_REQUEST_SET_ACTION;
 input (_Pingu&&, _ActionName__Enum)         PINGU_SET_ACTION;
+
+interface IPingu with
+    var _Pingu& me;
+end
+
+#include "pingu_action.ceu"
 
 #include "actions/basher.ceu"
 #include "actions/blocker.ceu"
@@ -29,13 +42,8 @@ native/pre do
 end
 native @plain _Pingu, _ActionName__Enum;
 
-interface IAction with
-    var _PinguAction& me;
-end
-
 class Pingu with
-    var _Pingu& me;
-    pool IAction[]& actions;
+    interface IPingu;
 do
     event _ActionName__Enum e_set_action;
     par/or do
@@ -138,7 +146,6 @@ do
             end
         end
     with
-//_printf(">>> OK\n");
         var int bad = 0;
 par do
     every (ptr,action) in PINGU_SET_ACTION do
@@ -162,7 +169,8 @@ with
                     me.action.reset(ptr)                            \
                         finalize with nothing; end;                 \
                     var int a = do T with                           \
-                        this.me = &_XXX_PTR2REF(ptr);               \
+                        this.me    = &_XXX_PTR2REF(ptr);            \
+                        this.pingu = &outer;                        \
                     end;                                            \
                     escape (_ActionName__Enum)a;                    \
                 end
@@ -225,24 +233,17 @@ with
     end
 end
     end
-//_printf(">>> DEAD\n");
 end
 
-pool IAction[] actions;
-
 class PinguFactory with
-    pool IAction[]& actions;
 do
     every me_ in PINGU_NEW do
         spawn Pingu with
-            this.me      = &_XXX_PTR2REF(me_);
-            this.actions = &outer.actions;
+            this.me = &_XXX_PTR2REF(me_);
         end;
     end
 end
 
-var PinguFactory _ with
-    this.actions = &actions;
-end;
+var PinguFactory _;
 
 #endif

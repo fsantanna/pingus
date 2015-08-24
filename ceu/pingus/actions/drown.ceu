@@ -4,34 +4,37 @@
 #include "../pingu_action.ceu"
 #include "../right_left_sprites.ceu"
 
-input (_PinguAction&&) PINGUACTION_UPDATE;
+native do
+    static std::string DROWN_OWNER_STR;
+end
 
 class Drown with
-    var _PinguAction& me;
+    interface IPinguAction;
 do
+    _DROWN_OWNER_STR = (_std__string)this.pingu.me.get_owner_str();
     var RightLeftSprites sprites with
         this.left = _XXX_PTR2REF((char&&){("pingus/player"
-                                    + ME(CEU_Walker)->pingu->get_owner_str()
+                                    + DROWN_OWNER_STR
                                     + "/drownfall/left")}.c_str());
         this.right = _XXX_PTR2REF((char&&){("pingus/player"
-                                    + ME(CEU_Walker)->pingu->get_owner_str()
+                                    + DROWN_OWNER_STR
                                     + "/drownfall/right")}.c_str());
     end;
 
     par do
-        every (me_,gc) in PINGUACTION_DRAW do
-            if me_ != &&this.me then
+        every (me_,gc) in PINGU_DRAW do
+            if me_ != &&this.pingu.me then
                 continue;
             end
-            _GC_COLOR_DRAW(gc, sprites.get(me.pingu:direction).me,
-                               me.pingu:get_pos());
+            _GC_COLOR_DRAW(gc, sprites.get(this.pingu.me.direction).me,
+                               this.pingu.me.get_pos());
         end
     with
         loop do
-            AWAIT_UNTIL_MYSELF(_PinguAction,PINGUACTION_UPDATE);
-            sprites.get(me.pingu:direction).me.update();
-            if sprites.get(me.pingu:direction).me.is_finished() then
-                me.pingu:set_status({Pingu::PS_DEAD});
+            AWAIT_UNTIL_PINGU(PINGU_UPDATE);
+            sprites.get(this.pingu.me.direction).me.update();
+            if sprites.get(this.pingu.me.direction).me.is_finished() then
+                this.pingu.me.set_status({Pingu::PS_DEAD});
                 escape {ActionName::DEAD};
             end
         end

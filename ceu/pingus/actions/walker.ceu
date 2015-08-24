@@ -6,15 +6,20 @@
 
 #define WALKER_MAX_STEPS 5  // max nr. of pixels that pingu can walk up/down
 
+native do
+    static std::string WALKER_OWNER_STR;
+end
+
 class Walker with
-    var _PinguAction& me;
+    interface IPinguAction;
 do
+    _WALKER_OWNER_STR = (_std__string)this.pingu.me.get_owner_str();
     var RightLeftSprites walkers with
         this.left = _XXX_PTR2REF((char&&){("pingus/player"
-                                    + ME(CEU_Walker)->pingu->get_owner_str()
+                                    + WALKER_OWNER_STR
                                     + "/walker/left")}.c_str());
         this.right = _XXX_PTR2REF((char&&){("pingus/player"
-                                    + ME(CEU_Walker)->pingu->get_owner_str()
+                                    + WALKER_OWNER_STR
                                     + "/walker/right")}.c_str());
     end;
 
@@ -24,32 +29,33 @@ do
     end;
 
     // Reset the velocity
-    me.pingu:set_velocity({Vector3f()});
+    this.pingu.me.set_velocity({Vector3f()});
 
     par do
-        every (me_,gc) in PINGUACTION_DRAW do
-            if me_ != &&this.me then
+        every (me_,gc) in PINGU_DRAW do
+            if me_ != &&this.pingu.me then
                 continue;
             end
-            _GC_COLOR_DRAW(gc, walkers.get(me.pingu:direction).me,
-                               me.pingu:get_pos());
-            if (me.pingu:get_fall_action() == {ActionName::FLOATER}) then
-                _GC_COLOR_DRAW(gc, floaterlayers.get(me.pingu:direction).me,
-                                   me.pingu:get_pos());
+            _GC_COLOR_DRAW(gc, walkers.get(this.pingu.me.direction).me,
+                               this.pingu.me.get_pos());
+            if (this.pingu.me.get_fall_action() == {ActionName::FLOATER}) then
+                _GC_COLOR_DRAW(gc, floaterlayers.get(this.pingu.me.direction).me,
+                                   this.pingu.me.get_pos());
             end
         end
     with
         loop do
-            AWAIT_UNTIL_MYSELF(_PinguAction,PINGUACTION_UPDATE);
+            AWAIT_UNTIL_PINGU(PINGU_UPDATE);
 
             // update the sprite
-            walkers.get(me.pingu:direction).me.update(0.033);
-            floaterlayers.get(me.pingu:direction).me.update(0.033);
+            walkers.get(this.pingu.me.direction).me.update(0.033);
+            floaterlayers.get(this.pingu.me.direction).me.update(0.033);
 
             // XXX_CPP
             {
-                static Vector3f last_pos = ME(CEU_Walker)->pingu->get_pos();
+                static Vector3f last_pos;
             };
+            _last_pos = (_Vector3f)this.pingu.me.get_pos();
 
               /* How should this code work?
 
@@ -67,7 +73,8 @@ do
               */
 
             if me.rel_getpixel(1, 0) == {Groundtype::GP_OUTOFSCREEN} then
-                me.pingu:set_x(me.pingu:get_x() + (float)(me.pingu:direction));
+                this.pingu.me.set_x(this.pingu.me.get_x() +
+                                    (float)(this.pingu.me.direction));
                 escape {ActionName::DEAD};
             else/if me.rel_getpixel(0, -1) == {Groundtype::GP_WATER} then
                 escape {ActionName::DROWN};
@@ -88,7 +95,7 @@ do
                     end
                 end
                 if found_ground then
-                    me.pingu:set_y(me.pingu:get_y() - (float)(i));
+                    this.pingu.me.set_y(this.pingu.me.get_y() - (float)(i));
                 else
                     escape {ActionName::DROWN};
                 end
@@ -100,9 +107,9 @@ do
             then // bridge
                 // simple, stupid, but working bridge code
                 // FIXME: We don't check if we 'drift' into a solid ground block
-                me.pingu:set_pos(
-                    me.pingu:get_x() + (float)(me.pingu:direction),
-                    me.pingu:get_y() - 1.0); // pingus 'float' through bridges
+                this.pingu.me.set_pos(
+                    this.pingu.me.get_x() + (float)(this.pingu.me.direction),
+                    this.pingu.me.get_y() - 1.0); // pingus 'float' through bridges
             else
                 // Non of the trivial moves worked, so we do up-hill or down-hill 
                 // walking
@@ -137,23 +144,23 @@ do
 
                 if found_next_step then
                     // pos.y has a reversed co-system to rel_getpixel()?
-                    me.pingu:set_pos(
-                        me.pingu:get_x() + (float)(me.pingu:direction),
-                        me.pingu:get_y() - (float)(possible_y_step));
+                    this.pingu.me.set_pos(
+                        this.pingu.me.get_x() + (float)(this.pingu.me.direction),
+                        this.pingu.me.get_y() - (float)(possible_y_step));
                 else
                     if me.rel_getpixel(1, 0) != {Groundtype::GP_NOTHING} then
                         // We reached a wall
-                        if me.pingu:request_wall_action() then
+                        if this.pingu.me.request_wall_action() then
                             _log_debug("Pingu: We are in front of a wall, setting persistant action");
-    /// TODO: is it correct?
+/// TODO: is it correct?
                             nothing;    // continue to next UPDATE
                         end
 
                         // No persitent action found, so change the direction
-                        me.pingu:direction.change();
+                        this.pingu.me.direction.change();
                     else
                         // We take the step, so that we are in the air
-                        me.pingu:set_x(me.pingu:get_x() + (float)(me.pingu:direction));
+                        this.pingu.me.set_x(this.pingu.me.get_x() + (float)(this.pingu.me.direction));
                         // We reached a cliff
                         escape {ActionName::FALLER};
                     end
@@ -167,8 +174,8 @@ do
 
                     //if the new position causes a head collision, we are already 
                     //stuck in a wall, so lets go back to the old position
-                    me.pingu:direction.change();
-                    me.pingu:set_pos(_last_pos);
+                    this.pingu.me.direction.change();
+                    this.pingu.me.set_pos(_last_pos);
                 end
             end
         end

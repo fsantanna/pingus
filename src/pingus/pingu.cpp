@@ -231,6 +231,8 @@ Pingu::draw(SceneContext& gc)
 {
   char str[16];
 
+  tceu__Pingu___SceneContext_ p = {this, &gc};
+  ceu_sys_go(&CEU_APP, CEU_IN_PINGU_DRAW, &p);
   action->draw(gc);
 
   if (action_time != -1)
@@ -340,7 +342,6 @@ Pingu::set_action (ActionName::Enum action_name)
   tceu__Pingu___ActionName__Enum
     p = {this, action_name};
   ceu_sys_go(&CEU_APP, CEU_IN_PINGU_SET_ACTION, &p);
-//printf("=== %p/%p\n", &ptr, ptr.get());
 }
 
 /* EOF */

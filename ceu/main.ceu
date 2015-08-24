@@ -11,12 +11,15 @@ native do
     ##define XXX_PURE(x) x
     ##define XXX_NOHOLD(x) x
     ##define XXX_PTR2REF(x) x
-    ##define ME(tp) (((tp*)_STK_ORG)->me)
+    ##define THIS(tp) ((tp*)_STK_ORG)
+    ##define ME(tp)   (THIS(tp)->me)        /// TODO: remove
 
+    ##define std__string std::string
     ##define Resource__load_sprite_desc(name) Resource::load_sprite_desc(name)
     ##define ResourceModifier__Enum ResourceModifier::Enum
 end
 native @pure _Resource__load_sprite_desc(), _Pathname();
+native @plain _std__string, _Vector3f;
 native @plain _Sprite, _Surface, _SpriteDescription;
 native @plain _ResourceModifier__Enum;
 native @pure   _XXX_PURE(), _XXX_PTR2REF();
