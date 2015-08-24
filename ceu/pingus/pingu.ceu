@@ -204,7 +204,7 @@ with
                 else/if action == {ActionName::DROWN} then
                     action = DO_PINGU_ACTION_(Drown,false);
                 else/if action == {ActionName::EXITER} then
-                    action = DO_PINGU_ACTION(Exiter);
+                    action = DO_PINGU_ACTION_(Exiter,false);
                     me.set_status({Pingu::PS_EXITED});
                     break;
                     ///escape {Pingu:PS_EXITED};

@@ -1,31 +1,45 @@
 #ifndef _EXITER_CEU
 #define _EXITER_CEU
 
-native/pre do
-    ##include "../src/pingus/pingu.hpp"
-    ##include "../src/pingus/pingu_action.hpp"
-    ##include "../src/pingus/actions/exiter.hpp"
-    ##define Actions__Exiter Actions::Exiter
-end
-native @plain _Actions__Exiter;
-
-input (_Actions__Exiter&&) EXITER_UPDATE;
+#include "../pingu_action.ceu"
+#include "../right_left_sprites.ceu"
 
 class Exiter with
-    var _Actions__Exiter& me;
+    interface IPinguAction;
 do
-    var bool sound_played = false;
-    loop do
-        AWAIT_UNTIL_MYSELF(_Actions__Exiter,EXITER_UPDATE);
-        me.sprite[me.pingu:direction].update();
+    var char[] left  = [] .. "pingus/player"
+                          .. (char&&)*this.pingu.me.get_owner_str().c_str()
+                          .. "/exit/left";
+    var char[] right = [] .. "pingus/player"
+                          .. (char&&)*this.pingu.me.get_owner_str().c_str()
+                          .. "/exit/right";
+    var RightLeftSprites sprites with
+        this.left  = &left;
+        this.right = &right;
+    end;
 
-        if not sound_played then
-            { Sound::PingusSound::play_sound("yipee"); };
-            sound_played = true;
+    par do
+        every (me_,gc) in PINGU_DRAW do
+            if me_ != &&this.pingu.me then
+                continue;
+            end
+            _GC_COLOR_DRAW(gc, sprites.get(this.pingu.me.direction).me,
+                               this.pingu.me.get_pos());
         end
+    with
+        var bool sound_played = false;
+        loop do
+            AWAIT_UNTIL_PINGU(PINGU_UPDATE);
+            sprites.get(this.pingu.me.direction).me.update();
 
-        if (me.sprite[me.pingu:direction].is_finished()) then
-            escape {ActionName::NONE};
+            if not sound_played then
+                { Sound::PingusSound::play_sound("yipee"); };
+                sound_played = true;
+            end
+
+            if sprites.get(this.pingu.me.direction).me.is_finished() then
+                escape {ActionName::NONE};
+            end
         end
     end
 end
