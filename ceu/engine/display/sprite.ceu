@@ -51,7 +51,6 @@ do
         {ME(CEU_Sprite)} = _XXX_PTR2REF({new Sprite}(this.name)
                                 finalize with nothing; end);
                                     // {new Sprite} is @nohold
-_printf(">>> ME = %p\n", &&me);
         _XXX_FROM_CEU = 0;
     end
     finalize with
@@ -97,19 +96,16 @@ _printf(">>> ME = %p\n", &&me);
 
     /// XXX: has to be spawned because multiple CPP Sprite copies share the 
     //same "me.impl"
-_printf("\t = %p\n", &&me);
     var SpriteImpl&&? impl =
         spawn SpriteImpl in global:xxx_impls with
             this.surface  = surface;
             this.spr_desc = spr_desc_;
             this.spr_mod  = modifier;
         end;
-_printf("===\n");
     me.impl.reset(impl!:get());
 
     AWAIT_UNTIL_MYSELF(_Sprite,SPRITE_DELETE);
     __sprite_deleting = __sprite_deleting + 1; // TODO(remove)
-//_printf("DIEING[%p] %d\n", &&me, __sprite_deleting);
 end
 
 class SpriteFactory with
@@ -117,14 +113,12 @@ do
     par do
         every me_ in SPRITE_NEW_NONE do
             spawn Sprite with
-//_printf("NEW   [%p] %d\n", me_, __sprite_deleting);
                 this.me    = &_XXX_PTR2REF(me_);
             end;
         end
     with
         every (me_,name) in SPRITE_NEW_NAME do
             spawn Sprite with
-//_printf("NEW   [%p] %d\n", me_, __sprite_deleting);
                 this.me    = &_XXX_PTR2REF(me_);
                 this.name  = name;
             end;
@@ -132,7 +126,6 @@ do
     with
         every (me_,res_desc) in SPRITE_NEW_RESDESCRIPTOR do
             spawn Sprite with
-//_printf("NEW   [%p] %d\n", me_, __sprite_deleting);
                 this.me       = &_XXX_PTR2REF(me_);
                 this.res_desc = res_desc;
             end;
@@ -140,7 +133,6 @@ do
     with
         every (me_,surface) in SPRITE_NEW_SURFACE do
             spawn Sprite with
-//_printf("NEW   [%p] %d\n", me_, __sprite_deleting);
                 this.me      = &_XXX_PTR2REF(me_);
                 this.surface = surface;
             end;
@@ -148,7 +140,6 @@ do
     with
         every (me_,spr_desc,mod) in SPRITE_NEW_SPRITEDESCRIPTION do
             spawn Sprite with
-//_printf("NEW   [%p] %d\n", me_, __sprite_deleting);
                 this.me       = &_XXX_PTR2REF(me_);
                 this.spr_desc = spr_desc;
                 this.modifier = (_ResourceModifier__Enum)mod;

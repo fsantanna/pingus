@@ -53,8 +53,6 @@ Sprite& Sprite::operator=(Sprite const &that)
 Sprite::Sprite() :
   impl()
 {
-//printf("1>>>>>[%p]\n", this);
-//assert(0);
   Sprite::NEW++;
   void* this_ = this;
   ceu_sys_go(&CEU_APP, CEU_IN_SPRITE_NEW_NONE, &this_);
@@ -63,20 +61,6 @@ Sprite::Sprite() :
 Sprite::Sprite(const std::string& name) :
   impl()
 {
-  ///SpriteDescription* desc = Resource::load_sprite_desc(name);
-  ///if (desc)
-  ///{
-    ///impl = std::make_shared<SpriteImpl>(*desc);
-  ///}
-  ///else
-  ///{
-    ///SpriteDescription desc_;
-    ///desc_.filename = Pathname("images/core/misc/404.png", 
-    //Pathname::DATA_PATH);
-    ///impl = std::make_shared<SpriteImpl>(desc_);
-  ///}
-
-//printf("2>>>>>[%p]\n", this);
   Sprite::NEW++;
   char* str = (char*)name.c_str();
   if (!XXX_FROM_CEU) {
@@ -88,19 +72,6 @@ Sprite::Sprite(const std::string& name) :
 Sprite::Sprite(const ResDescriptor& res_desc) :
   impl()
 {
-  ///SpriteDescription* desc = Resource::load_sprite_desc(res_desc.res_name);
-  ///if (desc)
-  ///{
-    ///impl = std::make_shared<SpriteImpl>(*desc, res_desc.modifier);
-  ///}
-  ///else
-  ///{
-    ///SpriteDescription desc_;
-    ///desc_.filename = Pathname("images/core/misc/404.png", //Pathname::DATA_PATH);
-    ///impl = std::make_shared<SpriteImpl>(desc_);
-  ///}
-
-//printf("3>>>>>[%p]\n", this);
   Sprite::NEW++;
   tceu__Sprite___ResDescriptor_ p = {this, (ResDescriptor*)&res_desc};
   ceu_sys_go(&CEU_APP, CEU_IN_SPRITE_NEW_RESDESCRIPTOR, &p);
@@ -108,9 +79,7 @@ Sprite::Sprite(const ResDescriptor& res_desc) :
 
 Sprite::Sprite(const Surface& surface) :
   impl()
-  ///impl(std::make_shared<SpriteImpl>(surface))
 {
-//printf("4>>>>>[%p]\n", this);
   Sprite::NEW++;
   tceu__Sprite___Surface_ p = {this, (Surface*)&surface};
   ceu_sys_go(&CEU_APP, CEU_IN_SPRITE_NEW_SURFACE, &p);
@@ -118,9 +87,7 @@ Sprite::Sprite(const Surface& surface) :
 
 Sprite::Sprite(const SpriteDescription& desc, ResourceModifier::Enum mod) :
   impl()
-  ///impl(std::make_shared<SpriteImpl>(desc, mod))
 {
-//printf("5>>>>>[%p]\n", this);
   Sprite::NEW++;
   tceu__Sprite___SpriteDescription___int p = {this, (SpriteDescription*)&desc, mod};
   ceu_sys_go(&CEU_APP, CEU_IN_SPRITE_NEW_SPRITEDESCRIPTION, &p);
@@ -128,14 +95,12 @@ Sprite::Sprite(const SpriteDescription& desc, ResourceModifier::Enum mod) :
 
 Sprite::~Sprite()
 {
-//printf("->>>>>[%p]\n", this);
   if (! this->XXX_is_copy) {
     Sprite::NEW_DEL++;
     void* this_ = this;
     ceu_sys_go(&CEU_APP, CEU_IN_SPRITE_DELETE, &this_);
   } else {
     Sprite::CPY_DEL++;
-    //printf("...\n");
   }
 }
 
