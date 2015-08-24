@@ -42,6 +42,12 @@ do
             end
         end
     end
+
+    /* PUBLIC */
+
+    function (_ActionName__Enum action_name) => bool change_allowed do
+        return true;
+    end
 end
 
 #endif
