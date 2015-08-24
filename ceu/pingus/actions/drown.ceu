@@ -4,21 +4,18 @@
 #include "../pingu_action.ceu"
 #include "../right_left_sprites.ceu"
 
-native do
-    static std::string DROWN_OWNER_STR;
-end
-
 class Drown with
     interface IPinguAction;
 do
-    _DROWN_OWNER_STR = (_std__string)this.pingu.me.get_owner_str();
+    var char[] left  = [] .. "pingus/player"
+                          .. (char&&)*this.pingu.me.get_owner_str().c_str()
+                          .. "/drownfall/left";
+    var char[] right = [] .. "pingus/player"
+                          .. (char&&)*this.pingu.me.get_owner_str().c_str()
+                          .. "/drownfall/right";
     var RightLeftSprites sprites with
-        this.left = _XXX_PTR2REF((char&&){("pingus/player"
-                                    + DROWN_OWNER_STR
-                                    + "/drownfall/left")}.c_str());
-        this.right = _XXX_PTR2REF((char&&){("pingus/player"
-                                    + DROWN_OWNER_STR
-                                    + "/drownfall/right")}.c_str());
+        this.left  = &left;
+        this.right = &right;
     end;
 
     par do

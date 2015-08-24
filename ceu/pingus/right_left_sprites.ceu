@@ -2,20 +2,20 @@
 #define _RIGHT_LEFT_SPRITES_CEU
 
 class RightLeftSprites with
-    var char&&? left;
-    var char&&? right;
+    var char[]& left;
+    var char[]& right;
 
     function (int)=>Sprite& get;
 do
     var Sprite sprite_left with
         this.me = &_XXX_PTR2REF(null);
         this.xxx_from_ceu = true;
-        this.name = outer.left!;
+        this.name = _XXX_PURE(&&outer.left);
     end;
     var Sprite sprite_right with
         this.me = &_XXX_PTR2REF(null);
         this.xxx_from_ceu = true;
-        this.name = outer.right!;
+        this.name = _XXX_PURE(&&outer.right);
     end;
 
     /* GET */

@@ -6,26 +6,25 @@
 
 #define WALKER_MAX_STEPS 5  // max nr. of pixels that pingu can walk up/down
 
-native do
-    static std::string WALKER_OWNER_STR;
-end
-
 class Walker with
     interface IPinguAction;
 do
-    _WALKER_OWNER_STR = (_std__string)this.pingu.me.get_owner_str();
+    var char[] left1  = [] .. "pingus/player"
+                           .. (char&&)*this.pingu.me.get_owner_str().c_str()
+                           .. "/walker/left";
+    var char[] right1 = [] .. "pingus/player"
+                           .. (char&&)*this.pingu.me.get_owner_str().c_str()
+                           .. "/walker/right";
     var RightLeftSprites walkers with
-        this.left = _XXX_PTR2REF((char&&){("pingus/player"
-                                    + WALKER_OWNER_STR
-                                    + "/walker/left")}.c_str());
-        this.right = _XXX_PTR2REF((char&&){("pingus/player"
-                                    + WALKER_OWNER_STR
-                                    + "/walker/right")}.c_str());
+        this.left  = &left1;
+        this.right = &right1;
     end;
 
+    var char[] left2  = [] .. "other/floaterlayer/left";
+    var char[] right2 = [] .. "other/floaterlayer/right";
     var RightLeftSprites floaterlayers with
-        this.left  = "other/floaterlayer/left";
-        this.right = "other/floaterlayer/right";
+        this.left  = &left1;
+        this.right = &right2;
     end;
 
     // Reset the velocity
