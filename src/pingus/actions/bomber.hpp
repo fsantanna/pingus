@@ -28,23 +28,15 @@ namespace Actions {
 class Bomber : public PinguAction
 {
 private:
-  ///bool particle_thrown;
-  ///bool sound_played;
   bool gfx_exploded;
-  ///bool colmap_exploded;
-
   CollisionMask bomber_radius;
   StateSprite sprite;
-
   Sprite   explo_surf;
 
 public:
   Bomber (Pingu* p);
-
   ActionName::Enum get_type() const { return ActionName::BOMBER; }
-
   bool change_allowed (ActionName::Enum action) { return false; }
-
   void draw (SceneContext& gc);
   void update();
 

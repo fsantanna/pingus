@@ -39,30 +39,6 @@ Digger::Digger(Pingu* p) :
 void
 Digger::update()
 {
-#if 0
-  sprite.update();
-
-  delay_count += 1;
-
-  if (rel_getpixel(0, -1) ==  Groundtype::GP_WATER
-      || rel_getpixel(0, -1) ==  Groundtype::GP_LAVA)
-  {
-    pingu->set_action(ActionName::DROWN);
-  }
-  else
-  {
-    if (!have_something_to_dig())
-    {
-      dig(true);
-      pingu->set_action(ActionName::WALKER);
-    }
-    else if (delay_count % 4 == 0)
-    {
-      dig(false);
-    }
-  }
-#endif
-
   void* this_ = this;
   ceu_sys_go(&CEU_APP, CEU_IN_DIGGER_UPDATE, &this_);
 }

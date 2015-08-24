@@ -85,86 +85,9 @@ Bridger::draw(SceneContext& gc)
 void
 Bridger::update()
 {
-#if 0
-  switch (mode)
-  {
-    case B_BUILDING:
-      update_build ();
-      break;
-
-    case B_WALKING:
-      update_walk ();
-      break;
-  }
-#endif
-
   void* this_ = this;
   ceu_sys_go(&CEU_APP, CEU_IN_BRIDGER_UPDATE, &this_);
 }
-
-#if 0
-void
-Bridger::update_walk ()
-{
-  if (walk_sprite[pingu->direction].is_finished ()) // FIXME: Dangerous! might not be fixed timing
-  {
-    if (way_is_free())
-    {
-      mode = B_BUILDING;
-      block_build = false;
-      walk_sprite[pingu->direction].restart();
-      walk_one_step_up();
-    }
-    else // We reached a wall...
-    {
-      pingu->direction.change ();
-      pingu->set_action (ActionName::WALKER);
-      return;
-    }
-  }
-  else
-  {
-    walk_sprite.update ();
-  }
-}
-#endif
-
-#if 0
-void
-Bridger::update_build ()
-{
-  build_sprite[pingu->direction].update();
-
-  // FIXME: Game logic must not depend on Sprite states
-  if (build_sprite[pingu->direction].get_current_frame () >= 7 && !block_build)
-  {
-    block_build = true;
-
-    if (bricks > 0)
-    {
-      if (brick_placement_allowed())
-        place_a_brick();
-      else
-      {
-        pingu->direction.change ();
-        pingu->set_action (ActionName::WALKER);
-        return;
-      }
-    }
-    else // Out of bricks
-    {
-      pingu->set_action(ActionName::BRIDGER);
-      return;
-    }
-  }
-
-  if (build_sprite[pingu->direction].is_finished ())
-  {
-    mode = B_WALKING;
-    build_sprite[pingu->direction].restart();
-  }
-}
-#endif
 
 // way_is_free() needs to stop BRIDGERS from getting stuck between a brick
 // and the ceiling.  The routine also stops cases of Bridgers building up but

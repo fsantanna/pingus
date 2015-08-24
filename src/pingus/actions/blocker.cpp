@@ -48,22 +48,6 @@ Blocker::Blocker(Pingu* p) :
 void
 Blocker::update()
 {
-  ///if (!standing_on_ground())
-  ///{
-    ///pingu->set_action(ActionName::FALLER);
-    ///return;
-  ///}
-  ///else
-  ///{
-    // FIXME: PinguHolder iterations should be handled otherwise
-    ///PinguHolder* pingus = WorldObj::get_world()->get_pingus();
-    ///for(PinguIter i = pingus->begin(); i != pingus->end(); ++i)
-    ///{
-      ///catch_pingu(*i);
-    ///}
-  ///}
-  ///sprite.update();
-
   void* this_ = this;
   ceu_sys_go(&CEU_APP, CEU_IN_BLOCKER_UPDATE, &this_);
 }

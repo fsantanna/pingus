@@ -60,55 +60,6 @@ Basher::draw (SceneContext& gc)
 void
 Basher::update ()
 {
-  ///sprite[pingu->direction].update();
-
-/*
-  ++basher_c;
-  if (basher_c % 3 == 0)
-  {
-    if (!walk_forward())
-    {
-      // FIXME: set_action() in walk_forward() makes the Basher object
-      // invalid, thus making all further access illegal and thus
-      // forces the return here
-      return;
-    }
-
-    // If on walking forward the Basher has now walked on to water or lava
-    if (rel_getpixel(0, -1) == Groundtype::GP_WATER
-        || rel_getpixel(0, -1) == Groundtype::GP_LAVA)
-    {
-      pingu->set_action(ActionName::DROWN);
-    }
-    // If walking on to something (i.e. hasn't fallen)
-    else if (rel_getpixel(0, -1) != Groundtype::GP_NOTHING)
-    {
-      // If the Basher has walked into something that it won't be able to
-      // bash
-      if (rel_getpixel(0, 0) == Groundtype::GP_SOLID
-          || rel_getpixel(0, pingu_height) == Groundtype::GP_SOLID)
-      {
-        // Change direction and let walk code walk forward/up to get out.
-        Sound::PingusSound::play_sound("chink");
-        pingu->direction.change();
-        pingu->set_action(ActionName::WALKER);
-      }
-      else if (have_something_to_dig())
-      {
-        // We only bash every second step, cause the Pingus would
-        // get trapped otherwise in the bashing area.
-        if (basher_c % 2 == 0)
-          bash();
-      }
-      else if (static_cast<float>(sprite[pingu->direction].get_current_frame()) // FIXME: Game logic must be separate from Sprite
-               / static_cast<float>(sprite[pingu->direction].get_frame_count()) > 0.6f)
-      { // FIXME: EVIL! Engine must not relay on graphic
-        pingu->set_action(ActionName::WALKER);
-      }
-    }
-  }
-*/
-
   void* this_ = this;
   ceu_sys_go(&CEU_APP, CEU_IN_BASHER_UPDATE, &this_);
 }
@@ -154,12 +105,6 @@ Basher::walk_forward()
 bool
 Basher::have_something_to_dig()
 {
-  ///if (first_bash)
-  ///{
-    ///first_bash = false;
-    ///return true;
-  ///}
-  ///else
   {
     // Check that there is something "within" the Basher's reach
     for(int x = 0; x <= bash_reach; ++x)

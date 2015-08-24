@@ -59,62 +59,6 @@ Bomber::draw (SceneContext& gc)
 void
 Bomber::update ()
 {
-#if 0
-  sprite.update ();
-
-  Movers::LinearMover mover(WorldObj::get_world(), pingu->get_pos());
-
-  Vector3f velocity = pingu->get_velocity();
-
-  // Move the Pingu
-  mover.update(velocity, Colliders::PinguCollider(pingu_height));
-
-  pingu->set_pos(mover.get_pos());
-
-  // If the Bomber hasn't 'exploded' yet and it has hit Water or Lava
-  if (sprite[pingu->direction].get_current_frame() <= 9 && (rel_getpixel(0, -1) == Groundtype::GP_WATER
-                                                            || rel_getpixel(0, -1) == Groundtype::GP_LAVA))
-  {
-    pingu->set_action(ActionName::DROWN);
-    return;
-  }
-
-  // If the Bomber hasn't 'exploded' yet and it has hit the ground too quickly
-  if (sprite[pingu->direction].get_current_frame () <= 9 && rel_getpixel(0, -1) != Groundtype::GP_NOTHING
-      && velocity.y > deadly_velocity)
-  {
-    pingu->set_action(ActionName::SPLASHED);
-    return;
-  }
-
-  if (sprite[pingu->direction].get_current_frame () > 9 && !sound_played) {
-    WorldObj::get_world()->play_sound("plop", pingu->get_pos ());
-    sound_played = true;
-  }
-
-  // Throwing particles
-  if (sprite[pingu->direction].get_current_frame () > 12 && !particle_thrown)
-  {
-    particle_thrown = true;
-    WorldObj::get_world()->get_pingu_particle_holder()->add_particle(static_cast<int>(pingu->get_x()),
-                                                                     static_cast<int>(pingu->get_y()) - 5);
-  }
-
-  if (sprite[pingu->direction].get_current_frame () >= 13 && !colmap_exploded)
-  {
-    colmap_exploded = true;
-    WorldObj::get_world()->remove(bomber_radius,
-                                  static_cast<int>(static_cast<int>(pingu->get_x()) - (bomber_radius.get_width()/2)),
-                                  static_cast<int>(static_cast<int>(pingu->get_y()) - 16 - (bomber_radius.get_width()/2)));
-  }
-
-  // The pingu explode
-  if (sprite[pingu->direction].is_finished ())
-  {
-    pingu->set_status(Pingu::PS_DEAD);
-  }
-#endif
-
   void* this_ = this;
   ceu_sys_go(&CEU_APP, CEU_IN_BOMBER_UPDATE, &this_);
 }
