@@ -1,25 +1,54 @@
 #ifndef _DROWN_CEU
 #define _DROWN_CEU
 
-native/pre do
-    ##include "../src/pingus/pingu.hpp"
-    ##include "../src/pingus/pingu_action.hpp"
-    ##include "../src/pingus/actions/drown.hpp"
-    ##define Actions__Drown Actions::Drown
-end
-native @plain _Actions__Drown;
+#include "../pingu_action.ceu"
 
-input (_Actions__Drown&&) DROWN_UPDATE;
+input (_PinguAction&&) PINGUACTION_UPDATE;
 
 class Drown with
-    var _Actions__Drown& me;
+    var _PinguAction& me;
 do
-    loop do
-        AWAIT_UNTIL_MYSELF(_Actions__Drown,DROWN_UPDATE);
-        me.sprite[me.pingu:direction].update();
-        if me.sprite[me.pingu:direction].is_finished() then
-            me.pingu:set_status({Pingu::PS_DEAD});
-            escape {ActionName::DEAD};
+    var Sprite sprite_left with
+        this.me = &_XXX_PTR2REF(null);
+        this.xxx_from_ceu = true;
+        this.name = _XXX_PTR2REF((char&&){("pingus/player"
+                                    + ME(CEU_Walker)->pingu->get_owner_str()
+                                    + "/drownfall/left")}.c_str());
+    end;
+    var Sprite sprite_right with
+        this.me = &_XXX_PTR2REF(null);
+        this.xxx_from_ceu = true;
+        this.name = _XXX_PTR2REF((char&&){("pingus/player"
+                                    + ME(CEU_Walker)->pingu->get_owner_str()
+                                    + "/drownfall/right")}.c_str());
+    end;
+
+    par do
+        every (me_,gc) in PINGUACTION_DRAW do
+            if me_ != &&this.me then
+                continue;
+            end
+            if me.pingu:direction == {Direction::LEFT} then
+                _GC_COLOR_DRAW(gc, sprite_left.me, me.pingu:get_pos());
+            else
+                _GC_COLOR_DRAW(gc, sprite_right.me, me.pingu:get_pos());
+            end
+        end
+    with
+        loop do
+            AWAIT_UNTIL_MYSELF(_PinguAction,PINGUACTION_UPDATE);
+            var bool is_finished;
+            if me.pingu:direction == {Direction::LEFT} then
+                sprite_left.me.update();
+                is_finished = sprite_left.me.is_finished();
+            else
+                sprite_right.me.update();
+                is_finished = sprite_right.me.is_finished();
+            end
+            if is_finished then
+                me.pingu:set_status({Pingu::PS_DEAD});
+                escape {ActionName::DEAD};
+            end
         end
     end
 end

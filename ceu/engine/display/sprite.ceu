@@ -29,12 +29,9 @@ native do
     static int SPRITE_CUR = 0;
 end
 
-pool SpriteImpl[] xxx_impls;
-
 class Sprite with
     var _Sprite& me;
-
-    pool SpriteImpl[]& xxx_impls;
+    var bool xxx_from_ceu = false;
 
     // constructor
     var _Surface&&              surface  = null;
@@ -48,7 +45,20 @@ do
     finalize with
         _SPRITE_CUR = _SPRITE_CUR - 1;
     end
-    me.XXX_is_copy = false;
+
+    if this.xxx_from_ceu then
+        _XXX_FROM_CEU = 1;
+        {ME(CEU_Sprite)} = _XXX_PTR2REF({new Sprite}(this.name)
+                                finalize with nothing; end);
+                                    // {new Sprite} is @nohold
+_printf(">>> ME = %p\n", &&me);
+        _XXX_FROM_CEU = 0;
+    end
+    finalize with
+        if this.xxx_from_ceu then
+            _delete(&&this.me);
+        end
+    end
 
     // constructor
     var _SpriteDescription&& spr_desc_ = spr_desc;
@@ -87,12 +97,14 @@ do
 
     /// XXX: has to be spawned because multiple CPP Sprite copies share the 
     //same "me.impl"
+_printf("\t = %p\n", &&me);
     var SpriteImpl&&? impl =
-        spawn SpriteImpl in xxx_impls with
+        spawn SpriteImpl in global:xxx_impls with
             this.surface  = surface;
             this.spr_desc = spr_desc_;
             this.spr_mod  = modifier;
         end;
+_printf("===\n");
     me.impl.reset(impl!:get());
 
     AWAIT_UNTIL_MYSELF(_Sprite,SPRITE_DELETE);
@@ -101,14 +113,12 @@ do
 end
 
 class SpriteFactory with
-    pool SpriteImpl[]& xxx_impls;
 do
     par do
         every me_ in SPRITE_NEW_NONE do
             spawn Sprite with
 //_printf("NEW   [%p] %d\n", me_, __sprite_deleting);
                 this.me    = &_XXX_PTR2REF(me_);
-                this.xxx_impls = &xxx_impls;
             end;
         end
     with
@@ -116,7 +126,6 @@ do
             spawn Sprite with
 //_printf("NEW   [%p] %d\n", me_, __sprite_deleting);
                 this.me    = &_XXX_PTR2REF(me_);
-                this.xxx_impls = &xxx_impls;
                 this.name  = name;
             end;
         end
@@ -125,7 +134,6 @@ do
             spawn Sprite with
 //_printf("NEW   [%p] %d\n", me_, __sprite_deleting);
                 this.me       = &_XXX_PTR2REF(me_);
-                this.xxx_impls    = &xxx_impls;
                 this.res_desc = res_desc;
             end;
         end
@@ -134,7 +142,6 @@ do
             spawn Sprite with
 //_printf("NEW   [%p] %d\n", me_, __sprite_deleting);
                 this.me      = &_XXX_PTR2REF(me_);
-                this.xxx_impls   = &xxx_impls;
                 this.surface = surface;
             end;
         end
@@ -143,7 +150,6 @@ do
             spawn Sprite with
 //_printf("NEW   [%p] %d\n", me_, __sprite_deleting);
                 this.me       = &_XXX_PTR2REF(me_);
-                this.xxx_impls    = &xxx_impls;
                 this.spr_desc = spr_desc;
                 this.modifier = (_ResourceModifier__Enum)mod;
             end;
@@ -151,9 +157,7 @@ do
     end
 end
 
-var SpriteFactory _ with
-    this.xxx_impls = &xxx_impls;
-end;
+var SpriteFactory _;
 
 // TODO(remove)
 class SpriteCheck__ with

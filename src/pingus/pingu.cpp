@@ -34,7 +34,7 @@
 #include "pingus/actions/bridger.hpp"
 #include "pingus/actions/climber.hpp"
 #include "pingus/actions/digger.hpp"
-#include "pingus/actions/drown.hpp"
+///#include "pingus/actions/drown.hpp"
 #include "pingus/actions/exiter.hpp"
 #include "pingus/actions/faller.hpp"
 #include "pingus/actions/floater.hpp"
@@ -46,7 +46,7 @@
 #include "pingus/actions/splashed.hpp"
 #include "pingus/actions/superman.hpp"
 #include "pingus/actions/waiter.hpp"
-#include "pingus/actions/walker.hpp"
+///#include "pingus/actions/walker.hpp"
 
 #include "util/log.hpp"
 

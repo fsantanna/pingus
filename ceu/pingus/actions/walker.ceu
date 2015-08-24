@@ -1,149 +1,198 @@
 #ifndef _WALKER_CEU
 #define _WALKER_CEU
 
-native/pre do
-    ##include "../src/pingus/pingu.hpp"
-    ##include "../src/pingus/pingu_action.hpp"
-    ##include "../src/pingus/actions/walker.hpp"
-    ##define Actions__Walker Actions::Walker
-end
-native @plain _Actions__Walker;
+#include "../pingu_action.ceu"
 
-input (_Actions__Walker&&) WALKER_UPDATE;
+#define WALKER_MAX_STEPS 5  // max nr. of pixels that pingu can walk up/down
 
 class Walker with
-    var _Actions__Walker& me;
+    var _PinguAction& me;
 do
-    loop do
-        AWAIT_UNTIL_MYSELF(_Actions__Walker,WALKER_UPDATE);
+    var Sprite walker_left with
+        this.me = &_XXX_PTR2REF(null);
+        this.xxx_from_ceu = true;
+        this.name = _XXX_PTR2REF((char&&){("pingus/player"
+                                    + ME(CEU_Walker)->pingu->get_owner_str()
+                                    + "/walker/left")}.c_str());
+    end;
+    var Sprite walker_right with
+        this.me = &_XXX_PTR2REF(null);
+        this.xxx_from_ceu = true;
+        this.name = _XXX_PTR2REF((char&&){("pingus/player"
+                                    + ME(CEU_Walker)->pingu->get_owner_str()
+                                    + "/walker/right")}.c_str());
+    end;
 
-        // update the sprite
-        me.walker[me.pingu:direction].update(0.033);
-        me.floaterlayer[me.pingu:direction].update(0.033);
+    var Sprite floaterlayer_left with
+        this.me = &_XXX_PTR2REF(null);
+        this.xxx_from_ceu = true;
+        this.name = "other/floaterlayer/left";
+    end;
+    var Sprite floaterlayer_right with
+        this.me = &_XXX_PTR2REF(null);
+        this.xxx_from_ceu = true;
+        this.name = "other/floaterlayer/right";
+    end;
 
-        // XXX_CPP
-        {
-            static Vector3f last_pos = ME(CEU_Walker)->pingu->get_pos();
-        };
+    // Reset the velocity
+    me.pingu:set_velocity({Vector3f()});
 
-          /* How should this code work?
-
-             1) Check that the Pingu stands still on ground, if not turn it into
-             a faller or drown. The reason we do so, is that we catch situations
-             where a digger or a similar action removed the ground under the
-             walker.
-
-             2) If pingu is still on ground, we can preprare the next step
-
-             3) Check if up-hill or down-hill is required
-
-             4)
-
-          */
-
-        if me.rel_getpixel(1, 0) == {Groundtype::GP_OUTOFSCREEN} then
-            me.pingu:set_x(me.pingu:get_x() + (float)(me.pingu:direction));
-            escape {ActionName::DEAD};
-        else/if me.rel_getpixel(0, -1) == {Groundtype::GP_WATER} then
-            escape {ActionName::DROWN};
-
-        else/if me.rel_getpixel(0, -1) == {Groundtype::GP_NOTHING} then
-            // The Pingu stands no longer on ground, the cause for this could 
-            // be a digger, miner or a bomber
-            // We search for the nearest ground below the pingu, if we can't 
-            // find anything within a few pixels, we will turn into a faller
-            var bool found_ground = false;
-            var int i = 0;
-            loop ii in 2 do   // [-2 .. -4]
-                i = -ii - 2;
-                if not (me.rel_getpixel(0, i) == {Groundtype::GP_NOTHING})
-                then
-                    found_ground = true;
-                    break;
-                end
+    par do
+        every (me_,gc) in PINGUACTION_DRAW do
+            if me_ != &&this.me then
+                continue;
             end
-            if found_ground then
-                me.pingu:set_y(me.pingu:get_y() - (float)(i));
+            if me.pingu:direction == {Direction::LEFT} then
+                _GC_COLOR_DRAW(gc, walker_left.me, me.pingu:get_pos());
+                if (me.pingu:get_fall_action() == {ActionName::FLOATER}) then
+                    _GC_COLOR_DRAW(gc, floaterlayer_left.me,
+                                       me.pingu:get_pos());
+                end
             else
-                escape {ActionName::DROWN};
+                _GC_COLOR_DRAW(gc, walker_right.me, me.pingu:get_pos());
+                if (me.pingu:get_fall_action() == {ActionName::FLOATER}) then
+                    _GC_COLOR_DRAW(gc, floaterlayer_right.me,
+                                       me.pingu:get_pos());
+                end
             end
         end
+    with
+        loop do
+            AWAIT_UNTIL_MYSELF(_PinguAction,PINGUACTION_UPDATE);
 
-        // FIXME: here we could/should scan more pixels
-        if me.rel_getpixel(1, 0) == {Groundtype::GP_BRIDGE} and
-           not me.head_collision_on_walk(1, 1)
-        then // bridge
-            // simple, stupid, but working bridge code
-            // FIXME: We don't check if we 'drift' into a solid ground block
-            me.pingu:set_pos(
-                me.pingu:get_x() + (float)(me.pingu:direction),
-                me.pingu:get_y() - 1.0); // pingus 'float' through bridges
-        else
-            // Non of the trivial moves worked, so we do up-hill or down-hill 
-            // walking
-            // FIXME: currently the pingu takes multiple steps at once when
-            // FIXME: working uphill, this looks kind of ugly
+            // update the sprite
+            if me.pingu:direction == {Direction::LEFT} then
+                this.walker_left.me.update(0.033);
+                this.floaterlayer_left.me.update(0.033);
+            else
+                this.walker_right.me.update(0.033);
+                this.floaterlayer_right.me.update(0.033);
+            end
 
-            // FIXME: rel_getpixel works on the current pos, so modifing pos
-            // FIXME: is evil, a backup copy might help
+            // XXX_CPP
+            {
+                static Vector3f last_pos = ME(CEU_Walker)->pingu->get_pos();
+            };
 
-            // if infront is a pixel Pingu is walking up the mountain
-            // we can continue walking up. search for the correct y_pos
-            var int y_inc = 0;
-            var int possible_y_step = 0;
-            var bool found_next_step = false;
-            loop i in 2*{Walker::max_steps}+1 do // [-max_steps ..  max_steps]
-                y_inc = i-{Walker::max_steps};
-                // up/down-hill scan
-                if (me.rel_getpixel(1, y_inc)=={Groundtype::GP_NOTHING} or
-                    me.rel_getpixel(1, y_inc)=={Groundtype::GP_BRIDGE})
-                and
-                    // FIXME: This causes a rather huge step
-                    me.rel_getpixel(1, y_inc - 1) != {Groundtype::GP_NOTHING}
-                then
-                    // FIXME:
-                    found_next_step = true;
-                    possible_y_step = y_inc;
-                    // No break here, since we always want to use the 
-                    // highest possible position
-                    //break;
+              /* How should this code work?
+
+                 1) Check that the Pingu stands still on ground, if not turn it into
+                 a faller or drown. The reason we do so, is that we catch situations
+                 where a digger or a similar action removed the ground under the
+                 walker.
+
+                 2) If pingu is still on ground, we can preprare the next step
+
+                 3) Check if up-hill or down-hill is required
+
+                 4)
+
+              */
+
+            if me.rel_getpixel(1, 0) == {Groundtype::GP_OUTOFSCREEN} then
+                me.pingu:set_x(me.pingu:get_x() + (float)(me.pingu:direction));
+                escape {ActionName::DEAD};
+            else/if me.rel_getpixel(0, -1) == {Groundtype::GP_WATER} then
+                escape {ActionName::DROWN};
+
+            else/if me.rel_getpixel(0, -1) == {Groundtype::GP_NOTHING} then
+                // The Pingu stands no longer on ground, the cause for this could 
+                // be a digger, miner or a bomber
+                // We search for the nearest ground below the pingu, if we can't 
+                // find anything within a few pixels, we will turn into a faller
+                var bool found_ground = false;
+                var int i = 0;
+                loop ii in 2 do   // [-2 .. -4]
+                    i = -ii - 2;
+                    if not (me.rel_getpixel(0, i) == {Groundtype::GP_NOTHING})
+                    then
+                        found_ground = true;
+                        break;
+                    end
+                end
+                if found_ground then
+                    me.pingu:set_y(me.pingu:get_y() - (float)(i));
+                else
+                    escape {ActionName::DROWN};
                 end
             end
 
-            if found_next_step then
-                // pos.y has a reversed co-system to rel_getpixel()?
+            // FIXME: here we could/should scan more pixels
+            if me.rel_getpixel(1, 0) == {Groundtype::GP_BRIDGE} and
+               not me.head_collision_on_walk(1, 1)
+            then // bridge
+                // simple, stupid, but working bridge code
+                // FIXME: We don't check if we 'drift' into a solid ground block
                 me.pingu:set_pos(
                     me.pingu:get_x() + (float)(me.pingu:direction),
-                    me.pingu:get_y() - (float)(possible_y_step));
+                    me.pingu:get_y() - 1.0); // pingus 'float' through bridges
             else
-                if me.rel_getpixel(1, 0) != {Groundtype::GP_NOTHING} then
-                    // We reached a wall
-                    if me.pingu:request_wall_action() then
-                        _log_debug("Pingu: We are in front of a wall, setting persistant action");
-/// TODO: is it correct?
-                        nothing;    // continue to next UPDATE
+                // Non of the trivial moves worked, so we do up-hill or down-hill 
+                // walking
+                // FIXME: currently the pingu takes multiple steps at once when
+                // FIXME: working uphill, this looks kind of ugly
+
+                // FIXME: rel_getpixel works on the current pos, so modifing pos
+                // FIXME: is evil, a backup copy might help
+
+                // if infront is a pixel Pingu is walking up the mountain
+                // we can continue walking up. search for the correct y_pos
+                var int y_inc = 0;
+                var int possible_y_step = 0;
+                var bool found_next_step = false;
+                loop i in 2*WALKER_MAX_STEPS+1 do // [-max_steps ..  max_steps]
+                    y_inc = i-WALKER_MAX_STEPS;
+                    // up/down-hill scan
+                    if (me.rel_getpixel(1, y_inc)=={Groundtype::GP_NOTHING} or
+                        me.rel_getpixel(1, y_inc)=={Groundtype::GP_BRIDGE})
+                    and
+                        // FIXME: This causes a rather huge step
+                        me.rel_getpixel(1, y_inc - 1) != {Groundtype::GP_NOTHING}
+                    then
+                        // FIXME:
+                        found_next_step = true;
+                        possible_y_step = y_inc;
+                        // No break here, since we always want to use the 
+                        // highest possible position
+                        //break;
                     end
-
-                    // No persitent action found, so change the direction
-                    me.pingu:direction.change();
-                else
-                    // We take the step, so that we are in the air
-                    me.pingu:set_x(me.pingu:get_x() + (float)(me.pingu:direction));
-                    // We reached a cliff
-                    escape {ActionName::FALLER};
                 end
-            end
 
-            // This is moved here to fix the bug where pingu stuck turning both 
-            // sides indefinetely when a head collision occured. the fix needs 
-            // the above downhill walk being done before head collision check.
-            if me.head_collision_on_walk(0, 0) then
-                _log_debug("Pingu: Head collision");
+                if found_next_step then
+                    // pos.y has a reversed co-system to rel_getpixel()?
+                    me.pingu:set_pos(
+                        me.pingu:get_x() + (float)(me.pingu:direction),
+                        me.pingu:get_y() - (float)(possible_y_step));
+                else
+                    if me.rel_getpixel(1, 0) != {Groundtype::GP_NOTHING} then
+                        // We reached a wall
+                        if me.pingu:request_wall_action() then
+                            _log_debug("Pingu: We are in front of a wall, setting persistant action");
+    /// TODO: is it correct?
+                            nothing;    // continue to next UPDATE
+                        end
 
-                //if the new position causes a head collision, we are already 
-                //stuck in a wall, so lets go back to the old position
-                me.pingu:direction.change();
-                me.pingu:set_pos(_last_pos);
+                        // No persitent action found, so change the direction
+                        me.pingu:direction.change();
+                    else
+                        // We take the step, so that we are in the air
+                        me.pingu:set_x(me.pingu:get_x() + (float)(me.pingu:direction));
+                        // We reached a cliff
+                        escape {ActionName::FALLER};
+                    end
+                end
+
+                // This is moved here to fix the bug where pingu stuck turning both 
+                // sides indefinetely when a head collision occured. the fix needs 
+                // the above downhill walk being done before head collision check.
+                if me.head_collision_on_walk(0, 0) then
+                    _log_debug("Pingu: Head collision");
+
+                    //if the new position causes a head collision, we are already 
+                    //stuck in a wall, so lets go back to the old position
+                    me.pingu:direction.change();
+                    me.pingu:set_pos(_last_pos);
+                end
             end
         end
     end

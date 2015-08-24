@@ -23,14 +23,38 @@
 #include "pingus/world.hpp"
 #include "pingus/worldobj.hpp"
 
+#include "ceu_vars.h"
+
 PinguAction::PinguAction (Pingu* p)
   : pingu (p)
+{
+}
+
+///
+PinguAction::PinguAction (Pingu* p, ActionName::Enum action_name, bool is_catchable) :
+  pingu (p),
+  action_name  (action_name),
+  is_catchable (is_catchable)
 {
 }
 
 PinguAction::~PinguAction ()
 {
 }
+
+void
+PinguAction::update ()
+{
+  void* this_ = this;
+  ceu_sys_go(&CEU_APP, CEU_IN_PINGUACTION_UPDATE, &this_);
+}
+void
+PinguAction::draw (SceneContext& gc)
+{
+  tceu__PinguAction___SceneContext_ p = {this, &gc};
+  ceu_sys_go(&CEU_APP, CEU_IN_PINGUACTION_DRAW, &p);
+}
+
 
 // Checks if the pingu action needs to catch another pingu (needed for
 // example by the blocker)

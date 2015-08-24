@@ -42,8 +42,12 @@ protected:
   /** A pointer to the pingu, which hold the action. */
   Pingu*      pingu;
 
+  ActionName::Enum action_name;  ///
+  bool             is_catchable; ///
+
 public:
   PinguAction(Pingu* p);
+  PinguAction(Pingu* p, ActionName::Enum action_name, bool is_catchable); ///
   virtual ~PinguAction();
 
   /// Gives the PinguAction class access to the data of the Pingu.
@@ -62,10 +66,10 @@ public:
   virtual bool change_allowed (ActionName::Enum action) { return true; }
 
   /// The "AI" of the pingu.
-  virtual void update () = 0;
+  virtual void update (); /// = 0;
 
   /** Draws the action */
-  virtual void draw (SceneContext& gc) =0;
+  virtual void draw (SceneContext& gc); /// =0;
 
   virtual Vector3f get_center_pos() const;
 
@@ -74,7 +78,8 @@ public:
   virtual std::string get_name () const;
 
   /// The type of the action
-  virtual ActionName::Enum get_type () const =0;
+  ///virtual ActionName::Enum get_type () const =0;
+  virtual ActionName::Enum get_type () const { return action_name; }
 
   /** Return the character that is shown when a persitent action is
       activated in the CaptureRectangle. */
@@ -92,7 +97,7 @@ public:
   /** Return true if the pingu can be caught with the mouse and
       another action can be applied, false otherwise (exiter,
       splashed, etc.) */
-  virtual bool catchable () { return true; }
+  virtual bool catchable () { return is_catchable; }
 
   /// True if Pingu in specified position would bang its head if it were walking
   bool head_collision_on_walk (int x, int y);

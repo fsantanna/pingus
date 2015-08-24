@@ -154,6 +154,18 @@ with
                 action = await e_set_action;
                 bad = bad - 1;
             with
+                #define DO_PINGU_ACTION_(T,is_catchable)            \
+                do                                                  \
+                    var _PinguAction&& ptr = _XXX_PURE(             \
+                            {new PinguAction}(&&this.me,action,is_catchable) \
+                                finalize with nothing; end);        \
+                    me.action.reset(ptr)                            \
+                        finalize with nothing; end;                 \
+                    var int a = do T with                           \
+                        this.me = &_XXX_PTR2REF(ptr);               \
+                    end;                                            \
+                    escape (_ActionName__Enum)a;                    \
+                end
                 #define DO_PINGU_ACTION(T)                          \
                 do                                                  \
                     var _##T&& ptr = _XXX_PURE({new T}(&&this.me)   \
@@ -182,7 +194,7 @@ with
                 else/if action == {ActionName::DIGGER} then
                     action = DO_PINGU_ACTION(Digger);
                 else/if action == {ActionName::DROWN} then
-                    action = DO_PINGU_ACTION(Drown);
+                    action = DO_PINGU_ACTION_(Drown,false);
                 else/if action == {ActionName::EXITER} then
                     action = DO_PINGU_ACTION(Exiter);
                     me.set_status({Pingu::PS_EXITED});
@@ -197,9 +209,9 @@ with
                 else/if action == {ActionName::WAITER} then
                     action = DO_PINGU_ACTION(Waiter);
                 else/if action == {ActionName::WALKER} then
-                    action = DO_PINGU_ACTION(Walker);
+                    action = DO_PINGU_ACTION_(Walker,true);
                 else
-_printf("Oioio %d\n", action);
+_printf("ACTION_NAME = %d\n", action);
                     _assert({!"Invalid action name provied"});
                     await FOREVER;
                 end

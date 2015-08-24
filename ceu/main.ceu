@@ -46,16 +46,36 @@ native @nohold _delete();
         end                                                           \
     end
 
+#include "engine/display/sprite_impl.ceu"
+
+interface Global with
+    pool SpriteImpl[] xxx_impls;
+end
+pool SpriteImpl[] xxx_impls;
+
 #include "engine/display/sprite.ceu"
 #include "pingus/pingu.ceu"
 
 input int SDL_DT;
 
 every 1s do
-    _printf(">>> [%d] Sprite=%d/%d[%d+%d/%d]   Impl=%d/%d\n",
+    var int e = 0;
+    var int v = 0;
+    loop i in 255 do
+        if _CEU_SYS_GO_EVTS[i] > v then
+            e = i;
+            v = _CEU_SYS_GO_EVTS[i];
+        end
+    end
+    _printf(">>> [%8d] [%3d/%2i] S=%4d/%3d[new=(%6d-%6d)/cpy=(%4d-%4d)] I=%d/%d\n",
         _CEU_SYS_GO_NTRAILS_MAX,
+        e, v,
         _SPRITE_CUR,      _SPRITE_TOT,
-        {Sprite::NEW}, {Sprite::CPY}, {Sprite::DEL},
+        {Sprite::NEW}, {Sprite::NEW_DEL}, {Sprite::CPY}, {Sprite::CPY_DEL},
         _SPRITE_IMPL_CUR, _SPRITE_IMPL_TOT);
+
     _CEU_SYS_GO_NTRAILS_MAX = 0;
+    _memset(_CEU_SYS_GO_EVTS, 0, sizeof(int)*255);
+#if 0
+#endif
 end

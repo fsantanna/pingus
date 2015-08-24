@@ -79,8 +79,10 @@ Sprite::Sprite(const std::string& name) :
 //printf("2>>>>>[%p]\n", this);
   Sprite::NEW++;
   char* str = (char*)name.c_str();
-  tceu__Sprite___char_ p = {this, str};
-  ceu_sys_go(&CEU_APP, CEU_IN_SPRITE_NEW_NAME, &p);
+  if (!XXX_FROM_CEU) {
+    tceu__Sprite___char_ p = {this, str};
+    ceu_sys_go(&CEU_APP, CEU_IN_SPRITE_NEW_NAME, &p);
+  }
 }
 
 Sprite::Sprite(const ResDescriptor& res_desc) :
