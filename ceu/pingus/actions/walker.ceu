@@ -2,36 +2,25 @@
 #define _WALKER_CEU
 
 #include "../pingu_action.ceu"
+#include "../right_left_sprites.ceu"
 
 #define WALKER_MAX_STEPS 5  // max nr. of pixels that pingu can walk up/down
 
 class Walker with
     var _PinguAction& me;
 do
-    var Sprite walker_left with
-        this.me = &_XXX_PTR2REF(null);
-        this.xxx_from_ceu = true;
-        this.name = _XXX_PTR2REF((char&&){("pingus/player"
+    var RightLeftSprites walkers with
+        this.left = _XXX_PTR2REF((char&&){("pingus/player"
                                     + ME(CEU_Walker)->pingu->get_owner_str()
                                     + "/walker/left")}.c_str());
-    end;
-    var Sprite walker_right with
-        this.me = &_XXX_PTR2REF(null);
-        this.xxx_from_ceu = true;
-        this.name = _XXX_PTR2REF((char&&){("pingus/player"
+        this.right = _XXX_PTR2REF((char&&){("pingus/player"
                                     + ME(CEU_Walker)->pingu->get_owner_str()
                                     + "/walker/right")}.c_str());
     end;
 
-    var Sprite floaterlayer_left with
-        this.me = &_XXX_PTR2REF(null);
-        this.xxx_from_ceu = true;
-        this.name = "other/floaterlayer/left";
-    end;
-    var Sprite floaterlayer_right with
-        this.me = &_XXX_PTR2REF(null);
-        this.xxx_from_ceu = true;
-        this.name = "other/floaterlayer/right";
+    var RightLeftSprites floaterlayers with
+        this.left  = "other/floaterlayer/left";
+        this.right = "other/floaterlayer/right";
     end;
 
     // Reset the velocity
@@ -42,18 +31,11 @@ do
             if me_ != &&this.me then
                 continue;
             end
-            if me.pingu:direction == {Direction::LEFT} then
-                _GC_COLOR_DRAW(gc, walker_left.me, me.pingu:get_pos());
-                if (me.pingu:get_fall_action() == {ActionName::FLOATER}) then
-                    _GC_COLOR_DRAW(gc, floaterlayer_left.me,
-                                       me.pingu:get_pos());
-                end
-            else
-                _GC_COLOR_DRAW(gc, walker_right.me, me.pingu:get_pos());
-                if (me.pingu:get_fall_action() == {ActionName::FLOATER}) then
-                    _GC_COLOR_DRAW(gc, floaterlayer_right.me,
-                                       me.pingu:get_pos());
-                end
+            _GC_COLOR_DRAW(gc, walkers.get(me.pingu:direction).me,
+                               me.pingu:get_pos());
+            if (me.pingu:get_fall_action() == {ActionName::FLOATER}) then
+                _GC_COLOR_DRAW(gc, floaterlayers.get(me.pingu:direction).me,
+                                   me.pingu:get_pos());
             end
         end
     with
@@ -61,13 +43,8 @@ do
             AWAIT_UNTIL_MYSELF(_PinguAction,PINGUACTION_UPDATE);
 
             // update the sprite
-            if me.pingu:direction == {Direction::LEFT} then
-                this.walker_left.me.update(0.033);
-                this.floaterlayer_left.me.update(0.033);
-            else
-                this.walker_right.me.update(0.033);
-                this.floaterlayer_right.me.update(0.033);
-            end
+            walkers.get(me.pingu:direction).me.update(0.033);
+            floaterlayers.get(me.pingu:direction).me.update(0.033);
 
             // XXX_CPP
             {

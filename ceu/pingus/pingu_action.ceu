@@ -1,0 +1,15 @@
+#ifndef _PINGU_ACTION_CEU
+#define _PINGU_ACTION_CEU
+
+native/pre do
+    ##include "../src/pingus/pingu_action.hpp"
+    ##include "../src/engine/display/scene_context.hpp"
+    ##define GC_COLOR_DRAW(gc,x,y) gc->color().draw(x,y)
+end
+native @plain  _PinguAction;
+native @nohold _GC_COLOR_DRAW();
+
+input (_PinguAction&&)                  PINGUACTION_UPDATE;
+input (_PinguAction&&, _SceneContext&&) PINGUACTION_DRAW;
+
+#endif

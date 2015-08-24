@@ -2,23 +2,18 @@
 #define _DROWN_CEU
 
 #include "../pingu_action.ceu"
+#include "../right_left_sprites.ceu"
 
 input (_PinguAction&&) PINGUACTION_UPDATE;
 
 class Drown with
     var _PinguAction& me;
 do
-    var Sprite sprite_left with
-        this.me = &_XXX_PTR2REF(null);
-        this.xxx_from_ceu = true;
-        this.name = _XXX_PTR2REF((char&&){("pingus/player"
+    var RightLeftSprites sprites with
+        this.left = _XXX_PTR2REF((char&&){("pingus/player"
                                     + ME(CEU_Walker)->pingu->get_owner_str()
                                     + "/drownfall/left")}.c_str());
-    end;
-    var Sprite sprite_right with
-        this.me = &_XXX_PTR2REF(null);
-        this.xxx_from_ceu = true;
-        this.name = _XXX_PTR2REF((char&&){("pingus/player"
+        this.right = _XXX_PTR2REF((char&&){("pingus/player"
                                     + ME(CEU_Walker)->pingu->get_owner_str()
                                     + "/drownfall/right")}.c_str());
     end;
@@ -28,24 +23,14 @@ do
             if me_ != &&this.me then
                 continue;
             end
-            if me.pingu:direction == {Direction::LEFT} then
-                _GC_COLOR_DRAW(gc, sprite_left.me, me.pingu:get_pos());
-            else
-                _GC_COLOR_DRAW(gc, sprite_right.me, me.pingu:get_pos());
-            end
+            _GC_COLOR_DRAW(gc, sprites.get(me.pingu:direction).me,
+                               me.pingu:get_pos());
         end
     with
         loop do
             AWAIT_UNTIL_MYSELF(_PinguAction,PINGUACTION_UPDATE);
-            var bool is_finished;
-            if me.pingu:direction == {Direction::LEFT} then
-                sprite_left.me.update();
-                is_finished = sprite_left.me.is_finished();
-            else
-                sprite_right.me.update();
-                is_finished = sprite_right.me.is_finished();
-            end
-            if is_finished then
+            sprites.get(me.pingu:direction).me.update();
+            if sprites.get(me.pingu:direction).me.is_finished() then
                 me.pingu:set_status({Pingu::PS_DEAD});
                 escape {ActionName::DEAD};
             end
