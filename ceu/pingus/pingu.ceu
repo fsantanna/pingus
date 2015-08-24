@@ -209,7 +209,7 @@ with
                     break;
                     ///escape {Pingu:PS_EXITED};
                 else/if action == {ActionName::FALLER} then
-                    action = DO_PINGU_ACTION(Faller);
+                    action = DO_PINGU_ACTION_(Faller,true);
                 else/if action == {ActionName::FLOATER} then
                     action = DO_PINGU_ACTION(Floater);
                 else/if action == {ActionName::MINER} then

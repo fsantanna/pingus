@@ -36,7 +36,7 @@
 #include "pingus/actions/digger.hpp"
 ///#include "pingus/actions/drown.hpp"
 ///#include "pingus/actions/exiter.hpp"
-#include "pingus/actions/faller.hpp"
+///#include "pingus/actions/faller.hpp"
 #include "pingus/actions/floater.hpp"
 #include "pingus/actions/jumper.hpp"
 #include "pingus/actions/laser_kill.hpp"
