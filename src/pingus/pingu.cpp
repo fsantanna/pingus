@@ -33,7 +33,7 @@
 ///#include "pingus/actions/bomber.hpp"
 ///#include "pingus/actions/bridger.hpp"
 #include "pingus/actions/climber.hpp"
-#include "pingus/actions/digger.hpp"
+///#include "pingus/actions/digger.hpp"
 ///#include "pingus/actions/drown.hpp"
 ///#include "pingus/actions/exiter.hpp"
 ///#include "pingus/actions/faller.hpp"

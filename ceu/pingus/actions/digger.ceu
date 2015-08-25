@@ -1,35 +1,98 @@
 #ifndef _DIGGER_CEU
 #define _DIGGER_CEU
 
-native/pre do
-    ##include "../src/pingus/pingu.hpp"
-    ##include "../src/pingus/pingu_action.hpp"
-    ##include "../src/pingus/actions/digger.hpp"
-    ##define Actions__Digger Actions::Digger
-end
-native @plain _Actions__Digger;
-
-input (_Actions__Digger&&) DIGGER_UPDATE;
+#include "../pingu_action.ceu"
+#include "../right_left_sprites.ceu"
 
 class Digger with
-    var _Actions__Digger& me;
+    interface IPinguAction;
 do
-    var int delay_count = 0;
-    loop do
-        AWAIT_UNTIL_MYSELF(_Actions__Digger,DIGGER_UPDATE);
-        me.sprite.update();
-        delay_count = delay_count + 1;
+    function (void)=>bool have_something_to_dig;
+    function (bool final)=>void dig;
 
-        if me.rel_getpixel(0,-1) == {Groundtype::GP_WATER} or
-           me.rel_getpixel(0,-1) == {Groundtype::GP_LAVA}
-        then
-            escape {ActionName::DROWN};
-        else/if not me.have_something_to_dig() then
-            me.dig(true);
-            escape {ActionName::WALKER};
-        else/if delay_count%4 == 0 then
-            me.dig(false);
+    var char[] str = [] .. "pingus/player"
+                        .. (char&&)*this.pingu.me.get_owner_str().c_str()
+                        .. "/digger/left";
+    var Sprite sprite with
+        this.me = &_XXX_PTR2REF(null);
+        this.xxx_from_ceu = true;
+        this.name = _XXX_PURE(&&str);
+    end;
+
+    par do
+        /* UPDATE */
+        var int delay_count = 0;
+        loop do
+            AWAIT_UNTIL_PINGU(PINGU_UPDATE);
+            sprite.me.update();
+            delay_count = delay_count + 1;
+
+            if this.me.rel_getpixel(0,-1) == {Groundtype::GP_WATER} or
+               this.me.rel_getpixel(0,-1) == {Groundtype::GP_LAVA}
+            then
+                escape {ActionName::DROWN};
+            else/if not this.have_something_to_dig() then
+                this.dig(true);
+                escape {ActionName::WALKER};
+            else/if delay_count%4 == 0 then
+                this.dig(false);
+            end
         end
+    with
+        /* DRAW */
+        every (me_,gc) in PINGU_DRAW do
+            if me_ != &&this.pingu.me then
+                continue;
+            end
+            _GC_COLOR_DRAW(gc, sprite.me,
+                               this.pingu.me.get_pos());
+        end
+    end
+
+    function (void)=>bool have_something_to_dig do
+        if (this.me.rel_getpixel(0,-1) !=  {Groundtype::GP_NOTHING}) then
+            if (this.me.rel_getpixel(0,-1) ==  {Groundtype::GP_SOLID}) then
+                call { Sound::PingusSound::play_sound }("chink");
+                return false;
+            else
+                return true;
+            end
+        else
+            return false;
+        end
+    end
+
+    function (bool final)=>void dig do
+        {
+            ##include "../../../src/pingus/collision_mask.hpp"
+            static CollisionMask digger_radius(
+                    "pingus/common/digger_radius_gfx",
+                    "pingus/common/digger_radius"
+            );
+            static CollisionMask digger_radius_final(
+                    "pingus/common/digger_radius_final_gfx",
+                    "pingus/common/digger_radius_final_gfx"
+            );
+        };
+
+        if (not final) then
+            call {WorldObj::get_world()->remove}(
+                    _digger_radius,
+                    this.pingu.me.get_xi() - _digger_radius.get_width()/2,
+                    this.pingu.me.get_yi() - _digger_radius.get_height() + 2);
+        else
+            call {WorldObj::get_world()->remove}(
+                    _digger_radius_final,
+                    this.pingu.me.get_xi() - _digger_radius.get_width()/2,
+                    this.pingu.me.get_yi() - _digger_radius.get_height() + 2);
+        end
+        this.pingu.me.set_pos(this.pingu.me.get_xi(), this.pingu.me.get_yi()+1);
+    end
+
+    /* PUBLIC */
+
+    function (_ActionName__Enum action_name) => bool change_allowed do
+        return true;
     end
 end
 

@@ -25,12 +25,13 @@ do
         this.right = &right;
     end;
 
-    var char&& str = _XXX_PURE((char&&)this.pingu.me.get_owner_str().c_str());
+    var char[] str = [] .. "pingus/player"
+                        .. (char&&)*this.pingu.me.get_owner_str().c_str()
+                        .. "/explo";
     var Sprite explo_surf with
         this.me = &_XXX_PTR2REF(null);
         this.xxx_from_ceu = true;
-        this.name = _XXX_PURE((char&&){(std::string("") + "pingus/player" +
-                                       THIS(CEU_Bomber)->str + "/explo").c_str()});
+        this.name = _XXX_PURE(&&str);
     end;
     
     call {WorldObj::get_world()->play_sound}("ohno", this.pingu.me.get_pos());

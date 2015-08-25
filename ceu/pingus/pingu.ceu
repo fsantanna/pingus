@@ -200,7 +200,7 @@ with
                 else/if action == {ActionName::BRIDGER} then
                     action = DO_PINGU_ACTION_(Bridger,true);
                 else/if action == {ActionName::DIGGER} then
-                    action = DO_PINGU_ACTION(Digger);
+                    action = DO_PINGU_ACTION_(Digger,true);
                 else/if action == {ActionName::DROWN} then
                     action = DO_PINGU_ACTION_(Drown,false);
                 else/if action == {ActionName::EXITER} then
