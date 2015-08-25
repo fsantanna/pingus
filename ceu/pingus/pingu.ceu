@@ -39,6 +39,7 @@ end
 #include "actions/floater.ceu"
 #include "actions/jumper.ceu"
 #include "actions/miner.ceu"
+#include "actions/splashed.ceu"
 #include "actions/waiter.ceu"
 #include "actions/walker.ceu"
 
@@ -167,7 +168,7 @@ with
                 action = await e_set_action;
                 bad = bad - 1;
             with
-                #define DO_PINGU_ACTION_(T,is_catchable)            \
+                #define DO_PINGU_ACTION(T,is_catchable)            \
                 do                                                  \
                     var _PinguAction&& ptr = _XXX_PURE(             \
                             {new PinguAction}(&&this.me,action,is_catchable) \
@@ -180,17 +181,6 @@ with
                     end;                                            \
                     escape (_ActionName__Enum)a;                    \
                 end
-                #define DO_PINGU_ACTION(T)                          \
-                do                                                  \
-                    var _##T&& ptr = _XXX_PURE({new T}(&&this.me)   \
-                                                     finalize with nothing; end); \
-                    me.action.reset(ptr)                            \
-                        finalize with nothing; end;                 \
-                    var int a = do T with                           \
-                        this.me = &_XXX_PTR2REF(ptr);               \
-                    end;                                            \
-                    escape (_ActionName__Enum)a;                    \
-                end
                 if action == {ActionName::NONE} then
                     await FOREVER;
                 else/if action == {ActionName::DEAD} then
@@ -198,34 +188,36 @@ with
                     break;
                     ///escape {Pingu:PS_DEAD};
                 else/if action == {ActionName::BASHER} then
-                    action = DO_PINGU_ACTION_(Basher,true);
+                    action = DO_PINGU_ACTION(Basher,true);
                 else/if action == {ActionName::BLOCKER} then
-                    action = DO_PINGU_ACTION_(Blocker,true);
+                    action = DO_PINGU_ACTION(Blocker,true);
                 else/if action == {ActionName::BOMBER} then
-                    action = DO_PINGU_ACTION_(Bomber,true);
+                    action = DO_PINGU_ACTION(Bomber,true);
                 else/if action == {ActionName::BRIDGER} then
-                    action = DO_PINGU_ACTION_(Bridger,true);
+                    action = DO_PINGU_ACTION(Bridger,true);
                 else/if action == {ActionName::DIGGER} then
-                    action = DO_PINGU_ACTION_(Digger,true);
+                    action = DO_PINGU_ACTION(Digger,true);
                 else/if action == {ActionName::DROWN} then
-                    action = DO_PINGU_ACTION_(Drown,false);
+                    action = DO_PINGU_ACTION(Drown,false);
                 else/if action == {ActionName::EXITER} then
-                    action = DO_PINGU_ACTION_(Exiter,false);
+                    action = DO_PINGU_ACTION(Exiter,false);
                     me.set_status({Pingu::PS_EXITED});
                     break;
                     ///escape {Pingu:PS_EXITED};
                 else/if action == {ActionName::FALLER} then
-                    action = DO_PINGU_ACTION_(Faller,true);
+                    action = DO_PINGU_ACTION(Faller,true);
                 else/if action == {ActionName::FLOATER} then
-                    action = DO_PINGU_ACTION_(Floater,true);
+                    action = DO_PINGU_ACTION(Floater,true);
                 else/if action == {ActionName::JUMPER} then
-                    action = DO_PINGU_ACTION_(Jumper,true);
+                    action = DO_PINGU_ACTION(Jumper,true);
                 else/if action == {ActionName::MINER} then
-                    action = DO_PINGU_ACTION_(Miner,true);
+                    action = DO_PINGU_ACTION(Miner,true);
+                else/if action == {ActionName::SPLASHED} then
+                    action = DO_PINGU_ACTION(Splashed,true);
                 else/if action == {ActionName::WAITER} then
-                    action = DO_PINGU_ACTION_(Waiter,true);
+                    action = DO_PINGU_ACTION(Waiter,true);
                 else/if action == {ActionName::WALKER} then
-                    action = DO_PINGU_ACTION_(Walker,true);
+                    action = DO_PINGU_ACTION(Walker,true);
                 else
 _printf("ACTION_NAME = %d\n", action);
                     _assert({!"Invalid action name provied"});

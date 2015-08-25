@@ -22,8 +22,8 @@ do
 
     var char[] left2  = [] .. "pingus/player"
                            .. (char&&)*this.pingu.me.get_owner_str().c_str()
-                           .. "/faller/left";
-    var char[] right2 = [] .. "tumbler/player"
+                           .. "/tumbler/left";
+    var char[] right2 = [] .. "pingus/player"
                            .. (char&&)*this.pingu.me.get_owner_str().c_str()
                            .. "/tumbler/right";
     var RightLeftSprites tumblers with
