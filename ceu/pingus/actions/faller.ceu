@@ -63,9 +63,8 @@ do
                 Movers::LinearMover mover(WorldObj::get_world(),
                                           ME(CEU_Faller)->pingu->get_pos());
                 mover.update(move, Colliders::PinguCollider(pingu_height));
-                ME(CEU_Faller)->pingu->set_pos(mover.get_pos());
             };
-
+            this.pingu.me.set_pos(_mover.get_pos());
             if not _mover.collided() then
                 continue;
             end
