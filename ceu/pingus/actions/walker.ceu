@@ -15,29 +15,32 @@ do
     var char[] right1 = [] .. "pingus/player"
                            .. (char&&)*this.pingu.me.get_owner_str().c_str()
                            .. "/walker/right";
-    var RightLeftSprites_ walkers with
+    var RightLeftSprites _ with
+        this.pingu = &outer.pingu;
         this.left  = &left1;
         this.right = &right1;
-    end;
-
-    var char[] left2  = [] .. "other/floaterlayer/left";
-    var char[] right2 = [] .. "other/floaterlayer/right";
-    var RightLeftSprites_ floaterlayers with
-        this.left  = &left2;
-        this.right = &right2;
     end;
 
     // Reset the velocity
     this.pingu.me.set_velocity({Vector3f()});
 
+    /* UPDATE */
     par do
-        /* UPDATE */
+        await PINGUHOLDER_UPDATE
+        until (this.pingu.me.get_fall_action() == {ActionName::FLOATER});
+        do
+            var char[] left2  = [] .. "other/floaterlayer/left";
+            var char[] right2 = [] .. "other/floaterlayer/right";
+            var RightLeftSprites _ with
+                this.pingu = &outer.pingu;
+                this.left  = &left2;
+                this.right = &right2;
+            end;
+            await FOREVER;
+        end
+    with
         loop do
             await PINGUHOLDER_UPDATE;
-
-            // update the sprite
-            walkers.get(this.pingu.me.direction).me.update(0.033);
-            floaterlayers.get(this.pingu.me.direction).me.update(0.033);
 
             // XXX_CPP
             {
@@ -165,16 +168,6 @@ do
                     this.pingu.me.direction.change();
                     this.pingu.me.set_pos(_last_pos);
                 end
-            end
-        end
-    with
-        /* DRAW */
-        every gc in PINGUHOLDER_DRAW_WALKER do
-            _GC_COLOR_DRAW(gc, walkers.get(this.pingu.me.direction).me,
-                               this.pingu.me.get_pos());
-            if (this.pingu.me.get_fall_action() == {ActionName::FLOATER}) then
-                _GC_COLOR_DRAW(gc, floaterlayers.get(this.pingu.me.direction).me,
-                                   this.pingu.me.get_pos());
             end
         end
     end
