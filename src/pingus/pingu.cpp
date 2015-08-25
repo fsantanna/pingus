@@ -45,7 +45,7 @@
 #include "pingus/actions/smashed.hpp"
 #include "pingus/actions/splashed.hpp"
 #include "pingus/actions/superman.hpp"
-#include "pingus/actions/waiter.hpp"
+///#include "pingus/actions/waiter.hpp"
 ///#include "pingus/actions/walker.hpp"
 
 #include "util/log.hpp"
