@@ -9,39 +9,11 @@ class Faller with
 do
     function (void) => bool is_tumbling;
 
-    var char[] left1  = [] .. "pingus/player"
-                           .. (char&&)*this.pingu.me.get_owner_str().c_str()
-                           .. "/faller/left";
-    var char[] right1 = [] .. "pingus/player"
-                           .. (char&&)*this.pingu.me.get_owner_str().c_str()
-                           .. "/faller/right";
-    var RightLeftSprites_ fallers with
-        this.left  = &left1;
-        this.right = &right1;
-    end;
-
-    var char[] left2  = [] .. "pingus/player"
-                           .. (char&&)*this.pingu.me.get_owner_str().c_str()
-                           .. "/tumbler/left";
-    var char[] right2 = [] .. "pingus/player"
-                           .. (char&&)*this.pingu.me.get_owner_str().c_str()
-                           .. "/tumbler/right";
-    var RightLeftSprites_ tumblers with
-        this.left  = &left2;
-        this.right = &right2;
-    end;
-
+    /* UPDATE */
     par do
-        /* UPDATE */
         var float countdown = 2.0;
         loop do
             await PINGUHOLDER_UPDATE;
-
-            if this.is_tumbling() then
-                tumblers.get(this.pingu.me.direction).me.update();
-            else
-                fallers.get(this.pingu.me.direction).me.update();
-            end
 
             // FIXME: This should be triggered at a later point, when close to
             // FIXME: deadly_velocity or something like that. A translation
@@ -134,15 +106,33 @@ do
             end
         end
     with
-        /* DRAW */
-        every gc in PINGUHOLDER_DRAW_OTHERS do
-            if this.is_tumbling() then
-                _GC_COLOR_DRAW(gc, tumblers.get(this.pingu.me.direction).me,
-                                   this.pingu.me.get_pos());
-            else
-                _GC_COLOR_DRAW(gc, fallers.get(this.pingu.me.direction).me,
-                                   this.pingu.me.get_pos());
-            end
+        do
+            var char[] left  = [] .. "pingus/player"
+                                  ..  (char&&)*this.pingu.me.get_owner_str().c_str()
+                                  .. "/faller/left";
+            var char[] right = [] .. "pingus/player"
+                                  ..  (char&&)*this.pingu.me.get_owner_str().c_str()
+                                  .. "/faller/right";
+            var RightLeftSprites _ with
+                this.pingu = &pingu;
+                this.left  = &left;
+                this.right = &right;
+            end;
+            await PINGUHOLDER_UPDATE until this.is_tumbling();
+        end
+        do
+            var char[] left  = [] .. "pingus/player"
+                                  ..  (char&&)*this.pingu.me.get_owner_str().c_str()
+                                  .. "/tumbler/left";
+            var char[] right = [] .. "pingus/player"
+                                  ..  (char&&)*this.pingu.me.get_owner_str().c_str()
+                                  .. "/tumbler/right";
+            var RightLeftSprites _ with
+                this.pingu = &pingu;
+                this.left  = &left;
+                this.right = &right;
+            end;
+            await FOREVER;
         end
     end
 

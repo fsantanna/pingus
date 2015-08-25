@@ -16,7 +16,7 @@ do
     var char[] right = [] .. "pingus/player"
                           .. (char&&)*this.pingu.me.get_owner_str().c_str()
                           .. "/blocker/right";
-    var RightLeftSprites sprites with
+    var RightLeftSprites _ with
         this.pingu = &outer.pingu;
         this.left  = &left;
         this.right = &right;
