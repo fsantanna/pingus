@@ -1,0 +1,118 @@
+#ifndef _SPRITE_PINGUS_CEU
+#define _SPRITE_PINGUS_CEU
+
+native/pre do
+    ##include "../src/engine/display/sprite_impl.hpp"
+    ##define loop_ loop
+end
+native @plain _SpriteImpl;
+
+class SpritePingu with
+    function (void)=>_SpriteImpl&& get;
+
+    var IPingu& pingu;
+
+    // constructor
+    var _Surface&&              surface  = null;
+    var _SpriteDescription&&    spr_desc = null;
+    var _ResourceModifier__Enum spr_mod;
+    var char&&                  name     = null;
+
+    event void go_restart, go_finish;
+    event void ok_finished;
+do
+    var _SpriteImpl&? me__;
+    var _SpriteImpl&  me;
+
+    // constructor
+    do
+        if surface != null then
+            finalize
+                me__ = &({new SpriteImpl}(*surface));
+            with
+                //_delete(&&me__!);
+                nothing;    // handled in sprite.ceu/Sprite.cpp with shared_ptr
+            end
+        else
+            if name != null then
+                spr_desc = _Resource__load_sprite_desc(name);
+            end
+            _assert(spr_desc != null);
+            finalize
+                me__ = &({new SpriteImpl}(
+                        *spr_desc,
+                        (_ResourceModifier__Enum) spr_mod));
+            with
+                //_delete(&&me__!);
+                nothing;    // handled in sprite.ceu/Sprite.cpp with shared_ptr
+            end
+        end
+        me = &me__!;
+    end
+
+    function (void)=>_SpriteImpl& get do
+        return &&me;
+    end
+
+    var int total_time = me.frame_delay *
+                        (me.array.width * me.array.height);
+
+    par do
+        // RESTART LOOP
+        loop do
+            me.loop_last_cycle = false;
+            me.finished = false;
+            me.frame = 0;
+
+            if me.frame_delay == 0 then
+                await FOREVER;
+            end
+
+            var int tick_count = 0;
+
+            par/or do
+                await this.go_restart;
+            with
+                par/or do
+                    await this.go_finish;
+                with
+                    // CONTINUOUS SPRITES LOOP (this->loop==true)
+                    loop do
+                        loop do
+                            var _SpriteImpl&& me_;
+                            await PINGUHOLDER_UPDATE;
+                            var float dt = 0.033;   // TODO
+                            tick_count = tick_count + (int)(dt * 1000);
+
+                            if tick_count >= total_time then
+                                if me.loop_ then
+                                    me.loop_last_cycle = true;
+                                    tick_count = tick_count % total_time;
+                                    me.frame = tick_count / me.frame_delay;
+                                end
+                                break;
+                            else
+                                me.loop_last_cycle = false;
+                                me.frame = tick_count / me.frame_delay;
+                            end
+
+                        end
+                        if not me.loop_ then
+                            break;
+                        end
+                    end
+                end
+                me.finished = true;
+                emit this.ok_finished;
+                await FOREVER;
+            end
+        end
+    with
+        /* DRAW */
+        every gc in PINGUHOLDER_DRAW_OTHERS do
+            _GC_COLOR_DRAW(gc, this.me, this.pingu.me.get_pos());
+        end
+    end
+end
+
+#endif

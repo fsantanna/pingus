@@ -30,6 +30,7 @@ native/pre do
     ##include "../src/pingus/pingu_action.hpp"
 end
 
+#include "../engine/display/sprite_pingu.ceu"
 #include "actions/basher.ceu"
 #include "actions/blocker.ceu"
 #include "actions/bomber.ceu"

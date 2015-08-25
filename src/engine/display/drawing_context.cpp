@@ -21,6 +21,7 @@
 #include "engine/display/display.hpp"
 #include "engine/display/font.hpp"
 #include "engine/display/framebuffer.hpp"
+#include "engine/display/sprite_impl.hpp"
 #include "engine/display/sprite.hpp"
 #include "util/log.hpp"
 
@@ -70,6 +71,25 @@ public:
 
   void render(Framebuffer& fb, const Rect& rect) {
     sprite.render(pos.x + rect.left, pos.y + rect.top, fb);
+  }
+};
+
+class SpriteImplDrawingRequest : public DrawingRequest
+{
+private:
+  SpriteImpl* sprite;
+
+public:
+  SpriteImplDrawingRequest(SpriteImpl* sprite_, const Vector2i& pos_, float z_)
+    : DrawingRequest(pos_, z_),
+      sprite(sprite_)
+  {
+  }
+
+  virtual ~SpriteImplDrawingRequest() {}
+
+  void render(Framebuffer& fb, const Rect& rect) {
+    sprite->render(pos.x + rect.left, pos.y + rect.top, fb);
   }
 };
 
@@ -243,6 +263,21 @@ void
 DrawingContext::draw(DrawingContext& dc, float z)
 {
   draw(new DrawingContextDrawingRequest(dc, z));
+}
+
+void
+DrawingContext::draw(SpriteImpl& sprite, const Vector2i& pos, float z)
+{
+  draw(new SpriteImplDrawingRequest(&sprite, pos + translate_stack.back(), z));
+}
+
+void
+DrawingContext::draw(SpriteImpl& sprite, const Vector3f& pos)
+{
+  draw(new SpriteImplDrawingRequest(&sprite, Vector2i(translate_stack.back().x 
+                                                 + static_cast<int>(pos.x),
+                                                 translate_stack.back().y + static_cast<int>(pos.y)),
+                                pos.z));
 }
 
 void

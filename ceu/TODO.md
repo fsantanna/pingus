@@ -1,3 +1,4 @@
+- testar climber, wall-mode-activation
 - previous_action as argument to action constr.
 - drown,exiter,smashed
 - public Pingu::current_action

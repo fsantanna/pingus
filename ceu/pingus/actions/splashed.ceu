@@ -10,29 +10,15 @@ do
     var char[] str = [] .. "pingus/player"
                         .. (char&&)*this.pingu.me.get_owner_str().c_str()
                         .. "/splat";
-    var Sprite sprite with
-        this.me = &_XXX_PTR2REF(null);
-        this.xxx_from_ceu = true;
-        this.name = _XXX_PURE(&&str);
+    var SpritePingu sprite with
+        this.pingu = &outer.pingu;
+        this.name  = _XXX_PURE(&&str);
     end;
 
-    par do
-        /* UPDATE */
-        call {WorldObj::get_world()->play_sound}("splash", this.pingu.me.get_pos());
-        loop do
-            await PINGUHOLDER_UPDATE;
-            sprite.me.update();
-            if sprite.me.is_finished() then
-                this.pingu.me.set_status({Pingu::PS_DEAD});
-                escape {ActionName::DEAD};
-            end
-        end
-    with
-        /* DRAW */
-        every gc in PINGUHOLDER_DRAW_OTHERS do
-            _GC_COLOR_DRAW(gc, sprite.me, this.pingu.me.get_pos());
-        end
-    end
+    call {WorldObj::get_world()->play_sound}("splash",
+                                             this.pingu.me.get_pos());
+    await sprite.ok_finished;
+    escape {ActionName::DEAD};
 end
 
 #endif
