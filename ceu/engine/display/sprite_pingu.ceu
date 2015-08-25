@@ -13,7 +13,8 @@ class SpritePingu with
     function (void)=>int           get_frame_count;
     function (void)=>bool          is_finished;
 
-    var IPingu& pingu;
+    var float& x;
+    var float& y;
 
     // constructor
     var _Surface&&              surface  = null;
@@ -109,7 +110,7 @@ do
     with
         /* DRAW */
         every gc in PINGUHOLDER_DRAW_OTHERS do
-            _GC_COLOR_DRAW(gc, this.me, this.pingu.me.get_pos());
+            _GC_COLOR_DRAW(gc, this.me, _Vector3f(x,y,0));
         end
     end
 

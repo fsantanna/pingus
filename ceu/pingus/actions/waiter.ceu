@@ -11,8 +11,9 @@ do
                         .. (char&&)*this.pingu.me.get_owner_str().c_str()
                         .. "/waiter/left";
     var SpritePingu sprite with
-        this.pingu = &outer.pingu;
-        this.name  = _XXX_PURE(&&str);
+        this.x    = &_XXX_NOHOLD(&&outer.pingu.me.pos_x);
+        this.y    = &_XXX_NOHOLD(&&outer.pingu.me.pos_y);
+        this.name = _XXX_PURE(&&str);
     end;
 
     /* UPDATE */

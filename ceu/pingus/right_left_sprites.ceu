@@ -21,8 +21,9 @@ do
         loop do
             var SpritePingu&&? sprite =
                 spawn SpritePingu in this.sprites with
-                    this.pingu = &outer.pingu;
-                    if this.pingu.me.direction == {Direction::LEFT} then
+                    this.x = &_XXX_NOHOLD(&&outer.pingu.me.pos_x);
+                    this.y = &_XXX_NOHOLD(&&outer.pingu.me.pos_y);
+                    if outer.pingu.me.direction == {Direction::LEFT} then
                         this.name  = _XXX_PURE(&&outer.left);
                     else
                         this.name  = _XXX_PURE(&&outer.right);

@@ -24,83 +24,75 @@ do
     function (void)=>void place_a_brick;
     function (void)=>void walk_one_step_up;
 
-    var int bricks = _BRIDGER_MAX_BRICKS;
-
     this.me.name = {_("Bridger") + std::string(" (" +
                     StringUtil::to_string(THIS(CEU_Bridger)->bricks) + ")")};
 
-    var char[] left1  = [] .. "pingus/player"
-                           .. (char&&)*this.pingu.me.get_owner_str().c_str()
-                           .. "/bridger_walk/left";
-    var char[] right1 = [] .. "pingus/player"
-                           .. (char&&)*this.pingu.me.get_owner_str().c_str()
-                           .. "/bridger_walk/right";
-    var RightLeftSprites_ walks with
-        this.left  = &left1;
-        this.right = &right1;
-    end;
+    var int bricks = _BRIDGER_MAX_BRICKS;
 
-    var char[] left2  = [] .. "pingus/player"
-                           .. (char&&)*this.pingu.me.get_owner_str().c_str()
-                           .. "/bridger/left";
-    var char[] right2 = [] .. "pingus/player"
-                           .. (char&&)*this.pingu.me.get_owner_str().c_str()
-                           .. "/bridger/right";
-    var RightLeftSprites_ builds with
-        this.left  = &left2;
-        this.right = &right2;
-    end;
+    /* UPDATE */
+    loop i in _BRIDGER_MAX_BRICKS do
 
-    var int mode; // building
-    par do
-        /* UPDATE */
-        loop i in _BRIDGER_MAX_BRICKS do
+        // BUILDING
+        do
+            var char[] left  = [] .. "pingus/player"
+                                  ..  (char&&)*this.pingu.me.get_owner_str().c_str()
+                                  .. "/bridger/left";
+            var char[] right = [] .. "pingus/player"
+                                  ..  (char&&)*this.pingu.me.get_owner_str().c_str()
+                                  .. "/bridger/right";
+            var RightLeftSprites builds with
+                this.pingu = &outer.pingu;
+                this.left  = &left;
+                this.right = &right;
+            end;
 
-            // BUILDING: initial mode
-            mode = _BRIDGER_BUILDING;
-            par/or do
-                every PINGUHOLDER_UPDATE do
-                    builds.get(this.pingu.me.direction).me.update();
-                end
-            with
-                AWAIT_UNTIL_PINGU_FRAME(builds.get(this.pingu.me.direction).me, 7);
-                if this.brick_placement_allowed() then
-                    this.place_a_brick(); // me.bricks--;
-                else
-                    this.pingu.me.direction.change();
-                    escape {ActionName::WALKER};
-                end
-                await PINGUHOLDER_UPDATE
-                until builds.get(this.pingu.me.direction).me.is_finished();
+            AWAIT_UNTIL_PINGU_FRAME((*builds.get()), 7);
+            if this.brick_placement_allowed() then
+                this.place_a_brick(); // me.bricks--;
+            else
+                this.pingu.me.direction.change();
+                escape {ActionName::WALKER};
             end
-            builds.get(this.pingu.me.direction).me.restart();
+            await PINGUHOLDER_UPDATE
+            until builds.get():is_finished();
+        end
 
-            // SKIP the last WALKING
-            if i == _BRIDGER_MAX_BRICKS-1 then
-                escape {ActionName::WAITER};
-            end
+        // SKIP the last WALKING
+        if i == _BRIDGER_MAX_BRICKS-1 then
+            escape {ActionName::WAITER};
+        end
 
-            // WALKING
-            mode = _BRIDGER_WALKING;
+        // WALKING
+        do
+            var char[] left  = [] .. "pingus/player"
+                                  .. (char&&)*this.pingu.me.get_owner_str().c_str()
+                                  .. "/bridger_walk/left";
+            var char[] right = [] .. "pingus/player"
+                                  .. (char&&)*this.pingu.me.get_owner_str().c_str()
+                                  .. "/bridger_walk/right";
+            var RightLeftSprites walks with
+                this.pingu = &outer.pingu;
+                this.left  = &left;
+                this.right = &right;
+            end;
+
             loop do
                 await PINGUHOLDER_UPDATE;
 
                 // FIXME: Dangerous! might not be fixed timing
-                if walks.get(this.pingu.me.direction).me.is_finished() then
+                if walks.get():is_finished() then
                     if this.way_is_free() then
                         break;
                     else // We reached a wall...
                         this.pingu.me.direction.change();
                         escape {ActionName::WALKER};
                     end
-                else
-                    walks.get(this.pingu.me.direction).me.update();
                 end
             end
-            walks.get(this.pingu.me.direction).me.restart();
             this.walk_one_step_up();
         end
-    with
+    end
+#if 0
         /* DRAW */
         every gc in PINGUHOLDER_DRAW_OTHERS do
             var int x_offset = 6;
@@ -134,7 +126,7 @@ do
                 );
             end
         end
-    end
+#endif
 
     /* PRIVATE */
 

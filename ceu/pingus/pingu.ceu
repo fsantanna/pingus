@@ -88,8 +88,6 @@ do
                 me.action_time = -1;
                 break;
             end
-
-            me.action:update();
         end
         await FOREVER;
     with

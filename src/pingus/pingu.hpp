@@ -77,12 +77,12 @@ private:
   /** The stat of the pingu, these can be modified by PinguActions */
   PinguStatus status;
 
-  float pos_x;
-  float pos_y;
-
   Vector3f velocity;
 
 public:
+
+  float pos_x;
+  float pos_y;
 
   //FIXME make me private
   Direction direction;
