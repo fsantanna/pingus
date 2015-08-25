@@ -167,8 +167,8 @@ public:
   /// set the wall action if we have one
   bool request_wall_action ();
 
-  /// set the fall action if we have one
-  bool request_fall_action ();
+  /// get the fall action if we have one
+  ActionName::Enum request_fall_action ();
 
   ActionName::Enum get_wall_action () { return wall_action; }
 
