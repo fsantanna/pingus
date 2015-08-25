@@ -211,7 +211,7 @@ with
                 else/if action == {ActionName::FALLER} then
                     action = DO_PINGU_ACTION_(Faller,true);
                 else/if action == {ActionName::FLOATER} then
-                    action = DO_PINGU_ACTION(Floater);
+                    action = DO_PINGU_ACTION_(Floater,true);
                 else/if action == {ActionName::JUMPER} then
                     action = DO_PINGU_ACTION_(Jumper,true);
                 else/if action == {ActionName::MINER} then

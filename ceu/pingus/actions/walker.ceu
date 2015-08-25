@@ -23,7 +23,7 @@ do
     var char[] left2  = [] .. "other/floaterlayer/left";
     var char[] right2 = [] .. "other/floaterlayer/right";
     var RightLeftSprites floaterlayers with
-        this.left  = &left1;
+        this.left  = &left2;
         this.right = &right2;
     end;
 

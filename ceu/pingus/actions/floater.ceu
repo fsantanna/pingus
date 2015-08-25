@@ -1,30 +1,48 @@
 #ifndef _FLOATER_CEU
 #define _FLOATER_CEU
 
-native/pre do
-    ##include "../src/pingus/pingu.hpp"
-    ##include "../src/pingus/pingu_action.hpp"
-    ##include "../src/pingus/actions/floater.hpp"
-    ##define Actions__Floater Actions::Floater
-end
-native @plain _Actions__Floater;
-
-input (_Actions__Floater&&) FLOATER_NEW;
-input (_PinguAction&&)      PINGU_ACTION_DELETE;
-input (_Actions__Floater&&) FLOATER_UPDATE;
+#include "../pingu_action.ceu"
+#include "../right_left_sprites.ceu"
 
 class Floater with
-    var _Actions__Floater& me;
+    interface IPinguAction;
 do
+    var char[] str = [] .. "pingus/player"
+                        .. (char&&)*this.pingu.me.get_owner_str().c_str()
+                        .. "/floater/left";
+    var Sprite sprite with
+        this.me = &_XXX_PTR2REF(null);
+        this.xxx_from_ceu = true;
+        this.name = _XXX_PURE(&&str);
+    end;
+
     me.pingu:set_velocity({Vector3f(0.0f, 1.0f)});
-    loop do
-        AWAIT_UNTIL_MYSELF(_Actions__Floater,FLOATER_UPDATE);
-        me.sprite.update();
-        if me.rel_getpixel(0,-1) == {Groundtype::GP_NOTHING} then
-            me.pingu:set_y(me.pingu:get_y() + 1);
-        else
-            escape {ActionName::WALKER};
+
+    par do
+        /* UPDATE */
+        loop do
+            AWAIT_UNTIL_PINGU(PINGU_UPDATE);
+            sprite.me.update();
+            if me.rel_getpixel(0,-1) == {Groundtype::GP_NOTHING} then
+                me.pingu:set_y(me.pingu:get_y() + 1);
+            else
+                escape {ActionName::WALKER};
+            end
         end
+    with
+        /* DRAW */
+        every (me_,gc) in PINGU_DRAW do
+            if me_ != &&this.pingu.me then
+                continue;
+            end
+            _GC_COLOR_DRAW(gc, sprite.me, this.pingu.me.get_pos());
+        end
+    end
+
+    /* PUBLIC */
+
+    function (_ActionName__Enum action_name)=>bool change_allowed do
+        return action_name == {ActionName::BOMBER};
     end
 end
 
