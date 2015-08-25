@@ -8,7 +8,7 @@ native do
 end
 
 #include "../pingu_action.ceu"
-#include "../right_left_sprites.ceu"
+#include "../right_left_sprites_.ceu"
 
 native do
     enum { BRIDGER_WALKING, BRIDGER_BUILDING };
@@ -35,7 +35,7 @@ do
     var char[] right1 = [] .. "pingus/player"
                            .. (char&&)*this.pingu.me.get_owner_str().c_str()
                            .. "/bridger_walk/right";
-    var RightLeftSprites walks with
+    var RightLeftSprites_ walks with
         this.left  = &left1;
         this.right = &right1;
     end;
@@ -46,7 +46,7 @@ do
     var char[] right2 = [] .. "pingus/player"
                            .. (char&&)*this.pingu.me.get_owner_str().c_str()
                            .. "/bridger/right";
-    var RightLeftSprites builds with
+    var RightLeftSprites_ builds with
         this.left  = &left2;
         this.right = &right2;
     end;
@@ -63,7 +63,7 @@ do
                     builds.get(this.pingu.me.direction).me.update();
                 end
             with
-                AWAIT_UNTIL_PINGU_FRAME(builds.get(this.pingu.me.direction), 7);
+                AWAIT_UNTIL_PINGU_FRAME(builds.get(this.pingu.me.direction).me, 7);
                 if this.brick_placement_allowed() then
                     this.place_a_brick(); // me.bricks--;
                 else

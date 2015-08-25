@@ -14,25 +14,17 @@ do
                           .. (char&&)*this.pingu.me.get_owner_str().c_str()
                           .. "/drownfall/right";
     var RightLeftSprites sprites with
+        this.pingu = &outer.pingu;
         this.left  = &left;
         this.right = &right;
     end;
 
-    par do
-        /* UPDATE */
-        loop do
-            await PINGUHOLDER_UPDATE;
-            sprites.get(this.pingu.me.direction).me.update();
-            if sprites.get(this.pingu.me.direction).me.is_finished() then
-                this.pingu.me.set_status({Pingu::PS_DEAD});
-                escape {ActionName::DEAD};
-            end
-        end
-    with
-        /* DRAW */
-        every gc in PINGUHOLDER_DRAW_OTHERS do
-            _GC_COLOR_DRAW(gc, sprites.get(this.pingu.me.direction).me,
-                               this.pingu.me.get_pos());
+    /* UPDATE */
+    loop do
+        await PINGUHOLDER_UPDATE;
+        if sprites.get():is_finished() then
+            this.pingu.me.set_status({Pingu::PS_DEAD});
+            escape {ActionName::DEAD};
         end
     end
 end

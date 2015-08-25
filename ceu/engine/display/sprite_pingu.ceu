@@ -9,6 +9,9 @@ native @plain _SpriteImpl;
 
 class SpritePingu with
     function (void)=>_SpriteImpl&& get;
+    function (void)=>int           get_current_frame;
+    function (void)=>int           get_frame_count;
+    function (void)=>bool          is_finished;
 
     var IPingu& pingu;
 
@@ -21,16 +24,16 @@ class SpritePingu with
     event void go_restart, go_finish;
     event void ok_finished;
 do
-    var _SpriteImpl&? me__;
+    var _SpriteImpl&? me_;
     var _SpriteImpl&  me;
 
     // constructor
     do
         if surface != null then
             finalize
-                me__ = &({new SpriteImpl}(*surface));
+                me_ = &({new SpriteImpl}(*surface));
             with
-                //_delete(&&me__!);
+                //_delete(&&me_!);
                 nothing;    // handled in sprite.ceu/Sprite.cpp with shared_ptr
             end
         else
@@ -39,19 +42,15 @@ do
             end
             _assert(spr_desc != null);
             finalize
-                me__ = &({new SpriteImpl}(
+                me_ = &({new SpriteImpl}(
                         *spr_desc,
                         (_ResourceModifier__Enum) spr_mod));
             with
-                //_delete(&&me__!);
+                //_delete(&&me_!);
                 nothing;    // handled in sprite.ceu/Sprite.cpp with shared_ptr
             end
         end
-        me = &me__!;
-    end
-
-    function (void)=>_SpriteImpl& get do
-        return &&me;
+        me = &me_!;
     end
 
     var int total_time = me.frame_delay *
@@ -112,6 +111,24 @@ do
         every gc in PINGUHOLDER_DRAW_OTHERS do
             _GC_COLOR_DRAW(gc, this.me, this.pingu.me.get_pos());
         end
+    end
+
+    /* PUBLIC */
+
+    function (void)=>_SpriteImpl& get do
+        return &&me;
+    end
+
+    function (void)=>int get_frame_count do
+        return me.array.width * me.array.height;
+    end
+
+    function (void)=>int get_current_frame do
+        return me.frame;
+    end
+
+    function (void)=>bool is_finished do
+        return me.finished;
     end
 end
 

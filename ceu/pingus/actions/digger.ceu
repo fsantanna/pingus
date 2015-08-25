@@ -2,7 +2,6 @@
 #define _DIGGER_CEU
 
 #include "../pingu_action.ceu"
-#include "../right_left_sprites.ceu"
 
 class Digger with
     interface IPinguAction;

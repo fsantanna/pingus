@@ -21,25 +21,16 @@ do
                           .. (char&&)*this.pingu.me.get_owner_str().c_str()
                           .. "/bomber/right";
     var RightLeftSprites sprites with
+        this.pingu = &outer.pingu;
         this.left  = &left;
         this.right = &right;
     end;
 
-    var char[] str = [] .. "pingus/player"
-                        .. (char&&)*this.pingu.me.get_owner_str().c_str()
-                        .. "/explo";
-    var Sprite explo_surf with
-        this.me = &_XXX_PTR2REF(null);
-        this.xxx_from_ceu = true;
-        this.name = _XXX_PURE(&&str);
-    end;
-    
     call {WorldObj::get_world()->play_sound}("ohno", this.pingu.me.get_pos());
 
     par do
         /* UPDATE */
         every PINGUHOLDER_UPDATE do
-            sprites.get(this.pingu.me.direction).me.update();
             // XXX_CPP
             {
                 Movers::LinearMover mover(WorldObj::get_world(),
@@ -70,7 +61,7 @@ do
                 end
             end
         with
-            AWAIT_UNTIL_PINGU_FRAME(sprites.get(this.pingu.me.direction), 10);
+            AWAIT_UNTIL_PINGU_FRAME((*sprites.get()), 10);
         end
 
         // Throwing particles
@@ -78,7 +69,7 @@ do
             WorldObj::get_world()->play_sound("plop",
                 ((CEU_Bomber*)_STK_ORG)->me->pingu->get_pos());
         };
-        AWAIT_UNTIL_PINGU_FRAME(sprites.get(this.pingu.me.direction), 13);
+        AWAIT_UNTIL_PINGU_FRAME((*sprites.get()), 13);
         {
             WorldObj::get_world()->get_pingu_particle_holder()->
                 add_particle((int)(((CEU_Bomber*)_STK_ORG)->me->pingu->get_x()),
@@ -97,28 +88,23 @@ do
                                 16 - (bomber_radius.get_width()/2)));
         };
 
+        do
+            var char[] str = [] .. "pingus/player"
+                                .. (char&&)*this.pingu.me.get_owner_str().c_str()
+                                .. "/explo";
+            var SpritePingu _ with
+                this.pingu = &outer.pingu;
+                this.name  = _XXX_PURE(&&str);
+            end;
+            await PINGUHOLDER_UPDATE;
+        end
+
         // The pingu explode
         loop do
             await PINGUHOLDER_UPDATE;
-            if sprites.get(this.pingu.me.direction).me.is_finished() then
+            if sprites.get():is_finished() then
                 escape {ActionName::DEAD};
             end
-        end
-    with
-        /* DRAW */
-        var bool gfx_exploded = false;
-        every gc in PINGUHOLDER_DRAW_OTHERS do
-            if (sprites.get(this.pingu.me.direction).me.get_current_frame() >= 13)
-                and (not gfx_exploded)
-            then
-                _GC_COLOR_DRAW(gc,
-                    explo_surf.me,
-                    {Vector3f}(this.pingu.me.get_x()-32, this.pingu.me.get_y()-48)
-                );
-                gfx_exploded = true;
-            end
-            _GC_COLOR_DRAW(gc, sprites.get(this.pingu.me.direction).me,
-                               this.pingu.me.get_pos());
         end
     end
 end

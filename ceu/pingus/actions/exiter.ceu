@@ -14,26 +14,18 @@ do
                           .. (char&&)*this.pingu.me.get_owner_str().c_str()
                           .. "/exit/right";
     var RightLeftSprites sprites with
+        this.pingu = &outer.pingu;
         this.left  = &left;
         this.right = &right;
     end;
 
     { Sound::PingusSound::play_sound("yipee"); };
 
-    par do
-        /* UPDATE */
-        loop do
-            await PINGUHOLDER_UPDATE;
-            sprites.get(this.pingu.me.direction).me.update();
-            if sprites.get(this.pingu.me.direction).me.is_finished() then
-                escape {ActionName::NONE};
-            end
-        end
-    with
-        /* DRAW */
-        every gc in PINGUHOLDER_DRAW_OTHERS do
-            _GC_COLOR_DRAW(gc, sprites.get(this.pingu.me.direction).me,
-                               this.pingu.me.get_pos());
+    /* UPDATE */
+    loop do
+        await PINGUHOLDER_UPDATE;
+        if sprites.get():is_finished() then
+            escape {ActionName::NONE};
         end
     end
 end

@@ -34,6 +34,7 @@ do
                           .. (char&&)*this.pingu.me.get_owner_str().c_str()
                           .. "/basher/right";
     var RightLeftSprites sprites with
+        this.pingu = &outer.pingu;
         this.left  = &left;
         this.right = &right;
     end;
@@ -43,62 +44,49 @@ do
     this.bash();
     var int bash_reach; // set in bash
 
-    par do
-        /* UPDATE */
-        every PINGUHOLDER_UPDATE do
-            sprites.get(this.pingu.me.direction).me.update();
+    /* UPDATE */
+    var bool is_first_bash = true;
+    loop i do
+        await PINGUHOLDER_UPDATE;
+        await PINGUHOLDER_UPDATE;
+        await PINGUHOLDER_UPDATE;
+
+        if not this.walk_forward() then
+            escape {ActionName::FALLER};
         end
-    with
-        /* UPDATE */
-        var bool is_first_bash = true;
-        loop i do
-            await PINGUHOLDER_UPDATE;
-            await PINGUHOLDER_UPDATE;
-            await PINGUHOLDER_UPDATE;
 
-            if not this.walk_forward() then
-                escape {ActionName::FALLER};
-            end
+        // If on walking forward the Basher has now walked on to water or lava
+        if me.rel_getpixel(0,-1) == {Groundtype::GP_WATER} or
+           me.rel_getpixel(0,-1) == {Groundtype::GP_LAVA}
+        then
+            escape {ActionName::DROWN};
 
-            // If on walking forward the Basher has now walked on to water or lava
-            if me.rel_getpixel(0,-1) == {Groundtype::GP_WATER} or
-               me.rel_getpixel(0,-1) == {Groundtype::GP_LAVA}
+        // If walking on to something (i.e. hasn't fallen)
+        else/if me.rel_getpixel(0,-1) != {Groundtype::GP_NOTHING}
+        then
+            // If the Basher has walked into something that it won't be 
+            // able to bash
+            if me.rel_getpixel(0,0)             == {Groundtype::GP_SOLID} or
+               me.rel_getpixel(0,_pingu_height) == {Groundtype::GP_SOLID}
             then
-                escape {ActionName::DROWN};
-
-            // If walking on to something (i.e. hasn't fallen)
-            else/if me.rel_getpixel(0,-1) != {Groundtype::GP_NOTHING}
-            then
-                // If the Basher has walked into something that it won't be 
-                // able to bash
-                if me.rel_getpixel(0,0)             == {Groundtype::GP_SOLID} or
-                   me.rel_getpixel(0,_pingu_height) == {Groundtype::GP_SOLID}
-                then
-                    // Change direction and let walk code walk forward/up to get out.
-                    { Sound::PingusSound::play_sound("chink"); };
-                    this.pingu.me.direction.change();
-                    escape {ActionName::WALKER};
-                else/if is_first_bash or this.have_something_to_dig() then
-                    is_first_bash = false;
-                    // We only bash every second step, cause the Pingus would
-                    // get trapped otherwise in the bashing area.
-                    if i%2 == 1 then
-                        this.bash();
-                    end
-                else/if ((float)(sprites.get(this.pingu.me.direction).me.get_current_frame())) /
-                        ((float)(sprites.get(this.pingu.me.direction).me.get_frame_count())) > 0.6
-                    // FIXME: Game logic must be separate from Sprite
-                    // FIXME: EVIL! Engine must not relay on graphic
-                then
-                    escape {ActionName::WALKER};
+                // Change direction and let walk code walk forward/up to get out.
+                { Sound::PingusSound::play_sound("chink"); };
+                this.pingu.me.direction.change();
+                escape {ActionName::WALKER};
+            else/if is_first_bash or this.have_something_to_dig() then
+                is_first_bash = false;
+                // We only bash every second step, cause the Pingus would
+                // get trapped otherwise in the bashing area.
+                if i%2 == 1 then
+                    this.bash();
                 end
+            else/if ((float)(sprites.get():get_current_frame())) /
+                    ((float)(sprites.get():get_frame_count())) > 0.6
+                // FIXME: Game logic must be separate from Sprite
+                // FIXME: EVIL! Engine must not relay on graphic
+            then
+                escape {ActionName::WALKER};
             end
-        end
-    with
-        /* DRAW */
-        every gc in PINGUHOLDER_DRAW_OTHERS do
-            _GC_COLOR_DRAW(gc, sprites.get(this.pingu.me.direction).me,
-                               this.pingu.me.get_pos());
         end
     end
 

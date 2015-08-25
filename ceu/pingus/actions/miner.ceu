@@ -16,48 +16,40 @@ do
                           .. (char&&)*this.pingu.me.get_owner_str().c_str()
                           .. "/miner/right";
     var RightLeftSprites sprites with
+        this.pingu = &outer.pingu;
         this.left  = &left;
         this.right = &right;
     end;
 
-    par do
-        /* UPDATE */
-        loop delay_count do
-            await PINGUHOLDER_UPDATE;
-            sprites.get(this.pingu.me.direction).me.update();
+    /* UPDATE */
+    loop delay_count do
+        await PINGUHOLDER_UPDATE;
 
-            if delay_count%4 != 0 then
-                continue;
-            end
-
-            if me.rel_getpixel(0,-1) == {Groundtype::GP_NOTHING} then
-                // stop mining when in the air
-                this.mine(true, delay_count);
-                escape {ActionName::WALKER};
-            else/if me.rel_getpixel(0,            -1) == {Groundtype::GP_SOLID} or
-                    me.rel_getpixel(0, _pingu_height) == {Groundtype::GP_SOLID}
-            then
-                // stop mining when hitting solid ground
-                if (me.rel_getpixel(0, -1) == {Groundtype::GP_SOLID}) then
-                    {Sound::PingusSound::play_sound("chink");};
-                end
-                this.mine(true, delay_count);
-
-                // stop pingu from walking further into the solid.
-                this.pingu.me.direction.change();
-                escape {ActionName::WALKER};
-            else
-                // mine and walk forward
-                this.mine(false, delay_count);
-                this.pingu.me.set_pos(this.pingu.me.get_xi() + this.pingu.me.direction,
-                                      this.pingu.me.get_yi() + 1);
-            end
+        if delay_count%4 != 0 then
+            continue;
         end
-    with
-        /* DRAW */
-        every gc in PINGUHOLDER_DRAW_OTHERS do
-            _GC_COLOR_DRAW(gc, sprites.get(this.pingu.me.direction).me,
-                               this.pingu.me.get_pos());
+
+        if me.rel_getpixel(0,-1) == {Groundtype::GP_NOTHING} then
+            // stop mining when in the air
+            this.mine(true, delay_count);
+            escape {ActionName::WALKER};
+        else/if me.rel_getpixel(0,            -1) == {Groundtype::GP_SOLID} or
+                me.rel_getpixel(0, _pingu_height) == {Groundtype::GP_SOLID}
+        then
+            // stop mining when hitting solid ground
+            if (me.rel_getpixel(0, -1) == {Groundtype::GP_SOLID}) then
+                {Sound::PingusSound::play_sound("chink");};
+            end
+            this.mine(true, delay_count);
+
+            // stop pingu from walking further into the solid.
+            this.pingu.me.direction.change();
+            escape {ActionName::WALKER};
+        else
+            // mine and walk forward
+            this.mine(false, delay_count);
+            this.pingu.me.set_pos(this.pingu.me.get_xi() + this.pingu.me.direction,
+                                  this.pingu.me.get_yi() + 1);
         end
     end
 

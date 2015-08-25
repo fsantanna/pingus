@@ -2,32 +2,44 @@
 #define _RIGHT_LEFT_SPRITES_CEU
 
 class RightLeftSprites with
+    var IPingu& pingu;
     var char[]& left;
     var char[]& right;
-
-    function (int)=>Sprite& get;
+    pool SpritePingu[1] sprites;
+    function (void)=>SpritePingu&& get;
 do
-    var Sprite sprite_left with
-        this.me = &_XXX_PTR2REF(null);
-        this.xxx_from_ceu = true;
-        this.name = _XXX_PURE(&&outer.left);
-    end;
-    var Sprite sprite_right with
-        this.me = &_XXX_PTR2REF(null);
-        this.xxx_from_ceu = true;
-        this.name = _XXX_PURE(&&outer.right);
-    end;
-
-    await FOREVER;
+    event void e_change;
+    par do
+        var int dir = this.pingu.me.direction;
+        every PINGUHOLDER_UPDATE do
+            if this.pingu.me.direction != dir then
+                dir = this.pingu.me.direction;
+                emit e_change;
+            end
+        end
+    with
+        loop do
+            var SpritePingu&&? sprite =
+                spawn SpritePingu in this.sprites with
+                    this.pingu = &outer.pingu;
+                    if this.pingu.me.direction == {Direction::LEFT} then
+                        this.name  = _XXX_PURE(&&outer.left);
+                    else
+                        this.name  = _XXX_PURE(&&outer.right);
+                    end;
+                end;
+            await e_change;
+            kill *sprite!;
+        end
+    end
 
     /* PUBLIC */
 
-    function (int direction)=>Sprite& get do
-        if direction == {Direction::LEFT} then
-            return &&sprite_left;
-        else // {Direction::RIGHT}
-            return &&sprite_right;
+    function (void)=>SpritePingu&& get do
+        loop s in this.sprites do
+            return s;
         end
+        _assert(0);
     end
 end
 

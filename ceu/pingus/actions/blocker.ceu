@@ -17,33 +17,25 @@ do
                           .. (char&&)*this.pingu.me.get_owner_str().c_str()
                           .. "/blocker/right";
     var RightLeftSprites sprites with
+        this.pingu = &outer.pingu;
         this.left  = &left;
         this.right = &right;
     end;
 
-    par do
-        /* UPDATE */
-        loop do
-            await PINGUHOLDER_UPDATE;
-            if not this.standing_on_ground() then
-                escape {ActionName::FALLER};
-            end
+    /* UPDATE */
+    loop do
+        await PINGUHOLDER_UPDATE;
+        if not this.standing_on_ground() then
+            escape {ActionName::FALLER};
+        end
 
-            // FIXME: PinguHolder iterations should be handled otherwise
-            {
-                /// XXX_CPP
-                static PinguHolder* pingus = WorldObj::get_world()->get_pingus();
-                for(PinguIter i = pingus->begin(); i != pingus->end(); ++i)
-                    CEU_Blocker_catch_pingu(_ceu_app,_STK_ORG,*i);
-            };
-            sprites.get(this.pingu.me.direction).me.update();
-        end
-    with
-        /* DRAW */
-        every gc in PINGUHOLDER_DRAW_OTHERS do
-            _GC_COLOR_DRAW(gc, sprites.get(this.pingu.me.direction).me,
-                               this.pingu.me.get_pos());
-        end
+        // FIXME: PinguHolder iterations should be handled otherwise
+        {
+            /// XXX_CPP
+            static PinguHolder* pingus = WorldObj::get_world()->get_pingus();
+            for(PinguIter i = pingus->begin(); i != pingus->end(); ++i)
+                CEU_Blocker_catch_pingu(_ceu_app,_STK_ORG,*i);
+        };
     end
 
     /* PRIVATE */

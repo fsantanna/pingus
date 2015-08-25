@@ -2,7 +2,7 @@
 #define _WALKER_CEU
 
 #include "../pingu_action.ceu"
-#include "../right_left_sprites.ceu"
+#include "../right_left_sprites_.ceu"
 
 #define WALKER_MAX_STEPS 5  // max nr. of pixels that pingu can walk up/down
 
@@ -15,14 +15,14 @@ do
     var char[] right1 = [] .. "pingus/player"
                            .. (char&&)*this.pingu.me.get_owner_str().c_str()
                            .. "/walker/right";
-    var RightLeftSprites walkers with
+    var RightLeftSprites_ walkers with
         this.left  = &left1;
         this.right = &right1;
     end;
 
     var char[] left2  = [] .. "other/floaterlayer/left";
     var char[] right2 = [] .. "other/floaterlayer/right";
-    var RightLeftSprites floaterlayers with
+    var RightLeftSprites_ floaterlayers with
         this.left  = &left2;
         this.right = &right2;
     end;

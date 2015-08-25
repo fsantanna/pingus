@@ -14,39 +14,32 @@ do
                           .. (char&&)*this.pingu.me.get_owner_str().c_str()
                           .. "/jumper/right";
     var RightLeftSprites sprites with
+        this.pingu = &outer.pingu;
         this.left  = &left;
         this.right = &right;
     end;
 
-    par do
-        /* UPDATE */
-        await PINGUHOLDER_UPDATE;
+    /* UPDATE */
+    await PINGUHOLDER_UPDATE;
 
-        // if climber, do a wall-jump, else just jump forward
-        if me.pingu:get_previous_action() == {ActionName::CLIMBER} then
-            me.pingu:direction.change();
-        end
-
-        if me.pingu:direction.is_left() then
-            me.pingu:set_velocity(me.pingu:get_velocity() +
-                                  _Vector3f(-4.58, -4.58));
-        else
-            // if (me.pingu:direction.is_right())
-            me.pingu:set_velocity(me.pingu:get_velocity() +
-                                  _Vector3f(4.58, -4.58));
-        end
-
-        // Move the me.pingu:n the air, so that it can start 'falling'
-        me.pingu:set_y(me.pingu:get_y() - 1);
-
-        escape {ActionName::FALLER};
-    with
-        /* DRAW */
-        every gc in PINGUHOLDER_DRAW_OTHERS do
-            _GC_COLOR_DRAW(gc, sprites.get(this.pingu.me.direction).me,
-                               this.pingu.me.get_pos());
-        end
+    // if climber, do a wall-jump, else just jump forward
+    if me.pingu:get_previous_action() == {ActionName::CLIMBER} then
+        me.pingu:direction.change();
     end
+
+    if me.pingu:direction.is_left() then
+        me.pingu:set_velocity(me.pingu:get_velocity() +
+                              _Vector3f(-4.58, -4.58));
+    else
+        // if (me.pingu:direction.is_right())
+        me.pingu:set_velocity(me.pingu:get_velocity() +
+                              _Vector3f(4.58, -4.58));
+    end
+
+    // Move the me.pingu:n the air, so that it can start 'falling'
+    me.pingu:set_y(me.pingu:get_y() - 1);
+
+    escape {ActionName::FALLER};
 end
 
 #endif
