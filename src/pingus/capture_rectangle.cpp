@@ -83,15 +83,26 @@ CaptureRectangle::set_pingu (Pingu* p)
   {
     action_str = pingu->get_name();
 
-    if (pingu->get_wall_action() || pingu->get_fall_action())
+    if (pingu->get_wall_action() != ActionName::NONE ||
+        pingu->get_fall_action() != ActionName::NONE)
     {
       action_str += "[";
 
-      if (pingu->get_wall_action())
-        action_str += pingu->get_wall_action()->get_persistent_char();
+      if (pingu->get_wall_action() != ActionName::NONE) {
+        char c = ActionName::PERSISTENT_CHAR[pingu->get_wall_action()];
+        if (c == 0) {
+          assert(!"This is not a persitent action!");
+        }
+        action_str += c;
+      }
 
-      if (pingu->get_fall_action())
-        action_str += pingu->get_fall_action()->get_persistent_char();
+      if (pingu->get_fall_action() != ActionName::NONE) {
+        char c = ActionName::PERSISTENT_CHAR[pingu->get_fall_action()];
+        if (c == 0) {
+          assert(!"This is not a persitent action!");
+        }
+        action_str += c;
+      }
 
       action_str += "]";
     }

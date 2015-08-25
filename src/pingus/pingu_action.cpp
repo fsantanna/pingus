@@ -77,13 +77,6 @@ PinguAction::rel_getpixel (int x, int y)
                                                        static_cast<int>(pingu->get_y() - static_cast<float>(y)));
 }
 
-char
-PinguAction::get_persistent_char ()
-{
-  assert(!"This is not a persitent action!");
-  return '-';
-}
-
 bool
 PinguAction::head_collision_on_walk (int x, int y)
 {
