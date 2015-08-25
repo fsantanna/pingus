@@ -64,9 +64,6 @@ public:
   */
   int  rel_getpixel (int x, int y);
 
-  /** Checks if this action allows to be overwritten with the given new action */
-  virtual bool change_allowed (ActionName::Enum action) { return true; }
-
   /// The "AI" of the pingu.
   virtual void update (); /// = 0;
 

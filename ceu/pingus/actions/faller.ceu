@@ -155,14 +155,6 @@ do
         return {Math::abs}(this.pingu.me.get_velocity().x) > _deadly_velocity
             or {Math::abs}(this.pingu.me.get_velocity().y) > _deadly_velocity;
     end
-
-    /* PUBLIC */
-
-    function (_ActionName__Enum new_action) => bool change_allowed do
-        return new_action == {ActionName::FLOATER} or
-               new_action == {ActionName::CLIMBER} or
-               new_action == {ActionName::BOMBER};
-    end
 end
 
 #endif

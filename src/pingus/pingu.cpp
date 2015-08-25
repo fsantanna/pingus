@@ -95,8 +95,8 @@ Pingu::get_id ()
 bool
 Pingu::change_allowed(ActionName::Enum new_action)
 {
-  assert (action);
-  return action->change_allowed (new_action);
+  assert(current_action != ActionName::NONE);
+  return ActionName::CHANGE_ALLOWED[current_action][new_action];
 }
 
 void

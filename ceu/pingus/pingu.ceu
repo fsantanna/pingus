@@ -52,6 +52,8 @@ native @plain _Pingu, _ActionName__Enum;
 class Pingu with
     interface IPingu;
 do
+    me.current_action = {ActionName::FALLER};
+
     event _ActionName__Enum e_set_action;
     par/or do
         AWAIT_UNTIL_MYSELF(_Pingu,PINGU_DELETE);
@@ -107,7 +109,9 @@ do
                 if action_name == me.action:get_type() then
                     _log_debug("Pingu: Already have action");
                     *ret_val = false;
-                else/if me.action:change_allowed(action_name) then
+                else/if {ActionName::CHANGE_ALLOWED}
+                            [me.current_action][action_name]
+                then
                     _log_debug("setting instant action");
                     *ret_val = true;
                     emit e_set_action => action_name;
@@ -153,25 +157,20 @@ do
             end
         end
     with
-        var int bad = 0;
-par do
-    every (ptr,action) in PINGU_SET_ACTION do
-        if ptr == &&this.me then
-            bad = bad + 1;
-            emit e_set_action => action;
+        every (ptr,action) in PINGU_SET_ACTION do
+            if ptr == &&this.me then
+                emit e_set_action => action;
+            end
         end
-    end
-with
-        var   _ActionName__Enum action = {ActionName::FALLER};
+    with
         loop do
             par/or do
-                action = await e_set_action;
-                bad = bad - 1;
+                me.current_action = await e_set_action;
             with
-                #define DO_PINGU_ACTION(T,is_catchable)            \
+                #define DO_PINGU_ACTION(T,is_catchable)             \
                 do                                                  \
                     var _PinguAction&& ptr = _XXX_PURE(             \
-                            {new PinguAction}(&&this.me,action,is_catchable) \
+                            {new PinguAction}(&&this.me,me.current_action,is_catchable) \
                                 finalize with nothing; end);        \
                     me.action.reset(ptr)                            \
                         finalize with nothing; end;                 \
@@ -181,57 +180,50 @@ with
                     end;                                            \
                     escape (_ActionName__Enum)a;                    \
                 end
-                if action == {ActionName::NONE} then
+                if me.current_action == {ActionName::NONE} then
                     await FOREVER;
-                else/if action == {ActionName::DEAD} then
+                else/if me.current_action == {ActionName::DEAD} then
                     me.set_status({Pingu::PS_DEAD});
                     break;
                     ///escape {Pingu:PS_DEAD};
-                else/if action == {ActionName::BASHER} then
-                    action = DO_PINGU_ACTION(Basher,true);
-                else/if action == {ActionName::BLOCKER} then
-                    action = DO_PINGU_ACTION(Blocker,true);
-                else/if action == {ActionName::BOMBER} then
-                    action = DO_PINGU_ACTION(Bomber,true);
-                else/if action == {ActionName::BRIDGER} then
-                    action = DO_PINGU_ACTION(Bridger,true);
-                else/if action == {ActionName::DIGGER} then
-                    action = DO_PINGU_ACTION(Digger,true);
-                else/if action == {ActionName::DROWN} then
-                    action = DO_PINGU_ACTION(Drown,false);
-                else/if action == {ActionName::EXITER} then
-                    action = DO_PINGU_ACTION(Exiter,false);
+                else/if me.current_action == {ActionName::BASHER} then
+                    me.current_action = DO_PINGU_ACTION(Basher,true);
+                else/if me.current_action == {ActionName::BLOCKER} then
+                    me.current_action = DO_PINGU_ACTION(Blocker,true);
+                else/if me.current_action == {ActionName::BOMBER} then
+                    me.current_action = DO_PINGU_ACTION(Bomber,true);
+                else/if me.current_action == {ActionName::BRIDGER} then
+                    me.current_action = DO_PINGU_ACTION(Bridger,true);
+                else/if me.current_action == {ActionName::DIGGER} then
+                    me.current_action = DO_PINGU_ACTION(Digger,true);
+                else/if me.current_action == {ActionName::DROWN} then
+                    me.current_action = DO_PINGU_ACTION(Drown,false);
+                else/if me.current_action == {ActionName::EXITER} then
+                    me.current_action = DO_PINGU_ACTION(Exiter,false);
                     me.set_status({Pingu::PS_EXITED});
                     break;
                     ///escape {Pingu:PS_EXITED};
-                else/if action == {ActionName::FALLER} then
-                    action = DO_PINGU_ACTION(Faller,true);
-                else/if action == {ActionName::FLOATER} then
-                    action = DO_PINGU_ACTION(Floater,true);
-                else/if action == {ActionName::JUMPER} then
-                    action = DO_PINGU_ACTION(Jumper,true);
-                else/if action == {ActionName::MINER} then
-                    action = DO_PINGU_ACTION(Miner,true);
-                else/if action == {ActionName::SPLASHED} then
-                    action = DO_PINGU_ACTION(Splashed,true);
-                else/if action == {ActionName::WAITER} then
-                    action = DO_PINGU_ACTION(Waiter,true);
-                else/if action == {ActionName::WALKER} then
-                    action = DO_PINGU_ACTION(Walker,true);
+                else/if me.current_action == {ActionName::FALLER} then
+                    me.current_action = DO_PINGU_ACTION(Faller,true);
+                else/if me.current_action == {ActionName::FLOATER} then
+                    me.current_action = DO_PINGU_ACTION(Floater,true);
+                else/if me.current_action == {ActionName::JUMPER} then
+                    me.current_action = DO_PINGU_ACTION(Jumper,true);
+                else/if me.current_action == {ActionName::MINER} then
+                    me.current_action = DO_PINGU_ACTION(Miner,true);
+                else/if me.current_action == {ActionName::SPLASHED} then
+                    me.current_action = DO_PINGU_ACTION(Splashed,true);
+                else/if me.current_action == {ActionName::WAITER} then
+                    me.current_action = DO_PINGU_ACTION(Waiter,true);
+                else/if me.current_action == {ActionName::WALKER} then
+                    me.current_action = DO_PINGU_ACTION(Walker,true);
                 else
-_printf("ACTION_NAME = %d\n", action);
+_printf("ACTION_NAME = %d\n", me.current_action);
                     _assert({!"Invalid action name provied"});
                     await FOREVER;
                 end
             end
         end
-with
-    every e_set_action do
-        if bad > 0 then
-            _assert({!"MISSED SET_ACTION"});
-        end
-    end
-end
     end
 end
 

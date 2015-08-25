@@ -210,12 +210,6 @@ do
             this.pingu.me.get_pos().y - 2
         );
     end
-
-    /* PUBLIC */
-
-    function (_ActionName__Enum action_name) => bool change_allowed do
-        return true;
-    end
 end
 
 #endif

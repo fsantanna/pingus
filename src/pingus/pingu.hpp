@@ -46,6 +46,9 @@ private:
   /** The primary action which is currently in use */
   std::shared_ptr<PinguAction> action;
 
+    ///
+  ActionName::Enum current_action;
+
   /** A secondary action which will turn active after a given amount of time
       The only example is currently the bomber. */
   ActionName::Enum countdown_action;

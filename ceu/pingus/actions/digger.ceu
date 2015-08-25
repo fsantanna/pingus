@@ -88,12 +88,6 @@ do
         end
         this.pingu.me.set_pos(this.pingu.me.get_xi(), this.pingu.me.get_yi()+1);
     end
-
-    /* PUBLIC */
-
-    function (_ActionName__Enum action_name) => bool change_allowed do
-        return true;
-    end
 end
 
 #endif

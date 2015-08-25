@@ -17,7 +17,6 @@ native @plain  _PinguAction;
 interface IPinguAction with
     var _PinguAction& me;
     var IPingu&       pingu;
-    function (_ActionName__Enum) => bool change_allowed;
 end
 
 #define AWAIT_UNTIL_PINGU(EVT)                           \

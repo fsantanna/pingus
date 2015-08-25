@@ -18,18 +18,13 @@ do
         this.right = &right;
     end;
 
+    { Sound::PingusSound::play_sound("yipee"); };
+
     par do
         /* UPDATE */
-        var bool sound_played = false;
         loop do
             AWAIT_UNTIL_PINGU(PINGU_UPDATE);
             sprites.get(this.pingu.me.direction).me.update();
-
-            if not sound_played then
-                { Sound::PingusSound::play_sound("yipee"); };
-                sound_played = true;
-            end
-
             if sprites.get(this.pingu.me.direction).me.is_finished() then
                 escape {ActionName::NONE};
             end
@@ -43,12 +38,6 @@ do
             _GC_COLOR_DRAW(gc, sprites.get(this.pingu.me.direction).me,
                                this.pingu.me.get_pos());
         end
-    end
-
-    /* PUBLIC */
-
-    function (_ActionName__Enum action_name) => bool change_allowed do
-        return true;
     end
 end
 
