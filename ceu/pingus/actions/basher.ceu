@@ -1,38 +1,64 @@
 #ifndef _BASHER_CEU
 #define _BASHER_CEU
 
-native/pre do
-    ##include "../src/engine/sound/sound.hpp"
-    ##include "../src/pingus/pingu_enums.hpp"
-    ##include "../src/pingus/pingu.hpp"
-    ##include "../src/pingus/pingu_action.hpp"
-    ##include "../src/pingus/actions/basher.hpp"
-    ##define Actions__Basher Actions::Basher
+native do
+    ##include "../../../src/engine/sound/sound.hpp"
 end
-native @plain _Actions__Basher;
 
-input (_Actions__Basher&&) BASHER_UPDATE;
+#include "../pingu_action.ceu"
+#include "../right_left_sprites.ceu"
+
+/* Defines the minimum "wall" height needed for a bash to happen. */
+#define BASHER_MIN_BASH_HEIGHT 5
+
+/* Defines the maximum height up to which a check is made to see if there
+   is anything to bash.  Best to make this at least (min_bash_height +
+   pingu_height). */
+#define BASHER_MAX_BASH_HEIGHT 33
+
+/* Defines the maximum no. of steps down a Basher can go down before it
+   stops being a Basher and turns into a Faller. */
+#define BASHER_MAX_STEPS_DOWN 3
 
 class Basher with
-    var _Actions__Basher& me;
+    interface IPinguAction;
 do
+    function (void)=>void bash;
+    function (void)=>bool walk_forward;
+    function (void)=>bool have_something_to_dig;
+
+    var char[] left  = [] .. "pingus/player"
+                          .. (char&&)*this.pingu.me.get_owner_str().c_str()
+                          .. "/basher/left";
+    var char[] right = [] .. "pingus/player"
+                          .. (char&&)*this.pingu.me.get_owner_str().c_str()
+                          .. "/basher/right";
+    var RightLeftSprites sprites with
+        this.left  = &left;
+        this.right = &right;
+    end;
+
+    // Start a bash even so the action will stops instantly after the
+    // first bash
+    this.bash();
+    var int bash_reach; // set in bash
+
     par do
+        /* UPDATE */
         loop do
-            AWAIT_UNTIL_MYSELF(_Actions__Basher,BASHER_UPDATE);
-            me.sprite[me.pingu:direction].update();
+            AWAIT_UNTIL_PINGU(PINGU_UPDATE);
+            sprites.get(this.pingu.me.direction).me.update();
         end
     with
+        /* UPDATE */
         var bool is_first_bash = true;
         loop i do
-            AWAIT_UNTIL_MYSELF(_Actions__Basher,BASHER_UPDATE);
-            AWAIT_UNTIL_MYSELF(_Actions__Basher,BASHER_UPDATE);
-            AWAIT_UNTIL_MYSELF(_Actions__Basher,BASHER_UPDATE);
+            AWAIT_UNTIL_PINGU(PINGU_UPDATE);
+            AWAIT_UNTIL_PINGU(PINGU_UPDATE);
+            AWAIT_UNTIL_PINGU(PINGU_UPDATE);
 
-            if not me.walk_forward() then
-                // FIXME: set_action() in walk_forward() makes the Basher 
-                // object invalid, thus making all further access illegal and 
-                // thus forces the return here
-                continue;
+            if not this.walk_forward() then
+                escape {ActionName::FALLER};
             end
 
             // If on walking forward the Basher has now walked on to water or lava
@@ -51,18 +77,17 @@ do
                 then
                     // Change direction and let walk code walk forward/up to get out.
                     { Sound::PingusSound::play_sound("chink"); };
-                    me.pingu:direction.change();
+                    this.pingu.me.direction.change();
                     escape {ActionName::WALKER};
-                else/if is_first_bash or me.have_something_to_dig() then
+                else/if is_first_bash or this.have_something_to_dig() then
                     is_first_bash = false;
                     // We only bash every second step, cause the Pingus would
                     // get trapped otherwise in the bashing area.
                     if i%2 == 1 then
-                        me.bash();
+                        this.bash();
                     end
-                else/if ((float)(me.sprite[me.pingu:direction].get_current_frame())) /
-                        ((float)(me.sprite[me.pingu:direction].get_frame_count()))
-                            > 0.6
+                else/if ((float)(sprites.get(this.pingu.me.direction).me.get_current_frame())) /
+                        ((float)(sprites.get(this.pingu.me.direction).me.get_frame_count())) > 0.6
                     // FIXME: Game logic must be separate from Sprite
                     // FIXME: EVIL! Engine must not relay on graphic
                 then
@@ -70,6 +95,81 @@ do
                 end
             end
         end
+    with
+        /* DRAW */
+        every (me_,gc) in PINGU_DRAW do
+            if me_ != &&this.pingu.me then
+                continue;
+            end
+            _GC_COLOR_DRAW(gc, sprites.get(this.pingu.me.direction).me,
+                               this.pingu.me.get_pos());
+        end
+    end
+
+    /* PRIVATE */
+
+    function (void)=>void bash do
+        {
+            ##include "../../../src/pingus/collision_mask.hpp"
+            static CollisionMask bash_radius(
+                    "pingus/common/bash_radius_gfx",
+                    "pingus/common/bash_radius");
+            assert(bash_radius.get_width() % 2 == 0);
+        };
+        this.bash_reach = _bash_radius.get_width();
+
+        call {WorldObj::get_world()->remove}(
+                _bash_radius,
+                this.pingu.me.get_xi() - _bash_radius.get_width() / 2,
+                this.pingu.me.get_yi() - _bash_radius.get_height() + 1
+        );
+    end
+
+    function (void)=>bool walk_forward do
+        var int y_inc = 0;
+
+        // Find the correct y position to go to next
+        loop i in BASHER_MAX_STEPS_DOWN+1 do
+            y_inc = -i;
+            // If there is something below, get out of this loop
+            if this.me.rel_getpixel(0, y_inc - 1) != {Groundtype::GP_NOTHING} then
+                break;
+            end
+        end
+
+        if y_inc < -BASHER_MAX_STEPS_DOWN then
+            // The step down is too much.  So stop being a Basher and be a 
+            // Faller.
+            return false;
+        else
+            // Note that Pingu::set_pos() is the 'reverse' of the y co-ords of
+            // rel_getpixel()
+            this.pingu.me.set_pos(
+                this.pingu.me.get_x() + (float)(this.pingu.me.direction),
+                this.pingu.me.get_y() - (float)(y_inc)
+            );
+        end
+        return true;
+    end
+
+    function (void)=>bool have_something_to_dig do
+        // Check that there is something "within" the Basher's reach
+        loop x in this.bash_reach+1 do
+            loop i in (BASHER_MAX_BASH_HEIGHT-BASHER_MIN_BASH_HEIGHT+1) do
+                var int y = BASHER_MIN_BASH_HEIGHT + i;
+                if this.me.rel_getpixel(x, y) == {Groundtype::GP_GROUND} then
+                    _log_debug("Basher: Found something to dig...");
+                    return true;
+                end
+            end
+        end
+        return false;
+    end
+
+    /* PUBLIC */
+
+    function (_ActionName__Enum action_name) => bool change_allowed do
+        return true;
     end
 end
 

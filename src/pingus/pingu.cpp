@@ -27,7 +27,7 @@
 #include "pingus/pingu_enums.hpp"
 
 #include "pingus/actions/angel.hpp"
-#include "pingus/actions/basher.hpp"
+//#include "pingus/actions/basher.hpp"
 #include "pingus/actions/blocker.hpp"
 #include "pingus/actions/boarder.hpp"
 #include "pingus/actions/bomber.hpp"

@@ -192,7 +192,7 @@ with
                     break;
                     ///escape {Pingu:PS_DEAD};
                 else/if action == {ActionName::BASHER} then
-                    action = DO_PINGU_ACTION(Basher);
+                    action = DO_PINGU_ACTION_(Basher,true);
                 else/if action == {ActionName::BLOCKER} then
                     action = DO_PINGU_ACTION(Blocker);
                 else/if action == {ActionName::BOMBER} then
