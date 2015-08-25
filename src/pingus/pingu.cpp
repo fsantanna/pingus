@@ -321,12 +321,6 @@ Pingu::get_owner_str ()
   return ostr.str();
 }
 
-bool
-Pingu::catchable ()
-{
-  return action->catchable ();
-}
-
 void
 Pingu::set_action (ActionName::Enum action_name)
 {

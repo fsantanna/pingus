@@ -43,13 +43,12 @@ protected:
   Pingu*      pingu;
 
   ActionName::Enum action_name;  ///
-  bool             is_catchable; ///
   std::string      name;         ///
 
 
 public:
   PinguAction(Pingu* p);
-  PinguAction(Pingu* p, ActionName::Enum action_name, bool is_catchable); ///
+  PinguAction(Pingu* p, ActionName::Enum action_name); ///
   virtual ~PinguAction();
 
   /// Gives the PinguAction class access to the data of the Pingu.
@@ -85,11 +84,6 @@ public:
 
   /// The time the action needs to get activated (see bomber.cxx)
   virtual int   activation_time () { return -1; };
-
-  /** Return true if the pingu can be caught with the mouse and
-      another action can be applied, false otherwise (exiter,
-      splashed, etc.) */
-  virtual bool catchable () { return is_catchable; }
 
   /// True if Pingu in specified position would bang its head if it were walking
   bool head_collision_on_walk (int x, int y);

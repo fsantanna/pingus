@@ -1,3 +1,9 @@
+- drown,exiter,smashed
+- public Pingu::current_action
+- passar update de actions=>sprites + evento is_finished
+    - checar se precisa mesmo de restart
+    - provavelmente vai precisar de um pause ou is_active
+      por causa de left/right e outros sprites que sao mutuamente excludentes
 - SDL_DT p/ pingus/actions/sprites
 - remove pointers, use parent orgs for "me"
 

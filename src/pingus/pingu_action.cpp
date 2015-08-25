@@ -31,10 +31,9 @@ PinguAction::PinguAction (Pingu* p)
 }
 
 ///
-PinguAction::PinguAction (Pingu* p, ActionName::Enum action_name, bool is_catchable) :
+PinguAction::PinguAction (Pingu* p, ActionName::Enum action_name) :
   pingu (p),
   action_name  (action_name),
-  is_catchable (is_catchable),
   name         ("")
 {
 }

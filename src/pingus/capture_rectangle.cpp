@@ -44,7 +44,7 @@ CaptureRectangle::~CaptureRectangle()
 void
 CaptureRectangle::draw(SceneContext& sc)
 {
-  if (pingu && pingu->catchable())
+  if (pingu && ActionName::CATCHABLE[pingu->current_action])
   {
     // Draw the capture rectangle
     if (session && pingu->change_allowed(session->get_action_name()))

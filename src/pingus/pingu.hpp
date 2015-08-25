@@ -42,12 +42,12 @@ public:
       FIXME: splashed, smashed, etc.) */
   enum PinguStatus { PS_ALIVE, PS_EXITED, PS_DEAD };
 
+    ///
+  ActionName::Enum current_action;
+
 private:
   /** The primary action which is currently in use */
   std::shared_ptr<PinguAction> action;
-
-    ///
-  ActionName::Enum current_action;
 
   /** A secondary action which will turn active after a given amount of time
       The only example is currently the bomber. */
@@ -207,11 +207,6 @@ public:
   bool   is_inside (int x1, int y1, int x2, int y2);
 
   float dist (int x, int y);
-
-  /** Return true if the pingu can be caught with the mouse and
-      another action can be applied, false otherwise (exiter,
-      splashed, etc.) */
-  bool catchable ();
 
   /** @return the name of the action the Pingu currently has */
   ActionName::Enum get_action ();
