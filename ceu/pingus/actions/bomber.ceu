@@ -6,22 +6,40 @@ native/pre do
     ##include "../src/pingus/movers/linear_mover.hpp"
     ##include "../src/pingus/particles/pingu_particle_holder.hpp"
     ##include "../src/pingus/pingu_enums.hpp"
-    ##include "../src/pingus/pingu.hpp"
-    ##include "../src/pingus/pingu_action.hpp"
-    ##include "../src/pingus/actions/bomber.hpp"
-    ##define Actions__Bomber Actions::Bomber
 end
-native @plain _Actions__Bomber;
 
-input (_Actions__Bomber&&) BOMBER_UPDATE;
+#include "../pingu_action.ceu"
+#include "../right_left_sprites.ceu"
 
 class Bomber with
-    var _Actions__Bomber& me;
+    interface IPinguAction;
 do
+    var char[] left  = [] .. "pingus/player"
+                          .. (char&&)*this.pingu.me.get_owner_str().c_str()
+                          .. "/bomber/left";
+    var char[] right = [] .. "pingus/player"
+                          .. (char&&)*this.pingu.me.get_owner_str().c_str()
+                          .. "/bomber/right";
+    var RightLeftSprites sprites with
+        this.left  = &left;
+        this.right = &right;
+    end;
+
+    var char&& str = _XXX_PURE((char&&)this.pingu.me.get_owner_str().c_str());
+    var Sprite explo_surf with
+        this.me = &_XXX_PTR2REF(null);
+        this.xxx_from_ceu = true;
+        this.name = _XXX_PURE((char&&){(std::string("") + "pingus/player" +
+                                       THIS(CEU_Bomber)->str + "/explo").c_str()});
+    end;
+    
+    call {WorldObj::get_world()->play_sound}("ohno", this.pingu.me.get_pos());
+
     par do
+        /* UPDATE */
         loop do
-            AWAIT_UNTIL_MYSELF(_Actions__Bomber,BOMBER_UPDATE);
-            me.sprite.update();
+            AWAIT_UNTIL_PINGU(PINGU_UPDATE);
+            sprites.get(this.pingu.me.direction).me.update();
             // XXX_CPP
             {
                 static Movers::LinearMover mover(WorldObj::get_world(),
@@ -32,10 +50,11 @@ do
             me.pingu:set_pos(_mover.get_pos());
         end
     with
+        /* UPDATE */
         // while the Bomber hasn't 'exploded' yet
         par/or do
             loop do
-                AWAIT_UNTIL_MYSELF(_Actions__Bomber,BOMBER_UPDATE);
+                AWAIT_UNTIL_PINGU(PINGU_UPDATE);
 
                 // if it has hit Water or Lava
                 if me.rel_getpixel(0,-1) == {Groundtype::GP_WATER} or
@@ -51,7 +70,7 @@ do
                 end
             end
         with
-            AWAIT_UNTIL_FRAME(_Actions__Bomber, BOMBER_UPDATE, me.sprite, 10);
+            AWAIT_UNTIL_PINGU_FRAME(sprites.get(this.pingu.me.direction), 10);
         end
 
         // Throwing particles
@@ -59,27 +78,57 @@ do
             WorldObj::get_world()->play_sound("plop",
                 ((CEU_Bomber*)_STK_ORG)->me->pingu->get_pos());
         };
-        AWAIT_UNTIL_FRAME(_Actions__Bomber, BOMBER_UPDATE, me.sprite, 13);
+        AWAIT_UNTIL_PINGU_FRAME(sprites.get(this.pingu.me.direction), 13);
         {
             WorldObj::get_world()->get_pingu_particle_holder()->
                 add_particle((int)(((CEU_Bomber*)_STK_ORG)->me->pingu->get_x()),
                              (int)(((CEU_Bomber*)_STK_ORG)->me->pingu->get_y())-5);
         };
         {
-            WorldObj::get_world()->remove(((CEU_Bomber*)_STK_ORG)->me->bomber_radius,
-                (int) ((int)(((CEU_Bomber*)_STK_ORG)->me->pingu->get_x()) -
-                                (((CEU_Bomber*)_STK_ORG)->me->bomber_radius.get_width()/2)),
-                (int) ((int)(((CEU_Bomber*)_STK_ORG)->me->pingu->get_y()) -
-                                16 - (((CEU_Bomber*)_STK_ORG)->me->bomber_radius.get_width()/2)));
+            ##include "../../../src/pingus/collision_mask.hpp"
+            static CollisionMask bomber_radius(
+                    "other/bomber_radius_gfx",
+                    "other/bomber_radius"
+            );
+            WorldObj::get_world()->remove(bomber_radius,
+                (int) ((int)(THIS(CEU_Bomber)->me->pingu->get_x()) 
+                                - (bomber_radius.get_width()/2)),
+                (int) ((int)(THIS(CEU_Bomber)->me->pingu->get_y()) -
+                                16 - (bomber_radius.get_width()/2)));
         };
 
         // The pingu explode
         loop do
-            AWAIT_UNTIL_MYSELF(_Actions__Bomber,BOMBER_UPDATE);
-            if me.sprite[me.pingu:direction].is_finished() then
+            AWAIT_UNTIL_PINGU(PINGU_UPDATE);
+            if sprites.get(this.pingu.me.direction).me.is_finished() then
                 escape {ActionName::DEAD};
             end
         end
+    with
+        /* DRAW */
+        var bool gfx_exploded = false;
+        every (me_,gc) in PINGU_DRAW do
+            if me_ != &&this.pingu.me then
+                continue;
+            end
+            if (sprites.get(this.pingu.me.direction).me.get_current_frame() >= 13)
+                and (not gfx_exploded)
+            then
+                _GC_COLOR_DRAW(gc,
+                    explo_surf.me,
+                    {Vector3f}(this.pingu.me.get_x()-32, this.pingu.me.get_y()-48)
+                );
+                gfx_exploded = true;
+            end
+            _GC_COLOR_DRAW(gc, sprites.get(this.pingu.me.direction).me,
+                               this.pingu.me.get_pos());
+        end
+    end
+
+    /* PUBLIC */
+
+    function (_ActionName__Enum action_name) => bool change_allowed do
+        return true;
     end
 end
 

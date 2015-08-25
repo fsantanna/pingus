@@ -12,6 +12,7 @@ native do
     ##define XXX_NOHOLD(x) x
     ##define XXX_PTR2REF(x) x
     ##define THIS(tp) ((tp*)_STK_ORG)
+    ##define THIS_F(tp) ((tp*)__ceu_org)
     ##define ME(tp)   (THIS(tp)->me)        /// TODO: remove
 
     ##define std__string std::string
@@ -39,14 +40,6 @@ native @nohold _delete();
     do                                         \
         var TP&& ptr = await EVT               \
                        until ptr == &&this.me; \
-    end
-
-#define AWAIT_UNTIL_FRAME(T, E, sprite, nnn)                          \
-    loop do                                                           \
-        AWAIT_UNTIL_MYSELF(T,E);                                      \
-        if sprite[me.pingu:direction].get_current_frame() == nnn then \
-            break;                                                    \
-        end                                                           \
     end
 
 #include "engine/display/sprite_impl.ceu"
