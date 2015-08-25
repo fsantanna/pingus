@@ -221,8 +221,6 @@ Pingu::dist(int x, int y)
 void
 Pingu::update()
 {
-  void* this_ = this;
-  ceu_sys_go(&CEU_APP, CEU_IN_PINGU_UPDATE, &this_);
 }
 
 // Draws the pingu on the screen with the given offset
@@ -230,10 +228,6 @@ void
 Pingu::draw(SceneContext& gc)
 {
   char str[16];
-
-  tceu__Pingu___SceneContext_ p = {this, &gc};
-  ceu_sys_go(&CEU_APP, CEU_IN_PINGU_DRAW, &p);
-  action->draw(gc);
 
   if (action_time != -1)
   {

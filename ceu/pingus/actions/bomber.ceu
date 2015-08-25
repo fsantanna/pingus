@@ -38,8 +38,7 @@ do
 
     par do
         /* UPDATE */
-        loop do
-            AWAIT_UNTIL_PINGU(PINGU_UPDATE);
+        every PINGUHOLDER_UPDATE do
             sprites.get(this.pingu.me.direction).me.update();
             // XXX_CPP
             {
@@ -55,7 +54,7 @@ do
         // while the Bomber hasn't 'exploded' yet
         par/or do
             loop do
-                AWAIT_UNTIL_PINGU(PINGU_UPDATE);
+                await PINGUHOLDER_UPDATE;
 
                 // if it has hit Water or Lava
                 if me.rel_getpixel(0,-1) == {Groundtype::GP_WATER} or
@@ -100,7 +99,7 @@ do
 
         // The pingu explode
         loop do
-            AWAIT_UNTIL_PINGU(PINGU_UPDATE);
+            await PINGUHOLDER_UPDATE;
             if sprites.get(this.pingu.me.direction).me.is_finished() then
                 escape {ActionName::DEAD};
             end
@@ -108,10 +107,7 @@ do
     with
         /* DRAW */
         var bool gfx_exploded = false;
-        every (me_,gc) in PINGU_DRAW do
-            if me_ != &&this.pingu.me then
-                continue;
-            end
+        every gc in PINGUHOLDER_DRAW_OTHERS do
             if (sprites.get(this.pingu.me.direction).me.get_current_frame() >= 13)
                 and (not gfx_exploded)
             then

@@ -9,8 +9,10 @@ native @nohold _GC_COLOR_DRAW();
 
 input (_Pingu&&) PINGU_NEW;
 input (_Pingu&&) PINGU_DELETE;
-input (_Pingu&&) PINGU_UPDATE;
-input (_Pingu&&, _SceneContext&&) PINGU_DRAW;
+
+input void            PINGUHOLDER_UPDATE;
+input _SceneContext&& PINGUHOLDER_DRAW_WALKER;
+input _SceneContext&& PINGUHOLDER_DRAW_OTHERS;
 
 input (_Pingu&&, bool&&, _ActionName__Enum) PINGU_REQUEST_SET_ACTION;
 input (_Pingu&&, _ActionName__Enum)         PINGU_SET_ACTION;
@@ -59,7 +61,7 @@ do
         AWAIT_UNTIL_MYSELF(_Pingu,PINGU_DELETE);
     with
         loop do
-            AWAIT_UNTIL_MYSELF(_Pingu,PINGU_UPDATE);
+            await PINGUHOLDER_UPDATE;
 
             /// TODO(control)
             // FIXME: Out of screen check is ugly

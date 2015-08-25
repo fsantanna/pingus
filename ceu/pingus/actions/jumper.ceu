@@ -20,7 +20,7 @@ do
 
     par do
         /* UPDATE */
-        AWAIT_UNTIL_PINGU(PINGU_UPDATE);
+        await PINGUHOLDER_UPDATE;
 
         // if climber, do a wall-jump, else just jump forward
         if me.pingu:get_previous_action() == {ActionName::CLIMBER} then
@@ -42,10 +42,7 @@ do
         escape {ActionName::FALLER};
     with
         /* DRAW */
-        every (me_,gc) in PINGU_DRAW do
-            if me_ != &&this.pingu.me then
-                continue;
-            end
+        every gc in PINGUHOLDER_DRAW_OTHERS do
             _GC_COLOR_DRAW(gc, sprites.get(this.pingu.me.direction).me,
                                this.pingu.me.get_pos());
         end

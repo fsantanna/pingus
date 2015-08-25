@@ -21,7 +21,7 @@ do
     par do
         /* UPDATE */
         loop do
-            AWAIT_UNTIL_PINGU(PINGU_UPDATE);
+            await PINGUHOLDER_UPDATE;
             sprite.me.update();
             if me.rel_getpixel(0,-1) == {Groundtype::GP_NOTHING} then
                 me.pingu:set_y(me.pingu:get_y() + 1);
@@ -31,10 +31,7 @@ do
         end
     with
         /* DRAW */
-        every (me_,gc) in PINGU_DRAW do
-            if me_ != &&this.pingu.me then
-                continue;
-            end
+        every gc in PINGUHOLDER_DRAW_OTHERS do
             _GC_COLOR_DRAW(gc, sprite.me, this.pingu.me.get_pos());
         end
     end

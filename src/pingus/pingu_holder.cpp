@@ -19,6 +19,8 @@
 #include "pingus/pingu.hpp"
 #include "pingus/pingus_level.hpp"
 
+#include "ceu_vars.h"
+
 PinguHolder::PinguHolder(const PingusLevel& plf) :
   number_of_allowed(plf.get_number_of_pingus()),
   number_of_exited(0),
@@ -83,6 +85,10 @@ PinguHolder::draw (SceneContext& gc)
     if ((*pingu)->get_action() != ActionName::WALKER)
       (*pingu)->draw (gc);
   }
+
+  SceneContext* gc_ = &gc;
+  ceu_sys_go(&CEU_APP, CEU_IN_PINGUHOLDER_DRAW_WALKER, &gc_);
+  ceu_sys_go(&CEU_APP, CEU_IN_PINGUHOLDER_DRAW_OTHERS, &gc_);
 }
 
 void
@@ -114,6 +120,9 @@ PinguHolder::update()
       ++pingu;
     }
   }
+
+    ///
+  ceu_sys_go(&CEU_APP, CEU_IN_PINGUHOLDER_UPDATE, NULL);
 }
 
 Pingu*

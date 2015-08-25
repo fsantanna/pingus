@@ -35,7 +35,7 @@ do
         /* UPDATE */
         var float countdown = 2.0;
         loop do
-            AWAIT_UNTIL_PINGU(PINGU_UPDATE);
+            await PINGUHOLDER_UPDATE;
 
             if this.is_tumbling() then
                 tumblers.get(this.pingu.me.direction).me.update();
@@ -134,10 +134,7 @@ do
         end
     with
         /* DRAW */
-        every (me_,gc) in PINGU_DRAW do
-            if me_ != &&this.pingu.me then
-                continue;
-            end
+        every gc in PINGUHOLDER_DRAW_OTHERS do
             if this.is_tumbling() then
                 _GC_COLOR_DRAW(gc, tumblers.get(this.pingu.me.direction).me,
                                    this.pingu.me.get_pos());

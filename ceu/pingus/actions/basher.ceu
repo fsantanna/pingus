@@ -45,17 +45,16 @@ do
 
     par do
         /* UPDATE */
-        loop do
-            AWAIT_UNTIL_PINGU(PINGU_UPDATE);
+        every PINGUHOLDER_UPDATE do
             sprites.get(this.pingu.me.direction).me.update();
         end
     with
         /* UPDATE */
         var bool is_first_bash = true;
         loop i do
-            AWAIT_UNTIL_PINGU(PINGU_UPDATE);
-            AWAIT_UNTIL_PINGU(PINGU_UPDATE);
-            AWAIT_UNTIL_PINGU(PINGU_UPDATE);
+            await PINGUHOLDER_UPDATE;
+            await PINGUHOLDER_UPDATE;
+            await PINGUHOLDER_UPDATE;
 
             if not this.walk_forward() then
                 escape {ActionName::FALLER};
@@ -97,10 +96,7 @@ do
         end
     with
         /* DRAW */
-        every (me_,gc) in PINGU_DRAW do
-            if me_ != &&this.pingu.me then
-                continue;
-            end
+        every gc in PINGUHOLDER_DRAW_OTHERS do
             _GC_COLOR_DRAW(gc, sprites.get(this.pingu.me.direction).me,
                                this.pingu.me.get_pos());
         end

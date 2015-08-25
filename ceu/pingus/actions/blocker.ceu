@@ -24,7 +24,7 @@ do
     par do
         /* UPDATE */
         loop do
-            AWAIT_UNTIL_PINGU(PINGU_UPDATE);
+            await PINGUHOLDER_UPDATE;
             if not this.standing_on_ground() then
                 escape {ActionName::FALLER};
             end
@@ -40,10 +40,7 @@ do
         end
     with
         /* DRAW */
-        every (me_,gc) in PINGU_DRAW do
-            if me_ != &&this.pingu.me then
-                continue;
-            end
+        every gc in PINGUHOLDER_DRAW_OTHERS do
             _GC_COLOR_DRAW(gc, sprites.get(this.pingu.me.direction).me,
                                this.pingu.me.get_pos());
         end

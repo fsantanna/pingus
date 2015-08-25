@@ -33,7 +33,7 @@ do
     par do
         /* UPDATE */
         loop do
-            AWAIT_UNTIL_PINGU(PINGU_UPDATE);
+            await PINGUHOLDER_UPDATE;
 
             // update the sprite
             walkers.get(this.pingu.me.direction).me.update(0.033);
@@ -169,10 +169,7 @@ do
         end
     with
         /* DRAW */
-        every (me_,gc) in PINGU_DRAW do
-            if me_ != &&this.pingu.me then
-                continue;
-            end
+        every gc in PINGUHOLDER_DRAW_WALKER do
             _GC_COLOR_DRAW(gc, walkers.get(this.pingu.me.direction).me,
                                this.pingu.me.get_pos());
             if (this.pingu.me.get_fall_action() == {ActionName::FLOATER}) then

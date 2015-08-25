@@ -1,3 +1,4 @@
+- previous_action as argument to action constr.
 - drown,exiter,smashed
 - public Pingu::current_action
 - passar update de actions=>sprites + evento is_finished
