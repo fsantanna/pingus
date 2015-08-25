@@ -150,28 +150,16 @@ Pingu::request_set_action(ActionName::Enum action_name)
   return ret_val;
 }
 
-bool
+ActionName::Enum
 Pingu::request_fall_action ()
 {
-  if (fall_action != ActionName::NONE)
-  {
-    set_action(fall_action);
-    return true;
-  }
-
-  return false;
+  return fall_action;
 }
 
-bool
+ActionName::Enum
 Pingu::request_wall_action ()
 {
-  if (wall_action != ActionName::NONE)
-  {
-    set_action(wall_action);
-    return true;
-  }
-
-  return false;
+  return wall_action;
 }
 
 Pingu::PinguStatus

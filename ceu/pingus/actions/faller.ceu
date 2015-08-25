@@ -46,10 +46,11 @@ do
             // FIXME: This should be triggered at a later point, when close to
             // FIXME: deadly_velocity or something like that. A translation
             // FIXME: animation for the floater might also help
-            if (me.pingu:get_velocity().y > 5.0 and
-                me.pingu:request_fall_action())
-            then
-                continue;
+            if (me.pingu:get_velocity().y > 5.0) then
+                var int fall_action = me.pingu:request_fall_action();
+                if fall_action != {ActionName::NONE} then
+                    escape fall_action;
+                end
             end
 
             // Apply gravity

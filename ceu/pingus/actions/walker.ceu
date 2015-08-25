@@ -138,10 +138,10 @@ do
                 else
                     if me.rel_getpixel(1, 0) != {Groundtype::GP_NOTHING} then
                         // We reached a wall
-                        if this.pingu.me.request_wall_action() then
+                        var int wall_action = this.pingu.me.request_wall_action();
+                        if wall_action != {ActionName::NONE} then
                             _log_debug("Pingu: We are in front of a wall, setting persistant action");
-/// TODO: is it correct?
-                            nothing;    // continue to next UPDATE
+                            escape wall_action;
                         end
 
                         // No persitent action found, so change the direction
