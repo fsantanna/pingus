@@ -19,14 +19,7 @@ do
     end;
 
     par do
-        every (me_,gc) in PINGU_DRAW do
-            if me_ != &&this.pingu.me then
-                continue;
-            end
-            _GC_COLOR_DRAW(gc, sprites.get(this.pingu.me.direction).me,
-                               this.pingu.me.get_pos());
-        end
-    with
+        /* UPDATE */
         loop do
             AWAIT_UNTIL_PINGU(PINGU_UPDATE);
             sprites.get(this.pingu.me.direction).me.update();
@@ -34,6 +27,15 @@ do
                 this.pingu.me.set_status({Pingu::PS_DEAD});
                 escape {ActionName::DEAD};
             end
+        end
+    with
+        /* DRAW */
+        every (me_,gc) in PINGU_DRAW do
+            if me_ != &&this.pingu.me then
+                continue;
+            end
+            _GC_COLOR_DRAW(gc, sprites.get(this.pingu.me.direction).me,
+                               this.pingu.me.get_pos());
         end
     end
 

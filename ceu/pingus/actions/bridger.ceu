@@ -53,6 +53,7 @@ do
 
     var int mode; // building
     par do
+        /* UPDATE */
         loop i in _BRIDGER_MAX_BRICKS do
 
             // BUILDING: initial mode
@@ -103,6 +104,7 @@ do
             this.walk_one_step_up();
         end
     with
+        /* DRAW */
         every (me_,gc) in PINGU_DRAW do
             if me_ != &&this.pingu.me then
                 continue;

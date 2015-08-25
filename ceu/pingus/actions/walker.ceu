@@ -31,18 +31,7 @@ do
     this.pingu.me.set_velocity({Vector3f()});
 
     par do
-        every (me_,gc) in PINGU_DRAW do
-            if me_ != &&this.pingu.me then
-                continue;
-            end
-            _GC_COLOR_DRAW(gc, walkers.get(this.pingu.me.direction).me,
-                               this.pingu.me.get_pos());
-            if (this.pingu.me.get_fall_action() == {ActionName::FLOATER}) then
-                _GC_COLOR_DRAW(gc, floaterlayers.get(this.pingu.me.direction).me,
-                                   this.pingu.me.get_pos());
-            end
-        end
-    with
+        /* UPDATE */
         loop do
             AWAIT_UNTIL_PINGU(PINGU_UPDATE);
 
@@ -176,6 +165,19 @@ do
                     this.pingu.me.direction.change();
                     this.pingu.me.set_pos(_last_pos);
                 end
+            end
+        end
+    with
+        /* DRAW */
+        every (me_,gc) in PINGU_DRAW do
+            if me_ != &&this.pingu.me then
+                continue;
+            end
+            _GC_COLOR_DRAW(gc, walkers.get(this.pingu.me.direction).me,
+                               this.pingu.me.get_pos());
+            if (this.pingu.me.get_fall_action() == {ActionName::FLOATER}) then
+                _GC_COLOR_DRAW(gc, floaterlayers.get(this.pingu.me.direction).me,
+                                   this.pingu.me.get_pos());
             end
         end
     end

@@ -17,14 +17,7 @@ do
     end;
 
     par do
-        every (me_,gc) in PINGU_DRAW do
-            if me_ != &&this.pingu.me then
-                continue;
-            end
-            _GC_COLOR_DRAW(gc, sprite.me,
-                               this.pingu.me.get_pos());
-        end
-    with
+        /* UPDATE */
         var float countdown = 2.0;
         loop do
             AWAIT_UNTIL_PINGU(PINGU_UPDATE);
@@ -33,6 +26,15 @@ do
                 escape {ActionName::WALKER};
             end
             countdown = countdown - 0.025;
+        end
+    with
+        /* DRAW */
+        every (me_,gc) in PINGU_DRAW do
+            if me_ != &&this.pingu.me then
+                continue;
+            end
+            _GC_COLOR_DRAW(gc, sprite.me,
+                               this.pingu.me.get_pos());
         end
     end
 

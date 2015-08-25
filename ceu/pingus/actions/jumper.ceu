@@ -19,14 +19,7 @@ do
     end;
 
     par do
-        every (me_,gc) in PINGU_DRAW do
-            if me_ != &&this.pingu.me then
-                continue;
-            end
-            _GC_COLOR_DRAW(gc, sprites.get(this.pingu.me.direction).me,
-                               this.pingu.me.get_pos());
-        end
-    with
+        /* UPDATE */
         AWAIT_UNTIL_PINGU(PINGU_UPDATE);
 
         // if climber, do a wall-jump, else just jump forward
@@ -47,6 +40,15 @@ do
         me.pingu:set_y(me.pingu:get_y() - 1);
 
         escape {ActionName::FALLER};
+    with
+        /* DRAW */
+        every (me_,gc) in PINGU_DRAW do
+            if me_ != &&this.pingu.me then
+                continue;
+            end
+            _GC_COLOR_DRAW(gc, sprites.get(this.pingu.me.direction).me,
+                               this.pingu.me.get_pos());
+        end
     end
 
     /* PUBLIC */
