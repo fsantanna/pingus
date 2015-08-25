@@ -90,9 +90,6 @@ public:
   /// Catch another pingu and act on it (see blocker.hxx)
   virtual bool  need_catch();
 
-  ///
-  virtual void  catch_pingu (Pingu*) { /* do nothing */}
-
   /// The time the action needs to get activated (see bomber.cxx)
   virtual int   activation_time () { return -1; };
 

@@ -1,35 +1,80 @@
 #ifndef _BLOCKER_CEU
 #define _BLOCKER_CEU
 
-native/pre do
-    ##include "../src/pingus/pingu_holder.hpp"
-    ##include "../src/pingus/world.hpp"
-    ##include "../src/pingus/pingu.hpp"
-    ##include "../src/pingus/pingu_action.hpp"
-    ##include "../src/pingus/actions/blocker.hpp"
-    ##define Actions__Blocker Actions::Blocker
-end
-native @plain _Actions__Blocker;
-
-input (_Actions__Blocker&&) BLOCKER_UPDATE;
+#include "../pingu_action.ceu"
+#include "../right_left_sprites.ceu"
 
 class Blocker with
-    var _Actions__Blocker& me;
+    interface IPinguAction;
 do
-    loop do
-        AWAIT_UNTIL_MYSELF(_Actions__Blocker,BLOCKER_UPDATE);
-        if not me.standing_on_ground() then
-            escape {ActionName::FALLER};
-        end
+    function (void)=>bool standing_on_ground;
+    function (_Pingu&& target)=>void catch_pingu;
 
-        // FIXME: PinguHolder iterations should be handled otherwise
-        {
-            /// XXX_CPP
-            static PinguHolder* pingus = WorldObj::get_world()->get_pingus();
-            for(PinguIter i = pingus->begin(); i != pingus->end(); ++i)
-                ((CEU_Blocker*)_STK_ORG)->me->catch_pingu(*i);
-        };
-        me.sprite.update();
+    var char[] left  = [] .. "pingus/player"
+                          .. (char&&)*this.pingu.me.get_owner_str().c_str()
+                          .. "/blocker/left";
+    var char[] right = [] .. "pingus/player"
+                          .. (char&&)*this.pingu.me.get_owner_str().c_str()
+                          .. "/blocker/right";
+    var RightLeftSprites sprites with
+        this.left  = &left;
+        this.right = &right;
+    end;
+
+    par do
+        /* UPDATE */
+        loop do
+            AWAIT_UNTIL_PINGU(PINGU_UPDATE);
+            if not this.standing_on_ground() then
+                escape {ActionName::FALLER};
+            end
+
+            // FIXME: PinguHolder iterations should be handled otherwise
+            {
+                /// XXX_CPP
+                static PinguHolder* pingus = WorldObj::get_world()->get_pingus();
+                for(PinguIter i = pingus->begin(); i != pingus->end(); ++i)
+                    CEU_Blocker_catch_pingu(_ceu_app,_STK_ORG,*i);
+            };
+            sprites.get(this.pingu.me.direction).me.update();
+        end
+    with
+        /* DRAW */
+        every (me_,gc) in PINGU_DRAW do
+            if me_ != &&this.pingu.me then
+                continue;
+            end
+            _GC_COLOR_DRAW(gc, sprites.get(this.pingu.me.direction).me,
+                               this.pingu.me.get_pos());
+        end
+    end
+
+    /* PRIVATE */
+
+    function (void)=>bool standing_on_ground do
+        return (this.me.rel_getpixel(0,-1) != {Groundtype::GP_NOTHING});
+    end
+
+    function (_Pingu&& target)=>void catch_pingu do
+        if (target != &&this.pingu.me) then // avoid 'self' catch
+            if ( target:get_x() > this.pingu.me.get_x()-16
+            and  target:get_x() < this.pingu.me.get_x()+16
+            and  target:get_y() > this.pingu.me.get_y()-32
+            and  target:get_y() < this.pingu.me.get_y()+5 )
+            then
+                if (target:get_x() > this.pingu.me.get_x()) then
+                    target:direction.right();
+                else
+                    target:direction.left();
+                end
+            end
+        end
+    end
+
+    /* PUBLIC */
+
+    function (_ActionName__Enum action_name)=>bool change_allowed do
+        return true;
     end
 end
 

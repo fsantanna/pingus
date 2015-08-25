@@ -178,11 +178,6 @@ public:
   */
   int  rel_getpixel (int x, int y);
 
-  /** Let the pingu catch another pingu, so that an action can be
-      applied (i.e. let a blocker change the direction f another
-      pingu) */
-  void catch_pingu (Pingu* pingu);
-
   /** Returns true if the pingu needs to catch another pingu */
   bool need_catch ();
 

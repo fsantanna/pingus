@@ -27,8 +27,8 @@
 #include "pingus/pingu_enums.hpp"
 
 #include "pingus/actions/angel.hpp"
-//#include "pingus/actions/basher.hpp"
-#include "pingus/actions/blocker.hpp"
+///#include "pingus/actions/basher.hpp"
+///#include "pingus/actions/blocker.hpp"
 #include "pingus/actions/boarder.hpp"
 ///#include "pingus/actions/bomber.hpp"
 ///#include "pingus/actions/bridger.hpp"
@@ -251,12 +251,6 @@ Pingu::rel_getpixel(int x, int y)
 {
   return WorldObj::get_world()->get_colmap()->getpixel(static_cast<int>(pos_x + static_cast<float>(x * direction)),
                                                        static_cast<int>(pos_y - static_cast<float>(y)));
-}
-
-void
-Pingu::catch_pingu (Pingu* pingu)
-{
-  action->catch_pingu(pingu);
 }
 
 bool

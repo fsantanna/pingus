@@ -21,6 +21,13 @@ end
 
 #include "pingu_action.ceu"
 
+native/pre do
+    ##include "../src/pingus/pingu_holder.hpp"
+    ##include "../src/pingus/world.hpp"
+    ##include "../src/pingus/pingu.hpp"
+    ##include "../src/pingus/pingu_action.hpp"
+end
+
 #include "actions/basher.ceu"
 #include "actions/blocker.ceu"
 #include "actions/bomber.ceu"
@@ -36,7 +43,6 @@ end
 #include "actions/walker.ceu"
 
 native/pre do
-    using namespace Actions;
     ##define ActionName__Enum ActionName::Enum
     ##define PinguAction_shared_ptr std::shared_ptr<PinguAction>
 end
@@ -194,7 +200,7 @@ with
                 else/if action == {ActionName::BASHER} then
                     action = DO_PINGU_ACTION_(Basher,true);
                 else/if action == {ActionName::BLOCKER} then
-                    action = DO_PINGU_ACTION(Blocker);
+                    action = DO_PINGU_ACTION_(Blocker,true);
                 else/if action == {ActionName::BOMBER} then
                     action = DO_PINGU_ACTION_(Bomber,true);
                 else/if action == {ActionName::BRIDGER} then
