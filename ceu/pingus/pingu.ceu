@@ -198,7 +198,7 @@ with
                 else/if action == {ActionName::BOMBER} then
                     action = DO_PINGU_ACTION(Bomber);
                 else/if action == {ActionName::BRIDGER} then
-                    action = DO_PINGU_ACTION(Bridger);
+                    action = DO_PINGU_ACTION_(Bridger,true);
                 else/if action == {ActionName::DIGGER} then
                     action = DO_PINGU_ACTION(Digger);
                 else/if action == {ActionName::DROWN} then

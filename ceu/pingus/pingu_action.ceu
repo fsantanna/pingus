@@ -6,6 +6,14 @@ native/pre do
 end
 native @plain  _PinguAction;
 
+#define AWAIT_UNTIL_PINGU_FRAME(sprite, nnn)  \
+    loop do                                   \
+        AWAIT_UNTIL_PINGU(PINGU_UPDATE);      \
+        if sprite.me.get_current_frame() == nnn then \
+            break;                            \
+        end                                   \
+    end
+
 interface IPinguAction with
     var _PinguAction& me;
     var IPingu&       pingu;

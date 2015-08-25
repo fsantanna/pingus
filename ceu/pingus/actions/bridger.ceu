@@ -1,73 +1,219 @@
 #ifndef _BRIDGER_CEU
 #define _BRIDGER_CEU
 
-native/pre do
-    ##include "../src/pingus/pingu.hpp"
-    ##include "../src/pingus/pingu_action.hpp"
-    ##include "../src/pingus/actions/bridger.hpp"
-    ##define Actions__Bridger Actions::Bridger
+native do
+    ##include "../../src/math/vector3f.hpp"
+    ##include "../../src/util/string_util.hpp"
+    ##include "../../src/pingus/gettext.h"
 end
-native @plain _Actions__Bridger;
 
-input (_Actions__Bridger&&) BRIDGER_UPDATE;
+#include "../pingu_action.ceu"
+#include "../right_left_sprites.ceu"
+
+native do
+    enum { BRIDGER_WALKING, BRIDGER_BUILDING };
+    enum { BRIDGER_MAX_BRICKS = 15 };
+    enum { BRIDGER_brick_length = 16 };
+end
 
 class Bridger with
-    var _Actions__Bridger& me;
+    interface IPinguAction;
 do
-    me.bricks = {Actions::Bridger::MAX_BRICKS};
+    function (void)=>bool way_is_free;
+    function (void)=>bool brick_placement_allowed;
+    function (void)=>void place_a_brick;
+    function (void)=>void walk_one_step_up;
 
-    loop i in {Actions::Bridger::MAX_BRICKS} do
+    var int bricks = _BRIDGER_MAX_BRICKS;
 
-        // BUILDING
-        me.mode = {Actions::Bridger::B_BUILDING};
-        par/or do
-            loop do
-                AWAIT_UNTIL_MYSELF(_Actions__Bridger,BRIDGER_UPDATE);
-                me.build_sprite[me.pingu:direction].update();
-            end
-        with
-            AWAIT_UNTIL_FRAME(_Actions__Bridger, BRIDGER_UPDATE,
-                              me.build_sprite, 7);
-            if me.brick_placement_allowed() then
-                me.place_a_brick(); // me.bricks--;
-            else
-                me.pingu:direction.change();
-                escape {ActionName::WALKER};
-            end
-            var _Actions__Bridger&& ptr =
-                await BRIDGER_UPDATE
-                until (ptr == &&this.me) and 
-                      me.build_sprite[me.pingu:direction].is_finished();
-        end
-        me.build_sprite[me.pingu:direction].restart();
+    this.me.name = {_("Bridger") + std::string(" (" +
+                    StringUtil::to_string(THIS(CEU_Bridger)->bricks) + ")")};
 
-        // SKIP the last WALKING
-        if i == {Actions::Bridger::MAX_BRICKS}-1 then
-            escape {ActionName::WAITER};
-        end
+    var char[] left1  = [] .. "pingus/player"
+                           .. (char&&)*this.pingu.me.get_owner_str().c_str()
+                           .. "/bridger_walk/left";
+    var char[] right1 = [] .. "pingus/player"
+                           .. (char&&)*this.pingu.me.get_owner_str().c_str()
+                           .. "/bridger_walk/right";
+    var RightLeftSprites walks with
+        this.left  = &left1;
+        this.right = &right1;
+    end;
 
-        // WALKING
-        me.mode = {Actions::Bridger::B_WALKING};
-        loop do
-            AWAIT_UNTIL_MYSELF(_Actions__Bridger,BRIDGER_UPDATE);
+    var char[] left2  = [] .. "pingus/player"
+                           .. (char&&)*this.pingu.me.get_owner_str().c_str()
+                           .. "/bridger/left";
+    var char[] right2 = [] .. "pingus/player"
+                           .. (char&&)*this.pingu.me.get_owner_str().c_str()
+                           .. "/bridger/right";
+    var RightLeftSprites builds with
+        this.left  = &left2;
+        this.right = &right2;
+    end;
 
-            // FIXME: Dangerous! might not be fixed timing
-            if me.walk_sprite[me.pingu:direction].is_finished() then
-                if me.way_is_free() then
-                    break;
-                else // We reached a wall...
-                    me.pingu:direction.change();
+    var int mode; // building
+    par do
+        loop i in _BRIDGER_MAX_BRICKS do
+
+            // BUILDING: initial mode
+            mode = _BRIDGER_BUILDING;
+            par/or do
+                loop do
+                    AWAIT_UNTIL_PINGU(PINGU_UPDATE);
+                    builds.get(this.pingu.me.direction).me.update();
+                end
+            with
+                AWAIT_UNTIL_PINGU_FRAME(builds.get(this.pingu.me.direction), 7);
+                if this.brick_placement_allowed() then
+                    this.place_a_brick(); // me.bricks--;
+                else
+                    this.pingu.me.direction.change();
                     escape {ActionName::WALKER};
                 end
-            else
-                me.walk_sprite.update();
+                var _Pingu&& ptr =
+                    await PINGU_UPDATE
+                    until (ptr == &&this.pingu.me) and 
+                          builds.get(this.pingu.me.direction).me.is_finished();
+            end
+            builds.get(this.pingu.me.direction).me.restart();
+
+            // SKIP the last WALKING
+            if i == _BRIDGER_MAX_BRICKS-1 then
+                escape {ActionName::WAITER};
+            end
+
+            // WALKING
+            mode = _BRIDGER_WALKING;
+            loop do
+                AWAIT_UNTIL_PINGU(PINGU_UPDATE);
+
+                // FIXME: Dangerous! might not be fixed timing
+                if walks.get(this.pingu.me.direction).me.is_finished() then
+                    if this.way_is_free() then
+                        break;
+                    else // We reached a wall...
+                        this.pingu.me.direction.change();
+                        escape {ActionName::WALKER};
+                    end
+                else
+                    walks.get(this.pingu.me.direction).me.update();
+                end
+            end
+            walks.get(this.pingu.me.direction).me.restart();
+            this.walk_one_step_up();
+        end
+    with
+        every (me_,gc) in PINGU_DRAW do
+            if me_ != &&this.pingu.me then
+                continue;
+            end
+
+            var int x_offset = 6;
+            var int y_offset = 4;
+            if      (bricks == _BRIDGER_MAX_BRICKS  ) then
+                x_offset = -4;
+                y_offset = 0;
+            else/if (bricks == _BRIDGER_MAX_BRICKS-1) then
+                x_offset = 0;
+                y_offset = 1;
+            else/if (bricks == _BRIDGER_MAX_BRICKS-2) then
+                x_offset = 3;
+                y_offset = 2;
+            end
+
+            if mode == _BRIDGER_BUILDING then
+                _GC_COLOR_DRAW(
+                    gc,
+                    builds.get(this.pingu.me.direction).me,
+                    _Vector3f(this.pingu.me.get_pos().x -
+                                (float)(x_offset * this.pingu.me.direction),
+                                this.pingu.me.get_pos().y + (float)(y_offset))
+                );
+            else // _BRIDGER_WALKING
+                _GC_COLOR_DRAW(
+                    gc,
+                    walks.get(this.pingu.me.direction).me,
+                    _Vector3f(this.pingu.me.get_pos().x -
+                                (float)(x_offset * this.pingu.me.direction),
+                                this.pingu.me.get_pos().y + (float)(y_offset))
+                );
             end
         end
-        me.walk_sprite[me.pingu:direction].restart();
-        me.walk_one_step_up();
     end
-    _assert(0);
-    await FOREVER;
+
+    /* PRIVATE */
+
+    // way_is_free() needs to stop BRIDGERS from getting stuck between a brick
+    // and the ceiling.  The routine also stops cases of Bridgers building up but
+    // then not being able to walk all the way down the bridge the it has built.
+    // Even though the routine may be the same as brick_placement_allowed(), it is
+    // best to keep them apart as they may need to be independent of each other if
+    // there needs to be a patch.
+    function (void)=>bool way_is_free do
+        var bool way_free = true;
+        loop i in 4 do
+            var int x_inc = i+1;
+            if me.rel_getpixel(x_inc, 2) != {Groundtype::GP_NOTHING}
+            or me.head_collision_on_walk(x_inc, 2)
+            then
+                way_free = false;
+                break;
+            end
+        end
+        return way_free;
+    end
+
+    // brick_placement_allowed() is mainly for stopping WALKERS from getting 
+    // stuck
+    // between a brick and the ceiling.  Even though the routine may be the same,
+    // as way_is_free() it is best to keep them apart as they may need to be
+    // independent of each other if there needs to be a patch.
+    function (void)=>bool brick_placement_allowed do
+        return not me.head_collision_on_walk(0, 2);
+    end
+
+    function (void)=>void place_a_brick do
+        this.bricks = this.bricks - 1;
+        this.me.name = { _("Bridger") + std::string(" (") +
+                 StringUtil::to_string(THIS_F(CEU_Bridger)->bricks) + ")" };
+        if this.bricks < 4 then
+            { Sound::PingusSound::play_sound("ting"); };
+        end
+
+        {
+            static CollisionMask brick_l("other/brick_left");
+            static CollisionMask brick_r("other/brick_right");
+        };
+
+        if this.pingu.me.direction.is_right() then
+            call {WorldObj::get_world()->put}(
+                    _brick_r,
+                    (int)(this.pingu.me.get_pos().x + 10.0 - (float)(_brick_r.get_width())),
+                    (int)(this.pingu.me.get_pos().y),
+                    {Groundtype::GP_BRIDGE}
+            );
+        else
+            call {WorldObj::get_world()->put}(
+                    _brick_l,
+                    (int)(this.pingu.me.get_pos().x - 10.0),
+                    (int)(this.pingu.me.get_pos().y),
+                    {Groundtype::GP_BRIDGE}
+            );
+        end
+    end
+
+    function (void)=>void walk_one_step_up do
+        this.pingu.me.set_pos(
+            this.pingu.me.get_pos().x + (4.0*(float)(this.pingu.me.direction)),
+            this.pingu.me.get_pos().y - 2
+        );
+    end
+
+    /* PUBLIC */
+
+    function (_ActionName__Enum action_name) => bool change_allowed do
+        return true;
+    end
 end
 
 #endif

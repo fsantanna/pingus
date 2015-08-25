@@ -34,7 +34,8 @@ PinguAction::PinguAction (Pingu* p)
 PinguAction::PinguAction (Pingu* p, ActionName::Enum action_name, bool is_catchable) :
   pingu (p),
   action_name  (action_name),
-  is_catchable (is_catchable)
+  is_catchable (is_catchable),
+  name         ("")
 {
 }
 
@@ -117,7 +118,11 @@ PinguAction::collision_on_walk (int x, int y)
 std::string
 PinguAction::get_name () const
 {
-  return ActionName::to_screenname(get_type());
+  if (!name.empty()) {
+    return ActionName::to_screenname(get_type());
+  } else {
+    return name;
+  }
 }
 
 void

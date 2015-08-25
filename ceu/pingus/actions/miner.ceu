@@ -4,21 +4,6 @@
 #include "../pingu_action.ceu"
 #include "../right_left_sprites.ceu"
 
-#if 0
-native do
-    ##include "../../../src/pingus/collision_mask.hpp"
-    static CollisionMask miner_radius(
-            "pingus/common/miner_radius_gfx",
-            "pingus/common/miner_radius");
-    static CollisionMask miner_radius_left(
-            "pingus/common/miner_radius_left_gfx",
-            "pingus/common/miner_radius_left");
-    static CollisionMask miner_radius_right(
-            "pingus/common/miner_radius_right_gfx",
-            "pingus/common/miner_radius_right");
-end
-#endif
-
 class Miner with
     interface IPinguAction;
 do
@@ -80,7 +65,19 @@ do
     /* PRIVATE */
 
     function (bool final, int delay_count) => void mine do
-#if 0
+        {
+            ##include "../../../src/pingus/collision_mask.hpp"
+            static CollisionMask miner_radius(
+                    "pingus/common/miner_radius_gfx",
+                    "pingus/common/miner_radius");
+            static CollisionMask miner_radius_left(
+                    "pingus/common/miner_radius_left_gfx",
+                    "pingus/common/miner_radius_left");
+            static CollisionMask miner_radius_right(
+                    "pingus/common/miner_radius_right_gfx",
+                    "pingus/common/miner_radius_right");
+        };
+
         if not final then
             if delay_count%2 == 0 then
                 // regular mine action
@@ -110,7 +107,6 @@ do
             2
             );
         end
-#endif
     end
 
     /* PUBLIC */

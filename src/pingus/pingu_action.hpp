@@ -44,6 +44,8 @@ protected:
 
   ActionName::Enum action_name;  ///
   bool             is_catchable; ///
+  std::string      name;         ///
+
 
 public:
   PinguAction(Pingu* p);
