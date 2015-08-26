@@ -63,14 +63,7 @@ do
 
               */
 
-            if me.rel_getpixel(1, 0) == {Groundtype::GP_OUTOFSCREEN} then
-                this.pingu.me.set_x(this.pingu.me.get_x() +
-                                    (float)(this.pingu.me.direction));
-                escape {ActionName::DEAD};
-            else/if me.rel_getpixel(0, -1) == {Groundtype::GP_WATER} then
-                escape {ActionName::DROWN};
-
-            else/if me.rel_getpixel(0, -1) == {Groundtype::GP_NOTHING} then
+            if me.rel_getpixel(0, -1) == {Groundtype::GP_NOTHING} then
                 // The Pingu stands no longer on ground, the cause for this could 
                 // be a digger, miner or a bomber
                 // We search for the nearest ground below the pingu, if we can't 
@@ -88,6 +81,7 @@ do
                 if found_ground then
                     this.pingu.me.set_y(this.pingu.me.get_y() - (float)(i));
                 else
+_assert(not "where did the walker hit?");
                     escape {ActionName::DROWN};
                 end
             end

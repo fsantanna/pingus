@@ -71,29 +71,15 @@ do
             else/if (_velocity.y > 0.0) then
                 // If the Pingu collided into something while moving 
                 // down...
-                if me.rel_getpixel(0,-1) == {Groundtype::GP_WATER} or
-                   me.rel_getpixel(0,-1) == {Groundtype::GP_LAVA}
-                then
-                    // Ping is on ground/water/something
-                    escape (int){ActionName::DROWN};
-                else/if {Math::abs(((CEU_Faller*)_STK_ORG)->me->pingu->get_velocity().y)} >
-                         _deadly_velocity
-                then
-                    // Did we stop too fast?
-                    //log_info("Pingus splashed: " << 
-                    //me.pingu:get_velocity().y << " " << deadly_velocity);
-                    escape (int){ActionName::SPLASHED};
+                // Not lava/water because they are handled in pingu.ceu
+                // This is where the jumper bug happens
+                //log_info("Reached the unreachable: " << 
+                //me.pingu:get_velocity().y);
+                if this.previous_action == {ActionName::BLOCKER} then
+                    escape (int){ActionName::BLOCKER};
                 else
-                    // This is where the jumper bug happens
-                    //log_info("Reached the unreachable: " << 
-                    //me.pingu:get_velocity().y);
-                    if this.previous_action == {ActionName::BLOCKER} then
-                        escape (int){ActionName::BLOCKER};
-                    else
-                        escape (int){ActionName::WALKER};
-                    end
+                    escape (int){ActionName::WALKER};
                 end
-                //_assert(0);
 
             else // if (_velocity.y < 0.0f)
                 // If the Pingu collided into something while moving up...

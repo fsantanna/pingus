@@ -55,14 +55,8 @@ do
             escape {ActionName::FALLER};
         end
 
-        // If on walking forward the Basher has now walked on to water or lava
-        if me.rel_getpixel(0,-1) == {Groundtype::GP_WATER} or
-           me.rel_getpixel(0,-1) == {Groundtype::GP_LAVA}
-        then
-            escape {ActionName::DROWN};
-
         // If walking on to something (i.e. hasn't fallen)
-        else/if me.rel_getpixel(0,-1) != {Groundtype::GP_NOTHING}
+        if me.rel_getpixel(0,-1) != {Groundtype::GP_NOTHING}
         then
             // If the Basher has walked into something that it won't be 
             // able to bash

@@ -43,26 +43,7 @@ do
     with
         /* UPDATE */
         // while the Bomber hasn't 'exploded' yet
-        par/or do
-            loop do
-                await PINGUHOLDER_UPDATE;
-
-                // if it has hit Water or Lava
-                if me.rel_getpixel(0,-1) == {Groundtype::GP_WATER} or
-                   me.rel_getpixel(0,-1) == {Groundtype::GP_LAVA}
-                then
-                    escape {ActionName::DROWN};
-
-                // if it has hit the ground too quickly
-                else/if me.rel_getpixel(0,-1) != {Groundtype::GP_NOTHING} and
-                        me.pingu:get_velocity().y > _deadly_velocity
-                then
-                    escape {ActionName::SPLASHED};
-                end
-            end
-        with
-            AWAIT_UNTIL_PINGU_FRAME((*sprites.get()), 10);
-        end
+        AWAIT_UNTIL_PINGU_FRAME((*sprites.get()), 10);
 
         // Throwing particles
         {

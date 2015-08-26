@@ -72,7 +72,23 @@ do
             if me.rel_getpixel(0,-1) == {Groundtype::GP_OUTOFSCREEN} then
                 //Sound::PingusSound::play_sound("die");
                 me.status = {Pingu::PS_DEAD};
+// TODO: copied from walker.ceu
+                me.set_x(me.get_x() + (float)(me.direction));
                 escape (int){Pingu::PS_DEAD};
+            end
+
+            if me.rel_getpixel(0,-1) == {Groundtype::GP_WATER} or
+               me.rel_getpixel(0,-1) == {Groundtype::GP_LAVA}
+            then
+                emit e_set_action => {ActionName::DROWN};
+            end
+
+
+            // if it has hit the ground too quickly
+            if me.rel_getpixel(0,-1) != {Groundtype::GP_NOTHING} and
+                    me.get_velocity().y > _deadly_velocity
+            then
+                emit e_set_action => {ActionName::SPLASHED};
             end
 
 #if 0

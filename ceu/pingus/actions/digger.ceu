@@ -23,12 +23,7 @@ do
     loop do
         await PINGUHOLDER_UPDATE;
         delay_count = delay_count + 1;
-
-        if this.me.rel_getpixel(0,-1) == {Groundtype::GP_WATER} or
-           this.me.rel_getpixel(0,-1) == {Groundtype::GP_LAVA}
-        then
-            escape {ActionName::DROWN};
-        else/if not this.have_something_to_dig() then
+        if not this.have_something_to_dig() then
             this.dig(true);
             escape {ActionName::WALKER};
         else/if delay_count%4 == 0 then
