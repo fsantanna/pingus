@@ -201,7 +201,11 @@ Pingu::set_direction (Direction d)
 std::string
 Pingu::get_name()
 {
-  return action->get_name();
+  if (this->name.empty()) {
+    return ActionName::to_screenname(current_action);
+  } else {
+    return this->name;
+  }
 }
 
 ActionName::Enum

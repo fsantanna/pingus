@@ -24,10 +24,10 @@ do
     function (void)=>void place_a_brick;
     function (void)=>void walk_one_step_up;
 
-    this.me.name = {_("Bridger") + std::string(" (" +
-                    StringUtil::to_string(THIS(CEU_Bridger)->bricks) + ")")};
-
     var int bricks = _BRIDGER_MAX_BRICKS;
+
+    this.pingu.me.name = (_std__string){_("Bridger") + std::string(" (" +
+                          StringUtil::to_string(THIS(CEU_Bridger)->bricks) + ")")};
 
     /* UPDATE */
     loop i in _BRIDGER_MAX_BRICKS do
@@ -156,8 +156,8 @@ do
 
     function (void)=>void place_a_brick do
         this.bricks = this.bricks - 1;
-        this.me.name = { _("Bridger") + std::string(" (") +
-                 StringUtil::to_string(THIS_F(CEU_Bridger)->bricks) + ")" };
+        this.pingu.me.name = (_std__string){ _("Bridger") + std::string(" (") +
+                              StringUtil::to_string(THIS_F(CEU_Bridger)->bricks) + ")" };
         if this.bricks < 4 then
             { Sound::PingusSound::play_sound("ting"); };
         end

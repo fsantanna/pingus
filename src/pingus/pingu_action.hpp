@@ -35,7 +35,6 @@ protected:
   Pingu*      pingu;
 
   ActionName::Enum action_name;  ///
-  std::string      name;         ///
 
 
 public:
@@ -54,16 +53,9 @@ public:
 
   virtual Vector3f get_center_pos() const;
 
-  /** The name of the action, this is used in the CaputreRectangle, so
-      it can contain more than just the name */
-  virtual std::string get_name () const;
-
   /// The type of the action
   ///virtual ActionName::Enum get_type () const =0;
   virtual ActionName::Enum get_type () const { return action_name; }
-
-  /// Catch another pingu and act on it (see blocker.hxx)
-  virtual bool  need_catch();
 
   /// The time the action needs to get activated (see bomber.cxx)
   virtual int   activation_time () { return -1; };

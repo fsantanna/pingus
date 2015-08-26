@@ -33,8 +33,7 @@ PinguAction::PinguAction (Pingu* p)
 ///
 PinguAction::PinguAction (Pingu* p, ActionName::Enum action_name) :
   pingu (p),
-  action_name  (action_name),
-  name         ("")
+  action_name  (action_name)
 {
 }
 
@@ -49,15 +48,6 @@ PinguAction::update ()
 void
 PinguAction::draw (SceneContext& gc)
 {
-}
-
-
-// Checks if the pingu action needs to catch another pingu (needed for
-// example by the blocker)
-bool
-PinguAction::need_catch ()
-{
-  return false;
 }
 
 Vector3f
@@ -84,16 +74,6 @@ PinguAction::collision_on_walk (int x, int y)
   }
 
   return collision;
-}
-
-std::string
-PinguAction::get_name () const
-{
-  if (!name.empty()) {
-    return ActionName::to_screenname(get_type());
-  } else {
-    return name;
-  }
 }
 
 void
