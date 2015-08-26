@@ -73,7 +73,7 @@ LaserExit::catch_pingu (Pingu* pingu)
       if (pingu->get_action() != ActionName::LASERKILL)
       {
         killing = true;
-        pingu->set_action(ActionName::LASERKILL);
+        pingu->request_set_action(ActionName::LASERKILL);
       }
     }
   }

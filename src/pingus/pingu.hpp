@@ -102,9 +102,6 @@ public:
   int get_xi () const { return static_cast<int>(pos_x); }
   int get_yi () const { return static_cast<int>(pos_y); }
 
-  /// Check if the pingu is still alive
-  bool is_alive (void);
-
   /// Return the status of the pingu
   PinguStatus get_status (void) const;
 
@@ -154,9 +151,6 @@ public:
       (1, 0)  is the pixel in front of the pingu
   */
   int  rel_getpixel (int x, int y);
-
-  /** Returns true if the pingu needs to catch another pingu */
-  bool need_catch ();
 
   void draw (SceneContext& gc);
   void apply_force (Vector3f);

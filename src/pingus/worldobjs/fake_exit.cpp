@@ -74,7 +74,7 @@ FakeExit::catch_pingu (Pingu* pingu)
       }
 
       if (surface.get_current_frame() == 4)
-        pingu->set_action(ActionName::SPLASHED);
+        pingu->request_set_action(ActionName::SPLASHED);
     }
   }
 }

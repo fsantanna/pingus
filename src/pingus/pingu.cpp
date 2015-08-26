@@ -40,8 +40,6 @@
 
 #include "ceu_vars.h"
 
-using namespace Actions;
-
 // Init a pingu at the given position while falling
 Pingu::Pingu (int arg_id, const Vector3f& arg_pos, int owner) :
   action(),
@@ -183,25 +181,10 @@ Pingu::rel_getpixel(int x, int y)
                                                        static_cast<int>(pos_y - static_cast<float>(y)));
 }
 
-bool
-Pingu::need_catch ()
-{
-  if (status == PS_DEAD || status == PS_EXITED)
-    return false;
-
-  return action->need_catch();
-}
-
 void
 Pingu::set_direction (Direction d)
 {
   direction = d;
-}
-
-bool
-Pingu::is_alive (void)
-{
-  return (status != PS_DEAD && status != PS_EXITED);
 }
 
 std::string
@@ -213,7 +196,7 @@ Pingu::get_name()
 ActionName::Enum
 Pingu::get_action ()
 {
-  return action->get_type();
+  return current_action;
 }
 
 void

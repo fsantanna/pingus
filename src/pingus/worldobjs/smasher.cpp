@@ -83,7 +83,7 @@ Smasher::update ()
                                   static_cast<int>(pos.y + 190)))
           {
             if ((*pingu)->get_action() != ActionName::SPLASHED)
-              (*pingu)->set_action(ActionName::SPLASHED);
+              (*pingu)->request_set_action(ActionName::SPLASHED);
           }
         }
       }
