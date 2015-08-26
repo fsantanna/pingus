@@ -84,6 +84,9 @@ do
             this.walk_one_step_up();
         end
     end
+    _assert(0);
+    escape {ActionName::WALKER};
+
 #if 0
         /* DRAW */
         every gc in PINGUHOLDER_DRAW_OTHERS do
