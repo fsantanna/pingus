@@ -19,7 +19,7 @@ do
             // FIXME: deadly_velocity or something like that. A translation
             // FIXME: animation for the floater might also help
             if (me.pingu:get_velocity().y > 5.0) then
-                var int fall_action = me.pingu:request_fall_action();
+                var int fall_action = me.pingu:fall_action;
                 if fall_action != {ActionName::NONE} then
                     escape fall_action;
                 end

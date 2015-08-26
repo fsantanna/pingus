@@ -44,6 +44,9 @@ public:
 
     ///
   ActionName::Enum current_action;
+  ActionName::Enum wall_action;
+  ActionName::Enum fall_action;
+
 
 private:
   /** The primary action which is currently in use */
@@ -52,12 +55,6 @@ private:
   /** A secondary action which will turn active after a given amount of time
       The only example is currently the bomber. */
   ActionName::Enum countdown_action;
-
-  /** the action that gets triggered when the pingu hits a wall */
-  ActionName::Enum wall_action;
-
-  /** the action that gets triggered when the pingu falls */
-  ActionName::Enum fall_action;
 
   /** The uniq id of the Pingu, this is used to refer to the Pingu in
       a demo file or in a network connection */
@@ -161,10 +158,6 @@ public:
 
   /// get the fall action if we have one
   ActionName::Enum request_fall_action ();
-
-  ActionName::Enum get_wall_action () { return wall_action; }
-
-  ActionName::Enum get_fall_action () { return fall_action; }
 
   /** Returns the `color' of the colmap in the walking direction
       Examples:

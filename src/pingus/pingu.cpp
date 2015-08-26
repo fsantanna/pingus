@@ -58,8 +58,6 @@ using namespace Actions;
 Pingu::Pingu (int arg_id, const Vector3f& arg_pos, int owner) :
   action(),
   countdown_action(ActionName::NONE),
-  wall_action(ActionName::NONE),
-  fall_action(ActionName::NONE),
   id(arg_id),
   action_time(-1),
   owner_id(owner),
@@ -140,18 +138,6 @@ Pingu::request_set_action(ActionName::Enum action_name)
   ceu_sys_go(&CEU_APP, CEU_IN_PINGU_REQUEST_SET_ACTION, &p);
 
   return ret_val;
-}
-
-ActionName::Enum
-Pingu::request_fall_action ()
-{
-  return fall_action;
-}
-
-ActionName::Enum
-Pingu::request_wall_action ()
-{
-  return wall_action;
 }
 
 Pingu::PinguStatus

@@ -1,3 +1,4 @@
+- walker behind all
 - bridger offset
 - rename SpritePingus => Sprite
 - testar climber, wall-mode-activation
