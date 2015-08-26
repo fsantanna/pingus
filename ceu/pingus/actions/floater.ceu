@@ -1,8 +1,6 @@
 #ifndef _FLOATER_CEU
 #define _FLOATER_CEU
 
-#include "../pingu_action.ceu"
-
 class Floater with
     interface IPinguAction;
 do

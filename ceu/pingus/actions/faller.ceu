@@ -1,13 +1,13 @@
 #ifndef _FALLER_CEU
 #define _FALLER_CEU
 
-#include "../pingu_action.ceu"
 #include "../right_left_sprites.ceu"
 
 class Faller with
     interface IPinguAction;
 do
     function (void) => bool is_tumbling;
+    var _Pingu& pingu_ = &this.pingu.me;
 
     /* UPDATE */
     par do
@@ -32,9 +32,9 @@ do
             // Move the Pingu as far is it can go
             // XXX_CPP
             {
-                Vector3f move =  ME(CEU_Faller)->pingu->get_velocity();
+                Vector3f move =  THIS(CEU_Faller)->pingu_->get_velocity();
                 Movers::LinearMover mover(WorldObj::get_world(),
-                                          ME(CEU_Faller)->pingu->get_pos());
+                                          THIS(CEU_Faller)->pingu_->get_pos());
                 mover.update(move, Colliders::PinguCollider(pingu_height));
             };
             this.pingu.me.set_pos(_mover.get_pos());
@@ -46,7 +46,8 @@ do
 
             // XXX_CPP
             {
-                static Vector3f velocity = ME(CEU_Faller)->pingu->get_velocity();
+                static Vector3f velocity =
+                    THIS(CEU_Faller)->pingu_->get_velocity();
             };
 
             if this.pingu.me.rel_getpixel(0,-1) == {Groundtype::GP_NOTHING} and

@@ -1,7 +1,6 @@
 #ifndef _SPLASHED_CEU
 #define _SPLASHED_CEU
 
-#include "../pingu_action.ceu"
 #include "../right_left_sprites.ceu"
 
 class Splashed with

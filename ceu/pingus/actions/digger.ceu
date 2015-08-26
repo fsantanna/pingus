@@ -1,8 +1,6 @@
 #ifndef _DIGGER_CEU
 #define _DIGGER_CEU
 
-#include "../pingu_action.ceu"
-
 class Digger with
     interface IPinguAction;
 do

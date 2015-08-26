@@ -20,7 +20,6 @@
 #include "pingus/fonts.hpp"
 #include "pingus/globals.hpp"
 #include "pingus/pingu.hpp"
-#include "pingus/pingu_action.hpp"
 #include "pingus/screens/game_session.hpp"
 #include "util/string_util.hpp"
 

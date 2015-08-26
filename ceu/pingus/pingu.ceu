@@ -20,13 +20,15 @@ interface IPingu with
     var _Pingu& me;
 end
 
-#include "pingu_action.ceu"
+interface IPinguAction with
+    var IPingu&           pingu;
+    var _ActionName__Enum previous_action;
+end
 
 native/pre do
     ##include "../src/pingus/pingu_holder.hpp"
     ##include "../src/pingus/world.hpp"
     ##include "../src/pingus/pingu.hpp"
-    ##include "../src/pingus/pingu_action.hpp"
     ##include "../src/pingus/action_name.hpp"
 end
 
@@ -171,13 +173,7 @@ _assert(not "DEAD CODE???");
             with
                 #define DO_PINGU_ACTION(T)                          \
                 do                                                  \
-                    var _PinguAction&& ptr = _XXX_PURE(             \
-                            {new PinguAction}(&&this.me,me.current_action) \
-                                finalize with nothing; end);        \
-                    me.action.reset(ptr)                            \
-                        finalize with nothing; end;                 \
                     var int a = do T with                           \
-                        this.me    = &_XXX_PTR2REF(ptr);            \
                         this.pingu = &outer;                        \
                         this.previous_action = me.current_action;   \
                     end;                                            \

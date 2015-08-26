@@ -1,7 +1,6 @@
 #ifndef _DROWN_CEU
 #define _DROWN_CEU
 
-#include "../pingu_action.ceu"
 #include "../right_left_sprites.ceu"
 
 class Drown with

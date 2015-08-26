@@ -1,7 +1,6 @@
 #ifndef _BLOCKER_CEU
 #define _BLOCKER_CEU
 
-#include "../pingu_action.ceu"
 #include "../right_left_sprites.ceu"
 
 class Blocker with

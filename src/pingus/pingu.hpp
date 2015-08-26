@@ -50,9 +50,6 @@ public:
 
 
 private:
-  /** The primary action which is currently in use */
-  std::shared_ptr<PinguAction> action;
-
   /** The uniq id of the Pingu, this is used to refer to the Pingu in
       a demo file or in a network connection */
   unsigned int id;

@@ -42,7 +42,6 @@
 
 // Init a pingu at the given position while falling
 Pingu::Pingu (int arg_id, const Vector3f& arg_pos, int owner) :
-  action(),
   id(arg_id),
   owner_id(owner),
   wall_action(ActionName::NONE),
@@ -54,10 +53,6 @@ Pingu::Pingu (int arg_id, const Vector3f& arg_pos, int owner) :
   direction()
 {
   direction.left ();
-
-  // Initialisize the action, after this step the action ptr will
-  // always be valid in the pingu class
-  ///action = create_action(ActionName::FALLER);
 
   void* this_ = this;
   ceu_sys_go(&CEU_APP, CEU_IN_PINGU_NEW, &this_);
@@ -232,7 +227,7 @@ Pingu::get_pos () const
 Vector3f
 Pingu::get_center_pos () const
 {
-  return action->get_center_pos();
+  return this->get_pos() + Vector3f(0, -16);
 }
 
 int

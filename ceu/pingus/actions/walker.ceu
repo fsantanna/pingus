@@ -1,7 +1,6 @@
 #ifndef _WALKER_CEU
 #define _WALKER_CEU
 
-#include "../pingu_action.ceu"
 #include "../right_left_sprites_.ceu"
 
 #define WALKER_MAX_STEPS 5  // max nr. of pixels that pingu can walk up/down

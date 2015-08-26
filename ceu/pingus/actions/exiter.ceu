@@ -1,7 +1,6 @@
 #ifndef _EXITER_CEU
 #define _EXITER_CEU
 
-#include "../pingu_action.ceu"
 #include "../right_left_sprites.ceu"
 
 class Exiter with

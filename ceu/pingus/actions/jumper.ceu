@@ -1,7 +1,6 @@
 #ifndef _JUMPER_CEU
 #define _JUMPER_CEU
 
-#include "../pingu_action.ceu"
 #include "../right_left_sprites.ceu"
 
 class Jumper with

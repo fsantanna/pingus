@@ -5,7 +5,6 @@ native do
     ##include "../../../src/engine/sound/sound.hpp"
 end
 
-#include "../pingu_action.ceu"
 #include "../right_left_sprites.ceu"
 
 /* Defines the minimum "wall" height needed for a bash to happen. */

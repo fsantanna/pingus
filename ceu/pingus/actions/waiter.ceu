@@ -1,7 +1,6 @@
 #ifndef _WAITER_CEU
 #define _WAITER_CEU
 
-#include "../pingu_action.ceu"
 #include "../right_left_sprites.ceu"
 
 class Waiter with

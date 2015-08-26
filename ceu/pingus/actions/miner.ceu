@@ -1,7 +1,6 @@
 #ifndef _MINER_CEU
 #define _MINER_CEU
 
-#include "../pingu_action.ceu"
 #include "../right_left_sprites.ceu"
 
 class Miner with

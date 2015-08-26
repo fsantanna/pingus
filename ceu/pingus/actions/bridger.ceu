@@ -7,7 +7,6 @@ native do
     ##include "../../src/pingus/gettext.h"
 end
 
-#include "../pingu_action.ceu"
 #include "../right_left_sprites_.ceu"
 
 native do
@@ -46,7 +45,8 @@ do
                 this.right = &right;
             end;
 
-            AWAIT_UNTIL_PINGU_FRAME((*builds.get()), 7);
+            await PINGUHOLDER_UPDATE
+            until builds.get():get_current_frame() == 7;
             if this.brick_placement_allowed() then
                 this.place_a_brick(); // me.bricks--;
             else
