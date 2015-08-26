@@ -66,27 +66,6 @@ PinguAction::get_center_pos() const
   return pingu->get_pos() + Vector3f(0, -16);
 }
 
-// Wrapper around the colmap, to get the pixels infront of the pingu,
-// from is current position
-int
-PinguAction::rel_getpixel (int x, int y)
-{
-  // FIXME: Inline me
-  return WorldObj::get_world()->get_colmap()->getpixel(static_cast<int>(pingu->get_x() + static_cast<float>((x * pingu->direction))),
-                                                       static_cast<int>(pingu->get_y() - static_cast<float>(y)));
-}
-
-bool
-PinguAction::head_collision_on_walk (int x, int y)
-{
-  int pixel = rel_getpixel(x, y + pingu_height);
-
-  if (pixel != Groundtype::GP_NOTHING && !(pixel & Groundtype::GP_BRIDGE))
-    return true;
-
-  return false;
-}
-
 bool
 PinguAction::collision_on_walk (int x, int y)
 {
@@ -95,7 +74,7 @@ PinguAction::collision_on_walk (int x, int y)
 
   for (int pingu_y = 0; pingu_y <= pingu_height; ++pingu_y)
   {
-    pixel = rel_getpixel(x, y + pingu_y);
+    pixel = pingu->rel_getpixel(x, y + pingu_y);
 
     if (pixel != Groundtype::GP_NOTHING && pixel != Groundtype::GP_BRIDGE)
     {
@@ -247,7 +226,7 @@ PinguAction::move_with_forces ()
       if (force_counter.y >= 1)
       {
         // If there is something below the Pingu
-        if (rel_getpixel(0, -1) != Groundtype::GP_NOTHING)
+        if (pingu->rel_getpixel(0, -1) != Groundtype::GP_NOTHING)
         {
           // FIXME: this shouldn't be really here, but its a
           // FIXME: quick&dirty way to kill falling pingus
@@ -270,7 +249,7 @@ PinguAction::move_with_forces ()
       else if (force_counter.y <= -1)
       {
         // If there is something in the way above the Pingu
-        if (head_collision_on_walk(0, 1))
+        if (pingu->head_collision_on_walk(0, 1))
         {
           // Make it so that the Pingu won't go up any further.
           force_counter.y = 0;

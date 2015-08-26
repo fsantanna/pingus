@@ -18,15 +18,15 @@ do
             // FIXME: This should be triggered at a later point, when close to
             // FIXME: deadly_velocity or something like that. A translation
             // FIXME: animation for the floater might also help
-            if (me.pingu:get_velocity().y > 5.0) then
-                var int fall_action = me.pingu:fall_action;
+            if (this.pingu.me.get_velocity().y > 5.0) then
+                var int fall_action = this.pingu.me.fall_action;
                 if fall_action != {ActionName::NONE} then
                     escape fall_action;
                 end
             end
 
             // Apply gravity
-            me.pingu:set_velocity(me.pingu:get_velocity() +
+            this.pingu.me.set_velocity(this.pingu.me.get_velocity() +
                   {Vector3f(0.0f, WorldObj::get_world()->get_gravity())});
 
             // Move the Pingu as far is it can go
@@ -49,11 +49,11 @@ do
                 static Vector3f velocity = ME(CEU_Faller)->pingu->get_velocity();
             };
 
-            if me.rel_getpixel(0,-1) == {Groundtype::GP_NOTHING} and
-               me.rel_getpixel(0,-2) == {Groundtype::GP_NOTHING} and
-               me.rel_getpixel(0,-3) == {Groundtype::GP_NOTHING} and
-               me.rel_getpixel(1, 0) != {Groundtype::GP_NOTHING} and
-               me.rel_getpixel(1, 0) != {Groundtype::GP_BRIDGE}
+            if this.pingu.me.rel_getpixel(0,-1) == {Groundtype::GP_NOTHING} and
+               this.pingu.me.rel_getpixel(0,-2) == {Groundtype::GP_NOTHING} and
+               this.pingu.me.rel_getpixel(0,-3) == {Groundtype::GP_NOTHING} and
+               this.pingu.me.rel_getpixel(1, 0) != {Groundtype::GP_NOTHING} and
+               this.pingu.me.rel_getpixel(1, 0) != {Groundtype::GP_BRIDGE}
             then
                 // Make Pingu bounce off wall
                 _velocity.x = -(_velocity.x / 3.0);
@@ -62,11 +62,11 @@ do
                 // may previously have been facing in the opposite direction of its
                 // velocity because of an explosion.
                 if (_velocity.x > 0.0) then
-                    me.pingu:direction.right();
+                    this.pingu.me.direction.right();
                 else
-                    me.pingu:direction.left();
+                    this.pingu.me.direction.left();
                 end
-                me.pingu:set_velocity(_velocity);
+                this.pingu.me.set_velocity(_velocity);
 
             else/if (_velocity.y > 0.0) then
                 // If the Pingu collided into something while moving 
@@ -86,7 +86,7 @@ do
                 // Don't make the Pingu go up any further.
                 _velocity.y = 0;
                 _velocity.x = (_velocity.x / 3.0);
-                me.pingu:set_velocity(_velocity);
+                this.pingu.me.set_velocity(_velocity);
             end
         end
     with

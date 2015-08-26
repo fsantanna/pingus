@@ -152,6 +152,9 @@ public:
   */
   int  rel_getpixel (int x, int y);
 
+  /// True if Pingu in specified position would bang its head if it were walking
+  bool head_collision_on_walk (int x, int y);
+
   void draw (SceneContext& gc);
   void apply_force (Vector3f);
 

@@ -46,15 +46,6 @@ public:
   /// Gives the PinguAction class access to the data of the Pingu.
   void set_pingu (Pingu*);
 
-  /** Get the pixel from the colmap, relative to the pingu position.
-
-      @param x x is relative to the direction, so 1 is the pixel
-      infront of the pingu
-
-      @param y 1 is up, -1 is down
-  */
-  int  rel_getpixel (int x, int y);
-
   /// The "AI" of the pingu.
   virtual void update (); /// = 0;
 
@@ -77,10 +68,8 @@ public:
   /// The time the action needs to get activated (see bomber.cxx)
   virtual int   activation_time () { return -1; };
 
-  /// True if Pingu in specified position would bang its head if it were walking
-  bool head_collision_on_walk (int x, int y);
-
-  /// True if Pingu in specified position would have a collision if it were walking
+  /// True if Pingu in specified position would have a collision if it were 
+  //walking
   bool collision_on_walk (int x, int y);
 
   /** Move Pingu according to the forces applied to it */

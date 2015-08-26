@@ -181,6 +181,17 @@ Pingu::rel_getpixel(int x, int y)
                                                        static_cast<int>(pos_y - static_cast<float>(y)));
 }
 
+bool
+Pingu::head_collision_on_walk (int x, int y)
+{
+  int pixel = rel_getpixel(x, y + pingu_height);
+
+  if (pixel != Groundtype::GP_NOTHING && !(pixel & Groundtype::GP_BRIDGE))
+    return true;
+
+  return false;
+}
+
 void
 Pingu::set_direction (Direction d)
 {

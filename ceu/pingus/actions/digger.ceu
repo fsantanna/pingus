@@ -32,8 +32,8 @@ do
     end
 
     function (void)=>bool have_something_to_dig do
-        if (this.me.rel_getpixel(0,-1) !=  {Groundtype::GP_NOTHING}) then
-            if (this.me.rel_getpixel(0,-1) ==  {Groundtype::GP_SOLID}) then
+        if (this.pingu.me.rel_getpixel(0,-1) !=  {Groundtype::GP_NOTHING}) then
+            if (this.pingu.me.rel_getpixel(0,-1) ==  {Groundtype::GP_SOLID}) then
                 call { Sound::PingusSound::play_sound }("chink");
                 return false;
             else

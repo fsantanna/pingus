@@ -63,7 +63,7 @@ do
 
               */
 
-            if me.rel_getpixel(0, -1) == {Groundtype::GP_NOTHING} then
+            if this.pingu.me.rel_getpixel(0, -1) == {Groundtype::GP_NOTHING} then
                 // The Pingu stands no longer on ground, the cause for this could 
                 // be a digger, miner or a bomber
                 // We search for the nearest ground below the pingu, if we can't 
@@ -72,8 +72,7 @@ do
                 var int i = 0;
                 loop ii in 2 do   // [-2 .. -4]
                     i = -ii - 2;
-                    if not (me.rel_getpixel(0, i) == {Groundtype::GP_NOTHING})
-                    then
+                    if not (this.pingu.me.rel_getpixel(0, i) == {Groundtype::GP_NOTHING}) then
                         found_ground = true;
                         break;
                     end
@@ -87,8 +86,8 @@ _assert(not "where did the walker hit?");
             end
 
             // FIXME: here we could/should scan more pixels
-            if me.rel_getpixel(1, 0) == {Groundtype::GP_BRIDGE} and
-               not me.head_collision_on_walk(1, 1)
+            if this.pingu.me.rel_getpixel(1, 0) == {Groundtype::GP_BRIDGE} and
+               not this.pingu.me.head_collision_on_walk(1, 1)
             then // bridge
                 // simple, stupid, but working bridge code
                 // FIXME: We don't check if we 'drift' into a solid ground block
@@ -112,11 +111,11 @@ _assert(not "where did the walker hit?");
                 loop i in 2*WALKER_MAX_STEPS+1 do // [-max_steps ..  max_steps]
                     y_inc = i-WALKER_MAX_STEPS;
                     // up/down-hill scan
-                    if (me.rel_getpixel(1, y_inc)=={Groundtype::GP_NOTHING} or
-                        me.rel_getpixel(1, y_inc)=={Groundtype::GP_BRIDGE})
+                    if (this.pingu.me.rel_getpixel(1, y_inc)=={Groundtype::GP_NOTHING} or
+                        this.pingu.me.rel_getpixel(1, y_inc)=={Groundtype::GP_BRIDGE})
                     and
                         // FIXME: This causes a rather huge step
-                        me.rel_getpixel(1, y_inc - 1) != {Groundtype::GP_NOTHING}
+                        this.pingu.me.rel_getpixel(1, y_inc - 1) != {Groundtype::GP_NOTHING}
                     then
                         // FIXME:
                         found_next_step = true;
@@ -133,7 +132,7 @@ _assert(not "where did the walker hit?");
                         this.pingu.me.get_x() + (float)(this.pingu.me.direction),
                         this.pingu.me.get_y() - (float)(possible_y_step));
                 else
-                    if me.rel_getpixel(1, 0) != {Groundtype::GP_NOTHING} then
+                    if this.pingu.me.rel_getpixel(1, 0) != {Groundtype::GP_NOTHING} then
                         // We reached a wall
                         var int wall_action = this.pingu.me.wall_action;
                         if wall_action != {ActionName::NONE} then
@@ -154,7 +153,7 @@ _assert(not "where did the walker hit?");
                 // This is moved here to fix the bug where pingu stuck turning both 
                 // sides indefinetely when a head collision occured. the fix needs 
                 // the above downhill walk being done before head collision check.
-                if me.head_collision_on_walk(0, 0) then
+                if this.pingu.me.head_collision_on_walk(0, 0) then
                     _log_debug("Pingu: Head collision");
 
                     //if the new position causes a head collision, we are already 

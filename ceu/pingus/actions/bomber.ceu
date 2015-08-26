@@ -36,9 +36,9 @@ do
                 Movers::LinearMover mover(WorldObj::get_world(),
                                           ((CEU_Bomber*)_STK_ORG)->me->pingu->get_pos());
             };
-            _mover.update(me.pingu:get_velocity(),
+            _mover.update(this.pingu.me.get_velocity(),
                           {Colliders::PinguCollider(pingu_height)});
-            me.pingu:set_pos(_mover.get_pos());
+            this.pingu.me.set_pos(_mover.get_pos());
         end
     with
         /* UPDATE */
