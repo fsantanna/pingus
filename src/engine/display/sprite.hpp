@@ -59,23 +59,8 @@ public:
   void finish();
   operator bool() const;
 
-  ///
-  Sprite(const Sprite& that);
-  Sprite& operator=(Sprite const &that);
-  Sprite(const Sprite &&that);
-
-static int NEW;
-static int NEW_DEL;
-static int CPY;
-static int CPY_DEL;
-
-
 private:
   std::shared_ptr<SpriteImpl> impl;
-  ///SpriteImpl* impl = NULL;
-
-  ///
-  bool XXX_is_copy = false;
 };
 
 #endif

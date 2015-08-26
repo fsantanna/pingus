@@ -14,8 +14,8 @@
 //  You should have received a copy of the GNU General Public License
 //  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef HEADER_PINGUS_ENGINE_DISPLAY_SPRITE_IMPL_HPP
-#define HEADER_PINGUS_ENGINE_DISPLAY_SPRITE_IMPL_HPP
+#ifndef HEADER_PINGUS_ENGINE_DISPLAY_SPRITE_CEU_HPP
+#define HEADER_PINGUS_ENGINE_DISPLAY_SPRITE_CEU_HPP
 
 #include "engine/display/framebuffer_surface.hpp"
 #include "math/vector2i.hpp"
@@ -23,7 +23,7 @@
 class SpriteDescription;
 class Framebuffer;
 
-class SpriteImpl
+class SpriteCeu
 {
 private:
   friend class Sprite;
@@ -48,10 +48,10 @@ private:
   int tick_count;
 
 public:
-  SpriteImpl();
-  SpriteImpl(const SpriteDescription& desc, ResourceModifier::Enum mod = ResourceModifier::ROT0);
-  SpriteImpl(const Surface& surface_);
-  ~SpriteImpl();
+  SpriteCeu();
+  SpriteCeu(const SpriteDescription& desc, ResourceModifier::Enum mod = ResourceModifier::ROT0);
+  SpriteCeu(const Surface& surface_);
+  ~SpriteCeu();
 
   void update(float delta);
 

@@ -67,7 +67,8 @@ every 1s do
         _CEU_SYS_GO_NTRAILS_MAX,
         e, v,
         _SPRITE_CUR,      _SPRITE_TOT,
-        {Sprite::NEW}, {Sprite::NEW_DEL}, {Sprite::CPY}, {Sprite::CPY_DEL},
+        0, 0, 0, 0,
+        //{Sprite::NEW}, {Sprite::NEW_DEL}, {Sprite::CPY}, {Sprite::CPY_DEL},
         _SPRITE_IMPL_CUR, _SPRITE_IMPL_TOT);
 
     _CEU_SYS_GO_NTRAILS_MAX = 0;

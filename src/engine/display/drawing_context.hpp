@@ -26,7 +26,7 @@
 class Framebuffer;
 class Font;
 class Sprite;
-class SpriteImpl;
+class SpriteCeu;
 
 /** The DrawingContext collects all DrawingRequests and allows you to
     flush them all down to the graphics card in one run, this has the
@@ -69,8 +69,8 @@ public:
 
   void draw(const Sprite& sprite, const Vector2i& pos, float z = 0);
   void draw(const Sprite& sprite, const Vector3f& pos);
-  void draw(SpriteImpl& sprite, const Vector2i& pos, float z = 0);
-  void draw(SpriteImpl& sprite, const Vector3f& pos);
+  void draw(SpriteCeu& sprite, const Vector2i& pos, float z = 0);
+  void draw(SpriteCeu& sprite, const Vector3f& pos);
 
   /** Fills the screen with a given color, this is different from
       clear() in that it doesn't remove other DrawingRequest from the

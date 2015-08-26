@@ -14,14 +14,14 @@
 //  You should have received a copy of the GNU General Public License
 //  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#include "engine/display/sprite_impl.hpp"
+#include "engine/display/sprite_ceu.hpp"
 
 #include "engine/display/display.hpp"
 #include "engine/display/framebuffer.hpp"
 #include "engine/display/sprite_description.hpp"
 #include "util/log.hpp"
 
-FramebufferSurface load_framebuffer_surface(const Pathname& filename, ResourceModifier::Enum modifier)
+FramebufferSurface load_framebuffer_surface1(const Pathname& filename, ResourceModifier::Enum modifier)
 {
   // FIXME: Implement proper cache
   try
@@ -42,7 +42,7 @@ FramebufferSurface load_framebuffer_surface(const Pathname& filename, ResourceMo
   }
 }
 
-SpriteImpl::SpriteImpl() :
+SpriteCeu::SpriteCeu() :
   filename(),
   framebuffer_surface(),
   offset(),
@@ -58,7 +58,7 @@ SpriteImpl::SpriteImpl() :
 {
 }
 
-SpriteImpl::SpriteImpl(const SpriteDescription& desc, ResourceModifier::Enum mod) :
+SpriteCeu::SpriteCeu(const SpriteDescription& desc, ResourceModifier::Enum mod) :
   filename(desc.filename),
   framebuffer_surface(),
   offset(),
@@ -72,7 +72,7 @@ SpriteImpl::SpriteImpl(const SpriteDescription& desc, ResourceModifier::Enum mod
   frame(0),
   tick_count(0)
 {
-  framebuffer_surface = load_framebuffer_surface(desc.filename, mod);
+  framebuffer_surface = load_framebuffer_surface1(desc.filename, mod);
 
   frame_pos = desc.frame_pos;
 
@@ -90,7 +90,7 @@ SpriteImpl::SpriteImpl(const SpriteDescription& desc, ResourceModifier::Enum mod
 
 }
 
-SpriteImpl::SpriteImpl(const Surface& surface) :
+SpriteCeu::SpriteCeu(const Surface& surface) :
   filename(),
   framebuffer_surface(Display::get_framebuffer()->create_surface(surface)),
   offset(0,0),
@@ -106,12 +106,12 @@ SpriteImpl::SpriteImpl(const Surface& surface) :
 {
 }
 
-SpriteImpl::~SpriteImpl()
+SpriteCeu::~SpriteCeu()
 {
 }
 
 void
-SpriteImpl::update(float delta)
+SpriteCeu::update(float delta)
 {
   if (finished || frame_delay == 0)
     return;
@@ -139,7 +139,7 @@ SpriteImpl::update(float delta)
 }
 
 void
-SpriteImpl::render(int x, int y, Framebuffer& fb)
+SpriteCeu::render(int x, int y, Framebuffer& fb)
 {
   fb.draw_surface(framebuffer_surface,
                   Rect(frame_pos + Vector2i(frame_size.width  * (frame%array.width),
@@ -149,7 +149,7 @@ SpriteImpl::render(int x, int y, Framebuffer& fb)
 }
 
 void
-SpriteImpl::restart()
+SpriteCeu::restart()
 {
   finished = false;
   loop_last_cycle = false;
@@ -158,7 +158,7 @@ SpriteImpl::restart()
 }
 
 void
-SpriteImpl::finish()
+SpriteCeu::finish()
 {
   finished = true;
 }

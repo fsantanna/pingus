@@ -21,206 +21,175 @@
 #include "pingus/resource.hpp"
 #include "util/log.hpp"
 
-#include "ceu_vars.h"
-
-int Sprite::NEW     = 0;
-int Sprite::NEW_DEL = 0;
-int Sprite::CPY     = 0;
-int Sprite::CPY_DEL = 0;
-
-Sprite::Sprite(const Sprite& that)
-{
-  *this = that;
-  this->XXX_is_copy = true;
-  Sprite::CPY++;
-}
-Sprite::Sprite(const Sprite&& that)
-{
-  *this = that;
-  this->XXX_is_copy = true;
-  Sprite::CPY++;
-}
-#if 0
-#endif
-Sprite& Sprite::operator=(Sprite const &that)
-{
-  this->impl = that.impl;
-  this->XXX_is_copy = true;
-  Sprite::CPY++;
-  return *this;
-}
-
 Sprite::Sprite() :
   impl()
 {
-  Sprite::NEW++;
-  void* this_ = this;
-  ceu_sys_go(&CEU_APP, CEU_IN_SPRITE_NEW_NONE, &this_);
 }
 
 Sprite::Sprite(const std::string& name) :
   impl()
 {
-  Sprite::NEW++;
-  char* str = (char*)name.c_str();
-  if (!XXX_FROM_CEU) {
-    tceu__Sprite___char_ p = {this, str};
-    ceu_sys_go(&CEU_APP, CEU_IN_SPRITE_NEW_NAME, &p);
+  SpriteDescription* desc = Resource::load_sprite_desc(name);
+  if (desc)
+  {
+    impl = std::make_shared<SpriteImpl>(*desc);
+  }
+  else
+  {
+    SpriteDescription desc_;
+    desc_.filename = Pathname("images/core/misc/404.png", Pathname::DATA_PATH);
+    impl = std::make_shared<SpriteImpl>(desc_);
   }
 }
 
 Sprite::Sprite(const ResDescriptor& res_desc) :
   impl()
 {
-  Sprite::NEW++;
-  tceu__Sprite___ResDescriptor_ p = {this, (ResDescriptor*)&res_desc};
-  ceu_sys_go(&CEU_APP, CEU_IN_SPRITE_NEW_RESDESCRIPTOR, &p);
+  SpriteDescription* desc = Resource::load_sprite_desc(res_desc.res_name);
+  if (desc)
+  {
+    impl = std::make_shared<SpriteImpl>(*desc, res_desc.modifier);
+  }
+  else
+  {
+    SpriteDescription desc_;
+    desc_.filename = Pathname("images/core/misc/404.png", Pathname::DATA_PATH);
+    impl = std::make_shared<SpriteImpl>(desc_);
+  }
 }
 
 Sprite::Sprite(const Surface& surface) :
-  impl()
+  impl(std::make_shared<SpriteImpl>(surface))
 {
-  Sprite::NEW++;
-  tceu__Sprite___Surface_ p = {this, (Surface*)&surface};
-  ceu_sys_go(&CEU_APP, CEU_IN_SPRITE_NEW_SURFACE, &p);
 }
 
 Sprite::Sprite(const SpriteDescription& desc, ResourceModifier::Enum mod) :
-  impl()
+  impl(std::make_shared<SpriteImpl>(desc, mod))
 {
-  Sprite::NEW++;
-  tceu__Sprite___SpriteDescription___int p = {this, (SpriteDescription*)&desc, mod};
-  ceu_sys_go(&CEU_APP, CEU_IN_SPRITE_NEW_SPRITEDESCRIPTION, &p);
 }
 
 Sprite::~Sprite()
 {
-  if (! this->XXX_is_copy) {
-    Sprite::NEW_DEL++;
-    void* this_ = this;
-    ceu_sys_go(&CEU_APP, CEU_IN_SPRITE_DELETE, &this_);
-  } else {
-    Sprite::CPY_DEL++;
-  }
 }
 
 void
 Sprite::render(int x, int y, Framebuffer& fb)
 {
-  ///if (impl != NULL)
+  if (impl.get())
     impl->render(x, y, fb);
 }
 
 int
 Sprite::get_width() const
 {
-  ///if (impl != NULL)
+  if (impl.get())
     return impl->frame_size.width;
-  ///else
-    ///return 0;
+  else
+    return 0;
 }
 
 int
 Sprite::get_height() const
 {
-  ///if (impl != NULL)
+  if (impl.get())
     return impl->frame_size.height;
-  ///else
-    ///return 0;
+  else
+    return 0;
 }
 
 Sprite::operator bool() const
 {
-  ///return (impl != NULL != 0);
-  return true;
+  return (impl.get() != 0);
 }
 
 void
 Sprite::update(float delta)
 {
-  tceu__SpriteImpl___float p = {impl.get(), delta};
-  ceu_sys_go(&CEU_APP, CEU_IN_SPRITE_IMPL_UPDATE, &p);
+  if (impl.get())
+    impl->update(delta);
 }
 
 void
 Sprite::set_frame(int i)
 {
-  ///if (impl != NULL)
+  if (impl.get())
     impl->frame = i;
 }
 
 int
 Sprite::get_frame_count() const
 {
-  ///if (impl != NULL)
+  if (impl.get())
     return (impl->array.width * impl->array.height);
-  ///else
-    ///return 0;
+  else
+    return 0;
 }
 
 bool
 Sprite::is_finished() const
 {
-  ///if (impl != NULL)
+  if (impl.get())
     return impl->finished;
-  ///else
-    ///return true;
+  else
+    return true;
 }
 
 bool
 Sprite::is_looping() const
 {
-  ///if (impl != NULL)
+  if (impl.get())
     return impl->loop_last_cycle;
-  ///else
-    ///return false;
+  else
+    return false;
 }
 
 void
 Sprite::set_play_loop(bool loop)
 {
-  ///if (impl != NULL)
+  if (impl.get())
     impl->loop = loop;
 }
 
 int
 Sprite::get_current_frame() const
 {
-  ///if (impl != NULL)
+  if (impl.get())
     return impl->frame;
-  ///else
-    ///return 0;
+  else
+    return 0;
 }
 
 void
 Sprite::restart()
 {
-  ceu_sys_go(&CEU_APP, CEU_IN_SPRITE_IMPL_RESTART, &impl);
+  if (impl.get())
+    impl->restart();
 }
 
 void
 Sprite::finish()
 {
-  ceu_sys_go(&CEU_APP, CEU_IN_SPRITE_IMPL_FINISH, &impl);
+  if (impl.get())
+    impl->finish();
 }
 
 Vector2i
 Sprite::get_offset() const
 {
-  ///if (impl != NULL)
+  if (impl.get())
     return impl->offset;
-  ///else
-    ///return Vector2i();
+  else
+    return Vector2i();
 }
 
 void
 Sprite::set_hotspot(Origin origin, int x, int y)
 {
-  ///if (impl != NULL)
-  ///{
+  if (impl.get())
+  {
     // FIXME: offset and other stuff should be member of the Sprite, not the SpriteImpl
     impl->offset = calc_origin(origin, impl->frame_size) - Vector2i(x, y);
-  ///}
+  }
 }
 
 /* EOF */

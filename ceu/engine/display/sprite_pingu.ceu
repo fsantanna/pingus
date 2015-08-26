@@ -2,10 +2,10 @@
 #define _SPRITE_PINGUS_CEU
 
 native/pre do
-    ##include "../src/engine/display/sprite_impl.hpp"
+    ##include "../src/engine/display/sprite_ceu.hpp"
     ##define loop_ loop
 end
-native @plain _SpriteImpl;
+native @plain _SpriteCeu;
 
 class SpritePingu with
     function (void)=>int get_current_frame;
@@ -17,17 +17,17 @@ class SpritePingu with
     // constructor
     var _Surface&&              surface  = null;
     var _SpriteDescription&&    spr_desc = null;
-    var _ResourceModifier__Enum spr_mod;
+    var _ResourceModifier__Enum spr_mod = {ResourceModifier::ROT0};
     var char&&                  name     = null;
 do
-    var _SpriteImpl&? me_;
-    var _SpriteImpl&  me;
+    var _SpriteCeu&? me_;
+    var _SpriteCeu&  me;
 
     // constructor
     do
         if surface != null then
             finalize
-                me_ = &({new SpriteImpl}(*surface));
+                me_ = &({new SpriteCeu}(*surface));
             with
                 //_delete(&&me_!);
                 nothing;    // handled in sprite.ceu/Sprite.cpp with shared_ptr
@@ -38,7 +38,7 @@ do
             end
             _assert(spr_desc != null);
             finalize
-                me_ = &({new SpriteImpl}(
+                me_ = &({new SpriteCeu}(
                         *spr_desc,
                         (_ResourceModifier__Enum) spr_mod));
             with
@@ -63,7 +63,6 @@ do
         /* UPDATE */
         loop do
             loop do
-                var _SpriteImpl&& me_;
                 await PINGUHOLDER_UPDATE;
                 var float dt = 0.033;   // TODO
                 tick_count = tick_count + (int)(dt * 1000);

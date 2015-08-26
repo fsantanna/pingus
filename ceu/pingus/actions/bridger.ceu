@@ -76,9 +76,8 @@ do
             end;
 
             // FIXME: Dangerous! might not be fixed timing
-            if this.way_is_free() then
-                break;
-            else // We reached a wall...
+            if not this.way_is_free() then
+                // We reached a wall...
                 this.pingu.me.direction.change();
                 escape {ActionName::WALKER};
             end
