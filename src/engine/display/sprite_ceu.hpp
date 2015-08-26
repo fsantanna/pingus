@@ -27,38 +27,22 @@ class SpriteCeu
 {
 private:
   friend class Sprite;
-
   Pathname filename;
   FramebufferSurface framebuffer_surface;
-
   Vector2i offset;
-
   Vector2i frame_pos;
   Size     frame_size;
   int      frame_delay;
-
   Size     array;
-
   bool     loop;
-  bool     loop_last_cycle;
-  bool     finished;
-
-  /** Current frame */
   int frame;
-  int tick_count;
 
 public:
   SpriteCeu();
   SpriteCeu(const SpriteDescription& desc, ResourceModifier::Enum mod = ResourceModifier::ROT0);
   SpriteCeu(const Surface& surface_);
   ~SpriteCeu();
-
-  void update(float delta);
-
   void render(int x, int y, Framebuffer& fb);
-
-  void restart();
-  void finish();
 };
 
 #endif

@@ -51,10 +51,7 @@ SpriteCeu::SpriteCeu() :
   frame_delay(),
   array(),
   loop(),
-  loop_last_cycle(),
-  finished(),
-  frame(),
-  tick_count()
+  frame()
 {
 }
 
@@ -67,10 +64,7 @@ SpriteCeu::SpriteCeu(const SpriteDescription& desc, ResourceModifier::Enum mod) 
   frame_delay(),
   array(),
   loop(),
-  loop_last_cycle(),
-  finished(false),
-  frame(0),
-  tick_count(0)
+  frame(0)
 {
   framebuffer_surface = load_framebuffer_surface1(desc.filename, mod);
 
@@ -84,7 +78,6 @@ SpriteCeu::SpriteCeu(const SpriteDescription& desc, ResourceModifier::Enum mod) 
   frame_delay  = desc.speed;
 
   loop = desc.loop;
-  loop_last_cycle = false;
 
   offset = calc_origin(desc.origin, frame_size) - desc.offset;
 
@@ -99,43 +92,12 @@ SpriteCeu::SpriteCeu(const Surface& surface) :
   frame_delay(0),
   array(1,1),
   loop(true),
-  loop_last_cycle(false),
-  finished(false),
-  frame(0),
-  tick_count(0)
+  frame(0)
 {
 }
 
 SpriteCeu::~SpriteCeu()
 {
-}
-
-void
-SpriteCeu::update(float delta)
-{
-  if (finished || frame_delay == 0)
-    return;
-
-  int total_time = frame_delay * (array.width * array.height);
-  tick_count += int(delta * 1000.0f);
-  if (tick_count >= total_time)
-  {
-    if (loop)
-    {
-      loop_last_cycle = true;
-      tick_count = tick_count % total_time;
-      frame = tick_count / frame_delay;
-    }
-    else
-    {
-      finished = true;
-    }
-  }
-  else
-  {
-    loop_last_cycle = false;
-    frame = tick_count / frame_delay;
-  }
 }
 
 void
@@ -146,21 +108,6 @@ SpriteCeu::render(int x, int y, Framebuffer& fb)
                                             frame_size.height * (frame/array.width)),
                        frame_size),
                   Vector2i(x - offset.x, y - offset.y));
-}
-
-void
-SpriteCeu::restart()
-{
-  finished = false;
-  loop_last_cycle = false;
-  frame = 0;
-  tick_count = 0;
-}
-
-void
-SpriteCeu::finish()
-{
-  finished = true;
 }
 
 /* EOF */
