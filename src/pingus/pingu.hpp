@@ -153,10 +153,7 @@ public:
   /// True if Pingu in specified position would bang its head if it were walking
   bool head_collision_on_walk (int x, int y);
 
-  void draw (SceneContext& gc);
   void apply_force (Vector3f);
-
-  void update();
 
   /** Indicate if the pingu's speed is above the deadly velocity */
   //bool is_tumbling () const;

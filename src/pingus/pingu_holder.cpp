@@ -62,30 +62,6 @@ PinguHolder::create_pingu (const Vector3f& pos, int owner_id)
 void
 PinguHolder::draw (SceneContext& gc)
 {
-  // Draw all walkers
-  for(std::list<Pingu*>::iterator pingu = pingus.begin();
-      pingu != pingus.end();
-      ++pingu)
-  {
-    if ((*pingu)->get_action() == ActionName::WALKER)
-      (*pingu)->draw (gc);
-  }
-
-  // Draw all non-walkers, so that they are easier spotable
-
-  // FIXME: This might be usefull, but looks kind of ugly in the game
-  // FIXME: Bridgers where walkers walk behind are an example of
-  // FIMME: uglyness. Either we rip this code out again or fix the
-  // FIXME: bridger so that it looks higher and better with walkers
-  // FIXME: behind him.
-  for(std::list<Pingu*>::iterator pingu = pingus.begin();
-      pingu != pingus.end();
-      ++pingu)
-  {
-    if ((*pingu)->get_action() != ActionName::WALKER)
-      (*pingu)->draw (gc);
-  }
-
   SceneContext* gc_ = &gc;
   ceu_sys_go(&CEU_APP, CEU_IN_PINGUHOLDER_DRAW, &gc_);
 }
@@ -97,8 +73,6 @@ PinguHolder::update()
 
   while(pingu != pingus.end())
   {
-    (*pingu)->update();
-
     // FIXME: The draw-loop is not the place for things like this,
     // this belongs in the update loop
     if ((*pingu)->get_status() == Pingu::PS_DEAD)

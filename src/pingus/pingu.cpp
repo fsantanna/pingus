@@ -166,9 +166,6 @@ Pingu::dist(int x, int y)
                      (p.y - static_cast<float>(y)) * (p.y - static_cast<float>(y))));
 }
 
-void Pingu::update() { }
-void Pingu::draw(SceneContext& gc) { }
-
 int
 Pingu::rel_getpixel(int x, int y)
 {
