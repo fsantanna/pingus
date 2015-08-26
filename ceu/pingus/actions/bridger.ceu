@@ -89,7 +89,7 @@ do
 
 #if 0
         /* DRAW */
-        every gc in PINGUHOLDER_DRAW_OTHERS do
+        every gc in PINGUHOLDER_DRAW do
             var int x_offset = 6;
             var int y_offset = 4;
             if      (bricks == _BRIDGER_MAX_BRICKS  ) then

@@ -87,8 +87,7 @@ PinguHolder::draw (SceneContext& gc)
   }
 
   SceneContext* gc_ = &gc;
-  ceu_sys_go(&CEU_APP, CEU_IN_PINGUHOLDER_DRAW_WALKER, &gc_);
-  ceu_sys_go(&CEU_APP, CEU_IN_PINGUHOLDER_DRAW_OTHERS, &gc_);
+  ceu_sys_go(&CEU_APP, CEU_IN_PINGUHOLDER_DRAW, &gc_);
 }
 
 void

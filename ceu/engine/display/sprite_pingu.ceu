@@ -84,7 +84,7 @@ do
         end
     with
         /* DRAW */
-        every gc in PINGUHOLDER_DRAW_OTHERS do
+        every gc in PINGUHOLDER_DRAW do
             _GC_COLOR_DRAW(gc, this.me, _Vector3f(x,y,0));
         end
     end

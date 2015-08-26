@@ -7,6 +7,8 @@
 - SDL_DT p/ pingus/actions/sprites
 - remove pointers, use parent orgs for "me"
 
+- GOALS: stress-test the language (everyday programability, performance, etc)
+
 # PORTING
 
 ```
