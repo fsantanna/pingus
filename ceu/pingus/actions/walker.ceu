@@ -79,8 +79,7 @@ do
                 if found_ground then
                     this.pingu.me.set_y(this.pingu.me.get_y() - (float)(i));
                 else
-_assert(not "where did the walker hit?");
-                    escape {ActionName::DROWN};
+                    escape {ActionName::FALLER};
                 end
             end
 
