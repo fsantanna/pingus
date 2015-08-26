@@ -57,9 +57,7 @@ using namespace Actions;
 // Init a pingu at the given position while falling
 Pingu::Pingu (int arg_id, const Vector3f& arg_pos, int owner) :
   action(),
-  countdown_action(ActionName::NONE),
   id(arg_id),
-  action_time(-1),
   owner_id(owner),
   wall_action(ActionName::NONE),
   fall_action(ActionName::NONE),
@@ -185,28 +183,8 @@ Pingu::dist(int x, int y)
                      (p.y - static_cast<float>(y)) * (p.y - static_cast<float>(y))));
 }
 
-// Let the pingu do his job (i.e. walk his way)
-void
-Pingu::update()
-{
-}
-
-// Draws the pingu on the screen with the given offset
-void
-Pingu::draw(SceneContext& gc)
-{
-  char str[16];
-
-  if (action_time != -1)
-  {
-    // FIXME: some people preffer a 5-0 or a 9-0 countdown, not sure
-    // FIXME: about that got used to the 50-0 countdown [counting is
-    // FIXME: in ticks, should probally be in seconds]
-    snprintf(str, 16, "%d", action_time/3);
-
-    gc.color().print_center(Fonts::chalk_normal, Vector2i(static_cast<int>(pos_x), static_cast<int>(pos_y) - 48), str);
-  }
-}
+void Pingu::update() { }
+void Pingu::draw(SceneContext& gc) { }
 
 int
 Pingu::rel_getpixel(int x, int y)
