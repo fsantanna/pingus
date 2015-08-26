@@ -64,7 +64,6 @@ do
         loop do
             await PINGUHOLDER_UPDATE;
 
-            /// TODO(control)
             // FIXME: Out of screen check is ugly
             /* The Pingu has hit the edge of the screen, a good time to let
                him die.
@@ -81,6 +80,7 @@ do
                me.rel_getpixel(0,-1) == {Groundtype::GP_LAVA}
             then
                 emit e_set_action => {ActionName::DROWN};
+                break;  // no more checks, will die
             end
 
 
@@ -89,22 +89,10 @@ do
                     me.get_velocity().y > _deadly_velocity
             then
                 emit e_set_action => {ActionName::SPLASHED};
+                break;  // no more checks, will die
             end
-
-#if 0
-            // if an countdown action is set, update the countdown time
-            if me.action_time > -1 then
-                me.action_time = me.action_time - 1;
-            end
-            if me.action_time==0 and (me.countdown_action!={ActionName::NONE}) then
-                // Reset the countdown action handlers
-                me.countdown_action = {ActionName::NONE};
-                me.set_action(me.countdown_action);
-                me.action_time = -1;
-                break;
-            end
-#endif
         end
+        await FOREVER;
     with
         loop do
             var _Pingu&& ptr;
