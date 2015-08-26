@@ -29,7 +29,12 @@ do
                         this.name  = _XXX_PURE(&&outer.right);
                     end;
                 end;
-            await e_change;
+            par/or do
+                await *sprite!;
+                escape 0;
+            with
+                await e_change;
+            end
             kill *sprite!;
         end
     end

@@ -127,12 +127,12 @@ do
             var char[] right = [] .. "pingus/player"
                                   ..  (char&&)*this.pingu.me.get_owner_str().c_str()
                                   .. "/tumbler/right";
-            var RightLeftSprites _ with
+            do RightLeftSprites with
                 this.pingu = &pingu;
                 this.left  = &left;
                 this.right = &right;
             end;
-            await FOREVER;
+            _assert(0);     // sprite has loop
         end
     end
 

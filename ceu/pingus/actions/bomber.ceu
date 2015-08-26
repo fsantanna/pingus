@@ -101,12 +101,8 @@ do
         end
 
         // The pingu explode
-        loop do
-            await PINGUHOLDER_UPDATE;
-            if sprites.get():is_finished() then
-                escape {ActionName::DEAD};
-            end
-        end
+        await sprites;
+        escape {ActionName::DEAD};
     end
 end
 

@@ -53,8 +53,7 @@ do
                 this.pingu.me.direction.change();
                 escape {ActionName::WALKER};
             end
-            await PINGUHOLDER_UPDATE
-            until builds.get():is_finished();
+            await builds;
         end
 
         // SKIP the last WALKING
@@ -70,24 +69,18 @@ do
             var char[] right = [] .. "pingus/player"
                                   .. (char&&)*this.pingu.me.get_owner_str().c_str()
                                   .. "/bridger_walk/right";
-            var RightLeftSprites walks with
+            do RightLeftSprites with
                 this.pingu = &outer.pingu;
                 this.left  = &left;
                 this.right = &right;
             end;
 
-            loop do
-                await PINGUHOLDER_UPDATE;
-
-                // FIXME: Dangerous! might not be fixed timing
-                if walks.get():is_finished() then
-                    if this.way_is_free() then
-                        break;
-                    else // We reached a wall...
-                        this.pingu.me.direction.change();
-                        escape {ActionName::WALKER};
-                    end
-                end
+            // FIXME: Dangerous! might not be fixed timing
+            if this.way_is_free() then
+                break;
+            else // We reached a wall...
+                this.pingu.me.direction.change();
+                escape {ActionName::WALKER};
             end
             this.walk_one_step_up();
         end

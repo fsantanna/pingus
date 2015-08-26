@@ -12,10 +12,10 @@ do
     var char[] str = [] .. "pingus/player"
                         .. (char&&)*this.pingu.me.get_owner_str().c_str()
                         .. "/digger/left";
-    var SpritePingu sprite with
-        this.x     = &_XXX_NOHOLD(&&outer.pingu.me.pos_x);
-        this.y     = &_XXX_NOHOLD(&&outer.pingu.me.pos_y);
-        this.name  = _XXX_PURE(&&str);
+    var SpritePingu _ with
+        this.x    = &_XXX_NOHOLD(&&outer.pingu.me.pos_x);
+        this.y    = &_XXX_NOHOLD(&&outer.pingu.me.pos_y);
+        this.name = _XXX_PURE(&&str);
     end;
 
     /* UPDATE */

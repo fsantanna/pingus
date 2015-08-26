@@ -7,18 +7,18 @@
 class Splashed with
     interface IPinguAction;
 do
+    call {WorldObj::get_world()->play_sound}("splash",
+                                             this.pingu.me.get_pos());
+
     var char[] str = [] .. "pingus/player"
                         .. (char&&)*this.pingu.me.get_owner_str().c_str()
                         .. "/splat";
-    var SpritePingu sprite with
+    do SpritePingu with
         this.x    = &_XXX_NOHOLD(&&outer.pingu.me.pos_x);
         this.y    = &_XXX_NOHOLD(&&outer.pingu.me.pos_y);
         this.name = _XXX_PURE(&&str);
     end;
 
-    call {WorldObj::get_world()->play_sound}("splash",
-                                             this.pingu.me.get_pos());
-    await sprite.ok_finished;
     escape {ActionName::DEAD};
 end
 

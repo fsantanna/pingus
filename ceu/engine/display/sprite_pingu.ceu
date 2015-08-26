@@ -8,10 +8,8 @@ end
 native @plain _SpriteImpl;
 
 class SpritePingu with
-    function (void)=>_SpriteImpl&& get;
-    function (void)=>int           get_current_frame;
-    function (void)=>int           get_frame_count;
-    function (void)=>bool          is_finished;
+    function (void)=>int get_current_frame;
+    function (void)=>int get_frame_count;
 
     var float& x;
     var float& y;
@@ -21,9 +19,6 @@ class SpritePingu with
     var _SpriteDescription&&    spr_desc = null;
     var _ResourceModifier__Enum spr_mod;
     var char&&                  name     = null;
-
-    event void go_restart, go_finish;
-    event void ok_finished;
 do
     var _SpriteImpl&? me_;
     var _SpriteImpl&  me;
@@ -54,57 +49,38 @@ do
         me = &me_!;
     end
 
-    var int total_time = me.frame_delay *
-                        (me.array.width * me.array.height);
+    var int total_time = me.frame_delay * (me.array.width * me.array.height);
+
+    me.frame = 0;
+
+    if me.frame_delay == 0 then
+        await FOREVER;
+    end
+
+    var int tick_count = 0;
 
     par do
-        // RESTART LOOP
+        /* UPDATE */
         loop do
-            me.loop_last_cycle = false;
-            me.finished = false;
-            me.frame = 0;
+            loop do
+                var _SpriteImpl&& me_;
+                await PINGUHOLDER_UPDATE;
+                var float dt = 0.033;   // TODO
+                tick_count = tick_count + (int)(dt * 1000);
 
-            if me.frame_delay == 0 then
-                await FOREVER;
-            end
-
-            var int tick_count = 0;
-
-            par/or do
-                await this.go_restart;
-            with
-                par/or do
-                    await this.go_finish;
-                with
-                    // CONTINUOUS SPRITES LOOP (this->loop==true)
-                    loop do
-                        loop do
-                            var _SpriteImpl&& me_;
-                            await PINGUHOLDER_UPDATE;
-                            var float dt = 0.033;   // TODO
-                            tick_count = tick_count + (int)(dt * 1000);
-
-                            if tick_count >= total_time then
-                                if me.loop_ then
-                                    me.loop_last_cycle = true;
-                                    tick_count = tick_count % total_time;
-                                    me.frame = tick_count / me.frame_delay;
-                                end
-                                break;
-                            else
-                                me.loop_last_cycle = false;
-                                me.frame = tick_count / me.frame_delay;
-                            end
-
-                        end
-                        if not me.loop_ then
-                            break;
-                        end
+                if tick_count >= total_time then
+                    if me.loop_ then
+                        tick_count = tick_count % total_time;
+                        me.frame = tick_count / me.frame_delay;
                     end
+                    break;
+                else
+                    me.frame = tick_count / me.frame_delay;
                 end
-                me.finished = true;
-                emit this.ok_finished;
-                await FOREVER;
+
+            end
+            if not me.loop_ then
+                escape 0;
             end
         end
     with
@@ -116,20 +92,12 @@ do
 
     /* PUBLIC */
 
-    function (void)=>_SpriteImpl& get do
-        return &&me;
-    end
-
     function (void)=>int get_frame_count do
         return me.array.width * me.array.height;
     end
 
     function (void)=>int get_current_frame do
         return me.frame;
-    end
-
-    function (void)=>bool is_finished do
-        return me.finished;
     end
 end
 

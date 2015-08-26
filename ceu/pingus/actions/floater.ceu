@@ -9,7 +9,7 @@ do
     var char[] str = [] .. "pingus/player"
                         .. (char&&)*this.pingu.me.get_owner_str().c_str()
                         .. "/floater/left";
-    var SpritePingu sprite with
+    var SpritePingu _ with
         this.x    = &_XXX_NOHOLD(&&outer.pingu.me.pos_x);
         this.y    = &_XXX_NOHOLD(&&outer.pingu.me.pos_y);
         this.name = _XXX_PURE(&&str);
@@ -17,7 +17,6 @@ do
 
     me.pingu:set_velocity({Vector3f(0.0f, 1.0f)});
 
-    /* UPDATE */
     loop do
         await PINGUHOLDER_UPDATE;
         if me.rel_getpixel(0,-1) == {Groundtype::GP_NOTHING} then

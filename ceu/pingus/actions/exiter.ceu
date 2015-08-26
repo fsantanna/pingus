@@ -7,27 +7,21 @@
 class Exiter with
     interface IPinguAction;
 do
+    { Sound::PingusSound::play_sound("yipee"); };
+
     var char[] left  = [] .. "pingus/player"
                           .. (char&&)*this.pingu.me.get_owner_str().c_str()
                           .. "/exit/left";
     var char[] right = [] .. "pingus/player"
                           .. (char&&)*this.pingu.me.get_owner_str().c_str()
                           .. "/exit/right";
-    var RightLeftSprites sprites with
+    do RightLeftSprites with
         this.pingu = &outer.pingu;
         this.left  = &left;
         this.right = &right;
     end;
 
-    { Sound::PingusSound::play_sound("yipee"); };
-
-    /* UPDATE */
-    loop do
-        await PINGUHOLDER_UPDATE;
-        if sprites.get():is_finished() then
-            escape {ActionName::NONE};
-        end
-    end
+    escape {ActionName::NONE};
 end
 
 #endif

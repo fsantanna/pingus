@@ -19,7 +19,6 @@ do
         this.right = &right;
     end;
 
-    /* UPDATE */
     await PINGUHOLDER_UPDATE;
 
     // if climber, do a wall-jump, else just jump forward
