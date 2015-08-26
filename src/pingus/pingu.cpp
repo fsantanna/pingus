@@ -60,7 +60,6 @@ Pingu::Pingu (int arg_id, const Vector3f& arg_pos, int owner) :
   countdown_action(ActionName::NONE),
   wall_action(ActionName::NONE),
   fall_action(ActionName::NONE),
-  previous_action(ActionName::FALLER),
   id(arg_id),
   action_time(-1),
   owner_id(owner),
@@ -90,13 +89,6 @@ unsigned int
 Pingu::get_id ()
 {
   return id;
-}
-
-bool
-Pingu::change_allowed(ActionName::Enum new_action)
-{
-  assert(current_action != ActionName::NONE);
-  return ActionName::CHANGE_ALLOWED[current_action][new_action];
 }
 
 void
@@ -307,7 +299,6 @@ void
 Pingu::set_action (ActionName::Enum action_name)
 {
   assert(action_name != ActionName::NONE);
-  previous_action = action_name;
 
   tceu__Pingu___ActionName__Enum
     p = {this, action_name};

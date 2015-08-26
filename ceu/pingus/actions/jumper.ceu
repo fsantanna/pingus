@@ -22,7 +22,7 @@ do
     await PINGUHOLDER_UPDATE;
 
     // if climber, do a wall-jump, else just jump forward
-    if me.pingu:get_previous_action() == {ActionName::CLIMBER} then
+    if this.previous_action == {ActionName::CLIMBER} then
         me.pingu:direction.change();
     end
 

@@ -87,10 +87,8 @@ do
                     // This is where the jumper bug happens
                     //log_info("Reached the unreachable: " << 
                     //me.pingu:get_velocity().y);
-                    if me.pingu:get_previous_action() ==
-                       {ActionName::BLOCKER}
-                    then
-                        escape (int)me.pingu:get_previous_action();
+                    if this.previous_action == {ActionName::BLOCKER} then
+                        escape (int){ActionName::BLOCKER};
                     else
                         escape (int){ActionName::WALKER};
                     end

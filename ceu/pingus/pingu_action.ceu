@@ -15,8 +15,9 @@ native @plain  _PinguAction;
     end
 
 interface IPinguAction with
-    var _PinguAction& me;
-    var IPingu&       pingu;
+    var _PinguAction&     me;
+    var IPingu&           pingu;
+    var _ActionName__Enum previous_action;
 end
 
 #endif

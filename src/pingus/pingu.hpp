@@ -59,11 +59,6 @@ private:
   /** the action that gets triggered when the pingu falls */
   ActionName::Enum fall_action;
 
-  /** The previous_action contains the action type that was in action
-      before action got applied, its here to enable action to behave
-      differently depending on the previous action */
-  ActionName::Enum previous_action;
-
   /** The uniq id of the Pingu, this is used to refer to the Pingu in
       a demo file or in a network connection */
   unsigned int id;
@@ -116,9 +111,6 @@ public:
 
   int get_xi () const { return static_cast<int>(pos_x); }
   int get_yi () const { return static_cast<int>(pos_y); }
-
-  /** Checks if this action allows to be overwritten with the given new action */
-  bool change_allowed (ActionName::Enum new_action);
 
   /// Check if the pingu is still alive
   bool is_alive (void);
@@ -210,13 +202,6 @@ public:
 
   /** @return the name of the action the Pingu currently has */
   ActionName::Enum get_action ();
-
-  /** @return the action that was active before the action returned by
-      get_action() took place. This is used in a few situations where
-      an action needs to now what the Pingu was doing before the
-      action took place (faller->bomber translation is different
-      walker->bomber, etc.). */
-  ActionName::Enum get_previous_action() const { return previous_action; }
 
 private:
   ///Pingu (const Pingu&);

@@ -178,6 +178,7 @@ do
                     var int a = do T with                           \
                         this.me    = &_XXX_PTR2REF(ptr);            \
                         this.pingu = &outer;                        \
+                        this.previous_action = me.current_action;   \
                     end;                                            \
                     escape (_ActionName__Enum)a;                    \
                 end

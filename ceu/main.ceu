@@ -63,6 +63,7 @@ every 1s do
             v = _CEU_SYS_GO_EVTS[i];
         end
     end
+#if 0
     _printf(">>> [%8d] [%3d/%2i] S=%4d/%3d[new=(%6d-%6d)/cpy=(%4d-%4d)] I=%d/%d\n",
         _CEU_SYS_GO_NTRAILS_MAX,
         e, v,
@@ -73,6 +74,5 @@ every 1s do
 
     _CEU_SYS_GO_NTRAILS_MAX = 0;
     _memset(_CEU_SYS_GO_EVTS, 0, sizeof(int)*255);
-#if 0
 #endif
 end
