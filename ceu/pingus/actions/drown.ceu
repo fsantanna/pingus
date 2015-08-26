@@ -18,7 +18,6 @@ do
         this.left  = &left;
         this.right = &right;
     end;
-    this.pingu.me.set_status({Pingu::PS_DEAD});
     escape {ActionName::DEAD};
 end
 

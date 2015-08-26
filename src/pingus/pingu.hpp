@@ -142,10 +142,6 @@ public:
       action allows that. */
   bool request_set_action (ActionName::Enum action_name);
 
-  /** Set an action without any checking, the action will take
-      instantly control. */
-  void set_action (ActionName::Enum action_name);
-
   /// get the wall action if we have one
   ActionName::Enum request_wall_action ();
 

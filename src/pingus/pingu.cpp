@@ -26,27 +26,15 @@
 #include "pingus/worldobj.hpp"
 #include "pingus/pingu_enums.hpp"
 
+#if 0
 #include "pingus/actions/angel.hpp"
-///#include "pingus/actions/basher.hpp"
-///#include "pingus/actions/blocker.hpp"
 #include "pingus/actions/boarder.hpp"
-///#include "pingus/actions/bomber.hpp"
-///#include "pingus/actions/bridger.hpp"
 #include "pingus/actions/climber.hpp"
-///#include "pingus/actions/digger.hpp"
-///#include "pingus/actions/drown.hpp"
-///#include "pingus/actions/exiter.hpp"
-///#include "pingus/actions/faller.hpp"
-///#include "pingus/actions/floater.hpp"
-///#include "pingus/actions/jumper.hpp"
 #include "pingus/actions/laser_kill.hpp"
-///#include "pingus/actions/miner.hpp"
 #include "pingus/actions/slider.hpp"
 #include "pingus/actions/smashed.hpp"
-///#include "pingus/actions/splashed.hpp"
 #include "pingus/actions/superman.hpp"
-///#include "pingus/actions/waiter.hpp"
-///#include "pingus/actions/walker.hpp"
+#endif
 
 #include "util/log.hpp"
 
@@ -140,12 +128,14 @@ Pingu::request_set_action(ActionName::Enum action_name)
   return ret_val;
 }
 
+// TODO: pinguholder/world
 Pingu::PinguStatus
 Pingu::get_status (void) const
 {
   return status;
 }
 
+/// SPIKE, GUILLOTINE
 Pingu::PinguStatus
 Pingu::set_status (PinguStatus s)
 {
@@ -259,16 +249,6 @@ Pingu::get_owner_str ()
   std::ostringstream ostr;
   ostr << owner_id;
   return ostr.str();
-}
-
-void
-Pingu::set_action (ActionName::Enum action_name)
-{
-  assert(action_name != ActionName::NONE);
-
-  tceu__Pingu___ActionName__Enum
-    p = {this, action_name};
-  ceu_sys_go(&CEU_APP, CEU_IN_PINGU_SET_ACTION, &p);
 }
 
 /* EOF */

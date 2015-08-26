@@ -253,7 +253,7 @@ PinguAction::move_with_forces ()
           // FIXME: quick&dirty way to kill falling pingus
           if (resultant_force.y >= deadly_velocity)
           {
-            pingu->set_action(ActionName::SPLASHED);
+            pingu->request_set_action(ActionName::SPLASHED);
             return;
           }
           // Make it so that the Pingu won't go down any further.
