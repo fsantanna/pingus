@@ -27,6 +27,7 @@ native/pre do
     ##include "../src/pingus/world.hpp"
     ##include "../src/pingus/pingu.hpp"
     ##include "../src/pingus/pingu_action.hpp"
+    ##include "../src/pingus/action_name.hpp"
 end
 
 #include "../engine/display/sprite_pingu.ceu"
@@ -103,7 +104,7 @@ do
                 continue;
             end
 
-            var int mode = {PinguAction::get_activation_mode}(action_name);
+            var int mode = {ActionName::ACTIVATION_MODE}[action_name];
 
             if mode == {ActionType::INSTANT} then
                 if action_name == me.action:get_type() then
@@ -139,6 +140,8 @@ do
                     *ret_val = true;
                 end
             else/if mode == {ActionType::COUNTDOWN_TRIGGERED} then
+_assert(not "DEAD CODE???");
+#if 0
                 if me.countdown_action == action_name then
                     _log_debug("Not using countdown action, we have already");
                     *ret_val = false;
@@ -150,6 +153,7 @@ do
                     me.countdown_action = action_name;
                     *ret_val = true;
                 end
+#endif
             else
                 _log_debug("unknown action activation_mode");
                 *ret_val = false;

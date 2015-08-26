@@ -19,6 +19,14 @@
 
 #include <string>
 
+enum ActionType
+{
+  INSTANT,
+  WALL_TRIGGERED,
+  FALL_TRIGGERED,
+  COUNTDOWN_TRIGGERED
+};
+
 namespace ActionName {
 
 /** The order of the actions here are the same as the order of actions
@@ -51,6 +59,16 @@ enum Enum
   WAITER,
   WALKER,
   MAX
+};
+
+///
+static ActionType ACTIVATION_MODE[MAX] = {
+    INSTANT, INSTANT, INSTANT, INSTANT, INSTANT, INSTANT, INSTANT, INSTANT,
+    WALL_TRIGGERED,     // CLIMBER
+    INSTANT, INSTANT, INSTANT, INSTANT,
+    FALL_TRIGGERED,     // FLOATER
+    INSTANT, INSTANT, INSTANT, INSTANT, INSTANT,
+    INSTANT, INSTANT, INSTANT, INSTANT, INSTANT
 };
 
 static char CATCHABLE[MAX] = {

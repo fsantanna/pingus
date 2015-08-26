@@ -24,14 +24,6 @@ class ActionHolder;
 class SceneContext;
 class Pingu;
 
-enum ActionType
-{
-  INSTANT,
-  WALL_TRIGGERED,
-  FALL_TRIGGERED,
-  COUNTDOWN_TRIGGERED
-};
-
 /** This class provides an abstract interface for pingu actions. It is
     used to inherit classes which represent the actions. The actions
     are stored in a seperate library, have a look in actions/ for some
@@ -93,9 +85,6 @@ public:
 
   /** Move Pingu according to the forces applied to it */
   void move_with_forces ();
-
-public:
-  static ActionType get_activation_mode(ActionName::Enum action_name);
 
 private:
   //PinguAction (const PinguAction&);
