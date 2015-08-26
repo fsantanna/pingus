@@ -1,0 +1,93 @@
+#ifndef _PINGUHOLDER_CEU
+#define _PINGUHOLDER_CEU
+
+native do
+    ##include "../src/pingus/pingu_holder.hpp"
+end
+native @plain _PinguHolder;
+
+input (_PinguHolder&&, int) PINGUHOLDER_NEW;
+input (_PinguHolder&&)      PINGUHOLDER_DELETE;
+
+input (_PinguHolder&&, int&&) PINGUHOLDER_GET_NUMBER_OF_EXITED;
+input (_PinguHolder&&, int&&) PINGUHOLDER_GET_NUMBER_OF_KILLED;
+input (_PinguHolder&&, int&&) PINGUHOLDER_GET_NUMBER_OF_ALIVE;
+input (_PinguHolder&&, int&&) PINGUHOLDER_GET_NUMBER_OF_RELEASED;
+input (_PinguHolder&&, int&&) PINGUHOLDER_GET_NUMBER_OF_ALLOWED;
+
+interface IPinguHolder with
+    var int number_of_exited;
+    var int number_of_killed;
+    var int number_of_alive;
+    var int number_of_released;
+    var int number_of_allowed;
+end
+
+#include "pingu.ceu"
+
+class PinguHolder with
+    interface IPinguHolder;
+    var int number_of_exited   = 0;
+    var int number_of_killed   = 0;
+    var int number_of_alive    = 0;
+    var int number_of_released = 0;
+    var int number_of_allowed;//=0;
+
+    var _PinguHolder& me;
+do
+    par/or do
+        AWAIT_UNTIL_MYSELF(_PinguHolder,PINGUHOLDER_DELETE);
+    with
+        every (me_,ret) in PINGUHOLDER_GET_NUMBER_OF_EXITED do
+            if me_ == &&this.me then
+                *ret = this.number_of_exited;
+            end
+        end
+    with
+        every (me_,ret) in PINGUHOLDER_GET_NUMBER_OF_KILLED do
+            if me_ == &&this.me then
+                *ret = this.number_of_killed;
+            end
+        end
+    with
+        every (me_,ret) in PINGUHOLDER_GET_NUMBER_OF_ALIVE do
+            if me_ == &&this.me then
+                *ret = this.number_of_alive;
+            end
+        end
+    with
+        every (me_,ret) in PINGUHOLDER_GET_NUMBER_OF_RELEASED do
+            if me_ == &&this.me then
+                *ret = this.number_of_released;
+            end
+        end
+    with
+        every (me_,ret) in PINGUHOLDER_GET_NUMBER_OF_ALLOWED do
+            if me_ == &&this.me then
+                *ret = this.number_of_allowed;
+            end
+        end
+    with
+        every me_ in PINGU_NEW do
+            if this.number_of_released < this.number_of_allowed then
+                spawn Pingu with
+                    this.holder = &outer;
+                    this.me     = &_XXX_PTR2REF(me_);
+                end;
+            end
+        end
+    end
+end
+
+class PinguHolderFactory with
+do
+    every (me_,max) in PINGUHOLDER_NEW do
+        spawn PinguHolder with
+            this.me = &_XXX_PTR2REF(me_);
+            this.number_of_allowed = max;
+        end;
+    end
+end
+var PinguHolderFactory _;
+
+#endif

@@ -4,7 +4,6 @@
 - rename SpritePingus => Sprite
 - testar climber, wall-mode-activation
 - testar previous action: Climber->Jumper->direction-change/Blocker->Faller->Blocker
-- public Pingu::current_action
 - SDL_DT p/ pingus/actions/sprites
 - remove pointers, use parent orgs for "me"
 

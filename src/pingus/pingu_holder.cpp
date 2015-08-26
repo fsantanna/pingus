@@ -27,6 +27,8 @@ PinguHolder::PinguHolder(const PingusLevel& plf) :
   all_pingus(),
   pingus()
 {
+  tceu__PinguHolder___int p = {this, number_of_allowed};
+  ceu_sys_go(&CEU_APP, CEU_IN_PINGUHOLDER_NEW, &p);
 }
 
 PinguHolder::~PinguHolder()
@@ -34,6 +36,9 @@ PinguHolder::~PinguHolder()
   for(std::vector<Pingu*>::iterator i = all_pingus.begin();
       i != all_pingus.end(); ++i)
     delete *i;
+
+  void* this_ = this;
+  ceu_sys_go(&CEU_APP, CEU_IN_PINGUHOLDER_DELETE, this_);
 }
 
 Pingu*
@@ -69,32 +74,6 @@ PinguHolder::draw (SceneContext& gc)
 void
 PinguHolder::update()
 {
-  PinguIter pingu = pingus.begin();
-
-  while(pingu != pingus.end())
-  {
-    // FIXME: The draw-loop is not the place for things like this,
-    // this belongs in the update loop
-    if ((*pingu)->get_status() == Pingu::PS_DEAD)
-    {
-      // Removing the dead pingu and setting the iterator back to
-      // the correct possition, no memory hole since pingus will
-      // keep track of the allocated Pingus
-      pingu = pingus.erase(pingu);
-    }
-    else if ((*pingu)->get_status() == Pingu::PS_EXITED)
-    {
-      number_of_exited += 1;
-      pingu = pingus.erase(pingu);
-    }
-    else
-    {
-      // move to the next Pingu
-      ++pingu;
-    }
-  }
-
-    ///
   ceu_sys_go(&CEU_APP, CEU_IN_PINGUHOLDER_UPDATE, NULL);
 }
 
@@ -127,30 +106,43 @@ PinguHolder::get_z_pos() const
 int
 PinguHolder::get_number_of_exited()
 {
+  tceu__PinguHolder___int_ p = {this, &number_of_exited};
+  ceu_sys_go(&CEU_APP, CEU_IN_PINGUHOLDER_GET_NUMBER_OF_EXITED, &p);
   return number_of_exited;
 }
 
 int
 PinguHolder::get_number_of_killed()
 {
-  return static_cast<int>(all_pingus.size()) - static_cast<int>(pingus.size()) - get_number_of_exited();
+  int number_of_killed;
+  tceu__PinguHolder___int_ p = {this, &number_of_killed};
+  ceu_sys_go(&CEU_APP, CEU_IN_PINGUHOLDER_GET_NUMBER_OF_KILLED, &p);
+  return number_of_killed;
 }
 
 int
 PinguHolder::get_number_of_alive()
 {
-  return static_cast<int>(pingus.size());
+  int number_of_alive;
+  tceu__PinguHolder___int_ p = {this, &number_of_alive};
+  ceu_sys_go(&CEU_APP, CEU_IN_PINGUHOLDER_GET_NUMBER_OF_ALIVE, &p);
+  return number_of_alive;
 }
 
 int
 PinguHolder::get_number_of_released()
 {
-  return static_cast<int>(all_pingus.size());
+  int number_of_released;
+  tceu__PinguHolder___int_ p = {this, &number_of_released};
+  ceu_sys_go(&CEU_APP, CEU_IN_PINGUHOLDER_GET_NUMBER_OF_RELEASED, &p);
+  return number_of_released;
 }
 
 int
 PinguHolder::get_number_of_allowed()
 {
+  tceu__PinguHolder___int_ p = {this, &number_of_allowed};
+  ceu_sys_go(&CEU_APP, CEU_IN_PINGUHOLDER_GET_NUMBER_OF_ALLOWED, &p);
   return number_of_allowed;
 }
 

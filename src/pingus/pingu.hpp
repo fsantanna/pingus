@@ -40,7 +40,7 @@ public:
 
       FIXME: different subvalues of PS_DEAD might be usefull (drowned,
       FIXME: splashed, smashed, etc.) */
-  enum PinguStatus { PS_ALIVE, PS_EXITED, PS_DEAD };
+  enum PinguStatus { PS_NONE, PS_ALIVE, PS_EXITED, PS_DEAD };
 
     ///
   ActionName::Enum current_action;

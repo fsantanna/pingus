@@ -7,8 +7,6 @@ native do
     ##include "../../src/pingus/gettext.h"
 end
 
-#include "../right_left_sprites_.ceu"
-
 native do
     enum { BRIDGER_WALKING, BRIDGER_BUILDING };
     enum { BRIDGER_MAX_BRICKS = 15 };

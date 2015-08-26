@@ -17,7 +17,8 @@ input (_Pingu&&, bool&&, _ActionName__Enum) PINGU_REQUEST_SET_ACTION;
 input (_Pingu&&, _ActionName__Enum)         PINGU_SET_ACTION;
 
 interface IPingu with
-    var _Pingu& me;
+    var IPinguHolder& holder;
+    var _Pingu&       me;
 end
 
 interface IPinguAction with
@@ -50,190 +51,200 @@ end
 
 native/pre do
     ##define ActionName__Enum ActionName::Enum
+    ##define Pingu__PinguStatus Pingu::PinguStatus
     ##define PinguAction_shared_ptr std::shared_ptr<PinguAction>
 end
-native @plain _Pingu, _ActionName__Enum;
+native @plain _Pingu, _ActionName__Enum, _Pingu__PinguStatus;
 
 class Pingu with
     interface IPingu;
 do
+    this.holder.number_of_released = this.holder.number_of_released + 1;
+    this.holder.number_of_alive    = this.holder.number_of_alive    + 1;
+    finalize with
+        this.holder.number_of_alive = this.holder.number_of_alive - 1;
+    end
+
     me.current_action = {ActionName::FALLER};
 
-    event _ActionName__Enum e_set_action;
-    par/or do
-        AWAIT_UNTIL_MYSELF(_Pingu,PINGU_DELETE);
-    with
-        loop do
-            await PINGUHOLDER_UPDATE;
+    var _Pingu__PinguStatus ret =
+    do
+        event _ActionName__Enum e_set_action;
+        par do
+            AWAIT_UNTIL_MYSELF(_Pingu,PINGU_DELETE);
+            escape {Pingu::PS_NONE};
+        with
+            loop do
+                await PINGUHOLDER_UPDATE;
 
-            // FIXME: Out of screen check is ugly
-            /* The Pingu has hit the edge of the screen, a good time to let
-               him die.
-             */
-            if me.rel_getpixel(0,-1) == {Groundtype::GP_OUTOFSCREEN} then
-                //Sound::PingusSound::play_sound("die");
-                me.status = {Pingu::PS_DEAD};
-// TODO: copied from walker.ceu
-                me.set_x(me.get_x() + (float)(me.direction));
-                escape (int){Pingu::PS_DEAD};
-            end
-
-            if me.rel_getpixel(0,-1) == {Groundtype::GP_WATER} or
-               me.rel_getpixel(0,-1) == {Groundtype::GP_LAVA}
-            then
-                emit e_set_action => {ActionName::DROWN};
-                break;  // no more checks, will die
-            end
-
-
-            // if it has hit the ground too quickly
-            if me.rel_getpixel(0,-1) != {Groundtype::GP_NOTHING} and
-                    me.get_velocity().y > _deadly_velocity
-            then
-                emit e_set_action => {ActionName::SPLASHED};
-                break;  // no more checks, will die
-            end
-        end
-        await FOREVER;
-    with
-        loop do
-            var _Pingu&& ptr;
-            var bool&&   ret_val;
-            var _ActionName__Enum new_action;
-            (ptr, ret_val, new_action) = await PINGU_REQUEST_SET_ACTION
-                                         until ptr == &&this.me;
-            *ret_val = false;
-
-            if me.status == {Pingu::PS_DEAD} then
-                _log_debug("Setting action to a dead pingu");
-                _assert(not "DEAD PINGU");
-            end
-
-            var int mode = {ActionName::ACTIVATION_MODE}[new_action];
-
-            if mode == {ActionType::INSTANT} then
-                if new_action == me.current_action then
-                    _log_debug("Pingu: Already have action");
-                    *ret_val = false;
-                else/if {ActionName::CHANGE_ALLOWED}
-                            [me.current_action][new_action]
-                then
-                    _log_debug("setting instant action");
-                    *ret_val = true;
-                    emit e_set_action => new_action;
-                else
-                    _log_debug("change from action %1% not allowed",
-                               me.current_action);
-                    *ret_val = false;
-                end
-            else/if mode == {ActionType::WALL_TRIGGERED} then
-                if me.wall_action == new_action then
-                    _log_debug("Not using wall action, we have already");
-                    *ret_val = false;
-                else
-                    _log_debug("Setting wall action");
-                    me.wall_action = new_action;
-                    *ret_val = true;
-                end
-            else/if mode == {ActionType::FALL_TRIGGERED} then
-                if me.fall_action == new_action then
-                    _log_debug("Not using fall action, we have already");
-                    *ret_val = false;
-                else
-                    _log_debug("Setting fall action");
-                    me.fall_action = new_action;
-                    *ret_val = true;
-                end
-            else/if mode == {ActionType::COUNTDOWN_TRIGGERED} then
-_assert(not "DEAD CODE???");
-#if 0
-                if me.countdown_action == new_action then
-                    _log_debug("Not using countdown action, we have already");
-                    *ret_val = false;
-                else
-                    _log_debug("Setting countdown action");
-                    // We set the action and start the countdown
-                    ///std::shared_ptr<PinguAction> act = 
-                    //me.create_action(new_action);
-                    me.action_time = -1;///me.act:activation_time();
-                    me.countdown_action = new_action;
-                    *ret_val = true;
-                end
-#endif
-            else
-                _log_debug("unknown action activation_mode");
-                *ret_val = false;
-                _assert(0);
-            end
-        end
-    with
-        loop do
-            par/or do
-                me.current_action = await e_set_action;
-            with
-                #define DO_PINGU_ACTION(T)                          \
-                do                                                  \
-                    var int a = do T with                           \
-                        this.pingu = &outer;                        \
-                        this.previous_action = me.current_action;   \
-                    end;                                            \
-                    escape (_ActionName__Enum)a;                    \
-                end
-                if me.current_action == {ActionName::NONE} then
-                    await FOREVER;
-                else/if me.current_action == {ActionName::DEAD} then
+                // FIXME: Out of screen check is ugly
+                /* The Pingu has hit the edge of the screen, a good time to let
+                   him die.
+                 */
+                if me.rel_getpixel(0,-1) == {Groundtype::GP_OUTOFSCREEN} then
+                    //Sound::PingusSound::play_sound("die");
                     me.status = {Pingu::PS_DEAD};
+    // TODO: copied from walker.ceu
+                    me.set_x(me.get_x() + (float)(me.direction));
                     escape {Pingu::PS_DEAD};
-                else/if me.current_action == {ActionName::BASHER} then
-                    me.current_action = DO_PINGU_ACTION(Basher);
-                else/if me.current_action == {ActionName::BLOCKER} then
-                    me.current_action = DO_PINGU_ACTION(Blocker);
-                else/if me.current_action == {ActionName::BOMBER} then
-                    me.current_action = DO_PINGU_ACTION(Bomber);
-                else/if me.current_action == {ActionName::BRIDGER} then
-                    me.current_action = DO_PINGU_ACTION(Bridger);
-                else/if me.current_action == {ActionName::DIGGER} then
-                    me.current_action = DO_PINGU_ACTION(Digger);
-                else/if me.current_action == {ActionName::DROWN} then
-                    me.current_action = DO_PINGU_ACTION(Drown);
-                else/if me.current_action == {ActionName::EXITER} then
-                    me.current_action = DO_PINGU_ACTION(Exiter);
-                    me.status = {Pingu::PS_EXITED};
-                    escape {Pingu::PS_EXITED};
-                else/if me.current_action == {ActionName::FALLER} then
-                    me.current_action = DO_PINGU_ACTION(Faller);
-                else/if me.current_action == {ActionName::FLOATER} then
-                    me.current_action = DO_PINGU_ACTION(Floater);
-                else/if me.current_action == {ActionName::JUMPER} then
-                    me.current_action = DO_PINGU_ACTION(Jumper);
-                else/if me.current_action == {ActionName::MINER} then
-                    me.current_action = DO_PINGU_ACTION(Miner);
-                else/if me.current_action == {ActionName::SPLASHED} then
-                    me.current_action = DO_PINGU_ACTION(Splashed);
-                else/if me.current_action == {ActionName::WAITER} then
-                    me.current_action = DO_PINGU_ACTION(Waiter);
-                else/if me.current_action == {ActionName::WALKER} then
-                    me.current_action = DO_PINGU_ACTION(Walker);
+                end
+
+                if me.rel_getpixel(0,-1) == {Groundtype::GP_WATER} or
+                   me.rel_getpixel(0,-1) == {Groundtype::GP_LAVA}
+                then
+                    emit e_set_action => {ActionName::DROWN};
+                    break;  // no more checks, will die
+                end
+
+
+                // if it has hit the ground too quickly
+                if me.rel_getpixel(0,-1) != {Groundtype::GP_NOTHING} and
+                        me.get_velocity().y > _deadly_velocity
+                then
+                    emit e_set_action => {ActionName::SPLASHED};
+                    break;  // no more checks, will die
+                end
+            end
+            await FOREVER;
+        with
+            loop do
+                var _Pingu&& ptr;
+                var bool&&   ret_val;
+                var _ActionName__Enum new_action;
+                (ptr, ret_val, new_action) = await PINGU_REQUEST_SET_ACTION
+                                             until ptr == &&this.me;
+                *ret_val = false;
+
+                if me.status == {Pingu::PS_DEAD} then
+                    _log_debug("Setting action to a dead pingu");
+                    _assert(not "DEAD PINGU");
+                end
+
+                var int mode = {ActionName::ACTIVATION_MODE}[new_action];
+
+                if mode == {ActionType::INSTANT} then
+                    if new_action == me.current_action then
+                        _log_debug("Pingu: Already have action");
+                        *ret_val = false;
+                    else/if {ActionName::CHANGE_ALLOWED}
+                                [me.current_action][new_action]
+                    then
+                        _log_debug("setting instant action");
+                        *ret_val = true;
+                        emit e_set_action => new_action;
+                    else
+                        _log_debug("change from action %1% not allowed",
+                                   me.current_action);
+                        *ret_val = false;
+                    end
+                else/if mode == {ActionType::WALL_TRIGGERED} then
+                    if me.wall_action == new_action then
+                        _log_debug("Not using wall action, we have already");
+                        *ret_val = false;
+                    else
+                        _log_debug("Setting wall action");
+                        me.wall_action = new_action;
+                        *ret_val = true;
+                    end
+                else/if mode == {ActionType::FALL_TRIGGERED} then
+                    if me.fall_action == new_action then
+                        _log_debug("Not using fall action, we have already");
+                        *ret_val = false;
+                    else
+                        _log_debug("Setting fall action");
+                        me.fall_action = new_action;
+                        *ret_val = true;
+                    end
+                else/if mode == {ActionType::COUNTDOWN_TRIGGERED} then
+    _assert(not "DEAD CODE???");
+    #if 0
+                    if me.countdown_action == new_action then
+                        _log_debug("Not using countdown action, we have already");
+                        *ret_val = false;
+                    else
+                        _log_debug("Setting countdown action");
+                        // We set the action and start the countdown
+                        ///std::shared_ptr<PinguAction> act = 
+                        //me.create_action(new_action);
+                        me.action_time = -1;///me.act:activation_time();
+                        me.countdown_action = new_action;
+                        *ret_val = true;
+                    end
+    #endif
                 else
+                    _log_debug("unknown action activation_mode");
+                    *ret_val = false;
+                    _assert(0);
+                end
+            end
+        with
+            loop do
+                par/or do
+                    me.current_action = await e_set_action;
+                with
+                    #define DO_PINGU_ACTION(T)                          \
+                    do                                                  \
+                        var int a = do T with                           \
+                            this.pingu = &outer;                        \
+                            this.previous_action = me.current_action;   \
+                        end;                                            \
+                        escape (_ActionName__Enum)a;                    \
+                    end
+                    if me.current_action == {ActionName::NONE} then
+                        await FOREVER;
+                    else/if me.current_action == {ActionName::DEAD} then
+                        me.status = {Pingu::PS_DEAD};
+                        escape {Pingu::PS_DEAD};
+                    else/if me.current_action == {ActionName::BASHER} then
+                        me.current_action = DO_PINGU_ACTION(Basher);
+                    else/if me.current_action == {ActionName::BLOCKER} then
+                        me.current_action = DO_PINGU_ACTION(Blocker);
+                    else/if me.current_action == {ActionName::BOMBER} then
+                        me.current_action = DO_PINGU_ACTION(Bomber);
+                    else/if me.current_action == {ActionName::BRIDGER} then
+                        me.current_action = DO_PINGU_ACTION(Bridger);
+                    else/if me.current_action == {ActionName::DIGGER} then
+                        me.current_action = DO_PINGU_ACTION(Digger);
+                    else/if me.current_action == {ActionName::DROWN} then
+                        me.current_action = DO_PINGU_ACTION(Drown);
+                    else/if me.current_action == {ActionName::EXITER} then
+                        me.current_action = DO_PINGU_ACTION(Exiter);
+                        me.status = {Pingu::PS_EXITED};
+                        escape {Pingu::PS_EXITED};
+                    else/if me.current_action == {ActionName::FALLER} then
+                        me.current_action = DO_PINGU_ACTION(Faller);
+                    else/if me.current_action == {ActionName::FLOATER} then
+                        me.current_action = DO_PINGU_ACTION(Floater);
+                    else/if me.current_action == {ActionName::JUMPER} then
+                        me.current_action = DO_PINGU_ACTION(Jumper);
+                    else/if me.current_action == {ActionName::MINER} then
+                        me.current_action = DO_PINGU_ACTION(Miner);
+                    else/if me.current_action == {ActionName::SPLASHED} then
+                        me.current_action = DO_PINGU_ACTION(Splashed);
+                    else/if me.current_action == {ActionName::WAITER} then
+                        me.current_action = DO_PINGU_ACTION(Waiter);
+                    else/if me.current_action == {ActionName::WALKER} then
+                        me.current_action = DO_PINGU_ACTION(Walker);
+                    else
 _printf("ACTION_NAME = %d\n", me.current_action);
-                    _assert({!"Invalid action name provied"});
-                    await FOREVER;
+                        _assert({!"Invalid action name provied"});
+                        await FOREVER;
+                    end
                 end
             end
         end
-    end
-    escape (int){Pingu::PS_DEAD};
-end
+    end;
 
-class PinguFactory with
-do
-    every me_ in PINGU_NEW do
-        spawn Pingu with
-            this.me = &_XXX_PTR2REF(me_);
-        end;
+    if ret == {Pingu::PS_DEAD} then
+        this.holder.number_of_killed = this.holder.number_of_killed + 1;
+    else/if ret == {Pingu::PS_EXITED} then
+        this.holder.number_of_exited = this.holder.number_of_exited + 1;
+    else
+        _assert(ret == {Pingu::PS_NONE});
     end
+    _assert(this.holder.number_of_released == this.holder.number_of_alive-1 +
+                                              this.holder.number_of_killed  +
+                                              this.holder.number_of_exited);
 end
-
-var PinguFactory _;
 
 #endif

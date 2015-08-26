@@ -8,12 +8,14 @@ end
 native do
     ##include <assert.h>
 
+    ##include "external/logmich/include/logmich/log.hpp"
+    ##include "pingus/resource.hpp"
+
     ##define XXX_PURE(x) x
     ##define XXX_NOHOLD(x) x
     ##define XXX_PTR2REF(x) x
     ##define THIS(tp) ((tp*)_STK_ORG)
     ##define THIS_F(tp) ((tp*)__ceu_org)
-    ##define ME(tp)   (THIS(tp)->me)        /// TODO: remove
 
     ##define std__string std::string
     ##define Resource__load_sprite_desc(name) Resource::load_sprite_desc(name)
@@ -27,30 +29,13 @@ native @pure   _XXX_PURE(), _XXX_PTR2REF();
 native @nohold _XXX_NOHOLD();
 native @nohold _delete();
 
-#if 0
-#define XXX_NO_FIN(var,val) \
-    finalize                \
-        var = val;          \
-    with                    \
-        nothing;            \
-    end
-#endif
-
 #define AWAIT_UNTIL_MYSELF(TP,EVT)             \
     do                                         \
         var TP&& ptr = await EVT               \
                        until ptr == &&this.me; \
     end
 
-#include "engine/display/sprite_impl.ceu"
-
-interface Global with
-    pool SpriteImpl[] xxx_impls;
-end
-pool SpriteImpl[] xxx_impls;
-
-#include "engine/display/sprite.ceu"
-#include "pingus/pingu.ceu"
+#include "pingus/pingu_holder.ceu"
 
 input int SDL_DT;
 
