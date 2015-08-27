@@ -14,6 +14,9 @@
 //  You should have received a copy of the GNU General Public License
 //  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+///
+#include "engine/display/scene_context.hpp"
+
 #include "pingus/pingu_holder.hpp"
 
 #include "pingus/pingu.hpp"
@@ -64,11 +67,42 @@ PinguHolder::create_pingu (const Vector3f& pos, int owner_id)
   }
 }
 
+/// TODO: move to proper place!
+#include "engine/display/sdl_framebuffer_surface_impl.hpp"
+FramebufferSurface* load_framebuffer_sdl_surface(const Pathname& filename, 
+ResourceModifier::Enum modifier)
+{
+  // FIXME: Implement proper cache
+  try
+  {
+    Surface surface(filename);
+    if (modifier != ResourceModifier::ROT0)
+    {
+      surface = surface.mod(modifier);
+    }
+    return new FramebufferSurface(new SDLFramebufferSurfaceImpl(surface.get_surface()));
+  }
+  catch(const std::exception& err)
+  {
+    // return a dummy surface for cases where the image file can't be found
+    log_error("%1%", err.what());
+    Surface surface(Pathname("images/core/misc/404.png", Pathname::DATA_PATH));
+    return new FramebufferSurface(new SDLFramebufferSurfaceImpl(surface.get_surface()));
+  }
+}
+
+
 void
 PinguHolder::draw (SceneContext& gc)
 {
-  SceneContext* gc_ = &gc;
-  ceu_sys_go(&CEU_APP, CEU_IN_PINGUHOLDER_DRAW, &gc_);
+  gc.color().draw(*this, Vector2i(0,0));
+}
+
+void
+PinguHolder::render(int x, int y, Framebuffer& fb)
+{
+  tceu__int__int__Framebuffer_ p = {x,y,&fb};
+  ceu_sys_go(&CEU_APP, CEU_IN_PINGUHOLDER_RENDER, &p);
 }
 
 void

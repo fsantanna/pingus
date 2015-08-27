@@ -2,10 +2,29 @@
 #define _SPRITE_PINGUS_CEU
 
 native/pre do
-    ##include "../src/engine/display/sprite_ceu.hpp"
+    ##include "engine/display/display.hpp"
+    ##include "engine/display/framebuffer.hpp"
+    ##include "engine/display/sprite_description.hpp"
     ##define loop_ loop
+    extern FramebufferSurface* load_framebuffer_sdl_surface(const Pathname& filename, ResourceModifier::Enum modifier);
 end
 native @plain _SpriteCeu;
+native @plain _FramebufferSurface;
+
+data Position with
+    var float x;
+    var float y;
+end
+
+data Size with
+    var int width;
+    var int height;
+end
+
+data Vector2i with
+    var int x;
+    var int y;
+end
 
 class SpritePingu with
     function (void)=>int get_current_frame;
@@ -14,46 +33,73 @@ class SpritePingu with
     var float& x;
     var float& y;
 
-    // constructor
-    var _Surface&&              surface  = null;
-    var _SpriteDescription&&    spr_desc = null;
-    var _ResourceModifier__Enum spr_mod = {ResourceModifier::ROT0};
-    var char&&                  name     = null;
-do
-    var _SpriteCeu&? me_;
-    var _SpriteCeu&  me;
+    var Vector2i offset;
+    var Vector2i frame_pos;
+    var Size     frame_size;
+    var int      frame_delay;
+    var Size     array;
+    var bool     is_loop;
+    var int      frame;
 
     // constructor
+    var _Surface&&              surface = null;
+    var _SpriteDescription&&    desc    = null;
+    var _ResourceModifier__Enum mod     = {ResourceModifier::ROT0};
+    var char&&                  name    = null;
+do
+    var _FramebufferSurface&? framebuffer_surface;
     do
         if surface != null then
+            _assert(not "not tested, so yielding error");
             finalize
-                me_ = &({new SpriteCeu}(*surface));
+                framebuffer_surface =
+                    &{new FramebufferSurface}(
+                        {Display::get_framebuffer()->create_surface}(*surface)
+                            .get_impl());
             with
-                //_delete(&&me_!);
-                nothing;    // handled in sprite.ceu/Sprite.cpp with shared_ptr
+                //_delete(&&framebuffer_surface!);
             end
         else
             if name != null then
-                spr_desc = _Resource__load_sprite_desc(name);
+                desc = _Resource__load_sprite_desc(name);
             end
-            _assert(spr_desc != null);
+            _assert(desc != null);
             finalize
-                me_ = &({new SpriteCeu}(
-                        *spr_desc,
-                        (_ResourceModifier__Enum) spr_mod));
+                framebuffer_surface =
+                    &_load_framebuffer_sdl_surface(desc:filename, mod);
             with
-                //_delete(&&me_!);
-                nothing;    // handled in sprite.ceu/Sprite.cpp with shared_ptr
+                //_delete(&&framebuffer_surface!);
             end
+
+            this.frame_pos   = Vector2i(desc:frame_pos.x, desc:frame_pos.y);
+            this.array       = Size(desc:array.width, desc:array.height);
+            this.frame_delay = desc:speed;
+            this.is_loop     = desc:loop_;
+
+            if desc:frame_size.width  == -1 then
+                this.frame_size.width  = framebuffer_surface!.get_width()/array.width;
+                this.frame_size.height = framebuffer_surface!.get_height()/array.height;
+            else
+                this.frame_size.width  = desc:frame_size.width;
+                this.frame_size.height = desc:frame_size.height;
+            end
+
+            {
+                Vector2i vec = calc_origin(THIS(CEU_SpritePingu)->desc->origin,
+                                           Size(THIS(CEU_SpritePingu)->frame_size.width,
+                                                THIS(CEU_SpritePingu)->frame_size.height))
+                                - THIS(CEU_SpritePingu)->desc->offset;
+            };
+            this.offset = Vector2i(_vec.x, _vec.y);
         end
-        me = &me_!;
     end
 
-    var int total_time = me.frame_delay * (me.array.width * me.array.height);
+    var int total_time = this.frame_delay *
+                         (this.array.width * this.array.height);
 
-    me.frame = 0;
+    this.frame = 0;
 
-    if me.frame_delay == 0 then
+    if this.frame_delay == 0 then
         await FOREVER;
     end
 
@@ -68,35 +114,40 @@ do
                 tick_count = tick_count + (int)(dt * 1000);
 
                 if tick_count >= total_time then
-                    if me.loop_ then
+                    if this.is_loop then
                         tick_count = tick_count % total_time;
-                        me.frame = tick_count / me.frame_delay;
+                        this.frame = tick_count / this.frame_delay;
                     end
                     break;
                 else
-                    me.frame = tick_count / me.frame_delay;
+                    this.frame = tick_count / this.frame_delay;
                 end
 
             end
-            if not me.loop_ then
+            if not this.is_loop then
                 escape 0;
             end
         end
     with
-        /* DRAW */
-        every gc in PINGUHOLDER_DRAW do
-            _GC_COLOR_DRAW(gc, this.me, _Vector3f(x,y,0));
+        /* RENDER */
+        every (x0,y0,fb) in PINGUHOLDER_RENDER do
+            fb:draw_surface(framebuffer_surface!,
+                _Rect(_Vector2i(this.frame_pos.x,this.frame_pos.y) +
+                           _Vector2i(this.frame_size.width  * (this.frame%this.array.width),
+                                     this.frame_size.height * (this.frame/this.array.width)),
+                       _Size(this.frame_size.width,this.frame_size.height)),
+                _Vector2i(x+x0-this.offset.x, y+y0-this.offset.y));
         end
     end
 
     /* PUBLIC */
 
     function (void)=>int get_frame_count do
-        return me.array.width * me.array.height;
+        return this.array.width * this.array.height;
     end
 
     function (void)=>int get_current_frame do
-        return me.frame;
+        return this.frame;
     end
 end
 

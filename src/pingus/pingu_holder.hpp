@@ -57,6 +57,9 @@ public:
   */
   void draw (SceneContext& gc);
 
+  ///
+  void render(int x, int y, Framebuffer& fb);
+
   /** Update all Pingus (this calls Pingu::update() which then calls
       PinguAction::update()) */
   void update();

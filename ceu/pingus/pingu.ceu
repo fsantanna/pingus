@@ -10,9 +10,6 @@ native @nohold _GC_COLOR_DRAW();
 input (_Pingu&&) PINGU_NEW;
 input (_Pingu&&) PINGU_DELETE;
 
-input void            PINGUHOLDER_UPDATE;
-input _SceneContext&& PINGUHOLDER_DRAW;
-
 input (_Pingu&&, bool&&, _ActionName__Enum) PINGU_REQUEST_SET_ACTION;
 input (_Pingu&&, _ActionName__Enum)         PINGU_SET_ACTION;
 

@@ -9,6 +9,9 @@ native @plain _PinguHolder;
 input (_PinguHolder&&, int) PINGUHOLDER_NEW;
 input (_PinguHolder&&)      PINGUHOLDER_DELETE;
 
+input void                     PINGUHOLDER_UPDATE;
+input (int,int,_Framebuffer&&) PINGUHOLDER_RENDER;
+
 input (_PinguHolder&&, int&&) PINGUHOLDER_GET_NUMBER_OF_EXITED;
 input (_PinguHolder&&, int&&) PINGUHOLDER_GET_NUMBER_OF_KILLED;
 input (_PinguHolder&&, int&&) PINGUHOLDER_GET_NUMBER_OF_ALIVE;
