@@ -26,7 +26,6 @@ class Framebuffer;
 class SpriteCeu
 {
 private:
-  friend class Sprite;
   Pathname filename;
   FramebufferSurface framebuffer_surface;
   Vector2i offset;
