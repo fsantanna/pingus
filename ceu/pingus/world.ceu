@@ -1,0 +1,56 @@
+#ifndef _WORLD_CEU
+#define _WORLD_CEU
+
+native do
+    ##include "src/pingus/world.hpp"
+end
+native @plain _World;
+
+input (_World&&) WORLD_NEW;
+input (_World&&) WORLD_DELETE;
+
+input int  WORLD_UPDATE;
+input void WORLD_ARMAGEDDON;
+
+class World with
+    var _World& me;
+do
+    par/or do
+        AWAIT_UNTIL_MYSELF(_World, WORLD_DELETE);
+    with
+        me.do_armageddon = false;
+        await WORLD_ARMAGEDDON;
+        me.do_armageddon = true;
+
+        {Sound::PingusSound::play_sound("goodidea");};
+
+        loop do
+            loop i in 4 do
+                await WORLD_UPDATE;
+            end
+
+            var IPingu&&? pingu;
+            loop p in global:pingu_holder!:pingus do
+                if p:me.current_action != {ActionName::BOMBER} then
+                    pingu = p;
+                    break;
+                end
+            end
+            if pingu? then
+                emit pingu!:go_action => {ActionName::BOMBER};
+            end
+        end
+    end
+end
+
+class WorldFactory with
+do
+    every me_ in WORLD_NEW do
+        spawn World with
+            this.me = &_XXX_PTR2REF(me_);
+        end;
+    end
+end
+var WorldFactory _;
+
+#endif

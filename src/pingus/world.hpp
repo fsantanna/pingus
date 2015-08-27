@@ -60,10 +60,6 @@ private:
   /** set to true once an armageddon got started */
   bool do_armageddon;
 
-  /** FIXME: ugly hack to iterate over all pingus and make bombers out
-      of them, should use pingus_id instead */
-  unsigned int armageddon_count;
-
   std::vector<WorldObj*> world_obj;
   typedef std::vector<WorldObj*>::iterator WorldObjIter;
 

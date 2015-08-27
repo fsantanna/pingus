@@ -1,3 +1,5 @@
+- pingu! = <...>
+- world! = <...>
 - countdown action disable from the original??
 - walker behind all
 - bridger offset

@@ -18,18 +18,11 @@ input (_PinguHolder&&, int&&) PINGUHOLDER_GET_NUMBER_OF_ALIVE;
 input (_PinguHolder&&, int&&) PINGUHOLDER_GET_NUMBER_OF_RELEASED;
 input (_PinguHolder&&, int&&) PINGUHOLDER_GET_NUMBER_OF_ALLOWED;
 
-interface IPinguHolder with
-    var int number_of_exited;
-    var int number_of_killed;
-    var int number_of_alive;
-    var int number_of_released;
-    var int number_of_allowed;
-end
-
 #include "pingu.ceu"
 
 class PinguHolder with
-    interface IPinguHolder;
+    interface IPinguHolderVars;
+    interface IPinguHolderPool;
     var int number_of_exited   = 0;
     var int number_of_killed   = 0;
     var int number_of_alive    = 0;
@@ -38,6 +31,8 @@ class PinguHolder with
 
     var _PinguHolder& me;
 do
+    global:pingu_holder = &&this;
+
     par/or do
         AWAIT_UNTIL_MYSELF(_PinguHolder,PINGUHOLDER_DELETE);
     with
@@ -73,7 +68,7 @@ do
     with
         every me_ in PINGU_NEW do
             if this.number_of_released < this.number_of_allowed then
-                spawn Pingu with
+                spawn Pingu in this.pingus with
                     this.holder = &outer;
                     this.me     = &_XXX_PTR2REF(me_);
                 end;

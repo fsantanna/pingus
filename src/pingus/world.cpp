@@ -33,6 +33,8 @@
 #include "pingus/worldobjs/entrance.hpp"
 #include "util/log.hpp"
 
+#include "ceu_vars.h"
+
 static
 bool WorldObj_less (WorldObj* a, WorldObj* b)
 {
@@ -44,7 +46,6 @@ World::World(const PingusLevel& plf) :
   gfx_map(new GroundMap(plf.get_size().width, plf.get_size().height)),
   game_time(0),
   do_armageddon(false),
-  armageddon_count(0),
   world_obj(),
   pingu_particle_holder(),
   rain_particle_holder(),
@@ -72,6 +73,9 @@ World::World(const PingusLevel& plf) :
   world_obj.push_back(snow_particle_holder);
 
   init_worldobjs(plf);
+
+  void* this_ = this;
+  ceu_sys_go(&CEU_APP, CEU_IN_WORLD_NEW, &this_);
 }
 
 void
@@ -116,6 +120,9 @@ World::~World()
   for (WorldObjIter it = world_obj.begin(); it != world_obj.end(); ++it) {
     delete *it;
   }
+
+  void* this_ = this;
+  ceu_sys_go(&CEU_APP, CEU_IN_WORLD_DELETE, &this_);
 }
 
 void
@@ -149,28 +156,7 @@ World::update()
 
   game_time += 1;
 
-  if (do_armageddon)
-  {
-    if (game_time % 4 == 0)
-    {
-      while (armageddon_count < pingus->get_end_id())
-      {
-        Pingu* pingu = pingus->get_pingu(armageddon_count);
-
-        if (pingu && pingu->get_status() == Pingu::PS_ALIVE)
-        {
-          pingu->request_set_action(ActionName::BOMBER);
-          break;
-        }
-        else
-        {
-          ++armageddon_count;
-        }
-      }
-
-      ++armageddon_count;
-    }
-  }
+  ceu_sys_go(&CEU_APP, CEU_IN_WORLD_UPDATE, &game_time);
 
   // Let all pingus move and
   // Let the pingus catch each other and
@@ -213,9 +199,7 @@ World::get_time()
 void
 World::armageddon(void)
 {
-  Sound::PingusSound::play_sound("goodidea");
-  do_armageddon = true;
-  armageddon_count = 0;
+  ceu_sys_go(&CEU_APP, CEU_IN_WORLD_ARMAGEDDON, NULL);
 }
 
 CollisionMap*
