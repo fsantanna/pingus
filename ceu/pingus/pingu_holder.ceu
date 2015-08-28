@@ -9,11 +9,13 @@ native @plain _PinguHolder;
 input void                     PINGUHOLDER_UPDATE;
 input (int,int,_Framebuffer&&) PINGUHOLDER_RENDER;
 
-input (_PinguHolder&&, int&&) PINGUHOLDER_GET_NUMBER_OF_EXITED;
-input (_PinguHolder&&, int&&) PINGUHOLDER_GET_NUMBER_OF_KILLED;
-input (_PinguHolder&&, int&&) PINGUHOLDER_GET_NUMBER_OF_ALIVE;
-input (_PinguHolder&&, int&&) PINGUHOLDER_GET_NUMBER_OF_RELEASED;
-input (_PinguHolder&&, int&&) PINGUHOLDER_GET_NUMBER_OF_ALLOWED;
+input (_Pingu&&,_Vector3f&&,int) PINGUHOLDER_CREATE_PINGU;
+
+input int&& PINGUHOLDER_GET_NUMBER_OF_EXITED;
+input int&& PINGUHOLDER_GET_NUMBER_OF_KILLED;
+input int&& PINGUHOLDER_GET_NUMBER_OF_ALIVE;
+input int&& PINGUHOLDER_GET_NUMBER_OF_RELEASED;
+input int&& PINGUHOLDER_GET_NUMBER_OF_ALLOWED;
 
 #include "pingu.ceu"
 
@@ -29,37 +31,27 @@ class PinguHolder with
     var _PinguHolder& me;
 do
     par/or do
-        every (me_,ret) in PINGUHOLDER_GET_NUMBER_OF_EXITED do
-            if me_ == &&this.me then
-                *ret = this.number_of_exited;
-            end
+        every ret in PINGUHOLDER_GET_NUMBER_OF_EXITED do
+            *ret = this.number_of_exited;
         end
     with
-        every (me_,ret) in PINGUHOLDER_GET_NUMBER_OF_KILLED do
-            if me_ == &&this.me then
-                *ret = this.number_of_killed;
-            end
+        every ret in PINGUHOLDER_GET_NUMBER_OF_KILLED do
+            *ret = this.number_of_killed;
         end
     with
-        every (me_,ret) in PINGUHOLDER_GET_NUMBER_OF_ALIVE do
-            if me_ == &&this.me then
-                *ret = this.number_of_alive;
-            end
+        every ret in PINGUHOLDER_GET_NUMBER_OF_ALIVE do
+            *ret = this.number_of_alive;
         end
     with
-        every (me_,ret) in PINGUHOLDER_GET_NUMBER_OF_RELEASED do
-            if me_ == &&this.me then
-                *ret = this.number_of_released;
-            end
+        every ret in PINGUHOLDER_GET_NUMBER_OF_RELEASED do
+            *ret = this.number_of_released;
         end
     with
-        every (me_,ret) in PINGUHOLDER_GET_NUMBER_OF_ALLOWED do
-            if me_ == &&this.me then
-                *ret = this.number_of_allowed;
-            end
+        every ret in PINGUHOLDER_GET_NUMBER_OF_ALLOWED do
+            *ret = this.number_of_allowed;
         end
     with
-        every me_ in PINGU_NEW do
+        every (me_,pos,id) in PINGUHOLDER_CREATE_PINGU do
             if this.number_of_released < this.number_of_allowed then
                 spawn Pingu in this.pingus with
                     this.holder = &outer;

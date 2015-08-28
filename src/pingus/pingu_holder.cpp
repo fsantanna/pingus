@@ -54,6 +54,9 @@ PinguHolder::create_pingu (const Vector3f& pos, int owner_id)
     // This list holds the active pingus
     pingus.push_back(pingu);
 
+    tceu__Pingu___Vector3f___int p = { pingu, (Vector3f*)&pos, owner_id };
+    ceu_sys_go(&CEU_APP, CEU_IN_PINGUHOLDER_CREATE_PINGU, &p);
+
     return pingu;
   }
   else
@@ -135,7 +138,7 @@ PinguHolder::get_z_pos() const
 int
 PinguHolder::get_number_of_exited()
 {
-  tceu__PinguHolder___int_ p = {this, &number_of_exited};
+  int* p = &number_of_exited;
   ceu_sys_go(&CEU_APP, CEU_IN_PINGUHOLDER_GET_NUMBER_OF_EXITED, &p);
   return number_of_exited;
 }
@@ -144,7 +147,7 @@ int
 PinguHolder::get_number_of_killed()
 {
   int number_of_killed;
-  tceu__PinguHolder___int_ p = {this, &number_of_killed};
+  int* p = &number_of_killed;
   ceu_sys_go(&CEU_APP, CEU_IN_PINGUHOLDER_GET_NUMBER_OF_KILLED, &p);
   return number_of_killed;
 }
@@ -153,7 +156,7 @@ int
 PinguHolder::get_number_of_alive()
 {
   int number_of_alive;
-  tceu__PinguHolder___int_ p = {this, &number_of_alive};
+  int* p = &number_of_alive;
   ceu_sys_go(&CEU_APP, CEU_IN_PINGUHOLDER_GET_NUMBER_OF_ALIVE, &p);
   return number_of_alive;
 }
@@ -162,7 +165,7 @@ int
 PinguHolder::get_number_of_released()
 {
   int number_of_released;
-  tceu__PinguHolder___int_ p = {this, &number_of_released};
+  int* p = &number_of_released;
   ceu_sys_go(&CEU_APP, CEU_IN_PINGUHOLDER_GET_NUMBER_OF_RELEASED, &p);
   return number_of_released;
 }
@@ -170,7 +173,7 @@ PinguHolder::get_number_of_released()
 int
 PinguHolder::get_number_of_allowed()
 {
-  tceu__PinguHolder___int_ p = {this, &number_of_allowed};
+  int* p = &number_of_allowed;
   ceu_sys_go(&CEU_APP, CEU_IN_PINGUHOLDER_GET_NUMBER_OF_ALLOWED, &p);
   return number_of_allowed;
 }

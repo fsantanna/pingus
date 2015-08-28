@@ -53,15 +53,10 @@ Pingu::Pingu (int arg_id, const Vector3f& arg_pos, int owner) :
   direction()
 {
   direction.left ();
-
-  void* this_ = this;
-  ceu_sys_go(&CEU_APP, CEU_IN_PINGU_NEW, &this_);
 }
 
 Pingu::~Pingu ()
 {
-  void* this_ = this;
-  ceu_sys_go(&CEU_APP, CEU_IN_PINGU_DELETE, &this_);
 }
 
 unsigned int

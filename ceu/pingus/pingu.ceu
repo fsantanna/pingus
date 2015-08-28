@@ -7,9 +7,6 @@ native do
 end
 native @nohold _GC_COLOR_DRAW();
 
-input (_Pingu&&) PINGU_NEW;
-input (_Pingu&&) PINGU_DELETE;
-
 input (_Pingu&&, bool&&, _ActionName__Enum) PINGU_REQUEST_SET_ACTION;
 input (_Pingu&&, _ActionName__Enum)         PINGU_SET_ACTION;
 
@@ -58,9 +55,6 @@ do
     do
         event _ActionName__Enum e_set_action;
         par do
-            AWAIT_UNTIL_MYSELF(_Pingu,PINGU_DELETE);
-            escape {Pingu::PS_NONE};
-        with
             loop do
                 await PINGUHOLDER_UPDATE;
 
