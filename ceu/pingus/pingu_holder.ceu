@@ -6,7 +6,6 @@ native do
 end
 native @plain _PinguHolder;
 
-input void                     PINGUHOLDER_UPDATE;
 input (int,int,_Framebuffer&&) PINGUHOLDER_RENDER;
 
 input (_Pingu&&,_Vector3f&&,int) PINGUHOLDER_CREATE_PINGU;

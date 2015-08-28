@@ -18,7 +18,7 @@ do
         this.right = &right;
     end;
 
-    await PINGUHOLDER_UPDATE;
+    await WORLD_UPDATE;
 
     // if climber, do a wall-jump, else just jump forward
     if this.previous_action == {ActionName::CLIMBER} then

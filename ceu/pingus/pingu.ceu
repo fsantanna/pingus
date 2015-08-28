@@ -56,7 +56,7 @@ do
         event _ActionName__Enum e_set_action;
         par do
             loop do
-                await PINGUHOLDER_UPDATE;
+                await WORLD_UPDATE;
 
                 // FIXME: Out of screen check is ugly
                 /* The Pingu has hit the edge of the screen, a good time to let

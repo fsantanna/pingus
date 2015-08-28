@@ -40,9 +40,7 @@ private:
       each time they are requested. */
   int number_of_exited;
 
-  /** This vector holds all pingus which are ever allocated in the
-      world, its used to free them all on the end of this class. */
-  std::vector<Pingu*> all_pingus;
+  int XXX_n;
 
   /** A list holding all Pingus, the PinguHolder itself has only the
       active (not dead) ones */
@@ -96,13 +94,6 @@ public:
       Pingu. Might return 0 if all available pingus are already
       released */
   Pingu* create_pingu(const Vector3f& pos, int owner_id);
-
-  /** Get a pingu by id, references to dead or exited Pingus are not
-      returned, but 0 instead
-
-      @return the pingu with the id, or 0 if none found or pingu is
-      dead or exited */
-  Pingu* get_pingu(unsigned int id);
 
   /** @return the id of the last pingu + 1 */
   unsigned int get_end_id();

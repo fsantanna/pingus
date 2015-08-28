@@ -36,6 +36,7 @@ native @nohold _delete();
     end
 
 input int SDL_DT;
+input int  WORLD_UPDATE;
 
 interface IPinguHolder with
     var int number_of_exited;

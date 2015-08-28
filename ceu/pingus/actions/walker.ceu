@@ -23,7 +23,7 @@ do
 
     /* UPDATE */
     par do
-        await PINGUHOLDER_UPDATE
+        await WORLD_UPDATE
         until (this.pingu.me.fall_action == {ActionName::FLOATER});
         do
             var char[] left2  = [] .. "other/floaterlayer/left";
@@ -37,7 +37,7 @@ do
         end
     with
         loop do
-            await PINGUHOLDER_UPDATE;
+            await WORLD_UPDATE;
 
             // XXX_CPP
             {

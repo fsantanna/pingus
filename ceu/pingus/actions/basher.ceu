@@ -46,9 +46,9 @@ do
     /* UPDATE */
     var bool is_first_bash = true;
     loop i do
-        await PINGUHOLDER_UPDATE;
-        await PINGUHOLDER_UPDATE;
-        await PINGUHOLDER_UPDATE;
+        await WORLD_UPDATE;
+        await WORLD_UPDATE;
+        await WORLD_UPDATE;
 
         if not this.walk_forward() then
             escape {ActionName::FALLER};

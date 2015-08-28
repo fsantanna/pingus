@@ -109,7 +109,7 @@ do
         /* UPDATE */
         loop do
             loop do
-                await PINGUHOLDER_UPDATE;
+                await WORLD_UPDATE;
                 var float dt = 0.033;   // TODO
                 tick_count = tick_count + (int)(dt * 1000);
 

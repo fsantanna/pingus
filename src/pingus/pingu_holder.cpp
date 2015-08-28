@@ -27,16 +27,13 @@
 PinguHolder::PinguHolder(const PingusLevel& plf) :
   number_of_allowed(plf.get_number_of_pingus()),
   number_of_exited(0),
-  all_pingus(),
+  XXX_n(0),
   pingus()
 {
 }
 
 PinguHolder::~PinguHolder()
 {
-  for(std::vector<Pingu*>::iterator i = all_pingus.begin();
-      i != all_pingus.end(); ++i)
-    delete *i;
 }
 
 Pingu*
@@ -44,12 +41,7 @@ PinguHolder::create_pingu (const Vector3f& pos, int owner_id)
 {
   if (number_of_allowed > get_number_of_released())
   {
-    // We use all_pingus.size() as pingu_id, so that id == array
-    // index
-    Pingu* pingu = new Pingu (static_cast<int>(all_pingus.size()), pos, owner_id);
-
-    // This list will deleted
-    all_pingus.push_back (pingu);
+    Pingu* pingu = new Pingu (XXX_n++, pos, owner_id);
 
     // This list holds the active pingus
     pingus.push_back(pingu);
@@ -106,27 +98,6 @@ PinguHolder::render(int x, int y, Framebuffer& fb)
 void
 PinguHolder::update()
 {
-  ceu_sys_go(&CEU_APP, CEU_IN_PINGUHOLDER_UPDATE, NULL);
-}
-
-Pingu*
-PinguHolder::get_pingu(unsigned int id_)
-{
-  if (id_ < all_pingus.size())
-  {
-    Pingu* pingu = all_pingus[id_];
-
-    assert(pingu->get_id() == id_);
-
-    if (pingu->get_status() == Pingu::PS_ALIVE)
-      return pingu;
-    else
-      return 0;
-  }
-  else
-  {
-    return 0;
-  }
 }
 
 float
@@ -176,12 +147,6 @@ PinguHolder::get_number_of_allowed()
   int* p = &number_of_allowed;
   ceu_sys_go(&CEU_APP, CEU_IN_PINGUHOLDER_GET_NUMBER_OF_ALLOWED, &p);
   return number_of_allowed;
-}
-
-unsigned int
-PinguHolder::get_end_id()
-{
-  return static_cast<unsigned int>(all_pingus.size());
 }
 
 /* EOF */

@@ -13,7 +13,7 @@ do
     par do
         var float countdown = 2.0;
         loop do
-            await PINGUHOLDER_UPDATE;
+            await WORLD_UPDATE;
 
             // FIXME: This should be triggered at a later point, when close to
             // FIXME: deadly_velocity or something like that. A translation
@@ -103,7 +103,7 @@ do
                 this.left  = &left;
                 this.right = &right;
             end;
-            await PINGUHOLDER_UPDATE until this.is_tumbling();
+            await WORLD_UPDATE until this.is_tumbling();
         end
         do
             var char[] left  = [] .. "pingus/player"

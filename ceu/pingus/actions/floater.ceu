@@ -16,7 +16,7 @@ do
     this.pingu.me.set_velocity({Vector3f(0.0f, 1.0f)});
 
     loop do
-        await PINGUHOLDER_UPDATE;
+        await WORLD_UPDATE;
         if this.pingu.me.rel_getpixel(0,-1) == {Groundtype::GP_NOTHING} then
             this.pingu.me.set_y(this.pingu.me.get_y() + 1);
         else

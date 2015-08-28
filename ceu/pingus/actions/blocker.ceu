@@ -23,7 +23,7 @@ do
 
     /* UPDATE */
     loop do
-        await PINGUHOLDER_UPDATE;
+        await WORLD_UPDATE;
         if not this.standing_on_ground() then
             escape {ActionName::FALLER};
         end

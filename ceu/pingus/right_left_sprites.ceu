@@ -11,7 +11,7 @@ do
     event void e_change;
     par do
         var int dir = this.pingu.me.direction;
-        every PINGUHOLDER_UPDATE do
+        every WORLD_UPDATE do
             if this.pingu.me.direction != dir then
                 dir = this.pingu.me.direction;
                 emit e_change;

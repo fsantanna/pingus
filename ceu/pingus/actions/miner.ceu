@@ -22,7 +22,7 @@ do
 
     /* UPDATE */
     loop delay_count do
-        await PINGUHOLDER_UPDATE;
+        await WORLD_UPDATE;
 
         if delay_count%4 != 0 then
             continue;

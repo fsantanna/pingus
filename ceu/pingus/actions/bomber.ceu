@@ -30,7 +30,7 @@ do
     var _Pingu& pingu_ = &this.pingu.me;
     par do
         /* UPDATE */
-        every PINGUHOLDER_UPDATE do
+        every WORLD_UPDATE do
             // XXX_CPP
             {
                 Movers::LinearMover mover(WorldObj::get_world(),
@@ -43,7 +43,7 @@ do
     with
         /* UPDATE */
         // while the Bomber hasn't 'exploded' yet
-        await PINGUHOLDER_UPDATE
+        await WORLD_UPDATE
         until sprites.get():get_current_frame() == 10;
 
         // Throwing particles
@@ -51,7 +51,7 @@ do
             WorldObj::get_world()->play_sound("plop",
                 THIS(CEU_Bomber)->pingu_->get_pos());
         };
-        await PINGUHOLDER_UPDATE
+        await WORLD_UPDATE
         until sprites.get():get_current_frame() == 13;
         {
             WorldObj::get_world()->get_pingu_particle_holder()->
@@ -80,7 +80,7 @@ do
                 this.y     = &_XXX_NOHOLD(&&outer.pingu.me.pos_y);
                 this.name  = _XXX_PURE(&&str);
             end;
-            await PINGUHOLDER_UPDATE;
+            await WORLD_UPDATE;
         end
 
         // The pingu explode

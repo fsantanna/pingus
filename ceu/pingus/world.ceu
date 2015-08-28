@@ -9,7 +9,6 @@ native @plain _World;
 input (_World&&) WORLD_NEW;
 input (_World&&) WORLD_DELETE;
 
-input int  WORLD_UPDATE;
 input void WORLD_ARMAGEDDON;
 
 class World with

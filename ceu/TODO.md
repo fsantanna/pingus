@@ -1,5 +1,6 @@
 - pingu! = <...>
 - world! = <...>
+- pingus mortos pode ganhar foco
 - countdown action disable from the original??
 - walker behind all
 - bridger offset
