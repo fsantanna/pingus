@@ -2,15 +2,17 @@
 #define _CAPTURERECTANGLE_CEU
 
 native do
+    ##include "pingus/globals.hpp"
     ##include "pingus/fonts.hpp"
 end
 
 class CaptureRectangle with
     var IPlayfield& playfield;
-    var _CaptureRectangle& me;
 do
     pool SpritePingu[1] good_or_bad;
     pool SpritePingu[1] left_or_right;
+
+    var char[] action_str;
 
     var Vector3f pos_gb = Vector3f(0,0,1000);
     var Vector3f pos_lr = Vector3f(0,0,1000);
@@ -43,38 +45,73 @@ do
 
             var IPingu&& pingu = this.playfield.current_pingu!;
 
+            if {globals::developer_mode} then
+                action_str = [] .. action_str .. " Id: ";
+                action_str = [] .. action_str ..
+                    (char&&)_XXX_PURE({StringUtil::to_string}(pingu:me.get_id()).c_str());
+            end
+
             var int action = pingu:me.current_action;
             if not {ActionName::CATCHABLE}[action] then
                 continue;
             end
 
-            var bool is_left = pingu:me.direction.is_left();
+            // RESET STRING
+            do
+                action_str = [] ..  (char&&)_XXX_PURE(pingu:me.get_name().c_str());
 
-            sprite_gb =
-                spawn SpritePingu in good_or_bad with
-                    this.x = &pos_gb.x;
-                    this.y = &pos_gb.y;
+                if (pingu:me.wall_action != {ActionName::NONE} or
+                    pingu:me.fall_action != {ActionName::NONE})
+                then
+                    action_str = [] .. action_str .. ['['];
 
-                    if {ActionName::CHANGE_ALLOWED}[action]
-                                                   [outer.playfield.me.session:get_action_name()]
-                    then
-                        this.name = "game/cursors/capgood";
-                    else
-                        this.name = "game/cursors/capbad";
-                    end;
-                end;
-
-            sprite_lr =
-                spawn SpritePingu in left_or_right with
-                    this.x = &pos_lr.x;
-                    this.y = &pos_lr.y;
-
-                    if is_left then
-                        this.name = "game/cursors/arrow_left";
-                    else
-                        this.name = "game/cursors/arrow_right";
+                    if (pingu:me.wall_action != {ActionName::NONE}) then
+                        var char c = {ActionName::PERSISTENT_CHAR}[pingu:me.wall_action];
+_assert(not "Not tested yet!");
+                        _assert(c!='\0' and "This is not a persitent action!");
+                        action_str = [] .. action_str .. [c];
                     end
-                end;
+
+                    if (pingu:me.fall_action != {ActionName::NONE}) then
+                        var char c = {ActionName::PERSISTENT_CHAR}[pingu:me.fall_action];
+                        _assert(c!='\0' and "This is not a persitent action!");
+                        action_str = [] .. action_str .. [c];
+                    end
+
+                    action_str = [] .. action_str .. [']'];
+                end
+            end
+
+            // RESPAWN SPRITES
+            do
+                var bool is_left = pingu:me.direction.is_left();
+
+                sprite_gb =
+                    spawn SpritePingu in good_or_bad with
+                        this.x = &pos_gb.x;
+                        this.y = &pos_gb.y;
+
+                        if {ActionName::CHANGE_ALLOWED}[action]
+                                                       [outer.playfield.me.session:get_action_name()]
+                        then
+                            this.name = "game/cursors/capgood";
+                        else
+                            this.name = "game/cursors/capbad";
+                        end;
+                    end;
+
+                sprite_lr =
+                    spawn SpritePingu in left_or_right with
+                        this.x = &pos_lr.x;
+                        this.y = &pos_lr.y;
+
+                        if is_left then
+                            this.name = "game/cursors/arrow_left";
+                        else
+                            this.name = "game/cursors/arrow_right";
+                        end
+                    end;
+            end
         end
     with
         every sc in WORLD_DRAW do
@@ -87,8 +124,9 @@ do
                 sc:color().print_center({Fonts::courier_small},
                             _Vector2i((int)(pingu:me.get_center_pos().x),
                                       (int)(pingu:me.get_center_pos().y - 46)),
-                            pingu:me.get_name(),
-                            1000);
+                            &&action_str,
+                            1000)
+                    finalize with nothing; end; // print_center() is @nohold
             end
         end
     end

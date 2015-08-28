@@ -62,7 +62,6 @@ do
 
         var CaptureRectangle _ with
             this.playfield = &outer;
-            this.me        = &outer.me.capture_rectangle;
         end;
         await FOREVER;
     end

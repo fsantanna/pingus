@@ -28,13 +28,11 @@ Playfield::Playfield(Server* server_, GameSession* session_, const Rect& rect_) 
   RectComponent(rect_),
   server(server_),
   session(session_),
-  current_pingu(0),
   mouse_scrolling(),
   scroll_speed(),
   scroll_center(),
   scene_context(new SceneContext(rect_)),
   state(rect_.get_width(), rect_.get_height()),
-  capture_rectangle(session),
   clipping_rectangles(),
   mouse_pos(),
   old_state_pos()
@@ -59,9 +57,6 @@ Playfield::draw(DrawingContext& gc)
   scene_context->clear();
 
   state.push(*scene_context);
-
-  capture_rectangle.set_pingu(current_pingu);
-  capture_rectangle.draw(*scene_context);
 
   server->get_world()->draw(*scene_context);
 
@@ -123,8 +118,6 @@ Playfield::update(float delta)
   // FIXME: This should be delta dependant
   if (!mouse_scrolling)
   {
-    current_pingu = current_pingu_find(state.screen2world(mouse_pos));
-    capture_rectangle.set_pingu(current_pingu);
   }
   else
   {
@@ -192,6 +185,7 @@ Playfield::on_primary_button_press(int x, int y)
 
   if (session)
   {
+    Pingu* current_pingu;
     current_pingu = current_pingu_find(state.screen2world(Vector2i(x,y)));
 
     if (current_pingu)
