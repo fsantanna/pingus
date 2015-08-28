@@ -6,9 +6,6 @@ native do
 end
 native @plain _PinguHolder;
 
-input (_PinguHolder&&, int) PINGUHOLDER_NEW;
-input (_PinguHolder&&)      PINGUHOLDER_DELETE;
-
 input void                     PINGUHOLDER_UPDATE;
 input (int,int,_Framebuffer&&) PINGUHOLDER_RENDER;
 
@@ -21,21 +18,17 @@ input (_PinguHolder&&, int&&) PINGUHOLDER_GET_NUMBER_OF_ALLOWED;
 #include "pingu.ceu"
 
 class PinguHolder with
-    interface IPinguHolderVars;
-    interface IPinguHolderPool;
+    interface IPinguHolder;
     var int number_of_exited   = 0;
     var int number_of_killed   = 0;
     var int number_of_alive    = 0;
     var int number_of_released = 0;
     var int number_of_allowed;//=0;
 
+    pool IPingu[] pingus;
     var _PinguHolder& me;
 do
-    global:pingu_holder = &&this;
-
     par/or do
-        AWAIT_UNTIL_MYSELF(_PinguHolder,PINGUHOLDER_DELETE);
-    with
         every (me_,ret) in PINGUHOLDER_GET_NUMBER_OF_EXITED do
             if me_ == &&this.me then
                 *ret = this.number_of_exited;
@@ -76,16 +69,5 @@ do
         end
     end
 end
-
-class PinguHolderFactory with
-do
-    every (me_,max) in PINGUHOLDER_NEW do
-        spawn PinguHolder with
-            this.me = &_XXX_PTR2REF(me_);
-            this.number_of_allowed = max;
-        end;
-    end
-end
-var PinguHolderFactory _;
 
 #endif

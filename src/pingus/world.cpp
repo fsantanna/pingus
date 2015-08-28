@@ -51,7 +51,6 @@ World::World(const PingusLevel& plf) :
   rain_particle_holder(),
   smoke_particle_holder(),
   snow_particle_holder(),
-  pingus(new PinguHolder(plf)),
   colmap(gfx_map->get_colmap()),
   gravitational_acceleration(0.2f)
 {
@@ -60,6 +59,7 @@ World::World(const PingusLevel& plf) :
   log_debug("create particle holder");
 
   // These get deleted via the world_obj vector in the destructor
+  pingus                = new PinguHolder(plf);
   pingu_particle_holder = new Particles::PinguParticleHolder();
   rain_particle_holder  = new Particles::RainParticleHolder();
   smoke_particle_holder = new Particles::SmokeParticleHolder();

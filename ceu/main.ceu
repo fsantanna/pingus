@@ -37,7 +37,7 @@ native @nohold _delete();
 
 input int SDL_DT;
 
-interface IPinguHolderVars with
+interface IPinguHolder with
     var int number_of_exited;
     var int number_of_killed;
     var int number_of_alive;
@@ -47,7 +47,7 @@ end
 
 interface IPingu with
     event _ActionName__Enum go_action;
-    var   IPinguHolderVars& holder;
+    var   IPinguHolder&     holder;
     var   _Pingu&           me;
 end
 
@@ -55,15 +55,6 @@ interface IPinguAction with
     var IPingu&           pingu;
     var _ActionName__Enum previous_action;
 end
-
-interface IPinguHolderPool with
-    pool IPingu[] pingus;
-end
-
-interface Global with
-    var IPinguHolderPool&&? pingu_holder;
-end
-var IPinguHolderPool&&? pingu_holder;
 
 #include "pingus/pingu_holder.ceu"
 

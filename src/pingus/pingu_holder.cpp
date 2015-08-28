@@ -30,8 +30,6 @@ PinguHolder::PinguHolder(const PingusLevel& plf) :
   all_pingus(),
   pingus()
 {
-  tceu__PinguHolder___int p = {this, number_of_allowed};
-  ceu_sys_go(&CEU_APP, CEU_IN_PINGUHOLDER_NEW, &p);
 }
 
 PinguHolder::~PinguHolder()
@@ -39,9 +37,6 @@ PinguHolder::~PinguHolder()
   for(std::vector<Pingu*>::iterator i = all_pingus.begin();
       i != all_pingus.end(); ++i)
     delete *i;
-
-  void* this_ = this;
-  ceu_sys_go(&CEU_APP, CEU_IN_PINGUHOLDER_DELETE, this_);
 }
 
 Pingu*
