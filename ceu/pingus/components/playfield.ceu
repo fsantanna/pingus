@@ -21,6 +21,10 @@ class Playfield with
     var PinguHolder& pingu_holder;
 do
     par do
+        var bool was_empty = true;
+            // having current_pingu&&? is not enough because it can die and 
+            // clear the variable
+
         every WORLD_UPDATE do
             var Position pos = Position(
                                 this.me.state.screen2world(this.me.mouse_pos).x,
@@ -39,12 +43,16 @@ do
                 end
             end
 
-            var bool has_changed =
-                (this.current_pingu? and (not cur?)) or
-                ((not this.current_pingu?) and cur?) or
-                (this.current_pingu? and cur? and (cur! != this.current_pingu!));
+            var bool has_changed;
+            if cur? then
+                has_changed = was_empty or
+                              (this.current_pingu? and (cur! != this.current_pingu!));
+            else
+                has_changed = (not was_empty);
+            end
 
             this.current_pingu = cur;
+            was_empty = (not cur?);
             if has_changed then
                 emit this.ok_pingu;
             end
