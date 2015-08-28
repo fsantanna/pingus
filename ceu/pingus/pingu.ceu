@@ -96,14 +96,18 @@ do
         with
             loop do
                 var _Pingu&& ptr;
+                var bool&&?  ret_val;
+                #define RET_VAL(v) if ret_val? then *ret_val! = v; end
                 var _ActionName__Enum new_action;
                 par/or do
-                    var bool&& x_;
-                    (ptr, x_, new_action) = await PINGU_REQUEST_SET_ACTION
-                                            until ptr == &&this.me;
+                    var bool&& ret_val_;
+                    (ptr, ret_val_, new_action) = await PINGU_REQUEST_SET_ACTION
+                                                  until ptr == &&this.me;
+                    ret_val := ret_val_;
                 with
                     new_action = await this.go_action;
                 end
+                RET_VAL(false);
 
                 if me.status == {Pingu::PS_DEAD} then
                     _log_debug("Setting action to a dead pingu");
@@ -115,34 +119,42 @@ do
                 if mode == {ActionType::INSTANT} then
                     if new_action == me.current_action then
                         _log_debug("Pingu: Already have action");
+                        RET_VAL(false);
                     else/if {ActionName::CHANGE_ALLOWED}
                                 [me.current_action][new_action]
                     then
                         _log_debug("setting instant action");
+                        RET_VAL(true);
                         emit e_set_action => new_action;
                     else
                         _log_debug("change from action %1% not allowed",
                                    me.current_action);
+                        RET_VAL(false);
                     end
                 else/if mode == {ActionType::WALL_TRIGGERED} then
                     if me.wall_action == new_action then
                         _log_debug("Not using wall action, we have already");
+                        RET_VAL(false);
                     else
                         _log_debug("Setting wall action");
                         me.wall_action = new_action;
+                        RET_VAL(true);
                     end
                 else/if mode == {ActionType::FALL_TRIGGERED} then
                     if me.fall_action == new_action then
                         _log_debug("Not using fall action, we have already");
+                        RET_VAL(false);
                     else
                         _log_debug("Setting fall action");
                         me.fall_action = new_action;
+                        RET_VAL(true);
                     end
                 else/if mode == {ActionType::COUNTDOWN_TRIGGERED} then
     _assert(not "DEAD CODE???");
     #if 0
                     if me.countdown_action == new_action then
                         _log_debug("Not using countdown action, we have already");
+                        *ret_val = false;
                     else
                         _log_debug("Setting countdown action");
                         // We set the action and start the countdown
@@ -150,10 +162,12 @@ do
                         //me.create_action(new_action);
                         me.action_time = -1;///me.act:activation_time();
                         me.countdown_action = new_action;
+                        *ret_val = true;
                     end
     #endif
                 else
                     _log_debug("unknown action activation_mode");
+                    RET_VAL(false);
                     _assert(0);
                 end
             end
