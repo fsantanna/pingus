@@ -29,7 +29,7 @@ class PinguHolder with
     pool IPingu[] pingus;
     var _PinguHolder& me;
 do
-    par/or do
+    par do
         every ret in PINGUHOLDER_GET_NUMBER_OF_EXITED do
             *ret = this.number_of_exited;
         end

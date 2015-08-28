@@ -36,7 +36,28 @@ native @nohold _delete();
     end
 
 input int SDL_DT;
-input int  WORLD_UPDATE;
+input int WORLD_UPDATE;
+
+data Position with
+    var float x;
+    var float y;
+end
+
+data Size with
+    var int width;
+    var int height;
+end
+
+data Vector2i with
+    var int x;
+    var int y;
+end
+
+data Vector3f with
+    var float x;
+    var float y;
+    var float z;
+end
 
 interface IPinguHolder with
     var int number_of_exited;
@@ -56,8 +77,6 @@ interface IPinguAction with
     var IPingu&           pingu;
     var _ActionName__Enum previous_action;
 end
-
-#include "pingus/pingu_holder.ceu"
 
 #include "pingus/world.ceu"
 

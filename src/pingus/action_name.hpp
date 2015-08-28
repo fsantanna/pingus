@@ -72,7 +72,7 @@ static ActionType ACTIVATION_MODE[MAX] = {
 };
 
 static char CATCHABLE[MAX] = {
-    1,1,1,1,1,1,1,1,1,1,0,1,1,1,1,0,1,1,0,0,1,1,1,1   // (drown,laserkill,smashed,splashed)
+    0,0,1,1,1,1,1,1,1,1,0,1,1,1,1,0,1,1,0,0,1,1,1,1   // (drown,laserkill,smashed,splashed)
 };
 
 static char PERSISTENT_CHAR[MAX] = {

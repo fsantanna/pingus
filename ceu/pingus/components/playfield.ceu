@@ -1,0 +1,63 @@
+#ifndef _PLAYFIELD_CEU
+#define _PLAYFIELD_CEU
+
+input void PLAYFIELD_NEW;
+input void PLAYFIELD_DELETE;
+
+interface IPlayfield with
+    var   IPingu&&?   current_pingu;
+    event void        ok_pingu;
+    var   _Playfield& me;
+end
+
+native do
+    ##include "src/pingus/screens/game_session.hpp"
+end
+
+#include "../capture_rectangle.ceu"
+
+class Playfield with
+    interface IPlayfield;
+    var PinguHolder& pingu_holder;
+do
+    par do
+        every WORLD_UPDATE do
+            var Position pos = Position(
+                                this.me.state.screen2world(this.me.mouse_pos).x,
+                                this.me.state.screen2world(this.me.mouse_pos).y
+                               );
+
+            var float min_dist = 500.0;
+            var IPingu&&? cur;
+            loop pingu in pingu_holder.pingus do
+                if pingu:me.is_over((int)pos.x, (int)pos.y) then
+                    var float dist = pingu:me.dist((int)pos.x, (int)pos.y);
+                    if (dist < min_dist) then
+                        min_dist = dist;
+                        cur = pingu;
+                    end
+                end
+            end
+
+            var bool has_changed =
+                (this.current_pingu? and (not cur?)) or
+                ((not this.current_pingu?) and cur?) or
+                (this.current_pingu? and cur? and (cur! != this.current_pingu!));
+
+            this.current_pingu = cur;
+            if has_changed then
+                emit this.ok_pingu;
+            end
+        end
+    with
+        // MUST BE UPDATED AFTER MYSELF
+
+        var CaptureRectangle _ with
+            this.playfield = &outer;
+            this.me        = &outer.me.capture_rectangle;
+        end;
+        await FOREVER;
+    end
+end
+
+#endif

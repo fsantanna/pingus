@@ -3,13 +3,20 @@
 
 native do
     ##include "src/pingus/world.hpp"
+    ##include "src/pingus/components/playfield.hpp"
+    extern Playfield* GLOBAL_PLAYFIELD;
 end
 native @plain _World;
+native @plain _Playfield;
 
 input (_World&&) WORLD_NEW;
 input (_World&&) WORLD_DELETE;
+input (_SceneContext&&) WORLD_DRAW;
 
 input void WORLD_ARMAGEDDON;
+
+#include "pingu_holder.ceu"
+#include "components/playfield.ceu"
 
 class World with
     var _World& me;
@@ -17,6 +24,14 @@ do
     var PinguHolder pingu_holder with
         this.me = &_XXX_PTR2REF(outer.me.pingus);
         this.number_of_allowed = this.me.number_of_allowed;
+    end;
+
+    await SDL_DT;   // TODO: World is created before Playfield in C++
+
+    var _Playfield&? playfield_ := &_XXX_PURE(_GLOBAL_PLAYFIELD);
+    var Playfield playfield with
+        this.pingu_holder = &pingu_holder;
+        this.me           = &playfield_!;
     end;
 
     par/or do

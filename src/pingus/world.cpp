@@ -136,6 +136,9 @@ World::draw (SceneContext& gc)
   {
     (*obj)->draw(gc);
   }
+
+  SceneContext* p = &gc;
+  ceu_sys_go(&CEU_APP, CEU_IN_WORLD_DRAW, &p);
 }
 
 void

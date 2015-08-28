@@ -11,21 +11,6 @@ end
 native @plain _SpriteCeu;
 native @plain _FramebufferSurface;
 
-data Position with
-    var float x;
-    var float y;
-end
-
-data Size with
-    var int width;
-    var int height;
-end
-
-data Vector2i with
-    var int x;
-    var int y;
-end
-
 class SpritePingu with
     function (void)=>int get_current_frame;
     function (void)=>int get_frame_count;

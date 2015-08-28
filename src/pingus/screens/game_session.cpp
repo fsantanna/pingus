@@ -34,6 +34,8 @@
 #include "pingus/world.hpp"
 #include "util/log.hpp"
 
+Playfield* GLOBAL_PLAYFIELD = NULL;
+
 GameSession::GameSession(const PingusLevel& arg_plf, bool arg_show_result_screen) :
   plf(arg_plf),
   show_result_screen(arg_show_result_screen),
@@ -72,6 +74,7 @@ GameSession::GameSession(const PingusLevel& arg_plf, bool arg_show_result_screen
                                              Math::max((Display::get_height() - world_height)/2, 0)),
                                     Size(Math::min(Display::get_width(),  world_width),
                                          Math::min(Display::get_height(), world_height))));
+GLOBAL_PLAYFIELD = playfield;
 
   pcounter     = new PingusCounter(get_server());
   small_map    = new SmallMap(get_server(), playfield, Rect(Vector2i(5, size.height - 105), Size(175, 100)));

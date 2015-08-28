@@ -43,36 +43,6 @@ CaptureRectangle::~CaptureRectangle()
 void
 CaptureRectangle::draw(SceneContext& sc)
 {
-  if (pingu && ActionName::CATCHABLE[pingu->current_action])
-  {
-    // Draw the capture rectangle
-    assert(pingu->current_action != ActionName::NONE);
-    if (session &&
-        ActionName::CHANGE_ALLOWED[pingu->current_action][session->get_action_name()]
-    ) {
-      sc.color().draw(good, pingu->get_center_pos() + Vector3f(0, 0, 1000));
-    }
-    else
-    {
-      sc.color().draw(bad, pingu->get_center_pos() + Vector3f(0, 0, 1000));
-    }
-
-    // Paint the direction arrow
-    if (pingu->direction.is_left())
-    {
-      sc.color().draw(arrow_left, pingu->get_center_pos() + Vector3f(0, 2, 1000));
-    }
-    else
-    {
-      sc.color().draw(arrow_right, pingu->get_center_pos() + Vector3f(0, 2, 1000));
-    }
-
-    sc.color().print_center(font,
-                            Vector2i(static_cast<int>(pingu->get_center_pos().x),
-                                     static_cast<int>(pingu->get_center_pos().y - 46)),
-                            action_str,
-                            1000);
-  }
 }
 
 void
