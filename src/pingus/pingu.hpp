@@ -44,8 +44,6 @@ public:
 
     ///
   ActionName::Enum current_action;
-  ActionName::Enum wall_action;
-  ActionName::Enum fall_action;
   std::string      name = "";
 
 

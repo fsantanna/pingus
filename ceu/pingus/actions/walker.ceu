@@ -24,7 +24,7 @@ do
     /* UPDATE */
     par do
         await WORLD_UPDATE
-        until (this.pingu.me.fall_action == {ActionName::FLOATER});
+        until (this.pingu.fall_action == {ActionName::FLOATER});
         do
             var char[] left2  = [] .. "other/floaterlayer/left";
             var char[] right2 = [] .. "other/floaterlayer/right";
@@ -130,7 +130,7 @@ do
                 else
                     if this.pingu.me.rel_getpixel(1, 0) != {Groundtype::GP_NOTHING} then
                         // We reached a wall
-                        var int wall_action = this.pingu.me.wall_action;
+                        var int wall_action = this.pingu.wall_action;
                         if wall_action != {ActionName::NONE} then
                             _log_debug("Pingu: We are in front of a wall, setting persistant action");
                             escape wall_action;

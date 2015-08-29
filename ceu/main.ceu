@@ -71,6 +71,9 @@ interface IPingu with
     event _ActionName__Enum go_action;
     var   IPinguHolder&     holder;
     var   _Pingu&           me;
+
+    var   _ActionName__Enum wall_action;
+    var   _ActionName__Enum fall_action;
 end
 
 interface IPinguAction with
