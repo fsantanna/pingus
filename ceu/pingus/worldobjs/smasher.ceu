@@ -1,0 +1,97 @@
+#ifndef _SMASHER_CEU
+#define _SMASHER_CEU
+
+native/pre do
+    ##include "pingus/particles/smoke_particle_holder.hpp"
+    ##include "src/pingus/worldobjs/smasher.hpp"
+    ##define WorldObjs__Smasher WorldObjs::Smasher
+end
+native @plain _WorldObjs__Smasher;
+
+input _WorldObjs__Smasher&& SMASHER_NEW;
+input _WorldObjs__Smasher&& SMASHER_DELETE;
+
+class Smasher with
+    var _WorldObjs__Smasher& me;
+do
+    par/or do
+        AWAIT_UNTIL_MYSELF(_WorldObjs__Smasher,SMASHER_DELETE);
+    with
+        every WORLD_UPDATE do
+            var IWorld&& world = (IWorld&&)this.me.world:ceu;
+            loop pingu in world:get_pingu_holder().pingus do
+                // Activate the smasher if a Pingu is under it
+                if ((pingu:me.direction.is_left()               and
+                     pingu:me.get_pos().x > this.me.pos.x + 65  and
+                     pingu:me.get_pos().x < this.me.pos.x + 85)
+                or
+                    (pingu:me.direction.is_right()              and
+                     pingu:me.get_pos().x > this.me.pos.x + 190 and
+                     pingu:me.get_pos().x < this.me.pos.x + 210))
+                then
+                    if (pingu:me.get_action() != {ActionName::SPLASHED}) then
+                        if (not this.me.smashing) then
+                            this.me.count = 0;
+                            this.me.downwards = true;
+                            this.me.smashing = true;
+                        end
+                    end
+                end
+            end
+
+            if this.me.smashing then
+                this.me.sprite.set_frame(this.me.count);
+                if this.me.downwards then
+                    if this.me.count >= 5 then
+                        // SMASH!!! The thing hitten earth and kills the pingus
+                        this.me.downwards = false;
+                        this.me.count = this.me.count - 1;
+                        call {Sound::PingusSound::play_sound}("tenton");
+
+                        loop i in 20 do
+                            this.me.world:get_smoke_particle_holder():
+                                add_particle(
+                                    this.me.pos.x + 20 + _float(_rand() % 260),
+                                    this.me.pos.y + 180, {Math::frand}()-0.5, 
+                                                         {Math::frand}()-0.5);
+                        end
+
+                        loop pingu in world:get_pingu_holder().pingus do
+                            if pingu:me.is_inside((int)(this.me.pos.x + 30),
+                                               (int)(this.me.pos.y + 90),
+                                               (int)(this.me.pos.x + 250),
+                                               (int)(this.me.pos.y + 190))
+                            then
+                                if pingu:me.get_action() != {ActionName::SPLASHED} then
+                                    pingu:me.request_set_action({ActionName::SPLASHED});
+                                end
+                            end
+                        end
+                    else
+                        this.me.count = this.me.count + 1;
+                    end
+                else
+                    if (this.me.count <= 0) then
+                        this.me.count = 0;
+                        this.me.smashing = false;
+                    else
+                        this.me.count = this.me.count - 1;
+                    end
+                end
+            end
+        end
+    end
+end
+
+class SmasherFactory with
+do
+    every me_ in SMASHER_NEW do
+        spawn Smasher with
+            this.me = &_XXX_PTR2REF(me_);
+        end;
+    end
+end
+
+var SmasherFactory _;
+
+#endif

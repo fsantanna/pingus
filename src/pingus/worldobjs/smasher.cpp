@@ -26,6 +26,8 @@
 #include "pingus/world.hpp"
 #include "util/log.hpp"
 
+#include "ceu_vars.h"
+
 namespace WorldObjs {
 
 Smasher::Smasher(const FileReader& reader) :
@@ -38,6 +40,14 @@ Smasher::Smasher(const FileReader& reader) :
   assert(sprite.get_frame_count() == 6);
 
   reader.read_vector("position", pos);
+
+  void* this_ = this;
+  ceu_sys_go(&CEU_APP, CEU_IN_SMASHER_NEW, &this_);
+}
+
+Smasher::~Smasher () {
+  void* this_ = this;
+  ceu_sys_go(&CEU_APP, CEU_IN_SMASHER_DELETE, &this_);
 }
 
 float
@@ -49,60 +59,6 @@ Smasher::get_z_pos () const
 void
 Smasher::update ()
 {
-  PinguHolder* holder = world->get_pingus();
-  for (PinguIter pingu = holder->begin (); pingu != holder->end (); ++pingu)
-  {
-    catch_pingu(*pingu);
-  }
-
-  if (smashing)
-  {
-    sprite.set_frame(count);
-
-    if (downwards)
-    {
-      if (count >= 5)
-      {
-        // SMASH!!! The thing hitten earth and kills the pingus
-        downwards = false;
-        --count;
-        Sound::PingusSound::play_sound("tenton");
-
-        for(int i=0; i < 20; ++i)
-        {
-          world->get_smoke_particle_holder()->
-            add_particle(pos.x + 20 + float(rand() % 260),
-                         pos.y + 180, Math::frand()-0.5f, Math::frand()-0.5f);
-        }
-
-        for (PinguIter pingu = holder->begin (); pingu != holder->end (); ++pingu)
-        {
-          if ((*pingu)->is_inside(static_cast<int>(pos.x + 30),
-                                  static_cast<int>(pos.y + 90),
-                                  static_cast<int>(pos.x + 250),
-                                  static_cast<int>(pos.y + 190)))
-          {
-            if ((*pingu)->get_action() != ActionName::SPLASHED)
-              (*pingu)->request_set_action(ActionName::SPLASHED);
-          }
-        }
-      }
-      else
-      {
-        ++count;
-      }
-    }
-    else
-    {
-      if (count <= 0)
-      {
-        count = 0;
-        smashing = false;
-      } else {
-        --count;
-      }
-    }
-  }
 }
 
 void
@@ -125,25 +81,6 @@ Smasher::draw (SceneContext& gc)
 void
 Smasher::catch_pingu (Pingu* pingu)
 {
-  // Activate the smasher if a Pingu is under it
-  if ((   pingu->direction.is_left()
-          && pingu->get_pos().x > pos.x + 65
-          && pingu->get_pos().x < pos.x + 85)
-      ||
-      (   pingu->direction.is_right()
-          && pingu->get_pos().x > pos.x + 190
-          && pingu->get_pos().x < pos.x + 210))
-  {
-    if (pingu->get_action() != ActionName::SPLASHED)
-    {
-      if (!smashing)
-      {
-        count = 0;
-        downwards = true;
-        smashing = true;
-      }
-    }
-  }
 }
 
 } // namespace WorldObjs
