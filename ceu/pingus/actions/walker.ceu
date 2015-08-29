@@ -19,7 +19,8 @@ do
     end;
 
     // Reset the velocity
-    this.pingu.set_velocity({Vector3f()});
+    var Vector3f v = Vector3f(0, 0, 0);
+    this.pingu.set_velocity(v);
 
     /* UPDATE */
     par do

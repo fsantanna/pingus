@@ -46,6 +46,8 @@ class Pingu with
     var _ActionName__Enum wall_action = {ActionName::NONE};
     var _ActionName__Enum fall_action = {ActionName::NONE};
 do
+    var Vector3f velocity = Vector3f(0, 0, 0);
+
     this.holder.number_of_released = this.holder.number_of_released + 1;
     this.holder.number_of_alive    = this.holder.number_of_alive    + 1;
     finalize with
@@ -83,7 +85,7 @@ do
 
                 // if it has hit the ground too quickly
                 if me.rel_getpixel(0,-1) != {Groundtype::GP_NOTHING} and
-                        me.get_velocity().y > _deadly_velocity
+                        this.velocity.y > _deadly_velocity
                 then
                     emit e_set_action => {ActionName::SPLASHED};
                     break;  // no more checks, will die
@@ -223,15 +225,33 @@ _printf("ACTION_NAME = %d\n", me.current_action);
                                               this.holder.number_of_killed  +
                                               this.holder.number_of_exited);
 
-    function (_Vector3f velocity_)=>void set_velocity do
-        this.me.velocity = velocity_;
+
+    /* PUBLIC */
+
+    function (void)=>Vector3f get_velocity do
+        return this.velocity;
+    end
+
+    function (Vector3f velocity_)=>void set_velocity do
+        this.velocity = velocity_;
 
         // crude terminal velocity
-        this.me.velocity.x =
-            (float){Math::clamp}(-_terminal_velocity, this.me.velocity.x, _terminal_velocity);
-        this.me.velocity.y =
-            (float){Math::clamp}(-_terminal_velocity, this.me.velocity.y, _terminal_velocity);
+        this.velocity.x =
+            (float){Math::clamp}(-_terminal_velocity, this.velocity.x, _terminal_velocity);
+        this.velocity.y =
+            (float){Math::clamp}(-_terminal_velocity, this.velocity.y, _terminal_velocity);
     end
+
+#if 0
+    void
+    Pingu::apply_force (Vector3f arg_v)
+    {
+      velocity += arg_v;
+      // Moving the pingu on pixel up, so that the force can take effect
+      // FIXME: this should be handled by a state-machine
+      --pos_y;
+    }
+#endif
 end
 
 #endif

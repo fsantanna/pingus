@@ -13,7 +13,8 @@ do
         this.name = _XXX_PURE(&&str);
     end;
 
-    this.pingu.set_velocity({Vector3f(0.0f, 1.0f)});
+    var Vector3f v = Vector3f(0.0, 1.0, 0.0);
+    this.pingu.set_velocity(v);
 
     loop do
         await WORLD_UPDATE;

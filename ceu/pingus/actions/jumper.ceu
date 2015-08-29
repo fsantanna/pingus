@@ -25,14 +25,18 @@ do
         this.pingu.me.direction.change();
     end
 
+    var float dx, dy;
     if this.pingu.me.direction.is_left() then
-        this.pingu.set_velocity(this.pingu.me.get_velocity() +
-                                _Vector3f(-4.58, -4.58));
-    else
-        // if (this.pingu.me.direction.is_right())
-        this.pingu.set_velocity(this.pingu.me.get_velocity() +
-                                _Vector3f(4.58, -4.58));
+        dx = -4.58;
+        dy = -4.58;
+    else // if (this.pingu.me.direction.is_right())
+        dx =  4.58;
+        dy = -4.58;
     end
+    var Vector3f velocity = this.pingu.get_velocity();
+    velocity.x = velocity.x + dx;
+    velocity.y = velocity.y + dy;
+    this.pingu.set_velocity(velocity);
 
     // Move the me.pingu:n the air, so that it can start 'falling'
     this.pingu.me.set_y(this.pingu.me.get_y() - 1);

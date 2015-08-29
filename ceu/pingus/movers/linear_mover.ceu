@@ -14,7 +14,8 @@ do
                 Vector3f pos, move;
             };
             _pos  = (_Vector3f) this.pingu.me.get_pos();
-            _move = (_Vector3f) this.pingu.me.get_velocity();
+            var Vector3f vel = this.pingu.get_velocity();
+            _move = (_Vector3f) _Vector3f(vel.x,vel.y,vel.z);
             {
                 Vector3f target_pos = pos + move;
                 Vector3f step_vector = move;

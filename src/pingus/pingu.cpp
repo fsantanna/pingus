@@ -47,7 +47,6 @@ Pingu::Pingu (int arg_id, const Vector3f& arg_pos, int owner) :
   status(PS_ALIVE),
   pos_x(arg_pos.x),
   pos_y(arg_pos.y),
-  velocity(0, 0, 0),
   direction()
 {
   direction.left ();
@@ -187,15 +186,6 @@ ActionName::Enum
 Pingu::get_action ()
 {
   return current_action;
-}
-
-void
-Pingu::apply_force (Vector3f arg_v)
-{
-  velocity += arg_v;
-  // Moving the pingu on pixel up, so that the force can take effect
-  // FIXME: this should be handled by a state-machine
-  --pos_y;
 }
 
 Vector3f

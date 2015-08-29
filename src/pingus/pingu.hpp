@@ -58,8 +58,6 @@ private:
   /** The stat of the pingu, these can be modified by PinguActions */
   PinguStatus status;
 
-  Vector3f velocity;
-
 public:
 
   float pos_x;
@@ -123,9 +121,6 @@ public:
   /// Set the pingu to the given coordinates
   void set_pos (const Vector3f& arg_pos);
 
-  Vector3f get_velocity () const { return velocity; }
-/// TODO: LinearMover
-
   // Set the pingu in the gives direction
   void set_direction (Direction d);
 
@@ -146,9 +141,6 @@ public:
   bool head_collision_on_walk (int x, int y);
 
   void apply_force (Vector3f);
-
-  /** Indicate if the pingu's speed is above the deadly velocity */
-  //bool is_tumbling () const;
 
   float get_z_pos () const { return 0; }
 

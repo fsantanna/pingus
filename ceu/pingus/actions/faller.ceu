@@ -18,7 +18,7 @@ do
             // FIXME: This should be triggered at a later point, when close to
             // FIXME: deadly_velocity or something like that. A translation
             // FIXME: animation for the floater might also help
-            if (this.pingu.me.get_velocity().y > 5.0) then
+            if (this.pingu.get_velocity().y > 5.0) then
                 var int fall_action = this.pingu.fall_action;
                 if fall_action != {ActionName::NONE} then
                     escape fall_action;
@@ -26,8 +26,9 @@ do
             end
 
             // Apply gravity
-            this.pingu.set_velocity(this.pingu.me.get_velocity() +
-                  {Vector3f(0.0f, WorldObj::get_world()->get_gravity())});
+            var Vector3f velocity = this.pingu.get_velocity();
+            velocity.y = velocity.y + {WorldObj::get_world()->get_gravity()};
+            this.pingu.set_velocity(velocity);
             end
     with
         var LinearMover mover with
@@ -38,11 +39,7 @@ do
 
             // If the Pingu collided with something...
 
-            // XXX_CPP
-            {
-                static Vector3f velocity =
-                    THIS(CEU_Faller)->pingu_->get_velocity();
-            };
+            var Vector3f velocity = this.pingu.get_velocity();
 
             if this.pingu.me.rel_getpixel(0,-1) == {Groundtype::GP_NOTHING} and
                this.pingu.me.rel_getpixel(0,-2) == {Groundtype::GP_NOTHING} and
@@ -51,19 +48,19 @@ do
                this.pingu.me.rel_getpixel(1, 0) != {Groundtype::GP_BRIDGE}
             then
                 // Make Pingu bounce off wall
-                _velocity.x = -(_velocity.x / 3.0);
+                velocity.x = -(velocity.x / 3.0);
 
                 // Make the Pingu face the correct direction.  NB: Pingu 
                 // may previously have been facing in the opposite direction of its
                 // velocity because of an explosion.
-                if (_velocity.x > 0.0) then
+                if (velocity.x > 0.0) then
                     this.pingu.me.direction.right();
                 else
                     this.pingu.me.direction.left();
                 end
-                this.pingu.set_velocity(_velocity);
+                this.pingu.set_velocity(velocity);
 
-            else/if (_velocity.y > 0.0) then
+            else/if (velocity.y > 0.0) then
                 // If the Pingu collided into something while moving 
                 // down...
                 // Not lava/water because they are handled in pingu.ceu
@@ -76,12 +73,12 @@ do
                     escape (int){ActionName::WALKER};
                 end
 
-            else // if (_velocity.y < 0.0f)
+            else // if (velocity.y < 0.0f)
                 // If the Pingu collided into something while moving up...
                 // Don't make the Pingu go up any further.
-                _velocity.y = 0;
-                _velocity.x = (_velocity.x / 3.0);
-                this.pingu.set_velocity(_velocity);
+                velocity.y = 0;
+                velocity.x = (velocity.x / 3.0);
+                this.pingu.set_velocity(velocity);
             end
         end
     with
@@ -117,10 +114,11 @@ do
 
     /* PRIVATE */
 
-    function (void) => bool is_tumbling do
+// TODO: not @rec!!
+    function @rec (void)=>bool is_tumbling do
         // If we are going fast enough to get smashed, start tumbling
-        return {Math::abs}(this.pingu.me.get_velocity().x) > _deadly_velocity
-            or {Math::abs}(this.pingu.me.get_velocity().y) > _deadly_velocity;
+        return {Math::abs}(this.pingu.get_velocity().x) > _deadly_velocity
+            or {Math::abs}(this.pingu.get_velocity().y) > _deadly_velocity;
     end
 end
 
