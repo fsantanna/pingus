@@ -7,8 +7,8 @@ native/pre do
 end
 native @plain _WorldObjs__Entrance;
 
-input _WorldObjs__Entrance&&            ENTRANCE_NEW;
-input _WorldObjs__Entrance&&            ENTRANCE_DELETE;
+input _WorldObjs__Entrance&& ENTRANCE_NEW;
+input _WorldObjs__Entrance&& ENTRANCE_DELETE;
 
 class Entrance with
     var _WorldObjs__Entrance& me;

@@ -1,0 +1,67 @@
+#ifndef _GUILLOTINE_CEU
+#define _GUILLOTINE_CEU
+
+native/pre do
+    ##include "src/pingus/worldobjs/guillotine.hpp"
+    ##define WorldObjs__Guillotine WorldObjs::Guillotine
+end
+native @plain _WorldObjs__Guillotine;
+
+input _WorldObjs__Guillotine&& GUILLOTINE_NEW;
+input _WorldObjs__Guillotine&& GUILLOTINE_DELETE;
+
+class Guillotine with
+    var _WorldObjs__Guillotine& me;
+do
+    par/or do
+        AWAIT_UNTIL_MYSELF(_WorldObjs__Guillotine,GUILLOTINE_DELETE);
+    with
+        every WORLD_UPDATE do
+            // Only have to check one sprite because they update simultaneously
+            if this.me.sprite_kill_left.is_finished() then
+                this.me.killing = false;
+            end
+
+            if not this.me.killing then
+                var IWorld&& world = (IWorld&&)this.me.world:ceu;
+                loop pingu in world:get_pingu_holder().pingus do
+                    if (pingu:me.is_inside((int)(this.me.pos.x + 38),
+                                           (int)(this.me.pos.y + 90),
+                                           (int)(this.me.pos.x + 42),
+                                           (int)(this.me.pos.y + 98)))
+                    then
+                        this.me.killing = true;
+                        this.me.direction = pingu:me.direction;
+                        pingu:me.request_set_action({ActionName::DEAD});
+                        this.me.sprite_kill_left.restart();
+                        this.me.sprite_kill_right.restart();
+                        break;
+                    end
+                end
+            else
+                // Update both sprites so they finish at the same time.
+                this.me.sprite_kill_left.update();
+                this.me.sprite_kill_right.update();
+                // FIXME: Should be a different sound
+                if (this.me.sprite_kill_left.get_current_frame() == 7) then
+                    call {WorldObj::get_world()->play_sound}("splash", this.me.pos);
+                else
+                    this.me.sprite_idle.update();
+                end
+            end
+        end
+    end
+end
+
+class GuillotineFactory with
+do
+    every me_ in GUILLOTINE_NEW do
+        spawn Guillotine with
+            this.me = &_XXX_PTR2REF(me_);
+        end;
+    end
+end
+
+var GuillotineFactory _;
+
+#endif

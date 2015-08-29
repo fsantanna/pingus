@@ -81,9 +81,18 @@ interface IPingu with
     function (_Direction d) => void         set_direction;
 end
 
+interface IPinguHolderPool with
+    pool IPingu[] pingus;
+end
+
 interface IPinguAction with
     var IPingu&           pingu;
     var _ActionName__Enum previous_action;
+end
+
+interface IWorld with
+    var _World& me;
+    function (void)=>IPinguHolderPool& get_pingu_holder;
 end
 
 #include "pingus/world.ceu"

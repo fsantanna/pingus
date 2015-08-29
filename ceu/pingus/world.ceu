@@ -16,12 +16,16 @@ input (_SceneContext&&) WORLD_DRAW;
 input void WORLD_ARMAGEDDON;
 
 #include "worldobjs/entrance.ceu"
+#include "worldobjs/guillotine.ceu"
+
 #include "pingu_holder.ceu"
 #include "components/playfield.ceu"
 
 class World with
-    var _World& me;
+    interface IWorld;
 do
+    this.me.ceu = &&this;
+
     var PinguHolder pingu_holder with
         this.me = &_XXX_PTR2REF(outer.me.pingus);
         this.number_of_allowed = this.me.number_of_allowed;
@@ -60,6 +64,12 @@ do
                 emit pingu!:go_action => {ActionName::BOMBER};
             end
         end
+    end
+
+    /* PUBLIC */
+
+    function (void)=>IPinguHolderPool& get_pingu_holder do
+        return &&this.pingu_holder;     // TODO: should be '&'
     end
 end
 

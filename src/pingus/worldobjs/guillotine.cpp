@@ -21,6 +21,8 @@
 #include "pingus/pingu_holder.hpp"
 #include "pingus/world.hpp"
 
+#include "ceu_vars.h"
+
 namespace WorldObjs {
 
 Guillotine::Guillotine(const FileReader& reader) :
@@ -36,6 +38,15 @@ Guillotine::Guillotine(const FileReader& reader) :
   sprite_kill_right.set_play_loop(false);
   sprite_kill_left.set_play_loop(false);
   sprite_idle.set_play_loop(true);
+
+  void* this_ = this;
+  ceu_sys_go(&CEU_APP, CEU_IN_GUILLOTINE_NEW, &this_);
+}
+
+Guillotine::~Guillotine()
+{
+  void* this_ = this;
+  ceu_sys_go(&CEU_APP, CEU_IN_GUILLOTINE_DELETE, &this_);
 }
 
 void
@@ -60,41 +71,11 @@ Guillotine::get_z_pos () const
 void
 Guillotine::update ()
 {
-  // Only have to check one sprite because they update simultaneously
-  if (sprite_kill_left.is_finished())
-    killing = false;
-
-  PinguHolder* holder = world->get_pingus();
-  for (PinguIter pingu = holder->begin (); pingu != holder->end (); ++pingu)
-    catch_pingu(*pingu);
-
-  if (killing) {
-    // Update both sprites so they finish at the same time.
-    sprite_kill_left.update();
-    sprite_kill_right.update();
-    // FIXME: Should be a different sound
-    if (sprite_kill_left.get_current_frame() == 7)
-      WorldObj::get_world()->play_sound("splash", pos);
-  } else {
-    sprite_idle.update();
-  }
 }
 
 void
 Guillotine::catch_pingu (Pingu* pingu)
 {
-  if (!killing)
-  {
-    if (pingu->is_inside (static_cast<int>(pos.x + 38), static_cast<int>(pos.y + 90),
-                          static_cast<int>(pos.x + 42), static_cast<int>(pos.y + 98)))
-    {
-      killing = true;
-      direction = pingu->direction;
-      pingu->request_set_action(ActionName::DEAD);
-      sprite_kill_left.restart();
-      sprite_kill_right.restart();
-    }
-  }
 }
 
 } // namespace WorldObjs
