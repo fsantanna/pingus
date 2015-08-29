@@ -89,16 +89,6 @@ Pingu::set_pos (const Vector3f& arg_pos)
   set_y (arg_pos.y);
 }
 
-void
-Pingu::set_velocity (const Vector3f& velocity_)
-{
-  velocity = velocity_;
-
-  // crude terminal velocity
-  velocity.x = Math::clamp(-terminal_velocity, velocity.x, terminal_velocity);
-  velocity.y = Math::clamp(-terminal_velocity, velocity.y, terminal_velocity);
-}
-
 // Set the action of the pingu (bridger, blocker, bomber, etc.)
 // This function is used by external stuff, like the ButtonPanel, etc
 // When you select a function on the button panel and click on a

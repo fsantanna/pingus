@@ -42,6 +42,9 @@ native @plain _Pingu, _ActionName__Enum, _Pingu__PinguStatus;
 
 class Pingu with
     interface IPingu;
+
+    var _ActionName__Enum wall_action = {ActionName::NONE};
+    var _ActionName__Enum fall_action = {ActionName::NONE};
 do
     this.holder.number_of_released = this.holder.number_of_released + 1;
     this.holder.number_of_alive    = this.holder.number_of_alive    + 1;
@@ -219,6 +222,16 @@ _printf("ACTION_NAME = %d\n", me.current_action);
     _assert(this.holder.number_of_released == this.holder.number_of_alive-1 +
                                               this.holder.number_of_killed  +
                                               this.holder.number_of_exited);
+
+    function (_Vector3f velocity_)=>void set_velocity do
+        this.me.velocity = velocity_;
+
+        // crude terminal velocity
+        this.me.velocity.x =
+            (float){Math::clamp}(-_terminal_velocity, this.me.velocity.x, _terminal_velocity);
+        this.me.velocity.y =
+            (float){Math::clamp}(-_terminal_velocity, this.me.velocity.y, _terminal_velocity);
+    end
 end
 
 #endif

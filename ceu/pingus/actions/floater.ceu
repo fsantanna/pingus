@@ -13,7 +13,7 @@ do
         this.name = _XXX_PURE(&&str);
     end;
 
-    this.pingu.me.set_velocity({Vector3f(0.0f, 1.0f)});
+    this.pingu.set_velocity({Vector3f(0.0f, 1.0f)});
 
     loop do
         await WORLD_UPDATE;

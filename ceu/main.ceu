@@ -74,6 +74,8 @@ interface IPingu with
 
     var   _ActionName__Enum wall_action;
     var   _ActionName__Enum fall_action;
+
+    function (_Vector3f velocity_)=>void set_velocity;
 end
 
 interface IPinguAction with

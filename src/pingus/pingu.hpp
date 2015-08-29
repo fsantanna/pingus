@@ -124,8 +124,6 @@ public:
 
   Vector3f get_velocity () const { return velocity; }
 
-  void set_velocity (const Vector3f& velocity_);
-
   // Set the pingu in the gives direction
   void set_direction (Direction d);
 

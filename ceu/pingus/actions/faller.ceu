@@ -26,7 +26,7 @@ do
             end
 
             // Apply gravity
-            this.pingu.me.set_velocity(this.pingu.me.get_velocity() +
+            this.pingu.set_velocity(this.pingu.me.get_velocity() +
                   {Vector3f(0.0f, WorldObj::get_world()->get_gravity())});
 
             // Move the Pingu as far is it can go
@@ -67,7 +67,7 @@ do
                 else
                     this.pingu.me.direction.left();
                 end
-                this.pingu.me.set_velocity(_velocity);
+                this.pingu.set_velocity(_velocity);
 
             else/if (_velocity.y > 0.0) then
                 // If the Pingu collided into something while moving 
@@ -87,7 +87,7 @@ do
                 // Don't make the Pingu go up any further.
                 _velocity.y = 0;
                 _velocity.x = (_velocity.x / 3.0);
-                this.pingu.me.set_velocity(_velocity);
+                this.pingu.set_velocity(_velocity);
             end
         end
     with

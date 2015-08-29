@@ -26,12 +26,12 @@ do
     end
 
     if this.pingu.me.direction.is_left() then
-        this.pingu.me.set_velocity(this.pingu.me.get_velocity() +
-                              _Vector3f(-4.58, -4.58));
+        this.pingu.set_velocity(this.pingu.me.get_velocity() +
+                                _Vector3f(-4.58, -4.58));
     else
         // if (this.pingu.me.direction.is_right())
-        this.pingu.me.set_velocity(this.pingu.me.get_velocity() +
-                              _Vector3f(4.58, -4.58));
+        this.pingu.set_velocity(this.pingu.me.get_velocity() +
+                                _Vector3f(4.58, -4.58));
     end
 
     // Move the me.pingu:n the air, so that it can start 'falling'
