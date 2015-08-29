@@ -107,6 +107,7 @@ public:
       CaputreRectangle, so it can contain more than just the name
       (number of blocks, etc.) */
   std::string get_name();
+/// TODO: char[] in functions
 
   /// Returns the unique id of the pingu
   unsigned int  get_id (void);
@@ -123,6 +124,7 @@ public:
   void set_pos (const Vector3f& arg_pos);
 
   Vector3f get_velocity () const { return velocity; }
+/// TODO: LinearMover
 
   // Set the pingu in the gives direction
   void set_direction (Direction d);
@@ -132,12 +134,6 @@ public:
       timed action, normal action will be applied if the current
       action allows that. */
   bool request_set_action (ActionName::Enum action_name);
-
-  /// get the wall action if we have one
-  ActionName::Enum request_wall_action ();
-
-  /// get the fall action if we have one
-  ActionName::Enum request_fall_action ();
 
   /** Returns the `color' of the colmap in the walking direction
       Examples:

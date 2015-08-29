@@ -2,6 +2,7 @@
 #define _FALLER_CEU
 
 #include "../right_left_sprites.ceu"
+#include "../movers/linear_mover.ceu"
 
 class Faller with
     interface IPinguAction;
@@ -11,7 +12,6 @@ do
 
     /* UPDATE */
     par do
-        var float countdown = 2.0;
         loop do
             await WORLD_UPDATE;
 
@@ -28,19 +28,13 @@ do
             // Apply gravity
             this.pingu.set_velocity(this.pingu.me.get_velocity() +
                   {Vector3f(0.0f, WorldObj::get_world()->get_gravity())});
-
-            // Move the Pingu as far is it can go
-            // XXX_CPP
-            {
-                Vector3f move =  THIS(CEU_Faller)->pingu_->get_velocity();
-                Movers::LinearMover mover(WorldObj::get_world(),
-                                          THIS(CEU_Faller)->pingu_->get_pos());
-                mover.update(move, Colliders::PinguCollider(pingu_height));
-            };
-            this.pingu.me.set_pos(_mover.get_pos());
-            if not _mover.collided() then
-                continue;
             end
+    with
+        var LinearMover mover with
+            this.pingu = &outer.pingu;
+        end;
+        loop do
+            await mover.ok_collided;
 
             // If the Pingu collided with something...
 

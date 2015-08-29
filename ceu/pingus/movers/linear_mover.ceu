@@ -1,0 +1,55 @@
+#ifndef _LINEARMOVER_CEU
+#define _LINEARMOVER_CEU
+
+class LinearMover with
+    var IPingu& pingu;
+    event void  ok_collided;
+do
+    every WORLD_UPDATE do
+        var bool collided = false;
+
+        // enclosing block for the C++ declarations
+        do
+            {
+                Vector3f pos, move;
+            };
+            _pos  = (_Vector3f) this.pingu.me.get_pos();
+            _move = (_Vector3f) this.pingu.me.get_velocity();
+            {
+                Vector3f target_pos = pos + move;
+                Vector3f step_vector = move;
+            };
+
+            // Static cast to stop warning
+            var int move_length = (int)(_move.length());
+
+            // Make the step vector (i.e. change to a unit vector)
+            _step_vector.normalize();
+
+            // Move to the destination one unit vector at a time
+            loop i in move_length do
+                collided = {Colliders::PinguCollider(pingu_height)}( 
+                                {WorldObj::get_world()},
+                                _pos,
+                                _step_vector);
+                _pos = _pos + _step_vector;
+                if collided then
+                    break;
+                end
+            end
+
+            // If on a collision pixel, back away from it.
+            if collided then
+                _pos = _pos - _step_vector;
+            end
+
+            this.pingu.me.set_pos(_pos);
+         end
+
+        if collided then
+            emit this.ok_collided;
+        end
+    end
+end
+
+#endif

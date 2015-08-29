@@ -3,12 +3,12 @@
 
 native/pre do
     ##include "../src/pingus/colliders/pingu_collider.hpp"
-    ##include "../src/pingus/movers/linear_mover.hpp"
     ##include "../src/pingus/particles/pingu_particle_holder.hpp"
     ##include "../src/pingus/pingu_enums.hpp"
 end
 
 #include "../right_left_sprites.ceu"
+#include "../movers/linear_mover.ceu"
 
 class Bomber with
     interface IPinguAction;
@@ -29,17 +29,10 @@ do
 
     var _Pingu& pingu_ = &this.pingu.me;
     par do
-        /* UPDATE */
-        every WORLD_UPDATE do
-            // XXX_CPP
-            {
-                Movers::LinearMover mover(WorldObj::get_world(),
-                                          THIS(CEU_Bomber)->pingu_->get_pos());
-            };
-            _mover.update(this.pingu.me.get_velocity(),
-                          {Colliders::PinguCollider(pingu_height)});
-            this.pingu.me.set_pos(_mover.get_pos());
-        end
+        // TODO: does it make any difference??
+        do LinearMover with
+            this.pingu = &outer.pingu;
+        end;
     with
         /* UPDATE */
         // while the Bomber hasn't 'exploded' yet
