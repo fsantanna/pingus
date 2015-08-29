@@ -98,6 +98,24 @@ PinguHolder::render(int x, int y, Framebuffer& fb)
 void
 PinguHolder::update()
 {
+  PinguIter pingu = pingus.begin();
+
+  while(pingu != pingus.end())
+  {
+    if ((*pingu)->get_status() == Pingu::PS_DEAD)
+    {
+      pingu = pingus.erase(pingu);
+    }
+    else if ((*pingu)->get_status() == Pingu::PS_EXITED)
+    {
+      pingu = pingus.erase(pingu);
+    }
+    else
+    {
+      // move to the next Pingu
+      ++pingu;
+    }
+  }
 }
 
 float

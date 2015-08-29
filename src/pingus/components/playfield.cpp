@@ -171,7 +171,8 @@ Playfield::on_key_pressed(const Input::KeyboardEvent& ev)
       {
         Direction d;
         ev.keysym.sym == SDLK_l ? d.left() : d.right();
-        pingu->set_direction(d);
+assert(!"TODO");
+        ///pingu->set_direction(d);
       }
     }
   }

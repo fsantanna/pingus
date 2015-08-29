@@ -34,21 +34,19 @@ do
                 this.me.world:get_pingus():create_pingu(
                     this.me.pos,
                     this.me.owner_id));
-            var IPingu&& pingu = (IPingu&&)pingu_:ceu;
-            if pingu == null then
+            if pingu_ == null then
                 continue;
             end
 
+            var IPingu&& pingu = (IPingu&&)pingu_:ceu;
             {
                 Direction d;
             };
             if this.me.direction == {WorldObjs::Entrance::LEFT} then
-_assert(not "LEFT ENTRANCE not tested!");
                 _d.left();
             else/if this.me.direction == {WorldObjs::Entrance::RIGHT}  then
                 _d.right();
             else/if this.me.direction == {WorldObjs::Entrance::MISC} then
-_assert(not "MISC ENTRANCE not tested!");
                 if last_was_right then
                     _d.left();
                 else
