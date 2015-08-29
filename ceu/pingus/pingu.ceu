@@ -242,6 +242,14 @@ _printf("ACTION_NAME = %d\n", me.current_action);
             (float){Math::clamp}(-_terminal_velocity, this.velocity.y, _terminal_velocity);
     end
 
+    function (void)=>_std__string get_owner_str do
+        {
+            std::ostringstream ostr;
+            ostr << THIS_F(CEU_Pingu)->me->owner_id;
+        };
+        return _ostr.str();
+    end
+
 #if 0
     void
     Pingu::apply_force (Vector3f arg_v)

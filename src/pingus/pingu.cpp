@@ -206,12 +206,4 @@ Pingu::get_owner ()
   return owner_id;
 }
 
-std::string
-Pingu::get_owner_str ()
-{
-  std::ostringstream ostr;
-  ostr << owner_id;
-  return ostr.str();
-}
-
 /* EOF */

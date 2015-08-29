@@ -14,10 +14,10 @@ class Bomber with
     interface IPinguAction;
 do
     var char[] left  = [] .. "pingus/player"
-                          .. (char&&)*this.pingu.me.get_owner_str().c_str()
+                          .. (char&&)*this.pingu.get_owner_str().c_str()
                           .. "/bomber/left";
     var char[] right = [] .. "pingus/player"
-                          .. (char&&)*this.pingu.me.get_owner_str().c_str()
+                          .. (char&&)*this.pingu.get_owner_str().c_str()
                           .. "/bomber/right";
     var RightLeftSprites sprites with
         this.pingu = &outer.pingu;
@@ -66,7 +66,7 @@ do
 
         do
             var char[] str = [] .. "pingus/player"
-                                .. (char&&)*this.pingu.me.get_owner_str().c_str()
+                                ..  (char&&)*this.pingu.get_owner_str().c_str()
                                 .. "/explo";
             var SpritePingu _ with
                 this.x     = &_XXX_NOHOLD(&&outer.pingu.me.pos_x);

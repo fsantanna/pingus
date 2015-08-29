@@ -7,10 +7,10 @@ class Jumper with
     interface IPinguAction;
 do
     var char[] left  = [] .. "pingus/player"
-                          .. (char&&)*this.pingu.me.get_owner_str().c_str()
+                          .. (char&&)*this.pingu.get_owner_str().c_str()
                           .. "/jumper/left";
     var char[] right = [] .. "pingus/player"
-                          .. (char&&)*this.pingu.me.get_owner_str().c_str()
+                          .. (char&&)*this.pingu.get_owner_str().c_str()
                           .. "/jumper/right";
     var RightLeftSprites _ with
         this.pingu = &outer.pingu;

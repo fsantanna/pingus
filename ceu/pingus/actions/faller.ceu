@@ -84,10 +84,10 @@ do
     with
         do
             var char[] left  = [] .. "pingus/player"
-                                  ..  (char&&)*this.pingu.me.get_owner_str().c_str()
+                                  ..  (char&&)*this.pingu.get_owner_str().c_str()
                                   .. "/faller/left";
             var char[] right = [] .. "pingus/player"
-                                  ..  (char&&)*this.pingu.me.get_owner_str().c_str()
+                                  ..  (char&&)*this.pingu.get_owner_str().c_str()
                                   .. "/faller/right";
             var RightLeftSprites _ with
                 this.pingu = &pingu;
@@ -98,10 +98,10 @@ do
         end
         do
             var char[] left  = [] .. "pingus/player"
-                                  ..  (char&&)*this.pingu.me.get_owner_str().c_str()
+                                  ..  (char&&)*this.pingu.get_owner_str().c_str()
                                   .. "/tumbler/left";
             var char[] right = [] .. "pingus/player"
-                                  ..  (char&&)*this.pingu.me.get_owner_str().c_str()
+                                  ..  (char&&)*this.pingu.get_owner_str().c_str()
                                   .. "/tumbler/right";
             do RightLeftSprites with
                 this.pingu = &pingu;

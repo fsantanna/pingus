@@ -32,10 +32,10 @@ do
         // BUILDING
         do
             var char[] left  = [] .. "pingus/player"
-                                  ..  (char&&)*this.pingu.me.get_owner_str().c_str()
+                                  ..  (char&&)*this.pingu.get_owner_str().c_str()
                                   .. "/bridger/left";
             var char[] right = [] .. "pingus/player"
-                                  ..  (char&&)*this.pingu.me.get_owner_str().c_str()
+                                  ..  (char&&)*this.pingu.get_owner_str().c_str()
                                   .. "/bridger/right";
             var RightLeftSprites builds with
                 this.pingu = &outer.pingu;
@@ -62,10 +62,10 @@ do
         // WALKING
         do
             var char[] left  = [] .. "pingus/player"
-                                  .. (char&&)*this.pingu.me.get_owner_str().c_str()
+                                  ..  (char&&)*this.pingu.get_owner_str().c_str()
                                   .. "/bridger_walk/left";
             var char[] right = [] .. "pingus/player"
-                                  .. (char&&)*this.pingu.me.get_owner_str().c_str()
+                                  ..  (char&&)*this.pingu.get_owner_str().c_str()
                                   .. "/bridger_walk/right";
             do RightLeftSprites with
                 this.pingu = &outer.pingu;

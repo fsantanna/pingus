@@ -10,7 +10,7 @@ do
                                              this.pingu.me.get_pos());
 
     var char[] str = [] .. "pingus/player"
-                        .. (char&&)*this.pingu.me.get_owner_str().c_str()
+                        .. (char&&)*this.pingu.get_owner_str().c_str()
                         .. "/splat";
     do SpritePingu with
         this.x    = &_XXX_NOHOLD(&&outer.pingu.me.pos_x);

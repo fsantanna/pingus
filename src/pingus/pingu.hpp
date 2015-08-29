@@ -148,10 +148,6 @@ public:
       configurations, ought to be 0 in single player */
   int get_owner ();
 
-  /** @return The owner_id as a string. Only used in multiplayer
-      configurations, ought to be "0" in single player */
-  std::string get_owner_str ();
-
   bool   is_over (int x, int y);
 
   bool   is_inside (int x1, int y1, int x2, int y2);
