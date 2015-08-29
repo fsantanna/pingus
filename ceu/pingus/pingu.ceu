@@ -251,6 +251,10 @@ _printf("ACTION_NAME = %d\n", me.current_action);
         return _ostr.str();
     end
 
+    function (_Direction d)=>void set_direction do
+        this.me.direction = d;
+    end
+
 #if 0
     void
     Pingu::apply_force (Vector3f arg_v)

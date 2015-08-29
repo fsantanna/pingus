@@ -75,9 +75,10 @@ interface IPingu with
     var   _ActionName__Enum wall_action;
     var   _ActionName__Enum fall_action;
 
-    function (void)=>Vector3f get_velocity;
-    function (Vector3f)=>void set_velocity;
-    function (void)=>_std__string get_owner_str;
+    function (void)         => Vector3f     get_velocity;
+    function (Vector3f)     => void         set_velocity;
+    function (void)         => _std__string get_owner_str;
+    function (_Direction d) => void         set_direction;
 end
 
 interface IPinguAction with

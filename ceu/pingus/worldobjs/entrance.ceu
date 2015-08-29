@@ -59,7 +59,7 @@ _assert(not "MISC ENTRANCE not tested!");
                 _log_error("warning direction is wrong: %1%", this.me.direction);
                 _d.right();
             end
-            pingu:me.set_direction(_d);
+            pingu:set_direction(_d);
         end
     end
 end

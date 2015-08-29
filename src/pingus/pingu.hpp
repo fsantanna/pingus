@@ -127,9 +127,6 @@ public:
   /// Set the pingu to the given coordinates
   void set_pos (const Vector3f& arg_pos);
 
-  // Set the pingu in the gives direction
-  void set_direction (Direction d);
-
   /** Request an action to be set to the pingu, if its a persistent
       action, it will be hold back for later execution, same with a
       timed action, normal action will be applied if the current

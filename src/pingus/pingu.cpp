@@ -167,12 +167,6 @@ Pingu::head_collision_on_walk (int x, int y)
   return false;
 }
 
-void
-Pingu::set_direction (Direction d)
-{
-  direction = d;
-}
-
 std::string
 Pingu::get_name()
 {
