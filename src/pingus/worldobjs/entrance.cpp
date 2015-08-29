@@ -59,8 +59,6 @@ Entrance::Entrance(const FileReader& reader) :
     direction = MISC;
   }
 
-  last_release = 150 - release_rate; // wait ~2sec at startup to allow a 'lets go' sound
-
   void* this_ = this;
   ceu_sys_go(&CEU_APP, CEU_IN_ENTRANCE_NEW, &this_);
 }
@@ -75,32 +73,9 @@ Entrance::get_z_pos () const
   return pos.z;
 }
 
-bool
-Entrance::pingu_ready ()
-{
-  if (last_release + release_rate < (world->get_time())) {
-    last_release = world->get_time();
-    return true;
-  } else {
-    return false;
-  }
-}
-
-void
-Entrance::create_pingu ()
-{
-  Pingu* pingu = world->get_pingus()->create_pingu(pos, owner_id);
-  tceu__WorldObjs__Entrance___Pingu_ p = {this,pingu};
-  ceu_sys_go(&CEU_APP, CEU_IN_ENTRANCE_CREATE_PINGU, &p);
-}
-
 void
 Entrance::update ()
 {
-  if (pingu_ready() && (! world->check_armageddon()))
-  {
-    create_pingu();
-  }
 }
 
 void

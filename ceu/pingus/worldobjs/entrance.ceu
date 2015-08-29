@@ -9,7 +9,6 @@ native @plain _WorldObjs__Entrance;
 
 input _WorldObjs__Entrance&&            ENTRANCE_NEW;
 input _WorldObjs__Entrance&&            ENTRANCE_DELETE;
-input (_WorldObjs__Entrance&&,_Pingu&&) ENTRANCE_CREATE_PINGU;
 
 class Entrance with
     var _WorldObjs__Entrance& me;
@@ -17,13 +16,24 @@ do
     par/or do
         AWAIT_UNTIL_MYSELF(_WorldObjs__Entrance,ENTRANCE_DELETE);
     with
-        var bool last_was_right = false;
-        loop do
-            var _WorldObjs__Entrance&& me_;
-            var _Pingu&&    pingu_;
-            (me_,pingu_) = await ENTRANCE_CREATE_PINGU
-                           until (me_ == &&this.me);
+        var int last_release = 150 - this.me.release_rate;
+            // wait ~2sec at startup to allow a 'lets go' sound
 
+        var bool last_was_right = false;
+
+        loop do
+            await WORLD_UPDATE
+            until this.me.world:get_time() >= last_release+this.me.release_rate;
+            last_release = this.me.world:get_time();
+
+            if this.me.world:check_armageddon() then
+                break;
+            end
+
+            var _Pingu&& pingu_ = _XXX_PURE(
+                this.me.world:get_pingus():create_pingu(
+                    this.me.pos,
+                    this.me.owner_id));
             var IPingu&& pingu = (IPingu&&)pingu_:ceu;
             if pingu == null then
                 continue;
