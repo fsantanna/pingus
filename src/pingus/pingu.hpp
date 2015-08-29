@@ -54,6 +54,7 @@ private:
 
   /** The id of the owner of the pingus, used in multiplayer matches */
   int owner_id;
+/// TODO: exit
 
   /** The stat of the pingu, these can be modified by PinguActions */
   PinguStatus status;
@@ -65,6 +66,7 @@ public:
 
   //FIXME make me private
   Direction direction;
+/// TODO: entrance/smasher/
 
   /** Creates a new Pingu at the given coordinates
       @param arg_id The uniq id of the pingu
@@ -79,6 +81,7 @@ public:
       is used for collision detection to the ground (the pingus
       feet) */
   Vector3f get_pos () const;
+/// TODO: worldobjs
 
   /** Returns the visible position of the pingu, the graphical center
       of the pingu. */
@@ -147,6 +150,7 @@ public:
   /** @return The owner_id of the owner, only used in multiplayer
       configurations, ought to be 0 in single player */
   int get_owner ();
+/// TODO: exit
 
   bool   is_over (int x, int y);
 
