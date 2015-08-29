@@ -77,6 +77,8 @@ public:
   /** Destruct the pingu... */
   ~Pingu ();
 
+  void* ceu;
+
   /** Return the logical pingus position, this is the position which
       is used for collision detection to the ground (the pingus
       feet) */
@@ -86,6 +88,7 @@ public:
   /** Returns the visible position of the pingu, the graphical center
       of the pingu. */
   Vector3f get_center_pos () const;
+/// TODO: is_over
 
   /** Returns the x position of the pingu
    * For backward comp. only
@@ -153,6 +156,7 @@ public:
 /// TODO: exit
 
   bool   is_over (int x, int y);
+/// TODO: world.cpp
 
   bool   is_inside (int x1, int y1, int x2, int y2);
 

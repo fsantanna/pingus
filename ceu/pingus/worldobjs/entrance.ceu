@@ -1,0 +1,68 @@
+#ifndef _ENTRANCE_CEU
+#define _ENTRANCE_CEU
+
+native/pre do
+    ##include "src/pingus/worldobjs/entrance.hpp"
+    ##define WorldObjs__Entrance WorldObjs::Entrance
+end
+native @plain _WorldObjs__Entrance;
+
+input _WorldObjs__Entrance&&            ENTRANCE_NEW;
+input _WorldObjs__Entrance&&            ENTRANCE_DELETE;
+input (_WorldObjs__Entrance&&,_Pingu&&) ENTRANCE_CREATE_PINGU;
+
+class Entrance with
+    var _WorldObjs__Entrance& me;
+do
+    par/or do
+        AWAIT_UNTIL_MYSELF(_WorldObjs__Entrance,ENTRANCE_DELETE);
+    with
+        var bool last_was_right = false;
+        loop do
+            var _WorldObjs__Entrance&& me_;
+            var _Pingu&&    pingu_;
+            (me_,pingu_) = await ENTRANCE_CREATE_PINGU
+                           until (me_ == &&this.me);
+
+            var IPingu&& pingu = (IPingu&&)pingu_:ceu;
+            if pingu == null then
+                continue;
+            end
+
+            {
+                Direction d;
+            };
+            if this.me.direction == {WorldObjs::Entrance::LEFT} then
+_assert(not "LEFT ENTRANCE not tested!");
+                _d.left();
+            else/if this.me.direction == {WorldObjs::Entrance::RIGHT}  then
+                _d.right();
+            else/if this.me.direction == {WorldObjs::Entrance::MISC} then
+_assert(not "MISC ENTRANCE not tested!");
+                if last_was_right then
+                    _d.left();
+                else
+                    _d.right();
+                end
+                last_was_right = not last_was_right;
+            else
+                _log_error("warning direction is wrong: %1%", this.me.direction);
+                _d.right();
+            end
+            pingu:me.set_direction(_d);
+        end
+    end
+end
+
+class EntranceFactory with
+do
+    every me_ in ENTRANCE_NEW do
+        spawn Entrance with
+            this.me = &_XXX_PTR2REF(me_);
+        end;
+    end
+end
+
+var EntranceFactory _;
+
+#endif

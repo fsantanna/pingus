@@ -47,6 +47,7 @@ class Pingu with
     var _ActionName__Enum fall_action = {ActionName::NONE};
 do
     var Vector3f velocity = Vector3f(0, 0, 0);
+    this.me.ceu = &&this;
 
     this.holder.number_of_released = this.holder.number_of_released + 1;
     this.holder.number_of_alive    = this.holder.number_of_alive    + 1;

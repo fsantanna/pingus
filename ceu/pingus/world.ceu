@@ -15,6 +15,7 @@ input (_SceneContext&&) WORLD_DRAW;
 
 input void WORLD_ARMAGEDDON;
 
+#include "worldobjs/entrance.ceu"
 #include "pingu_holder.ceu"
 #include "components/playfield.ceu"
 

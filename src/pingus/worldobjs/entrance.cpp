@@ -23,6 +23,8 @@
 #include "pingus/world.hpp"
 #include "util/log.hpp"
 
+#include "ceu_vars.h"
+
 namespace WorldObjs {
 
 Entrance::Entrance(const FileReader& reader) :
@@ -58,6 +60,9 @@ Entrance::Entrance(const FileReader& reader) :
   }
 
   last_release = 150 - release_rate; // wait ~2sec at startup to allow a 'lets go' sound
+
+  void* this_ = this;
+  ceu_sys_go(&CEU_APP, CEU_IN_ENTRANCE_NEW, &this_);
 }
 
 Entrance::~Entrance ()
@@ -84,52 +89,9 @@ Entrance::pingu_ready ()
 void
 Entrance::create_pingu ()
 {
-  Direction d;
-
   Pingu* pingu = world->get_pingus()->create_pingu(pos, owner_id);
-
-  if (pingu) // still pingus in the pool
-  {
-    switch (direction)
-    {
-      case LEFT:
-        d.left();
-        pingu->set_direction(d);
-        break;
-
-      case MISC:
-        if (last_direction)
-        {
-          d.left();
-          last_direction = 0;
-        }
-        else
-        {
-          d.right();
-          last_direction = 1;
-        }
-        pingu->set_direction(d);
-        break;
-
-      case RIGHT:
-        d.right();
-        pingu->set_direction(d);
-        break;
-
-      default:
-        log_error("warning direction is wrong: %1%", direction);
-        d.right();
-        pingu->set_direction(d);
-        break;
-    }
-
-    // FIXME: Find the "oing" sound
-    //world->play_sound("oing", pos);
-  }
-  else
-  {
-    //log_error("entrance: pingu couldn't get created");
-  }
+  tceu__WorldObjs__Entrance___Pingu_ p = {this,pingu};
+  ceu_sys_go(&CEU_APP, CEU_IN_ENTRANCE_CREATE_PINGU, &p);
 }
 
 void
