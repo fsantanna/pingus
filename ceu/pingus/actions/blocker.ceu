@@ -7,7 +7,7 @@ class Blocker with
     interface IPinguAction;
 do
     function (void)=>bool standing_on_ground;
-    function (_Pingu&& target)=>void catch_pingu;
+    function (IPingu&& target)=>void catch_pingu;
 
     var char[] left  = [] .. "pingus/player"
                           .. (char&&)*this.pingu.get_owner_str().c_str()
@@ -29,12 +29,10 @@ do
         end
 
         // FIXME: PinguHolder iterations should be handled otherwise
-        {
-            /// XXX_CPP
-            static PinguHolder* pingus = WorldObj::get_world()->get_pingus();
-            for(PinguIter i = pingus->begin(); i != pingus->end(); ++i)
-                CEU_Blocker_catch_pingu(_ceu_app,_STK_ORG,*i);
-        };
+        var IWorld&& world = {WorldObj::get_world()}:ceu;
+        loop pingu in world:get_pingu_holder().pingus do
+            this.catch_pingu(pingu);
+        end
     end
 
     /* PRIVATE */
@@ -43,17 +41,17 @@ do
         return (this.pingu.rel_getpixel(0,-1) != {Groundtype::GP_NOTHING});
     end
 
-    function (_Pingu&& target)=>void catch_pingu do
-        if (target != &&this.pingu.me) then // avoid 'self' catch
-            if ( target:get_x() > this.pingu.me.get_x()-16
-            and  target:get_x() < this.pingu.me.get_x()+16
-            and  target:get_y() > this.pingu.me.get_y()-32
-            and  target:get_y() < this.pingu.me.get_y()+5 )
+    function (IPingu&& target)=>void catch_pingu do
+        if (target != &&this.pingu) then // avoid 'self' catch
+            if ( target:me.get_x() > this.pingu.me.get_x()-16
+            and  target:me.get_x() < this.pingu.me.get_x()+16
+            and  target:me.get_y() > this.pingu.me.get_y()-32
+            and  target:me.get_y() < this.pingu.me.get_y()+5 )
             then
-                if (target:get_x() > this.pingu.me.get_x()) then
-                    target:direction.right();
+                if (target:me.get_x() > this.pingu.me.get_x()) then
+                    target:direction = _RIGHT;
                 else
-                    target:direction.left();
+                    target:direction = _LEFT;
                 end
             end
         end

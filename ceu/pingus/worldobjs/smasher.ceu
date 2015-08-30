@@ -21,11 +21,11 @@ do
             var IWorld&& world = (IWorld&&)this.me.world:ceu;
             loop pingu in world:get_pingu_holder().pingus do
                 // Activate the smasher if a Pingu is under it
-                if ((pingu:me.direction.is_left()               and
+                if ((pingu:direction == _LEFT                   and
                      pingu:me.get_pos().x > this.me.pos.x + 65  and
                      pingu:me.get_pos().x < this.me.pos.x + 85)
                 or
-                    (pingu:me.direction.is_right()              and
+                    (pingu:direction == _RIGHT                  and
                      pingu:me.get_pos().x > this.me.pos.x + 190 and
                      pingu:me.get_pos().x < this.me.pos.x + 210))
                 then

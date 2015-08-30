@@ -47,10 +47,8 @@ Pingu::Pingu (int arg_id, const Vector3f& arg_pos, int owner) :
 /// TODO: exit
   status(PS_ALIVE),
   pos_x(arg_pos.x),
-  pos_y(arg_pos.y),
-  direction()
+  pos_y(arg_pos.y)
 {
-  direction.left ();
 }
 
 Pingu::~Pingu ()

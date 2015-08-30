@@ -54,9 +54,9 @@ do
                 // may previously have been facing in the opposite direction of its
                 // velocity because of an explosion.
                 if (velocity.x > 0.0) then
-                    this.pingu.me.direction.right();
+                    this.pingu.direction = _RIGHT;
                 else
-                    this.pingu.me.direction.left();
+                    this.pingu.direction = _LEFT;
                 end
                 this.pingu.set_velocity(velocity);
 

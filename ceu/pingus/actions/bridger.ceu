@@ -48,7 +48,7 @@ do
             if this.brick_placement_allowed() then
                 this.place_a_brick(); // me.bricks--;
             else
-                this.pingu.me.direction.change();
+                this.pingu.change_direction();
                 escape {ActionName::WALKER};
             end
             await builds;
@@ -76,7 +76,7 @@ do
             // FIXME: Dangerous! might not be fixed timing
             if not this.way_is_free() then
                 // We reached a wall...
-                this.pingu.me.direction.change();
+                this.pingu.change_direction();
                 escape {ActionName::WALKER};
             end
             this.walk_one_step_up();
@@ -104,17 +104,17 @@ do
             if mode == _BRIDGER_BUILDING then
                 _GC_COLOR_DRAW(
                     gc,
-                    builds.get(this.pingu.me.direction).me,
+                    builds.get(this.pingu.direction).me,
                     _Vector3f(this.pingu.me.get_pos().x -
-                                (float)(x_offset * this.pingu.me.direction),
+                                (float)(x_offset * this.pingu.direction),
                                 this.pingu.me.get_pos().y + (float)(y_offset))
                 );
             else // _BRIDGER_WALKING
                 _GC_COLOR_DRAW(
                     gc,
-                    walks.get(this.pingu.me.direction).me,
+                    walks.get(this.pingu.direction).me,
                     _Vector3f(this.pingu.me.get_pos().x -
-                                (float)(x_offset * this.pingu.me.direction),
+                                (float)(x_offset * this.pingu.direction),
                                 this.pingu.me.get_pos().y + (float)(y_offset))
                 );
             end
@@ -165,7 +165,7 @@ do
             static CollisionMask brick_r("other/brick_right");
         };
 
-        if this.pingu.me.direction.is_right() then
+        if this.pingu.direction == _RIGHT then
             call {WorldObj::get_world()->put}(
                     _brick_r,
                     (int)(this.pingu.me.get_pos().x + 10.0 - (float)(_brick_r.get_width())),
@@ -184,7 +184,7 @@ do
 
     function (void)=>void walk_one_step_up do
         this.pingu.me.set_pos(
-            this.pingu.me.get_pos().x + (4.0*(float)(this.pingu.me.direction)),
+            this.pingu.me.get_pos().x + (4.0*(float)(this.pingu.direction)),
             this.pingu.me.get_pos().y - 2
         );
     end

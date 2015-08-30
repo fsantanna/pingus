@@ -10,10 +10,10 @@ class RightLeftSprites with
 do
     event void e_change;
     par do
-        var int dir = this.pingu.me.direction;
+        var int dir = this.pingu.direction;
         every WORLD_UPDATE do
-            if this.pingu.me.direction != dir then
-                dir = this.pingu.me.direction;
+            if this.pingu.direction != dir then
+                dir = this.pingu.direction;
                 emit e_change;
             end
         end
@@ -23,7 +23,7 @@ do
                 spawn SpritePingu in this.sprites with
                     this.x = &_XXX_NOHOLD(&&outer.pingu.me.pos_x);
                     this.y = &_XXX_NOHOLD(&&outer.pingu.me.pos_y);
-                    if outer.pingu.me.direction == {Direction::LEFT} then
+                    if outer.pingu.direction == {Direction::LEFT} then
                         this.name  = _XXX_PURE(&&outer.left);
                     else
                         this.name  = _XXX_PURE(&&outer.right);

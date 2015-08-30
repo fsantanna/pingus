@@ -72,13 +72,15 @@ interface IPingu with
     var   IPinguHolder&     holder;
     var   _Pingu&           me;
 
+    var   s8                direction;
     var   _ActionName__Enum wall_action;
     var   _ActionName__Enum fall_action;
 
     function (void)         => Vector3f     get_velocity;
     function (Vector3f)     => void         set_velocity;
     function (void)         => _std__string get_owner_str;
-    function (_Direction d) => void         set_direction;
+    function (s8 d)         => void         set_direction;
+    function (void)         => void         change_direction;
     function (int x, int y) => bool         head_collision_on_walk;
     function (int x, int y) => int          rel_getpixel;
 end

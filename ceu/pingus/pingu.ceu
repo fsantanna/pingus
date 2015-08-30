@@ -4,7 +4,9 @@
 native do
     ##include "../src/engine/display/scene_context.hpp"
     ##include "pingus/collision_map.hpp"
+    ##include "pingus/direction.hpp"
     ##define GC_COLOR_DRAW(gc,x,y) gc->color().draw(x,y)
+    enum Dir { LEFT = -1, NONE = 0, RIGHT = +1 };
 end
 native @nohold _GC_COLOR_DRAW();
 
@@ -44,6 +46,7 @@ native @plain _Pingu, _ActionName__Enum, _Pingu__PinguStatus;
 class Pingu with
     interface IPingu;
 
+    var   s8              direction   = _LEFT;
     var _ActionName__Enum wall_action = {ActionName::NONE};
     var _ActionName__Enum fall_action = {ActionName::NONE};
 do
@@ -73,7 +76,7 @@ do
                     //Sound::PingusSound::play_sound("die");
                     me.status = {Pingu::PS_DEAD};
     // TODO: copied from walker.ceu
-                    me.set_x(me.get_x() + (float)(me.direction));
+                    me.set_x(me.get_x() + (float)(this.direction));
                     escape {Pingu::PS_DEAD};
                 end
 
@@ -252,13 +255,21 @@ _printf("ACTION_NAME = %d\n", me.current_action);
         return _ostr.str();
     end
 
-    function (_Direction d)=>void set_direction do
-        this.me.direction = d;
+    function (s8 d)=>void set_direction do
+        this.direction = d;
+    end
+
+    function (void)=>void change_direction do
+        if this.direction == _LEFT then
+            this.direction = _RIGHT;
+        else
+            this.direction = _LEFT;
+        end
     end
 
     function (int x, int y)=>int rel_getpixel do
         return {WorldObj::get_world()->get_colmap()->getpixel}(
-                (int)(this.me.pos_x + (float)(x * this.me.direction)),
+                (int)(this.me.pos_x + (float)(x * this.direction)),
                 (int)(this.me.pos_y - (float)(y)));
     end
 

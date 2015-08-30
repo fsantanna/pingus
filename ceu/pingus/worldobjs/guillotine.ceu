@@ -31,7 +31,7 @@ do
                                            (int)(this.me.pos.y + 98)))
                     then
                         this.me.killing = true;
-                        this.me.direction = pingu:me.direction;
+                        this.me.direction = pingu:direction;
                         pingu:me.request_set_action({ActionName::DEAD});
                         this.me.sprite_kill_left.restart();
                         this.me.sprite_kill_right.restart();

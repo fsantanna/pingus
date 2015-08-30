@@ -20,7 +20,6 @@
 #include <memory>
 
 #include "math/vector3f.hpp"
-#include "pingus/direction.hpp"
 #include "pingus/action_name.hpp"
 
 class ActionHolder;
@@ -63,10 +62,6 @@ public:
 
   float pos_x;
   float pos_y;
-
-  //FIXME make me private
-  Direction direction;
-/// TODO: entrance/smasher/etc
 
   /** Creates a new Pingu at the given coordinates
       @param arg_id The uniq id of the pingu
@@ -133,16 +128,6 @@ public:
       timed action, normal action will be applied if the current
       action allows that. */
   bool request_set_action (ActionName::Enum action_name);
-
-  /** Returns the `color' of the colmap in the walking direction
-      Examples:
-      (0, -1) is the pixel under the pingu
-      (1, 0)  is the pixel in front of the pingu
-  */
-  int  rel_getpixel (int x, int y);
-
-  /// True if Pingu in specified position would bang its head if it were walking
-  bool head_collision_on_walk (int x, int y);
 
   void apply_force (Vector3f);
 

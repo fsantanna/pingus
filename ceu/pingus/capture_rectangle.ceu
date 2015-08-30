@@ -84,7 +84,7 @@ _assert(not "Not tested yet!");
 
             // RESPAWN SPRITES
             do
-                var bool is_left = pingu:me.direction.is_left();
+                var bool is_left = pingu:direction == _LEFT;
 
                 sprite_gb =
                     spawn SpritePingu in good_or_bad with

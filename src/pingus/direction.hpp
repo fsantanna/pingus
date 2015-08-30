@@ -31,8 +31,9 @@ public:
   ~Direction ();
 
   Direction& operator= (const Direction&);
+  Direction& operator= (const signed char);
 
-  operator int () const { return direction; }
+  operator signed char () const { return direction; }
 
   void change ();
   void left ();

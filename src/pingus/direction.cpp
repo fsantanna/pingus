@@ -39,6 +39,17 @@ Direction::operator=(const Direction& dir)
   return *this;
 }
 
+Direction&
+Direction::operator=(signed char v)
+{
+  if (v == LEFT) {
+    this->left();
+  } else {
+    this->right();
+  }
+  return *this;
+}
+
 void
 Direction::change()
 {

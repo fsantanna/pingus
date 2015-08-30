@@ -64,7 +64,7 @@ do
             then
                 // Change direction and let walk code walk forward/up to get out.
                 { Sound::PingusSound::play_sound("chink"); };
-                this.pingu.me.direction.change();
+                this.pingu.change_direction();
                 escape {ActionName::WALKER};
             else/if is_first_bash or this.have_something_to_dig() then
                 is_first_bash = false;
@@ -123,7 +123,7 @@ do
             // Note that Pingu::set_pos() is the 'reverse' of the y co-ords of
             // rel_getpixel()
             this.pingu.me.set_pos(
-                this.pingu.me.get_x() + (float)(this.pingu.me.direction),
+                this.pingu.me.get_x() + (float)(this.pingu.direction),
                 this.pingu.me.get_y() - (float)(y_inc)
             );
         end

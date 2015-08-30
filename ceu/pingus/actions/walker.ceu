@@ -89,7 +89,7 @@ do
                 // simple, stupid, but working bridge code
                 // FIXME: We don't check if we 'drift' into a solid ground block
                 this.pingu.me.set_pos(
-                    this.pingu.me.get_x() + (float)(this.pingu.me.direction),
+                    this.pingu.me.get_x() + (float)(this.pingu.direction),
                     this.pingu.me.get_y() - 1.0); // pingus 'float' through bridges
             else
                 // Non of the trivial moves worked, so we do up-hill or down-hill 
@@ -126,7 +126,7 @@ do
                 if found_next_step then
                     // pos.y has a reversed co-system to rel_getpixel()?
                     this.pingu.me.set_pos(
-                        this.pingu.me.get_x() + (float)(this.pingu.me.direction),
+                        this.pingu.me.get_x() + (float)(this.pingu.direction),
                         this.pingu.me.get_y() - (float)(possible_y_step));
                 else
                     if this.pingu.rel_getpixel(1, 0) != {Groundtype::GP_NOTHING} then
@@ -138,10 +138,10 @@ do
                         end
 
                         // No persitent action found, so change the direction
-                        this.pingu.me.direction.change();
+                        this.pingu.change_direction();
                     else
                         // We take the step, so that we are in the air
-                        this.pingu.me.set_x(this.pingu.me.get_x() + (float)(this.pingu.me.direction));
+                        this.pingu.me.set_x(this.pingu.me.get_x() + (float)(this.pingu.direction));
                         // We reached a cliff
                         escape {ActionName::FALLER};
                     end
@@ -155,7 +155,7 @@ do
 
                     //if the new position causes a head collision, we are already 
                     //stuck in a wall, so lets go back to the old position
-                    this.pingu.me.direction.change();
+                    this.pingu.change_direction();
                     this.pingu.me.set_pos(_last_pos);
                 end
             end

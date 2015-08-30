@@ -22,14 +22,14 @@ do
 
     // if climber, do a wall-jump, else just jump forward
     if this.previous_action == {ActionName::CLIMBER} then
-        this.pingu.me.direction.change();
+        this.pingu.change_direction();
     end
 
     var float dx, dy;
-    if this.pingu.me.direction.is_left() then
+    if this.pingu.direction == _LEFT then
         dx = -4.58;
         dy = -4.58;
-    else // if (this.pingu.me.direction.is_right())
+    else // if (this.pingu.direction == _LEFT)
         dx =  4.58;
         dy = -4.58;
     end

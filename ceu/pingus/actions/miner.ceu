@@ -42,12 +42,12 @@ do
             this.mine(true, delay_count);
 
             // stop pingu from walking further into the solid.
-            this.pingu.me.direction.change();
+            this.pingu.change_direction();
             escape {ActionName::WALKER};
         else
             // mine and walk forward
             this.mine(false, delay_count);
-            this.pingu.me.set_pos(this.pingu.me.get_xi() + this.pingu.me.direction,
+            this.pingu.me.set_pos(this.pingu.me.get_xi() + this.pingu.direction,
                                   this.pingu.me.get_yi() + 1);
         end
     end
@@ -74,17 +74,17 @@ do
                 call {WorldObj::get_world()->remove}(
                     _miner_radius,
                     this.pingu.me.get_xi() - (_miner_radius.get_width()/2)
-                        + this.pingu.me.direction,
+                        + this.pingu.direction,
                     this.pingu.me.get_yi() - _miner_radius.get_height() + 2
                 );
             end
 
         // the last mine action before switching to another action
-        else/if this.pingu.me.direction == {Direction::LEFT} then
+        else/if this.pingu.direction == {Direction::LEFT} then
             call {WorldObj::get_world()->remove}(
                     _miner_radius_left,
                     this.pingu.me.get_xi() - (_miner_radius_left.get_width()/2)
-                        + this.pingu.me.direction,
+                        + this.pingu.direction,
                     this.pingu.me.get_yi() - _miner_radius_left.get_height() + 
             2
             );
@@ -92,7 +92,7 @@ do
             call {WorldObj::get_world()->remove}(
                     _miner_radius_right,
                     this.pingu.me.get_xi() - (_miner_radius_right.get_width()/2)
-                        + this.pingu.me.direction,
+                        + this.pingu.direction,
                     this.pingu.me.get_yi() - _miner_radius_right.get_height() + 
             2
             );
