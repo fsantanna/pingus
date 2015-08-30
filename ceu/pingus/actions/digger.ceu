@@ -29,9 +29,9 @@ do
         end
     end
 
-    function (void)=>bool have_something_to_dig do
-        if (this.pingu.me.rel_getpixel(0,-1) !=  {Groundtype::GP_NOTHING}) then
-            if (this.pingu.me.rel_getpixel(0,-1) ==  {Groundtype::GP_SOLID}) then
+    function @rec (void)=>bool have_something_to_dig do
+        if (this.pingu.rel_getpixel(0,-1) !=  {Groundtype::GP_NOTHING}) then
+            if (this.pingu.rel_getpixel(0,-1) ==  {Groundtype::GP_SOLID}) then
                 call { Sound::PingusSound::play_sound }("chink");
                 return false;
             else

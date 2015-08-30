@@ -39,8 +39,8 @@ do
 
     /* PRIVATE */
 
-    function (void)=>bool standing_on_ground do
-        return (this.pingu.me.rel_getpixel(0,-1) != {Groundtype::GP_NOTHING});
+    function @rec (void)=>bool standing_on_ground do
+        return (this.pingu.rel_getpixel(0,-1) != {Groundtype::GP_NOTHING});
     end
 
     function (_Pingu&& target)=>void catch_pingu do

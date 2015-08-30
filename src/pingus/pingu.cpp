@@ -149,24 +149,6 @@ Pingu::dist(int x, int y)
                      (p.y - static_cast<float>(y)) * (p.y - static_cast<float>(y))));
 }
 
-int
-Pingu::rel_getpixel(int x, int y)
-{
-  return WorldObj::get_world()->get_colmap()->getpixel(static_cast<int>(pos_x + static_cast<float>(x * direction)),
-                                                       static_cast<int>(pos_y - static_cast<float>(y)));
-}
-
-bool
-Pingu::head_collision_on_walk (int x, int y)
-{
-  int pixel = rel_getpixel(x, y + pingu_height);
-
-  if (pixel != Groundtype::GP_NOTHING && !(pixel & Groundtype::GP_BRIDGE))
-    return true;
-
-  return false;
-}
-
 std::string
 Pingu::get_name()
 {

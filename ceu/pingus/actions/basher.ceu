@@ -55,12 +55,12 @@ do
         end
 
         // If walking on to something (i.e. hasn't fallen)
-        if this.pingu.me.rel_getpixel(0,-1) != {Groundtype::GP_NOTHING}
+        if this.pingu.rel_getpixel(0,-1) != {Groundtype::GP_NOTHING}
         then
             // If the Basher has walked into something that it won't be 
             // able to bash
-            if this.pingu.me.rel_getpixel(0,0)             == {Groundtype::GP_SOLID} or
-               this.pingu.me.rel_getpixel(0,_pingu_height) == {Groundtype::GP_SOLID}
+            if this.pingu.rel_getpixel(0,0)             == {Groundtype::GP_SOLID} or
+               this.pingu.rel_getpixel(0,_pingu_height) == {Groundtype::GP_SOLID}
             then
                 // Change direction and let walk code walk forward/up to get out.
                 { Sound::PingusSound::play_sound("chink"); };
@@ -102,14 +102,15 @@ do
         );
     end
 
-    function (void)=>bool walk_forward do
+// TODO: not @rec
+    function @rec (void)=>bool walk_forward do
         var int y_inc = 0;
 
         // Find the correct y position to go to next
         loop i in BASHER_MAX_STEPS_DOWN+1 do
             y_inc = -i;
             // If there is something below, get out of this loop
-            if this.pingu.me.rel_getpixel(0, y_inc - 1) != {Groundtype::GP_NOTHING} then
+            if this.pingu.rel_getpixel(0, y_inc - 1) != {Groundtype::GP_NOTHING} then
                 break;
             end
         end
@@ -129,12 +130,12 @@ do
         return true;
     end
 
-    function (void)=>bool have_something_to_dig do
+    function @rec (void)=>bool have_something_to_dig do
         // Check that there is something "within" the Basher's reach
         loop x in this.bash_reach+1 do
             loop i in (BASHER_MAX_BASH_HEIGHT-BASHER_MIN_BASH_HEIGHT+1) do
                 var int y = BASHER_MIN_BASH_HEIGHT + i;
-                if this.pingu.me.rel_getpixel(x, y) == {Groundtype::GP_GROUND} then
+                if this.pingu.rel_getpixel(x, y) == {Groundtype::GP_GROUND} then
                     _log_debug("Basher: Found something to dig...");
                     return true;
                 end

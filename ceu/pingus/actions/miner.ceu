@@ -28,15 +28,15 @@ do
             continue;
         end
 
-        if this.pingu.me.rel_getpixel(0,-1) == {Groundtype::GP_NOTHING} then
+        if this.pingu.rel_getpixel(0,-1) == {Groundtype::GP_NOTHING} then
             // stop mining when in the air
             this.mine(true, delay_count);
             escape {ActionName::WALKER};
-        else/if this.pingu.me.rel_getpixel(0,            -1) == {Groundtype::GP_SOLID} or
-                this.pingu.me.rel_getpixel(0, _pingu_height) == {Groundtype::GP_SOLID}
+        else/if this.pingu.rel_getpixel(0,            -1) == {Groundtype::GP_SOLID} or
+                this.pingu.rel_getpixel(0, _pingu_height) == {Groundtype::GP_SOLID}
         then
             // stop mining when hitting solid ground
-            if (this.pingu.me.rel_getpixel(0, -1) == {Groundtype::GP_SOLID}) then
+            if (this.pingu.rel_getpixel(0, -1) == {Groundtype::GP_SOLID}) then
                 {Sound::PingusSound::play_sound("chink");};
             end
             this.mine(true, delay_count);

@@ -41,11 +41,11 @@ do
 
             var Vector3f velocity = this.pingu.get_velocity();
 
-            if this.pingu.me.rel_getpixel(0,-1) == {Groundtype::GP_NOTHING} and
-               this.pingu.me.rel_getpixel(0,-2) == {Groundtype::GP_NOTHING} and
-               this.pingu.me.rel_getpixel(0,-3) == {Groundtype::GP_NOTHING} and
-               this.pingu.me.rel_getpixel(1, 0) != {Groundtype::GP_NOTHING} and
-               this.pingu.me.rel_getpixel(1, 0) != {Groundtype::GP_BRIDGE}
+            if this.pingu.rel_getpixel(0,-1) == {Groundtype::GP_NOTHING} and
+               this.pingu.rel_getpixel(0,-2) == {Groundtype::GP_NOTHING} and
+               this.pingu.rel_getpixel(0,-3) == {Groundtype::GP_NOTHING} and
+               this.pingu.rel_getpixel(1, 0) != {Groundtype::GP_NOTHING} and
+               this.pingu.rel_getpixel(1, 0) != {Groundtype::GP_BRIDGE}
             then
                 // Make Pingu bounce off wall
                 velocity.x = -(velocity.x / 3.0);

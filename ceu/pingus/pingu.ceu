@@ -3,6 +3,7 @@
 
 native do
     ##include "../src/engine/display/scene_context.hpp"
+    ##include "pingus/collision_map.hpp"
     ##define GC_COLOR_DRAW(gc,x,y) gc->color().draw(x,y)
 end
 native @nohold _GC_COLOR_DRAW();
@@ -68,7 +69,7 @@ do
                 /* The Pingu has hit the edge of the screen, a good time to let
                    him die.
                  */
-                if me.rel_getpixel(0,-1) == {Groundtype::GP_OUTOFSCREEN} then
+                if this.rel_getpixel(0,-1) == {Groundtype::GP_OUTOFSCREEN} then
                     //Sound::PingusSound::play_sound("die");
                     me.status = {Pingu::PS_DEAD};
     // TODO: copied from walker.ceu
@@ -76,8 +77,8 @@ do
                     escape {Pingu::PS_DEAD};
                 end
 
-                if me.rel_getpixel(0,-1) == {Groundtype::GP_WATER} or
-                   me.rel_getpixel(0,-1) == {Groundtype::GP_LAVA}
+                if this.rel_getpixel(0,-1) == {Groundtype::GP_WATER} or
+                   this.rel_getpixel(0,-1) == {Groundtype::GP_LAVA}
                 then
                     emit e_set_action => {ActionName::DROWN};
                     break;  // no more checks, will die
@@ -85,7 +86,7 @@ do
 
 
                 // if it has hit the ground too quickly
-                if me.rel_getpixel(0,-1) != {Groundtype::GP_NOTHING} and
+                if this.rel_getpixel(0,-1) != {Groundtype::GP_NOTHING} and
                         this.velocity.y > _deadly_velocity
                 then
                     emit e_set_action => {ActionName::SPLASHED};
@@ -253,6 +254,23 @@ _printf("ACTION_NAME = %d\n", me.current_action);
 
     function (_Direction d)=>void set_direction do
         this.me.direction = d;
+    end
+
+    function (int x, int y)=>int rel_getpixel do
+        return {WorldObj::get_world()->get_colmap()->getpixel}(
+                (int)(this.me.pos_x + (float)(x * this.me.direction)),
+                (int)(this.me.pos_y - (float)(y)));
+    end
+
+    function (int x, int y)=>bool head_collision_on_walk do
+        var int pixel = this.rel_getpixel(x, y + _pingu_height);
+        if (     pixel != {Groundtype::GP_NOTHING} and
+            not (pixel &  {Groundtype::GP_BRIDGE}))
+        then
+            return true;
+        else
+            return false;
+        end
     end
 
 #if 0

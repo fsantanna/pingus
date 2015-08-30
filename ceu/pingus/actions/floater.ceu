@@ -18,7 +18,7 @@ do
 
     loop do
         await WORLD_UPDATE;
-        if this.pingu.me.rel_getpixel(0,-1) == {Groundtype::GP_NOTHING} then
+        if this.pingu.rel_getpixel(0,-1) == {Groundtype::GP_NOTHING} then
             this.pingu.me.set_y(this.pingu.me.get_y() + 1);
         else
             escape {ActionName::WALKER};

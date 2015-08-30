@@ -79,6 +79,8 @@ interface IPingu with
     function (Vector3f)     => void         set_velocity;
     function (void)         => _std__string get_owner_str;
     function (_Direction d) => void         set_direction;
+    function (int x, int y) => bool         head_collision_on_walk;
+    function (int x, int y) => int          rel_getpixel;
 end
 
 interface IPinguHolderPool with
