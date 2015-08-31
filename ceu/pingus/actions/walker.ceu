@@ -40,11 +40,7 @@ do
         loop do
             await WORLD_UPDATE;
 
-            // XXX_CPP
-            {
-                static Vector3f last_pos;
-            };
-            _last_pos = (_Vector3f)this.pingu.me.get_pos();
+            var Vector3f last_pos = this.pingu.get_pos();
 
               /* How should this code work?
 
@@ -156,7 +152,7 @@ do
                     //if the new position causes a head collision, we are already 
                     //stuck in a wall, so lets go back to the old position
                     this.pingu.change_direction();
-                    this.pingu.set_pos(_last_pos.x,_last_pos.y);
+                    this.pingu.set_pos(last_pos.x,last_pos.y);
                 end
             end
         end

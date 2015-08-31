@@ -22,12 +22,12 @@ do
             loop pingu in world:get_pingu_holder().pingus do
                 // Activate the smasher if a Pingu is under it
                 if ((pingu:direction == _LEFT                   and
-                     pingu:me.get_pos().x > this.me.pos.x + 65  and
-                     pingu:me.get_pos().x < this.me.pos.x + 85)
+                     pingu:get_pos().x > this.me.pos.x + 65  and
+                     pingu:get_pos().x < this.me.pos.x + 85)
                 or
                     (pingu:direction == _RIGHT                  and
-                     pingu:me.get_pos().x > this.me.pos.x + 190 and
-                     pingu:me.get_pos().x < this.me.pos.x + 210))
+                     pingu:get_pos().x > this.me.pos.x + 190 and
+                     pingu:get_pos().x < this.me.pos.x + 210))
                 then
                     if (pingu:me.get_action() != {ActionName::SPLASHED}) then
                         if (not this.me.smashing) then

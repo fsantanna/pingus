@@ -25,7 +25,13 @@ do
         this.right = &right;
     end;
 
-    call {WorldObj::get_world()->play_sound}("ohno", this.pingu.me.get_pos());
+    {
+        static Vector3f vec1;
+    };
+    _vec1.x = this.pingu.get_pos().x;
+    _vec1.y = this.pingu.get_pos().y;
+
+    call {WorldObj::get_world()->play_sound}("ohno", _vec1);
 
     var _Pingu& pingu_ = &this.pingu.me;
     par do
@@ -41,9 +47,13 @@ do
 
         // Throwing particles
         {
-            WorldObj::get_world()->play_sound("plop",
-                THIS(CEU_Bomber)->pingu_->get_pos());
+            static Vector3f vec2;
         };
+        _vec2.x = this.pingu.get_pos().x;
+        _vec2.y = this.pingu.get_pos().y;
+
+        call {WorldObj::get_world()->play_sound}("plop", _vec2);
+
         await WORLD_UPDATE
         until sprites.get():get_current_frame() == 13;
 

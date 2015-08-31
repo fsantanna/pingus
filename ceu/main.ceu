@@ -80,6 +80,7 @@ interface IPingu with
     function (void)         => float        get_y;
     function (void)         => int          get_xi;
     function (void)         => int          get_yi;
+    function (void)         => Vector3f     get_pos;
     function (float)        => void         set_x;
     function (float)        => void         set_y;
     function (float,float)  => void         set_pos;

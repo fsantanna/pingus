@@ -105,17 +105,17 @@ do
                 _GC_COLOR_DRAW(
                     gc,
                     builds.get(this.pingu.direction).me,
-                    _Vector3f(this.pingu.me.get_pos().x -
+                    _Vector3f(this.pingu.get_pos().x -
                                 (float)(x_offset * this.pingu.direction),
-                                this.pingu.me.get_pos().y + (float)(y_offset))
+                                this.pingu.get_pos().y + (float)(y_offset))
                 );
             else // _BRIDGER_WALKING
                 _GC_COLOR_DRAW(
                     gc,
                     walks.get(this.pingu.direction).me,
-                    _Vector3f(this.pingu.me.get_pos().x -
+                    _Vector3f(this.pingu.get_pos().x -
                                 (float)(x_offset * this.pingu.direction),
-                                this.pingu.me.get_pos().y + (float)(y_offset))
+                                this.pingu.get_pos().y + (float)(y_offset))
                 );
             end
         end
@@ -152,7 +152,7 @@ do
         return not this.pingu.head_collision_on_walk(0, 2);
     end
 
-    function (void)=>void place_a_brick do
+    function @rec (void)=>void place_a_brick do
         this.bricks = this.bricks - 1;
         this.pingu.me.name = (_std__string){ _("Bridger") + std::string(" (") +
                               StringUtil::to_string(THIS_F(CEU_Bridger)->bricks) + ")" };
@@ -168,15 +168,15 @@ do
         if this.pingu.direction == _RIGHT then
             call {WorldObj::get_world()->put}(
                     _brick_r,
-                    (int)(this.pingu.me.get_pos().x + 10.0 - (float)(_brick_r.get_width())),
-                    (int)(this.pingu.me.get_pos().y),
+                    (int)(this.pingu.get_pos().x + 10.0 - (float)(_brick_r.get_width())),
+                    (int)(this.pingu.get_pos().y),
                     {Groundtype::GP_BRIDGE}
             );
         else
             call {WorldObj::get_world()->put}(
                     _brick_l,
-                    (int)(this.pingu.me.get_pos().x - 10.0),
-                    (int)(this.pingu.me.get_pos().y),
+                    (int)(this.pingu.get_pos().x - 10.0),
+                    (int)(this.pingu.get_pos().y),
                     {Groundtype::GP_BRIDGE}
             );
         end
@@ -184,8 +184,8 @@ do
 
     function @rec (void)=>void walk_one_step_up do
         this.pingu.set_pos(
-            this.pingu.me.get_pos().x + (4.0*(float)(this.pingu.direction)),
-            this.pingu.me.get_pos().y - 2
+            this.pingu.get_pos().x + (4.0*(float)(this.pingu.direction)),
+            this.pingu.get_pos().y - 2
         );
     end
 end

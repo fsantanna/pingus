@@ -28,10 +28,10 @@ do
                 end
 
                 // Now, make sure the pingu is within range
-                if ( (p:me.get_pos().x > this.me.pos.x-1) and
-                     (p:me.get_pos().x < this.me.pos.x+1) and
-                     (p:me.get_pos().y > this.me.pos.y-5) and
-                     (p:me.get_pos().y < this.me.pos.y+5) )
+                if ( (p:get_pos().x > this.me.pos.x-1) and
+                     (p:get_pos().x < this.me.pos.x+1) and
+                     (p:get_pos().y > this.me.pos.y-5) and
+                     (p:get_pos().y < this.me.pos.y+5) )
                 then
                     // Now, make sure the pingu isn't already exiting, gone, or dead
                     // Pingu actually exits

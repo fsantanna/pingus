@@ -6,8 +6,13 @@
 class Splashed with
     interface IPinguAction;
 do
-    call {WorldObj::get_world()->play_sound}("splash",
-                                             this.pingu.me.get_pos());
+    {
+        static Vector3f vec;
+    };
+    _vec.x = this.pingu.get_pos().x;
+    _vec.y = this.pingu.get_pos().y;
+
+    call {WorldObj::get_world()->play_sound}("splash", _vec);
 
     var char[] str = [] .. "pingus/player"
                         .. (char&&)*this.pingu.get_owner_str().c_str()
