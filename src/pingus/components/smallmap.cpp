@@ -23,6 +23,8 @@
 #include "pingus/smallmap_image.hpp"
 #include "pingus/world.hpp"
 
+#include "ceu_vars.h"
+
 SmallMap::SmallMap(Server* server_, Playfield* playfield_, const Rect& rect_) :
   RectComponent(rect_),
   server(server_),
@@ -46,57 +48,8 @@ SmallMap::~SmallMap()
 void
 SmallMap::draw(DrawingContext& gc)
 {
-  // FIXME: This is potentially dangerous, since we don't know how
-  // long 'gc' will be alive. Should use a DrawingContext for caching.
-  gc_ptr = &gc;
-
-  World* const& world  = server->get_world();
-
-  Vector2i of = playfield->get_pos();
-  Rect view_rect;
-
-  if (world->get_width() > gc.get_width())
-  {
-    int rwidth = int(gc.get_width()  * rect.get_width()  / world->get_width());
-    view_rect.left  = rect.left + (of.x * rect.get_width()  / world->get_width()) - rwidth/2;
-    view_rect.right = view_rect.left + rwidth;
-  }
-  else
-  {
-    view_rect.left  = rect.left;
-    view_rect.right = rect.left + rect.get_width();
-  }
-
-  if (world->get_height() > gc.get_height())
-  {
-    int rheight = int(gc.get_height() * rect.get_height() / world->get_height());
-    view_rect.top    = rect.top + (of.y * rect.get_height() / world->get_height()) - rheight/2;
-    view_rect.bottom = view_rect.top + rheight;
-  }
-  else
-  {
-    view_rect.top    = rect.top;
-    view_rect.bottom = rect.top + rect.get_height();
-  }
-
-  gc.draw(image->get_surface(), Vector2i(rect.left, rect.top));
-  gc.draw_rect(view_rect, Color(0, 255, 0));
-
-  server->get_world()->draw_smallmap(this);
-
-  // Draw Pingus
-  PinguHolder* pingus = world->get_pingus();
-  for(PinguIter i = pingus->begin(); i != pingus->end(); ++i)
-  {
-    int x = static_cast<int>(static_cast<float>(rect.left) + ((*i)->get_x() * static_cast<float>(rect.get_width())
-                                                              / static_cast<float>(world->get_width())));
-    int y = static_cast<int>(static_cast<float>(rect.top)  + ((*i)->get_y() * static_cast<float>(rect.get_height())
-                                                              / static_cast<float>(world->get_height())));
-
-    gc.draw_line(Vector2i(x, y), Vector2i(x, y-2), Color(255, 255, 0));
-  }
-
-  gc_ptr = 0;
+  DrawingContext* p = &gc;
+  ceu_sys_go(&CEU_APP, CEU_IN_SMALLMAP_DRAW, &p);
 }
 
 void

@@ -1,3 +1,5 @@
+- bug: doesnt decrement actions
+- bug: capture set_pingus every draw
 - bug: perdendo foco em pingus no playfield
        ou ficando com foco em pingu morto
 - pingu: remove IPinguHolder e usar evento global de sets final status

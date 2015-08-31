@@ -80,18 +80,6 @@ public:
   Vector3f get_pos () const;
 /// TODO: worldobjs
 
-  /** Returns the x position of the pingu
-   * For backward comp. only
-   */
-  const float& get_x () const { return pos_x; }
-
-  /** Returns the y position of the pingu
-      For backward comp. only */
-  const float& get_y () const { return pos_y; }
-
-  int get_xi () const { return static_cast<int>(pos_x); }
-  int get_yi () const { return static_cast<int>(pos_y); }
-
   /// Return the status of the pingu
   PinguStatus get_status (void) const;
 

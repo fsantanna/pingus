@@ -1,0 +1,75 @@
+#ifndef _SMALLMAP_CEU
+#define _SMALLMAP_CEU
+
+native/pre do
+    ##include "../src/engine/display/drawing_context.hpp"
+end
+native @plain _DrawingContext;
+
+input (_DrawingContext&&) SMALLMAP_DRAW;
+
+native do
+    ##include "src/pingus/smallmap_image.hpp"
+end
+
+class SmallMap with
+    var _SmallMap& me;
+    var PinguHolder& pingu_holder;
+do
+    every gc in SMALLMAP_DRAW do
+        this.me.gc_ptr = gc;
+
+        var _World&&? world = _XXX_PURE(this.me.server:get_world());
+
+        var int of_x = this.me.playfield:get_pos().x;
+        var int of_y = this.me.playfield:get_pos().y;
+        {
+            Rect view_rect;
+        };
+
+        if (world!:get_width() > gc:get_width()) then
+            var int rwidth = (int)(gc:get_width()  * this.me.rect.get_width()  
+            / world!:get_width());
+            _view_rect.left  = this.me.rect.left + (of_x * 
+            this.me.rect.get_width()  / world!:get_width()) - rwidth/2;
+            _view_rect.right = _view_rect.left + rwidth;
+        else
+            _view_rect.left  = (int)this.me.rect.left;
+            _view_rect.right = this.me.rect.left + this.me.rect.get_width();
+        end
+
+        if (world!:get_height() > gc:get_height()) then
+            var int rheight = (int)(gc:get_height() * this.me.rect.get_height() 
+            / world!:get_height());
+            _view_rect.top    = this.me.rect.top + (of_y * 
+            this.me.rect.get_height() / world!:get_height()) - rheight/2;
+            _view_rect.bottom = _view_rect.top + rheight;
+        else
+            _view_rect.top    = (int)this.me.rect.top;
+            _view_rect.bottom = this.me.rect.top + this.me.rect.get_height();
+        end
+
+        gc:draw(this.me.image:get_surface(),
+                        _Vector2i((int)this.me.rect.left, 
+            (int)this.me.rect.top));
+        gc:draw_rect(_view_rect, _Color(0, 255, 0));
+
+        this.me.server:get_world():draw_smallmap(&&this.me)
+            finalize with nothing; end; // draw_smallmap is @nohold
+
+        // Draw Pingus
+        loop pingu in this.pingu_holder.pingus do
+            var int x = (int)((float)(this.me.rect.left) + (pingu:get_x() * 
+            (float)(this.me.rect.get_width()) / (float)(world!:get_width())));
+            var int y = (int)((float)(this.me.rect.top)  + (pingu:get_y() * 
+            (float)(this.me.rect.get_height()) / 
+(float)(world!:get_height())));
+            gc:draw_line(_Vector2i(x, y), _Vector2i(x, y-2), _Color(255, 255, 
+        0));
+        end
+
+        this.me.gc_ptr = 0;
+    end
+end
+
+#endif

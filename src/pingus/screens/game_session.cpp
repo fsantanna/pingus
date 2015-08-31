@@ -35,6 +35,7 @@
 #include "util/log.hpp"
 
 Playfield* GLOBAL_PLAYFIELD = NULL;
+SmallMap*  GLOBAL_SMALLMAP  = NULL;
 
 GameSession::GameSession(const PingusLevel& arg_plf, bool arg_show_result_screen) :
   plf(arg_plf),
@@ -78,6 +79,7 @@ GLOBAL_PLAYFIELD = playfield;
 
   pcounter     = new PingusCounter(get_server());
   small_map    = new SmallMap(get_server(), playfield, Rect(Vector2i(5, size.height - 105), Size(175, 100)));
+GLOBAL_SMALLMAP = small_map;
   time_display = new TimeDisplay(this);
 
   gui_manager->add(playfield);

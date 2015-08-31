@@ -42,7 +42,7 @@ do
         end
     end
 
-    function (bool final)=>void dig do
+    function @rec (bool final)=>void dig do
         {
             ##include "../../../src/pingus/collision_mask.hpp"
             static CollisionMask digger_radius(
@@ -58,15 +58,15 @@ do
         if (not final) then
             call {WorldObj::get_world()->remove}(
                     _digger_radius,
-                    this.pingu.me.get_xi() - _digger_radius.get_width()/2,
-                    this.pingu.me.get_yi() - _digger_radius.get_height() + 2);
+                    this.pingu.get_xi() - _digger_radius.get_width()/2,
+                    this.pingu.get_yi() - _digger_radius.get_height() + 2);
         else
             call {WorldObj::get_world()->remove}(
                     _digger_radius_final,
-                    this.pingu.me.get_xi() - _digger_radius.get_width()/2,
-                    this.pingu.me.get_yi() - _digger_radius.get_height() + 2);
+                    this.pingu.get_xi() - _digger_radius.get_width()/2,
+                    this.pingu.get_yi() - _digger_radius.get_height() + 2);
         end
-        this.pingu.me.set_pos(this.pingu.me.get_xi(), this.pingu.me.get_yi()+1);
+        this.pingu.me.set_pos(this.pingu.get_xi(), this.pingu.get_yi()+1);
     end
 end
 

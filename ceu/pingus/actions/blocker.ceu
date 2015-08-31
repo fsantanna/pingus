@@ -41,14 +41,14 @@ do
         return (this.pingu.rel_getpixel(0,-1) != {Groundtype::GP_NOTHING});
     end
 
-    function (IPingu&& target)=>void catch_pingu do
+    function @rec (IPingu&& target)=>void catch_pingu do
         if (target != &&this.pingu) then // avoid 'self' catch
-            if ( target:me.get_x() > this.pingu.me.get_x()-16
-            and  target:me.get_x() < this.pingu.me.get_x()+16
-            and  target:me.get_y() > this.pingu.me.get_y()-32
-            and  target:me.get_y() < this.pingu.me.get_y()+5 )
+            if ( target:get_x() > this.pingu.get_x()-16
+            and  target:get_x() < this.pingu.get_x()+16
+            and  target:get_y() > this.pingu.get_y()-32
+            and  target:get_y() < this.pingu.get_y()+5 )
             then
-                if (target:me.get_x() > this.pingu.me.get_x()) then
+                if (target:get_x() > this.pingu.get_x()) then
                     target:direction = _RIGHT;
                 else
                     target:direction = _LEFT;

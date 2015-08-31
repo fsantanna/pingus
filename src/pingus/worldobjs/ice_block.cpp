@@ -71,11 +71,14 @@ IceBlock::update()
 
   for (PinguIter pingu = holder->begin(); pingu != holder->end(); ++pingu)
   {
+assert(!"NOT PORTED");
+#if 0
     if ((*pingu)->get_x() > pos.x     && (*pingu)->get_x() < pos.x + static_cast<float>(block_sur.get_width()) &&
         (*pingu)->get_y() > pos.y - 4 && (*pingu)->get_y() < pos.y + static_cast<float>(block_sur.get_height()))
     {
       last_contact = world->get_time();
     }
+#endif
   }
 
   if (last_contact && last_contact + 1000 > world->get_time())

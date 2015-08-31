@@ -47,14 +47,14 @@ do
         else
             // mine and walk forward
             this.mine(false, delay_count);
-            this.pingu.me.set_pos(this.pingu.me.get_xi() + this.pingu.direction,
-                                  this.pingu.me.get_yi() + 1);
+            this.pingu.me.set_pos(this.pingu.get_xi() + this.pingu.direction,
+                                  this.pingu.get_yi() + 1);
         end
     end
 
     /* PRIVATE */
 
-    function (bool final, int delay_count) => void mine do
+    function @rec (bool final, int delay_count) => void mine do
         {
             ##include "../../../src/pingus/collision_mask.hpp"
             static CollisionMask miner_radius(
@@ -73,9 +73,9 @@ do
                 // regular mine action
                 call {WorldObj::get_world()->remove}(
                     _miner_radius,
-                    this.pingu.me.get_xi() - (_miner_radius.get_width()/2)
+                    this.pingu.get_xi() - (_miner_radius.get_width()/2)
                         + this.pingu.direction,
-                    this.pingu.me.get_yi() - _miner_radius.get_height() + 2
+                    this.pingu.get_yi() - _miner_radius.get_height() + 2
                 );
             end
 
@@ -83,18 +83,16 @@ do
         else/if this.pingu.direction == {Direction::LEFT} then
             call {WorldObj::get_world()->remove}(
                     _miner_radius_left,
-                    this.pingu.me.get_xi() - (_miner_radius_left.get_width()/2)
+                    this.pingu.get_xi() - (_miner_radius_left.get_width()/2)
                         + this.pingu.direction,
-                    this.pingu.me.get_yi() - _miner_radius_left.get_height() + 
-            2
+                    this.pingu.get_yi() - _miner_radius_left.get_height() + 2
             );
         else    // RIGHT
             call {WorldObj::get_world()->remove}(
                     _miner_radius_right,
-                    this.pingu.me.get_xi() - (_miner_radius_right.get_width()/2)
+                    this.pingu.get_xi() - (_miner_radius_right.get_width()/2)
                         + this.pingu.direction,
-                    this.pingu.me.get_yi() - _miner_radius_right.get_height() + 
-            2
+                    this.pingu.get_yi() - _miner_radius_right.get_height() + 2
             );
         end
     end

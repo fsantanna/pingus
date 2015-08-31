@@ -4,10 +4,12 @@
 native do
     ##include "src/pingus/world.hpp"
     ##include "src/pingus/components/playfield.hpp"
+    ##include "src/pingus/components/smallmap.hpp"
     extern Playfield* GLOBAL_PLAYFIELD;
+    extern SmallMap*  GLOBAL_SMALLMAP;
 end
 native @plain _World;
-native @plain _Playfield;
+native @plain _Playfield, _SmallMap;
 
 input (_World&&) WORLD_NEW;
 input (_World&&) WORLD_DELETE;
@@ -22,6 +24,7 @@ input void WORLD_ARMAGEDDON;
 
 #include "pingu_holder.ceu"
 #include "components/playfield.ceu"
+#include "components/smallmap.ceu"
 
 class World with
     interface IWorld;
@@ -39,6 +42,12 @@ do
     var Playfield playfield with
         this.pingu_holder = &pingu_holder;
         this.me           = &playfield_!;
+    end;
+
+    var _SmallMap&? smallmap_ := &_XXX_PURE(_GLOBAL_SMALLMAP);
+    var SmallMap smallmap with
+        this.pingu_holder = &pingu_holder;
+        this.me           = &smallmap_!;
     end;
 
     par/or do

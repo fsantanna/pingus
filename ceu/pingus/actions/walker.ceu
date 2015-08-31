@@ -76,7 +76,7 @@ do
                     end
                 end
                 if found_ground then
-                    this.pingu.me.set_y(this.pingu.me.get_y() - (float)(i));
+                    this.pingu.me.set_y(this.pingu.get_y() - (float)(i));
                 else
                     escape {ActionName::FALLER};
                 end
@@ -89,8 +89,8 @@ do
                 // simple, stupid, but working bridge code
                 // FIXME: We don't check if we 'drift' into a solid ground block
                 this.pingu.me.set_pos(
-                    this.pingu.me.get_x() + (float)(this.pingu.direction),
-                    this.pingu.me.get_y() - 1.0); // pingus 'float' through bridges
+                    this.pingu.get_x() + (float)(this.pingu.direction),
+                    this.pingu.get_y() - 1.0); // pingus 'float' through bridges
             else
                 // Non of the trivial moves worked, so we do up-hill or down-hill 
                 // walking
@@ -126,8 +126,8 @@ do
                 if found_next_step then
                     // pos.y has a reversed co-system to rel_getpixel()?
                     this.pingu.me.set_pos(
-                        this.pingu.me.get_x() + (float)(this.pingu.direction),
-                        this.pingu.me.get_y() - (float)(possible_y_step));
+                        this.pingu.get_x() + (float)(this.pingu.direction),
+                        this.pingu.get_y() - (float)(possible_y_step));
                 else
                     if this.pingu.rel_getpixel(1, 0) != {Groundtype::GP_NOTHING} then
                         // We reached a wall
@@ -141,7 +141,7 @@ do
                         this.pingu.change_direction();
                     else
                         // We take the step, so that we are in the air
-                        this.pingu.me.set_x(this.pingu.me.get_x() + (float)(this.pingu.direction));
+                        this.pingu.me.set_x(this.pingu.get_x() + (float)(this.pingu.direction));
                         // We reached a cliff
                         escape {ActionName::FALLER};
                     end

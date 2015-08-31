@@ -61,10 +61,12 @@ Hammer::update()
         Pingu* pingu = *pingu_it;
         if (pingu->get_action() != ActionName::SPLASHED)
         {
+assert(!"NOT PORTED");
+#if 0
           if (pingu->get_x() > pos.x + 55  && pingu->get_x() < pos.x + 77
               && pingu->get_y() > pos.y + 146 && pingu->get_y() < pos.y + 185)
-assert(!"NOT PORTED");
-            //pingu->request_set_action(ActionName::SPLASHED);
+            pingu->request_set_action(ActionName::SPLASHED);
+#endif
         }
       }
 

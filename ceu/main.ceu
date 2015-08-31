@@ -22,7 +22,7 @@ native do
     ##define ResourceModifier__Enum ResourceModifier::Enum
 end
 native @pure _Resource__load_sprite_desc(), _Pathname();
-native @plain _std__string, _Vector3f;
+native @plain _std__string, _Vector3f, _Color, _Rect;
 native @plain _Sprite, _Surface, _SpriteDescription;
 native @plain _ResourceModifier__Enum;
 native @pure   _XXX_PURE(), _XXX_PTR2REF();
@@ -76,6 +76,10 @@ interface IPingu with
     var   _ActionName__Enum wall_action;
     var   _ActionName__Enum fall_action;
 
+    function (void)         => float        get_x;
+    function (void)         => float        get_y;
+    function (void)         => int          get_xi;
+    function (void)         => int          get_yi;
     function (void)         => Vector3f     get_velocity;
     function (Vector3f)     => void         set_velocity;
     function (void)         => _std__string get_owner_str;

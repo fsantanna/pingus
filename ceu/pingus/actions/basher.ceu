@@ -85,7 +85,7 @@ do
 
     /* PRIVATE */
 
-    function (void)=>void bash do
+    function @rec (void)=>void bash do
         {
             ##include "../../../src/pingus/collision_mask.hpp"
             static CollisionMask bash_radius(
@@ -97,8 +97,8 @@ do
 
         call {WorldObj::get_world()->remove}(
                 _bash_radius,
-                this.pingu.me.get_xi() - _bash_radius.get_width() / 2,
-                this.pingu.me.get_yi() - _bash_radius.get_height() + 1
+                this.pingu.get_xi() - _bash_radius.get_width() / 2,
+                this.pingu.get_yi() - _bash_radius.get_height() + 1
         );
     end
 
@@ -123,8 +123,8 @@ do
             // Note that Pingu::set_pos() is the 'reverse' of the y co-ords of
             // rel_getpixel()
             this.pingu.me.set_pos(
-                this.pingu.me.get_x() + (float)(this.pingu.direction),
-                this.pingu.me.get_y() - (float)(y_inc)
+                this.pingu.get_x() + (float)(this.pingu.direction),
+                this.pingu.get_y() - (float)(y_inc)
             );
         end
         return true;
