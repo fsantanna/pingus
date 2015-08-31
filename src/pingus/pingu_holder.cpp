@@ -41,12 +41,12 @@ PinguHolder::create_pingu (const Vector3f& pos, int owner_id)
 {
   if (number_of_allowed > get_number_of_released())
   {
-    Pingu* pingu = new Pingu (XXX_n++, pos, owner_id);
+    Pingu* pingu = new Pingu (XXX_n, pos, owner_id);
 
     // This list holds the active pingus
     pingus.push_back(pingu);
 
-    tceu__Pingu___Vector3f___int p = { pingu, (Vector3f*)&pos, owner_id };
+    tceu__Pingu___int__Vector3f___int p = { pingu, XXX_n++, (Vector3f*)&pos, owner_id };
     ceu_sys_go(&CEU_APP, CEU_IN_PINGUHOLDER_CREATE_PINGU, &p);
 
     return pingu;

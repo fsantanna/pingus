@@ -8,7 +8,7 @@ native @plain _PinguHolder;
 
 input (int,int,_Framebuffer&&) PINGUHOLDER_RENDER;
 
-input (_Pingu&&,_Vector3f&&,int) PINGUHOLDER_CREATE_PINGU;
+input (_Pingu&&,int,_Vector3f&&,int) PINGUHOLDER_CREATE_PINGU;
 
 input int&& PINGUHOLDER_GET_NUMBER_OF_EXITED;
 input int&& PINGUHOLDER_GET_NUMBER_OF_KILLED;
@@ -50,12 +50,13 @@ do
             *ret = this.number_of_allowed;
         end
     with
-        every (me_,pos,id) in PINGUHOLDER_CREATE_PINGU do
+        every (me_,id,pos,owner_id) in PINGUHOLDER_CREATE_PINGU do
             if this.number_of_released < this.number_of_allowed then
                 spawn Pingu in this.pingus with
                     this.holder   = &outer;
                     this.me       = &_XXX_PTR2REF(me_);
-                    this.owner_id = id;
+                    this.id       = id;
+                    this.owner_id = owner_id;
                     this.pos_x    = pos:x;
                     this.pos_y    = pos:y;
                 end;

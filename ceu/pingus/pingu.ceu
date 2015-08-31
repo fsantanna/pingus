@@ -43,15 +43,17 @@ native @plain _Pingu, _ActionName__Enum, _Pingu__PinguStatus;
 class Pingu with
     interface IPingu;
 
-    var  int owner_id;
-    var  s8  direction = _LEFT;
+    var  uint id;
+    var  int  owner_id;
+    var  s8   direction = _LEFT;
 
     var _ActionName__Enum current_action = {ActionName::FALLER};
     var _ActionName__Enum wall_action    = {ActionName::NONE};
     var _ActionName__Enum fall_action    = {ActionName::NONE};
 do
     var Vector3f velocity = Vector3f(0, 0, 0);
-    var char[] name;
+    var char[] name = [] .. (char&&){ActionName::to_screenname}
+                                        (this.current_action);
 
     this.me.ceu = &&this;
 
@@ -160,15 +162,15 @@ do
                 par/or do
                     this.current_action = await e_set_action;
                 with
-                    #define DO_PINGU_ACTION(T)                           \
-                    do                                                   \
-                        var int a = do T with                            \
-                            this.pingu = &outer;                         \
-                            this.previous_action = outer.current_action; \
-                        end;                                             \
-                        this.name = [] .. (char&&){ActionName::to_screenname} \
-                                            (this.current_action);       \
-                        escape (_ActionName__Enum)a;                     \
+                    #define DO_PINGU_ACTION(T)                              \
+                    do                                                      \
+                        var int a = do T with                               \
+                            this.pingu = &outer;                            \
+                            this.previous_action = outer.current_action;    \
+                        end;                                                \
+                        this.name = []..(char&&){ActionName::to_screenname} \
+                                            ((_ActionName__Enum)a);         \
+                        escape (_ActionName__Enum)a;                        \
                     end
                     if this.current_action == {ActionName::NONE} then
                         await FOREVER;
@@ -330,6 +332,10 @@ _printf("ACTION_NAME = %d\n", this.current_action);
 
         return {Math::sqrt}(((p.x - (float)(x)) * (p.x - (float)(x)) +
                              (p.y - (float)(y)) * (p.y - (float)(y))));
+    end
+
+    function (void)=>int get_id do
+        return this.id;
     end
 
     function (void)=>int get_owner do

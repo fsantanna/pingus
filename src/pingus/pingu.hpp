@@ -13,7 +13,6 @@ public:
   enum PinguStatus { PS_NONE, PS_ALIVE, PS_EXITED, PS_DEAD };
 
 private:
-  unsigned int id;
   PinguStatus status;
 
 public:
@@ -24,9 +23,6 @@ public:
 
   PinguStatus get_status (void) const;
 /// TODO: pingu_holder
-
-  /// Returns the unique id of the pingu
-  unsigned int  get_id (void);
 
   float get_z_pos () const { return 0; }
 

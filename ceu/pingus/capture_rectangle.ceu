@@ -48,7 +48,7 @@ do
             if {globals::developer_mode} then
                 action_str = [] .. action_str .. " Id: ";
                 action_str = [] .. action_str ..
-                    (char&&)_XXX_PURE({StringUtil::to_string}(pingu:me.get_id()).c_str());
+                    (char&&)_XXX_PURE({StringUtil::to_string}(pingu:get_id()).c_str());
             end
 
             var int action = pingu:current_action;
