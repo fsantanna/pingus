@@ -26,10 +26,10 @@ do
                 var IWorld&& world = (IWorld&&)this.me.world:ceu;
                 var IPingu&&? pingu;
                 loop p in world:get_pingu_holder().pingus do
-                    if (p:me.is_inside((int)(this.me.pos.x + 38),
-                                       (int)(this.me.pos.y + 90),
-                                       (int)(this.me.pos.x + 42),
-                                       (int)(this.me.pos.y + 98)))
+                    if (p:is_inside((int)(this.me.pos.x + 38),
+                                    (int)(this.me.pos.y + 90),
+                                    (int)(this.me.pos.x + 42),
+                                    (int)(this.me.pos.y + 98)))
                     then
                         this.me.killing = true;
                         this.me.direction = p:direction;

@@ -127,8 +127,6 @@ public:
   int get_owner ();
 /// TODO: exit
 
-  bool   is_inside (int x1, int y1, int x2, int y2);
-
   float dist (int x, int y);
 
   /** @return the name of the action the Pingu currently has */

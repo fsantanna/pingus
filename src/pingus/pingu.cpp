@@ -94,17 +94,6 @@ Pingu::get_status (void) const
   return status;
 }
 
-bool
-Pingu::is_inside (int x1, int y1, int x2, int y2)
-{
-  assert (x1 < x2);
-  assert (y1 < y2);
-
-  return (pos_x > x1 && pos_x < x2
-          &&
-          pos_y > y1 && pos_y < y2);
-}
-
 // Returns the distance between the Pingu and a given coordinate
 float
 Pingu::dist(int x, int y)
