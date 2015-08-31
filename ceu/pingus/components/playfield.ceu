@@ -24,6 +24,8 @@ do
         every (x,y) in PLAYFIELD_ON_PRIMARY_BUTTON_PRESS do
             x = x - this.me.rect.left;
             y = y - this.me.rect.top;
+            x = this.me.state.screen2world(_Vector2i(x,y)).x;
+            y = this.me.state.screen2world(_Vector2i(x,y)).y;
 
             if this.me.session != null then
                 var IWorld&&? world = (IWorld&&) _XXX_PURE(this.me.server:get_world():ceu);
@@ -41,6 +43,7 @@ do
                 end
 
                 if current_pingu != null then
+// TODO enqueue on fail
                     emit current_pingu:go_action =>
                             this.me.session:get_action_name();
                 end
