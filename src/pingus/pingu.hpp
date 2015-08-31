@@ -30,9 +30,6 @@ public:
 
   float get_z_pos () const { return 0; }
 
-  /** @return the name of the action the Pingu currently has */
-  ActionName::Enum get_action ();
-
 private:
   Pingu(Pingu const &) = delete;
   void operator=(Pingu const &t) = delete;

@@ -29,23 +29,22 @@ do
 
             if this.me.session != null then
                 var IWorld&&? world = (IWorld&&) _XXX_PURE(this.me.server:get_world():ceu);
-                var IPingu&& current_pingu = null;
+                var IPingu&& pingu = null;
                 var float min_dist = 500.0;
                 var float dist;
-                loop pingu in world!:get_pingu_holder().pingus do
-                    if (pingu:is_over(x, y)) then
-                        dist = pingu:dist(x, y);
+                loop p in world!:get_pingu_holder().pingus do
+                    if (p:is_over(x, y)) then
+                        dist = p:dist(x, y);
                         if (dist < min_dist) then
                             min_dist = dist;
-                            current_pingu = pingu;
+                            pingu = p;
                         end
                     end
                 end
 
-                if current_pingu != null then
+                if pingu != null then
 // TODO enqueue on fail
-                    emit current_pingu:go_action =>
-                            this.me.session:get_action_name();
+                    emit pingu:go_action => this.me.session:get_action_name();
                 end
             end
         end
@@ -62,12 +61,12 @@ do
 
             var float min_dist = 500.0;
             var IPingu&&? cur;
-            loop pingu in pingu_holder.pingus do
-                if pingu:is_over((int)pos.x, (int)pos.y) then
-                    var float dist = pingu:dist((int)pos.x, (int)pos.y);
+            loop p in pingu_holder.pingus do
+                if p:is_over((int)pos.x, (int)pos.y) then
+                    var float dist = p:dist((int)pos.x, (int)pos.y);
                     if (dist < min_dist) then
                         min_dist = dist;
-                        cur = pingu;
+                        cur = p;
                     end
                 end
             end

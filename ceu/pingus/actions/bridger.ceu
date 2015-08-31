@@ -24,7 +24,9 @@ do
     var int bricks = _BRIDGER_MAX_BRICKS;
 
     var char[]& name = &this.pingu.get_name();
-    name = "Bridger (" .. (char&&){StringUtil::to_string}(this.bricks) .. ")";
+    name = [] .. "Bridger (" ..
+            (char&&)({StringUtil::to_string}(this.bricks).c_str()) ..
+            ")";
 
     /* UPDATE */
     loop i in _BRIDGER_MAX_BRICKS do
@@ -32,10 +34,10 @@ do
         // BUILDING
         do
             var char[] left  = [] .. "pingus/player"
-                                  ..  (char&&)*this.pingu.get_owner_str().c_str()
+                                  .. (char&&)this.pingu.get_owner_str().c_str()
                                   .. "/bridger/left";
             var char[] right = [] .. "pingus/player"
-                                  ..  (char&&)*this.pingu.get_owner_str().c_str()
+                                  .. (char&&)this.pingu.get_owner_str().c_str()
                                   .. "/bridger/right";
             var RightLeftSprites builds with
                 this.pingu = &outer.pingu;
@@ -62,10 +64,10 @@ do
         // WALKING
         do
             var char[] left  = [] .. "pingus/player"
-                                  ..  (char&&)*this.pingu.get_owner_str().c_str()
+                                  ..  (char&&)this.pingu.get_owner_str().c_str()
                                   .. "/bridger_walk/left";
             var char[] right = [] .. "pingus/player"
-                                  ..  (char&&)*this.pingu.get_owner_str().c_str()
+                                  ..  (char&&)this.pingu.get_owner_str().c_str()
                                   .. "/bridger_walk/right";
             do RightLeftSprites with
                 this.pingu = &outer.pingu;
@@ -154,8 +156,12 @@ do
 
     function @rec (void)=>void place_a_brick do
         this.bricks = this.bricks - 1;
+
         var char[]& name = &this.pingu.get_name();
-        name = "Bridger (" .. (char&&){StringUtil::to_string}(this.bricks) ..  ")";
+        name = [] .. "Bridger (" ..
+                (char&&)({StringUtil::to_string}(this.bricks).c_str()) ..
+                ")";
+
         if this.bricks < 4 then
             { Sound::PingusSound::play_sound("ting"); };
         end

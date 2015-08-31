@@ -166,8 +166,8 @@ do
                             this.pingu = &outer;                         \
                             this.previous_action = outer.current_action; \
                         end;                                             \
-                        this.name = {ActionName::to_screenname}          \
-                                        (this.current_action);           \
+                        this.name = [] .. (char&&){ActionName::to_screenname} \
+                                            (this.current_action);       \
                         escape (_ActionName__Enum)a;                     \
                     end
                     if this.current_action == {ActionName::NONE} then
@@ -241,8 +241,8 @@ _printf("ACTION_NAME = %d\n", this.current_action);
         return (int)this.pos_y;
     end
     function (void)=>Vector3f get_pos do
-        var Vector3f ret = Vector3f(this.pos_x, this.pos_y, 0);
-        return ret;
+        var Vector3f vec = Vector3f(this.pos_x, this.pos_y, 0);
+        return vec;
     end
 
     function (float x)=>void set_x do
@@ -258,8 +258,8 @@ _printf("ACTION_NAME = %d\n", this.current_action);
     end
 
     function (void)=>Vector3f get_center_pos do
-        var Vector3f ret = Vector3f(this.pos_x, this.pos_y-16, 0);
-        return ret;
+        var Vector3f vec = Vector3f(this.pos_x, this.pos_y-16, 0);
+        return vec;
     end
 
     function (void)=>Vector3f get_velocity do
@@ -345,7 +345,7 @@ _printf("ACTION_NAME = %d\n", this.current_action);
     end
 
     function (void)=>char[]& get_name do
-        return &&this.name;
+        return &this.name;
     end
 
 #if 0
