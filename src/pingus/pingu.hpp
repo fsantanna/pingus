@@ -127,8 +127,6 @@ public:
   int get_owner ();
 /// TODO: exit
 
-  float dist (int x, int y);
-
   /** @return the name of the action the Pingu currently has */
   ActionName::Enum get_action ();
 

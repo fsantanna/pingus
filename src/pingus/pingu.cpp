@@ -94,16 +94,6 @@ Pingu::get_status (void) const
   return status;
 }
 
-// Returns the distance between the Pingu and a given coordinate
-float
-Pingu::dist(int x, int y)
-{
-  Vector3f p = get_center_pos ();
-
-  return Math::sqrt(((p.x - static_cast<float>(x)) * (p.x - static_cast<float>(x)) +
-                     (p.y - static_cast<float>(y)) * (p.y - static_cast<float>(y))));
-}
-
 std::string
 Pingu::get_name()
 {

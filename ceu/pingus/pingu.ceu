@@ -303,6 +303,14 @@ _printf("ACTION_NAME = %d\n", me.current_action);
                 this.me.pos_y < y2);
     end
 
+    // Returns the distance between the Pingu and a given coordinate
+    function (int x, int y)=>float dist do
+        var Vector3f p = this.get_center_pos();
+
+        return {Math::sqrt}(((p.x - (float)(x)) * (p.x - (float)(x)) +
+                             (p.y - (float)(y)) * (p.y - (float)(y))));
+    end
+
 #if 0
     void
     Pingu::apply_force (Vector3f arg_v)
