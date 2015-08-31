@@ -76,7 +76,7 @@ do
                     end
                 end
                 if found_ground then
-                    this.pingu.me.set_y(this.pingu.get_y() - (float)(i));
+                    this.pingu.set_y(this.pingu.get_y() - (float)(i));
                 else
                     escape {ActionName::FALLER};
                 end
@@ -88,7 +88,7 @@ do
             then // bridge
                 // simple, stupid, but working bridge code
                 // FIXME: We don't check if we 'drift' into a solid ground block
-                this.pingu.me.set_pos(
+                this.pingu.set_pos(
                     this.pingu.get_x() + (float)(this.pingu.direction),
                     this.pingu.get_y() - 1.0); // pingus 'float' through bridges
             else
@@ -125,7 +125,7 @@ do
 
                 if found_next_step then
                     // pos.y has a reversed co-system to rel_getpixel()?
-                    this.pingu.me.set_pos(
+                    this.pingu.set_pos(
                         this.pingu.get_x() + (float)(this.pingu.direction),
                         this.pingu.get_y() - (float)(possible_y_step));
                 else
@@ -141,7 +141,7 @@ do
                         this.pingu.change_direction();
                     else
                         // We take the step, so that we are in the air
-                        this.pingu.me.set_x(this.pingu.get_x() + (float)(this.pingu.direction));
+                        this.pingu.set_x(this.pingu.get_x() + (float)(this.pingu.direction));
                         // We reached a cliff
                         escape {ActionName::FALLER};
                     end
@@ -156,7 +156,7 @@ do
                     //if the new position causes a head collision, we are already 
                     //stuck in a wall, so lets go back to the old position
                     this.pingu.change_direction();
-                    this.pingu.me.set_pos(_last_pos);
+                    this.pingu.set_pos(_last_pos.x,_last_pos.y);
                 end
             end
         end

@@ -182,8 +182,8 @@ do
         end
     end
 
-    function (void)=>void walk_one_step_up do
-        this.pingu.me.set_pos(
+    function @rec (void)=>void walk_one_step_up do
+        this.pingu.set_pos(
             this.pingu.me.get_pos().x + (4.0*(float)(this.pingu.direction)),
             this.pingu.me.get_pos().y - 2
         );

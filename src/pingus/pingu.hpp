@@ -92,17 +92,6 @@ public:
   /// Returns the unique id of the pingu
   unsigned int  get_id (void);
 
-  /// Set the pingu to the given coordinates
-  void set_pos (float x, float y);
-  void set_pos (int x, int y) { set_pos(static_cast<float>(x), static_cast<float>(y)); }
-
-  void set_x (float x);
-
-  void set_y (float y);
-
-  /// Set the pingu to the given coordinates
-  void set_pos (const Vector3f& arg_pos);
-
   float get_z_pos () const { return 0; }
 
   /** @return The owner_id of the owner, only used in multiplayer

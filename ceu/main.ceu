@@ -80,18 +80,20 @@ interface IPingu with
     function (void)         => float        get_y;
     function (void)         => int          get_xi;
     function (void)         => int          get_yi;
+    function (float)        => void         set_x;
+    function (float)        => void         set_y;
+    function (float,float)  => void         set_pos;
     function (void)         => Vector3f     get_velocity;
     function (Vector3f)     => void         set_velocity;
     function (void)         => _std__string get_owner_str;
-    function (s8 d)         => void         set_direction;
+    function (s8)           => void         set_direction;
     function (void)         => void         change_direction;
-    function (int x, int y) => bool         head_collision_on_walk;
-    function (int x, int y) => int          rel_getpixel;
+    function (int,int)      => bool         head_collision_on_walk;
+    function (int,int)      => int          rel_getpixel;
     function (void)         => Vector3f     get_center_pos;
-    function (int x, int y) => bool         is_over;
-    function (int x, int y) => float        dist;
-    function (int x1, int y1, int x2, int y2) => bool
-                                            is_inside;
+    function (int,int)      => bool         is_over;
+    function (int,int)      => float        dist;
+    function (int,int,int,int) => bool      is_inside;
 end
 
 interface IPinguHolderPool with

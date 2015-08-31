@@ -47,7 +47,7 @@ do
         else
             // mine and walk forward
             this.mine(false, delay_count);
-            this.pingu.me.set_pos(this.pingu.get_xi() + this.pingu.direction,
+            this.pingu.set_pos(this.pingu.get_xi() + this.pingu.direction,
                                   this.pingu.get_yi() + 1);
         end
     end

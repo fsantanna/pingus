@@ -85,7 +85,8 @@ ConveyorBelt::update ()
     {
       Vector3f pos_ = (*pingu)->get_pos();
       pos_.x -= speed * 0.025f;
-      (*pingu)->set_pos(pos_);
+assert(!"NOT PORTED");
+      //(*pingu)->set_pos(pos_);
     }
   }
 }

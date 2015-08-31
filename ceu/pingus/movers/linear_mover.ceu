@@ -44,7 +44,7 @@ do
                 _pos = _pos - _step_vector;
             end
 
-            this.pingu.me.set_pos(_pos);
+            this.pingu.set_pos(_pos.x, _pos.y);
          end
 
         if collided then

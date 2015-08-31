@@ -61,32 +61,6 @@ Pingu::get_id ()
   return id;
 }
 
-void
-Pingu::set_x (float x)
-{
-  pos_x = x;
-}
-
-void
-Pingu::set_y (float y)
-{
-  pos_y = y;
-}
-
-void
-Pingu::set_pos (float x, float y)
-{
-  set_x (x);
-  set_y (y);
-}
-
-void
-Pingu::set_pos (const Vector3f& arg_pos)
-{
-  set_x (arg_pos.x);
-  set_y (arg_pos.y);
-}
-
 // TODO: pinguholder/world
 Pingu::PinguStatus
 Pingu::get_status (void) const

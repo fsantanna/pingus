@@ -2,7 +2,6 @@
 #define _PINGU_CEU
 
 native do
-    ##include "../src/engine/display/drawing_context.hpp"
     ##include "../src/engine/display/scene_context.hpp"
     ##include "pingus/collision_map.hpp"
     ##include "pingus/direction.hpp"
@@ -74,7 +73,7 @@ do
                     //Sound::PingusSound::play_sound("die");
                     me.status = {Pingu::PS_DEAD};
     // TODO: copied from walker.ceu
-                    me.set_x(this.get_x() + (float)(this.direction));
+                    this.set_x(this.get_x() + (float)(this.direction));
                     escape {Pingu::PS_DEAD};
                 end
 
@@ -240,6 +239,18 @@ _printf("ACTION_NAME = %d\n", me.current_action);
     end
     function (void)=>int get_yi do
         return (int)this.me.pos_y;
+    end
+
+    function (float x)=>void set_x do
+        this.me.pos_x = x;
+    end
+
+    function (float y)=>void set_y do
+        this.me.pos_y = y;
+    end
+    function (float x, float y)=>void set_pos do
+        this.set_x(x);
+        this.set_y(y);
     end
 
     function (void)=>Vector3f get_center_pos do
