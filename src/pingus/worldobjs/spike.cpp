@@ -76,7 +76,8 @@ Spike::catch_pingu (Pingu* pingu)
         && pingu->get_pos().x > pos.x +16 - 12 && pingu->get_pos().x < pos.x + 16 + 12
         && pingu->get_pos().y > pos.y          && pingu->get_pos().y < pos.y + 32)
     {
-      pingu->set_status(Pingu::PS_DEAD);
+assert(!"NOT PORTED");
+      //pingu->set_status(Pingu::PS_DEAD);
     }
   }
 }

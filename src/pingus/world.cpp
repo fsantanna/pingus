@@ -237,26 +237,6 @@ World::play_sound(std::string name, const Vector3f& pos, float volume)
   Sound::PingusSound::play_sound(name, volume, panning);
 }
 
-Pingu*
-World::get_pingu (const Vector3f& pos)
-{
-  Pingu* current_pingu = 0;
-  float distance = -1.0;
-
-  for (PinguIter i = pingus->begin (); i != pingus->end (); ++i) {
-    if ((*i)->is_over(int(pos.x), int(pos.y)))
-    {
-      if (distance == -1.0f || distance >= (*i)->dist(static_cast<int>(pos.x), static_cast<int>(pos.y)))
-      {
-        current_pingu = (*i);
-        distance = (*i)->dist(static_cast<int>(pos.x), static_cast<int>(pos.y));
-      }
-    }
-  }
-
-  return current_pingu;
-}
-
 float World::get_gravity()
 {
   return gravitational_acceleration;

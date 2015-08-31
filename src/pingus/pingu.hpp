@@ -100,9 +100,6 @@ public:
   /// Return the status of the pingu
   PinguStatus get_status (void) const;
 
-  PinguStatus set_status (PinguStatus);
-/// TODO: worldobjs
-
   /** The descriptive name of the action, this is used in the
       CaputreRectangle, so it can contain more than just the name
       (number of blocks, etc.) */

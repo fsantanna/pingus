@@ -146,9 +146,6 @@ public:
 
   PinguHolder* get_pingus(void);
 
-  /** @return the pingu at the given word coordinates, 0 if none is there */
-  Pingu* get_pingu (const Vector3f& pos);
-
   /** Get the acceleration due to gravity in the world */
   float get_gravity();
 

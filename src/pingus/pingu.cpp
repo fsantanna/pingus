@@ -94,13 +94,6 @@ Pingu::get_status (void) const
   return status;
 }
 
-/// SPIKE, GUILLOTINE
-Pingu::PinguStatus
-Pingu::set_status (PinguStatus s)
-{
-  return (status = s);
-}
-
 // Returns true if the given koordinates are above the pingu
 bool
 Pingu::is_over (int x, int y)
