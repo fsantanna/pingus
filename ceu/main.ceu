@@ -94,6 +94,8 @@ interface IPingu with
     function (int,int)      => bool         is_over;
     function (int,int)      => float        dist;
     function (int,int,int,int) => bool      is_inside;
+
+    function (void)         => int          get_owner;
 end
 
 interface IPinguHolderPool with

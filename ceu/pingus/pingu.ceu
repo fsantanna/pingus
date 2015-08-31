@@ -43,6 +43,7 @@ native @plain _Pingu, _ActionName__Enum, _Pingu__PinguStatus;
 class Pingu with
     interface IPingu;
 
+    var  int              owner_id;
     var   s8              direction   = _LEFT;
     var _ActionName__Enum wall_action = {ActionName::NONE};
     var _ActionName__Enum fall_action = {ActionName::NONE};
@@ -221,11 +222,6 @@ _printf("ACTION_NAME = %d\n", me.current_action);
                                               this.holder.number_of_killed  +
                                               this.holder.number_of_exited);
 
-    function (void)=>Vector3f get_pos do
-        var Vector3f ret = Vector3f(this.me.pos_x, this.me.pos_y, 0);
-        return ret;
-    end
-
     /* PUBLIC */
 
     function (void)=>float get_x do
@@ -239,6 +235,10 @@ _printf("ACTION_NAME = %d\n", me.current_action);
     end
     function (void)=>int get_yi do
         return (int)this.me.pos_y;
+    end
+    function (void)=>Vector3f get_pos do
+        var Vector3f ret = Vector3f(this.me.pos_x, this.me.pos_y, 0);
+        return ret;
     end
 
     function (float x)=>void set_x do
@@ -272,10 +272,14 @@ _printf("ACTION_NAME = %d\n", me.current_action);
             (float){Math::clamp}(-_terminal_velocity, this.velocity.y, _terminal_velocity);
     end
 
+    function (void)=>int get_owner do
+        return this.owner_id;
+    end
+
     function (void)=>_std__string get_owner_str do
         {
             std::ostringstream ostr;
-            ostr << THIS_F(CEU_Pingu)->me->owner_id;
+            ostr << THIS_F(CEU_Pingu)->owner_id;
         };
         return _ostr.str();
     end

@@ -1,24 +1,6 @@
-//  Pingus - A free Lemmings clone
-//  Copyright (C) 1999 Ingo Ruhnke <grumbel@gmail.com>
-//
-//  This program is free software: you can redistribute it and/or modify
-//  it under the terms of the GNU General Public License as published by
-//  the Free Software Foundation, either version 3 of the License, or
-//  (at your option) any later version.
-//
-//  This program is distributed in the hope that it will be useful,
-//  but WITHOUT ANY WARRANTY; without even the implied warranty of
-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-//  GNU General Public License for more details.
-//
-//  You should have received a copy of the GNU General Public License
-//  along with this program.  If not, see <http://www.gnu.org/licenses/>.
-
 #ifndef HEADER_PINGUS_PINGUS_PINGU_HPP
 #define HEADER_PINGUS_PINGUS_PINGU_HPP
-
 #include <memory>
-
 #include "math/vector3f.hpp"
 #include "pingus/action_name.hpp"
 
@@ -26,66 +8,31 @@ class ActionHolder;
 class PinguAction;
 class SceneContext;
 
-/** The class for managing one of the many penguins which are walking
-    around in the World. All actions are handled by PinguAction
-    objects. */
-class Pingu
-{
+class Pingu {
 public:
-  /** The Pingus Status shows the current status of a Pingu, as
-      displayed in the PingusCounter pannel. PS_DEAD are pingus that got
-      killed, PS_ALIVE are pingus that are still active in the world and
-      PS_EXITED are pingus that successfully finished a level
-
-      FIXME: different subvalues of PS_DEAD might be usefull (drowned,
-      FIXME: splashed, smashed, etc.) */
   enum PinguStatus { PS_NONE, PS_ALIVE, PS_EXITED, PS_DEAD };
-
-    ///
   ActionName::Enum current_action;
   std::string      name = "";
 
-
 private:
-  /** The uniq id of the Pingu, this is used to refer to the Pingu in
-      a demo file or in a network connection */
   unsigned int id;
-
-  /** The id of the owner of the pingus, used in multiplayer matches */
-  int owner_id;
-/// TODO: exit
-
-  /** The stat of the pingu, these can be modified by PinguActions */
   PinguStatus status;
 
 public:
-
   float pos_x;
   float pos_y;
 
-  /** Creates a new Pingu at the given coordinates
-      @param arg_id The uniq id of the pingu
-      @param pos The start position of the pingu
-      @param owner The owner id of the pingu (used for multiplayer) */
   Pingu (int arg_id, const Vector3f& pos, int owner);
-
-  /** Destruct the pingu... */
   ~Pingu ();
 
   void* ceu;
 
-  /** Return the logical pingus position, this is the position which
-      is used for collision detection to the ground (the pingus
-      feet) */
   Vector3f get_pos () const;
 /// TODO: worldobjs
 
-  /// Return the status of the pingu
   PinguStatus get_status (void) const;
+/// TODO: pingu_holder
 
-  /** The descriptive name of the action, this is used in the
-      CaputreRectangle, so it can contain more than just the name
-      (number of blocks, etc.) */
   std::string get_name();
 /// TODO: char[] in functions
 
@@ -94,23 +41,13 @@ public:
 
   float get_z_pos () const { return 0; }
 
-  /** @return The owner_id of the owner, only used in multiplayer
-      configurations, ought to be 0 in single player */
-  int get_owner ();
-/// TODO: exit
-
   /** @return the name of the action the Pingu currently has */
   ActionName::Enum get_action ();
 
 private:
-  ///Pingu (const Pingu&);
-  ///Pingu& operator= (const Pingu&);
-
   Pingu(Pingu const &) = delete;
   void operator=(Pingu const &t) = delete;
   Pingu(Pingu &&) = delete;
 };
 
 #endif
-
-/* EOF */

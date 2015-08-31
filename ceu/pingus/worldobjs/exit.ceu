@@ -23,7 +23,7 @@ do
             var IPingu&&? pingu;
             loop p in world:get_pingu_holder().pingus do
                 // Make sure this particular exit is allowed for this pingu
-                if (p:me.get_owner() != this.me.owner_id) then
+                if (p:get_owner() != this.me.owner_id) then
                     continue;
                 end
 
