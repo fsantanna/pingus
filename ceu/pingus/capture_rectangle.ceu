@@ -51,14 +51,14 @@ do
                     (char&&)_XXX_PURE({StringUtil::to_string}(pingu:me.get_id()).c_str());
             end
 
-            var int action = pingu:me.current_action;
+            var int action = pingu:current_action;
             if not {ActionName::CATCHABLE}[action] then
                 continue;
             end
 
             // RESET STRING
             do
-                action_str = [] ..  (char&&)_XXX_PURE(pingu:me.get_name().c_str());
+                action_str = [] .. pingu:get_name();
 
                 if (pingu:wall_action != {ActionName::NONE} or
                     pingu:fall_action != {ActionName::NONE})
@@ -120,7 +120,7 @@ _assert(not "Not tested yet!");
             end
             var IPingu&& pingu = this.playfield.current_pingu!;
 
-            if ({ActionName::CATCHABLE}[pingu:me.current_action]) then
+            if ({ActionName::CATCHABLE}[pingu:current_action]) then
                 sc:color().print_center({Fonts::courier_small},
                             _Vector2i((int)(pingu:get_center_pos().x),
                                       (int)(pingu:get_center_pos().y - 46)),

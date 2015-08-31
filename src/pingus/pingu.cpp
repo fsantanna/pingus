@@ -30,15 +30,3 @@ Pingu::get_id ()
 Pingu::PinguStatus Pingu::get_status (void) const {
   return status;
 }
-
-std::string Pingu::get_name() {
-  if (this->name.empty()) {
-    return ActionName::to_screenname(current_action);
-  } else {
-    return this->name;
-  }
-}
-
-ActionName::Enum Pingu::get_action () {
-  return current_action;
-}

@@ -20,32 +20,32 @@
 
 namespace ActionName {
 
-std::string to_screenname(Enum action)
+char* to_screenname(Enum action)
 {
   switch (action)
   {
-    case ANGEL          : return _("Angel");
-    case BASHER         : return _("Basher");
-    case BLOCKER        : return _("Blocker");
-    case BOARDER        : return _("Boarder");
-    case BOMBER         : return _("Bomber");
-    case BRIDGER        : return _("Bridger");
-    case CLIMBER        : return _("Climber");
-    case DIGGER         : return _("Digger");
-    case DROWN          : return _("Drown");
-    case EXITER         : return _("Exiter");
-    case FALLER         : return _("Faller");
-    case FLOATER        : return _("Floater");
-    case JUMPER         : return _("Jumper");
-    case LASERKILL      : return _("Laserkill");
-    case MINER          : return _("Miner");
-    case SLIDER         : return _("Slider");
-    case SMASHED        : return _("Smashed");
-    case SPLASHED       : return _("Splashed");
-    case SUPERMAN       : return _("Superman");
-    case TELEPORTED     : return _("Teleported");
-    case WAITER         : return _("Waiter");
-    case WALKER         : return _("Walker");
+    case ANGEL          : return ("Angel");
+    case BASHER         : return ("Basher");
+    case BLOCKER        : return ("Blocker");
+    case BOARDER        : return ("Boarder");
+    case BOMBER         : return ("Bomber");
+    case BRIDGER        : return ("Bridger");
+    case CLIMBER        : return ("Climber");
+    case DIGGER         : return ("Digger");
+    case DROWN          : return ("Drown");
+    case EXITER         : return ("Exiter");
+    case FALLER         : return ("Faller");
+    case FLOATER        : return ("Floater");
+    case JUMPER         : return ("Jumper");
+    case LASERKILL      : return ("Laserkill");
+    case MINER          : return ("Miner");
+    case SLIDER         : return ("Slider");
+    case SMASHED        : return ("Smashed");
+    case SPLASHED       : return ("Splashed");
+    case SUPERMAN       : return ("Superman");
+    case TELEPORTED     : return ("Teleported");
+    case WAITER         : return ("Waiter");
+    case WALKER         : return ("Walker");
     default             : return "Unknown ActionName";
   }
 }

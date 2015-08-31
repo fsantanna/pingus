@@ -74,6 +74,7 @@ interface IPingu with
 
     var  float              pos_x, pos_y;
     var   s8                direction;
+    var   _ActionName__Enum current_action;
     var   _ActionName__Enum wall_action;
     var   _ActionName__Enum fall_action;
 
@@ -98,6 +99,7 @@ interface IPingu with
     function (int,int,int,int) => bool      is_inside;
 
     function (void)         => int          get_owner;
+    function (void)         => char[]&      get_name;
 end
 
 interface IPinguHolderPool with

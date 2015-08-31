@@ -29,7 +29,7 @@ do
                      pingu:get_pos().x > this.me.pos.x + 190 and
                      pingu:get_pos().x < this.me.pos.x + 210))
                 then
-                    if (pingu:me.get_action() != {ActionName::SPLASHED}) then
+                    if (pingu:current_action != {ActionName::SPLASHED}) then
                         if (not this.me.smashing) then
                             this.me.count = 0;
                             this.me.downwards = true;

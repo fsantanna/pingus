@@ -116,7 +116,7 @@ Enum from_string(const std::string& action);
 
 /** Convert a action enum into its visual representation, aka the
     thing that is seen on the screen for the user Bomber => "Bomber" */
-std::string to_screenname(Enum action);
+char* to_screenname(Enum action);
 
 } // namespace ActionName
 

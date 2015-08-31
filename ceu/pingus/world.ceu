@@ -66,7 +66,7 @@ do
 
             var IPingu&&? pingu;
             loop p in pingu_holder.pingus do
-                if p:me.current_action != {ActionName::BOMBER} then
+                if p:current_action != {ActionName::BOMBER} then
                     pingu = p;
                     break;
                 end

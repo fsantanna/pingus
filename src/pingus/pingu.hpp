@@ -11,8 +11,6 @@ class SceneContext;
 class Pingu {
 public:
   enum PinguStatus { PS_NONE, PS_ALIVE, PS_EXITED, PS_DEAD };
-  ActionName::Enum current_action;
-  std::string      name = "";
 
 private:
   unsigned int id;
@@ -26,9 +24,6 @@ public:
 
   PinguStatus get_status (void) const;
 /// TODO: pingu_holder
-
-  std::string get_name();
-/// TODO: char[] in functions
 
   /// Returns the unique id of the pingu
   unsigned int  get_id (void);
