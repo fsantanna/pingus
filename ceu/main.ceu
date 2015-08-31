@@ -83,6 +83,7 @@ interface IPingu with
     function (void)         => void         change_direction;
     function (int x, int y) => bool         head_collision_on_walk;
     function (int x, int y) => int          rel_getpixel;
+    function (void)         => Vector3f     get_center_pos;
     function (int x, int y) => bool         is_over;
     function (int x, int y) => float        dist;
     function (int x1, int y1, int x2, int y2) => bool

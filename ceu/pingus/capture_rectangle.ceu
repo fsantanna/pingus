@@ -21,10 +21,10 @@ do
         every WORLD_UPDATE do
             if this.playfield.current_pingu? then
                 var IPingu&& pingu = this.playfield.current_pingu!;
-                pos_gb.x = pingu:me.get_center_pos().x;
-                pos_gb.y = pingu:me.get_center_pos().y;
-                pos_lr.x = pingu:me.get_center_pos().x;
-                pos_lr.y = pingu:me.get_center_pos().y + 2;
+                pos_gb.x = pingu:get_center_pos().x;
+                pos_gb.y = pingu:get_center_pos().y;
+                pos_lr.x = pingu:get_center_pos().x;
+                pos_lr.y = pingu:get_center_pos().y + 2;
             end
         end
     with
@@ -122,8 +122,8 @@ _assert(not "Not tested yet!");
 
             if ({ActionName::CATCHABLE}[pingu:me.current_action]) then
                 sc:color().print_center({Fonts::courier_small},
-                            _Vector2i((int)(pingu:me.get_center_pos().x),
-                                      (int)(pingu:me.get_center_pos().y - 46)),
+                            _Vector2i((int)(pingu:get_center_pos().x),
+                                      (int)(pingu:get_center_pos().y - 46)),
                             &&action_str,
                             1000)
                     finalize with nothing; end; // print_center() is @nohold

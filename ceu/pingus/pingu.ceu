@@ -225,13 +225,13 @@ _printf("ACTION_NAME = %d\n", me.current_action);
         var Vector3f ret = Vector3f(this.me.pos_x, this.me.pos_y, 0);
         return ret;
     end
+
+    /* PUBLIC */
+
     function (void)=>Vector3f get_center_pos do
         var Vector3f ret = Vector3f(this.me.pos_x, this.me.pos_y-16, 0);
         return ret;
     end
-
-
-    /* PUBLIC */
 
     function (void)=>Vector3f get_velocity do
         return this.velocity;

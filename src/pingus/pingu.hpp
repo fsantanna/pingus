@@ -80,11 +80,6 @@ public:
   Vector3f get_pos () const;
 /// TODO: worldobjs
 
-  /** Returns the visible position of the pingu, the graphical center
-      of the pingu. */
-  Vector3f get_center_pos () const;
-/// TODO: is_over
-
   /** Returns the x position of the pingu
    * For backward comp. only
    */
