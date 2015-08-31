@@ -17,7 +17,6 @@
 #include "pingus/worldobjs/ice_block.hpp"
 
 #include "engine/display/scene_context.hpp"
-#include "pingus/pingu.hpp"
 #include "pingus/pingu_holder.hpp"
 #include "pingus/world.hpp"
 #include "util/log.hpp"
@@ -69,17 +68,18 @@ IceBlock::update()
 
   PinguHolder* holder = world->get_pingus();
 
-  for (PinguIter pingu = holder->begin(); pingu != holder->end(); ++pingu)
-  {
 assert(!"NOT PORTED");
 #if 0
-    if ((*pingu)->get_x() > pos.x     && (*pingu)->get_x() < pos.x + static_cast<float>(block_sur.get_width()) &&
+  for (PinguIter pingu = holder->begin(); pingu != holder->end(); ++pingu)
+  {
+    if ((*pingu)->get_x() > pos.x     && (*pingu)->get_x() < pos.x + 
+        static_cast<float>(block_sur.get_width()) &&
         (*pingu)->get_y() > pos.y - 4 && (*pingu)->get_y() < pos.y + static_cast<float>(block_sur.get_height()))
     {
       last_contact = world->get_time();
     }
-#endif
   }
+#endif
 
   if (last_contact && last_contact + 1000 > world->get_time())
   {

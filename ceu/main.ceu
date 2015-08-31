@@ -70,7 +70,6 @@ end
 interface IPingu with
     event _ActionName__Enum go_action;
     var   IPinguHolder&     holder;
-    var   _Pingu&           me;
 
     var  float              pos_x, pos_y;
     var   s8                direction;

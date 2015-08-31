@@ -30,15 +30,14 @@ do
                 break;
             end
 
-            var _Pingu&& pingu_ = _XXX_PURE(
+            var IPingu&& pingu = _XXX_PURE(
                 this.me.world:get_pingus():create_pingu(
                     this.me.pos,
                     this.me.owner_id));
-            if pingu_ == null then
+            if pingu == null then
                 continue;
             end
 
-            var IPingu&& pingu = (IPingu&&)pingu_:ceu;
             {
                 Direction d;
             };

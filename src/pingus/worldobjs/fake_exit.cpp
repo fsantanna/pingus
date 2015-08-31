@@ -18,7 +18,6 @@
 
 #include "engine/display/scene_context.hpp"
 #include "pingus/components/smallmap.hpp"
-#include "pingus/pingu.hpp"
 #include "pingus/pingu_holder.hpp"
 #include "pingus/world.hpp"
 
@@ -48,9 +47,12 @@ FakeExit::draw (SceneContext& gc)
 void
 FakeExit::update ()
 {
+assert(!"NOT PORTED");
+#if 0
   PinguHolder* holder = world->get_pingus();
   for (PinguIter pingu = holder->begin (); pingu != holder->end (); ++pingu)
     catch_pingu(*pingu);
+#endif
 
   if (smashing)
     surface.update();

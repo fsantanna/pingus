@@ -17,7 +17,6 @@
 #include "pingus/worldobjs/hammer.hpp"
 
 #include "engine/display/scene_context.hpp"
-#include "pingus/pingu.hpp"
 #include "pingus/pingu_holder.hpp"
 #include "pingus/world.hpp"
 
@@ -56,10 +55,10 @@ Hammer::update()
     {
       PinguHolder* holder = world->get_pingus();
 
-      for (PinguIter pingu_it = holder->begin (); pingu_it != holder->end (); ++pingu_it)
-      {
 assert(!"NOT PORTED");
 #if 0
+      for (PinguIter pingu_it = holder->begin (); pingu_it != holder->end (); ++pingu_it)
+      {
         Pingu* pingu = *pingu_it;
         if (pingu->get_action() != ActionName::SPLASHED)
         {
@@ -67,8 +66,8 @@ assert(!"NOT PORTED");
               && pingu->get_y() > pos.y + 146 && pingu->get_y() < pos.y + 185)
             pingu->request_set_action(ActionName::SPLASHED);
         }
-#endif
       }
+#endif
 
       m_down = false;
     }

@@ -17,7 +17,6 @@
 #include "pingus/worldobjs/laser_exit.hpp"
 
 #include "engine/display/scene_context.hpp"
-#include "pingus/pingu.hpp"
 #include "pingus/pingu_holder.hpp"
 #include "pingus/world.hpp"
 
@@ -47,10 +46,13 @@ void
 LaserExit::update ()
 {
 
+assert(!"NOT PORTED");
+#if 0
   PinguHolder* holder = world->get_pingus();
   for (PinguIter pingu = holder->begin (); pingu != holder->end (); ++pingu){
     catch_pingu(*pingu);
   }
+#endif
 
   if (killing) {
     if (surface.is_finished()) {

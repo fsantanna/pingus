@@ -33,7 +33,6 @@ do
 
     call {WorldObj::get_world()->play_sound}("ohno", _vec1);
 
-    var _Pingu& pingu_ = &this.pingu.me;
     par do
         // TODO: does it make any difference??
         do LinearMover with

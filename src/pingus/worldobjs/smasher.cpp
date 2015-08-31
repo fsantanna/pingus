@@ -21,7 +21,6 @@
 #include "engine/display/scene_context.hpp"
 #include "engine/sound/sound.hpp"
 #include "pingus/particles/smoke_particle_holder.hpp"
-#include "pingus/pingu.hpp"
 #include "pingus/pingu_holder.hpp"
 #include "pingus/world.hpp"
 #include "util/log.hpp"

@@ -17,7 +17,6 @@
 #include "pingus/worldobjs/spike.hpp"
 
 #include "engine/display/scene_context.hpp"
-#include "pingus/pingu.hpp"
 #include "pingus/pingu_holder.hpp"
 #include "pingus/world.hpp"
 
@@ -53,9 +52,12 @@ Spike::update()
   if (killing)
     surface.update();
 
+assert(!"NOT PORTED");
+#if 0
   PinguHolder* holder = world->get_pingus();
   for (PinguIter pingu = holder->begin (); pingu != holder->end (); ++pingu)
     catch_pingu(*pingu);
+#endif
 
   if (surface.get_current_frame() == surface.get_frame_count() - 1)
     killing = false;

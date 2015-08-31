@@ -19,7 +19,6 @@
 
 #include "pingus/pingu_holder.hpp"
 
-#include "pingus/pingu.hpp"
 #include "pingus/pingus_level.hpp"
 
 #include "ceu_vars.h"
@@ -27,8 +26,7 @@
 PinguHolder::PinguHolder(const PingusLevel& plf) :
   number_of_allowed(plf.get_number_of_pingus()),
   number_of_exited(0),
-  XXX_n(0),
-  pingus()
+  XXX_n(0)
 {
 }
 
@@ -36,17 +34,14 @@ PinguHolder::~PinguHolder()
 {
 }
 
-Pingu*
+void*
 PinguHolder::create_pingu (const Vector3f& pos, int owner_id)
 {
   if (number_of_allowed > get_number_of_released())
   {
-    Pingu* pingu = new Pingu (XXX_n, pos, owner_id);
+    void* pingu = NULL;
 
-    // This list holds the active pingus
-    pingus.push_back(pingu);
-
-    tceu__Pingu___int__Vector3f___int p = { pingu, XXX_n++, (Vector3f*)&pos, owner_id };
+    tceu__void____int__Vector3f___int p = { &pingu, XXX_n++, (Vector3f*)&pos, owner_id };
     ceu_sys_go(&CEU_APP, CEU_IN_PINGUHOLDER_CREATE_PINGU, &p);
 
     return pingu;
@@ -98,24 +93,6 @@ PinguHolder::render(int x, int y, Framebuffer& fb)
 void
 PinguHolder::update()
 {
-  PinguIter pingu = pingus.begin();
-
-  while(pingu != pingus.end())
-  {
-    if ((*pingu)->get_status() == Pingu::PS_DEAD)
-    {
-      pingu = pingus.erase(pingu);
-    }
-    else if ((*pingu)->get_status() == Pingu::PS_EXITED)
-    {
-      pingu = pingus.erase(pingu);
-    }
-    else
-    {
-      // move to the next Pingu
-      ++pingu;
-    }
-  }
 }
 
 float

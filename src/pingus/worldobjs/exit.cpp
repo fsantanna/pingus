@@ -19,7 +19,6 @@
 #include "engine/display/scene_context.hpp"
 #include "pingus/collision_map.hpp"
 #include "pingus/components/smallmap.hpp"
-#include "pingus/pingu.hpp"
 #include "pingus/pingu_holder.hpp"
 #include "pingus/world.hpp"
 #include "util/string_util.hpp"

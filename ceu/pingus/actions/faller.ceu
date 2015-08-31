@@ -8,7 +8,6 @@ class Faller with
     interface IPinguAction;
 do
     function (void) => bool is_tumbling;
-    var _Pingu& pingu_ = &this.pingu.me;
 
     /* UPDATE */
     par do

@@ -20,7 +20,6 @@
 #include <time.h>
 
 #include "pingus/goal_manager.hpp"
-#include "pingus/pingu.hpp"
 #include "pingus/world.hpp"
 #include "util/log.hpp"
 #include "util/sexpr_file_writer.hpp"
@@ -112,7 +111,7 @@ Server::send_armageddon_event ()
 }
 
 void
-Server::send_pingu_action_event (Pingu* pingu, ActionName::Enum action)
+Server::send_pingu_action_event (void* pingu, ActionName::Enum action)
 {
 assert(!"NOT PORTED");
 #if 0

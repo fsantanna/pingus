@@ -13,7 +13,6 @@ native @nohold _GC_COLOR_DRAW();
 native/pre do
     ##include "../src/pingus/pingu_holder.hpp"
     ##include "../src/pingus/world.hpp"
-    ##include "../src/pingus/pingu.hpp"
     ##include "../src/pingus/action_name.hpp"
 end
 
@@ -37,8 +36,11 @@ native/pre do
     ##define ActionName__Enum ActionName::Enum
     ##define Pingu__PinguStatus Pingu::PinguStatus
     ##define PinguAction_shared_ptr std::shared_ptr<PinguAction>
+    enum {
+        PS_ALIVE, PS_EXITED, PS_DEAD
+    };
 end
-native @plain _Pingu, _ActionName__Enum, _Pingu__PinguStatus;
+native @plain _ActionName__Enum, _Pingu__PinguStatus;
 
 class Pingu with
     interface IPingu;
@@ -54,15 +56,13 @@ do
     var Vector3f velocity = Vector3f(0, 0, 0);
     var char[] name;
 
-    this.me.ceu = &&this;
-
     this.holder.number_of_released = this.holder.number_of_released + 1;
     this.holder.number_of_alive    = this.holder.number_of_alive    + 1;
     finalize with
         this.holder.number_of_alive = this.holder.number_of_alive - 1;
     end
 
-    var _Pingu__PinguStatus ret =
+    var int ret =
     do
         event _ActionName__Enum e_set_action;
         par do
@@ -75,10 +75,9 @@ do
                  */
                 if this.rel_getpixel(0,-1) == {Groundtype::GP_OUTOFSCREEN} then
                     //Sound::PingusSound::play_sound("die");
-                    me.status = {Pingu::PS_DEAD};
     // TODO: copied from walker.ceu
                     this.set_x(this.get_x() + (float)(this.direction));
-                    escape {Pingu::PS_DEAD};
+                    escape _PS_DEAD;
                 end
 
                 if this.rel_getpixel(0,-1) == {Groundtype::GP_WATER} or
@@ -100,18 +99,12 @@ do
             await FOREVER;
         with
             loop do
-                var _Pingu&& ptr;
                 var bool&&?  ret_val;
                 #define RET_VAL(v) if ret_val? then *ret_val! = v; end
                 var _ActionName__Enum new_action;
                 new_action = await this.go_action;
 // TODO: ret_val
                 RET_VAL(false);
-
-                if me.status == {Pingu::PS_DEAD} then
-                    _log_debug("Setting action to a dead pingu");
-                    _assert(not "DEAD PINGU");
-                end
 
                 var int mode = {ActionName::ACTIVATION_MODE}[new_action];
 
@@ -174,8 +167,7 @@ do
                     if this.current_action == {ActionName::NONE} then
                         await FOREVER;
                     else/if this.current_action == {ActionName::DEAD} then
-                        me.status = {Pingu::PS_DEAD};
-                        escape {Pingu::PS_DEAD};
+                        escape _PS_DEAD;
                     else/if this.current_action == {ActionName::BASHER} then
                         this.current_action = DO_PINGU_ACTION(Basher);
                     else/if this.current_action == {ActionName::BLOCKER} then
@@ -190,8 +182,7 @@ do
                         this.current_action = DO_PINGU_ACTION(Drown);
                     else/if this.current_action == {ActionName::EXITER} then
                         this.current_action = DO_PINGU_ACTION(Exiter);
-                        me.status = {Pingu::PS_EXITED};
-                        escape {Pingu::PS_EXITED};
+                        escape _PS_EXITED;
                     else/if this.current_action == {ActionName::FALLER} then
                         this.current_action = DO_PINGU_ACTION(Faller);
                     else/if this.current_action == {ActionName::FLOATER} then
@@ -216,12 +207,12 @@ _printf("ACTION_NAME = %d\n", this.current_action);
         end
     end;
 
-    if ret == {Pingu::PS_DEAD} then
+    if ret == _PS_DEAD then
         this.holder.number_of_killed = this.holder.number_of_killed + 1;
-    else/if ret == {Pingu::PS_EXITED} then
+    else/if ret == _PS_EXITED then
         this.holder.number_of_exited = this.holder.number_of_exited + 1;
     else
-        _assert(ret == {Pingu::PS_NONE});
+        _assert(ret != _PS_ALIVE);
     end
     _assert(this.holder.number_of_released == this.holder.number_of_alive-1 +
                                               this.holder.number_of_killed  +

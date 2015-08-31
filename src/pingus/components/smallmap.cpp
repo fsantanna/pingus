@@ -17,7 +17,6 @@
 #include "pingus/components/smallmap.hpp"
 
 #include "pingus/components/playfield.hpp"
-#include "pingus/pingu.hpp"
 #include "pingus/pingu_holder.hpp"
 #include "pingus/server.hpp"
 #include "pingus/smallmap_image.hpp"

@@ -25,8 +25,6 @@ class PingusLevel;
 class Vector3f;
 class Pingu;
 
-typedef std::list<Pingu*>::iterator PinguIter;
-
 /** This class holds all the penguins in the world */
 class PinguHolder : public WorldObj
 {
@@ -41,10 +39,6 @@ private:
   int number_of_exited;
 
   int XXX_n;
-
-  /** A list holding all Pingus, the PinguHolder itself has only the
-      active (not dead) ones */
-  std::list<Pingu*> pingus;
 
 public:
   PinguHolder(const PingusLevel&);
@@ -93,15 +87,10 @@ public:
       will take care of the deletion. The caller *must* not delete the
       Pingu. Might return 0 if all available pingus are already
       released */
-  Pingu* create_pingu(const Vector3f& pos, int owner_id);
+  void* create_pingu(const Vector3f& pos, int owner_id);
 
   /** @return the id of the last pingu + 1 */
   unsigned int get_end_id();
-
-  // FIXME: Dirty cruft, needs cleanup
-  std::list<Pingu*>::iterator  begin () { return pingus.begin (); }
-  std::list<Pingu*>::iterator  end ()   { return pingus.end (); }
-  std::list<Pingu*>::size_type size ()  { return pingus.size (); }
 
 private:
   PinguHolder (const PinguHolder&);

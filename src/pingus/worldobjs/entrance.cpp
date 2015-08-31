@@ -18,7 +18,6 @@
 
 #include "engine/display/scene_context.hpp"
 #include "pingus/components/smallmap.hpp"
-#include "pingus/pingu.hpp"
 #include "pingus/pingu_holder.hpp"
 #include "pingus/world.hpp"
 #include "util/log.hpp"

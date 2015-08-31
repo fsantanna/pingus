@@ -19,7 +19,6 @@
 #include "engine/display/display.hpp"
 #include "pingus/globals.hpp"
 #include "pingus/direction.hpp"
-#include "pingus/pingu.hpp"
 #include "pingus/pingu_holder.hpp"
 #include "pingus/screens/game_session.hpp"
 #include "pingus/server.hpp"
@@ -144,7 +143,7 @@ Playfield::on_key_pressed(const Input::KeyboardEvent& ev)
     {
       Vector2i n = state.screen2world(mouse_pos);
       Vector3f p = Vector3f(n.x,n.y,0);
-      Pingu* pingu = server->get_world()->get_pingus()->create_pingu(p, 0);
+      void* pingu = server->get_world()->get_pingus()->create_pingu(p, 0);
       if (pingu)
       {
         Direction d;
