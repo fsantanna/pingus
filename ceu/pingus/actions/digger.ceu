@@ -8,7 +8,7 @@ do
     function (bool final)=>void dig;
 
     var char[] str = [] .. "pingus/player"
-                        .. (char&&)*this.pingu.get_owner_str().c_str()
+                        .. (char&&)this.pingu.get_owner_str().c_str()
                         .. "/digger/left";
     var SpritePingu _ with
         this.x    = &_XXX_NOHOLD(&&outer.pingu.pos_x);
