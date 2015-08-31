@@ -56,15 +56,18 @@ do
                                                          {Math::frand}()-0.5);
                         end
 
+                        var IPingu&&?[] pingus;
                         loop pingu in world:get_pingu_holder().pingus do
-                            if pingu:me.is_inside((int)(this.me.pos.x + 30),
-                                               (int)(this.me.pos.y + 90),
-                                               (int)(this.me.pos.x + 250),
-                                               (int)(this.me.pos.y + 190))
+                            pingus = [] .. pingus .. [pingu];
+                        end
+                        loop i in $pingus do
+                            var IPingu&&? pingu = pingus[i];
+                            if pingu!:me.is_inside((int)(this.me.pos.x + 30),
+                                                   (int)(this.me.pos.y + 90),
+                                                   (int)(this.me.pos.x + 250),
+                                                   (int)(this.me.pos.y + 190))
                             then
-                                if pingu:me.get_action() != {ActionName::SPLASHED} then
-                                    pingu:me.request_set_action({ActionName::SPLASHED});
-                                end
+                                emit pingu!:go_action => {ActionName::SPLASHED};
                             end
                         end
                     else

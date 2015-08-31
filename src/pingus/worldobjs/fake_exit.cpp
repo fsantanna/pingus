@@ -73,8 +73,9 @@ FakeExit::catch_pingu (Pingu* pingu)
         smashing = true;
       }
 
-      if (surface.get_current_frame() == 4)
-        pingu->request_set_action(ActionName::SPLASHED);
+assert(!"NOT PORTED");
+      //if (surface.get_current_frame() == 4)
+        //pingu->request_set_action(ActionName::SPLASHED);
     }
   }
 }

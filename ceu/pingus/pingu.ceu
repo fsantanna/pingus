@@ -10,9 +10,6 @@ native do
 end
 native @nohold _GC_COLOR_DRAW();
 
-input (_Pingu&&, bool&&, _ActionName__Enum) PINGU_REQUEST_SET_ACTION;
-input (_Pingu&&, _ActionName__Enum)         PINGU_SET_ACTION;
-
 native/pre do
     ##include "../src/pingus/pingu_holder.hpp"
     ##include "../src/pingus/world.hpp"
@@ -103,14 +100,8 @@ do
                 var bool&&?  ret_val;
                 #define RET_VAL(v) if ret_val? then *ret_val! = v; end
                 var _ActionName__Enum new_action;
-                par/or do
-                    var bool&& ret_val_;
-                    (ptr, ret_val_, new_action) = await PINGU_REQUEST_SET_ACTION
-                                                  until ptr == &&this.me;
-                    ret_val := ret_val_;
-                with
-                    new_action = await this.go_action;
-                end
+                new_action = await this.go_action;
+// TODO: ret_val
                 RET_VAL(false);
 
                 if me.status == {Pingu::PS_DEAD} then

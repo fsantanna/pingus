@@ -1,0 +1,60 @@
+#ifndef _EXIT_CEU
+#define _EXIT_CEU
+
+native/pre do
+    ##include "src/pingus/worldobjs/exit.hpp"
+    ##define WorldObjs__Exit WorldObjs::Exit
+end
+native @plain _WorldObjs__Exit;
+
+input _WorldObjs__Exit&& EXIT_NEW;
+input _WorldObjs__Exit&& EXIT_DELETE;
+
+class Exit with
+    var _WorldObjs__Exit& me;
+do
+    par/or do
+        AWAIT_UNTIL_MYSELF(_WorldObjs__Exit,EXIT_DELETE);
+    with
+        every WORLD_UPDATE do
+            this.me.sprite.update();
+
+            var IWorld&& world = (IWorld&&)this.me.world:ceu;
+            var IPingu&&? pingu;
+            loop p in world:get_pingu_holder().pingus do
+                // Make sure this particular exit is allowed for this pingu
+                if (p:me.get_owner() != this.me.owner_id) then
+                    continue;
+                end
+
+                // Now, make sure the pingu is within range
+                if ( (p:me.get_pos().x > this.me.pos.x-1) and
+                     (p:me.get_pos().x < this.me.pos.x+1) and
+                     (p:me.get_pos().y > this.me.pos.y-5) and
+                     (p:me.get_pos().y < this.me.pos.y+5) )
+                then
+                    // Now, make sure the pingu isn't already exiting, gone, or dead
+                    // Pingu actually exits
+                    pingu = p;
+                    break;
+                end
+            end
+            if pingu? then
+                emit pingu!:go_action => {ActionName::EXITER};
+            end
+        end
+    end
+end
+
+class ExitFactory with
+do
+    every me_ in EXIT_NEW do
+        spawn Exit with
+            this.me = &_XXX_PTR2REF(me_);
+        end;
+    end
+end
+
+var ExitFactory _;
+
+#endif

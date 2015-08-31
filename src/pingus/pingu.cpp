@@ -87,21 +87,6 @@ Pingu::set_pos (const Vector3f& arg_pos)
   set_y (arg_pos.y);
 }
 
-// Set the action of the pingu (bridger, blocker, bomber, etc.)
-// This function is used by external stuff, like the ButtonPanel, etc
-// When you select a function on the button panel and click on a
-// pingu, this action will be called with the action name
-bool
-Pingu::request_set_action(ActionName::Enum action_name)
-{
-  bool ret_val = false;
-
-  tceu__Pingu___bool___ActionName__Enum p = {this, &ret_val, action_name};
-  ceu_sys_go(&CEU_APP, CEU_IN_PINGU_REQUEST_SET_ACTION, &p);
-
-  return ret_val;
-}
-
 // TODO: pinguholder/world
 Pingu::PinguStatus
 Pingu::get_status (void) const

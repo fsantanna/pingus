@@ -16,6 +16,7 @@ input (_SceneContext&&) WORLD_DRAW;
 input void WORLD_ARMAGEDDON;
 
 #include "worldobjs/entrance.ceu"
+#include "worldobjs/exit.ceu"
 #include "worldobjs/guillotine.ceu"
 #include "worldobjs/smasher.ceu"
 

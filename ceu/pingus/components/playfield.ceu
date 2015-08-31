@@ -1,8 +1,7 @@
 #ifndef _PLAYFIELD_CEU
 #define _PLAYFIELD_CEU
 
-input void PLAYFIELD_NEW;
-input void PLAYFIELD_DELETE;
+input (int,int) PLAYFIELD_ON_PRIMARY_BUTTON_PRESS;
 
 interface IPlayfield with
     var   IPingu&&?   current_pingu;
@@ -12,6 +11,7 @@ end
 
 native do
     ##include "src/pingus/screens/game_session.hpp"
+    ##include "pingus/server.hpp"
 end
 
 #include "../capture_rectangle.ceu"
@@ -21,6 +21,32 @@ class Playfield with
     var PinguHolder& pingu_holder;
 do
     par do
+        every (x,y) in PLAYFIELD_ON_PRIMARY_BUTTON_PRESS do
+            x = x - this.me.rect.left;
+            y = y - this.me.rect.top;
+
+            if this.me.session != null then
+                var IWorld&&? world = (IWorld&&) _XXX_PURE(this.me.server:get_world():ceu);
+                var IPingu&& current_pingu = null;
+                var float min_dist = 500.0;
+                var float dist;
+                loop pingu in world!:get_pingu_holder().pingus do
+                    if (pingu:me.is_over(x, y)) then
+                        dist = pingu:me.dist(x, y);
+                        if (dist < min_dist) then
+                            min_dist = dist;
+                            current_pingu = pingu;
+                        end
+                    end
+                end
+
+                if current_pingu != null then
+                    emit current_pingu:go_action =>
+                            this.me.session:get_action_name();
+                end
+            end
+        end
+    with
         var bool was_empty = true;
             // having current_pingu&&? is not enough because it can die and 
             // clear the variable
@@ -65,6 +91,9 @@ do
         end;
         await FOREVER;
     end
+
+    /* PRIVATE */
+
 end
 
 #endif

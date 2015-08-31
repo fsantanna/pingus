@@ -24,19 +24,23 @@ do
 
             if not this.me.killing then
                 var IWorld&& world = (IWorld&&)this.me.world:ceu;
-                loop pingu in world:get_pingu_holder().pingus do
-                    if (pingu:me.is_inside((int)(this.me.pos.x + 38),
-                                           (int)(this.me.pos.y + 90),
-                                           (int)(this.me.pos.x + 42),
-                                           (int)(this.me.pos.y + 98)))
+                var IPingu&&? pingu;
+                loop p in world:get_pingu_holder().pingus do
+                    if (p:me.is_inside((int)(this.me.pos.x + 38),
+                                       (int)(this.me.pos.y + 90),
+                                       (int)(this.me.pos.x + 42),
+                                       (int)(this.me.pos.y + 98)))
                     then
                         this.me.killing = true;
-                        this.me.direction = pingu:direction;
-                        pingu:me.request_set_action({ActionName::DEAD});
+                        this.me.direction = p:direction;
                         this.me.sprite_kill_left.restart();
                         this.me.sprite_kill_right.restart();
+                        pingu = p;
                         break;
                     end
+                end
+                if pingu? then
+                    emit pingu!:go_action => {ActionName::DEAD};
                 end
             else
                 // Update both sprites so they finish at the same time.

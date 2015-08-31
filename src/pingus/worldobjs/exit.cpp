@@ -24,6 +24,8 @@
 #include "pingus/world.hpp"
 #include "util/string_util.hpp"
 
+#include "ceu_vars.h"
+
 namespace WorldObjs {
 
 Exit::Exit(const FileReader& reader) :
@@ -44,10 +46,15 @@ Exit::Exit(const FileReader& reader) :
   flag = Sprite("core/misc/flag" + StringUtil::to_string(owner_id));
 
   sprite = Sprite(desc);
+
+  void* this_ = this;
+  ceu_sys_go(&CEU_APP, CEU_IN_EXIT_NEW, &this_);
 }
 
 Exit::~Exit ()
 {
+  void* this_ = this;
+  ceu_sys_go(&CEU_APP, CEU_IN_ENTRANCE_DELETE, &this_);
 }
 
 void
@@ -75,27 +82,6 @@ Exit::draw_smallmap(SmallMap* smallmap)
 void
 Exit::update ()
 {
-  sprite.update();
-
-  PinguHolder* holder = world->get_pingus();
-
-  for (PinguIter pingu = holder->begin(); pingu != holder->end(); ++pingu)
-  {
-    // Make sure this particular exit is allowed for this pingu
-    if ((*pingu)->get_owner()  == owner_id)
-    {
-      // Now, make sure the pingu is within range
-      if (   (*pingu)->get_pos().x > pos.x - 1 && (*pingu)->get_pos().x < pos.x + 1
-             && (*pingu)->get_pos().y > pos.y - 5 && (*pingu)->get_pos().y < pos.y + 5)
-      {
-        // Now, make sure the pingu isn't already exiting, gone, or dead
-        {
-          // Pingu actually exits
-          (*pingu)->request_set_action(ActionName::EXITER);
-        }
-      }
-    }
-  }
 }
 
 float

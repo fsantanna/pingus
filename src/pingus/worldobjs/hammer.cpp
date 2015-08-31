@@ -63,7 +63,8 @@ Hammer::update()
         {
           if (pingu->get_x() > pos.x + 55  && pingu->get_x() < pos.x + 77
               && pingu->get_y() > pos.y + 146 && pingu->get_y() < pos.y + 185)
-            pingu->request_set_action(ActionName::SPLASHED);
+assert(!"NOT PORTED");
+            //pingu->request_set_action(ActionName::SPLASHED);
         }
       }
 

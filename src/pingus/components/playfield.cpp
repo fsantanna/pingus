@@ -25,6 +25,8 @@
 #include "pingus/server.hpp"
 #include "pingus/world.hpp"
 
+#include "ceu_vars.h"
+
 Playfield::Playfield(Server* server_, GameSession* session_, const Rect& rect_) :
   RectComponent(rect_),
   server(server_),
@@ -86,31 +88,6 @@ Playfield::draw(DrawingContext& gc)
                  Color(255, 0, 0));
   }
   gc.pop_modelview();
-}
-
-Pingu*
-Playfield::current_pingu_find(const Vector2f& pos)
-{
-  float min_dist = 500.0;
-  float dist;
-  Pingu* c_pingu = 0;
-
-  for (PinguIter pingu = server->get_world()->get_pingus()->begin();
-       pingu != server->get_world()->get_pingus()->end();
-       ++pingu)
-  {
-    if ((*pingu)->is_over(static_cast<int>(pos.x), static_cast<int>(pos.y)))
-    {
-      dist = (*pingu)->dist(static_cast<int>(pos.x), static_cast<int>(pos.y));
-
-      if (dist < min_dist)
-      {
-        min_dist = dist;
-        c_pingu = *pingu;
-      }
-    }
-  }
-  return c_pingu;
 }
 
 void
@@ -182,19 +159,8 @@ assert(!"TODO");
 void
 Playfield::on_primary_button_press(int x, int y)
 {
-  x -= rect.left;
-  y -= rect.top;
-
-  if (session)
-  {
-    Pingu* current_pingu;
-    current_pingu = current_pingu_find(state.screen2world(Vector2i(x,y)));
-
-    if (current_pingu)
-    {
-      server->send_pingu_action_event(current_pingu, session->get_action_name());
-    }
-  }
+  tceu__int__int p = {x, y};
+  ceu_sys_go(&CEU_APP, CEU_IN_PLAYFIELD_ON_PRIMARY_BUTTON_PRESS, &p);
 }
 
 void
