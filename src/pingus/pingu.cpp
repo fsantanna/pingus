@@ -16,9 +16,8 @@
 Pingu::Pingu (int arg_id, const Vector3f& arg_pos, int owner) :
   id(arg_id),
 /// TODO: exit
-  status(PS_ALIVE),
-  pos_x(arg_pos.x),
-  pos_y(arg_pos.y) { }
+  status(PS_ALIVE)
+{}
 Pingu::~Pingu () { }
 
 unsigned int
@@ -42,8 +41,4 @@ std::string Pingu::get_name() {
 
 ActionName::Enum Pingu::get_action () {
   return current_action;
-}
-
-Vector3f Pingu::get_pos () const {
-  return Vector3f(pos_x, pos_y, 0);
 }

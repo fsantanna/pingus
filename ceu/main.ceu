@@ -72,6 +72,7 @@ interface IPingu with
     var   IPinguHolder&     holder;
     var   _Pingu&           me;
 
+    var  float              pos_x, pos_y;
     var   s8                direction;
     var   _ActionName__Enum wall_action;
     var   _ActionName__Enum fall_action;

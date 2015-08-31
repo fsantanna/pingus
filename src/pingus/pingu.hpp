@@ -19,16 +19,10 @@ private:
   PinguStatus status;
 
 public:
-  float pos_x;
-  float pos_y;
-
   Pingu (int arg_id, const Vector3f& pos, int owner);
   ~Pingu ();
 
   void* ceu;
-
-  Vector3f get_pos () const;
-/// TODO: worldobjs
 
   PinguStatus get_status (void) const;
 /// TODO: pingu_holder

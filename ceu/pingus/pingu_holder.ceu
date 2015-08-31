@@ -56,6 +56,8 @@ do
                     this.holder   = &outer;
                     this.me       = &_XXX_PTR2REF(me_);
                     this.owner_id = id;
+                    this.pos_x    = pos:x;
+                    this.pos_y    = pos:y;
                 end;
             end
         end
