@@ -33,7 +33,7 @@ do
                 var float min_dist = 500.0;
                 var float dist;
                 loop pingu in world!:get_pingu_holder().pingus do
-                    if (pingu:me.is_over(x, y)) then
+                    if (pingu:is_over(x, y)) then
                         dist = pingu:me.dist(x, y);
                         if (dist < min_dist) then
                             min_dist = dist;
@@ -63,7 +63,7 @@ do
             var float min_dist = 500.0;
             var IPingu&&? cur;
             loop pingu in pingu_holder.pingus do
-                if pingu:me.is_over((int)pos.x, (int)pos.y) then
+                if pingu:is_over((int)pos.x, (int)pos.y) then
                     var float dist = pingu:me.dist((int)pos.x, (int)pos.y);
                     if (dist < min_dist) then
                         min_dist = dist;

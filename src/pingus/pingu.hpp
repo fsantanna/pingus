@@ -127,9 +127,6 @@ public:
   int get_owner ();
 /// TODO: exit
 
-  bool   is_over (int x, int y);
-/// TODO: world.cpp
-
   bool   is_inside (int x1, int y1, int x2, int y2);
 
   float dist (int x, int y);

@@ -83,6 +83,7 @@ interface IPingu with
     function (void)         => void         change_direction;
     function (int x, int y) => bool         head_collision_on_walk;
     function (int x, int y) => int          rel_getpixel;
+    function (int x, int y) => bool         is_over;
 end
 
 interface IPinguHolderPool with

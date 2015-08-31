@@ -94,16 +94,6 @@ Pingu::get_status (void) const
   return status;
 }
 
-// Returns true if the given koordinates are above the pingu
-bool
-Pingu::is_over (int x, int y)
-{
-  Vector3f center = get_center_pos ();
-
-  return (center.x + 16 > x && center.x - 16 < x &&
-          center.y + 16 > y && center.y - 16 < y);
-}
-
 bool
 Pingu::is_inside (int x1, int y1, int x2, int y2)
 {
