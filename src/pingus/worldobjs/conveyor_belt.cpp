@@ -75,6 +75,8 @@ ConveyorBelt::update ()
   middle_sur.update();
   right_sur.update();
 
+assert(!"NOT PORTED");
+#if 0
   PinguHolder* holder = world->get_pingus();
   for (PinguIter pingu = holder->begin(); pingu != holder->end(); ++pingu)
   {
@@ -85,10 +87,10 @@ ConveyorBelt::update ()
     {
       Vector3f pos_ = (*pingu)->get_pos();
       pos_.x -= speed * 0.025f;
-assert(!"NOT PORTED");
-      //(*pingu)->set_pos(pos_);
+      (*pingu)->set_pos(pos_);
     }
   }
+#endif
 }
 
 float

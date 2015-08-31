@@ -61,6 +61,8 @@ SwitchDoorSwitch::draw (SceneContext& gc)
 void
 SwitchDoorSwitch::update ()
 {
+assert(!"NOT PORTED");
+#if 0
   if (!is_triggered)
   {
     if (m_door)
@@ -82,6 +84,7 @@ SwitchDoorSwitch::update ()
       }
     }
   }
+#endif
 }
 
 } // namespace WorldObjs

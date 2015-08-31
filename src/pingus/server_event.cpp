@@ -166,6 +166,8 @@ ServerEvent::send(Server* server)
 
     case PINGU_ACTION_EVENT:
     {
+assert(!"TODO NOT PORTED");
+#if 0
       Pingu* pingu = server->get_world()->get_pingus()->get_pingu(pingu_id);
       if (pingu)
       {
@@ -181,6 +183,7 @@ ServerEvent::send(Server* server)
       {
         log_error("DemoFile inconsistent with world, pingu %1% missing", pingu_id);
       }
+#endif
     }
     break;
 

@@ -68,13 +68,13 @@ Teleporter::update ()
 {
   sprite.update();
 
+assert(!"NOT PORTED");
+#if 0
   if (target)
   {
     PinguHolder* holder = world->get_pingus();
     for (PinguIter pingu = holder->begin (); pingu != holder->end (); ++pingu)
     {
-assert(!"NOT PORTED");
-#if 0
       if (   (*pingu)->get_x() > pos.x - 3  && (*pingu)->get_x() < pos.x + 3
              && (*pingu)->get_y() > pos.y - 52 && (*pingu)->get_y() < pos.y)
       {
@@ -82,9 +82,9 @@ assert(!"NOT PORTED");
         target->teleporter_used();
         sprite.restart();
       }
-#endif
     }
   }
+#endif
 }
 
 } // namespace WorldObjs

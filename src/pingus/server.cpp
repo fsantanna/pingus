@@ -114,18 +114,18 @@ Server::send_armageddon_event ()
 void
 Server::send_pingu_action_event (Pingu* pingu, ActionName::Enum action)
 {
+assert(!"NOT PORTED");
+#if 0
   record(ServerEvent::make_pingu_action_event(get_time(), pingu->get_id(), pingu->get_pos(), action));
 
   if (action_holder.pop_action(action))
   {
-assert(!"NOT PORTED");
-#if 0
     if (!(pingu->request_set_action(action)))
     {
       action_holder.push_action(action);
     }
-#endif
   }
+#endif
 }
 
 void

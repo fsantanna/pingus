@@ -62,6 +62,8 @@ FakeExit::catch_pingu (Pingu* pingu)
   if (surface.is_finished())
     smashing = false;
 
+assert(!"NOT PORTED");
+#if 0
   if (   pingu->get_pos().x > pos.x - 7  && pingu->get_pos().x < pos.x + 8
          && pingu->get_pos().y > pos.y - 56 && pingu->get_pos().y < pos.y)
   {
@@ -73,11 +75,11 @@ FakeExit::catch_pingu (Pingu* pingu)
         smashing = true;
       }
 
-assert(!"NOT PORTED");
-      //if (surface.get_current_frame() == 4)
-        //pingu->request_set_action(ActionName::SPLASHED);
+      if (surface.get_current_frame() == 4)
+        pingu->request_set_action(ActionName::SPLASHED);
     }
   }
+#endif
 }
 
 void
