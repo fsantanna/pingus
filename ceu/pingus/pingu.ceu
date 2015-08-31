@@ -52,8 +52,7 @@ class Pingu with
     var _ActionName__Enum fall_action    = {ActionName::NONE};
 do
     var Vector3f velocity = Vector3f(0, 0, 0);
-    var char[] name = [] .. (char&&){ActionName::to_screenname}
-                                        (this.current_action);
+    var char[] name;
 
     this.me.ceu = &&this;
 
@@ -159,6 +158,8 @@ do
             end
         with
             loop do
+                name = [] .. (char&&){ActionName::to_screenname}
+                                (this.current_action);
                 par/or do
                     this.current_action = await e_set_action;
                 with
@@ -168,8 +169,6 @@ do
                             this.pingu = &outer;                            \
                             this.previous_action = outer.current_action;    \
                         end;                                                \
-                        this.name = []..(char&&){ActionName::to_screenname} \
-                                            ((_ActionName__Enum)a);         \
                         escape (_ActionName__Enum)a;                        \
                     end
                     if this.current_action == {ActionName::NONE} then
