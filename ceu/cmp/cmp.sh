@@ -50,6 +50,7 @@ astyle -A2 all.cpp
         # join if () {}
         # break line between field init and "{"
         # join strings in one line
+        # one-line getter/setter
 
 sloccount all.cpp   # 1031
 wc all.cpp          # 1031
@@ -57,19 +58,20 @@ wc all.cpp          # 1031
     # Removed
         # Pingu/PinguAction::need_catch (always returns false)
         # PinguAction::get_persistent_char (refactored in Ceu)
-        # PinguAction::CONST/DEST (why?)
+        # PinguAction::~ (nothing there)
         # PinguAction::get_action (why?)
-        # Pingu::get_center_pos() (redirects to PinguAction which is not overloaded)
         # PinguAction::rel_getpixel (same as Pingu::)
         # PinguAction::get_activation_mode (refactored in Ceu)
-        # Pingu::get_name (proxy to PinguAction)
-        # Pingu::draw (proxy to PinguAction)
-        # Pingu::catch_pingu (proxy to PinguAction)
         # Pingu::apply_force (never used)
         # Pingu::change_allowed (refactored in Ceu)
         # Pingu::catchable (refactored in Ceu)
         # Pingu::set_* (using Vectors)
-        # action_time .*
+
+        # Pingu::get_name (proxy to PinguAction)
+        # Pingu::draw (proxy to PinguAction)
+        # Pingu::catch_pingu (proxy to PinguAction)
+        # action_time/COUNTDOWN/countdown .*
+        # one-line getter/setter
 
 sloccount all.cpp   # 955
 wc all.cpp          # 955

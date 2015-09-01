@@ -464,12 +464,6 @@ bool Faller::is_tumbling () const {
     return (Math::abs(pingu->get_velocity().x) > deadly_velocity
             || Math::abs(pingu->get_velocity().y) > deadly_velocity);
 }
-bool Faller::change_allowed (ActionName::Enum new_action) {
-    return
-        new_action == ActionName::FLOATER ||
-        new_action == ActionName::CLIMBER ||
-        new_action == ActionName::BOMBER;
-}
 Floater::Floater(Pingu* p) :
     PinguAction(p),
     falling_depth(0),
@@ -492,9 +486,6 @@ void Floater::update() {
 }
 void Floater::draw (SceneContext& gc) {
     gc.color().draw(sprite, pingu->get_pos());
-}
-bool Floater::change_allowed(ActionName::Enum action) {
-    return action == ActionName::BOMBER;
 }
 Jumper::Jumper (Pingu* p) :
     PinguAction(p),
@@ -686,6 +677,9 @@ void Walker::draw (SceneContext& gc) {
         gc.color().draw(floaterlayer[pingu->direction], pingu->get_pos());
     }
 }
+PinguAction::PinguAction (Pingu* p)
+    : pingu (p)
+{ }
 Vector3f PinguAction::get_center_pos() const {
     return pingu->get_pos() + Vector3f(0, -16);
 }
@@ -714,7 +708,6 @@ std::string PinguAction::get_name () const {
 Pingu::Pingu (int arg_id, const Vector3f& arg_pos, int owner) :
     previous_action(ActionName::FALLER),
     id(arg_id),
-    action_time(-1),
     owner_id(owner),
     status(PS_ALIVE),
     pos_x(arg_pos.x),
@@ -783,19 +776,6 @@ bool Pingu::request_set_action(ActionName::Enum action_name) {
                 ret_val = true;
             }
             break;
-        case COUNTDOWN_TRIGGERED: {
-            if (countdown_action && countdown_action->get_type() == action_name) {
-                log_debug("Not using countdown action, we have already");
-                ret_val = false;
-                break;
-            }
-            log_debug("Setting countdown action");
-            std::shared_ptr<PinguAction> act = create_action(action_name);
-            action_time = act->activation_time();
-            countdown_action = act;
-            ret_val = true;
-        }
-        break;
         default:
             log_debug("unknown action activation_mode");
             ret_val = false;
@@ -860,9 +840,16 @@ void Pingu::update() {
     }
     action->update();
 }
+void Pingu::draw(SceneContext& gc) {
+    char str[16];
+    action->draw(gc);
+}
 int Pingu::rel_getpixel(int x, int y) {
     return WorldObj::get_world()->get_colmap()->getpixel(static_cast<int>(pos_x + static_cast<float>(x * direction)),
             static_cast<int>(pos_y - static_cast<float>(y)));
+}
+void Pingu::catch_pingu (Pingu* pingu) {
+    action->catch_pingu(pingu);
 }
 void Pingu::set_direction (Direction d) {
     direction = d;
@@ -870,8 +857,17 @@ void Pingu::set_direction (Direction d) {
 bool Pingu::is_alive (void) {
     return (status != PS_DEAD && status != PS_EXITED);
 }
+std::string Pingu::get_name() {
+    return action->get_name();
+}
+ActionName::Enum Pingu::get_action () {
+    return action->get_type();
+}
 Vector3f Pingu::get_pos () const {
     return Vector3f(pos_x, pos_y, 0);
+}
+Vector3f Pingu::get_center_pos () const {
+    return action->get_center_pos();
 }
 int Pingu::get_owner () {
     return owner_id;
