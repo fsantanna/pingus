@@ -36,45 +36,6 @@ class Basher with do
             end
         end
     end
-    function @rec (void)=>void bash do
-        { static CollisionMask bash_radius( "pingus/common/bash_radius_gfx", "pingus/common/bash_radius");
-            assert(bash_radius.get_width() % 2 == 0); };
-        this.bash_reach = _bash_radius.get_width();
-        call {WorldObj::get_world()->remove}( _bash_radius,
-                this.pingu.get_xi() - _bash_radius.get_width() / 2,
-                this.pingu.get_yi() - _bash_radius.get_height() + 1
-        );
-    end
-    function @rec (void)=>bool walk_forward do
-        var int y_inc = 0;
-        loop i in BASHER_MAX_STEPS_DOWN+1 do
-            y_inc = -i;
-            if this.pingu.rel_getpixel(0, y_inc - 1) != {Groundtype::GP_NOTHING} then
-                break;
-            end
-        end
-        if y_inc < -BASHER_MAX_STEPS_DOWN then
-            return false;
-        else
-            this.pingu.set_pos(
-                this.pingu.get_x() + (float)(this.pingu.direction),
-                this.pingu.get_y() - (float)(y_inc)
-            );
-        end
-        return true;
-    end
-    function @rec (void)=>bool have_something_to_dig do
-        loop x in this.bash_reach+1 do
-            loop i in (BASHER_MAX_BASH_HEIGHT-BASHER_MIN_BASH_HEIGHT+1) do
-                var int y = BASHER_MIN_BASH_HEIGHT + i;
-                if this.pingu.rel_getpixel(x, y) == {Groundtype::GP_GROUND} then
-                    _log_debug("Basher: Found something to dig...");
-                    return true;
-                end
-            end
-        end
-        return false;
-    end
 end
 class Blocker with do
     var char[] left  = [] .. "pingus/player" .. (char&&)this.pingu.get_owner_str().c_str() .. "/blocker/left";
@@ -92,24 +53,6 @@ class Blocker with do
         var IWorld&& world = {WorldObj::get_world()}:ceu;
         loop p in world:get_pingu_holder().pingus do
             this.catch_pingu(p);
-        end
-    end
-    function @rec (void)=>bool standing_on_ground do
-        return (this.pingu.rel_getpixel(0,-1) != {Groundtype::GP_NOTHING});
-    end
-    function @rec (IPingu&& target)=>void catch_pingu do
-        if (target != &&this.pingu) then // avoid 'self' catch
-            if ( target:get_x() > this.pingu.get_x()-16
-            and  target:get_x() < this.pingu.get_x()+16
-            and  target:get_y() > this.pingu.get_y()-32
-            and  target:get_y() < this.pingu.get_y()+5 )
-            then
-                if (target:get_x() > this.pingu.get_x()) then
-                    target:direction = _RIGHT;
-                else
-                    target:direction = _LEFT;
-                end
-            end
         end
     end
 end
@@ -205,53 +148,6 @@ class Bridger with do
     end
     _assert(0);
     escape {ActionName::WALKER};
-    function @rec (void)=>bool way_is_free do
-        var bool way_free = true;
-        loop i in 4 do
-            var int x_inc = i+1;
-            if this.pingu.rel_getpixel(x_inc, 2) != {Groundtype::GP_NOTHING}
-            or this.pingu.head_collision_on_walk(x_inc, 2)
-            then
-                way_free = false;
-                break;
-            end
-        end
-        return way_free;
-    end
-    function @rec (void)=>bool brick_placement_allowed do
-        return not this.pingu.head_collision_on_walk(0, 2);
-    end
-    function @rec (void)=>void place_a_brick do
-        this.bricks = this.bricks - 1;
-        var char[]& name = &this.pingu.get_name();
-        name = [] .. "Bridger (" ..  (char&&)({StringUtil::to_string}(this.bricks).c_str()) ..  ")";
-        if this.bricks < 4 then
-            { Sound::PingusSound::play_sound("ting"); };
-        end
-        { static CollisionMask brick_l("other/brick_left");
-            static CollisionMask brick_r("other/brick_right"); };
-        if this.pingu.direction == _RIGHT then
-            call {WorldObj::get_world()->put}(
-                    _brick_r,
-                    (int)(this.pingu.get_pos().x + 10.0 - (float)(_brick_r.get_width())),
-                    (int)(this.pingu.get_pos().y),
-                    {Groundtype::GP_BRIDGE}
-            );
-        else
-            call {WorldObj::get_world()->put}(
-                    _brick_l,
-                    (int)(this.pingu.get_pos().x - 10.0),
-                    (int)(this.pingu.get_pos().y),
-                    {Groundtype::GP_BRIDGE}
-            );
-        end
-    end
-    function @rec (void)=>void walk_one_step_up do
-        this.pingu.set_pos(
-            this.pingu.get_pos().x + (4.0*(float)(this.pingu.direction)),
-            this.pingu.get_pos().y - 2
-        );
-    end
 end
 class Digger with do
     var char[] str = [] .. "pingus/player" .. (char&&)this.pingu.get_owner_str().c_str() .. "/digger/left";
@@ -270,32 +166,6 @@ class Digger with do
         else/if delay_count%4 == 0 then
             this.dig(false);
         end
-    end
-    function @rec (void)=>bool have_something_to_dig do
-        if (this.pingu.rel_getpixel(0,-1) !=  {Groundtype::GP_NOTHING}) then
-            if (this.pingu.rel_getpixel(0,-1) ==  {Groundtype::GP_SOLID}) then
-                call { Sound::PingusSound::play_sound }("chink");
-                return false;
-            else
-                return true;
-            end
-        else
-            return false;
-        end
-    end
-    function @rec (bool final)=>void dig do
-        { static CollisionMask digger_radius( "pingus/common/digger_radius_gfx", "pingus/common/digger_radius");
-            static CollisionMask digger_radius_final( "pingus/common/digger_radius_final_gfx", "pingus/common/digger_radius_final_gfx"); };
-        if (not final) then
-            call {WorldObj::get_world()->remove}( _digger_radius,
-                    this.pingu.get_xi() - _digger_radius.get_width()/2,
-                    this.pingu.get_yi() - _digger_radius.get_height() + 2);
-        else
-            call {WorldObj::get_world()->remove}( _digger_radius_final,
-                    this.pingu.get_xi() - _digger_radius.get_width()/2,
-                    this.pingu.get_yi() - _digger_radius.get_height() + 2);
-        end
-        this.pingu.set_pos(this.pingu.get_xi(), this.pingu.get_yi()+1);
     end
 end
 class Drown with do
@@ -387,10 +257,6 @@ class Faller with do
             _assert(0);     // sprite has loop
         end
     end
-    function @rec (void)=>bool is_tumbling do
-        return {Math::abs}(this.pingu.get_velocity().x) > _deadly_velocity
-            or {Math::abs}(this.pingu.get_velocity().y) > _deadly_velocity;
-    end
 end
 class Floater with do
     var char[] str = [] .. "pingus/player" .. (char&&)this.pingu.get_owner_str().c_str() .. "/floater/left";
@@ -466,29 +332,6 @@ class Miner with do
             this.mine(false, delay_count);
             this.pingu.set_pos(this.pingu.get_xi() + this.pingu.direction,
                                   this.pingu.get_yi() + 1);
-        end
-    end
-    function @rec (bool final, int delay_count) => void mine do
-        { static CollisionMask miner_radius( "pingus/common/miner_radius_gfx", "pingus/common/miner_radius");
-            static CollisionMask miner_radius_left( "pingus/common/miner_radius_left_gfx", "pingus/common/miner_radius_left");
-            static CollisionMask miner_radius_right( "pingus/common/miner_radius_right_gfx", "pingus/common/miner_radius_right"); };
-        if not final then
-            if delay_count%2 == 0 then
-                call {WorldObj::get_world()->remove}( _miner_radius,
-                    this.pingu.get_xi() - (_miner_radius.get_width()/2) + this.pingu.direction,
-                    this.pingu.get_yi() - _miner_radius.get_height() + 2
-                );
-            end
-        else/if this.pingu.direction == {Direction::LEFT} then
-            call {WorldObj::get_world()->remove}( _miner_radius_left,
-                    this.pingu.get_xi() - (_miner_radius_left.get_width()/2) + this.pingu.direction,
-                    this.pingu.get_yi() - _miner_radius_left.get_height() + 2
-            );
-        else    // RIGHT
-            call {WorldObj::get_world()->remove}( _miner_radius_right,
-                    this.pingu.get_xi() - (_miner_radius_right.get_width()/2) + this.pingu.direction,
-                    this.pingu.get_yi() - _miner_radius_right.get_height() + 2
-            );
         end
     end
 end
@@ -721,60 +564,5 @@ do
     _assert(ret != _PS_ALIVE);
 await WORLD_UPDATE;
     emit holder.ok_pingu => ret;
-    function (Vector3f velocity_)=>void set_velocity do
-        this.velocity = velocity_;
-        this.velocity.x =
-            (float){Math::clamp}(-_terminal_velocity, this.velocity.x, _terminal_velocity);
-        this.velocity.y =
-            (float){Math::clamp}(-_terminal_velocity, this.velocity.y, _terminal_velocity);
-    end
-    function (int x, int y)=>int rel_getpixel do
-        return {WorldObj::get_world()->get_colmap()->getpixel}(
-                (int)(this.pos_x + (float)(x * this.direction)),
-                (int)(this.pos_y - (float)(y)));
-    end
-    function (int x, int y)=>bool head_collision_on_walk do
-        var int pixel = this.rel_getpixel(x, y + _pingu_height);
-        if (     pixel != {Groundtype::GP_NOTHING} and
-            not (pixel &  {Groundtype::GP_BRIDGE}))
-        then
-            return true;
-        else
-            return false;
-        end
-    end
-    function (int x, int y)=>bool is_over do
-        var Vector3f center = this.get_center_pos();
-        return (center.x+16 > x and
-                center.x-16 < x and
-                center.y+16 > y and
-                center.y-16 < y);
-    end
-    function (int x1, int y1, int x2, int y2)=>bool is_inside do
-        _assert (x1 < x2);
-        _assert (y1 < y2);
-        return (this.pos_x > x1 and
-                this.pos_x < x2 and
-                this.pos_y > y1 and
-                this.pos_y < y2);
-    end
-    function (int x, int y)=>float dist do
-        var Vector3f p = this.get_center_pos();
-        return {Math::sqrt}(((p.x - (float)(x)) * (p.x - (float)(x)) +
-                             (p.y - (float)(y)) * (p.y - (float)(y))));
-    end
-    function (_ActionName__Enum new_action)=>bool check_action do
-        var int mode = {ActionName::ACTIVATION_MODE}[new_action];
-        if mode == {ActionType::INSTANT} then
-            return (new_action!=this.current_action) and
-                   {ActionName::CHANGE_ALLOWED}[this.current_action][new_action];
-        else/if mode == {ActionType::WALL_TRIGGERED} then
-            return (this.wall_action != new_action);
-        else/if mode == {ActionType::FALL_TRIGGERED} then
-            return (this.fall_action != new_action);
-        else //if mode == {ActionType::COUNTDOWN_TRIGGERED} then
-            _assert(not "DEAD CODE???");
-        end
-    end
 end
 #endif

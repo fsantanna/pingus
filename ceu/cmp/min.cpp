@@ -1,6 +1,5 @@
 Basher::Basher (Pingu* p) :
     PinguAction(p),
-    bash_radius("pingus/common/bash_radius_gfx", "pingus/common/bash_radius"),
     basher_c(0),
     first_bash(true)
 {
@@ -41,38 +40,6 @@ void Basher::update () {
         }
     }
 }
-void Basher::bash() {
-    WorldObj::get_world()->remove(bash_radius,
-                                  pingu->get_xi() - bash_radius.get_width() / 2,
-                                  pingu->get_yi() - bash_radius.get_height() + 1);
-}
-bool Basher::walk_forward() {
-    int y_inc = 0;
-    for (y_inc = 0; y_inc >= -max_steps_down; --y_inc) {
-        if (rel_getpixel(0, y_inc - 1) != Groundtype::GP_NOTHING) {
-            break;
-        }
-    }
-    if (y_inc < -max_steps_down) {
-        pingu->set_action(ActionName::FALLER);
-        return false;
-    } else {
-        pingu->set_pos(pingu->get_x() + static_cast<float>(pingu->direction),
-                       pingu->get_y() - static_cast<float>(y_inc));
-    }
-    return true;
-}
-bool Basher::have_something_to_dig() {
-    for(int x = 0; x <= bash_reach; ++x) {
-        for (int y = min_bash_height; y <= max_bash_height; ++y) {
-            if (rel_getpixel(x, y) == Groundtype::GP_GROUND) {
-                log_debug("Basher: Found something to dig...");
-                return true;
-            }
-        }
-    }
-    return false;
-}
 Blocker::Blocker(Pingu* p) :
     PinguAction(p),
 {
@@ -101,24 +68,6 @@ void Blocker::update() {
 }
 void Blocker::draw (SceneContext& gc) {
     gc.color().draw(sprite[pingu->direction], pingu->get_pos());
-}
-bool Blocker::standing_on_ground() {
-    return (rel_getpixel(0,-1) !=  Groundtype::GP_NOTHING);
-}
-void Blocker::catch_pingu(Pingu* target) {
-    if (target != pingu) { // avoid 'self' catch
-        if (target->get_x () > pingu->get_x () - 16
-                && target->get_x () < pingu->get_x () + 16
-                && target->get_y () > pingu->get_y () - 32
-                && target->get_y () < pingu->get_y () + 5
-           ) {
-            if (target->get_x () > pingu->get_x ()) {
-                target->direction.right();
-            } else {
-                target->direction.left();
-            }
-        }
-    }
 }
 Bomber::Bomber (Pingu* p) :
     PinguAction(p),
@@ -261,42 +210,6 @@ void Bridger::update_build () {
         build_sprite[pingu->direction].restart();
     }
 }
-bool Bridger::way_is_free() {
-    bool way_free = true;
-    for (int x_inc = 1; x_inc <= 4; x_inc++) {
-        if (rel_getpixel(x_inc, 2) != Groundtype::GP_NOTHING
-                || head_collision_on_walk(x_inc, 2)) {
-            way_free = false;
-            break;
-        }
-    }
-    return way_free;
-}
-bool Bridger::brick_placement_allowed(void) {
-    return !head_collision_on_walk(0, 2);
-}
-void Bridger::place_a_brick() {
-    bricks--;
-    name = _("Bridger") + std::string(" (") + StringUtil::to_string(bricks) + ")";
-    if (bricks < 4) {
-        Sound::PingusSound::play_sound("ting");
-    }
-    if (pingu->direction.is_right()) {
-        WorldObj::get_world()->put(brick_r,
-                                   static_cast<int>(pingu->get_pos().x + 10.0f - static_cast<float>(brick_r.get_width())),
-                                   static_cast<int>(pingu->get_pos().y),
-                                   Groundtype::GP_BRIDGE);
-    } else {
-        WorldObj::get_world()->put(brick_l,
-                                   static_cast<int>(pingu->get_pos().x - 10.0f),
-                                   static_cast<int>(pingu->get_pos().y),
-                                   Groundtype::GP_BRIDGE);
-    }
-}
-void Bridger::walk_one_step_up() {
-    pingu->set_pos(pingu->get_pos().x + (4.0f * static_cast<float>(pingu->direction)),
-                   pingu->get_pos().y - 2);
-}
 Digger::Digger(Pingu* p) :
     PinguAction(p),
     digger_radius("pingus/common/digger_radius_gfx", "pingus/common/digger_radius"),
@@ -319,30 +232,6 @@ void Digger::update() {
             dig(false);
         }
     }
-}
-bool Digger::have_something_to_dig() {
-    if (rel_getpixel(0, -1) !=  Groundtype::GP_NOTHING) {
-        if (rel_getpixel(0, -1) ==  Groundtype::GP_SOLID) {
-            Sound::PingusSound::play_sound("chink");
-            return false;
-        } else {
-            return true;
-        }
-    } else {
-        return false;
-    }
-}
-void Digger::dig(bool final) {
-    if (!final) {
-        WorldObj::get_world()->remove(digger_radius,
-                                      pingu->get_xi() - digger_radius.get_width() / 2,
-                                      pingu->get_yi() - digger_radius.get_height() + 2);
-    } else {
-        WorldObj::get_world()->remove(digger_radius_final,
-                                      pingu->get_xi() - digger_radius.get_width() / 2,
-                                      pingu->get_yi() - digger_radius.get_height() + 2);
-    }
-    pingu->set_pos(pingu->get_xi(), pingu->get_yi() + 1);
 }
 void Digger::draw(SceneContext& gc) {
     gc.color().draw(sprite, pingu->get_pos());
@@ -453,10 +342,6 @@ void Faller::draw (SceneContext& gc) {
         gc.color().draw(faller[pingu->direction], pingu->get_pos ());
     }
 }
-bool Faller::is_tumbling () const {
-    return (Math::abs(pingu->get_velocity().x) > deadly_velocity
-            || Math::abs(pingu->get_velocity().y) > deadly_velocity);
-}
 Floater::Floater(Pingu* p) :
     PinguAction(p),
     falling_depth(0),
@@ -503,9 +388,6 @@ void Jumper::update () {
 }
 Miner::Miner (Pingu* p) :
     PinguAction(p),
-    miner_radius("pingus/common/miner_radius_gfx", "pingus/common/miner_radius"),
-    miner_radius_left("pingus/common/miner_radius_left_gfx", "pingus/common/miner_radius_left"),
-    miner_radius_right("pingus/common/miner_radius_right_gfx", "pingus/common/miner_radius_right"),
     delay_count(0)
 {
     sprite.load(Direction::LEFT,  Sprite("pingus/player" + pingu->get_owner_str() + "/miner/left"));
@@ -531,20 +413,6 @@ void Miner::update () {
             pingu->set_pos(pingu->get_xi() + pingu->direction,
                            pingu->get_yi() + 1);
         }
-    }
-}
-void Miner::mine(bool final) {
-    if (!final) {
-        if (delay_count % 2 == 0) {
-            WorldObj::get_world()->remove(miner_radius,
-                                          pingu->get_xi() - (miner_radius.get_width() / 2) + pingu->direction,
-                                          pingu->get_yi() - miner_radius.get_height() + 2);
-        }
-    } else {
-        CollisionMask& radius = (pingu->direction == Direction::LEFT) ? miner_radius_left : miner_radius_right;
-        WorldObj::get_world()->remove(radius,
-                                      pingu->get_xi() - (radius.get_width() / 2) + pingu->direction,
-                                      pingu->get_yi() - radius.get_height() + 2);
     }
 }
 void Miner::draw (SceneContext& gc) {
@@ -676,13 +544,6 @@ PinguAction::PinguAction (Pingu* p)
 Vector3f PinguAction::get_center_pos() const {
     return pingu->get_pos() + Vector3f(0, -16);
 }
-bool PinguAction::head_collision_on_walk (int x, int y) {
-    int pixel = rel_getpixel(x, y + pingu_height);
-    if (pixel != Groundtype::GP_NOTHING && !(pixel & Groundtype::GP_BRIDGE)) {
-        return true;
-    }
-    return false;
-}
 bool PinguAction::collision_on_walk (int x, int y) {
     bool collision = false;
     int pixel = Groundtype::GP_NOTHING;
@@ -706,11 +567,6 @@ Pingu::Pingu (int arg_id, const Vector3f& arg_pos, int owner) :
 {
     direction.left ();
     action = create_action(ActionName::FALLER);
-}
-void Pingu::set_velocity (const Vector3f& velocity_) {
-    velocity = velocity_;
-    velocity.x = Math::clamp(-terminal_velocity, velocity.x, terminal_velocity);
-    velocity.y = Math::clamp(-terminal_velocity, velocity.y, terminal_velocity);
 }
 bool Pingu::request_set_action(ActionName::Enum action_name) {
     bool ret_val = false;
@@ -783,23 +639,6 @@ bool Pingu::request_wall_action () {
     }
     return false;
 }
-bool Pingu::is_over (int x, int y) {
-    Vector3f center = get_center_pos ();
-    return (center.x + 16 > x && center.x - 16 < x &&
-            center.y + 16 > y && center.y - 16 < y);
-}
-bool Pingu::is_inside (int x1, int y1, int x2, int y2) {
-    assert (x1 < x2);
-    assert (y1 < y2);
-    return (pos_x > x1 && pos_x < x2
-            &&
-            pos_y > y1 && pos_y < y2);
-}
-float Pingu::dist(int x, int y) {
-    Vector3f p = get_center_pos ();
-    return Math::sqrt(((p.x - static_cast<float>(x)) * (p.x - static_cast<float>(x)) +
-                       (p.y - static_cast<float>(y)) * (p.y - static_cast<float>(y))));
-}
 void Pingu::update() {
     if (status == PS_DEAD) {
         return;
@@ -813,10 +652,6 @@ void Pingu::update() {
 void Pingu::draw(SceneContext& gc) {
     char str[16];
     action->draw(gc);
-}
-int Pingu::rel_getpixel(int x, int y) {
-    return WorldObj::get_world()->get_colmap()->getpixel(static_cast<int>(pos_x + static_cast<float>(x * direction)),
-            static_cast<int>(pos_y - static_cast<float>(y)));
 }
 void Pingu::catch_pingu (Pingu* pingu) {
     action->catch_pingu(pingu);
