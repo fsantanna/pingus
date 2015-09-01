@@ -16,11 +16,9 @@ class Basher with do
         if not this.walk_forward() then
             continue;
         end
-        if this.pingu.rel_getpixel(0,-1) != {Groundtype::GP_NOTHING}
-        then
+        if this.pingu.rel_getpixel(0,-1) != {Groundtype::GP_NOTHING} then
             if this.pingu.rel_getpixel(0,0)             == {Groundtype::GP_SOLID} or
-               this.pingu.rel_getpixel(0,_pingu_height) == {Groundtype::GP_SOLID}
-            then
+               this.pingu.rel_getpixel(0,_pingu_height) == {Groundtype::GP_SOLID} then
                 { Sound::PingusSound::play_sound("chink"); };
                 this.pingu.change_direction();
                 escape {ActionName::WALKER};
@@ -30,8 +28,7 @@ class Basher with do
                     this.bash();
                 end
             else/if ((float)(sprites.get():get_current_frame())) /
-                    ((float)(sprites.get():get_frame_count())) > 0.6
-            then
+                    ((float)(sprites.get():get_frame_count())) > 0.6 then
                 escape {ActionName::WALKER};
             end
         end
@@ -214,8 +211,7 @@ class Faller with do
                this.pingu.rel_getpixel(0,-2) == {Groundtype::GP_NOTHING} and
                this.pingu.rel_getpixel(0,-3) == {Groundtype::GP_NOTHING} and
                this.pingu.rel_getpixel(1, 0) != {Groundtype::GP_NOTHING} and
-               this.pingu.rel_getpixel(1, 0) != {Groundtype::GP_BRIDGE}
-            then
+               this.pingu.rel_getpixel(1, 0) != {Groundtype::GP_BRIDGE} then
                 velocity.x = -(velocity.x / 3.0);
                 if (velocity.x > 0.0) then
                     this.pingu.direction = _RIGHT;
@@ -320,8 +316,7 @@ class Miner with do
             this.mine(true, delay_count);
             escape {ActionName::WALKER};
         else/if this.pingu.rel_getpixel(0,            -1) == {Groundtype::GP_SOLID} or
-                this.pingu.rel_getpixel(0, _pingu_height) == {Groundtype::GP_SOLID}
-        then
+                this.pingu.rel_getpixel(0, _pingu_height) == {Groundtype::GP_SOLID} then
             if (this.pingu.rel_getpixel(0, -1) == {Groundtype::GP_SOLID}) then
                 {Sound::PingusSound::play_sound("chink");};
             end
@@ -410,8 +405,7 @@ class Walker with do
                 end
             end
             if this.pingu.rel_getpixel(1, 0) == {Groundtype::GP_BRIDGE} and
-               not this.pingu.head_collision_on_walk(1, 1)
-            then // bridge
+               not this.pingu.head_collision_on_walk(1, 1) then // bridge
                 this.pingu.set_pos(
                     this.pingu.get_x() + (float)(this.pingu.direction),
                     this.pingu.get_y() - 1.0); // pingus 'float' through bridges
@@ -424,8 +418,7 @@ class Walker with do
                     if (this.pingu.rel_getpixel(1, y_inc)=={Groundtype::GP_NOTHING} or
                         this.pingu.rel_getpixel(1, y_inc)=={Groundtype::GP_BRIDGE})
                     and
-                        this.pingu.rel_getpixel(1, y_inc - 1) != {Groundtype::GP_NOTHING}
-                    then
+                        this.pingu.rel_getpixel(1, y_inc - 1) != {Groundtype::GP_NOTHING} then
                         found_next_step = true;
                         possible_y_step = y_inc;
                     end
@@ -475,14 +468,12 @@ do
                     escape _PS_DEAD;
                 end
                 if this.rel_getpixel(0,-1) == {Groundtype::GP_WATER} or
-                   this.rel_getpixel(0,-1) == {Groundtype::GP_LAVA}
-                then
+                   this.rel_getpixel(0,-1) == {Groundtype::GP_LAVA} then
                     emit e_set_action => {ActionName::DROWN};
                     break;  // no more checks, will die
                 end
                 if this.rel_getpixel(0,-1) != {Groundtype::GP_NOTHING} and
-                        this.velocity.y > _deadly_velocity
-                then
+                        this.velocity.y > _deadly_velocity then
                     emit e_set_action => {ActionName::SPLASHED};
                     break;  // no more checks, will die
                 end
@@ -495,8 +486,7 @@ do
                 if mode == {ActionType::INSTANT} then
                     if new_action != this.current_action and
                        {ActionName::CHANGE_ALLOWED}
-                            [this.current_action][new_action]
-                    then
+                            [this.current_action][new_action] then
                         emit e_set_action => new_action;
                     end
                 else/if mode == {ActionType::WALL_TRIGGERED} then

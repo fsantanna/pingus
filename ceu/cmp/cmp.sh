@@ -69,8 +69,7 @@ wc all.cpp          # 1031
         # action_time/COUNTDOWN/countdown .*
         # one-line getter/setter
 
-sloccount all.cpp   # 878
-wc all.cpp          # 878
+wc all.cpp          # 877
 
 # CEU
 
@@ -102,4 +101,9 @@ wc all.ceu          # 1476
         # adapt CollisionMasks
         # one-line getter/setter
 
-wc all.ceu          # 780
+wc all.ceu          # 754
+
+# remove all functions from Ceu (and the same ones from C++)
+
+wc min.cpp          # 709
+wc min.ceu          # 558
