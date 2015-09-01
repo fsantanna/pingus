@@ -51,12 +51,11 @@ do
         await WORLD_UPDATE;
 
         if not this.walk_forward() then
-            continue;
+            escape {ActionName::FALLER};
         end
 
         // If walking on to something (i.e. hasn't fallen)
-        if this.pingu.rel_getpixel(0,-1) != {Groundtype::GP_NOTHING}
-        then
+        if this.pingu.rel_getpixel(0,-1) != {Groundtype::GP_NOTHING} then
             // If the Basher has walked into something that it won't be 
             // able to bash
             if this.pingu.rel_getpixel(0,0)             == {Groundtype::GP_SOLID} or
