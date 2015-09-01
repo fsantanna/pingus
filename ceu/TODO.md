@@ -1,11 +1,7 @@
-- bug: doesnt decrement actions
 - bug: capture set_pingus every draw
-- bug: perdendo foco em pingus no playfield
-       ou ficando com foco em pingu morto
 - pingu: remove IPinguHolder e usar evento global de sets final status
 - pingu! = <...>
 - world! = <...>
-- pingus mortos pode ganhar foco
 - countdown action disable from the original??
 - walker behind all
 - bridger offset
@@ -13,7 +9,6 @@
 - testar climber, wall-mode-activation
 - testar previous action: Climber->Jumper->direction-change/Blocker->Faller->Blocker
 - SDL_DT p/ pingus/actions/sprites
-- remove pointers, use parent orgs for "me"
 
 - GOALS: stress-test the language
     - robustness
@@ -60,9 +55,3 @@ end
 
 var SpriteImplFactory _;
 ```
-
-# BUGs
-
-## multiple `delete`
-    ` _sprite_impl_ok`
-## copy constructor
