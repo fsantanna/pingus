@@ -29,7 +29,8 @@ void Basher::update () {
                 Sound::PingusSound::play_sound("chink");
                 pingu->direction.change();
                 pingu->set_action(ActionName::WALKER);
-            } else if (have_something_to_dig()) {
+            } else if (first_bash || have_something_to_dig()) {
+                first_bash = true;
                 if (basher_c % 2 == 0) {
                     bash();
                 }
@@ -62,20 +63,15 @@ bool Basher::walk_forward() {
     return true;
 }
 bool Basher::have_something_to_dig() {
-    if (first_bash) {
-        first_bash = false;
-        return true;
-    } else {
-        for(int x = 0; x <= bash_reach; ++x) {
-            for (int y = min_bash_height; y <= max_bash_height; ++y) {
-                if (rel_getpixel(x, y) == Groundtype::GP_GROUND) {
-                    log_debug("Basher: Found something to dig...");
-                    return true;
-                }
+    for(int x = 0; x <= bash_reach; ++x) {
+        for (int y = min_bash_height; y <= max_bash_height; ++y) {
+            if (rel_getpixel(x, y) == Groundtype::GP_GROUND) {
+                log_debug("Basher: Found something to dig...");
+                return true;
             }
         }
-        return false;
     }
+    return false;
 }
 Blocker::Blocker(Pingu* p) :
     PinguAction(p),
