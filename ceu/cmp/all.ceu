@@ -16,11 +16,9 @@ class Basher with do
         if not this.walk_forward() then
             continue;
         end
-        if this.pingu.rel_getpixel(0,-1) != {Groundtype::GP_NOTHING}
-        then
+        if this.pingu.rel_getpixel(0,-1) != {Groundtype::GP_NOTHING} then
             if this.pingu.rel_getpixel(0,0)             == {Groundtype::GP_SOLID} or
-               this.pingu.rel_getpixel(0,_pingu_height) == {Groundtype::GP_SOLID}
-            then
+               this.pingu.rel_getpixel(0,_pingu_height) == {Groundtype::GP_SOLID} then
                 { Sound::PingusSound::play_sound("chink"); };
                 this.pingu.change_direction();
                 escape {ActionName::WALKER};
@@ -30,8 +28,7 @@ class Basher with do
                     this.bash();
                 end
             else/if ((float)(sprites.get():get_current_frame())) /
-                    ((float)(sprites.get():get_frame_count())) > 0.6
-            then
+                    ((float)(sprites.get():get_frame_count())) > 0.6 then
                 escape {ActionName::WALKER};
             end
         end
@@ -56,8 +53,7 @@ class Basher with do
         if y_inc < -BASHER_MAX_STEPS_DOWN then
             return false;
         else
-            this.pingu.set_pos(
-                this.pingu.get_x() + (float)(this.pingu.direction),
+            this.pingu.set_pos( this.pingu.get_x() + (float)(this.pingu.direction),
                 this.pingu.get_y() - (float)(y_inc)
             );
         end
@@ -102,8 +98,7 @@ class Blocker with do
             if ( target:get_x() > this.pingu.get_x()-16
             and  target:get_x() < this.pingu.get_x()+16
             and  target:get_y() > this.pingu.get_y()-32
-            and  target:get_y() < this.pingu.get_y()+5 )
-            then
+            and  target:get_y() < this.pingu.get_y()+5 ) then
                 if (target:get_x() > this.pingu.get_x()) then
                     target:direction = _RIGHT;
                 else
@@ -210,8 +205,7 @@ class Bridger with do
         loop i in 4 do
             var int x_inc = i+1;
             if this.pingu.rel_getpixel(x_inc, 2) != {Groundtype::GP_NOTHING}
-            or this.pingu.head_collision_on_walk(x_inc, 2)
-            then
+            or this.pingu.head_collision_on_walk(x_inc, 2) then
                 way_free = false;
                 break;
             end
@@ -223,23 +217,20 @@ class Bridger with do
     end
     function @rec (void)=>void place_a_brick do
         this.bricks = this.bricks - 1;
-        var char[]& name = &this.pingu.get_name();
-        name = [] .. "Bridger (" ..  (char&&)({StringUtil::to_string}(this.bricks).c_str()) ..  ")";
+        var char[]& name = [] .. "Bridger (" ..  (char&&)({StringUtil::to_string}(this.bricks).c_str()) ..  ")";
         if this.bricks < 4 then
             { Sound::PingusSound::play_sound("ting"); };
         end
         { static CollisionMask brick_l("other/brick_left");
             static CollisionMask brick_r("other/brick_right"); };
         if this.pingu.direction == _RIGHT then
-            call {WorldObj::get_world()->put}(
-                    _brick_r,
+            call {WorldObj::get_world()->put}( _brick_r,
                     (int)(this.pingu.get_pos().x + 10.0 - (float)(_brick_r.get_width())),
                     (int)(this.pingu.get_pos().y),
                     {Groundtype::GP_BRIDGE}
             );
         else
-            call {WorldObj::get_world()->put}(
-                    _brick_l,
+            call {WorldObj::get_world()->put}( _brick_l,
                     (int)(this.pingu.get_pos().x - 10.0),
                     (int)(this.pingu.get_pos().y),
                     {Groundtype::GP_BRIDGE}
@@ -247,8 +238,7 @@ class Bridger with do
         end
     end
     function @rec (void)=>void walk_one_step_up do
-        this.pingu.set_pos(
-            this.pingu.get_pos().x + (4.0*(float)(this.pingu.direction)),
+        this.pingu.set_pos( this.pingu.get_pos().x + (4.0*(float)(this.pingu.direction)),
             this.pingu.get_pos().y - 2
         );
     end
@@ -344,8 +334,7 @@ class Faller with do
                this.pingu.rel_getpixel(0,-2) == {Groundtype::GP_NOTHING} and
                this.pingu.rel_getpixel(0,-3) == {Groundtype::GP_NOTHING} and
                this.pingu.rel_getpixel(1, 0) != {Groundtype::GP_NOTHING} and
-               this.pingu.rel_getpixel(1, 0) != {Groundtype::GP_BRIDGE}
-            then
+               this.pingu.rel_getpixel(1, 0) != {Groundtype::GP_BRIDGE} then
                 velocity.x = -(velocity.x / 3.0);
                 if (velocity.x > 0.0) then
                     this.pingu.direction = _RIGHT;
@@ -454,8 +443,7 @@ class Miner with do
             this.mine(true, delay_count);
             escape {ActionName::WALKER};
         else/if this.pingu.rel_getpixel(0,            -1) == {Groundtype::GP_SOLID} or
-                this.pingu.rel_getpixel(0, _pingu_height) == {Groundtype::GP_SOLID}
-        then
+                this.pingu.rel_getpixel(0, _pingu_height) == {Groundtype::GP_SOLID} then
             if (this.pingu.rel_getpixel(0, -1) == {Groundtype::GP_SOLID}) then
                 {Sound::PingusSound::play_sound("chink");};
             end
@@ -567,8 +555,7 @@ class Walker with do
                 end
             end
             if this.pingu.rel_getpixel(1, 0) == {Groundtype::GP_BRIDGE} and
-               not this.pingu.head_collision_on_walk(1, 1)
-            then // bridge
+               not this.pingu.head_collision_on_walk(1, 1) then // bridge
                 this.pingu.set_pos(
                     this.pingu.get_x() + (float)(this.pingu.direction),
                     this.pingu.get_y() - 1.0); // pingus 'float' through bridges
@@ -581,8 +568,7 @@ class Walker with do
                     if (this.pingu.rel_getpixel(1, y_inc)=={Groundtype::GP_NOTHING} or
                         this.pingu.rel_getpixel(1, y_inc)=={Groundtype::GP_BRIDGE})
                     and
-                        this.pingu.rel_getpixel(1, y_inc - 1) != {Groundtype::GP_NOTHING}
-                    then
+                        this.pingu.rel_getpixel(1, y_inc - 1) != {Groundtype::GP_NOTHING} then
                         found_next_step = true;
                         possible_y_step = y_inc;
                     end
@@ -632,14 +618,12 @@ do
                     escape _PS_DEAD;
                 end
                 if this.rel_getpixel(0,-1) == {Groundtype::GP_WATER} or
-                   this.rel_getpixel(0,-1) == {Groundtype::GP_LAVA}
-                then
+                   this.rel_getpixel(0,-1) == {Groundtype::GP_LAVA} then
                     emit e_set_action => {ActionName::DROWN};
                     break;  // no more checks, will die
                 end
                 if this.rel_getpixel(0,-1) != {Groundtype::GP_NOTHING} and
-                        this.velocity.y > _deadly_velocity
-                then
+                        this.velocity.y > _deadly_velocity then
                     emit e_set_action => {ActionName::SPLASHED};
                     break;  // no more checks, will die
                 end
@@ -652,8 +636,7 @@ do
                 if mode == {ActionType::INSTANT} then
                     if new_action != this.current_action and
                        {ActionName::CHANGE_ALLOWED}
-                            [this.current_action][new_action]
-                    then
+                            [this.current_action][new_action] then
                         emit e_set_action => new_action;
                     end
                 else/if mode == {ActionType::WALL_TRIGGERED} then
@@ -723,21 +706,16 @@ await WORLD_UPDATE;
     emit holder.ok_pingu => ret;
     function (Vector3f velocity_)=>void set_velocity do
         this.velocity = velocity_;
-        this.velocity.x =
-            (float){Math::clamp}(-_terminal_velocity, this.velocity.x, _terminal_velocity);
-        this.velocity.y =
-            (float){Math::clamp}(-_terminal_velocity, this.velocity.y, _terminal_velocity);
+        this.velocity.x = (float){Math::clamp}(-_terminal_velocity, this.velocity.x, _terminal_velocity);
+        this.velocity.y = (float){Math::clamp}(-_terminal_velocity, this.velocity.y, _terminal_velocity);
     end
     function (int x, int y)=>int rel_getpixel do
-        return {WorldObj::get_world()->get_colmap()->getpixel}(
-                (int)(this.pos_x + (float)(x * this.direction)),
+        return {WorldObj::get_world()->get_colmap()->getpixel}( (int)(this.pos_x + (float)(x * this.direction)),
                 (int)(this.pos_y - (float)(y)));
     end
     function (int x, int y)=>bool head_collision_on_walk do
         var int pixel = this.rel_getpixel(x, y + _pingu_height);
-        if (     pixel != {Groundtype::GP_NOTHING} and
-            not (pixel &  {Groundtype::GP_BRIDGE}))
-        then
+        if (     pixel != {Groundtype::GP_NOTHING} and not (pixel &  {Groundtype::GP_BRIDGE})) then
             return true;
         else
             return false;
@@ -745,18 +723,14 @@ await WORLD_UPDATE;
     end
     function (int x, int y)=>bool is_over do
         var Vector3f center = this.get_center_pos();
-        return (center.x+16 > x and
-                center.x-16 < x and
-                center.y+16 > y and
-                center.y-16 < y);
+        return (center.x+16 > x and center.x-16 < x and
+                center.y+16 > y and center.y-16 < y);
     end
     function (int x1, int y1, int x2, int y2)=>bool is_inside do
         _assert (x1 < x2);
         _assert (y1 < y2);
-        return (this.pos_x > x1 and
-                this.pos_x < x2 and
-                this.pos_y > y1 and
-                this.pos_y < y2);
+        return (this.pos_x > x1 and this.pos_x < x2 and
+                this.pos_y > y1 and this.pos_y < y2);
     end
     function (int x, int y)=>float dist do
         var Vector3f p = this.get_center_pos();
