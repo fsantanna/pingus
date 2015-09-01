@@ -554,5 +554,17 @@ do
     _assert(ret != _PS_ALIVE);
 await WORLD_UPDATE;
     emit holder.ok_pingu => ret;
+    function (_ActionName__Enum new_action)=>bool check_action do
+        var int mode = {ActionName::ACTIVATION_MODE}[new_action];
+        if mode == {ActionType::INSTANT} then
+            return (new_action!=this.current_action) and
+                   {ActionName::CHANGE_ALLOWED}[this.current_action][new_action];
+        else/if mode == {ActionType::WALL_TRIGGERED} then
+            return (this.wall_action != new_action);
+        else/if mode == {ActionType::FALL_TRIGGERED} then
+            return (this.fall_action != new_action);
+        else //if mode == {ActionType::COUNTDOWN_TRIGGERED} then
+            _assert(not "DEAD CODE???");
+        end
+    end
 end
-#endif

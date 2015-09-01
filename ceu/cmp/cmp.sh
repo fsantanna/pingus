@@ -101,9 +101,9 @@ wc all.ceu          # 1476
         # adapt CollisionMasks
         # one-line getter/setter
 
-wc all.ceu          # 754
+wc all.ceu          # 753
 
 # remove all functions from Ceu (and the same ones from C++)
 
 wc min.cpp          # 709
-wc min.ceu          # 558
+wc min.ceu          # 570

@@ -751,4 +751,3 @@ await WORLD_UPDATE;
         end
     end
 end
-#endif
