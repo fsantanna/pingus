@@ -43,8 +43,12 @@ do
                 end
 
                 if pingu != null then
-// TODO enqueue on fail
-                    emit pingu:go_action => this.me.session:get_action_name();
+                    var _ActionName__Enum action = this.me.session:get_action_name();
+                    if pingu:check_action(action) then
+                        if this.me.server:action_holder.pop_action(action) then
+                            emit pingu:go_action => action;
+                        end
+                    end
                 end
             end
         end

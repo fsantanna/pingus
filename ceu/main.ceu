@@ -97,6 +97,8 @@ interface IPingu with
     function (int,int)      => float        dist;
     function (int,int,int,int) => bool      is_inside;
 
+    function (_ActionName__Enum) => bool    check_action;
+
     function (void)         => int          get_id;
     function (void)         => int          get_owner;
     function (void)         => char[]&      get_name;

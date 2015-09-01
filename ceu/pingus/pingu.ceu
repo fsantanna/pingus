@@ -98,55 +98,22 @@ do
             end
             await FOREVER;
         with
-            loop do
-                var bool&&?  ret_val;
-                #define RET_VAL(v) if ret_val? then *ret_val! = v; end
-                var _ActionName__Enum new_action;
-                new_action = await this.go_action;
-// TODO: ret_val
-                RET_VAL(false);
+            every new_action in this.go_action do
+                _assert(this.check_action(new_action));
 
                 var int mode = {ActionName::ACTIVATION_MODE}[new_action];
 
                 if mode == {ActionType::INSTANT} then
-                    if new_action == this.current_action then
-                        _log_debug("Pingu: Already have action");
-                        RET_VAL(false);
-                    else/if {ActionName::CHANGE_ALLOWED}
-                                [this.current_action][new_action]
+                    if new_action != this.current_action and
+                       {ActionName::CHANGE_ALLOWED}
+                            [this.current_action][new_action]
                     then
-                        _log_debug("setting instant action");
-                        RET_VAL(true);
                         emit e_set_action => new_action;
-                    else
-                        _log_debug("change from action %1% not allowed",
-                                   this.current_action);
-                        RET_VAL(false);
                     end
                 else/if mode == {ActionType::WALL_TRIGGERED} then
-                    if this.wall_action == new_action then
-                        _log_debug("Not using wall action, we have already");
-                        RET_VAL(false);
-                    else
-                        _log_debug("Setting wall action");
-                        this.wall_action = new_action;
-                        RET_VAL(true);
-                    end
+                    this.wall_action = new_action;
                 else/if mode == {ActionType::FALL_TRIGGERED} then
-                    if this.fall_action == new_action then
-                        _log_debug("Not using fall action, we have already");
-                        RET_VAL(false);
-                    else
-                        _log_debug("Setting fall action");
-                        this.fall_action = new_action;
-                        RET_VAL(true);
-                    end
-                else/if mode == {ActionType::COUNTDOWN_TRIGGERED} then
-                    _assert(not "DEAD CODE???");
-                else
-                    _log_debug("unknown action activation_mode");
-                    RET_VAL(false);
-                    _assert(0);
+                    this.fall_action = new_action;
                 end
             end
         with
@@ -342,6 +309,21 @@ _printf("ACTION_NAME = %d\n", this.current_action);
 
     function (void)=>char[]& get_name do
         return &this.name;
+    end
+
+    function (_ActionName__Enum new_action)=>bool check_action do
+        var int mode = {ActionName::ACTIVATION_MODE}[new_action];
+
+        if mode == {ActionType::INSTANT} then
+            return (new_action!=this.current_action) and
+                   {ActionName::CHANGE_ALLOWED}[this.current_action][new_action];
+        else/if mode == {ActionType::WALL_TRIGGERED} then
+            return (this.wall_action != new_action);
+        else/if mode == {ActionType::FALL_TRIGGERED} then
+            return (this.fall_action != new_action);
+        else //if mode == {ActionType::COUNTDOWN_TRIGGERED} then
+            _assert(not "DEAD CODE???");
+        end
     end
 
 #if 0
