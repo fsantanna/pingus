@@ -66,15 +66,11 @@ wc all.cpp          # 1031
         # Pingu::change_allowed (refactored in Ceu)
         # Pingu::catchable (refactored in Ceu)
         # Pingu::set_* (using Vectors)
-
-        # Pingu::get_name (proxy to PinguAction)
-        # Pingu::draw (proxy to PinguAction)
-        # Pingu::catch_pingu (proxy to PinguAction)
         # action_time/COUNTDOWN/countdown .*
         # one-line getter/setter
 
-sloccount all.cpp   # 955
-wc all.cpp          # 955
+sloccount all.cpp   # 878
+wc all.cpp          # 878
 
 # CEU
 
@@ -104,5 +100,6 @@ wc all.ceu          # 1476
         # join strings in one line
         # join C++ blocks {}
         # adapt CollisionMasks
+        # one-line getter/setter
 
-wc all.ceu          # 840
+wc all.ceu          # 780

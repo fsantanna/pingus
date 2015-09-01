@@ -301,9 +301,6 @@ void Bridger::walk_one_step_up() {
     pingu->set_pos(pingu->get_pos().x + (4.0f * static_cast<float>(pingu->direction)),
                    pingu->get_pos().y - 2);
 }
-std::string Bridger::get_name () const {
-    return name;
-}
 Digger::Digger(Pingu* p) :
     PinguAction(p),
     digger_radius("pingus/common/digger_radius_gfx", "pingus/common/digger_radius"),
@@ -702,9 +699,6 @@ bool PinguAction::collision_on_walk (int x, int y) {
     }
     return collision;
 }
-std::string PinguAction::get_name () const {
-    return ActionName::to_screenname(get_type());
-}
 Pingu::Pingu (int arg_id, const Vector3f& arg_pos, int owner) :
     previous_action(ActionName::FALLER),
     id(arg_id),
@@ -716,20 +710,6 @@ Pingu::Pingu (int arg_id, const Vector3f& arg_pos, int owner) :
 {
     direction.left ();
     action = create_action(ActionName::FALLER);
-}
-Pingu::~Pingu () {}
-unsigned int Pingu::get_id () {
-    return id;
-}
-void Pingu::set_x (float x) {
-    pos_x = x;
-}
-void Pingu::set_y (float y) {
-    pos_y = y;
-}
-void Pingu::set_pos (float x, float y) {
-    set_x (x);
-    set_y (y);
 }
 void Pingu::set_velocity (const Vector3f& velocity_) {
     velocity = velocity_;
@@ -807,12 +787,6 @@ bool Pingu::request_wall_action () {
     }
     return false;
 }
-Pingu::PinguStatus Pingu::get_status (void) const {
-    return status;
-}
-Pingu::PinguStatus Pingu::set_status (PinguStatus s) {
-    return (status = s);
-}
 bool Pingu::is_over (int x, int y) {
     Vector3f center = get_center_pos ();
     return (center.x + 16 > x && center.x - 16 < x &&
@@ -851,31 +825,8 @@ int Pingu::rel_getpixel(int x, int y) {
 void Pingu::catch_pingu (Pingu* pingu) {
     action->catch_pingu(pingu);
 }
-void Pingu::set_direction (Direction d) {
-    direction = d;
-}
 bool Pingu::is_alive (void) {
     return (status != PS_DEAD && status != PS_EXITED);
-}
-std::string Pingu::get_name() {
-    return action->get_name();
-}
-ActionName::Enum Pingu::get_action () {
-    return action->get_type();
-}
-Vector3f Pingu::get_pos () const {
-    return Vector3f(pos_x, pos_y, 0);
-}
-Vector3f Pingu::get_center_pos () const {
-    return action->get_center_pos();
-}
-int Pingu::get_owner () {
-    return owner_id;
-}
-std::string Pingu::get_owner_str () {
-    std::ostringstream ostr;
-    ostr << owner_id;
-    return ostr.str();
 }
 std::shared_ptr<PinguAction> Pingu::create_action(ActionName::Enum action_) {
     switch(action_) {
@@ -924,28 +875,4 @@ std::shared_ptr<PinguAction> Pingu::create_action(ActionName::Enum action_) {
     default:
         assert(!"Invalid action name provied");
     }
-}
-const float& get_x () const {
-    return pos_x;
-}
-const float& get_y () const {
-    return pos_y;
-}
-int get_xi () const {
-    return static_cast<int>(pos_x);
-}
-int get_yi () const {
-    return static_cast<int>(pos_y);
-}
-void set_pos (int x, int y) {
-    set_pos(static_cast<float>(x), static_cast<float>(y));
-}
-Vector3f get_velocity () const {
-    return velocity;
-}
-PinguAction* get_wall_action () {
-    return wall_action.get();
-}
-PinguAction* get_fall_action () {
-    return fall_action.get();
 }

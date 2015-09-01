@@ -320,7 +320,6 @@ class Exiter with do
     escape {ActionName::NONE};
 end
 class Faller with do
-    function (void) => bool is_tumbling;
     par do
         loop do
             await WORLD_UPDATE;
@@ -722,55 +721,12 @@ do
     _assert(ret != _PS_ALIVE);
 await WORLD_UPDATE;
     emit holder.ok_pingu => ret;
-    function (void)=>float get_x do
-        return this.pos_x;
-    end
-    function (void)=>float get_y do
-        return this.pos_y;
-    end
-    function (void)=>int get_xi do
-        return (int)this.pos_x;
-    end
-    function (void)=>int get_yi do
-        return (int)this.pos_y;
-    end
-    function (void)=>Vector3f get_pos do
-        var Vector3f vec = Vector3f(this.pos_x, this.pos_y, 0);
-        return vec;
-    end
-    function (float x)=>void set_x do
-        this.pos_x = x;
-    end
-    function (float y)=>void set_y do
-        this.pos_y = y;
-    end
-    function (float x, float y)=>void set_pos do
-        this.set_x(x);
-        this.set_y(y);
-    end
-    function (void)=>Vector3f get_center_pos do
-        var Vector3f vec = Vector3f(this.pos_x, this.pos_y-16, 0);
-        return vec;
-    end
-    function (void)=>Vector3f get_velocity do
-        return this.velocity;
-    end
     function (Vector3f velocity_)=>void set_velocity do
         this.velocity = velocity_;
         this.velocity.x =
             (float){Math::clamp}(-_terminal_velocity, this.velocity.x, _terminal_velocity);
         this.velocity.y =
             (float){Math::clamp}(-_terminal_velocity, this.velocity.y, _terminal_velocity);
-    end
-    function (s8 d)=>void set_direction do
-        this.direction = d;
-    end
-    function (void)=>void change_direction do
-        if this.direction == _LEFT then
-            this.direction = _RIGHT;
-        else
-            this.direction = _LEFT;
-        end
     end
     function (int x, int y)=>int rel_getpixel do
         return {WorldObj::get_world()->get_colmap()->getpixel}(
@@ -806,22 +762,6 @@ await WORLD_UPDATE;
         var Vector3f p = this.get_center_pos();
         return {Math::sqrt}(((p.x - (float)(x)) * (p.x - (float)(x)) +
                              (p.y - (float)(y)) * (p.y - (float)(y))));
-    end
-    function (void)=>int get_id do
-        return this.id;
-    end
-    function (void)=>int get_owner do
-        return this.owner_id;
-    end
-    function (void)=>_std__string get_owner_str do
-        {
-            std::ostringstream ostr;
-            ostr << THIS_F(CEU_Pingu)->owner_id;
-        };
-        return _ostr.str();
-    end
-    function (void)=>char[]& get_name do
-        return &this.name;
     end
     function (_ActionName__Enum new_action)=>bool check_action do
         var int mode = {ActionName::ACTIVATION_MODE}[new_action];
