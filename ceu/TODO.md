@@ -54,3 +54,74 @@ end
 
 var SpriteImplFactory _;
 ```
+
+# RESULTS
+
+```
+## CPP
+
+> cd /tmp/cmp/cpp/
+> sloccount .
+    2087
+> cd /tmp/cmp/
+> sloccount all.cpp
+    1611
+> cd /tmp/cmp/
+> wc all.cpp
+    2370
+
+## CEU
+
+> wc all.ceu
+    1476
+
+## ALL_CLEAR.CPP
+
+- namespaces
+- comments
+- blank lines
+- includes
+- one-line empty methods
+
+-
+void
+Basher::update ()
+{
+    ...
+}
+
+void Basher::update () {
+    ...
+}
+-
+if (x)
+{
+    ...
+}
+else
+{
+    ...
+}
+if (x)
+    ...
+else
+    ...
+
+if (x) {
+    ...
+} else {
+    ...
+}
+
+======
+
+- native
+- #ifdef FILE
+- defines
+- interfaces/class with ... do
+-
+{
+    tp C;
+}
+==>
+{ tp C; }

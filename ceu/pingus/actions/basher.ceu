@@ -51,7 +51,7 @@ do
         await WORLD_UPDATE;
 
         if not this.walk_forward() then
-            escape {ActionName::FALLER};
+            continue;
         end
 
         // If walking on to something (i.e. hasn't fallen)

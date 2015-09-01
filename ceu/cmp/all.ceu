@@ -1,0 +1,840 @@
+class Basher with do
+    var char[] left  = [] .. "pingus/player" .. (char&&)this.pingu.get_owner_str().c_str() .. "/basher/left";
+    var char[] right = [] .. "pingus/player" .. (char&&)this.pingu.get_owner_str().c_str() .. "/basher/right";
+    var RightLeftSprites sprites with
+        this.pingu = &outer.pingu;
+        this.left  = &left;
+        this.right = &right;
+    end;
+    this.bash();
+    var int bash_reach; // set in bash
+    var bool is_first_bash = true;
+    loop i do
+        await WORLD_UPDATE;
+        await WORLD_UPDATE;
+        await WORLD_UPDATE;
+        if not this.walk_forward() then
+            continue;
+        end
+        if this.pingu.rel_getpixel(0,-1) != {Groundtype::GP_NOTHING}
+        then
+            if this.pingu.rel_getpixel(0,0)             == {Groundtype::GP_SOLID} or
+               this.pingu.rel_getpixel(0,_pingu_height) == {Groundtype::GP_SOLID}
+            then
+                { Sound::PingusSound::play_sound("chink"); };
+                this.pingu.change_direction();
+                escape {ActionName::WALKER};
+            else/if is_first_bash or this.have_something_to_dig() then
+                is_first_bash = false;
+                if i%2 == 1 then
+                    this.bash();
+                end
+            else/if ((float)(sprites.get():get_current_frame())) /
+                    ((float)(sprites.get():get_frame_count())) > 0.6
+            then
+                escape {ActionName::WALKER};
+            end
+        end
+    end
+    function @rec (void)=>void bash do
+        { static CollisionMask bash_radius( "pingus/common/bash_radius_gfx", "pingus/common/bash_radius");
+            assert(bash_radius.get_width() % 2 == 0); };
+        this.bash_reach = _bash_radius.get_width();
+        call {WorldObj::get_world()->remove}( _bash_radius,
+                this.pingu.get_xi() - _bash_radius.get_width() / 2,
+                this.pingu.get_yi() - _bash_radius.get_height() + 1
+        );
+    end
+    function @rec (void)=>bool walk_forward do
+        var int y_inc = 0;
+        loop i in BASHER_MAX_STEPS_DOWN+1 do
+            y_inc = -i;
+            if this.pingu.rel_getpixel(0, y_inc - 1) != {Groundtype::GP_NOTHING} then
+                break;
+            end
+        end
+        if y_inc < -BASHER_MAX_STEPS_DOWN then
+            return false;
+        else
+            this.pingu.set_pos(
+                this.pingu.get_x() + (float)(this.pingu.direction),
+                this.pingu.get_y() - (float)(y_inc)
+            );
+        end
+        return true;
+    end
+    function @rec (void)=>bool have_something_to_dig do
+        loop x in this.bash_reach+1 do
+            loop i in (BASHER_MAX_BASH_HEIGHT-BASHER_MIN_BASH_HEIGHT+1) do
+                var int y = BASHER_MIN_BASH_HEIGHT + i;
+                if this.pingu.rel_getpixel(x, y) == {Groundtype::GP_GROUND} then
+                    _log_debug("Basher: Found something to dig...");
+                    return true;
+                end
+            end
+        end
+        return false;
+    end
+end
+class Blocker with do
+    var char[] left  = [] .. "pingus/player" .. (char&&)this.pingu.get_owner_str().c_str() .. "/blocker/left";
+    var char[] right = [] .. "pingus/player" .. (char&&)this.pingu.get_owner_str().c_str() .. "/blocker/right";
+    var RightLeftSprites _ with
+        this.pingu = &outer.pingu;
+        this.left  = &left;
+        this.right = &right;
+    end;
+    loop do
+        await WORLD_UPDATE;
+        if not this.standing_on_ground() then
+            escape {ActionName::FALLER};
+        end
+        var IWorld&& world = {WorldObj::get_world()}:ceu;
+        loop p in world:get_pingu_holder().pingus do
+            this.catch_pingu(p);
+        end
+    end
+    function @rec (void)=>bool standing_on_ground do
+        return (this.pingu.rel_getpixel(0,-1) != {Groundtype::GP_NOTHING});
+    end
+    function @rec (IPingu&& target)=>void catch_pingu do
+        if (target != &&this.pingu) then // avoid 'self' catch
+            if ( target:get_x() > this.pingu.get_x()-16
+            and  target:get_x() < this.pingu.get_x()+16
+            and  target:get_y() > this.pingu.get_y()-32
+            and  target:get_y() < this.pingu.get_y()+5 )
+            then
+                if (target:get_x() > this.pingu.get_x()) then
+                    target:direction = _RIGHT;
+                else
+                    target:direction = _LEFT;
+                end
+            end
+        end
+    end
+end
+class Bomber with do
+    var char[] left  = [] .. "pingus/player" .. (char&&)this.pingu.get_owner_str().c_str() .. "/bomber/left";
+    var char[] right = [] .. "pingus/player" .. (char&&)this.pingu.get_owner_str().c_str() .. "/bomber/right";
+    var RightLeftSprites sprites with
+        this.pingu = &outer.pingu;
+        this.left  = &left;
+        this.right = &right;
+    end;
+    {
+        static Vector3f vec1;
+    };
+    _vec1.x = this.pingu.get_pos().x;
+    _vec1.y = this.pingu.get_pos().y;
+    call {WorldObj::get_world()->play_sound}("ohno", _vec1);
+    par do
+        do LinearMover with
+            this.pingu = &outer.pingu;
+        end;
+    with
+        await WORLD_UPDATE
+        until sprites.get():get_current_frame() == 10;
+        {
+            static Vector3f vec2;
+        };
+        _vec2.x = this.pingu.get_pos().x;
+        _vec2.y = this.pingu.get_pos().y;
+        call {WorldObj::get_world()->play_sound}("plop", _vec2);
+        await WORLD_UPDATE
+        until sprites.get():get_current_frame() == 13;
+        call {WorldObj::get_world()->get_pingu_particle_holder()->add_particle}(
+                (int)this.pingu.get_x(),
+                (int)this.pingu.get_y()-5);
+        { static CollisionMask bomber_radius( "other/bomber_radius_gfx", "other/bomber_radius"); };
+        call {WorldObj::get_world()->remove}( _bomber_radius,
+                (int) ((int)(this.pingu.get_x()) - (_bomber_radius.get_width()/2)),
+                (int) ((int)(this.pingu.get_y()) - 16 - (_bomber_radius.get_width()/2)));
+        do
+            var char[] str = [] .. "pingus/player" ..  (char&&)this.pingu.get_owner_str().c_str() .. "/explo";
+            var SpritePingu _ with
+                this.x     = &_XXX_NOHOLD(&&outer.pingu.pos_x);
+                this.y     = &_XXX_NOHOLD(&&outer.pingu.pos_y);
+                this.name  = _XXX_PURE(&&str);
+            end;
+            await WORLD_UPDATE;
+        end
+        await sprites;
+        escape {ActionName::DEAD};
+    end
+end
+class Bridger with do
+    var int bricks = _BRIDGER_MAX_BRICKS;
+    var char[]& name = &this.pingu.get_name();
+    name = [] .. "Bridger (" ..  (char&&)({StringUtil::to_string}(this.bricks).c_str()) ..  ")";
+    loop i in _BRIDGER_MAX_BRICKS do
+        do
+            var char[] left  = [] .. "pingus/player" .. (char&&)this.pingu.get_owner_str().c_str() .. "/bridger/left";
+            var char[] right = [] .. "pingus/player" .. (char&&)this.pingu.get_owner_str().c_str() .. "/bridger/right";
+            var RightLeftSprites builds with
+                this.pingu = &outer.pingu;
+                this.left  = &left;
+                this.right = &right;
+            end;
+            await WORLD_UPDATE
+            until builds.get():get_current_frame() == 7;
+            if this.brick_placement_allowed() then
+                this.place_a_brick(); // me.bricks--;
+            else
+                this.pingu.change_direction();
+                escape {ActionName::WALKER};
+            end
+            await builds;
+        end
+        if i == _BRIDGER_MAX_BRICKS-1 then
+            escape {ActionName::WAITER};
+        end
+        do
+            var char[] left  = [] .. "pingus/player" ..  (char&&)this.pingu.get_owner_str().c_str() .. "/bridger_walk/left";
+            var char[] right = [] .. "pingus/player" ..  (char&&)this.pingu.get_owner_str().c_str() .. "/bridger_walk/right";
+            do RightLeftSprites with
+                this.pingu = &outer.pingu;
+                this.left  = &left;
+                this.right = &right;
+            end;
+            if not this.way_is_free() then
+                this.pingu.change_direction();
+                escape {ActionName::WALKER};
+            end
+            this.walk_one_step_up();
+        end
+    end
+    _assert(0);
+    escape {ActionName::WALKER};
+    function @rec (void)=>bool way_is_free do
+        var bool way_free = true;
+        loop i in 4 do
+            var int x_inc = i+1;
+            if this.pingu.rel_getpixel(x_inc, 2) != {Groundtype::GP_NOTHING}
+            or this.pingu.head_collision_on_walk(x_inc, 2)
+            then
+                way_free = false;
+                break;
+            end
+        end
+        return way_free;
+    end
+    function @rec (void)=>bool brick_placement_allowed do
+        return not this.pingu.head_collision_on_walk(0, 2);
+    end
+    function @rec (void)=>void place_a_brick do
+        this.bricks = this.bricks - 1;
+        var char[]& name = &this.pingu.get_name();
+        name = [] .. "Bridger (" ..  (char&&)({StringUtil::to_string}(this.bricks).c_str()) ..  ")";
+        if this.bricks < 4 then
+            { Sound::PingusSound::play_sound("ting"); };
+        end
+        { static CollisionMask brick_l("other/brick_left");
+            static CollisionMask brick_r("other/brick_right"); };
+        if this.pingu.direction == _RIGHT then
+            call {WorldObj::get_world()->put}(
+                    _brick_r,
+                    (int)(this.pingu.get_pos().x + 10.0 - (float)(_brick_r.get_width())),
+                    (int)(this.pingu.get_pos().y),
+                    {Groundtype::GP_BRIDGE}
+            );
+        else
+            call {WorldObj::get_world()->put}(
+                    _brick_l,
+                    (int)(this.pingu.get_pos().x - 10.0),
+                    (int)(this.pingu.get_pos().y),
+                    {Groundtype::GP_BRIDGE}
+            );
+        end
+    end
+    function @rec (void)=>void walk_one_step_up do
+        this.pingu.set_pos(
+            this.pingu.get_pos().x + (4.0*(float)(this.pingu.direction)),
+            this.pingu.get_pos().y - 2
+        );
+    end
+end
+class Digger with do
+    var char[] str = [] .. "pingus/player" .. (char&&)this.pingu.get_owner_str().c_str() .. "/digger/left";
+    var SpritePingu _ with
+        this.x    = &_XXX_NOHOLD(&&outer.pingu.pos_x);
+        this.y    = &_XXX_NOHOLD(&&outer.pingu.pos_y);
+        this.name = _XXX_PURE(&&str);
+    end;
+    var int delay_count = 0;
+    loop do
+        await WORLD_UPDATE;
+        delay_count = delay_count + 1;
+        if not this.have_something_to_dig() then
+            this.dig(true);
+            escape {ActionName::WALKER};
+        else/if delay_count%4 == 0 then
+            this.dig(false);
+        end
+    end
+    function @rec (void)=>bool have_something_to_dig do
+        if (this.pingu.rel_getpixel(0,-1) !=  {Groundtype::GP_NOTHING}) then
+            if (this.pingu.rel_getpixel(0,-1) ==  {Groundtype::GP_SOLID}) then
+                call { Sound::PingusSound::play_sound }("chink");
+                return false;
+            else
+                return true;
+            end
+        else
+            return false;
+        end
+    end
+    function @rec (bool final)=>void dig do
+        { static CollisionMask digger_radius( "pingus/common/digger_radius_gfx", "pingus/common/digger_radius");
+            static CollisionMask digger_radius_final( "pingus/common/digger_radius_final_gfx", "pingus/common/digger_radius_final_gfx"); };
+        if (not final) then
+            call {WorldObj::get_world()->remove}( _digger_radius,
+                    this.pingu.get_xi() - _digger_radius.get_width()/2,
+                    this.pingu.get_yi() - _digger_radius.get_height() + 2);
+        else
+            call {WorldObj::get_world()->remove}( _digger_radius_final,
+                    this.pingu.get_xi() - _digger_radius.get_width()/2,
+                    this.pingu.get_yi() - _digger_radius.get_height() + 2);
+        end
+        this.pingu.set_pos(this.pingu.get_xi(), this.pingu.get_yi()+1);
+    end
+end
+class Drown with do
+    var char[] left  = [] .. "pingus/player" .. (char&&)this.pingu.get_owner_str().c_str() .. "/drownfall/left";
+    var char[] right = [] .. "pingus/player" .. (char&&)this.pingu.get_owner_str().c_str() .. "/drownfall/right";
+    do RightLeftSprites with
+        this.pingu = &outer.pingu;
+        this.left  = &left;
+        this.right = &right;
+    end;
+    escape {ActionName::DEAD};
+end
+class Exiter with do
+    { Sound::PingusSound::play_sound("yipee"); };
+    var char[] left  = [] .. "pingus/player" .. (char&&)this.pingu.get_owner_str().c_str() .. "/exit/left";
+    var char[] right = [] .. "pingus/player" .. (char&&)this.pingu.get_owner_str().c_str() .. "/exit/right";
+    do RightLeftSprites with
+        this.pingu = &outer.pingu;
+        this.left  = &left;
+        this.right = &right;
+    end;
+    escape {ActionName::NONE};
+end
+class Faller with do
+    function (void) => bool is_tumbling;
+    par do
+        loop do
+            await WORLD_UPDATE;
+            if (this.pingu.get_velocity().y > 5.0) then
+                var int fall_action = this.pingu.fall_action;
+                if fall_action != {ActionName::NONE} then
+                    escape fall_action;
+                end
+            end
+            var Vector3f velocity = this.pingu.get_velocity();
+            velocity.y = velocity.y + {WorldObj::get_world()->get_gravity()};
+            this.pingu.set_velocity(velocity);
+            end
+    with
+        var LinearMover mover with
+            this.pingu = &outer.pingu;
+        end;
+        loop do
+            await mover.ok_collided;
+            var Vector3f velocity = this.pingu.get_velocity();
+            if this.pingu.rel_getpixel(0,-1) == {Groundtype::GP_NOTHING} and
+               this.pingu.rel_getpixel(0,-2) == {Groundtype::GP_NOTHING} and
+               this.pingu.rel_getpixel(0,-3) == {Groundtype::GP_NOTHING} and
+               this.pingu.rel_getpixel(1, 0) != {Groundtype::GP_NOTHING} and
+               this.pingu.rel_getpixel(1, 0) != {Groundtype::GP_BRIDGE}
+            then
+                velocity.x = -(velocity.x / 3.0);
+                if (velocity.x > 0.0) then
+                    this.pingu.direction = _RIGHT;
+                else
+                    this.pingu.direction = _LEFT;
+                end
+                this.pingu.set_velocity(velocity);
+            else/if (velocity.y > 0.0) then
+                if this.previous_action == {ActionName::BLOCKER} then
+                    escape (int){ActionName::BLOCKER};
+                else
+                    escape (int){ActionName::WALKER};
+                end
+            else // if (velocity.y < 0.0f)
+                velocity.y = 0;
+                velocity.x = (velocity.x / 3.0);
+                this.pingu.set_velocity(velocity);
+            end
+        end
+    with
+        do
+            var char[] left  = [] .. "pingus/player" ..  (char&&)this.pingu.get_owner_str().c_str() .. "/faller/left";
+            var char[] right = [] .. "pingus/player" ..  (char&&)this.pingu.get_owner_str().c_str() .. "/faller/right";
+            var RightLeftSprites _ with
+                this.pingu = &pingu;
+                this.left  = &left;
+                this.right = &right;
+            end;
+            await WORLD_UPDATE until this.is_tumbling();
+        end
+        do
+            var char[] left  = [] .. "pingus/player" ..  (char&&)this.pingu.get_owner_str().c_str() .. "/tumbler/left";
+            var char[] right = [] .. "pingus/player" ..  (char&&)this.pingu.get_owner_str().c_str() .. "/tumbler/right";
+            do RightLeftSprites with
+                this.pingu = &pingu;
+                this.left  = &left;
+                this.right = &right;
+            end;
+            _assert(0);     // sprite has loop
+        end
+    end
+    function @rec (void)=>bool is_tumbling do
+        return {Math::abs}(this.pingu.get_velocity().x) > _deadly_velocity
+            or {Math::abs}(this.pingu.get_velocity().y) > _deadly_velocity;
+    end
+end
+class Floater with do
+    var char[] str = [] .. "pingus/player" .. (char&&)this.pingu.get_owner_str().c_str() .. "/floater/left";
+    var SpritePingu _ with
+        this.x    = &_XXX_NOHOLD(&&outer.pingu.pos_x);
+        this.y    = &_XXX_NOHOLD(&&outer.pingu.pos_y);
+        this.name = _XXX_PURE(&&str);
+    end;
+    var Vector3f v = Vector3f(0.0, 1.0, 0.0);
+    this.pingu.set_velocity(v);
+    loop do
+        await WORLD_UPDATE;
+        if this.pingu.rel_getpixel(0,-1) == {Groundtype::GP_NOTHING} then
+            this.pingu.set_y(this.pingu.get_y() + 1);
+        else
+            escape {ActionName::WALKER};
+        end
+    end
+end
+class Jumper with do
+    var char[] left  = [] .. "pingus/player" .. (char&&)this.pingu.get_owner_str().c_str() .. "/jumper/left";
+    var char[] right = [] .. "pingus/player" .. (char&&)this.pingu.get_owner_str().c_str() .. "/jumper/right";
+    var RightLeftSprites _ with
+        this.pingu = &outer.pingu;
+        this.left  = &left;
+        this.right = &right;
+    end;
+    await WORLD_UPDATE;
+    if this.previous_action == {ActionName::CLIMBER} then
+        this.pingu.change_direction();
+    end
+    var float dx, dy;
+    if this.pingu.direction == _LEFT then
+        dx = -4.58;
+        dy = -4.58;
+    else // if (this.pingu.direction == _LEFT)
+        dx =  4.58;
+        dy = -4.58;
+    end
+    var Vector3f velocity = this.pingu.get_velocity();
+    velocity.x = velocity.x + dx;
+    velocity.y = velocity.y + dy;
+    this.pingu.set_velocity(velocity);
+    this.pingu.set_y(this.pingu.get_y() - 1);
+    escape {ActionName::FALLER};
+end
+class Miner with do
+    var char[] left  = [] .. "pingus/player" .. (char&&)this.pingu.get_owner_str().c_str() .. "/miner/left";
+    var char[] right = [] .. "pingus/player" .. (char&&)this.pingu.get_owner_str().c_str() .. "/miner/right";
+    var RightLeftSprites _ with
+        this.pingu = &outer.pingu;
+        this.left  = &left;
+        this.right = &right;
+    end;
+    loop delay_count do
+        await WORLD_UPDATE;
+        if delay_count%4 != 0 then
+            continue;
+        end
+        if this.pingu.rel_getpixel(0,-1) == {Groundtype::GP_NOTHING} then
+            this.mine(true, delay_count);
+            escape {ActionName::WALKER};
+        else/if this.pingu.rel_getpixel(0,            -1) == {Groundtype::GP_SOLID} or
+                this.pingu.rel_getpixel(0, _pingu_height) == {Groundtype::GP_SOLID}
+        then
+            if (this.pingu.rel_getpixel(0, -1) == {Groundtype::GP_SOLID}) then
+                {Sound::PingusSound::play_sound("chink");};
+            end
+            this.mine(true, delay_count);
+            this.pingu.change_direction();
+            escape {ActionName::WALKER};
+        else
+            this.mine(false, delay_count);
+            this.pingu.set_pos(this.pingu.get_xi() + this.pingu.direction,
+                                  this.pingu.get_yi() + 1);
+        end
+    end
+    function @rec (bool final, int delay_count) => void mine do
+        { static CollisionMask miner_radius( "pingus/common/miner_radius_gfx", "pingus/common/miner_radius");
+            static CollisionMask miner_radius_left( "pingus/common/miner_radius_left_gfx", "pingus/common/miner_radius_left");
+            static CollisionMask miner_radius_right( "pingus/common/miner_radius_right_gfx", "pingus/common/miner_radius_right"); };
+        if not final then
+            if delay_count%2 == 0 then
+                call {WorldObj::get_world()->remove}( _miner_radius,
+                    this.pingu.get_xi() - (_miner_radius.get_width()/2) + this.pingu.direction,
+                    this.pingu.get_yi() - _miner_radius.get_height() + 2
+                );
+            end
+        else/if this.pingu.direction == {Direction::LEFT} then
+            call {WorldObj::get_world()->remove}( _miner_radius_left,
+                    this.pingu.get_xi() - (_miner_radius_left.get_width()/2) + this.pingu.direction,
+                    this.pingu.get_yi() - _miner_radius_left.get_height() + 2
+            );
+        else    // RIGHT
+            call {WorldObj::get_world()->remove}( _miner_radius_right,
+                    this.pingu.get_xi() - (_miner_radius_right.get_width()/2) + this.pingu.direction,
+                    this.pingu.get_yi() - _miner_radius_right.get_height() + 2
+            );
+        end
+    end
+end
+class Splashed with do
+    {
+        static Vector3f vec;
+    };
+    _vec.x = this.pingu.get_pos().x;
+    _vec.y = this.pingu.get_pos().y;
+    call {WorldObj::get_world()->play_sound}("splash", _vec);
+    var char[] str = [] .. "pingus/player" .. (char&&)this.pingu.get_owner_str().c_str() .. "/splat";
+    do SpritePingu with
+        this.x    = &_XXX_NOHOLD(&&outer.pingu.pos_x);
+        this.y    = &_XXX_NOHOLD(&&outer.pingu.pos_y);
+        this.name = _XXX_PURE(&&str);
+    end;
+    escape {ActionName::DEAD};
+end
+class Waiter with do
+    var char[] str = [] .. "pingus/player" .. (char&&)this.pingu.get_owner_str().c_str() .. "/waiter/left";
+    var SpritePingu _ with
+        this.x    = &_XXX_NOHOLD(&&outer.pingu.pos_x);
+        this.y    = &_XXX_NOHOLD(&&outer.pingu.pos_y);
+        this.name = _XXX_PURE(&&str);
+    end;
+    var float countdown = 2.0;
+    loop do
+        await WORLD_UPDATE;
+        if countdown < 0 then
+            escape {ActionName::WALKER};
+        end
+        countdown = countdown - 0.025;
+    end
+end
+class Walker with do
+    var char[] left1  = [] .. "pingus/player" .. (char&&)this.pingu.get_owner_str().c_str() .. "/walker/left";
+    var char[] right1 = [] .. "pingus/player" .. (char&&)this.pingu.get_owner_str().c_str() .. "/walker/right";
+    var RightLeftSprites _ with
+        this.pingu = &outer.pingu;
+        this.left  = &left1;
+        this.right = &right1;
+    end;
+    var Vector3f v = Vector3f(0, 0, 0);
+    this.pingu.set_velocity(v);
+    par do
+        await WORLD_UPDATE
+        until (this.pingu.fall_action == {ActionName::FLOATER});
+        do
+            var char[] left2  = [] .. "other/floaterlayer/left";
+            var char[] right2 = [] .. "other/floaterlayer/right";
+            var RightLeftSprites _ with
+                this.pingu = &outer.pingu;
+                this.left  = &left2;
+                this.right = &right2;
+            end;
+            await FOREVER;
+        end
+    with
+        loop do
+            await WORLD_UPDATE;
+            var Vector3f last_pos = this.pingu.get_pos();
+            if this.pingu.rel_getpixel(0, -1) == {Groundtype::GP_NOTHING} then
+                var bool found_ground = false;
+                var int i = 0;
+                loop ii in 2 do   // [-2 .. -4]
+                    i = -ii - 2;
+                    if not (this.pingu.rel_getpixel(0, i) == {Groundtype::GP_NOTHING}) then
+                        found_ground = true;
+                        break;
+                    end
+                end
+                if found_ground then
+                    this.pingu.set_y(this.pingu.get_y() - (float)(i));
+                else
+                    escape {ActionName::FALLER};
+                end
+            end
+            if this.pingu.rel_getpixel(1, 0) == {Groundtype::GP_BRIDGE} and
+               not this.pingu.head_collision_on_walk(1, 1)
+            then // bridge
+                this.pingu.set_pos(
+                    this.pingu.get_x() + (float)(this.pingu.direction),
+                    this.pingu.get_y() - 1.0); // pingus 'float' through bridges
+            else
+                var int y_inc = 0;
+                var int possible_y_step = 0;
+                var bool found_next_step = false;
+                loop i in 2*WALKER_MAX_STEPS+1 do // [-max_steps ..  max_steps]
+                    y_inc = i-WALKER_MAX_STEPS;
+                    if (this.pingu.rel_getpixel(1, y_inc)=={Groundtype::GP_NOTHING} or
+                        this.pingu.rel_getpixel(1, y_inc)=={Groundtype::GP_BRIDGE})
+                    and
+                        this.pingu.rel_getpixel(1, y_inc - 1) != {Groundtype::GP_NOTHING}
+                    then
+                        found_next_step = true;
+                        possible_y_step = y_inc;
+                    end
+                end
+                if found_next_step then
+                    this.pingu.set_pos(
+                        this.pingu.get_x() + (float)(this.pingu.direction),
+                        this.pingu.get_y() - (float)(possible_y_step));
+                else
+                    if this.pingu.rel_getpixel(1, 0) != {Groundtype::GP_NOTHING} then
+                        var int wall_action = this.pingu.wall_action;
+                        if wall_action != {ActionName::NONE} then
+                            _log_debug("Pingu: We are in front of a wall, setting persistant action");
+                            escape wall_action;
+                        end
+                        this.pingu.change_direction();
+                    else
+                        this.pingu.set_x(this.pingu.get_x() + (float)(this.pingu.direction));
+                        escape {ActionName::FALLER};
+                    end
+                end
+                if this.pingu.head_collision_on_walk(0, 0) then
+                    _log_debug("Pingu: Head collision");
+                    this.pingu.change_direction();
+                    this.pingu.set_pos(last_pos.x,last_pos.y);
+                end
+            end
+        end
+    end
+end
+class Pingu with
+    var  s8   direction = _LEFT;
+    var _ActionName__Enum current_action = {ActionName::FALLER};
+    var _ActionName__Enum wall_action    = {ActionName::NONE};
+    var _ActionName__Enum fall_action    = {ActionName::NONE};
+do
+    var Vector3f velocity = Vector3f(0, 0, 0);
+    var char[] name;
+    var int ret =
+    do
+        event _ActionName__Enum e_set_action;
+        par do
+            loop do
+                await WORLD_UPDATE;
+                if this.rel_getpixel(0,-1) == {Groundtype::GP_OUTOFSCREEN} then
+                    this.set_x(this.get_x() + (float)(this.direction));
+                    escape _PS_DEAD;
+                end
+                if this.rel_getpixel(0,-1) == {Groundtype::GP_WATER} or
+                   this.rel_getpixel(0,-1) == {Groundtype::GP_LAVA}
+                then
+                    emit e_set_action => {ActionName::DROWN};
+                    break;  // no more checks, will die
+                end
+                if this.rel_getpixel(0,-1) != {Groundtype::GP_NOTHING} and
+                        this.velocity.y > _deadly_velocity
+                then
+                    emit e_set_action => {ActionName::SPLASHED};
+                    break;  // no more checks, will die
+                end
+            end
+            await FOREVER;
+        with
+            every new_action in this.go_action do
+                _assert(this.check_action(new_action));
+                var int mode = {ActionName::ACTIVATION_MODE}[new_action];
+                if mode == {ActionType::INSTANT} then
+                    if new_action != this.current_action and
+                       {ActionName::CHANGE_ALLOWED}
+                            [this.current_action][new_action]
+                    then
+                        emit e_set_action => new_action;
+                    end
+                else/if mode == {ActionType::WALL_TRIGGERED} then
+                    this.wall_action = new_action;
+                else/if mode == {ActionType::FALL_TRIGGERED} then
+                    this.fall_action = new_action;
+                end
+            end
+        with
+            loop do
+                name = [] .. (char&&){ActionName::to_screenname}
+                                (this.current_action);
+                par/or do
+                    this.current_action = await e_set_action;
+                with
+                    do                                                      \
+                        var int a = do T with                               \
+                            this.pingu = &outer;                            \
+                            this.previous_action = outer.current_action;    \
+                        end;                                                \
+                        escape (_ActionName__Enum)a;                        \
+                    end
+                    if this.current_action == {ActionName::NONE} then
+                        _assert(not "invalid action");
+                        await FOREVER;
+                    else/if this.current_action == {ActionName::DEAD} then
+                        escape _PS_DEAD;
+                    else/if this.current_action == {ActionName::BASHER} then
+                        this.current_action = DO_PINGU_ACTION(Basher);
+                    else/if this.current_action == {ActionName::BLOCKER} then
+                        this.current_action = DO_PINGU_ACTION(Blocker);
+                    else/if this.current_action == {ActionName::BOMBER} then
+                        this.current_action = DO_PINGU_ACTION(Bomber);
+                    else/if this.current_action == {ActionName::BRIDGER} then
+                        this.current_action = DO_PINGU_ACTION(Bridger);
+                    else/if this.current_action == {ActionName::DIGGER} then
+                        this.current_action = DO_PINGU_ACTION(Digger);
+                    else/if this.current_action == {ActionName::DROWN} then
+                        this.current_action = DO_PINGU_ACTION(Drown);
+                    else/if this.current_action == {ActionName::EXITER} then
+                        this.current_action = DO_PINGU_ACTION(Exiter);
+                        escape _PS_EXITED;
+                    else/if this.current_action == {ActionName::FALLER} then
+                        this.current_action = DO_PINGU_ACTION(Faller);
+                    else/if this.current_action == {ActionName::FLOATER} then
+                        this.current_action = DO_PINGU_ACTION(Floater);
+                    else/if this.current_action == {ActionName::JUMPER} then
+                        this.current_action = DO_PINGU_ACTION(Jumper);
+                    else/if this.current_action == {ActionName::MINER} then
+                        this.current_action = DO_PINGU_ACTION(Miner);
+                    else/if this.current_action == {ActionName::SPLASHED} then
+                        this.current_action = DO_PINGU_ACTION(Splashed);
+                    else/if this.current_action == {ActionName::WAITER} then
+                        this.current_action = DO_PINGU_ACTION(Waiter);
+                    else/if this.current_action == {ActionName::WALKER} then
+                        this.current_action = DO_PINGU_ACTION(Walker);
+                    else
+                        _assert({!"Invalid action name provied"});
+                        await FOREVER;
+                    end
+                end
+            end
+        end
+    end;
+    _assert(ret != _PS_ALIVE);
+await WORLD_UPDATE;
+    emit holder.ok_pingu => ret;
+    function (void)=>float get_x do
+        return this.pos_x;
+    end
+    function (void)=>float get_y do
+        return this.pos_y;
+    end
+    function (void)=>int get_xi do
+        return (int)this.pos_x;
+    end
+    function (void)=>int get_yi do
+        return (int)this.pos_y;
+    end
+    function (void)=>Vector3f get_pos do
+        var Vector3f vec = Vector3f(this.pos_x, this.pos_y, 0);
+        return vec;
+    end
+    function (float x)=>void set_x do
+        this.pos_x = x;
+    end
+    function (float y)=>void set_y do
+        this.pos_y = y;
+    end
+    function (float x, float y)=>void set_pos do
+        this.set_x(x);
+        this.set_y(y);
+    end
+    function (void)=>Vector3f get_center_pos do
+        var Vector3f vec = Vector3f(this.pos_x, this.pos_y-16, 0);
+        return vec;
+    end
+    function (void)=>Vector3f get_velocity do
+        return this.velocity;
+    end
+    function (Vector3f velocity_)=>void set_velocity do
+        this.velocity = velocity_;
+        this.velocity.x =
+            (float){Math::clamp}(-_terminal_velocity, this.velocity.x, _terminal_velocity);
+        this.velocity.y =
+            (float){Math::clamp}(-_terminal_velocity, this.velocity.y, _terminal_velocity);
+    end
+    function (s8 d)=>void set_direction do
+        this.direction = d;
+    end
+    function (void)=>void change_direction do
+        if this.direction == _LEFT then
+            this.direction = _RIGHT;
+        else
+            this.direction = _LEFT;
+        end
+    end
+    function (int x, int y)=>int rel_getpixel do
+        return {WorldObj::get_world()->get_colmap()->getpixel}(
+                (int)(this.pos_x + (float)(x * this.direction)),
+                (int)(this.pos_y - (float)(y)));
+    end
+    function (int x, int y)=>bool head_collision_on_walk do
+        var int pixel = this.rel_getpixel(x, y + _pingu_height);
+        if (     pixel != {Groundtype::GP_NOTHING} and
+            not (pixel &  {Groundtype::GP_BRIDGE}))
+        then
+            return true;
+        else
+            return false;
+        end
+    end
+    function (int x, int y)=>bool is_over do
+        var Vector3f center = this.get_center_pos();
+        return (center.x+16 > x and
+                center.x-16 < x and
+                center.y+16 > y and
+                center.y-16 < y);
+    end
+    function (int x1, int y1, int x2, int y2)=>bool is_inside do
+        _assert (x1 < x2);
+        _assert (y1 < y2);
+        return (this.pos_x > x1 and
+                this.pos_x < x2 and
+                this.pos_y > y1 and
+                this.pos_y < y2);
+    end
+    function (int x, int y)=>float dist do
+        var Vector3f p = this.get_center_pos();
+        return {Math::sqrt}(((p.x - (float)(x)) * (p.x - (float)(x)) +
+                             (p.y - (float)(y)) * (p.y - (float)(y))));
+    end
+    function (void)=>int get_id do
+        return this.id;
+    end
+    function (void)=>int get_owner do
+        return this.owner_id;
+    end
+    function (void)=>_std__string get_owner_str do
+        {
+            std::ostringstream ostr;
+            ostr << THIS_F(CEU_Pingu)->owner_id;
+        };
+        return _ostr.str();
+    end
+    function (void)=>char[]& get_name do
+        return &this.name;
+    end
+    function (_ActionName__Enum new_action)=>bool check_action do
+        var int mode = {ActionName::ACTIVATION_MODE}[new_action];
+        if mode == {ActionType::INSTANT} then
+            return (new_action!=this.current_action) and
+                   {ActionName::CHANGE_ALLOWED}[this.current_action][new_action];
+        else/if mode == {ActionType::WALL_TRIGGERED} then
+            return (this.wall_action != new_action);
+        else/if mode == {ActionType::FALL_TRIGGERED} then
+            return (this.fall_action != new_action);
+        else //if mode == {ActionType::COUNTDOWN_TRIGGERED} then
+            _assert(not "DEAD CODE???");
+        end
+    end
+end
+#endif
