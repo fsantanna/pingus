@@ -19,7 +19,7 @@ input int&& PINGUHOLDER_GET_NUMBER_OF_ALLOWED;
 #include "pingu.ceu"
 
 class PinguHolder with
-    interface IPinguHolder;
+    interface IPinguHolderStatus;
     var int number_of_exited   = 0;
     var int number_of_killed   = 0;
     var int number_of_alive    = 0;
@@ -59,8 +59,25 @@ do
                     this.pos_x    = pos:x;
                     this.pos_y    = pos:y;
                     *me_ = (void&&)&&this;
+                    outer.number_of_released = outer.number_of_released + 1;
+                    outer.number_of_alive    = outer.number_of_alive    + 1;
                 end;
             end
+        end
+    with
+        every status in this.ok_pingu do
+            if status == _PS_DEAD then
+//_assert(0);
+                this.number_of_killed = this.number_of_killed + 1;
+            else/if status == _PS_EXITED then
+                this.number_of_exited = this.number_of_exited + 1;
+            else
+                _assert(status != _PS_ALIVE);
+            end
+            this.number_of_alive = this.number_of_alive - 1;
+            _assert(this.number_of_released == this.number_of_alive  +
+                                               this.number_of_killed +
+                                               this.number_of_exited);
         end
     end
 end

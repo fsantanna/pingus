@@ -56,12 +56,6 @@ do
     var Vector3f velocity = Vector3f(0, 0, 0);
     var char[] name;
 
-    this.holder.number_of_released = this.holder.number_of_released + 1;
-    this.holder.number_of_alive    = this.holder.number_of_alive    + 1;
-    finalize with
-        this.holder.number_of_alive = this.holder.number_of_alive - 1;
-    end
-
     var int ret =
     do
         event _ActionName__Enum e_set_action;
@@ -132,6 +126,7 @@ do
                         escape (_ActionName__Enum)a;                        \
                     end
                     if this.current_action == {ActionName::NONE} then
+                        _assert(not "invalid action");
                         await FOREVER;
                     else/if this.current_action == {ActionName::DEAD} then
                         escape _PS_DEAD;
@@ -165,7 +160,6 @@ do
                     else/if this.current_action == {ActionName::WALKER} then
                         this.current_action = DO_PINGU_ACTION(Walker);
                     else
-_printf("ACTION_NAME = %d\n", this.current_action);
                         _assert({!"Invalid action name provied"});
                         await FOREVER;
                     end
@@ -174,16 +168,11 @@ _printf("ACTION_NAME = %d\n", this.current_action);
         end
     end;
 
-    if ret == _PS_DEAD then
-        this.holder.number_of_killed = this.holder.number_of_killed + 1;
-    else/if ret == _PS_EXITED then
-        this.holder.number_of_exited = this.holder.number_of_exited + 1;
-    else
-        _assert(ret != _PS_ALIVE);
-    end
-    _assert(this.holder.number_of_released == this.holder.number_of_alive-1 +
-                                              this.holder.number_of_killed  +
-                                              this.holder.number_of_exited);
+    _assert(ret != _PS_ALIVE);
+await WORLD_UPDATE;
+    emit holder.ok_pingu => ret;
+
+    /* END-OF-BODY */
 
     /* PUBLIC */
 

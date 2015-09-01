@@ -59,23 +59,21 @@ data Vector3f with
     var float z;
 end
 
-interface IPinguHolder with
-    var int number_of_exited;
-    var int number_of_killed;
-    var int number_of_alive;
-    var int number_of_released;
-    var int number_of_allowed;
+interface IPinguHolderStatus with
+    event int ok_pingu;
 end
 
 interface IPingu with
-    event _ActionName__Enum go_action;
-    var   IPinguHolder&     holder;
+    var   IPinguHolderStatus& holder;
 
     var  float              pos_x, pos_y;
     var   s8                direction;
     var   _ActionName__Enum current_action;
     var   _ActionName__Enum wall_action;
     var   _ActionName__Enum fall_action;
+
+    event    _ActionName__Enum           go_action;
+    function (_ActionName__Enum) => bool check_action;
 
     function (void)         => float        get_x;
     function (void)         => float        get_y;
@@ -96,8 +94,6 @@ interface IPingu with
     function (int,int)      => bool         is_over;
     function (int,int)      => float        dist;
     function (int,int,int,int) => bool      is_inside;
-
-    function (_ActionName__Enum) => bool    check_action;
 
     function (void)         => int          get_id;
     function (void)         => int          get_owner;

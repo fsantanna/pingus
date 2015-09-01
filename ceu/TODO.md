@@ -1,5 +1,4 @@
-- bug: capture set_pingus every draw
-- pingu: remove IPinguHolder e usar evento global de sets final status
+- bug do WORLD_UPDATE necessario
 - pingu! = <...>
 - world! = <...>
 - countdown action disable from the original??
