@@ -31,6 +31,7 @@ end
 #include "actions/laser_kill.ceu"
 #include "actions/miner.ceu"
 #include "actions/splashed.ceu"
+#include "actions/slider.ceu"
 #include "actions/waiter.ceu"
 #include "actions/walker.ceu"
 
@@ -165,6 +166,8 @@ _printf("ACT %d=>%d\n", current_action,new_action);
                         this.current_action = DO_PINGU_ACTION(LaserKill);
                     else/if this.current_action == {ActionName::MINER} then
                         this.current_action = DO_PINGU_ACTION(Miner);
+                    else/if this.current_action == {ActionName::SLIDER} then
+                        this.current_action = DO_PINGU_ACTION(Slider);
                     else/if this.current_action == {ActionName::SPLASHED} then
                         this.current_action = DO_PINGU_ACTION(Splashed);
                     else/if this.current_action == {ActionName::WAITER} then

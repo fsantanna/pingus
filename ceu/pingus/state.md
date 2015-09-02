@@ -3,6 +3,8 @@
 - examples of control-only vars
 - examples of dual (sprites frame/finish)
 
+- hierarchies vs scope (draw,update)
+
 # BASHER
 sprite          U/D,frame               [1], frame
 basher_c        update                  loop-i

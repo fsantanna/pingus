@@ -51,7 +51,7 @@ enum Enum
   JUMPER,       // OK
   LASERKILL,    // OK
   MINER,        // ??
-  SLIDER,       // ??
+  SLIDER,       // OK
   SMASHED,      // NO
   SPLASHED,     // OK
   SUPERMAN,     // NO

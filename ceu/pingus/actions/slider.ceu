@@ -1,0 +1,58 @@
+#ifndef _SLIDER_CEU
+#define _SLIDER_CEU
+
+#include "../right_left_sprites.ceu"
+
+class Slider with
+    interface IPinguAction;
+do
+    var char[] left  = [] .. "pingus/player"
+                          .. (char&&)this.pingu.get_owner_str().c_str()
+                          .. "/slider/left";
+    var char[] right = [] .. "pingus/player"
+                          .. (char&&)this.pingu.get_owner_str().c_str()
+                          .. "/slider/right";
+    var RightLeftSprites _ with
+        this.pingu = &outer.pingu;
+        this.left  = &left;
+        this.right = &right;
+    end;
+
+    var float speed = 10;
+
+    loop do
+        await WORLD_UPDATE;
+
+        loop i in speed do
+            if this.pingu.rel_getpixel(1,0) != {Groundtype::GP_NOTHING} then
+                break;
+            end
+
+            this.pingu.set_x(this.pingu.get_x() + (float)(this.pingu.direction));
+
+            if (this.pingu.rel_getpixel(0,-1) == {Groundtype::GP_NOTHING}) then
+                if speed <= 5 then
+                    speed = 5;
+                end
+
+                var Vector3f cur = this.pingu.get_velocity();
+                if (this.pingu.direction == _RIGHT) then
+                    cur.x = cur.x + speed;
+                    this.pingu.set_velocity(cur);
+                else
+                    cur.x = cur.x - speed;
+                    this.pingu.set_velocity(cur);
+                end
+
+                escape {ActionName::FALLER};
+            end
+
+            speed = speed - 7*0.025;
+            if (speed < 1) then
+                escape {ActionName::WALKER};
+            end
+        end
+    end
+end
+
+#endif
