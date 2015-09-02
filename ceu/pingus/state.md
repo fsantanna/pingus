@@ -5,6 +5,8 @@
 
 - hierarchies vs scope (draw,update)
 
+- no pointers, less identifiers
+
 # BASHER
 sprite          U/D,frame               [1], frame
 basher_c        update                  loop-i
@@ -35,11 +37,60 @@ build_sprite    U/D,frame,fin,rst       [3], frame,fin
 block_build     check single frame      await UPD
 set_action()    walker,waiter           escape
 
+# CLIMBER (- continuous)
+sprite          U/D                     [1], anonymous
+set_action()    walker                  escape
+
 # DIGGER
 sprite          U/D                     [1], anonymous
 delay_count     dig every 4 frames      [2], i%4
-set_action()    walker
+set_action()    walker                  escape
 
 # DROWN
 sprite          U/D, fin                [1], do-anonymous
 set_status()    dead                    escape
+
+# EXITER
+sprite          U/D, fin                [1], do-anonymous
+sound_played    check single frame      on start
+set_status()    exiter                  escape
+
+# FALLER
+faller          U/D,is_tumbling()       [3], anonymous
+tumbler         U/D,is_tumbling()       [3], anonymous
+mover           update                  [2],mover.ok_collided
+set_action()    drown,splashed,walker   escape
+
+# FLOATER
+sprite          U/D                     [1], anonymous
+set_action()    walker                  escape
+
+# JUMPER
+sprite          D                       [1], anonymous
+set_action()    faller                  escape
+
+# LASERKILL
+sprite          U/D, fin                [1], do-anonymous
+set_status()    dead                    escape
+
+# MINER
+sprite          U/D                     [1], anonymous
+delay_count     mine every 4 frames     [2], i%4
+set_action()    walker                  escape
+
+# SLIDER
+sprite          U/D                     [1], anonymous
+set_action()    faller,walker           escape
+
+# SPLASHED
+sprite          U/D, fin                [1], do-anonymous
+particle_thrown check single frame      on start
+set_status()    dead                    escape
+
+# WAITER
+sprite          U/D                     [1], anonymous
+countdown       until 0                 [1] (similar)
+
+# WALKER
+walker          U/D                     [1], anonymous
+floaterlayer    U/D                     [3], anonymous (only if fall_action)

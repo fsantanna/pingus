@@ -28,7 +28,7 @@ do
             var Vector3f velocity = this.pingu.get_velocity();
             velocity.y = velocity.y + {WorldObj::get_world()->get_gravity()};
             this.pingu.set_velocity(velocity);
-            end
+        end
     with
         var LinearMover mover with
             this.pingu = &outer.pingu;
