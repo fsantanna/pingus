@@ -738,14 +738,10 @@ bool Pingu::is_alive (void) {
 }
 std::shared_ptr<PinguAction> Pingu::create_action(ActionName::Enum action_) {
     switch(action_) {
-    case ActionName::ANGEL:
-        return std::make_shared<Angel>(this);
     case ActionName::BASHER:
         return std::make_shared<Basher>(this);
     case ActionName::BLOCKER:
         return std::make_shared<Blocker>(this);
-    case ActionName::BOARDER:
-        return std::make_shared<Boarder>(this);
     case ActionName::BOMBER:
         return std::make_shared<Bomber>(this);
     case ActionName::BRIDGER:
@@ -770,12 +766,8 @@ std::shared_ptr<PinguAction> Pingu::create_action(ActionName::Enum action_) {
         return std::make_shared<Miner>(this);
     case ActionName::SLIDER:
         return std::make_shared<Slider>(this);
-    case ActionName::SMASHED:
-        return std::make_shared<Smashed>(this);
     case ActionName::SPLASHED:
         return std::make_shared<Splashed>(this);
-    case ActionName::SUPERMAN:
-        return std::make_shared<Superman>(this);
     case ActionName::WAITER:
         return std::make_shared<Waiter>(this);
     case ActionName::WALKER:
