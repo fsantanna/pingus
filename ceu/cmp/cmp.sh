@@ -8,9 +8,10 @@ mkdir -p /opt/pingus/ceu/cmp/ceu/actions/
 cd /opt/pingus.official/src/pingus/
 cp pingu.* pingu_action.* /opt/pingus/ceu/cmp/cpp/
 cd actions/
-cp basher.* blocker.* bomber.* bridger.* digger.* /opt/pingus/ceu/cmp/cpp/actions
-cp drown.* exiter.* faller.* floater.* jumper.* /opt/pingus/ceu/cmp/cpp/actions
-cp miner.* splashed.* waiter.* walker.* /opt/pingus/ceu/cmp/cpp/actions
+cp basher.* blocker.* bomber.* bridger.* climber.* /opt/pingus/ceu/cmp/cpp/actions
+cp digger.* drown.* exiter.* faller.* floater.* /opt/pingus/ceu/cmp/cpp/actions
+cp jumper.* laser_kill.* miner.* slider.* /opt/pingus/ceu/cmp/cpp/actions
+cp splashed.* waiter.* walker.*
 
 cd /opt/pingus/ceu/cmp/cpp/
 ls -R *.cpp actions/*.cpp | xargs cat > ../all.cpp

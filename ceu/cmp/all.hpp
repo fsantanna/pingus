@@ -268,6 +268,61 @@ private:
 //  You should have received a copy of the GNU General Public License
 //  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+#ifndef HEADER_PINGUS_PINGUS_ACTIONS_CLIMBER_HPP
+#define HEADER_PINGUS_PINGUS_ACTIONS_CLIMBER_HPP
+
+#include "pingus/pingu_action.hpp"
+#include "pingus/state_sprite.hpp"
+
+namespace Actions {
+
+class Climber : public PinguAction
+{
+private:
+  StateSprite sprite;
+  int sprite_width;
+  int sprite_height;
+
+public:
+  Climber (Pingu*);
+
+  ActionName::Enum get_type () const { return ActionName::CLIMBER; }
+
+  void draw (SceneContext& gc);
+
+  void update ();
+
+  char get_persistent_char () { return 'c'; }
+  bool change_allowed(ActionName::Enum new_action);
+
+  Vector3f get_center_pos() const;
+
+private:
+  Climber (const Climber&);
+  Climber& operator= (const Climber&);
+};
+
+} // namespace Actions
+
+#endif
+
+/* EOF */
+//  Pingus - A free Lemmings clone
+//  Copyright (C) 1999 Ingo Ruhnke <grumbel@gmail.com>
+//
+//  This program is free software: you can redistribute it and/or modify
+//  it under the terms of the GNU General Public License as published by
+//  the Free Software Foundation, either version 3 of the License, or
+//  (at your option) any later version.
+//
+//  This program is distributed in the hope that it will be useful,
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//  GNU General Public License for more details.
+//
+//  You should have received a copy of the GNU General Public License
+//  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
 #ifndef HEADER_PINGUS_PINGUS_ACTIONS_DIGGER_HPP
 #define HEADER_PINGUS_PINGUS_ACTIONS_DIGGER_HPP
 
@@ -572,6 +627,58 @@ private:
 //  You should have received a copy of the GNU General Public License
 //  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+#ifndef HEADER_PINGUS_PINGUS_ACTIONS_LASER_KILL_HPP
+#define HEADER_PINGUS_PINGUS_ACTIONS_LASER_KILL_HPP
+
+#include "pingus/pingu_action.hpp"
+#include "pingus/state_sprite.hpp"
+
+namespace Actions {
+
+/** This action is triggered by the LaserExit trap and causes the
+    pingu to 'burn-away' */
+class LaserKill : public PinguAction
+{
+private:
+  StateSprite sprite;
+
+public:
+  LaserKill (Pingu*);
+
+  ActionName::Enum get_type () const { return ActionName::LASERKILL; }
+  void init (void);
+
+  void draw (SceneContext& gc);
+  void update ();
+
+  bool catchable () { return false; }
+
+private:
+  LaserKill (const LaserKill&);
+  LaserKill& operator= (const LaserKill&);
+};
+
+} // namespace Actions
+
+#endif
+
+/* EOF */
+//  Pingus - A free Lemmings clone
+//  Copyright (C) 1999 Ingo Ruhnke <grumbel@gmail.com>
+//
+//  This program is free software: you can redistribute it and/or modify
+//  it under the terms of the GNU General Public License as published by
+//  the Free Software Foundation, either version 3 of the License, or
+//  (at your option) any later version.
+//
+//  This program is distributed in the hope that it will be useful,
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//  GNU General Public License for more details.
+//
+//  You should have received a copy of the GNU General Public License
+//  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
 #ifndef HEADER_PINGUS_PINGUS_ACTIONS_MINER_HPP
 #define HEADER_PINGUS_PINGUS_ACTIONS_MINER_HPP
 
@@ -614,58 +721,6 @@ private:
 
 /* EOF */
 //  Pingus - A free Lemmings clone
-//  Copyright (C) 1999 Ingo Ruhnke <grumbel@gmail.com>
-//
-//  This program is free software: you can redistribute it and/or modify
-//  it under the terms of the GNU General Public License as published by
-//  the Free Software Foundation, either version 3 of the License, or
-//  (at your option) any later version.
-//
-//  This program is distributed in the hope that it will be useful,
-//  but WITHOUT ANY WARRANTY; without even the implied warranty of
-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-//  GNU General Public License for more details.
-//
-//  You should have received a copy of the GNU General Public License
-//  along with this program.  If not, see <http://www.gnu.org/licenses/>.
-
-#ifndef HEADER_PINGUS_PINGUS_ACTIONS_SPLASHED_HPP
-#define HEADER_PINGUS_PINGUS_ACTIONS_SPLASHED_HPP
-
-#include "engine/display/sprite.hpp"
-#include "pingus/pingu_action.hpp"
-
-namespace Actions {
-
-class Splashed : public PinguAction
-{
-private:
-  bool particle_thrown;
-  bool sound_played;
-  Sprite sprite;
-
-public:
-  Splashed (Pingu*);
-
-  ActionName::Enum get_type () const { return ActionName::SPLASHED; }
-
-  void draw (SceneContext& gc);
-  void update ();
-
-  bool catchable () { return false; }
-  bool change_allowed (ActionName::Enum ) { return false; }
-
-private:
-  Splashed (const Splashed&);
-  Splashed& operator= (const Splashed&);
-};
-
-} // namespace Actions
-
-#endif
-
-/* EOF */
-//  Pingus - A free Lemmings clone
 //  Copyright (C) 2000 Ingo Ruhnke <grumbel@gmail.com>
 //
 //  This program is free software: you can redistribute it and/or modify
@@ -681,84 +736,30 @@ private:
 //  You should have received a copy of the GNU General Public License
 //  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef HEADER_PINGUS_PINGUS_ACTIONS_WAITER_HPP
-#define HEADER_PINGUS_PINGUS_ACTIONS_WAITER_HPP
-
-#include "engine/display/sprite.hpp"
-#include "pingus/pingu_action.hpp"
-
-namespace Actions {
-
-/** A Waiting action for the bridger, it gets activated when the
-    bridger is out of bridges. It then waits two seconds (meanwhile doing a
-    funny animation) and then he changes back to a normal walker. */
-class Waiter : public PinguAction
-{
-private:
-  float countdown;
-  Sprite sprite;
-
-public:
-  Waiter (Pingu*);
-
-  ActionName::Enum get_type () const { return ActionName::WAITER; }
-
-  void draw (SceneContext& gc);
-  void update ();
-
-private:
-  Waiter (const Waiter&);
-  Waiter& operator= (const Waiter&);
-};
-
-} // namespace Actions
-
-#endif
-
-/* EOF */
-//  Pingus - A free Lemmings clone
-//  Copyright (C) 2000 Ingo Ruhnke <grumbel@gmail.com>
-//
-//  This program is free software: you can redistribute it and/or modify
-//  it under the terms of the GNU General Public License as published by
-//  the Free Software Foundation, either version 3 of the License, or
-//  (at your option) any later version.
-//
-//  This program is distributed in the hope that it will be useful,
-//  but WITHOUT ANY WARRANTY; without even the implied warranty of
-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-//  GNU General Public License for more details.
-//
-//  You should have received a copy of the GNU General Public License
-//  along with this program.  If not, see <http://www.gnu.org/licenses/>.
-
-#ifndef HEADER_PINGUS_PINGUS_ACTIONS_WALKER_HPP
-#define HEADER_PINGUS_PINGUS_ACTIONS_WALKER_HPP
+#ifndef HEADER_PINGUS_PINGUS_ACTIONS_SLIDER_HPP
+#define HEADER_PINGUS_PINGUS_ACTIONS_SLIDER_HPP
 
 #include "pingus/pingu_action.hpp"
 #include "pingus/state_sprite.hpp"
 
 namespace Actions {
 
-class Walker : public PinguAction
+class Slider : public PinguAction
 {
 private:
-  StateSprite walker;
-  StateSprite floaterlayer;
-
-  enum { max_steps = 5 }; // max nr. of pixels that pingu can walk up/down
-
+  StateSprite sprite;
+  float  speed;
 public:
-  Walker (Pingu*);
+  Slider (Pingu* p);
+
+  ActionName::Enum get_type() const { return ActionName::SLIDER; }
 
   void draw (SceneContext& gc);
-  void update ();
-
-  ActionName::Enum get_type () const { return ActionName::WALKER; }
+  void update();
 
 private:
-  Walker (const Walker&);
-  Walker& operator= (const Walker&);
+  Slider (const Slider&);
+  Slider& operator= (const Slider&);
 };
 
 } // namespace Actions

@@ -28,8 +28,7 @@ void Basher::update () {
                 Sound::PingusSound::play_sound("chink");
                 pingu->direction.change();
                 pingu->set_action(ActionName::WALKER);
-            } else if (first_bash || have_something_to_dig()) {
-                first_bash = true;
+            } else if (have_something_to_dig()) {
                 if (basher_c % 2 == 0) {
                     bash();
                 }
@@ -210,6 +209,37 @@ void Bridger::update_build () {
         build_sprite[pingu->direction].restart();
     }
 }
+Climber::Climber (Pingu* p) :
+    PinguAction(p)
+{
+    sprite.load(Direction::LEFT,  Sprite("pingus/player" + pingu->get_owner_str() + "/climber/left"));
+    sprite.load(Direction::RIGHT, Sprite("pingus/player" + pingu->get_owner_str() + "/climber/right"));
+}
+void Climber::update () {
+    sprite[pingu->direction].update();
+    if (   rel_getpixel(0, 1) == Groundtype::GP_NOTHING
+            || rel_getpixel(0, 1) == Groundtype::GP_BRIDGE) {
+        if (rel_getpixel(1, 1) != Groundtype::GP_NOTHING) {
+            pingu->set_pos(pingu->get_x(),
+                           pingu->get_y() - 1);
+            return;
+        } else if (rel_getpixel(1, 1) ==  Groundtype::GP_NOTHING) {
+            if (!head_collision_on_walk(pingu->direction, 1)) {
+                pingu->set_pos(pingu->get_x() + static_cast<float>(pingu->direction),
+                               pingu->get_y() - 1.0f);
+            } else {
+                pingu->direction.change();
+            }
+            pingu->set_action(ActionName::WALKER);
+        }
+    } else {
+        pingu->direction.change();
+        pingu->set_action(ActionName::WALKER);
+    }
+}
+void Climber::draw (SceneContext& gc) {
+    gc.color().draw(sprite[pingu->direction], pingu->get_pos());
+}
 Digger::Digger(Pingu* p) :
     PinguAction(p),
     digger_radius("pingus/common/digger_radius_gfx", "pingus/common/digger_radius"),
@@ -386,6 +416,22 @@ void Jumper::update () {
     pingu->set_y(pingu->get_y() - 1);
     pingu->set_action (ActionName::FALLER);
 }
+LaserKill::LaserKill(Pingu* p) :
+    PinguAction(p)
+{
+    sprite.load(Direction::LEFT,  Sprite("other/laser_kill/left"));
+    sprite.load(Direction::RIGHT, Sprite("other/laser_kill/right"));
+}
+void LaserKill::draw (SceneContext& gc) {
+    gc.color().draw(sprite[pingu->direction], pingu->get_pos () + Vector3f (0, 2));
+}
+void LaserKill::update () {
+    if (sprite[pingu->direction].is_finished()) {
+        pingu->set_status(Pingu::PS_DEAD);
+    } else {
+        sprite[pingu->direction].update();
+    }
+}
 Miner::Miner (Pingu* p) :
     PinguAction(p),
     delay_count(0)
@@ -417,6 +463,37 @@ void Miner::update () {
 }
 void Miner::draw (SceneContext& gc) {
     gc.color().draw(sprite[pingu->direction], pingu->get_pos());
+}
+Slider::Slider (Pingu* p) :
+    PinguAction(p),
+    speed(10)
+{
+    sprite.load(Direction::LEFT,  "pingus/player" + pingu->get_owner_str() + "/slider/left");
+    sprite.load(Direction::RIGHT, "pingus/player" + pingu->get_owner_str() + "/slider/right");
+}
+void Slider::update () {
+    sprite[pingu->direction].update();
+    for (int i = 0; i < speed && rel_getpixel(1, 0) == Groundtype::GP_NOTHING; ++i) {
+        pingu->set_x(pingu->get_x() + static_cast<float>(pingu->direction));
+        if (rel_getpixel(0, -1) ==  Groundtype::GP_NOTHING) {
+            speed = (speed > 5) ? 5 : speed;
+            if (pingu->direction.is_right()) {
+                pingu->set_velocity(pingu->get_velocity() + Vector3f(speed, 0.0));
+            } else {
+                pingu->set_velocity(pingu->get_velocity() + Vector3f(-speed, 0.0));
+            }
+            pingu->set_action(ActionName::FALLER);
+            return;
+        }
+    }
+    speed -= 7 * 0.025f;
+    if (speed < 1) {
+        pingu->set_action(ActionName::WALKER);
+        return;
+    }
+}
+void Slider::draw (SceneContext& gc) {
+    gc.color().draw(sprite[pingu->direction], pingu->get_pos() + Vector3f(0, -2));
 }
 Splashed::Splashed (Pingu* p) :
     PinguAction(p),
