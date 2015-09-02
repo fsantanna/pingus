@@ -1,3 +1,4 @@
+- global:world.pingus vai simplificar min.ceu
 - bug do WORLD_UPDATE necessario
 - pingu! = <...>
 - world! = <...>

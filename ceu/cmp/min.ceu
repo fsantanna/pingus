@@ -153,14 +153,12 @@ class Digger with do
         this.y    = &_XXX_NOHOLD(&&outer.pingu.pos_y);
         this.name = _XXX_PURE(&&str);
     end;
-    var int delay_count = 0;
-    loop do
+    loop i do
         await WORLD_UPDATE;
-        delay_count = delay_count + 1;
         if not this.have_something_to_dig() then
             this.dig(true);
             escape {ActionName::WALKER};
-        else/if delay_count%4 == 0 then
+        else/if i%4 == 0 then
             this.dig(false);
         end
     end

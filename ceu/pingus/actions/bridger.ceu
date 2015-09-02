@@ -23,9 +23,10 @@ do
 
     var int bricks = _BRIDGER_MAX_BRICKS;
 
-    var char[]& name = name = [] .. "Bridger (" ..
-                        (char&&)({StringUtil::to_string}(this.bricks).c_str()) ..
-                        ")";
+    var char[]& name = &this.pingu.get_name();
+    name = [] .. "Bridger (" ..
+           (char&&)({StringUtil::to_string}(this.bricks).c_str()) ..
+           ")";
 
     /* UPDATE */
     loop i in _BRIDGER_MAX_BRICKS do
