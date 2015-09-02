@@ -1,0 +1,62 @@
+#ifndef _LASEREXIT_CEU
+#define _LASEREXIT_CEU
+
+native/pre do
+    ##include "src/pingus/worldobjs/laser_exit.hpp"
+    ##define WorldObjs__LaserExit WorldObjs::LaserExit
+end
+native @plain _WorldObjs__LaserExit;
+
+input _WorldObjs__LaserExit&& LASEREXIT_NEW;
+input _WorldObjs__LaserExit&& LASEREXIT_DELETE;
+
+class LaserExit with
+    var _WorldObjs__LaserExit& me;
+do
+    par/or do
+        AWAIT_UNTIL_MYSELF(_WorldObjs__LaserExit,LASEREXIT_DELETE);
+    with
+        loop do
+            await WORLD_UPDATE;
+
+            if not this.me.killing then
+                var IWorld&& world = (IWorld&&)this.me.world:ceu;
+                var IPingu&&? pingu;
+                loop p in world:get_pingu_holder().pingus do
+                    if (p:get_x() < this.me.pos.x+34+10 and
+                        p:get_x() > this.me.pos.x+34    and
+                        p:get_y() < this.me.pos.y+43+20 and
+                        p:get_y() > this.me.pos.y+43)
+                    then
+                        this.me.killing = true;
+                        pingu = p;
+                        break;
+                    end
+                end
+                if pingu? then
+                    emit pingu!:go_action => {ActionName::LASERKILL};
+                end
+            else
+                if this.me.surface.is_finished() then
+                    this.me.surface.restart();
+                    this.me.killing = false;
+                else
+                    this.me.surface.update();
+                end
+            end
+       end
+    end
+end
+
+class LaserExitFactory with
+do
+    every me_ in LASEREXIT_NEW do
+        spawn LaserExit with
+            this.me = &_XXX_PTR2REF(me_);
+        end;
+    end
+end
+
+var LaserExitFactory _;
+
+#endif

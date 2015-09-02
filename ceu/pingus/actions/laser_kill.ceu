@@ -1,0 +1,19 @@
+#ifndef _LASER_KILL_CEU
+#define _LASERKILL_CEU
+
+#include "../right_left_sprites.ceu"
+
+class LaserKill with
+    interface IPinguAction;
+do
+    var char[] left  = [] .. "other/laser_kill/left";
+    var char[] right = [] .. "other/laser_kill/right";
+    do RightLeftSprites with
+        this.pingu = &outer.pingu;
+        this.left  = &left;
+        this.right = &right;
+    end;
+    escape {ActionName::DEAD};
+end
+
+#endif

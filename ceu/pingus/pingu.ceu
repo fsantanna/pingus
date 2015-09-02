@@ -28,6 +28,7 @@ end
 #include "actions/faller.ceu"
 #include "actions/floater.ceu"
 #include "actions/jumper.ceu"
+#include "actions/laser_kill.ceu"
 #include "actions/miner.ceu"
 #include "actions/splashed.ceu"
 #include "actions/waiter.ceu"
@@ -94,7 +95,13 @@ do
             await FOREVER;
         with
             every new_action in this.go_action do
-                _assert(this.check_action(new_action));
+                if new_action!={ActionName::EXITER} and new_action!={ActionName::LASERKILL} then
+_printf("ACT %d=>%d\n", current_action,new_action);
+                    _assert(this.check_action(new_action));
+                end
+                if not this.check_action(new_action) then
+                    continue;
+                end
 
                 var int mode = {ActionName::ACTIVATION_MODE}[new_action];
 
@@ -154,6 +161,8 @@ do
                         this.current_action = DO_PINGU_ACTION(Floater);
                     else/if this.current_action == {ActionName::JUMPER} then
                         this.current_action = DO_PINGU_ACTION(Jumper);
+                    else/if this.current_action == {ActionName::LASERKILL} then
+                        this.current_action = DO_PINGU_ACTION(LaserKill);
                     else/if this.current_action == {ActionName::MINER} then
                         this.current_action = DO_PINGU_ACTION(Miner);
                     else/if this.current_action == {ActionName::SPLASHED} then

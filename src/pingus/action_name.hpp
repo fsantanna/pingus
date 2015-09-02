@@ -34,30 +34,30 @@ namespace ActionName {
     it should be it needs to be changed here. */
 enum Enum
 {
-  NONE=0,
-  DEAD,
-  ANGEL,
-  BASHER,
-  BLOCKER,
-  BOARDER,
-  BOMBER,
-  BRIDGER,
-  CLIMBER,
-  DIGGER,
-  DROWN,
-  EXITER,
-  FALLER,
-  FLOATER,
-  JUMPER,
-  LASERKILL,
-  MINER,
-  SLIDER,
-  SMASHED,
-  SPLASHED,
-  SUPERMAN,
-  TELEPORTED,
-  WAITER,
-  WALKER,
+  NONE=0,       // OK
+  DEAD,         // OK
+  ANGEL,        // NO
+  BASHER,       // OK
+  BLOCKER,      // OK
+  BOARDER,      // NO
+  BOMBER,       // OK
+  BRIDGER,      // OK
+  CLIMBER,      // OK
+  DIGGER,       // OK
+  DROWN,        // OK
+  EXITER,       // OK
+  FALLER,       // OK
+  FLOATER,      // OK
+  JUMPER,       // OK
+  LASERKILL,    // OK
+  MINER,        // ??
+  SLIDER,       // ??
+  SMASHED,      // NO
+  SPLASHED,     // OK
+  SUPERMAN,     // NO
+  TELEPORTED,   // NO
+  WAITER,       // OK
+  WALKER,       // OK
   MAX
 };
 

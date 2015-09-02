@@ -47,9 +47,6 @@ public:
   void draw (SceneContext& gc);
   void update ();
 
-protected:
-  void catch_pingu (Pingu*);
-
 private:
   LaserExit (const LaserExit&);
   LaserExit& operator= (const LaserExit&);

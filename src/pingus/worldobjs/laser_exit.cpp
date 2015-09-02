@@ -20,6 +20,8 @@
 #include "pingus/pingu_holder.hpp"
 #include "pingus/world.hpp"
 
+#include "ceu_vars.h"
+
 namespace WorldObjs {
 
 LaserExit::LaserExit(const FileReader& reader) :
@@ -28,7 +30,12 @@ LaserExit::LaserExit(const FileReader& reader) :
   killing(false)
 {
   reader.read_vector("position", pos);
+
+  void* this_ = this;
+  ceu_sys_go(&CEU_APP, CEU_IN_LASEREXIT_NEW, &this_);
 }
+
+/// TODO ~
 
 float
 LaserExit::get_z_pos () const
@@ -45,43 +52,6 @@ LaserExit::draw (SceneContext& gc)
 void
 LaserExit::update ()
 {
-
-assert(!"NOT PORTED");
-#if 0
-  PinguHolder* holder = world->get_pingus();
-  for (PinguIter pingu = holder->begin (); pingu != holder->end (); ++pingu){
-    catch_pingu(*pingu);
-  }
-#endif
-
-  if (killing) {
-    if (surface.is_finished()) {
-      surface.restart();
-      killing = false;
-    } else {
-      surface.update();
-    }
-  }
-}
-
-void
-LaserExit::catch_pingu (Pingu* pingu)
-{
-  if (!killing)
-  {
-assert(!"NOT PORTED");
-#if 0
-    if (   pingu->get_x () < pos.x + 34 + 10 && pingu->get_x () > pos.x + 34
-           && pingu->get_y () < pos.y + 43 + 20 && pingu->get_y () > pos.y + 43)
-    {
-      if (pingu->get_action() != ActionName::LASERKILL)
-      {
-        killing = true;
-        pingu->request_set_action(ActionName::LASERKILL);
-      }
-    }
-#endif
-  }
 }
 
 } // namespace WorldObjs

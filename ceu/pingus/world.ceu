@@ -20,6 +20,7 @@ input void WORLD_ARMAGEDDON;
 #include "worldobjs/entrance.ceu"
 #include "worldobjs/exit.ceu"
 #include "worldobjs/guillotine.ceu"
+#include "worldobjs/laser_exit.ceu"
 #include "worldobjs/smasher.ceu"
 
 #include "pingu_holder.ceu"
