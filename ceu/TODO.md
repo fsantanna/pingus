@@ -1,3 +1,4 @@
+- BUG: climber center
 - global:world.pingus vai simplificar min.ceu
 - bug do WORLD_UPDATE necessario
 - pingu! = <...>

@@ -1,0 +1,54 @@
+#ifndef _CLIMBER_CEU
+#define _CLIMBER_CEU
+
+#include "../right_left_sprites.ceu"
+
+class Climber with
+    interface IPinguAction;
+do
+    var char[] left  = [] .. "pingus/player"
+                          .. (char&&)this.pingu.get_owner_str().c_str()
+                          .. "/climber/left";
+    var char[] right = [] .. "pingus/player"
+                          .. (char&&)this.pingu.get_owner_str().c_str()
+                          .. "/climber/right";
+    var RightLeftSprites _ with
+        this.pingu = &outer.pingu;
+        this.left  = &left;
+        this.right = &right;
+    end;
+
+    loop do
+        await WORLD_UPDATE;
+
+        // If above is free
+        if (this.pingu.rel_getpixel(0,1) == {Groundtype::GP_NOTHING} or
+            this.pingu.rel_getpixel(0,1) == {Groundtype::GP_BRIDGE})
+        then
+            // and there is still ground to walk on
+            if (this.pingu.rel_getpixel(1, 1) != {Groundtype::GP_NOTHING}) then
+                this.pingu.set_pos(this.pingu.get_x(), this.pingu.get_y() - 1);
+            else/if (this.pingu.rel_getpixel(1, 1) ==  {Groundtype::GP_NOTHING}) then
+                //  log_info("Climber failed, no more wall");
+                // If Pingu able to get to new position without head collision
+                if (not this.pingu.head_collision_on_walk(this.pingu.direction, 1)) then
+                    // Get ready to walk
+                    this.pingu.set_pos(this.pingu.get_x() + 
+                           (float)(this.pingu.direction),
+                           this.pingu.get_y() - 1.0);
+                else
+                    // Get ready to fall
+                    this.pingu.change_direction();
+                end
+                // Finish climbing.
+                escape {ActionName::WALKER};
+            end
+        else
+            //    log_info("Climber failed, falling down");
+            this.pingu.change_direction();
+            escape {ActionName::WALKER};
+        end
+    end
+end
+
+#endif

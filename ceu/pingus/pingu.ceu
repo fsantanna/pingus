@@ -21,6 +21,7 @@ end
 #include "actions/blocker.ceu"
 #include "actions/bomber.ceu"
 #include "actions/bridger.ceu"
+#include "actions/climber.ceu"
 #include "actions/digger.ceu"
 #include "actions/drown.ceu"
 #include "actions/exiter.ceu"
@@ -138,6 +139,8 @@ do
                         this.current_action = DO_PINGU_ACTION(Bomber);
                     else/if this.current_action == {ActionName::BRIDGER} then
                         this.current_action = DO_PINGU_ACTION(Bridger);
+                    else/if this.current_action == {ActionName::CLIMBER} then
+                        this.current_action = DO_PINGU_ACTION(Climber);
                     else/if this.current_action == {ActionName::DIGGER} then
                         this.current_action = DO_PINGU_ACTION(Digger);
                     else/if this.current_action == {ActionName::DROWN} then
