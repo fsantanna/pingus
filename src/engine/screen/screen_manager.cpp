@@ -236,7 +236,21 @@ ScreenManager::display()
       // achieve <desired_fps> frames per second
       if (current_frame_time < 1.0f / globals::desired_fps) {
         Uint32 sleep_time = static_cast<Uint32>(1000 *((1.0f / globals::desired_fps) - current_frame_time));
-        SDL_Delay(sleep_time);
+        //SDL_Delay(sleep_time);
+      }
+    }
+
+    {
+      static int FRAMES_N      = 0;
+      static int FRAMES_LAST_t = 0;
+      static int FRAMES_LAST_n = 0;
+      int cur = SDL_GetTicks();
+      FRAMES_N++;
+      if (cur >= FRAMES_LAST_t+5000) {
+        FRAMES_LAST_t = cur;
+        int diff = FRAMES_N - FRAMES_LAST_n;
+        printf("[5s] %6d FPS=%3d\n", diff, diff/5);
+        FRAMES_LAST_n = FRAMES_N;
       }
     }
   }

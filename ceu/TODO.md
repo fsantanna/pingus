@@ -1,3 +1,4 @@
+- cache de sprites ou performance inviavel
 - EXITER/LASERKILL in pingu.ceu
 - BUG: climber center
 - global:world.pingus vai simplificar min.ceu

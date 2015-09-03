@@ -1,3 +1,10 @@
+# CODE SIZE
+ls -l /opt/pingus/build/pingus
+ls -l /opt/pingus.official/build/pingus
+    # 3387685
+    # 3357162
+
+
 rm -Rf /opt/pingus/ceu/cmp/cpp/
 rm -Rf /opt/pingus/ceu/cmp/ceu/
 mkdir -p /opt/pingus/ceu/cmp/cpp/actions/
