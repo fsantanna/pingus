@@ -184,7 +184,6 @@ _printf("ACT %d=>%d\n", current_action,new_action);
     end;
 
     _assert(ret != _PS_ALIVE);
-await WORLD_UPDATE;
     emit holder.ok_pingu => ret;
 
     /* END-OF-BODY */
