@@ -37,11 +37,11 @@ do
 
     /* PRIVATE */
 
-    function @rec (void)=>bool standing_on_ground do
+    function (void)=>bool standing_on_ground do
         return (this.pingu.rel_getpixel(0,-1) != {Groundtype::GP_NOTHING});
     end
 
-    function @rec (IPingu&& target)=>void catch_pingu do
+    function (IPingu&& target)=>void catch_pingu do
         if (target != &&this.pingu) then // avoid 'self' catch
             if ( target:get_x() > this.pingu.get_x()-16
             and  target:get_x() < this.pingu.get_x()+16

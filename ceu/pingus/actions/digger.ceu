@@ -27,7 +27,7 @@ do
         end
     end
 
-    function @rec (void)=>bool have_something_to_dig do
+    function (void)=>bool have_something_to_dig do
         if (this.pingu.rel_getpixel(0,-1) !=  {Groundtype::GP_NOTHING}) then
             if (this.pingu.rel_getpixel(0,-1) ==  {Groundtype::GP_SOLID}) then
                 call { Sound::PingusSound::play_sound }("chink");
@@ -40,7 +40,7 @@ do
         end
     end
 
-    function @rec (bool final)=>void dig do
+    function (bool final)=>void dig do
         {
             ##include "../../../src/pingus/collision_mask.hpp"
             static CollisionMask digger_radius(

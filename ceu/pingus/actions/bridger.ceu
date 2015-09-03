@@ -131,7 +131,7 @@ do
     // Even though the routine may be the same as brick_placement_allowed(), it is
     // best to keep them apart as they may need to be independent of each other if
     // there needs to be a patch.
-    function @rec (void)=>bool way_is_free do
+    function (void)=>bool way_is_free do
         var bool way_free = true;
         loop i in 4 do
             var int x_inc = i+1;
@@ -150,17 +150,17 @@ do
     // between a brick and the ceiling.  Even though the routine may be the same,
     // as way_is_free() it is best to keep them apart as they may need to be
     // independent of each other if there needs to be a patch.
-    function @rec (void)=>bool brick_placement_allowed do
+    function (void)=>bool brick_placement_allowed do
         return not this.pingu.head_collision_on_walk(0, 2);
     end
 
-    function @rec (void)=>void place_a_brick do
+    function (void)=>void place_a_brick do
         this.bricks = this.bricks - 1;
 
-        var char[]& name = &this.pingu.get_name();
-        name = [] .. "Bridger (" ..
-                (char&&)({StringUtil::to_string}(this.bricks).c_str()) ..
-                ")";
+        var char[]& n = &this.pingu.get_name();
+        n = [] .. "Bridger (" ..
+                  (char&&)({StringUtil::to_string}(this.bricks).c_str()) ..
+                  ")";
 
         if this.bricks < 4 then
             { Sound::PingusSound::play_sound("ting"); };
@@ -188,7 +188,7 @@ do
         end
     end
 
-    function @rec (void)=>void walk_one_step_up do
+    function (void)=>void walk_one_step_up do
         this.pingu.set_pos(
             this.pingu.get_pos().x + (4.0*(float)(this.pingu.direction)),
             this.pingu.get_pos().y - 2

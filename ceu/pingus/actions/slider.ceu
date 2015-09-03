@@ -18,12 +18,13 @@ do
         this.right = &right;
     end;
 
-    var float speed = 10;
+    #define SLIDER_SPEED 10
+    var float speed = SLIDER_SPEED;
 
     loop do
         await WORLD_UPDATE;
 
-        loop i in speed do
+        loop/SLIDER_SPEED i in speed do
             if this.pingu.rel_getpixel(1,0) != {Groundtype::GP_NOTHING} then
                 break;
             end

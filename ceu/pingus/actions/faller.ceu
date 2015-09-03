@@ -113,8 +113,7 @@ do
 
     /* PRIVATE */
 
-// TODO: not @rec!!
-    function @rec (void)=>bool is_tumbling do
+    function (void)=>bool is_tumbling do
         // If we are going fast enough to get smashed, start tumbling
         return {Math::abs}(this.pingu.get_velocity().x) > _deadly_velocity
             or {Math::abs}(this.pingu.get_velocity().y) > _deadly_velocity;

@@ -54,7 +54,7 @@ do
 
     /* PRIVATE */
 
-    function @rec (bool final, int delay_count) => void mine do
+    function (bool final, int delay_count) => void mine do
         {
             ##include "../../../src/pingus/collision_mask.hpp"
             static CollisionMask miner_radius(

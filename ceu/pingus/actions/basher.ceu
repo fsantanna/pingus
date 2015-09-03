@@ -84,7 +84,7 @@ do
 
     /* PRIVATE */
 
-    function @rec (void)=>void bash do
+    function (void)=>void bash do
         {
             ##include "../../../src/pingus/collision_mask.hpp"
             static CollisionMask bash_radius(
@@ -101,8 +101,7 @@ do
         );
     end
 
-// TODO: not @rec
-    function @rec (void)=>bool walk_forward do
+    function (void)=>bool walk_forward do
         var int y_inc = 0;
 
         // Find the correct y position to go to next
@@ -129,7 +128,7 @@ do
         return true;
     end
 
-    function @rec (void)=>bool have_something_to_dig do
+    function (void)=>bool have_something_to_dig do
         // Check that there is something "within" the Basher's reach
         loop x in this.bash_reach+1 do
             loop i in (BASHER_MAX_BASH_HEIGHT-BASHER_MIN_BASH_HEIGHT+1) do
