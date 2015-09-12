@@ -36,6 +36,13 @@ do
         loop do
             await mover.ok_collided;
 
+/// TODO: FIX
+// For some reasone, the LinearMover detects the collision before the Pingu 
+// UPDATE loop. Have to make them detect at the same time, so that the Pingu 
+// loop reacts first.
+// As a workaround, just delaying here one frame.
+await WORLD_UPDATE;
+
             // If the Pingu collided with something...
 
             var Vector3f velocity = this.pingu.get_velocity();
