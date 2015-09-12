@@ -20,6 +20,8 @@
 #include "pingus/pingu_holder.hpp"
 #include "pingus/world.hpp"
 
+#include "ceu_vars.h"
+
 namespace WorldObjs {
 
 Spike::Spike (const FileReader& reader) :
@@ -28,6 +30,15 @@ Spike::Spike (const FileReader& reader) :
   killing(false)
 {
   reader.read_vector("position", pos);
+
+  void* this_ = this;
+  ceu_sys_go(&CEU_APP, CEU_IN_SPIKE_NEW, &this_);
+}
+
+Spike::~Spike()
+{
+  void* this_ = this;
+  ceu_sys_go(&CEU_APP, CEU_IN_SPIKE_DELETE, &this_);
 }
 
 float
@@ -49,41 +60,11 @@ Spike::draw (SceneContext& gc)
 void
 Spike::update()
 {
-  if (killing)
-    surface.update();
-
-assert(!"NOT PORTED");
-#if 0
-  PinguHolder* holder = world->get_pingus();
-  for (PinguIter pingu = holder->begin (); pingu != holder->end (); ++pingu)
-    catch_pingu(*pingu);
-#endif
-
-  if (surface.get_current_frame() == surface.get_frame_count() - 1)
-    killing = false;
 }
 
 void
 Spike::catch_pingu (Pingu* pingu)
 {
-assert(!"NOT PORTED");
-#if 0
-  if (!killing) {
-    if ( pingu->get_pos().x > pos.x + 16 - 5 && pingu->get_pos().x < pos.x + 16 + 5
-         && pingu->get_pos().y > pos.y          && pingu->get_pos().y < pos.y + 32)
-    {
-      surface.restart();
-      killing = true;
-    }
-  } else {
-    if (surface.get_current_frame() == 3
-        && pingu->get_pos().x > pos.x +16 - 12 && pingu->get_pos().x < pos.x + 16 + 12
-        && pingu->get_pos().y > pos.y          && pingu->get_pos().y < pos.y + 32)
-    {
-      pingu->set_status(Pingu::PS_DEAD);
-    }
-  }
-#endif
 }
 
 } // namespace WorldObjs

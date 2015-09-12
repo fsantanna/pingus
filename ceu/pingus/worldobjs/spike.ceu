@@ -1,0 +1,80 @@
+#ifndef _SPIKE_CEU
+#define _SPIKE_CEU
+
+native/pre do
+    ##include "src/pingus/worldobjs/spike.hpp"
+    ##define WorldObjs__Spike WorldObjs::Spike
+end
+native @plain _WorldObjs__Spike;
+
+input _WorldObjs__Spike&& SPIKE_NEW;
+input _WorldObjs__Spike&& SPIKE_DELETE;
+
+class Spike with
+    var _WorldObjs__Spike& me;
+do
+    par/or do
+        AWAIT_UNTIL_MYSELF(_WorldObjs__Spike,SPIKE_DELETE);
+    with
+        loop do
+            this.me.killing = false;
+
+            var IPingu&& pingu =
+                loop do
+                    await WORLD_UPDATE;
+                    var IWorld&& world = (IWorld&&)this.me.world:ceu;
+                    var IPingu&&? pingu;
+                    loop p in world:get_pingu_holder().pingus do
+                        if (p:get_pos().x > this.me.pos.x+16-5 and
+                            p:get_pos().x < this.me.pos.x+16+5 and
+                            p:get_pos().y > this.me.pos.y      and
+                            p:get_pos().y < this.me.pos.y + 32)
+                        then
+                            this.me.surface.restart();
+                            this.me.killing = true;
+                            escape p;
+                        end
+                    end
+                end;
+
+            par/or do
+                loop do
+                    await WORLD_UPDATE;
+                    this.me.surface.update();
+                    if (this.me.surface.get_current_frame() == this.me.surface.get_frame_count()-1) then
+                        break;
+                    end
+                end
+            with
+                watching *pingu do
+                    loop do
+                        await WORLD_UPDATE;
+                        if (this.me.surface.get_current_frame() == 3 and
+                            pingu:get_pos().x > this.me.pos.x+16-12 and
+                            pingu:get_pos().x < this.me.pos.x+16+12 and
+                            pingu:get_pos().y > this.me.pos.y       and
+                            pingu:get_pos().y < this.me.pos.y+32)
+                        then
+                            break;
+                        end
+                    end
+                    emit pingu:go_action => {ActionName::DEAD};
+                end
+                await FOREVER;
+            end
+        end
+    end
+end
+
+class SpikeFactory with
+do
+    every me_ in SPIKE_NEW do
+        spawn Spike with
+            this.me = &_XXX_PTR2REF(me_);
+        end;
+    end
+end
+
+var SpikeFactory _;
+
+#endif

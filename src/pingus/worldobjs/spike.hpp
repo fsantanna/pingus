@@ -37,6 +37,7 @@ private:
 
 public:
   Spike(const FileReader& reader);
+  ~Spike();
 
   float get_z_pos () const;
   void set_pos(const Vector3f& p) { pos = p; }

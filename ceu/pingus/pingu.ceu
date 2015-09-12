@@ -97,7 +97,6 @@ do
         with
             every new_action in this.go_action do
                 if new_action!={ActionName::EXITER} and new_action!={ActionName::LASERKILL} then
-_printf("ACT %d=>%d\n", current_action,new_action);
                     _assert(this.check_action(new_action));
                 end
                 if not this.check_action(new_action) then
