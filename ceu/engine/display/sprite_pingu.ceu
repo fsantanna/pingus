@@ -11,6 +11,9 @@ end
 native @plain _SpriteCeu;
 native @plain _FramebufferSurface;
 
+/// TODO
+input (int,int,_Framebuffer&&) PINGUHOLDER_RENDER;
+
 class SpritePingu with
     function (void)=>int get_current_frame;
     function (void)=>int get_frame_count;

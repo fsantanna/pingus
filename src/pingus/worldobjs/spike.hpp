@@ -31,9 +31,7 @@ namespace WorldObjs {
 class Spike : public WorldObj
 {
 private:
-  Sprite   surface;
   Vector3f pos;
-  bool     killing;
 
 public:
   Spike(const FileReader& reader);
@@ -45,9 +43,6 @@ public:
 
   void draw (SceneContext& gc);
   void update ();
-
-protected:
-  void catch_pingu (Pingu*);
 
 private:
   Spike (const Spike&);

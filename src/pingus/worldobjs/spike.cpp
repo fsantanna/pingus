@@ -25,12 +25,9 @@
 namespace WorldObjs {
 
 Spike::Spike (const FileReader& reader) :
-  surface("traps/spike"),
-  pos(),
-  killing(false)
+  pos()
 {
   reader.read_vector("position", pos);
-
   void* this_ = this;
   ceu_sys_go(&CEU_APP, CEU_IN_SPIKE_NEW, &this_);
 }
@@ -50,20 +47,10 @@ Spike::get_z_pos () const
 void
 Spike::draw (SceneContext& gc)
 {
-  if (killing) {
-    gc.color().draw (surface, pos);
-  } else {
-    // do nothing
-  }
 }
 
 void
 Spike::update()
-{
-}
-
-void
-Spike::catch_pingu (Pingu* pingu)
 {
 }
 

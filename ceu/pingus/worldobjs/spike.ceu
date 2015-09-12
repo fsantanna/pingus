@@ -10,6 +10,8 @@ native @plain _WorldObjs__Spike;
 input _WorldObjs__Spike&& SPIKE_NEW;
 input _WorldObjs__Spike&& SPIKE_DELETE;
 
+#include "../../engine/display/sprite_pingu.ceu"
+
 class Spike with
     var _WorldObjs__Spike& me;
 do
@@ -17,8 +19,6 @@ do
         AWAIT_UNTIL_MYSELF(_WorldObjs__Spike,SPIKE_DELETE);
     with
         loop do
-            this.me.killing = false;
-
             var IPingu&& pingu =
                 loop do
                     await WORLD_UPDATE;
@@ -30,37 +30,34 @@ do
                             p:get_pos().y > this.me.pos.y      and
                             p:get_pos().y < this.me.pos.y + 32)
                         then
-                            this.me.surface.restart();
-                            this.me.killing = true;
                             escape p;
                         end
                     end
                 end;
 
-            par/or do
-                loop do
-                    await WORLD_UPDATE;
-                    this.me.surface.update();
-                    if (this.me.surface.get_current_frame() == this.me.surface.get_frame_count()-1) then
-                        break;
-                    end
-                end
-            with
-                watching *pingu do
-                    loop do
-                        await WORLD_UPDATE;
-                        if (this.me.surface.get_current_frame() == 3 and
-                            pingu:get_pos().x > this.me.pos.x+16-12 and
-                            pingu:get_pos().x < this.me.pos.x+16+12 and
-                            pingu:get_pos().y > this.me.pos.y       and
-                            pingu:get_pos().y < this.me.pos.y+32)
-                        then
-                            break;
+            do
+                var SpritePingu sprite with
+                    this.x = &_XXX_NOHOLD(&&outer.me.pos.x);
+                    this.y = &_XXX_NOHOLD(&&outer.me.pos.y);
+                    this.name = "traps/spike";
+                end;
+                watching sprite do
+                    watching *pingu do
+                        loop do
+                            await WORLD_UPDATE;
+                            if (sprite.frame == 3 and
+                                pingu:get_pos().x > this.me.pos.x+16-12 and
+                                pingu:get_pos().x < this.me.pos.x+16+12 and
+                                pingu:get_pos().y > this.me.pos.y       and
+                                pingu:get_pos().y < this.me.pos.y+32)
+                            then
+                                break;
+                            end
                         end
+                        emit pingu:go_action => {ActionName::DEAD};
                     end
-                    emit pingu:go_action => {ActionName::DEAD};
+                    await FOREVER;
                 end
-                await FOREVER;
             end
         end
     end

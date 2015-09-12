@@ -94,3 +94,10 @@ countdown       until 0                 [1] (similar)
 # WALKER
 walker          U/D                     [1], anonymous
 floaterlayer    U/D                     [3], anonymous (only if fall_action)
+
+================
+
+# SPIKE
+surface         U/D                     [4], await sfc
+killing         xxx                     ---                 (+)
+draw()          call sprite             ---

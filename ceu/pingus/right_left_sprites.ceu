@@ -1,6 +1,8 @@
 #ifndef _RIGHT_LEFT_SPRITES_CEU
 #define _RIGHT_LEFT_SPRITES_CEU
 
+#include "../engine/display/sprite_pingu.ceu"
+
 class RightLeftSprites with
     var IPingu& pingu;
     var char[]& left;
