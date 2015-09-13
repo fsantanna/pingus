@@ -23,8 +23,6 @@
 #include "pingus/world.hpp"
 #include "util/string_util.hpp"
 
-#include "ceu_vars.h"
-
 namespace WorldObjs {
 
 Exit::Exit(const FileReader& reader) :

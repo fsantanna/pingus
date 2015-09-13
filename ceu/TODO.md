@@ -1,3 +1,6 @@
+- idle laser_exit
+- EXIT/LASER_EXIT pega somente 1 de cada vez
+    - verificar se o loop nao deveria pegar varios
 - cache de sprites ou performance inviavel
 - EXITER/LASERKILL in pingu.ceu
 - BUG: climber center

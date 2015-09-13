@@ -21,6 +21,9 @@
 #include "math/vector3f.hpp"
 #include "pingus/worldobj.hpp"
 
+#include "ceu_vars.h"
+struct CEU_Exit;
+
 namespace WorldObjsData {
 class LaserExitData;
 } // namespace WorldObjsData
@@ -32,17 +35,14 @@ namespace WorldObjs {
 class LaserExit : public WorldObj
 {
 private:
-  Sprite   surface;
-  Vector3f pos;
-
-  bool killing;
 
 public:
   LaserExit(const FileReader& reader);
+  CEU_LaserExit* ceu;
 
   float get_z_pos () const;
-  void set_pos(const Vector3f& p) { pos = p; }
-  Vector3f get_pos() const { return pos; }
+  void set_pos(const Vector3f& p);
+  Vector3f get_pos() const;
 
   void draw (SceneContext& gc);
   void update ();

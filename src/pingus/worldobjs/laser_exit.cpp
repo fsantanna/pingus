@@ -24,29 +24,35 @@
 
 namespace WorldObjs {
 
-LaserExit::LaserExit(const FileReader& reader) :
-  surface("traps/laser_exit"),
-  pos(),
-  killing(false)
+LaserExit::LaserExit(const FileReader& reader)
 {
-  reader.read_vector("position", pos);
-
-  void* this_ = this;
-  ceu_sys_go(&CEU_APP, CEU_IN_LASEREXIT_NEW, &this_);
+  tceu__WorldObjs__LaserExit___FileReader_ p = { this, (FileReader*)&reader };
+  ceu_sys_go(&CEU_APP, CEU_IN_LASEREXIT_NEW, &p);
 }
 
 /// TODO ~
 
+void
+LaserExit::set_pos (const Vector3f& p)
+{
+    CEU_LaserExit_set_pos(NULL, this->ceu, (Vector3f*)&p);
+}
+
+Vector3f
+LaserExit::get_pos() const
+{
+  return CEU_LaserExit_get_pos(NULL, this->ceu);
+}
+
 float
 LaserExit::get_z_pos () const
 {
-  return pos.z;
+  return CEU_LaserExit_get_z_pos(NULL, this->ceu);
 }
 
 void
 LaserExit::draw (SceneContext& gc)
 {
-  gc.color().draw (surface, pos);
 }
 
 void
