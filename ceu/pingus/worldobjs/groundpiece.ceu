@@ -1,0 +1,75 @@
+#ifndef _GROUNDPIECE_CEU
+#define _GROUNDPIECE_CEU
+
+native/pre do
+    namespace WorldObjs {
+        class Groundpiece;
+    }
+    ##define WorldObjs__GroundPiece WorldObjs::Groundpiece
+end
+
+native do
+    ##include "src/pingus/worldobjs/groundpiece.hpp"
+end
+native @plain _WorldObjs__GroundPiece;
+
+input (_WorldObjs__GroundPiece&&, _FileReader&&) GROUNDPIECE_NEW;
+input _WorldObjs__GroundPiece&& GROUNDPIECE_DELETE;
+
+class GroundPiece with
+    var _WorldObjs__GroundPiece& me;
+    var _FileReader&&     reader;
+
+    function (void)       =>float     get_z_pos;
+    function (_Vector3f&&)=>void      set_pos;
+    function (void)       =>_Vector3f get_pos;
+
+    function (void)=>void on_startup;
+do
+    this.me.ceu = &&this;
+
+    var Vector3f pos;
+    { static Vector3f p; };
+    this.reader:read_vector("position", _p);
+    this.pos = Vector3f(_p.x,_p.y,_p.z);
+
+    AWAIT_UNTIL_MYSELF(_WorldObjs__GroundPiece,GROUNDPIECE_DELETE);
+
+    /* PUBLIC */
+
+    function (void)=>float get_z_pos do
+        return this.pos.z;
+    end
+    function (_Vector3f&& p)=>void set_pos do
+        this.pos = Vector3f(p:x, p:y, p:z);
+    end
+    function (void)=>_Vector3f get_pos do
+        return _Vector3f(this.pos.x, this.pos.y, this.pos.z);
+    end
+
+    function (void)=>void on_startup do
+        // FIXME: using a CollisionMask is kind of unneeded here
+        { CollisionMask mask(THIS_F(CEU_GroundPiece)->me->desc); };
+
+        // FIXME: overdrawing of bridges and similar things aren't handled here
+        if (this.me.gptype == {Groundtype::GP_REMOVE}) then
+            this.me.get_world():remove(_mask, (int)(pos.x), (int)(pos.y));
+        else
+            this.me.get_world():put(_mask, (int)(pos.x), (int)(pos.y), this.me.gptype);
+        end
+    end
+end
+
+class GroundPieceFactory with
+do
+    every (me_,reader_) in GROUNDPIECE_NEW do
+        spawn GroundPiece with
+            this.me     = &_XXX_PTR2REF(me_);
+            this.reader = reader_;
+        end;
+    end
+end
+
+var GroundPieceFactory _;
+
+#endif

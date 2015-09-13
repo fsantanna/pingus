@@ -21,28 +21,45 @@
 namespace WorldObjs {
 
 Groundpiece::Groundpiece(const FileReader& reader) :
-  pos(),
   desc(),
   gptype()
 {
-  reader.read_vector("position", pos);
   reader.read_desc  ("surface",  desc);
 
   gptype = Groundtype::GP_GROUND;
   reader.read_enum("type", gptype, &Groundtype::string_to_type);
+
+  tceu__WorldObjs__GroundPiece___FileReader_ p = { this, (FileReader*)&reader };
+  ceu_sys_go(&CEU_APP, CEU_IN_GROUNDPIECE_NEW, &p);
 }
 
 void
 Groundpiece::on_startup ()
 {
-  // FIXME: using a CollisionMask is kind of unneeded here
-  CollisionMask mask(desc);
+  CEU_GroundPiece_on_startup(NULL, this->ceu);
+}
 
-  // FIXME: overdrawing of bridges and similar things aren't handled here
-  if (gptype == Groundtype::GP_REMOVE)
-    get_world()->remove(mask, static_cast<int>(pos.x), static_cast<int>(pos.y));
-  else
-    get_world()->put(mask, static_cast<int>(pos.x), static_cast<int>(pos.y), gptype);
+void
+Groundpiece::draw (SceneContext& gc)
+{
+}
+
+void
+Groundpiece::set_pos (const Vector3f& p)
+{
+    CEU_GroundPiece_set_pos(NULL, this->ceu, (Vector3f*)&p);
+}
+
+Vector3f
+Groundpiece::get_pos() const
+{
+  return CEU_GroundPiece_get_pos(NULL, this->ceu);
+}
+
+float
+Groundpiece::get_z_pos () const
+{
+  return CEU_GroundPiece_get_z_pos(NULL, this->ceu);
 }
 
 } // namespace WorldObjs

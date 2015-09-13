@@ -22,6 +22,9 @@
 #include "pingus/res_descriptor.hpp"
 #include "pingus/worldobj.hpp"
 
+#include "ceu_vars.h"
+struct CEU_GroundPiece;
+
 namespace WorldObjsData {
 class GroundpieceData;
 }
@@ -45,7 +48,7 @@ public:
   void set_pos(const Vector3f& p);
   Vector3f get_pos() const;
 
-  void draw (SceneContext&) {}
+  void draw (SceneContext&);
   void on_startup ();
   bool purge_after_startup () { return true; }
 private:
