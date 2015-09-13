@@ -33,27 +33,42 @@ do
     this.reader:read_vector("position", _p);
     this.pos = Vector3f(_p.x,_p.y,_p.z);
 
+    var int owner_id;
+    this.reader:read_int("owner-id", owner_id);
+    // Set default owner ID to 0
+    if (owner_id < 0 or owner_id > 3) then
+        owner_id = 0;
+    end
+
+    var int release_rate = 150;
+    this.reader:read_int("release-rate", release_rate);
+
     par/or do
         AWAIT_UNTIL_MYSELF(_WorldObjs__Entrance,ENTRANCE_DELETE);
     with
-        var int last_release = 150 - this.me.release_rate;
+        var int last_release = 150 - release_rate;
             // wait ~2sec at startup to allow a 'lets go' sound
 
         var bool last_was_right = false;
 
         loop do
             await WORLD_UPDATE
-            until this.me.world:get_time() >= last_release+this.me.release_rate;
+            until this.me.world:get_time() >= last_release+release_rate;
             last_release = this.me.world:get_time();
 
             if this.me.world:check_armageddon() then
                 break;
             end
 
+            { static Vector3f pos;
+              pos.x = THIS(CEU_Entrance)->pos.x;
+              pos.y = THIS(CEU_Entrance)->pos.y;
+              pos.z = THIS(CEU_Entrance)->pos.z;
+            };
             var IPingu&& pingu = _XXX_PURE(
                 this.me.world:get_pingus():create_pingu(
-                    this.me.pos,
-                    this.me.owner_id));
+                    _pos,
+                    this.owner_id));
             if pingu == null then
                 continue;
             end

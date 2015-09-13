@@ -40,9 +40,6 @@ public:
 
 protected:
   EntranceDirection direction;
-  Vector3f          pos;
-  int               release_rate;
-  int               owner_id;
 
   Sprite smallmap_symbol;
   Sprite surface;
@@ -63,7 +60,8 @@ public:
 
   void  draw_smallmap(SmallMap* smallmap);
 
-  int get_owner_id() { return owner_id; }
+  int get_owner_id();
+
 private:
   Entrance (const Entrance&);
   Entrance& operator= (const Entrance&);

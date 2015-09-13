@@ -28,20 +28,10 @@ namespace WorldObjs {
 
 Entrance::Entrance(const FileReader& reader) :
   direction(MISC),
-  pos(),
-  release_rate(150),
-  owner_id(0),
   smallmap_symbol("core/misc/smallmap_entrance"),
-  surface(),
   last_release(),
   last_direction(0)
 {
-  reader.read_int   ("owner-id",     owner_id);
-  reader.read_vector("position",     pos);
-  reader.read_int   ("release-rate", release_rate);
-
-  // Set default owner ID to 0
-  if (owner_id < 0 || owner_id > 3) owner_id = 0;
 
   std::string direction_str;
   reader.read_string("direction", direction_str);
@@ -66,6 +56,12 @@ Entrance::~Entrance ()
 {
   void* this_ = this;
   ceu_sys_go(&CEU_APP, CEU_IN_ENTRANCE_DELETE, &this_);
+}
+
+int
+Entrance::get_owner_id()
+{
+    return this->ceu->owner_id;
 }
 
 void
@@ -95,21 +91,12 @@ Entrance::update ()
 void
 Entrance::draw (SceneContext& gc)
 {
-  if (!surface)
-  {
-    // Entrances have only a surface for historical reasons
-    // log_error("entrance without a surface?!");
-    return;
-  }
-
-  // FIXME: Why do we still have these hardcoded offsets?!
-  gc.color().draw(surface, Vector3f(pos.x - 32, pos.y - 16));
 }
 
 void
 Entrance::draw_smallmap(SmallMap* smallmap)
 {
-  smallmap->draw_sprite(smallmap_symbol, pos);
+  smallmap->draw_sprite(smallmap_symbol, CEU_Entrance_get_pos(NULL,this->ceu));
 }
 
 } // namespace WorldObjs
