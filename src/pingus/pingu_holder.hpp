@@ -19,11 +19,14 @@
 
 #include <list>
 
+#include "ceu_vars.h"
+
 #include "pingus/worldobj.hpp"
 
 class PingusLevel;
 class Vector3f;
 class Pingu;
+struct CEU_PinguHolder;
 
 /** This class holds all the penguins in the world */
 class PinguHolder : public WorldObj
@@ -38,6 +41,7 @@ private:
       each time they are requested. */
   int number_of_exited;
 
+  CEU_PinguHolder* ceu;
   int XXX_n;
 
 public:

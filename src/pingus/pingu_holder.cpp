@@ -21,8 +21,6 @@
 
 #include "pingus/pingus_level.hpp"
 
-#include "ceu_vars.h"
-
 PinguHolder::PinguHolder(const PingusLevel& plf) :
   number_of_allowed(plf.get_number_of_pingus()),
   number_of_exited(0),
@@ -104,44 +102,31 @@ PinguHolder::get_z_pos() const
 int
 PinguHolder::get_number_of_exited()
 {
-  int* p = &number_of_exited;
-  ceu_sys_go(&CEU_APP, CEU_IN_PINGUHOLDER_GET_NUMBER_OF_EXITED, &p);
-  return number_of_exited;
+  return this->ceu->number_of_exited;
 }
 
 int
 PinguHolder::get_number_of_killed()
 {
-  int number_of_killed;
-  int* p = &number_of_killed;
-  ceu_sys_go(&CEU_APP, CEU_IN_PINGUHOLDER_GET_NUMBER_OF_KILLED, &p);
-  return number_of_killed;
+  return this->ceu->number_of_killed;
 }
 
 int
 PinguHolder::get_number_of_alive()
 {
-  int number_of_alive;
-  int* p = &number_of_alive;
-  ceu_sys_go(&CEU_APP, CEU_IN_PINGUHOLDER_GET_NUMBER_OF_ALIVE, &p);
-  return number_of_alive;
+  return this->ceu->number_of_alive;
 }
 
 int
 PinguHolder::get_number_of_released()
 {
-  int number_of_released;
-  int* p = &number_of_released;
-  ceu_sys_go(&CEU_APP, CEU_IN_PINGUHOLDER_GET_NUMBER_OF_RELEASED, &p);
-  return number_of_released;
+  return this->ceu->number_of_released;
 }
 
 int
 PinguHolder::get_number_of_allowed()
 {
-  int* p = &number_of_allowed;
-  ceu_sys_go(&CEU_APP, CEU_IN_PINGUHOLDER_GET_NUMBER_OF_ALLOWED, &p);
-  return number_of_allowed;
+  return this->ceu->number_of_allowed;
 }
 
 /* EOF */

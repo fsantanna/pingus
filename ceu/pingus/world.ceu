@@ -1,6 +1,10 @@
 #ifndef _WORLD_CEU
 #define _WORLD_CEU
 
+native/pre do
+    class Playfield;
+end
+
 native do
     ##include "src/pingus/world.hpp"
     ##include "src/pingus/components/playfield.hpp"

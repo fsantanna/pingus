@@ -29,27 +29,9 @@ class PinguHolder with
     pool IPingu[] pingus;
     var _PinguHolder& me;
 do
+    this.me.ceu = &&this;
+
     par do
-        every ret in PINGUHOLDER_GET_NUMBER_OF_EXITED do
-            *ret = this.number_of_exited;
-        end
-    with
-        every ret in PINGUHOLDER_GET_NUMBER_OF_KILLED do
-            *ret = this.number_of_killed;
-        end
-    with
-        every ret in PINGUHOLDER_GET_NUMBER_OF_ALIVE do
-            *ret = this.number_of_alive;
-        end
-    with
-        every ret in PINGUHOLDER_GET_NUMBER_OF_RELEASED do
-            *ret = this.number_of_released;
-        end
-    with
-        every ret in PINGUHOLDER_GET_NUMBER_OF_ALLOWED do
-            *ret = this.number_of_allowed;
-        end
-    with
         every (me_,id,pos,owner_id) in PINGUHOLDER_CREATE_PINGU do
             if this.number_of_released < this.number_of_allowed then
                 spawn Pingu in this.pingus with
