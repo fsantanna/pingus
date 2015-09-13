@@ -21,22 +21,21 @@
 #include "pingus/res_descriptor.hpp"
 #include "pingus/worldobj.hpp"
 
+#include "ceu_vars.h"
+struct CEU_Exit;
+
 namespace WorldObjs {
 
 class Exit : public WorldObj
 {
 private:
   ResDescriptor desc;
-  Vector3f pos;
-  int owner_id;
-
-  Sprite sprite;
-  Sprite flag;
   Sprite smallmap_symbol;
 
 public:
   Exit(const FileReader& reader);
   ~Exit();
+  CEU_Exit* ceu;
 
   void  on_startup ();
 
@@ -46,8 +45,8 @@ public:
   void  update ();
 
   float get_z_pos () const;
-  void set_pos(const Vector3f& p) { pos = p; }
-  Vector3f get_pos() const { return pos; }
+  void set_pos(const Vector3f& p);
+  Vector3f get_pos() const;
 
 private:
   Exit (const Exit&);

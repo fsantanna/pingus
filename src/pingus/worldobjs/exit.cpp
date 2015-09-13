@@ -28,26 +28,13 @@
 namespace WorldObjs {
 
 Exit::Exit(const FileReader& reader) :
-  desc(),
-  pos(),
-  owner_id(),
-  sprite(),
-  flag(),
   smallmap_symbol("core/misc/smallmap_exit")
 {
-  reader.read_vector("position", pos);
   reader.read_desc  ("surface",  desc);
-  reader.read_int   ("owner-id", owner_id);
 
-  // Set default owner ID to 0
-  if (owner_id < 0 || owner_id > 3) owner_id = 0;
+  tceu__WorldObjs__Exit___FileReader_ p = { this, (FileReader*)&reader };
+  ceu_sys_go(&CEU_APP, CEU_IN_EXIT_NEW, &p);
 
-  flag = Sprite("core/misc/flag" + StringUtil::to_string(owner_id));
-
-  sprite = Sprite(desc);
-
-  void* this_ = this;
-  ceu_sys_go(&CEU_APP, CEU_IN_EXIT_NEW, &this_);
 }
 
 Exit::~Exit ()
@@ -59,23 +46,18 @@ Exit::~Exit ()
 void
 Exit::on_startup ()
 {
-  CollisionMask mask(desc);
-  world->get_colmap()->remove(mask,
-                              static_cast<int>(pos.x) - sprite.get_width()/2,
-                              static_cast<int>(pos.y) - sprite.get_height());
+  CEU_Exit_on_startup(NULL, this->ceu);
 }
 
 void
 Exit::draw (SceneContext& gc)
 {
-  gc.color().draw(sprite, pos);
-  gc.color().draw(flag, pos + Vector3f(40, 0));
 }
 
 void
 Exit::draw_smallmap(SmallMap* smallmap)
 {
-  smallmap->draw_sprite(smallmap_symbol, pos);
+  CEU_Exit_draw_smallmap(NULL, this->ceu, smallmap);
 }
 
 void
@@ -83,10 +65,22 @@ Exit::update ()
 {
 }
 
+void
+Exit::set_pos (const Vector3f& p)
+{
+    CEU_Exit_set_pos(NULL, this->ceu, (Vector3f*)&p);
+}
+
+Vector3f
+Exit::get_pos() const
+{
+  return CEU_Exit_get_pos(NULL, this->ceu);
+}
+
 float
 Exit::get_z_pos () const
 {
-  return pos.z;
+  return CEU_Exit_get_z_pos(NULL, this->ceu);
 }
 
 } // namespace WorldObjs

@@ -2,36 +2,80 @@
 #define _EXIT_CEU
 
 native/pre do
-    ##include "src/pingus/worldobjs/exit.hpp"
+    namespace WorldObjs {
+        class Exit;
+    }
     ##define WorldObjs__Exit WorldObjs::Exit
+end
+
+native do
+    ##include "src/pingus/worldobjs/exit.hpp"
 end
 native @plain _WorldObjs__Exit;
 
-input _WorldObjs__Exit&& EXIT_NEW;
+input (_WorldObjs__Exit&&, _FileReader&&) EXIT_NEW;
 input _WorldObjs__Exit&& EXIT_DELETE;
 
 class Exit with
     var _WorldObjs__Exit& me;
+    var _FileReader&&     reader;
+
+    function (void)       =>float     get_z_pos;
+    function (_Vector3f&&)=>void      set_pos;
+    function (void)       =>_Vector3f get_pos;
+
+    function (void)=>void on_startup;
+    function (_SmallMap&& smallmap)=>void draw_smallmap;
 do
+    this.me.ceu = &&this;
+
+    var Vector3f pos;
+    { static Vector3f p; };
+    this.reader:read_vector("position", _p);
+    this.pos = Vector3f(_p.x,_p.y,_p.z);
+
+    var int owner_id;
+    this.reader:read_int("owner-id", owner_id);
+    // Set default owner ID to 0
+    if (owner_id < 0 or owner_id > 3) then
+        owner_id = 0;
+    end
+
+    var SpritePingu sprite with
+        this.x = &pos.x;
+        this.y = &pos.y;
+        this.desc = _XXX_PURE({Resource::load_sprite_desc}
+                                (outer.me.desc.res_name)
+                                    finalize with nothing; end
+                              );
+    end;
+
+    var char[] name = [] .. "core/misc/flag" ..
+                        (char&&){StringUtil::to_string}(owner_id).c_str();
+    var float x = pos.x + 40;
+    var SpritePingu _ with
+        this.x = &x;
+        this.y = &pos.y;
+        this.name = _XXX_PURE(&&name);
+    end;
+
     par/or do
         AWAIT_UNTIL_MYSELF(_WorldObjs__Exit,EXIT_DELETE);
     with
         every WORLD_UPDATE do
-            this.me.sprite.update();
-
             var IWorld&& world = (IWorld&&)this.me.world:ceu;
             var IPingu&&? pingu;
             loop p in world:get_pingu_holder().pingus do
                 // Make sure this particular exit is allowed for this pingu
-                if (p:get_owner() != this.me.owner_id) then
+                if (p:get_owner() != this.owner_id) then
                     continue;
                 end
 
                 // Now, make sure the pingu is within range
-                if ( (p:get_pos().x > this.me.pos.x-1) and
-                     (p:get_pos().x < this.me.pos.x+1) and
-                     (p:get_pos().y > this.me.pos.y-5) and
-                     (p:get_pos().y < this.me.pos.y+5) )
+                if ( (p:get_pos().x > this.pos.x-1) and
+                     (p:get_pos().x < this.pos.x+1) and
+                     (p:get_pos().y > this.pos.y-5) and
+                     (p:get_pos().y < this.pos.y+5) )
                 then
                     // Now, make sure the pingu isn't already exiting, gone, or dead
                     // Pingu actually exits
@@ -44,13 +88,37 @@ do
             end
         end
     end
+
+    /* PUBLIC */
+
+    function (void)=>float get_z_pos do
+        return this.pos.z;
+    end
+    function (_Vector3f&& p)=>void set_pos do
+        this.pos = Vector3f(p:x, p:y, p:z);
+    end
+    function (void)=>_Vector3f get_pos do
+        return _Vector3f(this.pos.x, this.pos.y, this.pos.z);
+    end
+
+    function (void)=>void on_startup do
+        { CollisionMask mask(THIS_F(CEU_Exit)->me->desc); };
+        this.me.world:get_colmap():remove(_mask,
+            (int)(this.pos.x) - this.sprite.get_width()/2,
+            (int)(this.pos.y) - this.sprite.get_height());
+    end
+
+    function (_SmallMap&& smallmap)=>void draw_smallmap do
+        smallmap:draw_sprite(this.me.smallmap_symbol, this.get_pos());
+    end
 end
 
 class ExitFactory with
 do
-    every me_ in EXIT_NEW do
+    every (me_,reader_) in EXIT_NEW do
         spawn Exit with
-            this.me = &_XXX_PTR2REF(me_);
+            this.me     = &_XXX_PTR2REF(me_);
+            this.reader = reader_;
         end;
     end
 end

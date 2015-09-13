@@ -111,3 +111,7 @@ killing         control collision       ---
 # ENTRANCE
 last_release                            [2]
 last_direction                          [2]
+
+# EXIT
+sprite          U/D                     [1], anon
+flag            U/D                     [1], anon
