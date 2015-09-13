@@ -58,8 +58,8 @@ Entrance::Entrance(const FileReader& reader) :
     direction = MISC;
   }
 
-  void* this_ = this;
-  ceu_sys_go(&CEU_APP, CEU_IN_ENTRANCE_NEW, &this_);
+  tceu__WorldObjs__Entrance___FileReader_ p = { this, (FileReader*)&reader };
+  ceu_sys_go(&CEU_APP, CEU_IN_ENTRANCE_NEW, &p);
 }
 
 Entrance::~Entrance ()
@@ -68,11 +68,24 @@ Entrance::~Entrance ()
   ceu_sys_go(&CEU_APP, CEU_IN_ENTRANCE_DELETE, &this_);
 }
 
+void
+Entrance::set_pos (const Vector3f& p)
+{
+    CEU_Entrance_set_pos(NULL, this->ceu, (Vector3f*)&p);
+}
+
+Vector3f
+Entrance::get_pos() const
+{
+  return CEU_Entrance_get_pos(NULL, this->ceu);
+}
+
 float
 Entrance::get_z_pos () const
 {
-  return pos.z;
+  return CEU_Entrance_get_z_pos(NULL, this->ceu);
 }
+
 
 void
 Entrance::update ()

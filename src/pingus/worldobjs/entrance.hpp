@@ -26,6 +26,9 @@ class EntranceData;
 
 class Pingu;
 
+#include "ceu_vars.h"
+struct CEU_Entrance;
+
 namespace WorldObjs {
 
 /** A abstract representation of an entrance, the implementation
@@ -49,10 +52,11 @@ protected:
 public:
   Entrance(const FileReader& reader);
   ~Entrance();
+  CEU_Entrance* ceu;
 
   float get_z_pos () const;
-  void set_pos(const Vector3f& p) { pos = p; }
-  Vector3f get_pos() const { return pos; }
+  void set_pos(const Vector3f& p);
+  Vector3f get_pos() const;
 
   virtual void   update ();
   virtual void   draw (SceneContext& gc);
