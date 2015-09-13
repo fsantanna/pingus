@@ -17,6 +17,9 @@
 #ifndef HEADER_PINGUS_PINGUS_WORLDOBJS_SMASHER_HPP
 #define HEADER_PINGUS_PINGUS_WORLDOBJS_SMASHER_HPP
 
+#include "ceu_vars.h"
+struct CEU_Smasher;
+
 #include "math/vector3f.hpp"
 #include "pingus/worldobj.hpp"
 
@@ -31,27 +34,21 @@ namespace WorldObjs {
 class Smasher : public WorldObj
 {
 private:
-  Sprite  sprite;
-  Vector3f pos;
-
-  bool smashing;
-  bool downwards;
-  int  count;
 
 public:
   Smasher(const FileReader& reader);
   ~Smasher();
+  CEU_Smasher* ceu;
 
   float get_z_pos () const;
-  void set_pos(const Vector3f& p) { pos = p; }
-  Vector3f get_pos() const { return pos; }
+  void set_pos(const Vector3f& p);
+  Vector3f get_pos() const;
 
   void draw (SceneContext& gc);
   void on_startup ();
   void update ();
 
 protected:
-  void catch_pingu (Pingu* pingu);
 
 private:
   Smasher (const Smasher&);

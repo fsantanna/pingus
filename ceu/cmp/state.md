@@ -115,3 +115,12 @@ last_direction                          [2]
 # EXIT
 sprite          U/D                     [1], anon
 flag            U/D                     [1], anon
+
+# LASEREXIT
+surface         U/D,killing,fin         [4], await sfc
+killing         control collision       ---
+
+# SMASHER (+)
+smashing                                sequence
+downwards                               sequence
+count           up,down                 local

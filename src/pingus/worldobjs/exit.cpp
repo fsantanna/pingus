@@ -32,7 +32,6 @@ Exit::Exit(const FileReader& reader) :
 
   tceu__WorldObjs__Exit___FileReader_ p = { this, (FileReader*)&reader };
   ceu_sys_go(&CEU_APP, CEU_IN_EXIT_NEW, &p);
-
 }
 
 Exit::~Exit ()

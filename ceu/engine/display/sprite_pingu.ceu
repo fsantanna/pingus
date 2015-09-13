@@ -16,6 +16,7 @@ input (int,int,_Framebuffer&&) PINGUHOLDER_RENDER;
 
 class SpritePingu with
     function (void)=>int get_current_frame;
+    function (int)=>void set_frame;
     function (void)=>int get_frame_count;
     function (void)=>int get_width;
     function (void)=>int get_height;
@@ -138,6 +139,9 @@ do
 
     function (void)=>int get_current_frame do
         return this.frame;
+    end
+    function (int frame)=>void set_frame do
+        this.frame = frame;
     end
 
     function (void)=>int get_width do

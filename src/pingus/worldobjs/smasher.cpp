@@ -25,23 +25,12 @@
 #include "pingus/world.hpp"
 #include "util/log.hpp"
 
-#include "ceu_vars.h"
-
 namespace WorldObjs {
 
-Smasher::Smasher(const FileReader& reader) :
-  sprite("traps/smasher"),
-  pos(),
-  smashing(false),
-  downwards(false),
-  count(0)
+Smasher::Smasher(const FileReader& reader)
 {
-  assert(sprite.get_frame_count() == 6);
-
-  reader.read_vector("position", pos);
-
-  void* this_ = this;
-  ceu_sys_go(&CEU_APP, CEU_IN_SMASHER_NEW, &this_);
+  tceu__WorldObjs__Smasher___FileReader_ p = { this, (FileReader*)&reader };
+  ceu_sys_go(&CEU_APP, CEU_IN_SMASHER_NEW, &p);
 }
 
 Smasher::~Smasher () {
@@ -49,10 +38,22 @@ Smasher::~Smasher () {
   ceu_sys_go(&CEU_APP, CEU_IN_SMASHER_DELETE, &this_);
 }
 
+void
+Smasher::set_pos (const Vector3f& p)
+{
+    CEU_Smasher_set_pos(NULL, this->ceu, (Vector3f*)&p);
+}
+
+Vector3f
+Smasher::get_pos() const
+{
+  return CEU_Smasher_get_pos(NULL, this->ceu);
+}
+
 float
 Smasher::get_z_pos () const
 {
-  return pos.z;
+  return CEU_Smasher_get_z_pos(NULL, this->ceu);
 }
 
 void
@@ -63,22 +64,11 @@ Smasher::update ()
 void
 Smasher::on_startup ()
 {
-  log_info("Drawing colmap entry");
-  CollisionMask buf("traps/smasher_cmap");
-  world->put(buf,
-             static_cast<int>(pos.x),
-             static_cast<int>(pos.y),
-             Groundtype::GP_SOLID);
+  CEU_Smasher_on_startup(NULL, this->ceu);
 }
 
 void
 Smasher::draw (SceneContext& gc)
-{
-  gc.color().draw(sprite, pos);
-}
-
-void
-Smasher::catch_pingu (Pingu* pingu)
 {
 }
 
