@@ -22,6 +22,8 @@ class Entrance with
     var _WorldObjs__Entrance& me;
     var _FileReader&&         reader;
 
+    var s8 direction = {WorldObjs::Entrance::MISC};
+
     function (void)       =>float     get_z_pos;
     function (_Vector3f&&)=>void      set_pos;
     function (void)       =>_Vector3f get_pos;
@@ -42,6 +44,19 @@ do
 
     var int release_rate = 150;
     this.reader:read_int("release-rate", release_rate);
+
+    { static std::string direction_str; };
+    this.reader:read_string("direction", _direction_str);
+    {
+        if (direction_str == "left")
+            THIS(CEU_Entrance)->direction = WorldObjs::Entrance::LEFT;
+        else if (direction_str == "right")
+            THIS(CEU_Entrance)->direction = WorldObjs::Entrance::RIGHT;
+        else if (direction_str == "misc")
+            THIS(CEU_Entrance)->direction = WorldObjs::Entrance::MISC;
+        else
+            log_error("unknown direction: '%1%'", direction_str);
+    };
 
     par/or do
         AWAIT_UNTIL_MYSELF(_WorldObjs__Entrance,ENTRANCE_DELETE);
@@ -76,11 +91,11 @@ do
             {
                 Direction d;
             };
-            if this.me.direction == {WorldObjs::Entrance::LEFT} then
+            if this.direction == {WorldObjs::Entrance::LEFT} then
                 _d.left();
-            else/if this.me.direction == {WorldObjs::Entrance::RIGHT}  then
+            else/if this.direction == {WorldObjs::Entrance::RIGHT}  then
                 _d.right();
-            else/if this.me.direction == {WorldObjs::Entrance::MISC} then
+            else/if this.direction == {WorldObjs::Entrance::MISC} then
                 if last_was_right then
                     _d.left();
                 else
@@ -88,7 +103,7 @@ do
                 end
                 last_was_right = not last_was_right;
             else
-                _log_error("warning direction is wrong: %1%", this.me.direction);
+                _log_error("warning direction is wrong: %1%", this.direction);
                 _d.right();
             end
             pingu:set_direction(_d);

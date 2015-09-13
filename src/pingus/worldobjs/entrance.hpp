@@ -39,8 +39,6 @@ public:
   enum EntranceDirection { LEFT, RIGHT, MISC };
 
 protected:
-  EntranceDirection direction;
-
   Sprite smallmap_symbol;
   Sprite surface;
   int    last_release;

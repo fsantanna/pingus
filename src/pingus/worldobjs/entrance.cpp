@@ -27,27 +27,10 @@
 namespace WorldObjs {
 
 Entrance::Entrance(const FileReader& reader) :
-  direction(MISC),
   smallmap_symbol("core/misc/smallmap_entrance"),
   last_release(),
   last_direction(0)
 {
-
-  std::string direction_str;
-  reader.read_string("direction", direction_str);
-
-  if (direction_str == "left")
-    direction = LEFT;
-  else if (direction_str == "right")
-    direction = RIGHT;
-  else if (direction_str == "misc")
-    direction = MISC;
-  else
-  {
-    log_error("unknown direction: '%1%'", direction_str);
-    direction = MISC;
-  }
-
   tceu__WorldObjs__Entrance___FileReader_ p = { this, (FileReader*)&reader };
   ceu_sys_go(&CEU_APP, CEU_IN_ENTRANCE_NEW, &p);
 }
