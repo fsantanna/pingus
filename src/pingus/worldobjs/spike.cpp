@@ -24,12 +24,10 @@
 
 namespace WorldObjs {
 
-Spike::Spike (const FileReader& reader) :
-  pos()
+Spike::Spike (const FileReader& reader)
 {
-  reader.read_vector("position", pos);
-  void* this_ = this;
-  ceu_sys_go(&CEU_APP, CEU_IN_SPIKE_NEW, &this_);
+  tceu__WorldObjs__Spike___FileReader_ p = { this, (FileReader*)&reader };
+  ceu_sys_go(&CEU_APP, CEU_IN_SPIKE_NEW, &p);
 }
 
 Spike::~Spike()
@@ -38,10 +36,22 @@ Spike::~Spike()
   ceu_sys_go(&CEU_APP, CEU_IN_SPIKE_DELETE, &this_);
 }
 
+void
+Spike::set_pos (const Vector3f& p)
+{
+    CEU_Spike_set_pos(NULL, this->ceu, (Vector3f*)&p);
+}
+
+Vector3f
+Spike::get_pos() const
+{
+  return CEU_Spike_get_pos(NULL, this->ceu);
+}
+
 float
 Spike::get_z_pos () const
 {
-  return pos.z;
+  return CEU_Spike_get_z_pos(NULL, this->ceu);
 }
 
 void

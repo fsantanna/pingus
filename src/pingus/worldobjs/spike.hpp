@@ -20,6 +20,9 @@
 #include "math/vector3f.hpp"
 #include "pingus/worldobj.hpp"
 
+#include "ceu_vars.h"
+struct CEU_Spike;
+
 namespace WorldObjsData {
 class SpikeData;
 } // namespace WorldObjsData
@@ -31,15 +34,15 @@ namespace WorldObjs {
 class Spike : public WorldObj
 {
 private:
-  Vector3f pos;
 
 public:
   Spike(const FileReader& reader);
   ~Spike();
+  CEU_Spike* ceu;
 
   float get_z_pos () const;
-  void set_pos(const Vector3f& p) { pos = p; }
-  Vector3f get_pos() const { return pos; }
+  void set_pos(const Vector3f& p);
+  Vector3f get_pos() const;
 
   void draw (SceneContext& gc);
   void update ();
