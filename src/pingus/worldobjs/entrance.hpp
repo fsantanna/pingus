@@ -40,9 +40,6 @@ public:
 
 protected:
   Sprite smallmap_symbol;
-  Sprite surface;
-  int    last_release;
-  int    last_direction;
 
 public:
   Entrance(const FileReader& reader);

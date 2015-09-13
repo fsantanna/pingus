@@ -27,6 +27,8 @@ class Entrance with
     function (void)       =>float     get_z_pos;
     function (_Vector3f&&)=>void      set_pos;
     function (void)       =>_Vector3f get_pos;
+
+    function (_SmallMap&& smallmap)=>void draw_smallmap;
 do
     this.me.ceu = &&this;
 
@@ -88,25 +90,23 @@ do
                 continue;
             end
 
-            {
-                Direction d;
-            };
+            var s8 dir;
             if this.direction == {WorldObjs::Entrance::LEFT} then
-                _d.left();
+                dir = _LEFT;
             else/if this.direction == {WorldObjs::Entrance::RIGHT}  then
-                _d.right();
+                dir = _RIGHT;
             else/if this.direction == {WorldObjs::Entrance::MISC} then
                 if last_was_right then
-                    _d.left();
+                    dir = _LEFT;
                 else
-                    _d.right();
+                    dir = _RIGHT;
                 end
                 last_was_right = not last_was_right;
             else
                 _log_error("warning direction is wrong: %1%", this.direction);
-                _d.right();
+                dir = _RIGHT;
             end
-            pingu:set_direction(_d);
+            pingu:set_direction(dir);
         end
     end
 
@@ -120,6 +120,10 @@ do
     end
     function (void)=>_Vector3f get_pos do
         return _Vector3f(this.pos.x, this.pos.y, this.pos.z);
+    end
+
+    function (_SmallMap&& smallmap)=>void draw_smallmap do
+        smallmap:draw_sprite(this.me.smallmap_symbol, this.get_pos());
     end
 end
 

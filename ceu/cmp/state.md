@@ -107,3 +107,7 @@ sprite_kill_r/l U/D,killing,fin,frame   [4], await
 sprite_idle     U/D                     [4], anonymous
 direction       update sprite           ---
 killing         control collision       ---
+
+# ENTRANCE
+last_release                            [2]
+last_direction                          [2]
