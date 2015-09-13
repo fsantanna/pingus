@@ -21,6 +21,9 @@
 #include "pingus/direction.hpp"
 #include "pingus/worldobj.hpp"
 
+#include "ceu_vars.h"
+struct CEU_Guillotine;
+
 namespace WorldObjsData {
 class GuillotineData;
 }
@@ -32,26 +35,18 @@ namespace WorldObjs {
 class Guillotine : public WorldObj
 {
 private:
-  Sprite    sprite_kill_right;
-  Sprite    sprite_kill_left;
-  Sprite    sprite_idle;
-  Vector3f  pos;
-  Direction direction;
-
-  bool killing;
 
 public:
   Guillotine(const FileReader& reader);
   ~Guillotine();
+  CEU_Guillotine* ceu;
 
   float get_z_pos() const;
-  void set_pos(const Vector3f& p) { pos = p; }
-  Vector3f get_pos() const { return pos; }
+  void set_pos(const Vector3f& p);
+  Vector3f get_pos() const;
 
   void update();
   void draw(SceneContext& gc);
-protected:
-  void catch_pingu(Pingu*);
 
 private:
   Guillotine(const Guillotine&);

@@ -20,26 +20,12 @@
 #include "pingus/pingu_holder.hpp"
 #include "pingus/world.hpp"
 
-#include "ceu_vars.h"
-
 namespace WorldObjs {
 
-Guillotine::Guillotine(const FileReader& reader) :
-  sprite_kill_right("traps/guillotinekill/right"),
-  sprite_kill_left("traps/guillotinekill/left"),
-  sprite_idle("traps/guillotineidle"),
-  pos(),
-  direction(),
-  killing(false)
+Guillotine::Guillotine(const FileReader& reader)
 {
-  reader.read_vector("position", pos);
-
-  sprite_kill_right.set_play_loop(false);
-  sprite_kill_left.set_play_loop(false);
-  sprite_idle.set_play_loop(true);
-
-  void* this_ = this;
-  ceu_sys_go(&CEU_APP, CEU_IN_GUILLOTINE_NEW, &this_);
+  tceu__WorldObjs__Guillotine___FileReader_ p = { this, (FileReader*)&reader };
+  ceu_sys_go(&CEU_APP, CEU_IN_GUILLOTINE_NEW, &p);
 }
 
 Guillotine::~Guillotine()
@@ -51,29 +37,28 @@ Guillotine::~Guillotine()
 void
 Guillotine::draw (SceneContext& gc)
 {
-  if (killing) {
-    if (direction.is_left())
-      gc.color().draw (sprite_kill_left, pos);
-    else
-      gc.color().draw (sprite_kill_right, pos);
-  } else {
-    gc.color().draw (sprite_idle, pos);
-  }
+}
+
+void
+Guillotine::set_pos (const Vector3f& p)
+{
+    CEU_Guillotine_set_pos(NULL, this->ceu, (Vector3f*)&p);
+}
+
+Vector3f
+Guillotine::get_pos() const
+{
+  return CEU_Guillotine_get_pos(NULL, this->ceu);
 }
 
 float
 Guillotine::get_z_pos () const
 {
-  return pos.z;
+  return CEU_Guillotine_get_z_pos(NULL, this->ceu);
 }
 
 void
 Guillotine::update ()
-{
-}
-
-void
-Guillotine::catch_pingu (Pingu* pingu)
 {
 }
 

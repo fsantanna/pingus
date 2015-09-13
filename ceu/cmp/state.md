@@ -99,5 +99,11 @@ floaterlayer    U/D                     [3], anonymous (only if fall_action)
 
 # SPIKE
 surface         U/D                     [4], await sfc
-killing         xxx                     ---                 (+)
+killing         control collision       ---                 (+)
 draw()          call sprite             ---
+
+# GUILLOTINE
+sprite_kill_r/l U/D,killing,fin,frame   [4], await
+sprite_idle     U/D                     [4], anonymous
+direction       update sprite           ---
+killing         control collision       ---

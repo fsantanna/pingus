@@ -81,6 +81,7 @@ do
     end
 
     /* PUBLIC */
+
     function (void)=>float get_z_pos do
         return this.pos.z;
     end

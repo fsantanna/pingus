@@ -3,6 +3,8 @@
 
 #include "../engine/display/sprite_pingu.ceu"
 
+// TODO: get by ref
+
 class RightLeftSprites with
     var IPingu& pingu;
     var char[]& left;

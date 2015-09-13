@@ -20,8 +20,6 @@
 #include "pingus/pingu_holder.hpp"
 #include "pingus/world.hpp"
 
-#include "ceu_vars.h"
-
 namespace WorldObjs {
 
 Spike::Spike (const FileReader& reader)
