@@ -26,6 +26,7 @@ Hotspot::Hotspot(const FileReader& reader) :
   para(),
   pos()
 {
+  assert(!"Hotspot: not ported!");
   ResDescriptor desc;
 
   reader.read_vector("position", pos);

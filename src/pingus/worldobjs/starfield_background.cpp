@@ -26,6 +26,7 @@ StarfieldBackground::StarfieldBackground(const FileReader& reader) :
   large_stars_count(25),
   stars()
 {
+  assert(!"StarFieldBackground: not ported!");
   reader.read_int("small-stars",  small_stars_count);
   reader.read_int("middle-stars", middle_stars_count);
   reader.read_int("large-stars",  large_stars_count);

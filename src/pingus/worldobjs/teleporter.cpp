@@ -30,6 +30,7 @@ Teleporter::Teleporter(const FileReader& reader) :
   target_id(),
   target()
 {
+  assert(!"Teleporter: not ported!");
   reader.read_vector("position", pos);
   reader.read_string("target-id", target_id);
 }

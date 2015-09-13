@@ -23,6 +23,7 @@ namespace WorldObjs {
 SolidColorBackground::SolidColorBackground(const FileReader& reader) :
   color()
 {
+  assert(!"SolidColorBackground: not ported!");
   if (!reader.read_colori("colori", color))
     reader.read_colorf("color", color);
 }

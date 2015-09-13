@@ -25,6 +25,7 @@ TeleporterTarget::TeleporterTarget(const FileReader& reader) :
   pos(),
   sprite("worldobjs/teleportertarget")
 {
+  assert(!"TeleporterTarget: not ported!");
   reader.read_vector("position", pos);
 }
 

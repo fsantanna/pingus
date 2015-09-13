@@ -34,6 +34,7 @@ SwitchDoorDoor::SwitchDoorDoor(const FileReader& reader) :
   is_opening(false),
   current_door_height()
 {
+  assert(!"SwitchDoorDoor: not ported!");
   reader.read_vector("position", door_pos);
   reader.read_int("height", door_height);
   current_door_height = door_height;

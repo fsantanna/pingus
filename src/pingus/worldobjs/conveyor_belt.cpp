@@ -32,6 +32,7 @@ ConveyorBelt::ConveyorBelt(const FileReader& reader) :
   speed(),
   counter()
 {
+  assert(!"ConveyorBelt: not ported!");
   reader.read_vector("position", pos);
   if (!reader.read_int   ("repeat",    width))
   {

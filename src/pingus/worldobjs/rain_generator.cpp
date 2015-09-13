@@ -29,6 +29,7 @@ RainGenerator::RainGenerator (const FileReader& reader) :
   thunder_count (0),
   waiter_count()
 {
+  assert(!"RainGenerator: not ported!");
 }
 
 RainGenerator::~RainGenerator ()

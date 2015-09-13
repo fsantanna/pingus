@@ -28,6 +28,7 @@ Hammer::Hammer(const FileReader& reader) :
   m_down(true),
   m_count(0)
 {
+  assert(!"Hammer: not ported!");
   reader.read_vector("position", pos);
 }
 

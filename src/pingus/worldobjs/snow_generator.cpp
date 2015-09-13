@@ -25,6 +25,7 @@ namespace WorldObjs {
 SnowGenerator::SnowGenerator(const FileReader& reader) :
   intensity(1.0f)
 {
+  assert(!"SnowGenerator: not ported!");
   reader.read_float("intensity", intensity);
 }
 

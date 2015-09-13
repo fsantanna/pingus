@@ -32,6 +32,7 @@ IceBlock::IceBlock(const FileReader& reader) :
   block_sur("worldobjs/iceblock"),
   block_sur_cmap("worldobjs/iceblock_cmap")
 {
+  assert(!"IceBlock: not ported!");
   reader.read_vector("position", pos);
   if (!reader.read_int("repeat", width))
   {

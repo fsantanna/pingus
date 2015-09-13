@@ -32,6 +32,7 @@ SwitchDoorSwitch::SwitchDoorSwitch(const FileReader& reader) :
   is_triggered(false),
   m_door()
 {
+  assert(!"SwitchDoorSwitch: not ported!");
   reader.read_string("target-id", m_target);
   reader.read_vector("position", switch_pos);
 }

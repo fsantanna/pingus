@@ -29,6 +29,7 @@ StarfieldBackgroundStars::StarfieldBackgroundStars (Type type) :
   x_add(),
   y_add()
 {
+  assert(!"StarFieldBackgroundStars: not ported!");
   switch (type)
   {
     case SMALL_STAR:

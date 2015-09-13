@@ -29,6 +29,7 @@ Liquid::Liquid(const FileReader& reader) :
   width(0),
   speed()
 {
+  assert(!"Liquid: not ported!");
   ResDescriptor desc;
 
   reader.read_vector("position", pos);
