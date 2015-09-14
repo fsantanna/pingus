@@ -149,6 +149,7 @@ World::draw_smallmap(SmallMap* smallmap)
   {
     (*obj)->draw_smallmap (smallmap);
   }
+  ceu_sys_go(&CEU_APP, CEU_IN_WORLD_DRAW_SMALLMAP, &smallmap);
 }
 
 void

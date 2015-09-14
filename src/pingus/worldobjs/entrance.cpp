@@ -26,17 +26,12 @@
 
 namespace WorldObjs {
 
-Entrance::Entrance(const FileReader& reader) :
-  smallmap_symbol("core/misc/smallmap_entrance")
+Entrance::Entrance(const FileReader& reader)
 {
-  tceu__WorldObjs__Entrance___FileReader_ p = { this, (FileReader*)&reader };
-  ceu_sys_go(&CEU_APP, CEU_IN_ENTRANCE_NEW, &p);
 }
 
 Entrance::~Entrance ()
 {
-  void* this_ = this;
-  ceu_sys_go(&CEU_APP, CEU_IN_ENTRANCE_DELETE, &this_);
 }
 
 int
@@ -77,7 +72,6 @@ Entrance::draw (SceneContext& gc)
 void
 Entrance::draw_smallmap(SmallMap* smallmap)
 {
-  CEU_Entrance_draw_smallmap(NULL, this->ceu, smallmap);
 }
 
 } // namespace WorldObjs

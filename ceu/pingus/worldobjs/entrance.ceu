@@ -27,8 +27,6 @@ class Entrance with
     function (void)       =>float     get_z_pos;
     function (_Vector3f&&)=>void      set_pos;
     function (void)       =>_Vector3f get_pos;
-
-    function (_SmallMap&& smallmap)=>void draw_smallmap;
 do
     this.me.ceu = &&this;
 
@@ -60,8 +58,19 @@ do
             log_error("unknown direction: '%1%'", direction_str);
     };
 
+    var _Sprite&? smallmap_symbol;
+    finalize
+        smallmap_symbol = &{new Sprite}("core/misc/smallmap_entrance");
+    with
+        //_delete(&&smallmap_symbol!);
+    end
+
     par/or do
         AWAIT_UNTIL_MYSELF(_WorldObjs__Entrance,ENTRANCE_DELETE);
+    with
+        every smallmap in WORLD_DRAW_SMALLMAP do
+            smallmap:draw_sprite(*(&&this.smallmap_symbol!), this.get_pos());
+        end
     with
         var int last_release = 150 - release_rate;
             // wait ~2sec at startup to allow a 'lets go' sound
@@ -120,10 +129,6 @@ do
     end
     function (void)=>_Vector3f get_pos do
         return _Vector3f(this.pos.x, this.pos.y, this.pos.z);
-    end
-
-    function (_SmallMap&& smallmap)=>void draw_smallmap do
-        smallmap:draw_sprite(this.me.smallmap_symbol, this.get_pos());
     end
 end
 

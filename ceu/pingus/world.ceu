@@ -18,6 +18,7 @@ native @plain _Playfield, _SmallMap;
 input (_World&&, _PingusLevel&&) WORLD_NEW;
 input (_World&&) WORLD_DELETE;
 input (_SceneContext&&) WORLD_DRAW;
+input (_SmallMap&&) WORLD_DRAW_SMALLMAP;
 
 input (_char&&, _WorldObj&&, _FileReader&&) WORLD_NEWOBJ;
 

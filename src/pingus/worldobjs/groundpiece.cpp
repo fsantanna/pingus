@@ -22,8 +22,6 @@ namespace WorldObjs {
 
 Groundpiece::Groundpiece(const FileReader& reader)
 {
-  tceu__WorldObjs__GroundPiece___FileReader_ p = { this, (FileReader*)&reader };
-  ceu_sys_go(&CEU_APP, CEU_IN_GROUNDPIECE_NEW, &p);
 }
 
 void

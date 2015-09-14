@@ -39,7 +39,6 @@ public:
   enum EntranceDirection { LEFT, RIGHT, MISC };
 
 protected:
-  Sprite smallmap_symbol;
 
 public:
   Entrance(const FileReader& reader);
