@@ -71,12 +71,16 @@ template<class T>
 class WorldObjFactoryImpl : public WorldObjAbstractFactory
 {
 public:
+  std::string id;
   WorldObjFactoryImpl (const std::string& id)
-    : WorldObjAbstractFactory (id) {}
+    : WorldObjAbstractFactory (id) {this->id = id;}
 
   std::vector<WorldObj*> create(const FileReader& reader) {
     std::vector<WorldObj*> lst;
-    lst.push_back(new T(reader));
+    WorldObj* obj = new T(reader);
+    lst.push_back(obj);
+    tceu__char___WorldObj___FileReader_ p = { (char*)id.c_str(), obj, (FileReader*)&reader };
+    ceu_sys_go(&CEU_APP, CEU_IN_WORLD_NEWOBJ, &p);
     return lst;
   }
 

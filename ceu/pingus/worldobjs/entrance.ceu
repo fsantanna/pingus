@@ -130,10 +130,11 @@ end
 class EntranceFactory with
 do
     every (me_,reader_) in ENTRANCE_NEW do
-        spawn Entrance with
-            this.me     = &_XXX_PTR2REF(me_);
-            this.reader = reader_;
-        end;
+        _printf("ENTRANCE %p %p\n", me_, reader_);
+        //spawn Entrance with
+            //this.me     = &_XXX_PTR2REF(me_);
+            //this.reader = reader_;
+        //end;
     end
 end
 

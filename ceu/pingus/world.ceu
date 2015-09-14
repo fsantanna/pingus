@@ -15,11 +15,16 @@ end
 native @plain _World;
 native @plain _Playfield, _SmallMap;
 
-input (_World&&) WORLD_NEW;
+input (_World&&, _PingusLevel&&) WORLD_NEW;
 input (_World&&) WORLD_DELETE;
 input (_SceneContext&&) WORLD_DRAW;
 
+input (_char&&, _WorldObj&&, _FileReader&&) WORLD_NEWOBJ;
+
 input void WORLD_ARMAGEDDON;
+
+interface IWorldObj with
+end
 
 #include "worldobjs/entrance.ceu"
 #include "worldobjs/exit.ceu"
@@ -34,10 +39,55 @@ input void WORLD_ARMAGEDDON;
 #include "components/playfield.ceu"
 #include "components/smallmap.ceu"
 
+class WorldObjFactory with
+do
+    every (id_,obj_,reader_) in WORLD_NEWOBJ do
+        if _strcmp(id_,"entrance")==0 then
+            spawn Entrance with
+                this.me     = &_XXX_PURE((_WorldObjs__Entrance&&)obj_);
+                this.reader = reader_;
+            end;
+        else/if _strcmp(id_,"exit")==0 then
+            spawn Exit with
+                this.me     = &_XXX_PURE((_WorldObjs__Exit&&)obj_);
+                this.reader = reader_;
+            end;
+        else/if _strcmp(id_,"groundpiece")==0 then
+            spawn GroundPiece with
+                this.me     = &_XXX_PURE((_WorldObjs__GroundPiece&&)obj_);
+                this.reader = reader_;
+            end;
+#if 0
+        else/if _strcmp(id_,"hotspot")==0 then
+            spawn HotSpot with
+                this.me     = &_XXX_PURE((_WorldObjs__HotSpot&&)obj_);
+                this.reader = reader_;
+            end;
+        else/if _strcmp(id_,"liquid")==0 then
+            spawn Liquid with
+                this.me     = &_XXX_PURE((_WorldObjs__Liquid&&)obj_);
+                this.reader = reader_;
+            end;
+#endif
+        else/if _strcmp(id_,"surface-background")==0 then
+            spawn SurfaceBackground with
+                this.me     = &_XXX_PURE((_WorldObjs__SurfaceBackground&&)obj_);
+                this.reader = reader_;
+            end;
+        end
+    end
+end
+
 class World with
     interface IWorld;
+
+    var _PingusLevel&& plf;
 do
     this.me.ceu = &&this;
+
+    pool IWorldObj[] objs;
+
+    var WorldObjFactory _;
 
     var PinguHolder pingu_holder with
         this.me = &_XXX_PTR2REF(outer.me.pingus);
@@ -94,9 +144,10 @@ end
 
 class WorldFactory with
 do
-    every me_ in WORLD_NEW do
+    every (me_,plf_) in WORLD_NEW do
         spawn World with
-            this.me = &_XXX_PTR2REF(me_);
+            this.me  = &_XXX_PTR2REF(me_);
+            this.plf = plf_;
         end;
     end
 end

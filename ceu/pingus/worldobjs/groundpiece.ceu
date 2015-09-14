@@ -6,19 +6,21 @@ native/pre do
         class Groundpiece;
     }
     ##define WorldObjs__GroundPiece WorldObjs::Groundpiece
+    ##define Groundtype__GPType     Groundtype::GPType
+    ##define ResourceModifier__Enum ResourceModifier::Enum
 end
 
 native do
     ##include "src/pingus/worldobjs/groundpiece.hpp"
 end
-native @plain _WorldObjs__GroundPiece;
+native @plain _WorldObjs__GroundPiece, _Groundtype__GPType, _ResourceModifier__Enum;
 
 input (_WorldObjs__GroundPiece&&, _FileReader&&) GROUNDPIECE_NEW;
 input _WorldObjs__GroundPiece&& GROUNDPIECE_DELETE;
 
 class GroundPiece with
     var _WorldObjs__GroundPiece& me;
-    var _FileReader&&     reader;
+    var _FileReader&&            reader;
 
     function (void)       =>float     get_z_pos;
     function (_Vector3f&&)=>void      set_pos;
@@ -32,6 +34,14 @@ do
     { static Vector3f p; };
     this.reader:read_vector("position", _p);
     this.pos = Vector3f(_p.x,_p.y,_p.z);
+
+    { static ResDescriptor desc; };
+    this.reader:read_desc("surface", _desc);
+    var char[] desc_res_name = [] .. (char&&)_desc.res_name.c_str();
+    var _ResourceModifier__Enum desc_modifier = _desc.modifier;
+
+    var _Groundtype__GPType gptype = {Groundtype::GP_GROUND};
+    this.reader:read_enum("type", gptype, {&Groundtype::string_to_type});
 
     AWAIT_UNTIL_MYSELF(_WorldObjs__GroundPiece,GROUNDPIECE_DELETE);
 
@@ -49,13 +59,15 @@ do
 
     function (void)=>void on_startup do
         // FIXME: using a CollisionMask is kind of unneeded here
-        { CollisionMask mask(THIS_F(CEU_GroundPiece)->me->desc); };
-
+        { static ResDescriptor desc; };
+        _desc = _XXX_PURE({ResDescriptor}({std::string}(&&this.desc_res_name),
+                                this.desc_modifier));
+        { CollisionMask mask(desc); };
         // FIXME: overdrawing of bridges and similar things aren't handled here
-        if (this.me.gptype == {Groundtype::GP_REMOVE}) then
+        if (this.gptype == {Groundtype::GP_REMOVE}) then
             this.me.get_world():remove(_mask, (int)(pos.x), (int)(pos.y));
         else
-            this.me.get_world():put(_mask, (int)(pos.x), (int)(pos.y), this.me.gptype);
+            this.me.get_world():put(_mask, (int)(pos.x), (int)(pos.y), this.gptype);
         end
     end
 end

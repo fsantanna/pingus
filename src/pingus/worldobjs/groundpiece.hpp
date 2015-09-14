@@ -36,8 +36,6 @@ namespace WorldObjs {
 class Groundpiece : public WorldObj
 {
 private:
-  ResDescriptor desc;
-  Groundtype::GPType gptype;
 
 public:
   Groundpiece(const FileReader& reader);

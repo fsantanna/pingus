@@ -71,10 +71,10 @@ World::World(const PingusLevel& plf) :
   world_obj.push_back(smoke_particle_holder);
   world_obj.push_back(snow_particle_holder);
 
-  init_worldobjs(plf);
+  tceu__World___PingusLevel_ p = { this, (PingusLevel*)&plf };
+  ceu_sys_go(&CEU_APP, CEU_IN_WORLD_NEW, &p);
 
-  void* this_ = this;
-  ceu_sys_go(&CEU_APP, CEU_IN_WORLD_NEW, &this_);
+  init_worldobjs(plf);
 }
 
 void
@@ -159,17 +159,6 @@ World::update()
   game_time += 1;
 
   ceu_sys_go(&CEU_APP, CEU_IN_WORLD_UPDATE, &game_time);
-
-  // Let all pingus move and
-  // Let the pingus catch each other and
-  // Let the traps catch the pingus and
-  // Let the exit catch the pingus
-  for(WorldObjIter obj = world_obj.begin(); obj != world_obj.end(); ++obj)
-  {
-    // catch_pingu() is now done in relevant update() if WorldObj
-    // needs to catch pingus.
-    (*obj)->update();
-  }
 }
 
 PinguHolder*
@@ -263,11 +252,14 @@ World::remove(const CollisionMask& mask, int x, int y)
 WorldObj*
 World::get_worldobj(const std::string& id)
 {
+  assert(!"not ported");
+#if 0
   for(WorldObjIter obj = world_obj.begin(); obj != world_obj.end(); ++obj)
   {
     if ((*obj)->get_id() == id)
       return *obj;
   }
+#endif
   return 0;
 }
 
