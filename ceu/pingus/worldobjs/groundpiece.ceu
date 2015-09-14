@@ -1,3 +1,5 @@
+// TODO: this.me.world
+
 #ifndef _GROUNDPIECE_CEU
 #define _GROUNDPIECE_CEU
 
@@ -25,8 +27,6 @@ class GroundPiece with
     function (void)       =>float     get_z_pos;
     function (_Vector3f&&)=>void      set_pos;
     function (void)       =>_Vector3f get_pos;
-
-    function (void)=>void on_startup;
 do
     this.me.ceu = &&this;
 
@@ -35,13 +35,21 @@ do
     this.reader:read_vector("position", _p);
     this.pos = Vector3f(_p.x,_p.y,_p.z);
 
-    { static ResDescriptor desc; };
-    this.reader:read_desc("surface", _desc);
-    var char[] desc_res_name = [] .. (char&&)_desc.res_name.c_str();
-    var _ResourceModifier__Enum desc_modifier = _desc.modifier;
+    do
+        { static ResDescriptor desc; };
+        this.reader:read_desc("surface", _desc);
 
-    var _Groundtype__GPType gptype = {Groundtype::GP_GROUND};
-    this.reader:read_enum("type", gptype, {&Groundtype::string_to_type});
+        var _Groundtype__GPType gptype = {Groundtype::GP_GROUND};
+        this.reader:read_enum("type", gptype, {&Groundtype::string_to_type});
+
+        { CollisionMask mask(desc); };
+        // FIXME: overdrawing of bridges and similar things aren't handled here
+        if (gptype == {Groundtype::GP_REMOVE}) then
+            this.me.get_world():remove(_mask, (int)(pos.x), (int)(pos.y));
+        else
+            this.me.get_world():put(_mask, (int)(pos.x), (int)(pos.y), gptype);
+        end
+    end
 
     AWAIT_UNTIL_MYSELF(_WorldObjs__GroundPiece,GROUNDPIECE_DELETE);
 
@@ -55,20 +63,6 @@ do
     end
     function (void)=>_Vector3f get_pos do
         return _Vector3f(this.pos.x, this.pos.y, this.pos.z);
-    end
-
-    function (void)=>void on_startup do
-        // FIXME: using a CollisionMask is kind of unneeded here
-        { static ResDescriptor desc; };
-        _desc = _XXX_PURE({ResDescriptor}({std::string}(&&this.desc_res_name),
-                                this.desc_modifier));
-        { CollisionMask mask(desc); };
-        // FIXME: overdrawing of bridges and similar things aren't handled here
-        if (this.gptype == {Groundtype::GP_REMOVE}) then
-            this.me.get_world():remove(_mask, (int)(pos.x), (int)(pos.y));
-        else
-            this.me.get_world():put(_mask, (int)(pos.x), (int)(pos.y), this.gptype);
-        end
     end
 end
 

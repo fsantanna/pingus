@@ -27,7 +27,6 @@ Groundpiece::Groundpiece(const FileReader& reader)
 void
 Groundpiece::on_startup ()
 {
-  CEU_GroundPiece_on_startup(NULL, this->ceu);
 }
 
 void

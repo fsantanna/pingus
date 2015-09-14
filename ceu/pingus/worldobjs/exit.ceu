@@ -44,10 +44,10 @@ do
     var SpritePingu sprite with
         this.x = &pos.x;
         this.y = &pos.y;
-        this.desc = _XXX_PURE({Resource::load_sprite_desc}
-                                (outer.me.desc.res_name)
-                                    finalize with nothing; end
-                              );
+
+        { static ResDescriptor desc; };
+        outer.reader:read_desc("surface", _desc);
+        this.desc = _XXX_PURE({Resource::load_sprite_desc}(_desc.res_name));
     end;
 
     var char[] name = [] .. "core/misc/flag" ..
@@ -59,8 +59,27 @@ do
         this.name = _XXX_PURE(&&name);
     end;
 
+    do
+        { static ResDescriptor desc; };
+        this.reader:read_desc("surface", _desc);
+        { CollisionMask mask(desc); };
+        this.me.world:get_colmap():remove(_mask,
+            (int)(this.pos.x) - this.sprite.get_width()/2,
+            (int)(this.pos.y) - this.sprite.get_height());
+    end
+
     par/or do
         AWAIT_UNTIL_MYSELF(_WorldObjs__Exit,EXIT_DELETE);
+    with
+        var _Sprite&? smallmap_symbol;
+        finalize
+            smallmap_symbol = &{new Sprite}("core/misc/smallmap_exit");
+        with
+            //_delete(&&smallmap_symbol!);
+        end
+        every smallmap in WORLD_DRAW_SMALLMAP do
+            smallmap:draw_sprite(*(&&smallmap_symbol!), this.get_pos());
+        end
     with
         every WORLD_UPDATE do
             var IWorld&& world = (IWorld&&)this.me.world:ceu;
@@ -99,17 +118,6 @@ do
     end
     function (void)=>_Vector3f get_pos do
         return _Vector3f(this.pos.x, this.pos.y, this.pos.z);
-    end
-
-    function (void)=>void on_startup do
-        { CollisionMask mask(THIS_F(CEU_Exit)->me->desc); };
-        this.me.world:get_colmap():remove(_mask,
-            (int)(this.pos.x) - this.sprite.get_width()/2,
-            (int)(this.pos.y) - this.sprite.get_height());
-    end
-
-    function (_SmallMap&& smallmap)=>void draw_smallmap do
-        smallmap:draw_sprite(this.me.smallmap_symbol, this.get_pos());
     end
 end
 

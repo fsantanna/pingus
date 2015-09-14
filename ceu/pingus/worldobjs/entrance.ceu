@@ -1,6 +1,8 @@
 #ifndef _ENTRANCE_CEU
 #define _ENTRANCE_CEU
 
+// TODO: this.me.world
+
 native/pre do
     namespace WorldObjs {
         class Entrance;
@@ -58,18 +60,17 @@ do
             log_error("unknown direction: '%1%'", direction_str);
     };
 
-    var _Sprite&? smallmap_symbol;
-    finalize
-        smallmap_symbol = &{new Sprite}("core/misc/smallmap_entrance");
-    with
-        //_delete(&&smallmap_symbol!);
-    end
-
     par/or do
         AWAIT_UNTIL_MYSELF(_WorldObjs__Entrance,ENTRANCE_DELETE);
     with
+        var _Sprite&? smallmap_symbol;
+        finalize
+            smallmap_symbol = &{new Sprite}("core/misc/smallmap_entrance");
+        with
+            //_delete(&&smallmap_symbol!);
+        end
         every smallmap in WORLD_DRAW_SMALLMAP do
-            smallmap:draw_sprite(*(&&this.smallmap_symbol!), this.get_pos());
+            smallmap:draw_sprite(*(&&smallmap_symbol!), this.get_pos());
         end
     with
         var int last_release = 150 - release_rate;
@@ -131,18 +132,5 @@ do
         return _Vector3f(this.pos.x, this.pos.y, this.pos.z);
     end
 end
-
-class EntranceFactory with
-do
-    every (me_,reader_) in ENTRANCE_NEW do
-        _printf("ENTRANCE %p %p\n", me_, reader_);
-        //spawn Entrance with
-            //this.me     = &_XXX_PTR2REF(me_);
-            //this.reader = reader_;
-        //end;
-    end
-end
-
-var EntranceFactory _;
 
 #endif

@@ -25,11 +25,8 @@
 
 namespace WorldObjs {
 
-Exit::Exit(const FileReader& reader) :
-  smallmap_symbol("core/misc/smallmap_exit")
+Exit::Exit(const FileReader& reader)
 {
-  reader.read_desc  ("surface",  desc);
-
   tceu__WorldObjs__Exit___FileReader_ p = { this, (FileReader*)&reader };
   ceu_sys_go(&CEU_APP, CEU_IN_EXIT_NEW, &p);
 }
@@ -43,7 +40,6 @@ Exit::~Exit ()
 void
 Exit::on_startup ()
 {
-  CEU_Exit_on_startup(NULL, this->ceu);
 }
 
 void
@@ -54,7 +50,6 @@ Exit::draw (SceneContext& gc)
 void
 Exit::draw_smallmap(SmallMap* smallmap)
 {
-  CEU_Exit_draw_smallmap(NULL, this->ceu, smallmap);
 }
 
 void
