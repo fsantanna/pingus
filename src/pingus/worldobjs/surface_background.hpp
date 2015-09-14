@@ -21,6 +21,9 @@
 #include "math/color.hpp"
 #include "pingus/worldobj.hpp"
 
+#include "ceu_vars.h"
+struct CEU_SurfaceBackground;
+
 namespace WorldObjsData {
 class SurfaceBackgroundData;
 }
@@ -69,10 +72,11 @@ private:
 
 public:
   SurfaceBackground(const FileReader& reader);
+  CEU_SurfaceBackground* ceu;
 
   float get_z_pos () const;
-  void set_pos(const Vector3f& p) { }
-  Vector3f get_pos() const { return Vector3f(); }
+  void set_pos(const Vector3f& p);
+  Vector3f get_pos() const;
 
   void update ();
   void draw (SceneContext& gc);

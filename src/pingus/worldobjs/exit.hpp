@@ -29,7 +29,7 @@ namespace WorldObjs {
 class Exit : public WorldObj
 {
 private:
-  ResDescriptor desc;
+  ResDescriptor desc;       /// TODO: because of on_startup
   Sprite smallmap_symbol;
 
 public:

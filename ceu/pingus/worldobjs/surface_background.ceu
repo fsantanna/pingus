@@ -1,0 +1,56 @@
+#ifndef _SURFACEBACKGROUND_CEU
+#define _SURFACEBACKGROUND_CEU
+
+native/pre do
+    namespace WorldObjs {
+        class SurfaceBackground;
+    }
+    ##define WorldObjs__SurfaceBackground WorldObjs::SurfaceBackground
+end
+
+native do
+    ##include "src/pingus/worldobjs/surface_background.hpp"
+end
+native @plain _WorldObjs__SurfaceBackground;
+
+input (_WorldObjs__SurfaceBackground&&, _FileReader&&) SURFACEBACKGROUND_NEW;
+input _WorldObjs__SurfaceBackground&& SURFACEBACKGROUND_DELETE;
+
+class SurfaceBackground with
+    var _WorldObjs__SurfaceBackground& me;
+    var _FileReader&&     reader;
+
+    function (void)       =>float     get_z_pos;
+    function (_Vector3f&&)=>void      set_pos;
+    function (void)       =>_Vector3f get_pos;
+do
+    this.me.ceu = &&this;
+
+    AWAIT_UNTIL_MYSELF(_WorldObjs__SurfaceBackground,SURFACEBACKGROUND_DELETE);
+
+    /* PUBLIC */
+
+    function (void)=>float get_z_pos do
+        return this.me.pos.z;
+    end
+    function (_Vector3f&& p)=>void set_pos do
+        this.me.pos = _Vector3f(p:x, p:y, p:z);
+    end
+    function (void)=>_Vector3f get_pos do
+        return _Vector3f(this.me.pos.x, this.me.pos.y, this.me.pos.z);
+    end
+end
+
+class SurfaceBackgroundFactory with
+do
+    every (me_,reader_) in SURFACEBACKGROUND_NEW do
+        spawn SurfaceBackground with
+            this.me     = &_XXX_PTR2REF(me_);
+            this.reader = reader_;
+        end;
+    end
+end
+
+var SurfaceBackgroundFactory _;
+
+#endif

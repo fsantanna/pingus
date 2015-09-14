@@ -37,7 +37,6 @@ SurfaceBackground::SurfaceBackground(const FileReader& reader) :
   scroll_ox(0),
   scroll_oy(0)
 {
-  assert(!"SurfaceBackground: not ported!");
   if (!reader.read_vector("position", pos))
     pos = Vector3f(0.f, 0.f, -150.f);
 
@@ -114,12 +113,9 @@ SurfaceBackground::SurfaceBackground(const FileReader& reader) :
 
     bg_sprite = Sprite(surface);
   }
-}
 
-float
-SurfaceBackground::get_z_pos () const
-{
-  return pos.z;
+  tceu__WorldObjs__SurfaceBackground___FileReader_ p = { this, (FileReader*)&reader };
+  ceu_sys_go(&CEU_APP, CEU_IN_SURFACEBACKGROUND_NEW, &p);
 }
 
 void
@@ -182,6 +178,24 @@ SurfaceBackground::draw (SceneContext& gc)
       gc.color().draw(bg_sprite, Vector2i(x - offset.x, y - offset.y), pos.z);
     }
   }
+}
+
+void
+SurfaceBackground::set_pos (const Vector3f& p)
+{
+    CEU_SurfaceBackground_set_pos(NULL, this->ceu, (Vector3f*)&p);
+}
+
+Vector3f
+SurfaceBackground::get_pos() const
+{
+  return CEU_SurfaceBackground_get_pos(NULL, this->ceu);
+}
+
+float
+SurfaceBackground::get_z_pos () const
+{
+  return CEU_SurfaceBackground_get_z_pos(NULL, this->ceu);
 }
 
 } // namespace WorldObjs
