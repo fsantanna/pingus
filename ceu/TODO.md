@@ -1,3 +1,4 @@
+- color.a em surface_background.ceu
 - idle laser_exit
 - EXIT/LASER_EXIT pega somente 1 de cada vez
     - verificar se o loop nao deveria pegar varios

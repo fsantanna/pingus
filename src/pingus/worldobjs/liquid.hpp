@@ -21,6 +21,9 @@
 #include "pingus/res_descriptor.hpp"
 #include "pingus/worldobj.hpp"
 
+#include "ceu_vars.h"
+struct CEU_Liquid;
+
 namespace WorldObjsData {
 class LiquidData;
 }
@@ -30,24 +33,13 @@ namespace WorldObjs {
 class Liquid : public WorldObj
 {
 private:
-  Sprite sur;
-
-  Vector3f pos;
-
-  /** Cause to interpret the width in pixels instead of tiles */
-  bool old_width_handling;
-
-  int width;
-
-  /** Number of miliseconds between frames */
-  int speed;
-
 public:
   Liquid(const FileReader& reader);
+  CEU_SurfaceBackground* ceu;
 
   float get_z_pos () const;
-  void set_pos(const Vector3f& p) { pos = p; }
-  Vector3f get_pos() const { return pos; }
+  void set_pos(const Vector3f& p);
+  Vector3f get_pos() const;
 
   void  on_startup();
   void  draw      (SceneContext& gc);

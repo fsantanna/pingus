@@ -32,6 +32,7 @@ end
 #include "worldobjs/groundpiece.ceu"
 #include "worldobjs/guillotine.ceu"
 #include "worldobjs/laser_exit.ceu"
+#include "worldobjs/liquid.ceu"
 #include "worldobjs/smasher.ceu"
 #include "worldobjs/spike.ceu"
 #include "worldobjs/surface_background.ceu"
@@ -64,12 +65,12 @@ do
                 this.me     = &_XXX_PURE((_WorldObjs__HotSpot&&)obj_);
                 this.reader = reader_;
             end;
+#endif
         else/if _strcmp(id_,"liquid")==0 then
             spawn Liquid with
                 this.me     = &_XXX_PURE((_WorldObjs__Liquid&&)obj_);
                 this.reader = reader_;
             end;
-#endif
         else/if _strcmp(id_,"surface-background")==0 then
             spawn SurfaceBackground with
                 this.me     = &_XXX_PURE((_WorldObjs__SurfaceBackground&&)obj_);

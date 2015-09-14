@@ -86,7 +86,7 @@ do
 
         this.reader:read_bool("keep-aspect", this.keep_aspect);
 
-        _assert((not stretch_x) and (not stretch_y) and (color.a == 0));
+        //_assert((not stretch_x) and (not stretch_y) and (color.a == 0));
     end
 
     /* Background image */
