@@ -45,7 +45,7 @@ do
         this.x = &pos.x;
         this.y = &pos.y;
 
-        { static ResDescriptor desc; };
+        { static ResDescriptor desc; };         // TODO: repeated below
         outer.reader:read_desc("surface", _desc);
         this.desc = _XXX_PURE({Resource::load_sprite_desc}(_desc.res_name));
     end;
@@ -60,7 +60,7 @@ do
     end;
 
     do
-        { static ResDescriptor desc; };
+        { static ResDescriptor desc; };         // TODO: repeated above
         this.reader:read_desc("surface", _desc);
         { CollisionMask mask(desc); };
         this.me.world:get_colmap():remove(_mask,

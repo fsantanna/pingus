@@ -33,43 +33,6 @@ namespace WorldObjs {
 class SurfaceBackground : public WorldObj
 {
 private:
-  float para_x;
-  float para_y;
-
-  /** Position of the background, only the z_pos is really used. */
-  Vector3f pos;
-
-  /** The amount of pixel the background is scrolled each frame in x
-      direction. */
-  float scroll_x;
-
-  /** The amount of pixel the background is scrolled each frame in x
-      direction. */
-  float scroll_y;
-
-  /** fill_rect() components
-      An fill_rect() can be drawn over the background, the following
-      for components are passed to the fill_rect() call. */
-  Color color;
-
-  /** Stretch the background to the full screen size in x direction */
-  bool stretch_x;
-
-  /** Stretch the background to the full screen size in x direction */
-  bool stretch_y;
-
-  /** If streched in x or y direction keep the aspect ratio */
-  bool keep_aspect;
-
-  /** Background image */
-  Sprite bg_sprite;
-
-  /** The horizontal scrolling speed in pixels per tick */
-  float scroll_ox;
-
-  /** The vertical scrolling speed in pixels per tick */
-  float scroll_oy;
-
 public:
   SurfaceBackground(const FileReader& reader);
   CEU_SurfaceBackground* ceu;

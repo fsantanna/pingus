@@ -22,7 +22,7 @@ native do
     ##define THIS_F(tp) ((tp*)__ceu_org)
 end
 native @pure _Resource__load_sprite_desc(), _Pathname();
-native @plain _std__string, _Vector3f, _Color, _Rect;
+native @plain _std__string, _Vector3f, _Vector2i, _Color, _Rect;
 native @plain _Sprite, _Surface, _SpriteDescription;
 native @plain _ResourceModifier__Enum;
 native @pure   _XXX_PURE(), _XXX_PTR2REF();
@@ -37,6 +37,10 @@ native @nohold _delete();
 
 input int SDL_DT;
 input int WORLD_UPDATE;
+
+data Color with
+    var u8 r, g, b, a;
+end
 
 data Position with
     var float x;
