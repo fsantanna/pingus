@@ -35,7 +35,7 @@ class Liquid : public WorldObj
 private:
 public:
   Liquid(const FileReader& reader);
-  CEU_SurfaceBackground* ceu;
+  CEU_Liquid* ceu;
 
   float get_z_pos () const;
   void set_pos(const Vector3f& p);

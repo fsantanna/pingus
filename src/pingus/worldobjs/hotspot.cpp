@@ -21,19 +21,8 @@
 
 namespace WorldObjs {
 
-Hotspot::Hotspot(const FileReader& reader) :
-  sprite(),
-  para(),
-  pos()
+Hotspot::Hotspot(const FileReader& reader)
 {
-  assert(!"Hotspot: not ported!");
-  ResDescriptor desc;
-
-  reader.read_vector("position", pos);
-  reader.read_desc  ("surface",  desc);
-  reader.read_float ("parallax", para);
-
-  sprite = Sprite(desc);
 }
 
 Hotspot::~Hotspot ()
@@ -43,20 +32,29 @@ Hotspot::~Hotspot ()
 void
 Hotspot::update()
 {
-  sprite.update();
 }
 
 void
 Hotspot::draw (SceneContext& gc)
 {
-  // FIXME: para support doesnn't work correctly
-  gc.color().draw (sprite, pos);
+}
+
+void
+Hotspot::set_pos (const Vector3f& p)
+{
+    CEU_Hotspot_set_pos(NULL, this->ceu, (Vector3f*)&p);
+}
+
+Vector3f
+Hotspot::get_pos() const
+{
+  return CEU_Hotspot_get_pos(NULL, this->ceu);
 }
 
 float
 Hotspot::get_z_pos () const
 {
-  return pos.z;
+  return CEU_Hotspot_get_z_pos(NULL, this->ceu);
 }
 
 } // namespace WorldObjs

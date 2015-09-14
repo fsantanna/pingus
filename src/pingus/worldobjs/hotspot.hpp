@@ -20,6 +20,9 @@
 #include "math/vector3f.hpp"
 #include "pingus/worldobj.hpp"
 
+#include "ceu_vars.h"
+struct CEU_Hotspot;
+
 namespace WorldObjsData {
 class HotspotData;
 }
@@ -29,19 +32,17 @@ namespace WorldObjs {
 class Hotspot : public WorldObj
 {
 private:
-  Sprite   sprite;
-  float    para;
-  Vector3f pos;
 
 public:
   Hotspot(const FileReader& reader);
   ~Hotspot();
+  CEU_Hotspot* ceu;
 
   void  draw(SceneContext& gc);
   void  update();
   float get_z_pos() const;
-  void set_pos(const Vector3f& p) { pos = p; }
-  Vector3f get_pos() const { return pos; }
+  void set_pos(const Vector3f& p);
+  Vector3f get_pos() const;
 
 private:
   Hotspot (const Hotspot&);

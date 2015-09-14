@@ -37,19 +37,19 @@ Groundpiece::draw (SceneContext& gc)
 void
 Groundpiece::set_pos (const Vector3f& p)
 {
-    CEU_GroundPiece_set_pos(NULL, this->ceu, (Vector3f*)&p);
+    CEU_Groundpiece_set_pos(NULL, this->ceu, (Vector3f*)&p);
 }
 
 Vector3f
 Groundpiece::get_pos() const
 {
-  return CEU_GroundPiece_get_pos(NULL, this->ceu);
+  return CEU_Groundpiece_get_pos(NULL, this->ceu);
 }
 
 float
 Groundpiece::get_z_pos () const
 {
-  return CEU_GroundPiece_get_z_pos(NULL, this->ceu);
+  return CEU_Groundpiece_get_z_pos(NULL, this->ceu);
 }
 
 } // namespace WorldObjs

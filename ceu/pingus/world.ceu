@@ -31,6 +31,7 @@ end
 #include "worldobjs/exit.ceu"
 #include "worldobjs/groundpiece.ceu"
 #include "worldobjs/guillotine.ceu"
+#include "worldobjs/hotspot.ceu"
 #include "worldobjs/laser_exit.ceu"
 #include "worldobjs/liquid.ceu"
 #include "worldobjs/smasher.ceu"
@@ -55,17 +56,15 @@ do
                 this.reader = reader_;
             end;
         else/if _strcmp(id_,"groundpiece")==0 then
-            spawn GroundPiece with
-                this.me     = &_XXX_PURE((_WorldObjs__GroundPiece&&)obj_);
+            spawn Groundpiece with
+                this.me     = &_XXX_PURE((_WorldObjs__Groundpiece&&)obj_);
                 this.reader = reader_;
             end;
-#if 0
         else/if _strcmp(id_,"hotspot")==0 then
-            spawn HotSpot with
-                this.me     = &_XXX_PURE((_WorldObjs__HotSpot&&)obj_);
+            spawn Hotspot with
+                this.me     = &_XXX_PURE((_WorldObjs__Hotspot&&)obj_);
                 this.reader = reader_;
             end;
-#endif
         else/if _strcmp(id_,"liquid")==0 then
             spawn Liquid with
                 this.me     = &_XXX_PURE((_WorldObjs__Liquid&&)obj_);

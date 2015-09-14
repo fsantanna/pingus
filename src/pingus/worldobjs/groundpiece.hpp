@@ -23,7 +23,7 @@
 #include "pingus/worldobj.hpp"
 
 #include "ceu_vars.h"
-struct CEU_GroundPiece;
+struct CEU_Groundpiece;
 
 namespace WorldObjsData {
 class GroundpieceData;
@@ -39,7 +39,7 @@ private:
 
 public:
   Groundpiece(const FileReader& reader);
-  CEU_GroundPiece* ceu;
+  CEU_Groundpiece* ceu;
 
   float get_z_pos () const;
   void set_pos(const Vector3f& p);

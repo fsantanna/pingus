@@ -7,7 +7,7 @@ native/pre do
     namespace WorldObjs {
         class Groundpiece;
     }
-    ##define WorldObjs__GroundPiece WorldObjs::Groundpiece
+    ##define WorldObjs__Groundpiece WorldObjs::Groundpiece
     ##define Groundtype__GPType     Groundtype::GPType
     ##define ResourceModifier__Enum ResourceModifier::Enum
 end
@@ -15,13 +15,10 @@ end
 native do
     ##include "src/pingus/worldobjs/groundpiece.hpp"
 end
-native @plain _WorldObjs__GroundPiece, _Groundtype__GPType, _ResourceModifier__Enum;
+native @plain _WorldObjs__Groundpiece, _Groundtype__GPType, _ResourceModifier__Enum;
 
-input (_WorldObjs__GroundPiece&&, _FileReader&&) GROUNDPIECE_NEW;
-input _WorldObjs__GroundPiece&& GROUNDPIECE_DELETE;
-
-class GroundPiece with
-    var _WorldObjs__GroundPiece& me;
+class Groundpiece with
+    var _WorldObjs__Groundpiece& me;
     var _FileReader&&            reader;
 
     function (void)       =>float     get_z_pos;
@@ -51,7 +48,7 @@ do
         end
     end
 
-    AWAIT_UNTIL_MYSELF(_WorldObjs__GroundPiece,GROUNDPIECE_DELETE);
+    await FOREVER;
 
     /* PUBLIC */
 
@@ -65,17 +62,5 @@ do
         return _Vector3f(this.pos.x, this.pos.y, this.pos.z);
     end
 end
-
-class GroundPieceFactory with
-do
-    every (me_,reader_) in GROUNDPIECE_NEW do
-        spawn GroundPiece with
-            this.me     = &_XXX_PTR2REF(me_);
-            this.reader = reader_;
-        end;
-    end
-end
-
-var GroundPieceFactory _;
 
 #endif

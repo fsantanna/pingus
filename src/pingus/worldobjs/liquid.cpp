@@ -39,7 +39,6 @@ Liquid::draw (SceneContext& gc)
 void
 Liquid::update()
 {
-  sur.update(0.033f);
 }
 
 void
