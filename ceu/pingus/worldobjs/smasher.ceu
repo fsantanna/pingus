@@ -85,11 +85,20 @@ do
                 call {Sound::PingusSound::play_sound}("tenton");
 
                 loop i in 20 do
+#if 0
                     this.me.world:get_smoke_particle_holder():
                         add_particle(
                             this.pos.x + 20 + _float(_rand() % 260),
-                            this.pos.y + 180, {Math::frand}()-0.5, 
-                                              {Math::frand}()-0.5);
+                            this.pos.y + 180,
+                            {Math::frand}()-0.5, {Math::frand}()-0.5);
+#else
+                    var IWorld&& world = (IWorld&&)this.me.world:ceu;
+                    emit world:create_smoke_particles => (
+                            this.pos.x + 20 + _float(_rand() % 260),
+                            this.pos.y + 180,
+                            {Math::frand}()-0.5, {Math::frand}()-0.5
+                    );
+#endif
                 end
 
                 var IPingu&&?[] pingus;

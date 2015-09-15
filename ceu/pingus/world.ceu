@@ -24,6 +24,9 @@ input (_char&&, _WorldObj&&, _FileReader&&) WORLD_NEWOBJ;
 
 input void WORLD_ARMAGEDDON;
 
+#include "particles/pingu_particle_holder.ceu"
+#include "particles/smoke_particle_holder.ceu"
+
 interface IWorldObj with
 end
 
@@ -111,6 +114,24 @@ do
 
     par/or do
         AWAIT_UNTIL_MYSELF(_World, WORLD_DELETE);
+    with
+        every (x_,y_) in this.create_pingu_particles do
+            loop i in 50 do
+                spawn PinguParticle with
+                    this.x = x_;
+                    this.y = y_;
+                end;
+            end
+        end
+    with
+        every (x_,y_,vel_x_,vel_y_) in this.create_smoke_particles do
+            spawn SmokeParticle with
+                this.x     = x_;
+                this.y     = y_;
+                this.vel_x = vel_x_;
+                this.vel_y = vel_y_;
+            end;
+        end
     with
         me.do_armageddon = false;
         await WORLD_ARMAGEDDON;

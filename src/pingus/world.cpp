@@ -159,6 +159,11 @@ World::update()
 
   game_time += 1;
 
+  for(WorldObjIter obj = world_obj.begin(); obj != world_obj.end(); ++obj)
+  {
+    (*obj)->update();
+  }
+
   ceu_sys_go(&CEU_APP, CEU_IN_WORLD_UPDATE, &game_time);
 }
 

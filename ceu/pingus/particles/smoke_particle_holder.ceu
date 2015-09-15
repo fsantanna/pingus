@@ -1,0 +1,30 @@
+#ifndef _SMOKE_PARTICLE_HOLDER
+#define _SMOKE_PARTICLE_HOLDER
+
+#include "../../engine/display/sprite_pingu.ceu"
+
+class SmokeParticle with
+    var float x, y;
+    var float vel_x, vel_y;
+do
+    var int livetime = (25 + _rand()%10);
+    var Vector3f velocity = Vector3f(this.vel_x, this.vel_y, 0);
+
+    var SpritePingu _ with
+        this.x     = &outer.x;
+        this.y     = &outer.y;
+        if _rand()%2 then
+            this.name  = "particles/smoke";
+        else
+            this.name  = "particles/smoke2";
+        end
+    end;
+
+    loop i in this.livetime do
+        await WORLD_UPDATE;
+        this.x = this.x + this.velocity.x;
+        this.y = this.y + this.velocity.y;
+    end
+end
+
+#endif

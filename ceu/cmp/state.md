@@ -124,3 +124,15 @@ killing         control collision       ---
 smashing                                sequence
 downwards                               sequence
 count           up,down                 local
+
+================
+
+# PINGU_PARTICLE_HOLDER
+surface         U/D                     [1], anon
+livetime        control lifetime, if    loop
+particles       manual add/rem          pool
+
+# SMOKE_PARTICLE_HOLDER
+surface         U/D                     [1], anon
+livetime        control lifetime, if    loop
+particles       manual add/rem          pool

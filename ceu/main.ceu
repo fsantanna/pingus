@@ -116,6 +116,8 @@ end
 interface IWorld with
     var _World& me;
     function (void)=>IPinguHolderPool& get_pingu_holder;
+    event (float,float)             create_pingu_particles;
+    event (float,float,float,float) create_smoke_particles;
 end
 
 #include "pingus/world.ceu"
