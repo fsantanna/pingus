@@ -35,9 +35,7 @@ class SmallMap;
 class SceneContext;
 
 namespace Particles {
-class PinguParticleHolder;
 class RainParticleHolder;
-class SmokeParticleHolder;
 class SnowParticleHolder;
 }
 
@@ -63,9 +61,7 @@ private:
   std::vector<WorldObj*> world_obj;
   typedef std::vector<WorldObj*>::iterator WorldObjIter;
 
-  Particles::PinguParticleHolder* pingu_particle_holder;
   Particles::RainParticleHolder*  rain_particle_holder;
-  Particles::SmokeParticleHolder* smoke_particle_holder;
   Particles::SnowParticleHolder*  snow_particle_holder;
   PinguHolder*                    pingus;
 
@@ -119,14 +115,8 @@ public:
 
   WorldObj* get_worldobj(const std::string& id);
 
-  /** @return A pointer to the worlds pingu particle holder */
-  Particles::PinguParticleHolder* get_pingu_particle_holder () { return pingu_particle_holder; }
-
   /** @return A pointer to the worlds rain particle holder */
   Particles::RainParticleHolder* get_rain_particle_holder () { return rain_particle_holder; }
-
-  /** @return A pointer to the worlds smoke particle holder */
-  Particles::SmokeParticleHolder* get_smoke_particle_holder () { return smoke_particle_holder; }
 
   /** @return A pointer to the worlds snow particle holder */
   Particles::SnowParticleHolder* get_snow_particle_holder () { return snow_particle_holder; }

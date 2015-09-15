@@ -3,7 +3,6 @@
 
 native/pre do
     ##include "../src/pingus/colliders/pingu_collider.hpp"
-    ##include "../src/pingus/particles/pingu_particle_holder.hpp"
     ##include "../src/pingus/pingu_enums.hpp"
 end
 
@@ -55,12 +54,6 @@ do
 
         await WORLD_UPDATE
         until sprites.get():get_current_frame() == 13;
-
-#if 0
-        call {WorldObj::get_world()->get_pingu_particle_holder()->add_particle}(
-                (int)this.pingu.get_x(),
-                (int)this.pingu.get_y()-5);
-#endif
 
         var IWorld&& world = (IWorld&&){WorldObj::get_world()->ceu};
         emit world:create_pingu_particles => (this.pingu.get_x(),
