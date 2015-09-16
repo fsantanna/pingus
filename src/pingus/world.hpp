@@ -37,10 +37,10 @@ class SceneContext;
 #include "ceu_vars.h"
 struct CEU_World;
 
-namespace Particles {
-class RainParticleHolder;
-class SnowParticleHolder;
-}
+///namespace Particles {
+///class RainParticleHolder;
+///class SnowParticleHolder;
+///}
 
 /** The World holds all objects of the pingu enviroment.
 
@@ -63,9 +63,6 @@ private:
   /** set to true once an armageddon got started */
   bool do_armageddon;
 
-  std::vector<WorldObj*> world_obj;
-  typedef std::vector<WorldObj*>::iterator WorldObjIter;
-
   ///Particles::RainParticleHolder*  rain_particle_holder;
   ///Particles::SnowParticleHolder*  snow_particle_holder;
   PinguHolder*                    pingus;
@@ -73,18 +70,12 @@ private:
   // Pointers which are references to objects from other classes
   CollisionMap*         colmap;
 
-  void    init_worldobjs (const PingusLevel& plf);
-
   /** Acceleration due to gravity in the world */
   const float gravitational_acceleration;
 
 public:
   World(const PingusLevel& level);
   virtual ~World();
-
-  /** Add an object to the world, obj needs to be new'ed the World
-      make sure that it will get deleted */
-  void add_object (WorldObj* obj);
 
   /** Draw the world onto the given SceneContext */
   void    draw (SceneContext& gc);
@@ -116,16 +107,6 @@ public:
   void put(const CollisionMask&, int x, int y, Groundtype::GPType);
 
   void remove(const CollisionMask&, int x, int y);
-
-  WorldObj* get_worldobj(const std::string& id);
-
-  /** @return A pointer to the worlds rain particle holder */
-  ///Particles::RainParticleHolder* get_rain_particle_holder () { return 
-  //rain_particle_holder; }
-
-  /** @return A pointer to the worlds snow particle holder */
-  ///Particles::SnowParticleHolder* get_snow_particle_holder () { return 
-  //snow_particle_holder; }
 
   /** @return true if the world is currently doing an armageddon */
   bool check_armageddon() { return do_armageddon; }

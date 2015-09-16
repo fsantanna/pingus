@@ -57,9 +57,12 @@ Teleporter::on_startup()
   else
   {
     // FIXME: find the target
+assert(!"NOT PORTED");
+#if 0
     target = dynamic_cast<TeleporterTarget*>(world->get_worldobj(target_id));
     if (!target)
       log_error("Teleporter: Couldn't find matching target-id or object isn't a TeleporterTarget");
+#endif
   }
 }
 

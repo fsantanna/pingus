@@ -46,7 +46,8 @@ SwitchDoorSwitch::on_startup ()
   }
   else
   {
-    m_door = dynamic_cast<SwitchDoorDoor*>(world->get_worldobj(m_target));
+assert(!"NOT PORTED");
+    ///m_door = dynamic_cast<SwitchDoorDoor*>(world->get_worldobj(m_target));
     if (!m_door)
       log_error("given target-id is not a SwitchDoorDoor");
   }

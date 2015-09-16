@@ -41,7 +41,6 @@ World::World(const PingusLevel& plf) :
   gfx_map(new GroundMap(plf.get_size().width, plf.get_size().height)),
   game_time(0),
   do_armageddon(false),
-  world_obj(),
   ///rain_particle_holder(),
   ///snow_particle_holder(),
   colmap(gfx_map->get_colmap()),
@@ -51,31 +50,12 @@ World::World(const PingusLevel& plf) :
 
   log_debug("create particle holder");
 
-  // These get deleted via the world_obj vector in the destructor
-  pingus                = new PinguHolder(plf);
-  ///rain_particle_holder  = new Particles::RainParticleHolder();
-  ///snow_particle_holder  = new Particles::SnowParticleHolder();
-
-  ///world_obj.push_back(rain_particle_holder);
-  ///world_obj.push_back(snow_particle_holder);
+  pingus = new PinguHolder(plf);
 
   tceu__World___PingusLevel_ p = { this, (PingusLevel*)&plf };
   ceu_sys_go(&CEU_APP, CEU_IN_WORLD_NEW, &p);
 
-  init_worldobjs(plf);
-}
-
-void
-World::add_object (WorldObj* obj)
-{
-  assert(!"NOT PORTED");
-}
-
-void
-World::init_worldobjs(const PingusLevel& plf)
-{
   const std::vector<FileReader>& objects = plf.get_objects();
-
   for (std::vector<FileReader>::const_iterator i = objects.begin();
        i != objects.end ();
        ++i)
@@ -168,20 +148,7 @@ World::get_gfx_map()
 void
 World::play_sound(std::string name, const Vector3f& pos, float volume)
 {
-  // FIXME: Stereo is for the moment disabled
-  /*
-    Vector3f center = view->get_center();
-    float panning = pos.x - center.x;
-    panning /= view->get_width()/2;
-
-    if (panning > 1.0f)
-    panning = 1.0f;
-
-    if (panning < -1.0f)
-    panning = -1.0f;
-  */
   float panning = 0.0f;
-
   Sound::PingusSound::play_sound(name, volume, panning);
 }
 
@@ -207,13 +174,6 @@ World::remove(const CollisionMask& mask, int x, int y)
 {
   gfx_map->remove(mask.get_surface(), x, y);
   colmap->remove(mask, x, y);
-}
-
-WorldObj*
-World::get_worldobj(const std::string& id)
-{
-  assert(!"not ported");
-  return 0;
 }
 
 Vector2i
