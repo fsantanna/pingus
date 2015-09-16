@@ -1,80 +1,58 @@
 #ifndef _SPIKE_CEU
 #define _SPIKE_CEU
 
-native/pre do
-    namespace WorldObjs {
-        class Spike;
-    }
-    ##define WorldObjs__Spike WorldObjs::Spike
-end
-
-native do
-    ##include "src/pingus/worldobjs/spike.hpp"
-end
-native @plain _WorldObjs__Spike;
-
-input (_WorldObjs__Spike&&, _FileReader&&) SPIKE_NEW;
-input _WorldObjs__Spike&& SPIKE_DELETE;
-
 #include "../../engine/display/sprite_pingu.ceu"
 
 class Spike with
-    var _WorldObjs__Spike& me;
-    var _FileReader&&      reader;
+    var _FileReader&& reader;
 
     function (void)       =>float     get_z_pos;
     function (_Vector3f&&)=>void      set_pos;
     function (void)       =>_Vector3f get_pos;
 do
-    this.me.ceu = &&this;
-
     var Vector3f pos;
     { static Vector3f p; };
     this.reader:read_vector("position", _p);
     this.pos = Vector3f(_p.x,_p.y,_p.z);
 
-    par/or do
-        AWAIT_UNTIL_MYSELF(_WorldObjs__Spike,SPIKE_DELETE);
-    with
-        loop do
-            var IPingu&& pingu =
-                loop do
-                    await WORLD_UPDATE;
-                    var IPingu&&? pingu;
-                    loop p in global:world!:get_pingu_holder().pingus do
-                        if (p:get_pos().x > this.pos.x+16-5 and
-                            p:get_pos().x < this.pos.x+16+5 and
-                            p:get_pos().y > this.pos.y      and
-                            p:get_pos().y < this.pos.y + 32)
-                        then
-                            escape p;
-                        end
+    loop do
+        var IPingu&& pingu =
+            loop do
+                await WORLD_UPDATE;
+                var IPingu&&? pingu;
+                loop p in global:world!:get_pingu_holder().pingus do
+                    if (p:get_pos().x > this.pos.x+16-5 and
+                        p:get_pos().x < this.pos.x+16+5 and
+                        p:get_pos().y > this.pos.y      and
+                        p:get_pos().y < this.pos.y + 32)
+                    then
+                        escape p;
                     end
-                end;
-
-            do
-                var SpritePingu sprite with
-                    this.x = &_XXX_NOHOLD(&&pos.x);
-                    this.y = &_XXX_NOHOLD(&&pos.y);
-                    this.name = "traps/spike";
-                end;
-                watching sprite do
-                    watching *pingu do
-                        loop do
-                            await WORLD_UPDATE;
-                            if (sprite.frame == 3 and
-                                pingu:get_pos().x > this.pos.x+16-12 and
-                                pingu:get_pos().x < this.pos.x+16+12 and
-                                pingu:get_pos().y > this.pos.y       and
-                                pingu:get_pos().y < this.pos.y+32)
-                            then
-                                break;
-                            end
-                        end
-                        emit pingu:go_action => {ActionName::DEAD};
-                    end
-                    await FOREVER;
                 end
+            end;
+
+        do
+            var SpritePingu sprite with
+                this.x = &_XXX_NOHOLD(&&pos.x);
+                this.y = &_XXX_NOHOLD(&&pos.y);
+                this.name = "traps/spike";
+            end;
+            watching sprite do
+                watching *pingu do
+                    loop do
+                        await WORLD_UPDATE;
+                        if (sprite.frame == 3 and
+                            pingu:get_pos().x > this.pos.x+16-12 and
+                            pingu:get_pos().x < this.pos.x+16+12 and
+                            pingu:get_pos().y > this.pos.y       and
+                            pingu:get_pos().y < this.pos.y+32)
+                        then
+                            break;
+                        end
+                    end
+                    emit pingu:go_action => {ActionName::DEAD};
+                end
+                await FOREVER;
             end
         end
     end

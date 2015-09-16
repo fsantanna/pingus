@@ -67,32 +67,26 @@ do
             end;
         else/if _strcmp(id_,"hotspot")==0 then
             spawn Hotspot with
-                this.me     = &_XXX_PURE((_WorldObjs__Hotspot&&)obj_);
                 this.reader = reader_;
             end;
         else/if _strcmp(id_,"laser_exit")==0 then
             spawn LaserExit with
-                this.me     = &_XXX_PURE((_WorldObjs__LaserExit&&)obj_);
                 this.reader = reader_;
             end;
         else/if _strcmp(id_,"liquid")==0 then
             spawn Liquid with
-                this.me     = &_XXX_PURE((_WorldObjs__Liquid&&)obj_);
                 this.reader = reader_;
             end;
         else/if _strcmp(id_,"smasher")==0 then
             spawn Smasher with
-                this.me     = &_XXX_PURE((_WorldObjs__Smasher&&)obj_);
                 this.reader = reader_;
             end;
         else/if _strcmp(id_,"spike")==0 then
             spawn Spike with
-                this.me     = &_XXX_PURE((_WorldObjs__Spike&&)obj_);
                 this.reader = reader_;
             end;
         else/if _strcmp(id_,"surface-background")==0 then
             spawn SurfaceBackground with
-                this.me     = &_XXX_PURE((_WorldObjs__SurfaceBackground&&)obj_);
                 this.reader = reader_;
             end;
         end

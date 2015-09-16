@@ -1,28 +1,13 @@
 #ifndef _LIQUID_CEU
 #define _LIQUID_CEU
 
-native/pre do
-    namespace WorldObjs {
-        class Liquid;
-    }
-    ##define WorldObjs__Liquid WorldObjs::Liquid
-end
-
-native do
-    ##include "src/pingus/worldobjs/liquid.hpp"
-end
-native @plain _WorldObjs__Liquid;
-
 class Liquid with
-    var _WorldObjs__Liquid& me;
-    var _FileReader&&       reader;
+    var _FileReader&& reader;
 
     function (void)       =>float     get_z_pos;
     function (_Vector3f&&)=>void      set_pos;
     function (void)       =>_Vector3f get_pos;
 do
-    this.me.ceu = &&this;
-
     var Vector3f pos;
     { static Vector3f p; };
     this.reader:read_vector("position", _p);

@@ -22,17 +22,11 @@
 #include "pingus/worldobjs/conveyor_belt.hpp"
 #include "pingus/worldobjs/fake_exit.hpp"
 #include "pingus/worldobjs/hammer.hpp"
-#include "pingus/worldobjs/hotspot.hpp"
 #include "pingus/worldobjs/ice_block.hpp"
-#include "pingus/worldobjs/laser_exit.hpp"
-#include "pingus/worldobjs/liquid.hpp"
 #include "pingus/worldobjs/rain_generator.hpp"
-#include "pingus/worldobjs/smasher.hpp"
 #include "pingus/worldobjs/snow_generator.hpp"
 #include "pingus/worldobjs/solid_color_background.hpp"
-#include "pingus/worldobjs/spike.hpp"
 #include "pingus/worldobjs/starfield_background.hpp"
-#include "pingus/worldobjs/surface_background.hpp"
 #include "pingus/worldobjs/switch_door_door.hpp"
 #include "pingus/worldobjs/switch_door_switch.hpp"
 #include "pingus/worldobjs/teleporter.hpp"
@@ -77,7 +71,9 @@ public:
     std::vector<WorldObj*> lst;
     WorldObj* obj;
     if (id!="entrance" && id!="exit" && id!="groundpiece" &&
-        id!="guillotine") {
+        id!="guillotine" && id!="hotspot" && id!="laser_exit" &&
+        id!="smasher" && id!="spike" && id!="surface-background" &&
+        id!="liquid") {
       obj = new T(reader);
       lst.push_back(obj);
     }
@@ -186,18 +182,18 @@ WorldObjFactory::instance()
     new WorldObjGroupFactory("group");
     new WorldObjPrefabFactory("prefab");
 
-    new WorldObjFactoryImpl<Liquid>("liquid");
-    new WorldObjFactoryImpl<Hotspot>("hotspot");
-    new WorldObjFactoryImpl<Liquid>("entrance");
-    new WorldObjFactoryImpl<Liquid>("exit");
+    new WorldObjFactoryImpl<Teleporter>("liquid");
+    new WorldObjFactoryImpl<Teleporter>("hotspot");
+    new WorldObjFactoryImpl<Teleporter>("entrance");
+    new WorldObjFactoryImpl<Teleporter>("exit");
 
     // traps
     new WorldObjFactoryImpl<FakeExit>("fake_exit");
-    new WorldObjFactoryImpl<Liquid>("guillotine");
+    new WorldObjFactoryImpl<Teleporter>("guillotine");
     new WorldObjFactoryImpl<Hammer>("hammer");
-    new WorldObjFactoryImpl<LaserExit>("laser_exit");
-    new WorldObjFactoryImpl<Smasher>("smasher");
-    new WorldObjFactoryImpl<Spike>("spike");
+    new WorldObjFactoryImpl<Teleporter>("laser_exit");
+    new WorldObjFactoryImpl<Teleporter>("smasher");
+    new WorldObjFactoryImpl<Teleporter>("spike");
 
     // Special Objects
     new WorldObjFactoryImpl<SwitchDoorSwitch>("switchdoor-switch");
@@ -208,7 +204,7 @@ WorldObjFactory::instance()
     new WorldObjFactoryImpl<TeleporterTarget>("teleporter-target");
 
     // Backgrounds
-    new WorldObjFactoryImpl<SurfaceBackground>("surface-background");
+    new WorldObjFactoryImpl<Teleporter>("surface-background");
     new WorldObjFactoryImpl<StarfieldBackground>("starfield-background");
     new WorldObjFactoryImpl<SolidColorBackground>("solidcolor-background");
 
@@ -220,7 +216,7 @@ WorldObjFactory::instance()
     new WorldObjFactoryImpl<RainGenerator>("rain");
 
     // Groundpieces
-    new WorldObjFactoryImpl<Liquid>("groundpiece");
+    new WorldObjFactoryImpl<Teleporter>("groundpiece");
   }
 
   return instance_;
