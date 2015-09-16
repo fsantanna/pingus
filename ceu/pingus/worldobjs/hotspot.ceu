@@ -11,7 +11,7 @@ do
     var Vector3f pos;
     { static Vector3f p; };
     this.reader:read_vector("position", _p);
-    { p += WorldObjFactory::pos; };
+    { p += World::pos; };
     this.pos = Vector3f(_p.x,_p.y,_p.z);
 
     var float para;

@@ -104,9 +104,7 @@ do
 
     var WorldObjFactory objs;
     loop i in this.plf:get_objects().size() do
-        call {WorldObjFactory::instance()}:create(
-            this.plf:get_objects().at(i)
-        );
+        call this.me.create_objs(this.plf:get_objects().at(i));
     end
 
 #if 0

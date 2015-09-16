@@ -68,7 +68,6 @@ extern "C" {
 #include "pingus/screens/start_screen.hpp"
 #include "pingus/screens/story_screen.hpp"
 #include "pingus/stat_manager.hpp"
-#include "pingus/worldobj_factory.hpp"
 
 #if _MSC_VER >= 1400
 // Disable stupid deprecation warnings

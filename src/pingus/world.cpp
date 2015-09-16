@@ -25,7 +25,6 @@
 ///#include "pingus/particles/rain_particle_holder.hpp"
 ///#include "pingus/particles/snow_particle_holder.hpp"
 #include "pingus/pingus_level.hpp"
-#include "pingus/worldobj_factory.hpp"
 #include "util/log.hpp"
 
 World::World(const PingusLevel& plf) :
@@ -165,6 +164,44 @@ Vector2i
 World::get_start_pos(int player_id)
 {
   return CEU_World_get_start_pos(NULL, this->ceu);
+}
+
+/// TEMP
+#include "pingus/prefab_file.hpp"
+#include "util/overrride_file_reader.hpp"
+Vector3f World::pos = Vector3f(0,0,0);
+void World::create_objs (const FileReader& reader) {
+    if (reader.get_name()=="prefab")
+    {
+        std::string name;
+        reader.read_string("name", name);
+
+        Vector3f pos;
+        reader.read_vector("position", pos);
+        World::pos += pos;
+
+        PrefabFile prefab = PrefabFile::from_resource(name);
+        FileReader overrides;
+        reader.read_section("overrides", overrides);
+
+        const std::vector<FileReader>& objects = prefab.get_objects();
+        for(auto it = objects.begin(); it != objects.end(); ++it) {
+            OverrideFileReader override_reader(*it, overrides);
+            this->create_objs(override_reader);
+        }
+        World::pos -= pos;
+    }
+    else if (reader.get_name()=="group")
+    {
+        FileReader objects = reader.read_section("objects");
+        std::vector<FileReader> sections = objects.get_sections();
+        for(auto it = sections.begin(); it != sections.end(); ++it) {
+            this->create_objs(*it);
+        }
+    } else {
+        tceu__char___FileReader_ p = { (char*)reader.get_name().c_str(), (FileReader*)&reader };
+        ceu_sys_go(&CEU_APP, CEU_IN_WORLD_NEWOBJ, &p);
+    }
 }
 
 /// TODO: move to proper place!
