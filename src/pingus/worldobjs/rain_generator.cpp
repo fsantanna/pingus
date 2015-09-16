@@ -18,7 +18,7 @@
 
 #include "engine/display/scene_context.hpp"
 #include "engine/sound/sound.hpp"
-#include "pingus/particles/rain_particle_holder.hpp"
+///#include "pingus/particles/rain_particle_holder.hpp"
 #include "pingus/world.hpp"
 #include "util/log.hpp"
 
@@ -68,8 +68,10 @@ RainGenerator::update()
 
   waiter_count -= 20.0f * 0.025f;
 
-  for (int i=0; i < 16; ++i)
-    world->get_rain_particle_holder()->add_particle(rand() % (world->get_width() * 2), -32);
+  assert(!"NOT PORTED: RAIN");
+  ///for (int i=0; i < 16; ++i)
+    ///world->get_rain_particle_holder()->add_particle(rand() % 
+    //(world->get_width() * 2), -32);
 }
 
 } // namespace WorldObjs

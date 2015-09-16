@@ -61,8 +61,8 @@ private:
   std::vector<WorldObj*> world_obj;
   typedef std::vector<WorldObj*>::iterator WorldObjIter;
 
-  Particles::RainParticleHolder*  rain_particle_holder;
-  Particles::SnowParticleHolder*  snow_particle_holder;
+  ///Particles::RainParticleHolder*  rain_particle_holder;
+  ///Particles::SnowParticleHolder*  snow_particle_holder;
   PinguHolder*                    pingus;
 
   // Pointers which are references to objects from other classes
@@ -115,10 +115,12 @@ public:
   WorldObj* get_worldobj(const std::string& id);
 
   /** @return A pointer to the worlds rain particle holder */
-  Particles::RainParticleHolder* get_rain_particle_holder () { return rain_particle_holder; }
+  ///Particles::RainParticleHolder* get_rain_particle_holder () { return 
+  //rain_particle_holder; }
 
   /** @return A pointer to the worlds snow particle holder */
-  Particles::SnowParticleHolder* get_snow_particle_holder () { return snow_particle_holder; }
+  ///Particles::SnowParticleHolder* get_snow_particle_holder () { return 
+  //snow_particle_holder; }
 
   /** @return true if the world is currently doing an armageddon */
   bool check_armageddon() { return do_armageddon; }

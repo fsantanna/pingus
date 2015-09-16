@@ -22,8 +22,8 @@
 #include "engine/sound/sound.hpp"
 #include "pingus/collision_map.hpp"
 #include "pingus/ground_map.hpp"
-#include "pingus/particles/rain_particle_holder.hpp"
-#include "pingus/particles/snow_particle_holder.hpp"
+///#include "pingus/particles/rain_particle_holder.hpp"
+///#include "pingus/particles/snow_particle_holder.hpp"
 #include "pingus/pingu_holder.hpp"
 #include "pingus/pingus_level.hpp"
 #include "pingus/worldobj_factory.hpp"
@@ -44,8 +44,8 @@ World::World(const PingusLevel& plf) :
   game_time(0),
   do_armageddon(false),
   world_obj(),
-  rain_particle_holder(),
-  snow_particle_holder(),
+  ///rain_particle_holder(),
+  ///snow_particle_holder(),
   colmap(gfx_map->get_colmap()),
   gravitational_acceleration(0.2f)
 {
@@ -55,13 +55,13 @@ World::World(const PingusLevel& plf) :
 
   // These get deleted via the world_obj vector in the destructor
   pingus                = new PinguHolder(plf);
-  rain_particle_holder  = new Particles::RainParticleHolder();
-  snow_particle_holder  = new Particles::SnowParticleHolder();
+  ///rain_particle_holder  = new Particles::RainParticleHolder();
+  ///snow_particle_holder  = new Particles::SnowParticleHolder();
 
   world_obj.push_back(gfx_map);
 
-  world_obj.push_back(rain_particle_holder);
-  world_obj.push_back(snow_particle_holder);
+  ///world_obj.push_back(rain_particle_holder);
+  ///world_obj.push_back(snow_particle_holder);
 
   tceu__World___PingusLevel_ p = { this, (PingusLevel*)&plf };
   ceu_sys_go(&CEU_APP, CEU_IN_WORLD_NEW, &p);

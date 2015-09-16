@@ -17,7 +17,7 @@
 #include "pingus/worldobjs/snow_generator.hpp"
 
 #include "pingus/globals.hpp"
-#include "pingus/particles/snow_particle_holder.hpp"
+///#include "pingus/particles/snow_particle_holder.hpp"
 #include "pingus/world.hpp"
 
 namespace WorldObjs {
@@ -36,6 +36,8 @@ SnowGenerator::~SnowGenerator()
 void
 SnowGenerator::update()
 {
+  assert(!"NOT PORTED: SNOW");
+#if 0
   for(int i = 0; i < Math::floor(intensity); ++i)
   {
     if (rand() % 3 != 0)
@@ -51,6 +53,7 @@ SnowGenerator::update()
     else
       world->get_snow_particle_holder()->add_particle(rand() % world->get_width(), -globals::tile_size, true);
   }
+#endif
 }
 
 void
