@@ -103,6 +103,13 @@ do
     global:world = &&this;
 
     var WorldObjFactory objs;
+    loop i in this.plf:get_objects().size() do
+        call {WorldObjFactory::instance()}:create(
+            this.plf:get_objects().at(i)
+        );
+    end
+
+#if 0
     {
         static const std::vector<FileReader>& objects =
             THIS(CEU_World)->plf->get_objects();
@@ -111,6 +118,7 @@ do
              ++i)
             WorldObjFactory::instance()->create(*i);
     };
+#endif
 
     var PinguHolder pingu_holder with
         this.number_of_allowed = plf:get_number_of_pingus();
