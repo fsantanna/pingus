@@ -79,8 +79,6 @@ public:
 
 /// TEMP
   void render(int x, int y, Framebuffer& fb);
-  static Vector3f pos;
-  void create_objs (const FileReader& reader);
 
   /** Draw the world onto the given SceneContext */
   void    draw (SceneContext& gc);

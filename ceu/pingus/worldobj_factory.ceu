@@ -1,6 +1,45 @@
 #ifndef _WORLDOBJ_FACTORY_CEU
 #define _WORLDOBJ_FACTORY_CEU
 
+native do
+    ##include "src/pingus/prefab_file.hpp"
+    ##include "src/util/overrride_file_reader.hpp"
+    Vector3f WORLDOBJ_FACTORY_pos = Vector3f(0,0,0);
+    void WORLDOBJ_FACTORY_create (const FileReader& reader) {
+        if (reader.get_name()=="prefab")
+        {
+            std::string name;
+            reader.read_string("name", name);
+
+            Vector3f pos;
+            reader.read_vector("position", pos);
+            WORLDOBJ_FACTORY_pos += pos;
+
+            PrefabFile prefab = PrefabFile::from_resource(name);
+            FileReader overrides;
+            reader.read_section("overrides", overrides);
+
+            const std::vector<FileReader>& objects = prefab.get_objects();
+            for(auto it = objects.begin(); it != objects.end(); ++it) {
+                OverrideFileReader override_reader(*it, overrides);
+                WORLDOBJ_FACTORY_create(override_reader);
+            }
+            WORLDOBJ_FACTORY_pos -= pos;
+        }
+        else if (reader.get_name()=="group")
+        {
+            FileReader objects = reader.read_section("objects");
+            std::vector<FileReader> sections = objects.get_sections();
+            for(auto it = sections.begin(); it != sections.end(); ++it) {
+                WORLDOBJ_FACTORY_create(*it);
+            }
+        } else {
+            tceu__char___FileReader_ p = { (char*)reader.get_name().c_str(), (FileReader*)&reader };
+            ceu_sys_go(&CEU_APP, CEU_IN_WORLD_NEWOBJ, &p);
+        }
+    }
+end
+
 class WorldObjFactory with
     var _PingusLevel&& plf;
     pool Entrance[] entrances;
@@ -51,7 +90,7 @@ do
         end
     with
         loop i in this.plf:get_objects().size() do
-            global:world!:me.create_objs(this.plf:get_objects().at(i));
+            _WORLDOBJ_FACTORY_create(this.plf:get_objects().at(i));
         end
     end
 

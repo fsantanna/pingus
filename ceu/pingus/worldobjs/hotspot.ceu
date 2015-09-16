@@ -1,6 +1,10 @@
 #ifndef _HOTSPOT_CEU
 #define _HOTSPOT_CEU
 
+native do
+    extern Vector3f WORLDOBJ_FACTORY_pos;
+end
+
 class Hotspot with
     var _FileReader&& reader;
 
@@ -11,7 +15,7 @@ do
     var Vector3f pos;
     { static Vector3f p; };
     this.reader:read_vector("position", _p);
-    { p += World::pos; };
+    { p += WORLDOBJ_FACTORY_pos; };
     this.pos = Vector3f(_p.x,_p.y,_p.z);
 
     var float para;
