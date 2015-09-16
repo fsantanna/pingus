@@ -30,7 +30,6 @@ class PinguHolder;
 class PingusLevel;
 class CollisionMap;
 class Pingu;
-class WorldObj;
 class SmallMap;
 class SceneContext;
 

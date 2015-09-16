@@ -28,12 +28,6 @@
 #include "pingus/worldobj_factory.hpp"
 #include "util/log.hpp"
 
-static
-bool WorldObj_less (WorldObj* a, WorldObj* b)
-{
-  return a->get_z_pos () < b->get_z_pos ();
-}
-
 World::World(const PingusLevel& plf) :
   ambient_light(Color(plf.get_ambient_light())),
   gfx_map(new GroundMap(plf.get_size().width, plf.get_size().height)),
@@ -54,7 +48,7 @@ World::World(const PingusLevel& plf) :
        i != objects.end ();
        ++i)
   {
-    std::vector<WorldObj*> objs = WorldObjFactory::instance()->create(*i);
+    WorldObjFactory::instance()->create(*i);
   }
 }
 

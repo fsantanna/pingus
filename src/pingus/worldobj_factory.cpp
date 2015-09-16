@@ -53,7 +53,7 @@ public:
 
   virtual ~WorldObjAbstractFactory() {}
 
-  virtual std::vector<WorldObj*> create(const FileReader& reader) =0;
+  virtual void create(const FileReader& reader) =0;
 
 private:
   WorldObjAbstractFactory (const WorldObjAbstractFactory&);
@@ -62,7 +62,6 @@ private:
 
 /** Template to create factories, usage:
     new WorldObjFactoryImpl<"liquid", Liquid>; */
-template<class T>
 class WorldObjFactoryImpl : public WorldObjAbstractFactory
 {
 public:
@@ -70,19 +69,9 @@ public:
   WorldObjFactoryImpl (const std::string& id)
     : WorldObjAbstractFactory (id) {this->id = id;}
 
-  std::vector<WorldObj*> create(const FileReader& reader) {
-    std::vector<WorldObj*> lst;
-    WorldObj* obj;
-    if (id!="entrance" && id!="exit" && id!="groundpiece" &&
-        id!="guillotine" && id!="hotspot" && id!="laser_exit" &&
-        id!="smasher" && id!="spike" && id!="surface-background" &&
-        id!="liquid") {
-      obj = new T(reader);
-      lst.push_back(obj);
-    }
+  void create(const FileReader& reader) {
     tceu__char___FileReader_ p = { (char*)id.c_str(), (FileReader*)&reader };
     ceu_sys_go(&CEU_APP, CEU_IN_WORLD_NEWOBJ, &p);
-    return lst;
   }
 
 private:
@@ -99,23 +88,13 @@ public:
 
   virtual ~WorldObjGroupFactory() {}
 
-  virtual std::vector<WorldObj*> create(const FileReader& reader) {
-    std::vector<WorldObj*> group;
-
+  virtual void create(const FileReader& reader) {
     FileReader objects = reader.read_section("objects");
     std::vector<FileReader> sections = objects.get_sections();
     for(auto it = sections.begin(); it != sections.end(); ++it)
     {
-      std::vector<WorldObj*> objs = WorldObjFactory::instance()->create(*it);
-      for(auto obj = objs.begin(); obj != objs.end(); ++obj)
-      {
-        if (*obj)
-        {
-          group.push_back(*obj);
-        }
-      }
+      WorldObjFactory::instance()->create(*it);
     }
-    return group;
   }
 
 private:
@@ -132,7 +111,7 @@ public:
 
   virtual ~WorldObjPrefabFactory() {}
 
-  virtual std::vector<WorldObj*> create(const FileReader& reader) {
+  virtual void create(const FileReader& reader) {
     std::string name;
     reader.read_string("name", name);
 
@@ -144,26 +123,15 @@ public:
     FileReader overrides;
     reader.read_section("overrides", overrides);
 
-    std::vector<WorldObj*> group;
     const std::vector<FileReader>& objects = prefab.get_objects();
     for(auto it = objects.begin(); it != objects.end(); ++it)
     {
       OverrideFileReader override_reader(*it, overrides);
 
-      std::vector<WorldObj*> objs = WorldObjFactory::instance()->create(override_reader);
-      for(auto obj = objs.begin(); obj != objs.end(); ++obj)
-      {
-        if (*obj)
-        {
-          (*obj)->set_pos((*obj)->get_pos() + pos);
-          group.push_back(*obj);
-        }
-      }
+      WorldObjFactory::instance()->create(override_reader);
     }
 
     WorldObjFactory::pos -= pos;
-
-    return group;
   }
 
 private:
@@ -188,41 +156,41 @@ WorldObjFactory::instance()
     new WorldObjGroupFactory("group");
     new WorldObjPrefabFactory("prefab");
 
-    new WorldObjFactoryImpl<Teleporter>("liquid");
-    new WorldObjFactoryImpl<Teleporter>("hotspot");
-    new WorldObjFactoryImpl<Teleporter>("entrance");
-    new WorldObjFactoryImpl<Teleporter>("exit");
+    new WorldObjFactoryImpl("liquid");
+    new WorldObjFactoryImpl("hotspot");
+    new WorldObjFactoryImpl("entrance");
+    new WorldObjFactoryImpl("exit");
 
     // traps
-    new WorldObjFactoryImpl<FakeExit>("fake_exit");
-    new WorldObjFactoryImpl<Teleporter>("guillotine");
-    new WorldObjFactoryImpl<Hammer>("hammer");
-    new WorldObjFactoryImpl<Teleporter>("laser_exit");
-    new WorldObjFactoryImpl<Teleporter>("smasher");
-    new WorldObjFactoryImpl<Teleporter>("spike");
+    ///new WorldObjFactoryImpl<FakeExit>("fake_exit");
+    new WorldObjFactoryImpl("guillotine");
+    ///new WorldObjFactoryImpl<Hammer>("hammer");
+    new WorldObjFactoryImpl("laser_exit");
+    new WorldObjFactoryImpl("smasher");
+    new WorldObjFactoryImpl("spike");
 
     // Special Objects
-    new WorldObjFactoryImpl<SwitchDoorSwitch>("switchdoor-switch");
-    new WorldObjFactoryImpl<SwitchDoorDoor>("switchdoor-door");
-    new WorldObjFactoryImpl<IceBlock>("iceblock");
-    new WorldObjFactoryImpl<ConveyorBelt>("conveyorbelt");
-    new WorldObjFactoryImpl<Teleporter>("teleporter");
-    new WorldObjFactoryImpl<TeleporterTarget>("teleporter-target");
+    ///new WorldObjFactoryImpl<SwitchDoorSwitch>("switchdoor-switch");
+    ///new WorldObjFactoryImpl<SwitchDoorDoor>("switchdoor-door");
+    ///new WorldObjFactoryImpl<IceBlock>("iceblock");
+    ///new WorldObjFactoryImpl<ConveyorBelt>("conveyorbelt");
+    ///new WorldObjFactoryImpl<Teleporter>("teleporter");
+    ///new WorldObjFactoryImpl<TeleporterTarget>("teleporter-target");
 
     // Backgrounds
-    new WorldObjFactoryImpl<Teleporter>("surface-background");
-    new WorldObjFactoryImpl<StarfieldBackground>("starfield-background");
-    new WorldObjFactoryImpl<SolidColorBackground>("solidcolor-background");
+    new WorldObjFactoryImpl("surface-background");
+    ///new WorldObjFactoryImpl<StarfieldBackground>("starfield-background");
+    ///new WorldObjFactoryImpl<SolidColorBackground>("solidcolor-background");
 
     // Weather
-    new WorldObjFactoryImpl<SnowGenerator>("snow-generator");
-    new WorldObjFactoryImpl<RainGenerator>("rain-generator");
+    ///new WorldObjFactoryImpl<SnowGenerator>("snow-generator");
+    ///new WorldObjFactoryImpl<RainGenerator>("rain-generator");
     // Weather-Backward compability
-    new WorldObjFactoryImpl<SnowGenerator>("snow");
-    new WorldObjFactoryImpl<RainGenerator>("rain");
+    ///new WorldObjFactoryImpl<SnowGenerator>("snow");
+    ///new WorldObjFactoryImpl<RainGenerator>("rain");
 
     // Groundpieces
-    new WorldObjFactoryImpl<Teleporter>("groundpiece");
+    new WorldObjFactoryImpl("groundpiece");
   }
 
   return instance_;
@@ -238,7 +206,7 @@ void WorldObjFactory::deinit()
   }
 }
 
-std::vector<WorldObj*>
+void
 WorldObjFactory::create(const FileReader& reader)
 {
   std::map<std::string, WorldObjAbstractFactory*>::iterator it = factories.find(reader.get_name());
@@ -246,11 +214,10 @@ WorldObjFactory::create(const FileReader& reader)
   if (it == factories.end())
   {
     log_error("invalid id: '%1%'", reader.get_name());
-    return std::vector<WorldObj*>();
   }
   else
   {
-    return it->second->create(reader);
+    it->second->create(reader);
   }
 }
 
