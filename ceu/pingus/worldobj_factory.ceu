@@ -1,0 +1,71 @@
+#ifndef _WORLDOBJ_FACTORY_CEU
+#define _WORLDOBJ_FACTORY_CEU
+
+class WorldObjFactory with
+    var _PingusLevel&& plf;
+    pool Entrance[] entrances;
+do
+    par do
+        every (id_,reader_) in WORLD_NEWOBJ do
+            if _strcmp(id_,"entrance")==0 then
+                spawn Entrance in this.entrances with
+                    this.reader = reader_;
+                end;
+            else/if _strcmp(id_,"exit")==0 then
+                spawn Exit with
+                    this.reader = reader_;
+                end;
+            else/if _strcmp(id_,"groundpiece")==0 then
+                spawn Groundpiece with
+                    this.reader = reader_;
+                end;
+            else/if _strcmp(id_,"guillotine")==0 then
+                spawn Guillotine with
+                    this.reader = reader_;
+                end;
+            else/if _strcmp(id_,"hotspot")==0 then
+                spawn Hotspot with
+                    this.reader = reader_;
+                end;
+            else/if _strcmp(id_,"laser_exit")==0 then
+                spawn LaserExit with
+                    this.reader = reader_;
+                end;
+            else/if _strcmp(id_,"liquid")==0 then
+                spawn Liquid with
+                    this.reader = reader_;
+                end;
+            else/if _strcmp(id_,"smasher")==0 then
+                spawn Smasher with
+                    this.reader = reader_;
+                end;
+            else/if _strcmp(id_,"spike")==0 then
+                spawn Spike with
+                    this.reader = reader_;
+                end;
+            else/if _strcmp(id_,"surface-background")==0 then
+                spawn SurfaceBackground with
+                    this.reader = reader_;
+                end;
+            end
+        end
+    with
+        loop i in this.plf:get_objects().size() do
+            global:world!:me.create_objs(this.plf:get_objects().at(i));
+        end
+    end
+
+#if 0
+    {
+        static const std::vector<FileReader>& objects =
+            THIS(CEU_World)->plf->get_objects();
+        for (std::vector<FileReader>::const_iterator i = objects.begin();
+             i != objects.end ();
+             ++i)
+            WorldObjFactory::instance()->create(*i);
+    };
+#endif
+
+end
+
+#endif
