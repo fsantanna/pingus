@@ -18,14 +18,6 @@
 
 #include "util/log.hpp"
 
-World* WorldObj::world;
-
-void
-WorldObj::set_world(World* arg_world)
-{
-  world = arg_world;
-}
-
 WorldObj::WorldObj(const FileReader& reader) :
   id()
 {

@@ -35,14 +35,9 @@ class WorldObj
 {
 protected:
   /** The World all WorldObjects live in. */
-  static World*  world;
 
 public:
-  /** Set the world pointer for all world objects */
-  static void   set_world(World*);
-
   /** Return the current active world */
-  static World* get_world () { return world; }
 
 private:
   std::string id;

@@ -46,8 +46,6 @@ World::World(const PingusLevel& plf) :
   colmap(gfx_map->get_colmap()),
   gravitational_acceleration(0.2f)
 {
-  WorldObj::set_world(this);
-
   log_debug("create particle holder");
 
   pingus = new PinguHolder(plf);
@@ -75,8 +73,6 @@ World::~World()
 void
 World::draw (SceneContext& gc)
 {
-  WorldObj::set_world(this);
-
   gc.light().fill_screen(Color(ambient_light));
 
   gfx_map->draw(gc);
@@ -89,14 +85,12 @@ World::draw (SceneContext& gc)
 void
 World::draw_smallmap(SmallMap* smallmap)
 {
-  WorldObj::set_world(this);
   ceu_sys_go(&CEU_APP, CEU_IN_WORLD_DRAW_SMALLMAP, &smallmap);
 }
 
 void
 World::update()
 {
-  WorldObj::set_world(this);
   game_time += 1;
   ceu_sys_go(&CEU_APP, CEU_IN_WORLD_UPDATE, &game_time);
 }

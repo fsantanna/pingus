@@ -59,6 +59,8 @@ ConveyorBelt::draw (SceneContext& gc)
 void
 ConveyorBelt::on_startup ()
 {
+  assert(!"NOT PORTED: world");
+#if 0
   CollisionMask mask("worldobjs/conveyorbelt_cmap");
 
   for (int i=0; i < (width + 2); ++i)
@@ -66,6 +68,7 @@ ConveyorBelt::on_startup ()
                static_cast<int>(pos.x) + (15 * i),
                static_cast<int>(pos.y),
                Groundtype::GP_SOLID);
+#endif
 }
 
 void

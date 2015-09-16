@@ -250,7 +250,7 @@ do
     end
 
     function (int x, int y)=>int rel_getpixel do
-        return {WorldObj::get_world()->get_colmap()->getpixel}(
+        return global:world!:me.get_colmap():getpixel(
                 (int)(this.pos_x + (float)(x * this.direction)),
                 (int)(this.pos_y - (float)(y)));
     end

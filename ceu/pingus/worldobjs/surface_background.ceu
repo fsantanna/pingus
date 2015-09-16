@@ -154,13 +154,13 @@ do
 
             var int y = start_y;
             loop i do
-                if y >= this.me.world:get_height() then
+                if y >= global:world!:me.get_height() then
                     break;
                 end
 
                 var int x = start_x;
                 loop j do
-                    if x >= this.me.world:get_width() then
+                    if x >= global:world!:me.get_width() then
                         break;
                     end
                     gc:color().draw(this.bg_sprite,

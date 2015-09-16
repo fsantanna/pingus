@@ -81,6 +81,8 @@ SnowParticleHolder::add_particle (int x, int y, bool colliding)
 void
 SnowParticleHolder::update ()
 {
+  assert(!"NOT PORTED: world");
+#if 0
   // update all contained particles
   for (std::vector<SnowParticle>::iterator it=particles.begin(); it != particles.end(); ++it)
   {
@@ -109,6 +111,7 @@ SnowParticleHolder::update ()
       }
     }
   }
+#endif
 }
 
 void

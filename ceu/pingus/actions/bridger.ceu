@@ -172,14 +172,14 @@ do
         };
 
         if this.pingu.direction == _RIGHT then
-            call {WorldObj::get_world()->put}(
+            global:world!:me.put(
                     _brick_r,
                     (int)(this.pingu.get_pos().x + 10.0 - (float)(_brick_r.get_width())),
                     (int)(this.pingu.get_pos().y),
                     {Groundtype::GP_BRIDGE}
             );
         else
-            call {WorldObj::get_world()->put}(
+            global:world!:me.put(
                     _brick_l,
                     (int)(this.pingu.get_pos().x - 10.0),
                     (int)(this.pingu.get_pos().y),

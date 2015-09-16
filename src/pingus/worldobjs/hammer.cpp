@@ -47,6 +47,8 @@ Hammer::draw(SceneContext& gc)
 void
 Hammer::update()
 {
+assert(!"NOT PORTED");
+#if 0
   if (m_down)
   {
     m_count += 1;
@@ -56,9 +58,8 @@ Hammer::update()
     {
       PinguHolder* holder = world->get_pingus();
 
-assert(!"NOT PORTED");
-#if 0
-      for (PinguIter pingu_it = holder->begin (); pingu_it != holder->end (); ++pingu_it)
+      for (PinguIter pingu_it = holder->begin (); pingu_it != holder->end (); 
+      ++pingu_it)
       {
         Pingu* pingu = *pingu_it;
         if (pingu->get_action() != ActionName::SPLASHED)
@@ -68,7 +69,6 @@ assert(!"NOT PORTED");
             pingu->request_set_action(ActionName::SPLASHED);
         }
       }
-#endif
 
       m_down = false;
     }
@@ -82,6 +82,7 @@ assert(!"NOT PORTED");
       m_down = true;
     }
   }
+#endif
 }
 
 } // namespace WorldObjs

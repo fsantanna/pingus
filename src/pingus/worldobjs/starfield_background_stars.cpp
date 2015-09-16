@@ -43,8 +43,11 @@ StarfieldBackgroundStars::StarfieldBackgroundStars (Type type) :
       break;
   }
 
+  assert(!"StarFieldBackgroundStars: not ported!");
+#if 0
   x_pos = float(rand() % WorldObj::get_world()->get_width());
   y_pos = float(rand() % WorldObj::get_world()->get_height());
+#endif
 
   x_add = static_cast<float>(rand() % 5) + 1.0f;
   y_add = 0.0f;
@@ -56,11 +59,14 @@ StarfieldBackgroundStars::update ()
   x_pos += x_add;
   y_pos += y_add;
 
+  assert(!"StarFieldBackgroundStars: not ported!");
+#if 0
   if (x_pos > WorldObj::get_world()->get_width())
   {
     x_pos = float(-globals::tile_size);
     y_pos = float(rand() % WorldObj::get_world()->get_height());
   }
+#endif
 }
 
 void

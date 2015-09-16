@@ -44,10 +44,13 @@ IceBlock::IceBlock(const FileReader& reader) :
 void
 IceBlock::on_startup ()
 {
+assert(!"NOT PORTED: world");
+#if 0
   world->put(block_sur_cmap,
              static_cast<int>(pos.x),
              static_cast<int>(pos.y),
              Groundtype::GP_GROUND);
+#endif
 }
 
 void
@@ -67,10 +70,10 @@ IceBlock::update()
   if (is_finished)
     return;
 
-  PinguHolder* holder = world->get_pingus();
-
 assert(!"NOT PORTED");
 #if 0
+  PinguHolder* holder = world->get_pingus();
+
   for (PinguIter pingu = holder->begin(); pingu != holder->end(); ++pingu)
   {
     if ((*pingu)->get_x() > pos.x     && (*pingu)->get_x() < pos.x + 
@@ -80,7 +83,6 @@ assert(!"NOT PORTED");
       last_contact = world->get_time();
     }
   }
-#endif
 
   if (last_contact && last_contact + 1000 > world->get_time())
   {
@@ -96,6 +98,7 @@ assert(!"NOT PORTED");
       return;
     }
   }
+#endif
 }
 
 } // namespace WorldObjs

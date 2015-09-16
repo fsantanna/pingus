@@ -65,10 +65,10 @@ private:
 
   ///Particles::RainParticleHolder*  rain_particle_holder;
   ///Particles::SnowParticleHolder*  snow_particle_holder;
-  PinguHolder*                    pingus;
+  PinguHolder*   pingus;
 
   // Pointers which are references to objects from other classes
-  CollisionMap*         colmap;
+  CollisionMap*  colmap;
 
   /** Acceleration due to gravity in the world */
   const float gravitational_acceleration;

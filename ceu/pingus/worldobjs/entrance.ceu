@@ -1,8 +1,6 @@
 #ifndef _ENTRANCE_CEU
 #define _ENTRANCE_CEU
 
-// TODO: this.me.world
-
 native/pre do
     namespace WorldObjs {
         class Entrance;
@@ -80,10 +78,10 @@ do
 
         loop do
             await WORLD_UPDATE
-            until this.me.world:get_time() >= last_release+release_rate;
-            last_release = this.me.world:get_time();
+            until global:world!:me.get_time() >= last_release+release_rate;
+            last_release = global:world!:me.get_time();
 
-            if this.me.world:check_armageddon() then
+            if global:world!:me.check_armageddon() then
                 break;
             end
 
@@ -93,7 +91,7 @@ do
               pos.z = THIS(CEU_Entrance)->pos.z;
             };
             var IPingu&& pingu = _XXX_PURE(
-                this.me.world:get_pingus():create_pingu(
+                global:world!:me.get_pingus():create_pingu(
                     _pos,
                     this.owner_id));
             if pingu == null then

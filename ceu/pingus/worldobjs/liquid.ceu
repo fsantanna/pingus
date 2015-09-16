@@ -1,5 +1,3 @@
-// TODO: this.me.world
-
 #ifndef _LIQUID_CEU
 #define _LIQUID_CEU
 
@@ -50,7 +48,7 @@ do
     do
         { static CollisionMask mask("liquids/water_cmap"); };
         loop i in this.width do
-            this.me.world:get_colmap():put(_mask,
+            global:world!:me.get_colmap():put(_mask,
                              (int)(this.pos.x + (float)(i)),
                              (int)(this.pos.y),
                              {Groundtype::GP_WATER});

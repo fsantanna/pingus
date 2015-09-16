@@ -43,6 +43,8 @@ SwitchDoorDoor::SwitchDoorDoor(const FileReader& reader) :
 void
 SwitchDoorDoor::on_startup()
 {
+  assert(!"SwitchDoorDoor: not ported!");
+#if 0
   world->get_colmap()->put(door_box_cmap,
                            static_cast<int>(door_pos.x),
                            static_cast<int>(door_pos.y),
@@ -55,6 +57,7 @@ SwitchDoorDoor::on_startup()
                              + i * door_tile.get_height()
                              + door_box.get_height(),
                              Groundtype::GP_SOLID);
+#endif
 }
 
 void
@@ -69,6 +72,8 @@ SwitchDoorDoor::draw(SceneContext& gc)
 void
 SwitchDoorDoor::update ()
 {
+  assert(!"SwitchDoorDoor: not ported!");
+#if 0
   if (current_door_height > 0)
   {
     if (is_opening)
@@ -93,6 +98,7 @@ SwitchDoorDoor::update ()
       }
     }
   }
+#endif
 }
 
 void

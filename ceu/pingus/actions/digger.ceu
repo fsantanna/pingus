@@ -54,12 +54,12 @@ do
         };
 
         if (not final) then
-            call {WorldObj::get_world()->remove}(
+            global:world!:me.remove(
                     _digger_radius,
                     this.pingu.get_xi() - _digger_radius.get_width()/2,
                     this.pingu.get_yi() - _digger_radius.get_height() + 2);
         else
-            call {WorldObj::get_world()->remove}(
+            global:world!:me.remove(
                     _digger_radius_final,
                     this.pingu.get_xi() - _digger_radius.get_width()/2,
                     this.pingu.get_yi() - _digger_radius.get_height() + 2);

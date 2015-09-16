@@ -94,7 +94,7 @@ do
         };
         this.bash_reach = _bash_radius.get_width();
 
-        call {WorldObj::get_world()->remove}(
+        global:world!:me.remove(
                 _bash_radius,
                 this.pingu.get_xi() - _bash_radius.get_width() / 2,
                 this.pingu.get_yi() - _bash_radius.get_height() + 1

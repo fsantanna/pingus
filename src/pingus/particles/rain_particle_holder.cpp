@@ -76,6 +76,8 @@ RainParticleHolder::update ()
     }
     else
     {
+      assert(!"NOT PORTED: world");
+#if 0
       if ( world->get_colmap()->getpixel(static_cast<int>(it->pos.x), static_cast<int>(it->pos.y)) != Groundtype::GP_NOTHING
            && world->get_colmap()->getpixel(static_cast<int>(it->pos.x), static_cast<int>(it->pos.y)) != Groundtype::GP_OUTOFSCREEN
            && ((rand() % 2) == 0))
@@ -93,6 +95,7 @@ RainParticleHolder::update ()
         it->pos.x -= 5  * it->pos.z;
         it->pos.y += 16 * it->pos.z;
       }
+#endif
     }
   }
 
@@ -101,6 +104,8 @@ RainParticleHolder::update ()
 void
 RainParticleHolder::draw (SceneContext& gc)
 {
+  assert(!"NOT PORTED: world");
+#if 0
   for (std::vector<RainParticle>::iterator it=particles.begin(); it != particles.end(); ++it)
   {
     // skip dead/invisible particles
@@ -120,6 +125,7 @@ RainParticleHolder::draw (SceneContext& gc)
         gc.color().draw(rain1_surf, Vector2i(static_cast<int>(it->pos.x),
                                              static_cast<int>(it->pos.y - static_cast<float>(rain1_surf.get_height()))));
   }
+#endif
 }
 
 } // namespace Particles
