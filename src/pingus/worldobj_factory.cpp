@@ -20,11 +20,7 @@
 
 #include "pingus/prefab_file.hpp"
 #include "pingus/worldobjs/conveyor_belt.hpp"
-#include "pingus/worldobjs/entrance.hpp"
-#include "pingus/worldobjs/exit.hpp"
 #include "pingus/worldobjs/fake_exit.hpp"
-#include "pingus/worldobjs/groundpiece.hpp"
-#include "pingus/worldobjs/guillotine.hpp"
 #include "pingus/worldobjs/hammer.hpp"
 #include "pingus/worldobjs/hotspot.hpp"
 #include "pingus/worldobjs/ice_block.hpp"
@@ -45,6 +41,8 @@
 #include "util/overrride_file_reader.hpp"
 
 using namespace WorldObjs;
+
+Vector3f WorldObjFactory::pos;
 
 WorldObjFactory* WorldObjFactory::instance_ = 0;
 
@@ -77,8 +75,12 @@ public:
 
   std::vector<WorldObj*> create(const FileReader& reader) {
     std::vector<WorldObj*> lst;
-    WorldObj* obj = new T(reader);
-    lst.push_back(obj);
+    WorldObj* obj;
+    if (id!="entrance" && id!="exit" && id!="groundpiece" &&
+        id!="guillotine") {
+      obj = new T(reader);
+      lst.push_back(obj);
+    }
     tceu__char___WorldObj___FileReader_ p = { (char*)id.c_str(), obj, (FileReader*)&reader };
     ceu_sys_go(&CEU_APP, CEU_IN_WORLD_NEWOBJ, &p);
     return lst;
@@ -127,7 +129,7 @@ class WorldObjPrefabFactory : public WorldObjAbstractFactory
 public:
   WorldObjPrefabFactory (const std::string& id) :
     WorldObjAbstractFactory(id)
-  {}
+  { }
 
   virtual ~WorldObjPrefabFactory() {}
 
@@ -137,6 +139,7 @@ public:
 
     Vector3f pos;
     reader.read_vector("position", pos);
+    WorldObjFactory::pos = pos;
 
     PrefabFile prefab = PrefabFile::from_resource(name);
     FileReader overrides;
@@ -185,12 +188,12 @@ WorldObjFactory::instance()
 
     new WorldObjFactoryImpl<Liquid>("liquid");
     new WorldObjFactoryImpl<Hotspot>("hotspot");
-    new WorldObjFactoryImpl<Entrance>("entrance");
-    new WorldObjFactoryImpl<Exit>("exit");
+    new WorldObjFactoryImpl<Liquid>("entrance");
+    new WorldObjFactoryImpl<Liquid>("exit");
 
     // traps
     new WorldObjFactoryImpl<FakeExit>("fake_exit");
-    new WorldObjFactoryImpl<Guillotine>("guillotine");
+    new WorldObjFactoryImpl<Liquid>("guillotine");
     new WorldObjFactoryImpl<Hammer>("hammer");
     new WorldObjFactoryImpl<LaserExit>("laser_exit");
     new WorldObjFactoryImpl<Smasher>("smasher");
@@ -217,7 +220,7 @@ WorldObjFactory::instance()
     new WorldObjFactoryImpl<RainGenerator>("rain");
 
     // Groundpieces
-    new WorldObjFactoryImpl<Groundpiece>("groundpiece");
+    new WorldObjFactoryImpl<Liquid>("groundpiece");
   }
 
   return instance_;

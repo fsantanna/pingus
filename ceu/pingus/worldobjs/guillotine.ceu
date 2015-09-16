@@ -1,86 +1,64 @@
 #ifndef _GUILLOTINE_CEU
 #define _GUILLOTINE_CEU
 
-native/pre do
-    namespace WorldObjs {
-        class Guillotine;
-    }
-    ##define WorldObjs__Guillotine WorldObjs::Guillotine
-end
-
-native do
-    ##include "src/pingus/worldobjs/guillotine.hpp"
-end
-native @plain _WorldObjs__Guillotine;
-
-input (_WorldObjs__Guillotine&&, _FileReader&&) GUILLOTINE_NEW;
-input _WorldObjs__Guillotine&& GUILLOTINE_DELETE;
-
 #include "../../engine/display/sprite_pingu.ceu"
 
 class Guillotine with
-    var _WorldObjs__Guillotine& me;
-    var _FileReader&&           reader;
+    var _FileReader&& reader;
 
     function (void)       =>float     get_z_pos;
     function (_Vector3f&&)=>void      set_pos;
     function (void)       =>_Vector3f get_pos;
 do
-    this.me.ceu = &&this;
-
     var Vector3f pos;
     { static Vector3f p; };
     this.reader:read_vector("position", _p);
     this.pos = Vector3f(_p.x,_p.y,_p.z);
 
-    par/or do
-        AWAIT_UNTIL_MYSELF(_WorldObjs__Guillotine,GUILLOTINE_DELETE);
-    with
-        loop do
-            var IPingu&& pingu = do
-                var SpritePingu _ with
-                    this.x = &_XXX_NOHOLD(&&pos.x);
-                    this.y = &_XXX_NOHOLD(&&pos.y);
-                    this.name = "traps/guillotineidle";
-                end;
+    loop do
+        var IPingu&& pingu = do
+            var SpritePingu _ with
+                this.x = &pos.x;
+                this.y = &pos.y;
+                this.name = "traps/guillotineidle";
+            end;
 
-                loop do
-                    await WORLD_UPDATE;
-                    var IPingu&&? pingu;
-                    loop p in global:world!:get_pingu_holder().pingus do
-                        if (p:is_inside((int)(this.pos.x + 38),
-                                        (int)(this.pos.y + 90),
-                                        (int)(this.pos.x + 42),
-                                        (int)(this.pos.y + 98)))
-                        then
-                            escape p;
-                        end
+            loop do
+                await WORLD_UPDATE;
+                var IPingu&&? pingu;
+                loop p in global:world!:get_pingu_holder().pingus do
+                    if (p:is_inside((int)(this.pos.x + 38),
+                                    (int)(this.pos.y + 90),
+                                    (int)(this.pos.x + 42),
+                                    (int)(this.pos.y + 98)))
+                    then
+                        escape p;
                     end
                 end
-            end;
-            var s8 dir = pingu:direction;
-            emit pingu:go_action => {ActionName::DEAD};
+            end
+        end;
+        var s8 dir = pingu:direction;
+        emit pingu:go_action => {ActionName::DEAD};
 
-            do
-                var SpritePingu sprite with
-                    this.x = &_XXX_NOHOLD(&&pos.x);
-                    this.y = &_XXX_NOHOLD(&&pos.y);
-                    if dir == _LEFT then
-                        this.name = "traps/guillotinekill/left";
-                    else
-                        this.name = "traps/guillotinekill/right";
-                    end
-                end;
-                watching sprite do
-                    every WORLD_UPDATE do
-                        if (sprite.get_current_frame() == 7) then
-                            { static Vector3f pos;
-                              pos.x = THIS(CEU_Guillotine)->pos.x;
-                              pos.y = THIS(CEU_Guillotine)->pos.y;
-                              pos.z = THIS(CEU_Guillotine)->pos.z;
-                            };
-                            global:world!:me.play_sound("splash", _pos);
-                        end
+        do
+            var SpritePingu sprite with
+                this.x = &_XXX_NOHOLD(&&pos.x);
+                this.y = &_XXX_NOHOLD(&&pos.y);
+                if dir == _LEFT then
+                    this.name = "traps/guillotinekill/left";
+                else
+                    this.name = "traps/guillotinekill/right";
+                end
+            end;
+            watching sprite do
+                every WORLD_UPDATE do
+                    if (sprite.get_current_frame() == 7) then
+                        { static Vector3f pos;
+                          pos.x = THIS(CEU_Guillotine)->pos.x;
+                          pos.y = THIS(CEU_Guillotine)->pos.y;
+                          pos.z = THIS(CEU_Guillotine)->pos.z;
+                        };
+                        global:world!:me.play_sound("splash", _pos);
                     end
                 end
             end

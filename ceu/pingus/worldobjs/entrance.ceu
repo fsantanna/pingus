@@ -1,17 +1,9 @@
 #ifndef _ENTRANCE_CEU
 #define _ENTRANCE_CEU
 
-native/pre do
-    namespace WorldObjs {
-        class Entrance;
-    }
-    ##define WorldObjs__Entrance WorldObjs::Entrance
-end
-
 native do
-    ##include "src/pingus/worldobjs/entrance.hpp"
+    ##include "src/pingus/worldobj_factory.hpp"
 end
-native @plain _WorldObjs__Entrance;
 
 #include "../../engine/display/sprite_pingu.ceu"
 
@@ -20,7 +12,6 @@ native do
 end
 
 class Entrance with
-    var _WorldObjs__Entrance& me;
     var _FileReader&& reader;
 
     var s8 direction = _ENTRANCE_MISC;
@@ -29,11 +20,10 @@ class Entrance with
     function (_Vector3f&&)=>void      set_pos;
     function (void)       =>_Vector3f get_pos;
 do
-    this.me.ceu = &&this;
-
     var Vector3f pos;
     { static Vector3f p; };
     this.reader:read_vector("position", _p);
+    { p += WorldObjFactory::pos; };
     this.pos = Vector3f(_p.x,_p.y,_p.z);
 
     var int owner_id;

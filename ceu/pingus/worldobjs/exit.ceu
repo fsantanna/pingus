@@ -1,24 +1,8 @@
 #ifndef _EXIT_CEU
 #define _EXIT_CEU
 
-native/pre do
-    namespace WorldObjs {
-        class Exit;
-    }
-    ##define WorldObjs__Exit WorldObjs::Exit
-end
-
-native do
-    ##include "src/pingus/worldobjs/exit.hpp"
-end
-native @plain _WorldObjs__Exit;
-
-input (_WorldObjs__Exit&&, _FileReader&&) EXIT_NEW;
-input _WorldObjs__Exit&& EXIT_DELETE;
-
 class Exit with
-    var _WorldObjs__Exit& me;
-    var _FileReader&&     reader;
+    var _FileReader&& reader;
 
     function (void)       =>float     get_z_pos;
     function (_Vector3f&&)=>void      set_pos;
@@ -27,8 +11,6 @@ class Exit with
     function (void)=>void on_startup;
     function (_SmallMap&& smallmap)=>void draw_smallmap;
 do
-    this.me.ceu = &&this;
-
     var Vector3f pos;
     { static Vector3f p; };
     this.reader:read_vector("position", _p);
@@ -69,8 +51,6 @@ do
     end
 
     par/or do
-        AWAIT_UNTIL_MYSELF(_WorldObjs__Exit,EXIT_DELETE);
-    with
         var _Sprite&? smallmap_symbol;
         finalize
             smallmap_symbol = &{new Sprite}("core/misc/smallmap_exit");

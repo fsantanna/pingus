@@ -51,22 +51,18 @@ do
     every (id_,obj_,reader_) in WORLD_NEWOBJ do
         if _strcmp(id_,"entrance")==0 then
             spawn Entrance in this.entrances with
-                this.me     = &_XXX_PURE((_WorldObjs__Entrance&&)obj_);
                 this.reader = reader_;
             end;
         else/if _strcmp(id_,"exit")==0 then
             spawn Exit with
-                this.me     = &_XXX_PURE((_WorldObjs__Exit&&)obj_);
                 this.reader = reader_;
             end;
         else/if _strcmp(id_,"groundpiece")==0 then
             spawn Groundpiece with
-                this.me     = &_XXX_PURE((_WorldObjs__Groundpiece&&)obj_);
                 this.reader = reader_;
             end;
         else/if _strcmp(id_,"guillotine")==0 then
             spawn Guillotine with
-                this.me     = &_XXX_PURE((_WorldObjs__Guillotine&&)obj_);
                 this.reader = reader_;
             end;
         else/if _strcmp(id_,"hotspot")==0 then
