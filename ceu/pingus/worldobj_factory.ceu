@@ -46,9 +46,13 @@ class WorldObjFactory with
 do
     par do
         every (id_,reader_) in WORLD_NEWOBJ do
+            var Vector3f pos_offset = Vector3f(_WORLDOBJ_FACTORY_pos.x,
+                                               _WORLDOBJ_FACTORY_pos.y,
+                                               _WORLDOBJ_FACTORY_pos.z);
             if _strcmp(id_,"entrance")==0 then
                 spawn Entrance in this.entrances with
-                    this.reader = reader_;
+                    this.reader     = reader_;
+                    this.pos_offset = pos_offset;
                 end;
             else/if _strcmp(id_,"exit")==0 then
                 spawn Exit with
@@ -64,7 +68,8 @@ do
                 end;
             else/if _strcmp(id_,"hotspot")==0 then
                 spawn Hotspot with
-                    this.reader = reader_;
+                    this.reader     = reader_;
+                    this.pos_offset = pos_offset;
                 end;
             else/if _strcmp(id_,"laser_exit")==0 then
                 spawn LaserExit with

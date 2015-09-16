@@ -1,4 +1,5 @@
 - z-order front entrance snow-tutorial
+- TODO: pos_offset em todos os objs em factory
 - color.a em surface_background.ceu
 - idle laser_exit
 - EXIT/LASER_EXIT pega somente 1 de cada vez

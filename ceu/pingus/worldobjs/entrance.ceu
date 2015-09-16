@@ -5,11 +5,11 @@
 
 native do
     enum EntranceDirection { ENTRANCE_LEFT, ENTRANCE_RIGHT, ENTRANCE_MISC };
-    extern Vector3f WORLDOBJ_FACTORY_pos;
 end
 
 class Entrance with
     var _FileReader&& reader;
+    var Vector3f      pos_offset;
 
     var s8 direction = _ENTRANCE_MISC;
 
@@ -20,8 +20,9 @@ do
     var Vector3f pos;
     { static Vector3f p; };
     this.reader:read_vector("position", _p);
-    { p += WORLDOBJ_FACTORY_pos; };
-    this.pos = Vector3f(_p.x,_p.y,_p.z);
+    this.pos = Vector3f(pos_offset.x + _p.x,
+                        pos_offset.y + _p.y,
+                        pos_offset.z + _p.z);
 
     var int owner_id;
     this.reader:read_int("owner-id", owner_id);

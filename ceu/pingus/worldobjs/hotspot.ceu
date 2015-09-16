@@ -1,12 +1,9 @@
 #ifndef _HOTSPOT_CEU
 #define _HOTSPOT_CEU
 
-native do
-    extern Vector3f WORLDOBJ_FACTORY_pos;
-end
-
 class Hotspot with
     var _FileReader&& reader;
+    var Vector3f      pos_offset;
 
     function (void)       =>float     get_z_pos;
     function (_Vector3f&&)=>void      set_pos;
@@ -15,8 +12,9 @@ do
     var Vector3f pos;
     { static Vector3f p; };
     this.reader:read_vector("position", _p);
-    { p += WORLDOBJ_FACTORY_pos; };
-    this.pos = Vector3f(_p.x,_p.y,_p.z);
+    this.pos = Vector3f(pos_offset.x + _p.x,
+                        pos_offset.y + _p.y,
+                        pos_offset.z + _p.z);
 
     var float para;
     this.reader:read_float("parallax", para);
