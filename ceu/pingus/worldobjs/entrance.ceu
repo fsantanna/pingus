@@ -89,19 +89,19 @@ do
 
             var s8 dir;
             if this.direction == _ENTRANCE_LEFT then
-                dir = _ENTRANCE_LEFT;
+                dir = _LEFT;
             else/if this.direction == _ENTRANCE_RIGHT  then
-                dir = _ENTRANCE_RIGHT;
+                dir = _RIGHT;
             else/if this.direction == _ENTRANCE_MISC then
                 if last_was_right then
-                    dir = _ENTRANCE_LEFT;
+                    dir = _LEFT;
                 else
-                    dir = _ENTRANCE_RIGHT;
+                    dir = _RIGHT;
                 end
                 last_was_right = not last_was_right;
             else
                 _log_error("warning direction is wrong: %1%", this.direction);
-                dir = _ENTRANCE_RIGHT;
+                dir = _RIGHT;
             end
             pingu:set_direction(dir);
         end
