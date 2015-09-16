@@ -24,7 +24,6 @@
 #include "pingus/ground_map.hpp"
 ///#include "pingus/particles/rain_particle_holder.hpp"
 ///#include "pingus/particles/snow_particle_holder.hpp"
-#include "pingus/pingu_holder.hpp"
 #include "pingus/pingus_level.hpp"
 #include "pingus/worldobj_factory.hpp"
 #include "util/log.hpp"

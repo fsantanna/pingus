@@ -16,9 +16,10 @@
 
 #include "pingus/goal_manager.hpp"
 
-#include "pingus/pingu_holder.hpp"
 #include "pingus/server.hpp"
 #include "pingus/world.hpp"
+
+#include "ceu_vars.h"
 
 GoalManager::GoalManager(Server* s)
   : server(s), goal(GT_NONE), exit_time(0)

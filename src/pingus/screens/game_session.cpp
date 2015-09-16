@@ -28,11 +28,12 @@
 #include "pingus/components/smallmap.hpp"
 #include "pingus/components/time_display.hpp"
 #include "pingus/globals.hpp"
-#include "pingus/pingu_holder.hpp"
 #include "pingus/savegame_manager.hpp"
 #include "pingus/screens/result_screen.hpp"
 #include "pingus/world.hpp"
 #include "util/log.hpp"
+
+#include "ceu_vars.h"
 
 Playfield* GLOBAL_PLAYFIELD = NULL;
 SmallMap*  GLOBAL_SMALLMAP  = NULL;

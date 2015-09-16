@@ -16,7 +16,6 @@
 
 #include <boost/format.hpp>
 
-#include "pingus/pingu_holder.hpp"
 #include "pingus/server.hpp"
 #include "pingus/world.hpp"
 #include "util/file_reader.hpp"

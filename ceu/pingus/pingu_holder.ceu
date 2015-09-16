@@ -1,11 +1,6 @@
 #ifndef _PINGUHOLDER_CEU
 #define _PINGUHOLDER_CEU
 
-native do
-    ##include "../src/pingus/pingu_holder.hpp"
-end
-native @plain _PinguHolder;
-
 #include "pingu.ceu"
 
 class PinguHolder with

@@ -19,9 +19,10 @@
 #include "engine/display/drawing_context.hpp"
 #include "pingus/fonts.hpp"
 #include "pingus/gettext.h"
-#include "pingus/pingu_holder.hpp"
 #include "pingus/server.hpp"
 #include "pingus/world.hpp"
+
+#include "ceu_vars.h"
 
 PingusCounter::PingusCounter(Server* s) :
   server(s),
