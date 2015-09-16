@@ -9,6 +9,7 @@ native do
     ##include "src/pingus/world.hpp"
     ##include "src/pingus/components/playfield.hpp"
     ##include "src/pingus/components/smallmap.hpp"
+    ##include "pingus/ground_map.hpp"
     extern Playfield* GLOBAL_PLAYFIELD;
     extern SmallMap*  GLOBAL_SMALLMAP;
 end
@@ -54,6 +55,16 @@ class World with
 do
     this.me.ceu = &&this;
     global:world = &&this;
+
+    var _GroundMap&? gfx_map;
+    finalize
+        gfx_map = &{new GroundMap}(this.plf:get_size().width,
+                                   this.plf:get_size().height);
+    with
+        _delete(&&gfx_map!);
+    end
+    this.me.gfx_map = &&gfx_map!;
+    this.me.colmap  = gfx_map!.get_colmap();
 
     var WorldObjFactory objs with
         this.plf = outer.plf;

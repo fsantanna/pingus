@@ -1,6 +1,9 @@
 #ifndef _WORLDOBJ_FACTORY_CEU
 #define _WORLDOBJ_FACTORY_CEU
 
+// TODO: use spawn directly instead of ceu_sys_go
+//          - requires flatmap or traverse
+
 native do
     ##include "src/pingus/prefab_file.hpp"
     ##include "src/util/overrride_file_reader.hpp"

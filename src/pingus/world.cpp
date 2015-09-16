@@ -29,12 +29,10 @@
 
 World::World(const PingusLevel& plf) :
   ambient_light(Color(plf.get_ambient_light())),
-  gfx_map(new GroundMap(plf.get_size().width, plf.get_size().height)),
   game_time(0),
   do_armageddon(false),
   ///rain_particle_holder(),
   ///snow_particle_holder(),
-  colmap(gfx_map->get_colmap()),
   gravitational_acceleration(0.2f)
 {
   log_debug("create particle holder");
