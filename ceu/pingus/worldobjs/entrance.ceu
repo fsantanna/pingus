@@ -5,7 +5,7 @@ native do
     ##include "src/pingus/worldobj_factory.hpp"
 end
 
-#include "../../engine/display/sprite_pingu.ceu"
+#include "../../engine/display/sprite.ceu"
 
 native do
     enum EntranceDirection { ENTRANCE_LEFT, ENTRANCE_RIGHT, ENTRANCE_MISC };

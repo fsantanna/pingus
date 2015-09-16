@@ -15,7 +15,7 @@ do
 
     loop do
         do
-            var SpritePingu sprite with
+            var Sprite sprite with
                 this.x = &pos.x;
                 this.y = &pos.y;
                 this.name = "traps/laser_exit";
@@ -40,7 +40,7 @@ do
             emit pingu:go_action => {ActionName::LASERKILL};
         end
 
-        do SpritePingu with
+        do Sprite with
             this.x = &pos.x;
             this.y = &pos.y;
             this.name = "traps/laser_exit";

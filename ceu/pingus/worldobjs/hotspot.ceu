@@ -19,28 +19,16 @@ do
     /* Background image */
     // FIXME: would be nice to allow surface manipulation with
     // animated sprites, but it's not that easy to do
-    { static ResDescriptor desc; };
-    this.reader:read_desc("surface", _desc);
-    var _Sprite&? sprite_;
-    finalize
-        sprite_ = &{new Sprite}(_desc);
-    with
-        //_delete(&&sprite_!);
-    end
-    var _Sprite& sprite = &sprite_!;
+    var Sprite _ with
+        this.x = &pos.x;
+        this.y = &pos.y;
 
-    par do
-        every WORLD_UPDATE do
-            this.sprite.update();
-        end
-    with
-        every gc in WORLD_DRAW do
-            // FIXME: para support doesnn't work correctly
-            gc:color().draw(this.sprite, _Vector3f(this.pos.x,
-                                                   this.pos.y,
-                                                   this.pos.z));
-        end
-    end
+        { static ResDescriptor desc; };
+        outer.reader:read_desc("surface", _desc);
+        this.desc = _XXX_PURE({Resource::load_sprite_desc}(_desc.res_name));
+    end;
+
+    await FOREVER;
 
     /* PUBLIC */
 

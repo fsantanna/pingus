@@ -24,7 +24,7 @@ do
 
     loop do
         var int ok = do
-            var SpritePingu sprite with
+            var Sprite sprite with
                 this.x = &pos.x;
                 this.y = &pos.y;
                 this.name = "traps/smasher";
@@ -54,7 +54,7 @@ do
         end;
 
         do
-            var SpritePingu sprite with
+            var Sprite sprite with
                 this.x = &pos.x;
                 this.y = &pos.y;
                 this.name = "traps/smasher";

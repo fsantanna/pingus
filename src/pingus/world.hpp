@@ -77,6 +77,9 @@ public:
   World(const PingusLevel& level);
   virtual ~World();
 
+///
+  void render(int x, int y, Framebuffer& fb);
+
   /** Draw the world onto the given SceneContext */
   void    draw (SceneContext& gc);
 

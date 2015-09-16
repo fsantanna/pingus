@@ -1,178 +1,154 @@
-#ifndef _SPRITE_CEU
-#define _SPRITE_CEU
+#ifndef _SPRITE_PINGUS_CEU
+#define _SPRITE_PINGUS_CEU
 
 native/pre do
-    ##include "../src/engine/display/sprite.hpp"
     ##include "engine/display/display.hpp"
     ##include "engine/display/framebuffer.hpp"
     ##include "engine/display/sprite_description.hpp"
-    ##include "pingus/resource.hpp"
     ##define loop_ loop
+    extern FramebufferSurface* load_framebuffer_sdl_surface(const Pathname& filename, ResourceModifier::Enum modifier);
 end
+native @plain _SpriteCeu;
+native @plain _FramebufferSurface;
 
-#include "sprite_impl.ceu"
-
-input (_Sprite&&)                          SPRITE_NEW_NONE;
-input (_Sprite&&,char&&)                   SPRITE_NEW_NAME;
-input (_Sprite&&,_ResDescriptor&&)         SPRITE_NEW_RESDESCRIPTOR;
-input (_Sprite&&,_Surface&&)               SPRITE_NEW_SURFACE;
-input (_Sprite&&,_SpriteDescription&&,int) SPRITE_NEW_SPRITEDESCRIPTION;
-
-input _Sprite&&         SPRITE_DELETE;
-input (_Sprite&&,float) SPRITE_UPDATE;
-input _Sprite&&         SPRITE_RESTART;
-input _Sprite&&         SPRITE_FINISH;
-
-native do
-    SpriteDescription XXX_spr_desc;
-    static int SPRITE_TOT = 0;
-    static int SPRITE_CUR = 0;
-end
+input (int,int,_Framebuffer&&) WORLD_RENDER;
 
 class Sprite with
-    var _Sprite& me;
-    var bool xxx_from_ceu = false;
+    function (void)=>int get_current_frame;
+    function (int)=>void set_frame;
+    function (void)=>int get_frame_count;
+    function (void)=>int get_width;
+    function (void)=>int get_height;
+
+    var float& x;
+    var float& y;
+
+    var Vector2i offset;
+    var Vector2i frame_pos;
+    var Size     frame_size;
+    var int      frame_delay = 0;
+    var Size     array;
+    var bool     is_loop;
+    var int      frame;
 
     // constructor
-    var _Surface&&              surface  = null;
-    var _SpriteDescription&&    spr_desc = null;
-    var _ResourceModifier__Enum modifier = {ResourceModifier::ROT0};
-    var _ResDescriptor&&        res_desc = null;
-    var char&&                  name     = null;
+    var _Surface&&              surface = null;
+    var _SpriteDescription&&    desc    = null;
+    var _ResourceModifier__Enum mod     = {ResourceModifier::ROT0};
+    var char&&                  name    = null;
 do
-    _SPRITE_TOT = _SPRITE_TOT + 1;
-    _SPRITE_CUR = _SPRITE_CUR + 1;
-    finalize with
-        _SPRITE_CUR = _SPRITE_CUR - 1;
-    end
-
-    if this.xxx_from_ceu then
-        _XXX_FROM_CEU = 1;
-        {ME(CEU_Sprite)} = _XXX_PTR2REF({new Sprite}(this.name)
-                                finalize with nothing; end);
-                                    // {new Sprite} is @nohold
-        _XXX_FROM_CEU = 0;
-    end
-    finalize with
-        if this.xxx_from_ceu then
-            _delete(&&this.me);
-        end
-    end
-
-    // constructor
-    var _SpriteDescription&& spr_desc_ = spr_desc;
+    var _FramebufferSurface&? framebuffer_surface;
     do
         if surface != null then
-#if 0
-            me.impl = {std::make_shared<SpriteImpl>}(*surface);
-                // shared pointer, destroyed when me.impl is destroyed
-#endif
+            _assert(not "not tested, so yielding error");
+            finalize
+                framebuffer_surface =
+                    &{new FramebufferSurface}(
+                        {Display::get_framebuffer()->create_surface}(*surface)
+                            .get_impl());
+            with
+                //_delete(&&framebuffer_surface!);
+            end
         else
-            {
-                SpriteDescription spr_desc_v;
-            };
             if name != null then
-                spr_desc_ = _Resource__load_sprite_desc(name);
-            else/if res_desc != null then
-                spr_desc_ = _Resource__load_sprite_desc(res_desc:res_name);
-                modifier = res_desc:modifier;
+                desc = _Resource__load_sprite_desc(name);
+            end
+            _assert(desc != null);
+            finalize
+                framebuffer_surface =
+                    &_load_framebuffer_sdl_surface(desc:filename, mod);
+            with
+                //_delete(&&framebuffer_surface!);
             end
 
-            if spr_desc_ == null then
-                _XXX_spr_desc.filename = _Pathname("images/core/misc/404.png",
-                                                   {Pathname::DATA_PATH});
-                spr_desc_ = &&_XXX_spr_desc;
+            this.frame_pos   = Vector2i(desc:frame_pos.x, desc:frame_pos.y);
+            this.array       = Size(desc:array.width, desc:array.height);
+            this.frame_delay = desc:speed;
+            this.is_loop     = desc:loop_;
+
+            if desc:frame_size.width  == -1 then
+                this.frame_size.width  = framebuffer_surface!.get_width()/array.width;
+                this.frame_size.height = framebuffer_surface!.get_height()/array.height;
+            else
+                this.frame_size.width  = desc:frame_size.width;
+                this.frame_size.height = desc:frame_size.height;
             end
 
-            _assert(spr_desc_ != null);
-#if 0
-            me.impl = {std::make_shared<SpriteImpl>}(
-                            *spr_desc_,
-                            (_ResourceModifier__Enum) modifier);
-                // shared pointer, destroyed when me.impl is destroyed
-#endif
+            {
+                Vector2i vec = calc_origin(THIS(CEU_Sprite)->desc->origin,
+                                           Size(THIS(CEU_Sprite)->frame_size.width,
+                                                THIS(CEU_Sprite)->frame_size.height))
+                                - THIS(CEU_Sprite)->desc->offset;
+            };
+            this.offset = Vector2i(_vec.x, _vec.y);
         end
     end
 
-    /// XXX: has to be spawned because multiple CPP Sprite copies share the 
-    //same "me.impl"
-    var SpriteImpl&&? impl =
-        spawn SpriteImpl in global:xxx_impls with
-            this.surface  = surface;
-            this.spr_desc = spr_desc_;
-            this.spr_mod  = modifier;
-        end;
-    me.impl.reset(impl!:get());
+    var int total_time = this.frame_delay *
+                         (this.array.width * this.array.height);
 
-    AWAIT_UNTIL_MYSELF(_Sprite,SPRITE_DELETE);
-    __sprite_deleting = __sprite_deleting + 1; // TODO(remove)
-end
+    this.frame = 0;
 
-class SpriteFactory with
-do
+    var int tick_count = 0;
+
     par do
-        every me_ in SPRITE_NEW_NONE do
-            spawn Sprite with
-                this.me    = &_XXX_PTR2REF(me_);
-            end;
-        end
-    with
-        every (me_,name) in SPRITE_NEW_NAME do
-            spawn Sprite with
-                this.me    = &_XXX_PTR2REF(me_);
-                this.name  = name;
-            end;
-        end
-    with
-        every (me_,res_desc) in SPRITE_NEW_RESDESCRIPTOR do
-            spawn Sprite with
-                this.me       = &_XXX_PTR2REF(me_);
-                this.res_desc = res_desc;
-            end;
-        end
-    with
-        every (me_,surface) in SPRITE_NEW_SURFACE do
-            spawn Sprite with
-                this.me      = &_XXX_PTR2REF(me_);
-                this.surface = surface;
-            end;
-        end
-    with
-        every (me_,spr_desc,mod) in SPRITE_NEW_SPRITEDESCRIPTION do
-            spawn Sprite with
-                this.me       = &_XXX_PTR2REF(me_);
-                this.spr_desc = spr_desc;
-                this.modifier = (_ResourceModifier__Enum)mod;
-            end;
-        end
-    end
-end
+        /* UPDATE */
+        loop do
+            loop do
+                await WORLD_UPDATE;
+                if this.frame_delay == 0 then
+                    await FOREVER;
+                end
 
-var SpriteFactory _;
+                var float dt = 0.033;   // TODO
+                tick_count = tick_count + (int)(dt * 1000);
 
-// TODO(remove)
-class SpriteCheck__ with
-do
-    native do
-        // check if all DELETE effect exactly one instance
-        int _sprite_deleting = 0;
-    end
-    par do
-        every me_ in SPRITE_DELETE do
-            if __sprite_deleting != 1 then
-                //_printf("ASR-SPRITE :: [%p] %d\n", me_, __sprite_deleting);
-                //_assert(__sprite_deleting == 1);
+                if tick_count >= total_time then
+                    if this.is_loop then
+                        tick_count = tick_count % total_time;
+                        this.frame = tick_count / this.frame_delay;
+                    end
+                    break;
+                else
+                    this.frame = tick_count / this.frame_delay;
+                end
+
             end
-            __sprite_deleting = __sprite_deleting - 1;
+            if not this.is_loop then
+                escape 0;
+            end
         end
     with
-        every me_ in SPRITE_DELETE do
-            _assert(me_ != null);
+        /* RENDER */
+        every (x0,y0,fb) in WORLD_RENDER do
+            fb:draw_surface(framebuffer_surface!,
+                _Rect(_Vector2i(this.frame_pos.x,this.frame_pos.y) +
+                           _Vector2i(this.frame_size.width  * (this.frame%this.array.width),
+                                     this.frame_size.height * (this.frame/this.array.width)),
+                       _Size(this.frame_size.width,this.frame_size.height)),
+                _Vector2i(x+x0-this.offset.x, y+y0-this.offset.y));
         end
     end
-end
 
-var SpriteCheck__ _;
+    /* PUBLIC */
+
+    function (void)=>int get_frame_count do
+        return this.array.width * this.array.height;
+    end
+
+    function (void)=>int get_current_frame do
+        return this.frame;
+    end
+    function (int frame)=>void set_frame do
+        this.frame = frame;
+    end
+
+    function (void)=>int get_width do
+        return this.frame_size.width;
+    end
+    function (void)=>int get_height do
+        return this.frame_size.height;
+    end
+end
 
 #endif
-

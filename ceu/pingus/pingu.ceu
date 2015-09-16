@@ -16,7 +16,7 @@ native/pre do
     ##include "../src/pingus/action_name.hpp"
 end
 
-#include "../engine/display/sprite_pingu.ceu"
+#include "../engine/display/sprite.ceu"
 #include "actions/basher.ceu"
 #include "actions/blocker.ceu"
 #include "actions/bomber.ceu"

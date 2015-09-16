@@ -25,7 +25,7 @@
 #include "util/log.hpp"
 
 ///
-#include "pingus/pingu_holder.hpp"
+#include "pingus/world.hpp"
 
 struct DrawingRequestsSorter
 {
@@ -76,22 +76,22 @@ public:
   }
 };
 
-class PinguHolderDrawingRequest : public DrawingRequest
+class WorldDrawingRequest : public DrawingRequest
 {
 private:
-  PinguHolder& pingu_holder;
+  World& world;
 
 public:
-  PinguHolderDrawingRequest(PinguHolder& pingu_holder_, const Vector2i& pos_, float z_)
+  WorldDrawingRequest(World& world_, const Vector2i& pos_, float z_)
     : DrawingRequest(pos_, z_),
-      pingu_holder(pingu_holder_)
+      world(world_)
   {
   }
 
-  virtual ~PinguHolderDrawingRequest() {}
+  virtual ~WorldDrawingRequest() {}
 
   void render(Framebuffer& fb, const Rect& rect) {
-    pingu_holder.render(pos.x + rect.left, pos.y + rect.top, fb);
+    world.render(pos.x + rect.left, pos.y + rect.top, fb);
   }
 };
 
@@ -268,9 +268,9 @@ DrawingContext::draw(DrawingContext& dc, float z)
 }
 
 void
-DrawingContext::draw(PinguHolder& pingu_holder, const Vector2i& pos, float z)
+DrawingContext::draw(World& world, const Vector2i& pos, float z)
 {
-  draw(new PinguHolderDrawingRequest(pingu_holder, pos + translate_stack.back(), z));
+  draw(new WorldDrawingRequest(world, pos + translate_stack.back(), z));
 }
 
 void

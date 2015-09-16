@@ -20,7 +20,7 @@ input (_World&&) WORLD_DELETE;
 input (_SceneContext&&) WORLD_DRAW;
 input (_SmallMap&&) WORLD_DRAW_SMALLMAP;
 
-input (_char&&, _WorldObj&&, _FileReader&&) WORLD_NEWOBJ;
+input (_char&&, _FileReader&&) WORLD_NEWOBJ;
 
 input void WORLD_ARMAGEDDON;
 
@@ -48,7 +48,7 @@ end
 class WorldObjFactory with
     pool Entrance[] entrances;
 do
-    every (id_,obj_,reader_) in WORLD_NEWOBJ do
+    every (id_,reader_) in WORLD_NEWOBJ do
         if _strcmp(id_,"entrance")==0 then
             spawn Entrance in this.entrances with
                 this.reader = reader_;

@@ -1,7 +1,7 @@
 #ifndef _GUILLOTINE_CEU
 #define _GUILLOTINE_CEU
 
-#include "../../engine/display/sprite_pingu.ceu"
+#include "../../engine/display/sprite.ceu"
 
 class Guillotine with
     var _FileReader&& reader;
@@ -17,7 +17,7 @@ do
 
     loop do
         var IPingu&& pingu = do
-            var SpritePingu _ with
+            var Sprite _ with
                 this.x = &pos.x;
                 this.y = &pos.y;
                 this.name = "traps/guillotineidle";
@@ -41,7 +41,7 @@ do
         emit pingu:go_action => {ActionName::DEAD};
 
         do
-            var SpritePingu sprite with
+            var Sprite sprite with
                 this.x = &_XXX_NOHOLD(&&pos.x);
                 this.y = &_XXX_NOHOLD(&&pos.y);
                 if dir == _LEFT then

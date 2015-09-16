@@ -17,7 +17,7 @@ do
     var char[] str = [] .. "pingus/player"
                         .. (char&&)this.pingu.get_owner_str().c_str()
                         .. "/splat";
-    do SpritePingu with
+    do Sprite with
         this.x    = &_XXX_NOHOLD(&&outer.pingu.pos_x);
         this.y    = &_XXX_NOHOLD(&&outer.pingu.pos_y);
         this.name = _XXX_PURE(&&str);

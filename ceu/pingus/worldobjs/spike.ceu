@@ -1,7 +1,7 @@
 #ifndef _SPIKE_CEU
 #define _SPIKE_CEU
 
-#include "../../engine/display/sprite_pingu.ceu"
+#include "../../engine/display/sprite.ceu"
 
 class Spike with
     var _FileReader&& reader;
@@ -32,9 +32,9 @@ do
             end;
 
         do
-            var SpritePingu sprite with
-                this.x = &_XXX_NOHOLD(&&pos.x);
-                this.y = &_XXX_NOHOLD(&&pos.y);
+            var Sprite sprite with
+                this.x = &pos.x;
+                this.y = &pos.y;
                 this.name = "traps/spike";
             end;
             watching sprite do

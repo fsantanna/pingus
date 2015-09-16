@@ -1,7 +1,7 @@
 #ifndef _RIGHT_LEFT_SPRITES_CEU
 #define _RIGHT_LEFT_SPRITES_CEU
 
-#include "../engine/display/sprite_pingu.ceu"
+#include "../engine/display/sprite.ceu"
 
 // TODO: get by ref
 
@@ -9,8 +9,8 @@ class RightLeftSprites with
     var IPingu& pingu;
     var char[]& left;
     var char[]& right;
-    pool SpritePingu[1] sprites;
-    function (void)=>SpritePingu&& get;
+    pool Sprite[1] sprites;
+    function (void)=>Sprite&& get;
 do
     event void e_change;
     par do
@@ -23,8 +23,8 @@ do
         end
     with
         loop do
-            var SpritePingu&&? sprite =
-                spawn SpritePingu in this.sprites with
+            var Sprite&&? sprite =
+                spawn Sprite in this.sprites with
                     this.x = &_XXX_NOHOLD(&&outer.pingu.pos_x);
                     this.y = &_XXX_NOHOLD(&&outer.pingu.pos_y);
                     if outer.pingu.direction == {Direction::LEFT} then
@@ -45,7 +45,7 @@ do
 
     /* PUBLIC */
 
-    function (void)=>SpritePingu&& get do
+    function (void)=>Sprite&& get do
         loop s in this.sprites do
             return s;
         end

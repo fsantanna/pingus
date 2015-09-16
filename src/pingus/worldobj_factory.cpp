@@ -40,6 +40,8 @@ Vector3f WorldObjFactory::pos;
 
 WorldObjFactory* WorldObjFactory::instance_ = 0;
 
+#include "ceu_vars.h"
+
 /** WorldObjAbstractFactory, interface for creating factories */
 class WorldObjAbstractFactory
 {
@@ -77,7 +79,7 @@ public:
       obj = new T(reader);
       lst.push_back(obj);
     }
-    tceu__char___WorldObj___FileReader_ p = { (char*)id.c_str(), obj, (FileReader*)&reader };
+    tceu__char___FileReader_ p = { (char*)id.c_str(), (FileReader*)&reader };
     ceu_sys_go(&CEU_APP, CEU_IN_WORLD_NEWOBJ, &p);
     return lst;
   }

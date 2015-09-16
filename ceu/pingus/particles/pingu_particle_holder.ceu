@@ -4,7 +4,7 @@
 #define x_collision_decrease 0.3
 #define y_collision_decrease 0.6
 
-#include "../../engine/display/sprite_pingu.ceu"
+#include "../../engine/display/sprite.ceu"
 
 class PinguParticle with
     var float x, y;
@@ -14,7 +14,7 @@ do
                                      {Math::frand}() * -9,
                                      0);
 
-    var SpritePingu _ with
+    var Sprite _ with
         this.x     = &outer.x;
         this.y     = &outer.y;
         this.name  = "particles/pingu_explo";

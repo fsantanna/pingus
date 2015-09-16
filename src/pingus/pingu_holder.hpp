@@ -48,13 +48,7 @@ public:
   PinguHolder(const PingusLevel&);
   ~PinguHolder();
 
-  /*@{
-    @name overloaded stuff for WorldObj
-  */
   void draw (SceneContext& gc);
-
-  ///
-  void render(int x, int y, Framebuffer& fb);
 
   /** Update all Pingus (this calls Pingu::update() which then calls
       PinguAction::update()) */

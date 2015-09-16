@@ -9,8 +9,8 @@ end
 class CaptureRectangle with
     var IPlayfield& playfield;
 do
-    pool SpritePingu[1] good_or_bad;
-    pool SpritePingu[1] left_or_right;
+    pool Sprite[1] good_or_bad;
+    pool Sprite[1] left_or_right;
 
     var char[] action_str;
 
@@ -53,8 +53,8 @@ do
             end
         end
     with
-        var SpritePingu&&? sprite_gb;
-        var SpritePingu&&? sprite_lr;
+        var Sprite&&? sprite_gb;
+        var Sprite&&? sprite_lr;
         every this.playfield.ok_pingu do
 
             if sprite_gb? then
@@ -86,7 +86,7 @@ do
                 var bool is_left = pingu:direction == _LEFT;
 
                 sprite_gb =
-                    spawn SpritePingu in good_or_bad with
+                    spawn Sprite in good_or_bad with
                         this.x = &pos_gb.x;
                         this.y = &pos_gb.y;
 
@@ -100,7 +100,7 @@ do
                     end;
 
                 sprite_lr =
-                    spawn SpritePingu in left_or_right with
+                    spawn Sprite in left_or_right with
                         this.x = &pos_lr.x;
                         this.y = &pos_lr.y;
 

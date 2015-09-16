@@ -74,19 +74,7 @@ ResourceModifier::Enum modifier)
   }
 }
 
-
-void
-PinguHolder::draw (SceneContext& gc)
-{
-  gc.color().draw(*this, Vector2i(0,0));
-}
-
-void
-PinguHolder::render(int x, int y, Framebuffer& fb)
-{
-  tceu__int__int__Framebuffer_ p = {x,y,&fb};
-  ceu_sys_go(&CEU_APP, CEU_IN_PINGUHOLDER_RENDER, &p);
-}
+void PinguHolder::draw (SceneContext& gc) {}
 
 void
 PinguHolder::update()

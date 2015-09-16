@@ -75,11 +75,20 @@ World::draw (SceneContext& gc)
   gc.light().fill_screen(Color(ambient_light));
 
   gfx_map->draw(gc);
-  pingus->draw(gc);
+
+  gc.color().draw(*this, Vector2i(0,0));
 
   SceneContext* p = &gc;
   ceu_sys_go(&CEU_APP, CEU_IN_WORLD_DRAW, &p);
 }
+
+void
+World::render(int x, int y, Framebuffer& fb)
+{
+  tceu__int__int__Framebuffer_ p = {x,y,&fb};
+  ceu_sys_go(&CEU_APP, CEU_IN_WORLD_RENDER, &p);
+}
+
 
 void
 World::draw_smallmap(SmallMap* smallmap)
