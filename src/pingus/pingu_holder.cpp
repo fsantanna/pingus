@@ -22,8 +22,6 @@
 #include "pingus/pingus_level.hpp"
 
 PinguHolder::PinguHolder(const PingusLevel& plf) :
-  number_of_allowed(plf.get_number_of_pingus()),
-  number_of_exited(0),
   XXX_n(0)
 {
 }
@@ -35,7 +33,7 @@ PinguHolder::~PinguHolder()
 void*
 PinguHolder::create_pingu (const Vector3f& pos, int owner_id)
 {
-  if (number_of_allowed > get_number_of_released())
+  if (this->ceu->number_of_allowed > get_number_of_released())
   {
     void* pingu = NULL;
 

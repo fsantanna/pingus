@@ -32,15 +32,6 @@ struct CEU_PinguHolder;
 class PinguHolder : public WorldObj
 {
 private:
-  /** The total number of pingus that will get released in this
-      level */
-  int number_of_allowed;
-
-  /** Number of pingus that made it to the exit, we cache this, since
-      else we would have to iterate over the whole list and count them
-      each time they are requested. */
-  int number_of_exited;
-
   CEU_PinguHolder* ceu;
   int XXX_n;
 
