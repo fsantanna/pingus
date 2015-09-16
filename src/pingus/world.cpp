@@ -29,7 +29,6 @@
 
 World::World(const PingusLevel& plf) :
   ambient_light(Color(plf.get_ambient_light())),
-  game_time(0),
   do_armageddon(false),
   ///rain_particle_holder(),
   ///snow_particle_holder(),
@@ -43,8 +42,6 @@ World::World(const PingusLevel& plf) :
 
 World::~World()
 {
-  delete(gfx_map);
-
   void* this_ = this;
   ceu_sys_go(&CEU_APP, CEU_IN_WORLD_DELETE, &this_);
 }
@@ -52,12 +49,6 @@ World::~World()
 void
 World::draw (SceneContext& gc)
 {
-  gc.light().fill_screen(Color(ambient_light));
-
-  gfx_map->draw(gc);
-
-  gc.color().draw(*this, Vector2i(0,0));
-
   SceneContext* p = &gc;
   ceu_sys_go(&CEU_APP, CEU_IN_WORLD_DRAW, &p);
 }
@@ -79,8 +70,7 @@ World::draw_smallmap(SmallMap* smallmap)
 void
 World::update()
 {
-  game_time += 1;
-  ceu_sys_go(&CEU_APP, CEU_IN_WORLD_UPDATE, &game_time);
+  ceu_sys_go(&CEU_APP, CEU_IN_WORLD_UPDATE, NULL);
 }
 
 CEU_PinguHolder*
@@ -106,7 +96,7 @@ World::get_height()
 int
 World::get_time()
 {
-  return game_time;
+  return CEU_World_get_time(NULL, this->ceu);
 }
 
 void

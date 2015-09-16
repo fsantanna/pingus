@@ -36,7 +36,6 @@ native @nohold _delete();
     end
 
 input int SDL_DT;
-input int WORLD_UPDATE;
 
 data Color with
     var u8 r, g, b, a;
@@ -116,7 +115,10 @@ end
 
 interface IWorld with
     var _World& me;
+
     function (void)=>IPinguHolderPool& get_pingu_holder;
+    function (void)=>int               get_time;
+
     event (float,float)             create_pingu_particles;
     event (float,float,float,float) create_smoke_particles;
 end

@@ -14,10 +14,11 @@ native do
     extern SmallMap*  GLOBAL_SMALLMAP;
 end
 native @plain _World;
-native @plain _Playfield, _SmallMap;
+native @plain _Playfield, _SmallMap, _SceneContext, _GroundMap;
 
 input (_World&&, _PingusLevel&&) WORLD_NEW;
 input (_World&&) WORLD_DELETE;
+input void WORLD_UPDATE;
 input (_SceneContext&&) WORLD_DRAW;
 input (_SmallMap&&) WORLD_DRAW_SMALLMAP;
 
@@ -47,11 +48,29 @@ end
 #include "components/playfield.ceu"
 #include "components/smallmap.ceu"
 
+class WorldFirst with
+    var IWorld&     world;
+    var _GroundMap& gfx_map;
+    var int&        game_time;
+do
+    par do
+        every WORLD_UPDATE do
+            this.game_time = this.game_time + 1;
+        end
+    with
+        every gc in WORLD_DRAW do
+            gc:light().fill_screen(_Color(world.me.ambient_light));
+            gfx_map.draw(*gc);
+            gc:color().draw(world.me, _Vector2i(0,0));
+        end
+    end
+end
+
 class World with
     interface IWorld;
 
     var _PingusLevel&& plf;
-    function (void)=>_Vector2i get_start_pos;
+    function (void)=>_Vector2i  get_start_pos;
 do
     this.me.ceu = &&this;
     global:world = &&this;
@@ -65,6 +84,13 @@ do
     end
     this.me.gfx_map = &&gfx_map!;
     this.me.colmap  = gfx_map!.get_colmap();
+
+    var int game_time = 0;
+    var WorldFirst _ with
+        this.world     = &outer;
+        this.gfx_map   = &gfx_map!;
+        this.game_time = &game_time;
+    end;
 
     var WorldObjFactory objs with
         this.plf = outer.plf;
@@ -158,6 +184,10 @@ do
         end
 
         return _Vector2i(pos.x, pos.y);
+    end
+
+    function (void)=>int get_time do
+        return this.game_time;
     end
 end
 
