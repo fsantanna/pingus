@@ -149,7 +149,7 @@ Server::get_action_holder ()
 int
 Server::get_time ()
 {
-  return get_world()->get_time();
+  return CEU_World_get_time(NULL, get_world()->ceu);
 }
 
 void

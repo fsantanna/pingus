@@ -93,12 +93,6 @@ World::get_height()
   return gfx_map->get_height();
 }
 
-int
-World::get_time()
-{
-  return CEU_World_get_time(NULL, this->ceu);
-}
-
 void
 World::armageddon(void)
 {

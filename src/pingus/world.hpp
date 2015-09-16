@@ -97,9 +97,6 @@ public:
   /** @return The absolute width of the world */
   int     get_width();
 
-  /** Returns the time passed since the level was started */
-  int get_time();
-
   /** @return A pointer to the collision map used in this world */
   CollisionMap* get_colmap();
 
