@@ -36,7 +36,8 @@
 
 using namespace WorldObjs;
 
-Vector3f WorldObjFactory::pos;
+/// TEMP
+Vector3f WorldObjFactory::pos = Vector3f(0,0,0);
 
 WorldObjFactory* WorldObjFactory::instance_ = 0;
 
@@ -137,7 +138,7 @@ public:
 
     Vector3f pos;
     reader.read_vector("position", pos);
-    WorldObjFactory::pos = pos;
+    WorldObjFactory::pos += pos;
 
     PrefabFile prefab = PrefabFile::from_resource(name);
     FileReader overrides;
@@ -159,6 +160,9 @@ public:
         }
       }
     }
+
+    WorldObjFactory::pos -= pos;
+
     return group;
   }
 

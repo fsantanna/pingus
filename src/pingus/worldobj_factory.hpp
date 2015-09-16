@@ -38,7 +38,10 @@ private:
   void free_factories();
 
 public:
+
+  /// TEMP
   static Vector3f pos;
+
   /** Return the singleton instance */
   static WorldObjFactory* instance ();
   static void deinit();
