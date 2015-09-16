@@ -46,132 +46,15 @@ WorldObjFactory* WorldObjFactory::instance_ = 0;
 
 #include "ceu_vars.h"
 
-/** WorldObjAbstractFactory, interface for creating factories */
-class WorldObjAbstractFactory
-{
-public:
-  WorldObjAbstractFactory (const std::string& id) {
-    WorldObjFactory::instance ()->register_factory (id, this);
-  }
+WorldObjFactory::WorldObjFactory() {}
 
-  virtual ~WorldObjAbstractFactory() {}
-
-  virtual void create(const FileReader& reader) =0;
-
-private:
-  WorldObjAbstractFactory (const WorldObjAbstractFactory&);
-  WorldObjAbstractFactory& operator= (const WorldObjAbstractFactory&);
-};
-
-/** Template to create factories, usage:
-    new WorldObjFactoryImpl<"liquid", Liquid>; */
-class WorldObjFactoryImpl : public WorldObjAbstractFactory
-{
-public:
-  std::string id;
-  WorldObjFactoryImpl (const std::string& id)
-    : WorldObjAbstractFactory (id) {this->id = id;}
-
-  void create(const FileReader& reader) {
-    tceu__char___FileReader_ p = { (char*)id.c_str(), (FileReader*)&reader };
-    ceu_sys_go(&CEU_APP, CEU_IN_WORLD_NEWOBJ, &p);
-  }
-
-private:
-  WorldObjFactoryImpl (const WorldObjFactoryImpl&);
-  WorldObjFactoryImpl& operator= (const WorldObjFactoryImpl&);
-};
-
-class WorldObjGroupFactory : public WorldObjAbstractFactory
-{
-public:
-  WorldObjGroupFactory (const std::string& id) :
-    WorldObjAbstractFactory(id)
-  {}
-
-  virtual ~WorldObjGroupFactory() {}
-
-  virtual void create(const FileReader& reader) {
-    FileReader objects = reader.read_section("objects");
-    std::vector<FileReader> sections = objects.get_sections();
-    for(auto it = sections.begin(); it != sections.end(); ++it)
-    {
-      WorldObjFactory::instance()->create(*it);
-    }
-  }
-
-private:
-  WorldObjGroupFactory (const WorldObjGroupFactory&);
-  WorldObjGroupFactory& operator= (const WorldObjGroupFactory&);
-};
-
-class WorldObjPrefabFactory : public WorldObjAbstractFactory
-{
-public:
-  WorldObjPrefabFactory (const std::string& id) :
-    WorldObjAbstractFactory(id)
-  { }
-
-  virtual ~WorldObjPrefabFactory() {}
-
-  virtual void create(const FileReader& reader) {
-    std::string name;
-    reader.read_string("name", name);
-
-    Vector3f pos;
-    reader.read_vector("position", pos);
-    WorldObjFactory::pos += pos;
-
-    PrefabFile prefab = PrefabFile::from_resource(name);
-    FileReader overrides;
-    reader.read_section("overrides", overrides);
-
-    const std::vector<FileReader>& objects = prefab.get_objects();
-    for(auto it = objects.begin(); it != objects.end(); ++it)
-    {
-      OverrideFileReader override_reader(*it, overrides);
-
-      WorldObjFactory::instance()->create(override_reader);
-    }
-
-    WorldObjFactory::pos -= pos;
-  }
-
-private:
-  WorldObjPrefabFactory (const WorldObjPrefabFactory&);
-  WorldObjPrefabFactory& operator= (const WorldObjPrefabFactory&);
-};
-
-WorldObjFactory::WorldObjFactory() :
-  factories()
-{
-  // Register all WorldObj's
-}
-
-WorldObjFactory*
-WorldObjFactory::instance()
-{
+WorldObjFactory* WorldObjFactory::instance() {
   if ( ! instance_)
   {
     instance_ = new WorldObjFactory ();
-
-    // Registring Factories
-    new WorldObjGroupFactory("group");
-    new WorldObjPrefabFactory("prefab");
-
-    new WorldObjFactoryImpl("liquid");
-    new WorldObjFactoryImpl("hotspot");
-    new WorldObjFactoryImpl("entrance");
-    new WorldObjFactoryImpl("exit");
-
     // traps
     ///new WorldObjFactoryImpl<FakeExit>("fake_exit");
-    new WorldObjFactoryImpl("guillotine");
     ///new WorldObjFactoryImpl<Hammer>("hammer");
-    new WorldObjFactoryImpl("laser_exit");
-    new WorldObjFactoryImpl("smasher");
-    new WorldObjFactoryImpl("spike");
-
     // Special Objects
     ///new WorldObjFactoryImpl<SwitchDoorSwitch>("switchdoor-switch");
     ///new WorldObjFactoryImpl<SwitchDoorDoor>("switchdoor-door");
@@ -179,65 +62,50 @@ WorldObjFactory::instance()
     ///new WorldObjFactoryImpl<ConveyorBelt>("conveyorbelt");
     ///new WorldObjFactoryImpl<Teleporter>("teleporter");
     ///new WorldObjFactoryImpl<TeleporterTarget>("teleporter-target");
-
     // Backgrounds
-    new WorldObjFactoryImpl("surface-background");
     ///new WorldObjFactoryImpl<StarfieldBackground>("starfield-background");
     ///new WorldObjFactoryImpl<SolidColorBackground>("solidcolor-background");
-
     // Weather
     ///new WorldObjFactoryImpl<SnowGenerator>("snow-generator");
     ///new WorldObjFactoryImpl<RainGenerator>("rain-generator");
     // Weather-Backward compability
     ///new WorldObjFactoryImpl<SnowGenerator>("snow");
     ///new WorldObjFactoryImpl<RainGenerator>("rain");
-
-    // Groundpieces
-    new WorldObjFactoryImpl("groundpiece");
   }
-
   return instance_;
 }
 
-void WorldObjFactory::deinit()
-{
-  if (instance_)
-  {
-    instance_->free_factories();
-    delete instance_;
-    instance_ = 0;
-  }
-}
+void WorldObjFactory::create(const FileReader& reader) {
+    if (reader.get_name()=="prefab") {
+        std::string name;
+        reader.read_string("name", name);
 
-void
-WorldObjFactory::create(const FileReader& reader)
-{
-  std::map<std::string, WorldObjAbstractFactory*>::iterator it = factories.find(reader.get_name());
+        Vector3f pos;
+        reader.read_vector("position", pos);
+        WorldObjFactory::pos += pos;
 
-  if (it == factories.end())
-  {
-    log_error("invalid id: '%1%'", reader.get_name());
-  }
-  else
-  {
-    it->second->create(reader);
-  }
-}
+        PrefabFile prefab = PrefabFile::from_resource(name);
+        FileReader overrides;
+        reader.read_section("overrides", overrides);
 
-void
-WorldObjFactory::register_factory (const std::string& id,
-                                   WorldObjAbstractFactory* factory)
-{
-  factories[id] = factory;
-}
+        const std::vector<FileReader>& objects = prefab.get_objects();
+        for(auto it = objects.begin(); it != objects.end(); ++it) {
+          OverrideFileReader override_reader(*it, overrides);
 
-void
-WorldObjFactory::free_factories()
-{
-  for (std::map<std::string, WorldObjAbstractFactory*>::iterator i = factories.begin(); i != factories.end(); ++i)
-  {
-    delete i->second;
-  }
+          WorldObjFactory::instance()->create(override_reader);
+        }
+
+        WorldObjFactory::pos -= pos;
+    } else if (reader.get_name()=="group") {
+      FileReader objects = reader.read_section("objects");
+      std::vector<FileReader> sections = objects.get_sections();
+      for(auto it = sections.begin(); it != sections.end(); ++it) {
+        WorldObjFactory::instance()->create(*it);
+      }
+    } else {
+      tceu__char___FileReader_ p = { (char*)reader.get_name().c_str(), (FileReader*)&reader };
+      ceu_sys_go(&CEU_APP, CEU_IN_WORLD_NEWOBJ, &p);
+    }
 }
 
 /* EOF */

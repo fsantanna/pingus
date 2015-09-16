@@ -42,14 +42,6 @@ World::World(const PingusLevel& plf) :
 
   tceu__World___PingusLevel_ p = { this, (PingusLevel*)&plf };
   ceu_sys_go(&CEU_APP, CEU_IN_WORLD_NEW, &p);
-
-  const std::vector<FileReader>& objects = plf.get_objects();
-  for (std::vector<FileReader>::const_iterator i = objects.begin();
-       i != objects.end ();
-       ++i)
-  {
-    WorldObjFactory::instance()->create(*i);
-  }
 }
 
 World::~World()

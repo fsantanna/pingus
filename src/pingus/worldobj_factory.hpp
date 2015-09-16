@@ -28,10 +28,8 @@ class WorldObjAbstractFactory;
 class WorldObjFactory
 {
 private:
-  std::map<std::string, WorldObjAbstractFactory*> factories;
   static WorldObjFactory* instance_;
   WorldObjFactory ();
-  void free_factories();
 
 public:
 
@@ -39,8 +37,6 @@ public:
   static Vector3f pos;
 
   static WorldObjFactory* instance ();
-  static void deinit();
-  void register_factory(const std::string& id, WorldObjAbstractFactory* factory);
   void create(const FileReader& reader);
 
 private:

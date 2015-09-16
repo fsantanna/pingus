@@ -103,6 +103,14 @@ do
     global:world = &&this;
 
     var WorldObjFactory objs;
+    {
+        static const std::vector<FileReader>& objects =
+            THIS(CEU_World)->plf->get_objects();
+        for (std::vector<FileReader>::const_iterator i = objects.begin();
+             i != objects.end ();
+             ++i)
+            WorldObjFactory::instance()->create(*i);
+    };
 
     var PinguHolder pingu_holder with
         this.number_of_allowed = plf:get_number_of_pingus();

@@ -706,7 +706,6 @@ PingusMain::run(int argc, char** argv)
 
   Sound::PingusSound::deinit();
   Fonts::deinit();
-  WorldObjFactory::deinit();
   Resource::deinit();
 
   return 0;
