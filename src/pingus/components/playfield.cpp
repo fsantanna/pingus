@@ -141,16 +141,18 @@ Playfield::on_key_pressed(const Input::KeyboardEvent& ev)
     bool spawn = ev.keysym.sym == SDLK_l || ev.keysym.sym == SDLK_r;
     if (spawn)
     {
+assert(!"TODO");
       Vector2i n = state.screen2world(mouse_pos);
       Vector3f p = Vector3f(n.x,n.y,0);
+#if 0
       void* pingu = server->get_world()->get_pingus()->create_pingu(p, 0);
       if (pingu)
       {
         Direction d;
         ev.keysym.sym == SDLK_l ? d.left() : d.right();
-assert(!"TODO");
         ///pingu->set_direction(d);
       }
+#endif
     }
   }
 }

@@ -73,11 +73,7 @@ ResourceModifier::Enum modifier)
 }
 
 void PinguHolder::draw (SceneContext& gc) {}
-
-void
-PinguHolder::update()
-{
-}
+void PinguHolder::update() {}
 
 float
 PinguHolder::get_z_pos() const
