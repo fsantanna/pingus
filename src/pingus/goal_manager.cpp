@@ -63,15 +63,15 @@ GoalManager::update()
   if (exit_time == 0)
   {
     World*       world  = server->get_world();
-    PinguHolder* pingus = world->get_pingus();
+    CEU_PinguHolder* pingus = world->get_pingus();
     const PingusLevel& plf    = server->get_plf();
 
-    if (pingus->ceu->number_of_allowed == pingus->ceu->number_of_released
-        && pingus->ceu->number_of_alive == 0)
+    if (pingus->number_of_allowed == pingus->number_of_released
+        && pingus->number_of_alive == 0)
     {
       goal = GT_NO_PINGUS_IN_WORLD;
     }
-    else if (pingus->ceu->number_of_alive == 0 && world->check_armageddon())
+    else if (pingus->number_of_alive == 0 && world->check_armageddon())
     {
       goal = GT_ARMAGEDDON;
     }

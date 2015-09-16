@@ -72,8 +72,8 @@ do
                 emit global:world!:create_smoke_particles => (
                         this.pos.x + 20 + _float(_rand() % 260),
                         this.pos.y + 180,
-                        ((float){Math::frand}())-0.5,
-                        *(float){Math::frand})()-0.5
+                        {Math::frand}()-0.5,
+                        {Math::frand}()-0.5
                 );
             end
 

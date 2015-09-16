@@ -36,6 +36,7 @@ class SceneContext;
 
 #include "ceu_vars.h"
 struct CEU_World;
+struct CEU_PinguHolder;
 
 ///namespace Particles {
 ///class RainParticleHolder;
@@ -65,7 +66,7 @@ private:
 
   ///Particles::RainParticleHolder*  rain_particle_holder;
   ///Particles::SnowParticleHolder*  snow_particle_holder;
-  PinguHolder*   pingus;
+  CEU_PinguHolder* pingus;
 
   // Pointers which are references to objects from other classes
   CollisionMap*  colmap;
@@ -124,7 +125,7 @@ public:
   */
   void play_sound (std::string name, const Vector3f& pos, float volume = 0.5f);
 
-  PinguHolder* get_pingus(void);
+  CEU_PinguHolder* get_pingus(void);
 
   /** Get the acceleration due to gravity in the world */
   float get_gravity();

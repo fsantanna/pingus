@@ -47,8 +47,6 @@ World::World(const PingusLevel& plf) :
 {
   log_debug("create particle holder");
 
-  pingus = new PinguHolder(plf);
-
   tceu__World___PingusLevel_ p = { this, (PingusLevel*)&plf };
   ceu_sys_go(&CEU_APP, CEU_IN_WORLD_NEW, &p);
 
@@ -103,7 +101,7 @@ World::update()
   ceu_sys_go(&CEU_APP, CEU_IN_WORLD_UPDATE, &game_time);
 }
 
-PinguHolder*
+CEU_PinguHolder*
 World::get_pingus()
 {
   return pingus;
@@ -182,6 +180,30 @@ Vector2i
 World::get_start_pos(int player_id)
 {
   return CEU_World_get_start_pos(NULL, this->ceu);
+}
+
+/// TODO: move to proper place!
+#include "engine/display/sdl_framebuffer_surface_impl.hpp"
+FramebufferSurface* load_framebuffer_sdl_surface(const Pathname& filename, 
+ResourceModifier::Enum modifier)
+{
+  // FIXME: Implement proper cache
+  try
+  {
+    Surface surface(filename);
+    if (modifier != ResourceModifier::ROT0)
+    {
+      surface = surface.mod(modifier);
+    }
+    return new FramebufferSurface(new SDLFramebufferSurfaceImpl(surface.get_surface()));
+  }
+  catch(const std::exception& err)
+  {
+    // return a dummy surface for cases where the image file can't be found
+    log_error("%1%", err.what());
+    Surface surface(Pathname("images/core/misc/404.png", Pathname::DATA_PATH));
+    return new FramebufferSurface(new SDLFramebufferSurfaceImpl(surface.get_surface()));
+  }
 }
 
 /* EOF */
