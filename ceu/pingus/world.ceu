@@ -46,10 +46,11 @@ end
 #include "components/smallmap.ceu"
 
 class WorldObjFactory with
+    pool Entrance[] entrances;
 do
     every (id_,obj_,reader_) in WORLD_NEWOBJ do
         if _strcmp(id_,"entrance")==0 then
-            spawn Entrance with
+            spawn Entrance in this.entrances with
                 this.me     = &_XXX_PURE((_WorldObjs__Entrance&&)obj_);
                 this.reader = reader_;
             end;
@@ -63,14 +64,34 @@ do
                 this.me     = &_XXX_PURE((_WorldObjs__Groundpiece&&)obj_);
                 this.reader = reader_;
             end;
+        else/if _strcmp(id_,"guillotine")==0 then
+            spawn Guillotine with
+                this.me     = &_XXX_PURE((_WorldObjs__Guillotine&&)obj_);
+                this.reader = reader_;
+            end;
         else/if _strcmp(id_,"hotspot")==0 then
             spawn Hotspot with
                 this.me     = &_XXX_PURE((_WorldObjs__Hotspot&&)obj_);
                 this.reader = reader_;
             end;
+        else/if _strcmp(id_,"laser_exit")==0 then
+            spawn LaserExit with
+                this.me     = &_XXX_PURE((_WorldObjs__LaserExit&&)obj_);
+                this.reader = reader_;
+            end;
         else/if _strcmp(id_,"liquid")==0 then
             spawn Liquid with
                 this.me     = &_XXX_PURE((_WorldObjs__Liquid&&)obj_);
+                this.reader = reader_;
+            end;
+        else/if _strcmp(id_,"smasher")==0 then
+            spawn Smasher with
+                this.me     = &_XXX_PURE((_WorldObjs__Smasher&&)obj_);
+                this.reader = reader_;
+            end;
+        else/if _strcmp(id_,"spike")==0 then
+            spawn Spike with
+                this.me     = &_XXX_PURE((_WorldObjs__Spike&&)obj_);
                 this.reader = reader_;
             end;
         else/if _strcmp(id_,"surface-background")==0 then
@@ -86,12 +107,12 @@ class World with
     interface IWorld;
 
     var _PingusLevel&& plf;
+    function (void)=>_Vector2i get_start_pos;
 do
+    this.me.ceu = &&this;
     global:world = &&this;
 
-    pool IWorldObj[] objs;
-
-    var WorldObjFactory _;
+    var WorldObjFactory objs;
 
     var PinguHolder pingu_holder with
         this.me = &_XXX_PTR2REF(outer.me.pingus);
@@ -161,6 +182,26 @@ do
 
     function (void)=>IPinguHolderPool& get_pingu_holder do
         return &this.pingu_holder;
+    end
+
+    function (void)=>_Vector2i get_start_pos do
+        // FIXME: Workaround for lack of start-pos
+        var int num_entrances = 0;
+        var Vector2i pos = Vector2i(0,0);
+        loop entrance in this.objs.entrances do
+            num_entrances = num_entrances + 1;
+            var _Vector3f pos_ = entrance:get_pos();
+            pos.x = pos.x + (int)pos_.x;
+            pos.y = pos.y + (int)pos_.y;
+        end
+
+        if (num_entrances > 0) then
+            pos.x = pos.x / num_entrances;
+            pos.y = pos.y / num_entrances;
+            pos.y = pos.y + 100;
+        end
+
+        return _Vector2i(pos.x, pos.y);
     end
 end
 

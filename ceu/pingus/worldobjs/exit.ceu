@@ -120,16 +120,4 @@ do
     end
 end
 
-class ExitFactory with
-do
-    every (me_,reader_) in EXIT_NEW do
-        spawn Exit with
-            this.me     = &_XXX_PTR2REF(me_);
-            this.reader = reader_;
-        end;
-    end
-end
-
-var ExitFactory _;
-
 #endif

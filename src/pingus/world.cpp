@@ -30,8 +30,6 @@
 #include "pingus/worldobjs/entrance.hpp"
 #include "util/log.hpp"
 
-#include "ceu_vars.h"
-
 static
 bool WorldObj_less (WorldObj* a, WorldObj* b)
 {
@@ -58,8 +56,6 @@ World::World(const PingusLevel& plf) :
   ///rain_particle_holder  = new Particles::RainParticleHolder();
   ///snow_particle_holder  = new Particles::SnowParticleHolder();
 
-  world_obj.push_back(gfx_map);
-
   ///world_obj.push_back(rain_particle_holder);
   ///world_obj.push_back(snow_particle_holder);
 
@@ -72,7 +68,7 @@ World::World(const PingusLevel& plf) :
 void
 World::add_object (WorldObj* obj)
 {
-  world_obj.push_back(obj);
+  assert(!"NOT PORTED");
 }
 
 void
@@ -85,32 +81,12 @@ World::init_worldobjs(const PingusLevel& plf)
        ++i)
   {
     std::vector<WorldObj*> objs = WorldObjFactory::instance()->create(*i);
-    for(auto obj = objs.begin(); obj != objs.end(); ++obj)
-    {
-      if (*obj)
-      {
-        add_object(*obj);
-      }
-    }
-  }
-
-  world_obj.push_back(pingus);
-
-  std::stable_sort (world_obj.begin (), world_obj.end (), WorldObj_less);
-
-  // Drawing all world objs to the colmap, gfx, or what ever the
-  // objects want to do
-  for(WorldObjIter obj = world_obj.begin(); obj != world_obj.end(); ++obj)
-  {
-    (*obj)->on_startup();
   }
 }
 
 World::~World()
 {
-  for (WorldObjIter it = world_obj.begin(); it != world_obj.end(); ++it) {
-    delete *it;
-  }
+  delete(gfx_map);
 
   void* this_ = this;
   ceu_sys_go(&CEU_APP, CEU_IN_WORLD_DELETE, &this_);
@@ -123,10 +99,8 @@ World::draw (SceneContext& gc)
 
   gc.light().fill_screen(Color(ambient_light));
 
-  for(WorldObjIter obj = world_obj.begin(); obj != world_obj.end(); ++obj)
-  {
-    (*obj)->draw(gc);
-  }
+  gfx_map->draw(gc);
+  pingus->draw(gc);
 
   SceneContext* p = &gc;
   ceu_sys_go(&CEU_APP, CEU_IN_WORLD_DRAW, &p);
@@ -136,11 +110,6 @@ void
 World::draw_smallmap(SmallMap* smallmap)
 {
   WorldObj::set_world(this);
-
-  for(WorldObjIter obj = world_obj.begin(); obj != world_obj.end(); ++obj)
-  {
-    (*obj)->draw_smallmap (smallmap);
-  }
   ceu_sys_go(&CEU_APP, CEU_IN_WORLD_DRAW_SMALLMAP, &smallmap);
 }
 
@@ -148,14 +117,7 @@ void
 World::update()
 {
   WorldObj::set_world(this);
-
   game_time += 1;
-
-  for(WorldObjIter obj = world_obj.begin(); obj != world_obj.end(); ++obj)
-  {
-    (*obj)->update();
-  }
-
   ceu_sys_go(&CEU_APP, CEU_IN_WORLD_UPDATE, &game_time);
 }
 
@@ -251,41 +213,13 @@ WorldObj*
 World::get_worldobj(const std::string& id)
 {
   assert(!"not ported");
-#if 0
-  for(WorldObjIter obj = world_obj.begin(); obj != world_obj.end(); ++obj)
-  {
-    if ((*obj)->get_id() == id)
-      return *obj;
-  }
-#endif
   return 0;
 }
 
 Vector2i
 World::get_start_pos(int player_id)
 {
-  // FIXME: Workaround for lack of start-pos
-  Vector2i pos;
-  int num_entrances = 0;
-  for(WorldObjIter obj = world_obj.begin(); obj != world_obj.end(); ++obj)
-  {
-    WorldObjs::Entrance* entrance = dynamic_cast<WorldObjs::Entrance*>(*obj);
-    if (entrance && entrance->get_owner_id() == player_id)
-    {
-      pos += Vector2i(static_cast<int>(entrance->get_pos().x),
-                      static_cast<int>(entrance->get_pos().y));
-      num_entrances += 1;
-    }
-  }
-
-  if (num_entrances > 0)
-  {
-    pos.x /= num_entrances;
-    pos.y /= num_entrances;
-    pos.y += 100;
-  }
-
-  return pos;
+  return CEU_World_get_start_pos(NULL, this->ceu);
 }
 
 /* EOF */

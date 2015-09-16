@@ -186,16 +186,4 @@ do
     end
 end
 
-class SurfaceBackgroundFactory with
-do
-    every (me_,reader_) in SURFACEBACKGROUND_NEW do
-        spawn SurfaceBackground with
-            this.me     = &_XXX_PTR2REF(me_);
-            this.reader = reader_;
-        end;
-    end
-end
-
-var SurfaceBackgroundFactory _;
-
 #endif

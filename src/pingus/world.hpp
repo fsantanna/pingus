@@ -34,6 +34,9 @@ class WorldObj;
 class SmallMap;
 class SceneContext;
 
+#include "ceu_vars.h"
+struct CEU_World;
+
 namespace Particles {
 class RainParticleHolder;
 class SnowParticleHolder;
@@ -47,6 +50,8 @@ class SnowParticleHolder;
 class World
 {
 private:
+  CEU_World* ceu;
+
   Color ambient_light;
 
   /** groundmap for the pingus */

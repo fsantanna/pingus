@@ -92,16 +92,4 @@ do
     end
 end
 
-class SpikeFactory with
-do
-    every (me_,reader_) in SPIKE_NEW do
-        spawn Spike with
-            this.me     = &_XXX_PTR2REF(me_);
-            this.reader = reader_;
-        end;
-    end
-end
-
-var SpikeFactory _;
-
 #endif

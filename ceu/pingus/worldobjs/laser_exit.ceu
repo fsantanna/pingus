@@ -82,16 +82,4 @@ do
     end
 end
 
-class LaserExitFactory with
-do
-    every (me_,reader_) in LASEREXIT_NEW do
-        spawn LaserExit with
-            this.me     = &_XXX_PTR2REF(me_);
-            this.reader = reader_;
-        end;
-    end
-end
-
-var LaserExitFactory _;
-
 #endif
