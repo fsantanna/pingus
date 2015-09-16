@@ -63,7 +63,7 @@ do
         { static ResDescriptor desc; };         // TODO: repeated above
         this.reader:read_desc("surface", _desc);
         { CollisionMask mask(desc); };
-        this.me.world:get_colmap():remove(_mask,
+        global:world!:me.get_colmap():remove(_mask,
             (int)(this.pos.x) - this.sprite.get_width()/2,
             (int)(this.pos.y) - this.sprite.get_height());
     end
@@ -82,9 +82,8 @@ do
         end
     with
         every WORLD_UPDATE do
-            var IWorld&& world = (IWorld&&)this.me.world:ceu;
             var IPingu&&? pingu;
-            loop p in world:get_pingu_holder().pingus do
+            loop p in global:world!:get_pingu_holder().pingus do
                 // Make sure this particular exit is allowed for this pingu
                 if (p:get_owner() != this.owner_id) then
                     continue;
