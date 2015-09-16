@@ -28,11 +28,10 @@ do
             y = this.me.state.screen2world(_Vector2i(x,y)).y;
 
             if this.me.session != null then
-                var IWorld&&? world = (IWorld&&) _XXX_PURE(this.me.server:get_world():ceu);
                 var IPingu&& pingu = null;
                 var float min_dist = 500.0;
                 var float dist;
-                loop p in world!:get_pingu_holder().pingus do
+                loop p in global:world!:get_pingu_holder().pingus do
                     if (p:is_over(x, y)) then
                         dist = p:dist(x, y);
                         if (dist < min_dist) then

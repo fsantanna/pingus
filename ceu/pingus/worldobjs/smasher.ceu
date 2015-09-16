@@ -23,8 +23,6 @@ class Smasher with
     function (void)       =>float     get_z_pos;
     function (_Vector3f&&)=>void      set_pos;
     function (void)       =>_Vector3f get_pos;
-
-    function (void)=>void on_startup;
 do
     this.me.ceu = &&this;
 
@@ -32,6 +30,15 @@ do
     { static Vector3f p; };
     this.reader:read_vector("position", _p);
     this.pos = Vector3f(_p.x,_p.y,_p.z);
+
+    do
+        _log_info("Drawing colmap entry");
+        { CollisionMask buf("traps/smasher_cmap"); };
+        global:world!:me.put(_buf,
+                             (int)(this.pos.x),
+                             (int)(this.pos.y),
+                             {Groundtype::GP_SOLID});
+    end
 
     par/or do
         AWAIT_UNTIL_MYSELF(_WorldObjs__Smasher,SMASHER_DELETE);
@@ -49,8 +56,7 @@ do
                 loop do
                     await WORLD_UPDATE;
 
-                    var IWorld&& world = (IWorld&&)this.me.world:ceu;
-                    loop pingu in world:get_pingu_holder().pingus do
+                    loop pingu in global:world!:get_pingu_holder().pingus do
                         // Activate the smasher if a Pingu is under it
                         if ((pingu:direction == _LEFT             and
                              pingu:get_pos().x > this.pos.x + 65  and
@@ -84,8 +90,7 @@ do
                 call {Sound::PingusSound::play_sound}("tenton");
 
                 loop i in 20 do
-                    var IWorld&& world = (IWorld&&)this.me.world:ceu;
-                    emit world:create_smoke_particles => (
+                    emit global:world!:create_smoke_particles => (
                             this.pos.x + 20 + _float(_rand() % 260),
                             this.pos.y + 180,
                             {Math::frand}()-0.5, {Math::frand}()-0.5
@@ -93,8 +98,7 @@ do
                 end
 
                 var IPingu&&?[] pingus;
-                var IWorld&& world = (IWorld&&)this.me.world:ceu;
-                loop pingu in world:get_pingu_holder().pingus do
+                loop pingu in global:world!:get_pingu_holder().pingus do
                     pingus = [] .. pingus .. [pingu];
                 end
                 loop i in $pingus do
@@ -126,15 +130,6 @@ do
     end
     function (void)=>_Vector3f get_pos do
         return _Vector3f(this.pos.x, this.pos.y, this.pos.z);
-    end
-
-    function (void)=>void on_startup do
-        _log_info("Drawing colmap entry");
-        { CollisionMask buf("traps/smasher_cmap"); };
-        this.me.world:put(_buf,
-                          (int)(this.pos.x),
-                          (int)(this.pos.y),
-                          {Groundtype::GP_SOLID});
     end
 end
 

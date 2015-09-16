@@ -120,6 +120,12 @@ interface IWorld with
     event (float,float,float,float) create_smoke_particles;
 end
 
+interface Global with
+    var IWorld&&? world;
+end
+
+var IWorld&&? world;
+
 #include "pingus/world.ceu"
 
 every 1s do

@@ -63,7 +63,6 @@ Smasher::update ()
 void
 Smasher::on_startup ()
 {
-  CEU_Smasher_on_startup(NULL, this->ceu);
 }
 
 void

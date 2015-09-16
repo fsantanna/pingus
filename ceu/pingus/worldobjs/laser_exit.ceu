@@ -46,9 +46,8 @@ do
                 var IPingu&& pingu = do
                     loop do
                         await WORLD_UPDATE;
-                        var IWorld&& world = (IWorld&&)this.me.world:ceu;
                         var IPingu&&? pingu;
-                        loop p in world:get_pingu_holder().pingus do
+                        loop p in global:world!:get_pingu_holder().pingus do
                             if (p:get_x() < this.pos.x+34+10 and
                                 p:get_x() > this.pos.x+34    and
                                 p:get_y() < this.pos.y+43+20 and

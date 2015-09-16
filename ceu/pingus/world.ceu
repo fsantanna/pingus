@@ -87,7 +87,7 @@ class World with
 
     var _PingusLevel&& plf;
 do
-    this.me.ceu = &&this;
+    global:world = &&this;
 
     pool IWorldObj[] objs;
 

@@ -97,9 +97,11 @@ class Project:
         self.opts.Add('CPPDEFINES', 'defined constants', [])
         self.opts.Add('LIBS',       'Additional libraries', [])
         self.opts.Add('CCFLAGS',    'C Compiler flags', [])
-#       self.opts.Add('CXXFLAGS',   'C++ Compiler flags', ["-O2", "-s", "-g", "-Wno-write-strings","-DCEU_DEBUG"],
+        self.opts.Add('CXXFLAGS',   'C++ Compiler flags',
+            ["-O2", "-s", "-g", "-Wno-write-strings","-DCEU_DEBUG"],
 #           converter=SCons.Util.CLVar)
-        self.opts.Add('CXXFLAGS',   'C++ Compiler flags', ["-O2", "-s", "-Wno-write-strings"],
+#        self.opts.Add('CXXFLAGS',   'C++ Compiler flags', ["-O2", "-s", 
+#        "-Wno-write-strings"],
             converter=SCons.Util.CLVar)
         self.opts.Add('LINKFLAGS',  'Linker Compiler flags', [])
 

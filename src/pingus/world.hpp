@@ -76,7 +76,6 @@ private:
 public:
   World(const PingusLevel& level);
   virtual ~World();
-  void* ceu;
 
   /** Add an object to the world, obj needs to be new'ed the World
       make sure that it will get deleted */
