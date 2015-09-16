@@ -111,8 +111,8 @@ GameSession::update_server(float delta)
 
     result.plf    = server->get_plf();
 
-    result.saved  = pingu_holder->get_number_of_exited();
-    result.killed = pingu_holder->get_number_of_killed();
+    result.saved  = pingu_holder->ceu->number_of_exited;
+    result.killed = pingu_holder->ceu->number_of_killed;
     result.total  = server->get_plf().get_number_of_pingus();
 
     result.needed = server->get_plf().get_number_to_save();

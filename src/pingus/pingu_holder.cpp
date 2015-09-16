@@ -21,32 +21,8 @@
 
 #include "pingus/pingus_level.hpp"
 
-PinguHolder::PinguHolder(const PingusLevel& plf) :
-  XXX_n(0)
-{
-}
-
-PinguHolder::~PinguHolder()
-{
-}
-
-void*
-PinguHolder::create_pingu (const Vector3f& pos, int owner_id)
-{
-  if (this->ceu->number_of_allowed > get_number_of_released())
-  {
-    void* pingu = NULL;
-
-    tceu__void____int__Vector3f___int p = { &pingu, XXX_n++, (Vector3f*)&pos, owner_id };
-    ceu_sys_go(&CEU_APP, CEU_IN_PINGUHOLDER_CREATE_PINGU, &p);
-
-    return pingu;
-  }
-  else
-  {
-    return 0;
-  }
-}
+PinguHolder::PinguHolder(const PingusLevel& plf) { }
+PinguHolder::~PinguHolder() { }
 
 /// TODO: move to proper place!
 #include "engine/display/sdl_framebuffer_surface_impl.hpp"
@@ -79,36 +55,6 @@ float
 PinguHolder::get_z_pos() const
 {
   return 50;
-}
-
-int
-PinguHolder::get_number_of_exited()
-{
-  return this->ceu->number_of_exited;
-}
-
-int
-PinguHolder::get_number_of_killed()
-{
-  return this->ceu->number_of_killed;
-}
-
-int
-PinguHolder::get_number_of_alive()
-{
-  return this->ceu->number_of_alive;
-}
-
-int
-PinguHolder::get_number_of_released()
-{
-  return this->ceu->number_of_released;
-}
-
-int
-PinguHolder::get_number_of_allowed()
-{
-  return this->ceu->number_of_allowed;
 }
 
 /* EOF */

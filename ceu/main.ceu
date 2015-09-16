@@ -106,6 +106,7 @@ end
 
 interface IPinguHolderPool with
     pool IPingu[] pingus;
+    event (int,int,s8,int) create;
 end
 
 interface IPinguAction with

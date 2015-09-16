@@ -74,19 +74,6 @@ do
                 break;
             end
 
-            { static Vector3f pos;
-              pos.x = THIS(CEU_Entrance)->pos.x;
-              pos.y = THIS(CEU_Entrance)->pos.y;
-              pos.z = THIS(CEU_Entrance)->pos.z;
-            };
-            var IPingu&& pingu = _XXX_PURE(
-                global:world!:me.get_pingus():create_pingu(
-                    _pos,
-                    this.owner_id));
-            if pingu == null then
-                continue;
-            end
-
             var s8 dir;
             if this.direction == _ENTRANCE_LEFT then
                 dir = _LEFT;
@@ -103,7 +90,9 @@ do
                 _log_error("warning direction is wrong: %1%", this.direction);
                 dir = _RIGHT;
             end
-            pingu:set_direction(dir);
+
+            emit global:world!:get_pingu_holder().create =>
+                    (this.pos.x, this.pos.y, dir, this.owner_id);
         end
     end
 

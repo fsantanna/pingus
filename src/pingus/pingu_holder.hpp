@@ -33,7 +33,6 @@ class PinguHolder : public WorldObj
 {
 private:
   CEU_PinguHolder* ceu;
-  int XXX_n;
 
 public:
   PinguHolder(const PingusLevel&);
@@ -41,44 +40,10 @@ public:
 
   void draw (SceneContext& gc);
 
-  /** Update all Pingus (this calls Pingu::update() which then calls
-      PinguAction::update()) */
   void update();
-
-  /** The z-pos at which the pingus gets draw.
-      @return 50 */
   float get_z_pos() const;
   void set_pos(const Vector3f& p) { }
   Vector3f get_pos() const { return Vector3f(); }
-  /*@}*/
-
-  /** @return the number of pingus that have successfully exit this
-      level */
-  int  get_number_of_exited();
-
-  /** @return the number of pingus that got killed */
-  int  get_number_of_killed();
-
-  /** @return the number of pingus that are still alive, this is shown
-      in the PingusCounter panel as 'Out'. Exited pingus are *not*
-      counted. FIXME: name should be different (out, active?!) */
-  int  get_number_of_alive();
-
-  /** @return the total number of pingus released, this is alive +
-      killed + exited */
-  int get_number_of_released();
-
-  /** @return the maximal number of pingus that will get released in
-      this level */
-  int get_number_of_allowed();
-
-  /** @return a reference to a newly create Pingu, the PinguHolder
-      will take care of the deletion. The caller *must* not delete the
-      Pingu. Might return 0 if all available pingus are already
-      released */
-  void* create_pingu(const Vector3f& pos, int owner_id);
-
-  /** @return the id of the last pingu + 1 */
   unsigned int get_end_id();
 
 private:

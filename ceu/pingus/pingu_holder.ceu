@@ -6,19 +6,10 @@ native do
 end
 native @plain _PinguHolder;
 
-input (int,int,_Framebuffer&&) PINGUHOLDER_RENDER;
-
-input (void&& &&,int,_Vector3f&&,int) PINGUHOLDER_CREATE_PINGU;
-
-input int&& PINGUHOLDER_GET_NUMBER_OF_EXITED;
-input int&& PINGUHOLDER_GET_NUMBER_OF_KILLED;
-input int&& PINGUHOLDER_GET_NUMBER_OF_ALIVE;
-input int&& PINGUHOLDER_GET_NUMBER_OF_RELEASED;
-input int&& PINGUHOLDER_GET_NUMBER_OF_ALLOWED;
-
 #include "pingu.ceu"
 
 class PinguHolder with
+    interface IPinguHolderPool;
     interface IPinguHolderStatus;
     var int number_of_exited   = 0;
     var int number_of_killed   = 0;
@@ -26,23 +17,24 @@ class PinguHolder with
     var int number_of_released = 0;
     var int number_of_allowed;//=0;
 
-    pool IPingu[] pingus;
     var _PinguHolder& me;
 do
     this.me.ceu = &&this;
 
     par do
-        every (me_,id,pos,owner_id) in PINGUHOLDER_CREATE_PINGU do
+        var int id_total = 0;
+        every (x_,y_,dir_,owner_id_) in this.create do
             if this.number_of_released < this.number_of_allowed then
+                id_total = id_total+1;
+                this.number_of_released = this.number_of_released + 1;
+                this.number_of_alive    = this.number_of_alive    + 1;
                 spawn Pingu in this.pingus with
-                    this.holder   = &outer;
-                    this.id       = id;
-                    this.owner_id = owner_id;
-                    this.pos_x    = pos:x;
-                    this.pos_y    = pos:y;
-                    *me_ = (void&&)&&this;
-                    outer.number_of_released = outer.number_of_released + 1;
-                    outer.number_of_alive    = outer.number_of_alive    + 1;
+                    this.holder    = &outer;
+                    this.id        = id_total;
+                    this.owner_id  = owner_id_;
+                    this.pos_x     = x_;
+                    this.pos_y     = y_;
+                    this.direction = dir_;
                 end;
             end
         end
