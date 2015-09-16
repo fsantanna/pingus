@@ -19,9 +19,9 @@
 
 #include <memory>
 
+#include "math/vector3f.hpp"
 #include "engine/display/surface.hpp"
 #include "pingus/globals.hpp"
-#include "pingus/worldobj.hpp"
 
 class SceneContext;
 class CollisionMap;
@@ -32,7 +32,7 @@ class MapTile;
     most levels. It allows to construct a map, from a set of simple
     small images, this allows the generation of large map without
     using to much diskspace. */
-class GroundMap : public WorldObj
+class GroundMap
 {
 private:
   std::unique_ptr<CollisionMap> colmap;

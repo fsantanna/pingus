@@ -19,6 +19,7 @@
 #include <stdexcept>
 
 #include "pingus/prefab_file.hpp"
+#if 0
 #include "pingus/worldobjs/conveyor_belt.hpp"
 #include "pingus/worldobjs/fake_exit.hpp"
 #include "pingus/worldobjs/hammer.hpp"
@@ -31,10 +32,12 @@
 #include "pingus/worldobjs/switch_door_switch.hpp"
 #include "pingus/worldobjs/teleporter.hpp"
 #include "pingus/worldobjs/teleporter_target.hpp"
+#endif
+#include "math/vector3f.hpp"
 #include "util/log.hpp"
 #include "util/overrride_file_reader.hpp"
 
-using namespace WorldObjs;
+///using namespace WorldObjs;
 
 /// TEMP
 Vector3f WorldObjFactory::pos = Vector3f(0,0,0);
