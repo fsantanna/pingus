@@ -27,7 +27,6 @@
 #include "pingus/pingu_holder.hpp"
 #include "pingus/pingus_level.hpp"
 #include "pingus/worldobj_factory.hpp"
-#include "pingus/worldobjs/entrance.hpp"
 #include "util/log.hpp"
 
 static

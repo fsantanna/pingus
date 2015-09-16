@@ -34,7 +34,7 @@ Exit::Exit(const FileReader& reader)
 Exit::~Exit ()
 {
   void* this_ = this;
-  ceu_sys_go(&CEU_APP, CEU_IN_ENTRANCE_DELETE, &this_);
+  ceu_sys_go(&CEU_APP, CEU_IN_EXIT_DELETE, &this_);
 }
 
 void

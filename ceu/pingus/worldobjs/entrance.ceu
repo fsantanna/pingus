@@ -13,16 +13,17 @@ native do
 end
 native @plain _WorldObjs__Entrance;
 
-input (_WorldObjs__Entrance&&, _FileReader&&) ENTRANCE_NEW;
-input _WorldObjs__Entrance&& ENTRANCE_DELETE;
-
 #include "../../engine/display/sprite_pingu.ceu"
+
+native do
+    enum EntranceDirection { ENTRANCE_LEFT, ENTRANCE_RIGHT, ENTRANCE_MISC };
+end
 
 class Entrance with
     var _WorldObjs__Entrance& me;
-    var _FileReader&&         reader;
+    var _FileReader&& reader;
 
-    var s8 direction = {WorldObjs::Entrance::MISC};
+    var s8 direction = _ENTRANCE_MISC;
 
     function (void)       =>float     get_z_pos;
     function (_Vector3f&&)=>void      set_pos;
@@ -49,18 +50,16 @@ do
     this.reader:read_string("direction", _direction_str);
     {
         if (direction_str == "left")
-            THIS(CEU_Entrance)->direction = WorldObjs::Entrance::LEFT;
+            THIS(CEU_Entrance)->direction = ENTRANCE_LEFT;
         else if (direction_str == "right")
-            THIS(CEU_Entrance)->direction = WorldObjs::Entrance::RIGHT;
+            THIS(CEU_Entrance)->direction = ENTRANCE_RIGHT;
         else if (direction_str == "misc")
-            THIS(CEU_Entrance)->direction = WorldObjs::Entrance::MISC;
+            THIS(CEU_Entrance)->direction = ENTRANCE_MISC;
         else
             log_error("unknown direction: '%1%'", direction_str);
     };
 
     par/or do
-        AWAIT_UNTIL_MYSELF(_WorldObjs__Entrance,ENTRANCE_DELETE);
-    with
         var _Sprite&? smallmap_symbol;
         finalize
             smallmap_symbol = &{new Sprite}("core/misc/smallmap_entrance");
@@ -99,20 +98,20 @@ do
             end
 
             var s8 dir;
-            if this.direction == {WorldObjs::Entrance::LEFT} then
-                dir = _LEFT;
-            else/if this.direction == {WorldObjs::Entrance::RIGHT}  then
-                dir = _RIGHT;
-            else/if this.direction == {WorldObjs::Entrance::MISC} then
+            if this.direction == _ENTRANCE_LEFT then
+                dir = _ENTRANCE_LEFT;
+            else/if this.direction == _ENTRANCE_RIGHT  then
+                dir = _ENTRANCE_RIGHT;
+            else/if this.direction == _ENTRANCE_MISC then
                 if last_was_right then
-                    dir = _LEFT;
+                    dir = _ENTRANCE_LEFT;
                 else
-                    dir = _RIGHT;
+                    dir = _ENTRANCE_RIGHT;
                 end
                 last_was_right = not last_was_right;
             else
                 _log_error("warning direction is wrong: %1%", this.direction);
-                dir = _RIGHT;
+                dir = _ENTRANCE_RIGHT;
             end
             pingu:set_direction(dir);
         end
