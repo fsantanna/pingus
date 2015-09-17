@@ -93,7 +93,6 @@ do
     with
         _delete(&&gfx_map!);
     end
-    this.me.gfx_map = &&gfx_map!;
     this.me.colmap  = gfx_map!.get_colmap();
 
     var int game_time = 0;

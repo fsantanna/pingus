@@ -41,8 +41,6 @@ class World
 {
 private:
   CEU_World* ceu;
-  GroundMap* gfx_map;
-  CEU_PinguHolder* pingus;
   CollisionMap*  colmap;
 public:
   World(const PingusLevel& level);
