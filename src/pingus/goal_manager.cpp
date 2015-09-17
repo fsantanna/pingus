@@ -14,12 +14,12 @@
 //  You should have received a copy of the GNU General Public License
 //  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+#include "ceu_vars.h"
+
 #include "pingus/goal_manager.hpp"
 
 #include "pingus/server.hpp"
 #include "pingus/world.hpp"
-
-#include "ceu_vars.h"
 
 GoalManager::GoalManager(Server* s)
   : server(s), goal(GT_NONE), exit_time(0)
@@ -64,7 +64,7 @@ GoalManager::update()
   if (exit_time == 0)
   {
     World*       world  = server->get_world();
-    CEU_PinguHolder* pingus = world->get_pingus();
+    CEU_PinguHolder* pingus = CEU_World_get_pingus(NULL,world->ceu);
     const PingusLevel& plf    = server->get_plf();
 
     if (pingus->number_of_allowed == pingus->number_of_released

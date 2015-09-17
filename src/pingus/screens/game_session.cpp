@@ -107,7 +107,7 @@ GameSession::update_server(float delta)
 {
   if (server->is_finished())
   {
-    CEU_PinguHolder* pingu_holder = server->get_world()->get_pingus();
+    CEU_PinguHolder* pingu_holder = CEU_World_get_pingus(NULL,server->get_world()->ceu);
     Result result;
 
     result.plf    = server->get_plf();

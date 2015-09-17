@@ -121,8 +121,6 @@ public:
   */
   void play_sound (std::string name, const Vector3f& pos, float volume = 0.5f);
 
-  CEU_PinguHolder* get_pingus(void);
-
   /** Get the acceleration due to gravity in the world */
   float get_gravity();
 

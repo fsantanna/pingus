@@ -73,12 +73,6 @@ World::update()
   ceu_sys_go(&CEU_APP, CEU_IN_WORLD_UPDATE, NULL);
 }
 
-CEU_PinguHolder*
-World::get_pingus()
-{
-  return pingus;
-}
-
 int
 World::get_width()
 {
