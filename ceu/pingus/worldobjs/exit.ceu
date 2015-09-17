@@ -45,7 +45,7 @@ do
         { static ResDescriptor desc; };         // TODO: repeated above
         this.reader:read_desc("surface", _desc);
         { CollisionMask mask(desc); };
-        global:world!:me.get_colmap():remove(_mask,
+        global:world!:get_colmap():remove(_mask,
             (int)(this.pos.x) - this.sprite.get_width()/2,
             (int)(this.pos.y) - this.sprite.get_height());
     end

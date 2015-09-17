@@ -40,7 +40,7 @@ SmallMapImage::update (float delta)
   if (update_count > smallmap_update_time)
   {
     update_count = 0.0f;
-    CollisionMap* colmap = server->get_world()->get_colmap();
+    CollisionMap* colmap = CEU_World_get_colmap(NULL,server->get_world()->ceu);
 
     if (colmap_serial != colmap->get_serial())
     {
@@ -68,7 +68,7 @@ SmallMapImage::update_surface()
 {
   unsigned char* cbuffer;
 
-  CollisionMap* colmap = server->get_world()->get_colmap();
+  CollisionMap* colmap = CEU_World_get_colmap(NULL, server->get_world()->ceu);
 
   colmap_serial = colmap->get_serial();
 

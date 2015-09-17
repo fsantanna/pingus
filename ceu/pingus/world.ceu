@@ -200,6 +200,13 @@ do
     function (void)=>int get_height do
         return this.gfx_map!.get_height();
     end
+
+    function (void)=>_GroundMap&& get_gfx_map do
+        return _XXX_PURE(&&this.gfx_map!);
+    end
+    function (void)=>_CollisionMap&& get_colmap do
+        return _XXX_PURE(this.gfx_map!.get_colmap());
+    end
 end
 
 class WorldFactory with

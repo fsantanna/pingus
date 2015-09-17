@@ -36,7 +36,7 @@ do
                 if tmp_y_add < 1.0 then
                     break;
                 end
-                if (global:world!:me.get_colmap():getpixel((int)(this.x), (int)(this.y))) then
+                if (global:world!:get_colmap():getpixel((int)(this.x), (int)(this.y))) then
                     this.velocity.y = this.velocity.y * -y_collision_decrease;
                     tmp_y_add = -tmp_y_add;
                     this.y = this.y - 1;
@@ -52,8 +52,7 @@ do
                 if tmp_y_add > -1.0 then
                     break;
                 end
-                if (global:world!:me.get_colmap():getpixel((int)(this.x), 
-                    (int)(this.y))) then
+                if (global:world!:get_colmap():getpixel((int)(this.x), (int)(this.y))) then
                     this.velocity.y = this.velocity.y * -y_collision_decrease;
                     tmp_y_add = -tmp_y_add;
                     this.y = this.y + 1;
@@ -71,8 +70,7 @@ do
                 if tmp_x_add < 1.0 then
                     break;
                 end
-                if (global:world!:me.get_colmap():getpixel((int)(this.x), 
-                    (int)(this.y))) then
+                if (global:world!:get_colmap():getpixel((int)(this.x), (int)(this.y))) then
                     this.velocity.x = this.velocity.x * -x_collision_decrease;
                     tmp_x_add = -tmp_x_add;
                     this.x = this.x - 1;
@@ -88,8 +86,7 @@ do
                 if tmp_x_add > -1.0 then
                     break;
                 end
-                if (global:world!:me.get_colmap():getpixel((int)(this.x), 
-                    (int)(this.y))) then
+                if (global:world!:get_colmap():getpixel((int)(this.x), (int)(this.y))) then
                     this.velocity.x = this.velocity.x * -x_collision_decrease;
                     tmp_x_add = -tmp_x_add;
                     this.x = this.x + 1;

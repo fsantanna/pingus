@@ -79,18 +79,6 @@ World::armageddon(void)
   ceu_sys_go(&CEU_APP, CEU_IN_WORLD_ARMAGEDDON, NULL);
 }
 
-CollisionMap*
-World::get_colmap()
-{
-  return colmap;
-}
-
-GroundMap*
-World::get_gfx_map()
-{
-  return gfx_map;
-}
-
 void
 World::play_sound(std::string name, const Vector3f& pos, float volume)
 {

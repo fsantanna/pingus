@@ -33,7 +33,7 @@ do
     do
         { static CollisionMask mask("liquids/water_cmap"); };
         loop i in this.width do
-            global:world!:me.get_colmap():put(_mask,
+            global:world!:get_colmap():put(_mask,
                              (int)(this.pos.x + (float)(i)),
                              (int)(this.pos.y),
                              {Groundtype::GP_WATER});

@@ -122,6 +122,9 @@ interface IWorld with
     function (void)=>int get_width;
     function (void)=>int get_height;
 
+    function (void)=>_GroundMap&&    get_gfx_map;
+    function (void)=>_CollisionMap&& get_colmap;
+
     event (float,float)             create_pingu_particles;
     event (float,float,float,float) create_smoke_particles;
 end

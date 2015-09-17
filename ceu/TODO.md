@@ -1,3 +1,4 @@
+- BUG: procurar /// TODO: w/o me.ceu this function becomes @rec
 - z-order front entrance snow-tutorial
 - TODO: pos_offset em todos os objs em factory
 - front entrance atras do pingu
