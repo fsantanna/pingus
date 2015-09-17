@@ -29,6 +29,8 @@ input void WORLD_ARMAGEDDON;
 #include "particles/pingu_particle_holder.ceu"
 #include "particles/smoke_particle_holder.ceu"
 
+#define WORLD_gravitational_acceleration 0.2
+
 interface IWorldObj with
 end
 
@@ -49,17 +51,25 @@ end
 #include "components/smallmap.ceu"
 
 class WorldFirst with
-    var IWorld&     world;
-    var _GroundMap& gfx_map;
-    var int&        game_time;
+    var IWorld&        world;
+    var _PingusLevel&& plf;
+    var _GroundMap&    gfx_map;
+    var int&           game_time;
 do
+    var Color ambient_light = Color(plf:get_ambient_light().r,
+                                    plf:get_ambient_light().g,
+                                    plf:get_ambient_light().b,
+                                    plf:get_ambient_light().a);
     par do
         every WORLD_UPDATE do
             this.game_time = this.game_time + 1;
         end
     with
         every gc in WORLD_DRAW do
-            gc:light().fill_screen(_Color(world.me.ambient_light));
+            gc:light().fill_screen(_Color(ambient_light.r,
+                                          ambient_light.g,
+                                          ambient_light.b,
+                                          ambient_light.a));
             gfx_map.draw(*gc);
             gc:color().draw(world.me, _Vector2i(0,0));
         end
@@ -89,6 +99,7 @@ do
     var int game_time = 0;
     var WorldFirst _ with
         this.world     = &outer;
+        this.plf       = outer.plf;
         this.gfx_map   = &gfx_map!;
         this.game_time = &game_time;
     end;
@@ -115,6 +126,8 @@ do
         this.me           = &smallmap_!;
     end;
 
+    var bool in_armageddon = false;
+
     par/or do
         AWAIT_UNTIL_MYSELF(_World, WORLD_DELETE);
     with
@@ -136,9 +149,8 @@ do
             end;
         end
     with
-        me.do_armageddon = false;
         await WORLD_ARMAGEDDON;
-        me.do_armageddon = true;
+        this.in_armageddon = true;
 
         {Sound::PingusSound::play_sound("goodidea");};
 
@@ -199,6 +211,19 @@ do
     end
     function (void)=>int get_height do
         return this.gfx_map!.get_height();
+    end
+
+    function (void)=>bool check_armageddon do
+        return this.in_armageddon;
+    end
+
+    function (_std__string&& name, _Vector3f&& pos, float volume)=>void play_sound do
+        var float panning = 0.0;
+        return {Sound::PingusSound::play_sound}(*name, volume, panning);
+    end
+
+    function (void)=>float get_gravity do
+        return WORLD_gravitational_acceleration;
     end
 
     function (void)=>_GroundMap&& get_gfx_map do

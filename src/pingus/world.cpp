@@ -27,91 +27,65 @@
 #include "pingus/pingus_level.hpp"
 #include "util/log.hpp"
 
-World::World(const PingusLevel& plf) :
-  ambient_light(Color(plf.get_ambient_light())),
-  do_armageddon(false),
-  ///rain_particle_holder(),
-  ///snow_particle_holder(),
-  gravitational_acceleration(0.2f)
+World::World(const PingusLevel& plf)
 {
-  log_debug("create particle holder");
-
   tceu__World___PingusLevel_ p = { this, (PingusLevel*)&plf };
   ceu_sys_go(&CEU_APP, CEU_IN_WORLD_NEW, &p);
 }
 
-World::~World()
-{
+World::~World() {
   void* this_ = this;
   ceu_sys_go(&CEU_APP, CEU_IN_WORLD_DELETE, &this_);
 }
 
-void
-World::draw (SceneContext& gc)
-{
+void World::draw (SceneContext& gc) {
   SceneContext* p = &gc;
   ceu_sys_go(&CEU_APP, CEU_IN_WORLD_DRAW, &p);
 }
 
-void
-World::render(int x, int y, Framebuffer& fb)
-{
+void World::render(int x, int y, Framebuffer& fb) {
   tceu__int__int__Framebuffer_ p = {x,y,&fb};
   ceu_sys_go(&CEU_APP, CEU_IN_WORLD_RENDER, &p);
 }
 
 
-void
-World::draw_smallmap(SmallMap* smallmap)
-{
+void World::draw_smallmap(SmallMap* smallmap) {
   ceu_sys_go(&CEU_APP, CEU_IN_WORLD_DRAW_SMALLMAP, &smallmap);
 }
 
-void
-World::update()
-{
+void World::update() {
   ceu_sys_go(&CEU_APP, CEU_IN_WORLD_UPDATE, NULL);
 }
 
-void
-World::armageddon(void)
-{
+void World::armageddon(void) {
   ceu_sys_go(&CEU_APP, CEU_IN_WORLD_ARMAGEDDON, NULL);
 }
 
-void
-World::play_sound(std::string name, const Vector3f& pos, float volume)
-{
-  float panning = 0.0f;
-  Sound::PingusSound::play_sound(name, volume, panning);
+bool World::check_armageddon (void) {
+    CEU_World_check_armageddon(NULL, this->ceu);
 }
 
-float World::get_gravity()
-{
-  return gravitational_acceleration;
+void World::play_sound(std::string name, const Vector3f& pos, float volume) {
+    CEU_World_play_sound(NULL, this->ceu, &name, (Vector3f*)&pos, volume);
 }
 
-void
-World::put(int x, int y, Groundtype::GPType p)
-{
+float World::get_gravity() {
+    CEU_World_get_gravity(NULL, this->ceu);
+}
+
+void World::put(int x, int y, Groundtype::GPType p) {
     assert(!"IS THIS USED?");
 }
 
-void
-World::put(const CollisionMask& mask, int x, int y, Groundtype::GPType type)
-{
+void World::put(const CollisionMask& mask, int x, int y, Groundtype::GPType type) {
     CEU_World_put(NULL, this->ceu, (CollisionMask*)&mask, x, y, type);
 }
 
-void
-World::remove(const CollisionMask& mask, int x, int y)
-{
+void World::remove(const CollisionMask& mask, int x, int y) {
     CEU_World_remove(NULL, this->ceu, (CollisionMask*)&mask, x, y);
 }
 
-Vector2i
-World::get_start_pos(int player_id)
-{
+Vector2i World::get_start_pos(int player_id) {
   return CEU_World_get_start_pos(NULL, this->ceu);
 }
 

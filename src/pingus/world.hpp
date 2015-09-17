@@ -52,16 +52,8 @@ class World
 private:
   CEU_World* ceu;
 
-  Color ambient_light;
-
   /** groundmap for the pingus */
   GroundMap* gfx_map;
-
-  /** manager class for the time in the pingus world */
-  int game_time;
-
-  /** set to true once an armageddon got started */
-  bool do_armageddon;
 
   ///Particles::RainParticleHolder*  rain_particle_holder;
   ///Particles::SnowParticleHolder*  snow_particle_holder;
@@ -69,9 +61,6 @@ private:
 
   // Pointers which are references to objects from other classes
   CollisionMap*  colmap;
-
-  /** Acceleration due to gravity in the world */
-  const float gravitational_acceleration;
 
 public:
   World(const PingusLevel& level);
@@ -98,7 +87,7 @@ public:
   void remove(const CollisionMask&, int x, int y);
 
   /** @return true if the world is currently doing an armageddon */
-  bool check_armageddon() { return do_armageddon; }
+  bool check_armageddon();
 
   /** Play a sound as if it would have been generated at the given
       position, adjust panning and volume by the position relative to
