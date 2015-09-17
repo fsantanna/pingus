@@ -207,6 +207,15 @@ do
     function (void)=>_CollisionMap&& get_colmap do
         return _XXX_PURE(this.gfx_map!.get_colmap());
     end
+
+    function (_CollisionMask&& mask,int x,int y,_Groundtype__GPType type)=>void put do
+        this.gfx_map!.put(mask:get_surface(), x, y);
+        this.gfx_map!.get_colmap():put(*mask, x, y, type);
+    end
+    function (_CollisionMask&& mask,int x,int y)=>void remove do
+        this.gfx_map!.remove(mask:get_surface(), x, y);
+        this.gfx_map!.get_colmap():remove(*mask, x, y);
+    end
 end
 
 class WorldFactory with

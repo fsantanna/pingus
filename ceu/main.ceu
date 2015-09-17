@@ -125,6 +125,9 @@ interface IWorld with
     function (void)=>_GroundMap&&    get_gfx_map;
     function (void)=>_CollisionMap&& get_colmap;
 
+    function (_CollisionMask&& mask,int x,int y,_Groundtype__GPType type)=>void put;
+    function (_CollisionMask&& mask,int x,int y)=>void remove;
+
     event (float,float)             create_pingu_particles;
     event (float,float,float,float) create_smoke_particles;
 end
