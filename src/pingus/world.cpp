@@ -73,20 +73,6 @@ World::update()
   ceu_sys_go(&CEU_APP, CEU_IN_WORLD_UPDATE, NULL);
 }
 
-int
-World::get_width()
-{
-  assert(gfx_map);
-  return gfx_map->get_width();
-}
-
-int
-World::get_height()
-{
-  assert(gfx_map);
-  return gfx_map->get_height();
-}
-
 void
 World::armageddon(void)
 {

@@ -193,6 +193,13 @@ do
     function (void)=>PinguHolder& get_pingus do
         return &this.pingu_holder;
     end
+
+    function (void)=>int get_width do
+        return this.gfx_map!.get_width();
+    end
+    function (void)=>int get_height do
+        return this.gfx_map!.get_height();
+    end
 end
 
 class WorldFactory with

@@ -119,6 +119,9 @@ interface IWorld with
     function (void)=>IPinguHolderPool& get_pingu_holder;
     function (void)=>int               get_time;
 
+    function (void)=>int get_width;
+    function (void)=>int get_height;
+
     event (float,float)             create_pingu_particles;
     event (float,float,float,float) create_smoke_particles;
 end

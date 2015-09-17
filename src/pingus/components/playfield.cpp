@@ -41,8 +41,8 @@ Playfield::Playfield(Server* server_, GameSession* session_, const Rect& rect_) 
   mouse_scrolling    = false;
 
   state.set_limit(Rect(Vector2i(0, 0),
-                       Size(server->get_world()->get_width(),
-                            server->get_world()->get_height())));
+                       Size(CEU_World_get_width(NULL,server->get_world()->ceu),
+                            CEU_World_get_height(NULL,server->get_world()->ceu))));
 
   // FIXME: Temporary workaround till start-pos is integrated a bit more properly
   state.set_pos(server->get_world()->get_start_pos(0));

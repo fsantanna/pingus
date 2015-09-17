@@ -61,8 +61,12 @@ void
 SmallMap::draw_sprite(Sprite sprite, Vector3f pos)
 {
   World* world = server->get_world();
-  float x = static_cast<float>(rect.left) + (pos.x * static_cast<float>(rect.get_width())  / static_cast<float>(world->get_width()));
-  float y = static_cast<float>(rect.top)  + (pos.y * static_cast<float>(rect.get_height()) / static_cast<float>(world->get_height()));
+  float x = static_cast<float>(rect.left) +
+            (pos.x * static_cast<float>(rect.get_width()) /
+                static_cast<float>(CEU_World_get_width(NULL,world->ceu)));
+  float y = static_cast<float>(rect.top) +
+                (pos.y * static_cast<float>(rect.get_height()) /
+                    static_cast<float>(CEU_World_get_height(NULL,world->ceu)));
 
   gc_ptr->draw(sprite, Vector3f(x, y));
 }
@@ -82,8 +86,8 @@ SmallMap::on_pointer_move (int x, int y)
 
   if (scroll_mode)
   {
-    cx = (x - rect.left) * static_cast<int>(world->get_width()  / rect.get_width());
-    cy = (y - rect.top) * static_cast<int>(world->get_height() / rect.get_height());
+    cx = (x - rect.left) * static_cast<int>(CEU_World_get_width(NULL,world->ceu)  / rect.get_width());
+    cy = (y - rect.top) * static_cast<int>(CEU_World_get_height(NULL,world->ceu) / rect.get_height());
 
     playfield->set_viewpoint(cx, cy);
   }
@@ -97,8 +101,8 @@ SmallMap::on_primary_button_press (int x, int y)
   // set view to the given COs
   int cx, cy;
   World* world = server->get_world();
-  cx = (x - rect.left) * int(world->get_width()) / rect.get_width();
-  cy = (y - rect.top) * int(world->get_height()) / rect.get_height();
+  cx = (x - rect.left) * int(CEU_World_get_width(NULL,world->ceu)) / rect.get_width();
+  cy = (y - rect.top) * int(CEU_World_get_height(NULL,world->ceu)) / rect.get_height();
   playfield->set_viewpoint(cx, cy);
 }
 

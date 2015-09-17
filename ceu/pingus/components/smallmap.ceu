@@ -25,21 +25,21 @@ do
             Rect view_rect;
         };
 
-        if (global:world!:me.get_width() > gc:get_width()) then
+        if (global:world!:get_width() > gc:get_width()) then
             var int rwidth = (int)(gc:get_width()  * this.me.rect.get_width()  
-            / global:world!:me.get_width());
+            / global:world!:get_width());
             _view_rect.left  = this.me.rect.left + (of_x * 
-            this.me.rect.get_width()  / global:world!:me.get_width()) - rwidth/2;
+            this.me.rect.get_width()  / global:world!:get_width()) - rwidth/2;
             _view_rect.right = _view_rect.left + rwidth;
         else
             _view_rect.left  = (int)this.me.rect.left;
             _view_rect.right = this.me.rect.left + this.me.rect.get_width();
         end
 
-        if (global:world!:me.get_height() > gc:get_height()) then
-            var int rheight = (int)(gc:get_height() * this.me.rect.get_height() / global:world!:me.get_height());
+        if (global:world!:get_height() > gc:get_height()) then
+            var int rheight = (int)(gc:get_height() * this.me.rect.get_height() / global:world!:get_height());
             _view_rect.top    = this.me.rect.top + (of_y * 
-            this.me.rect.get_height() / global:world!:me.get_height()) - rheight/2;
+            this.me.rect.get_height() / global:world!:get_height()) - rheight/2;
             _view_rect.bottom = _view_rect.top + rheight;
         else
             _view_rect.top    = (int)this.me.rect.top;
@@ -57,9 +57,9 @@ do
         // Draw Pingus
         loop pingu in this.pingu_holder.pingus do
             var int x = (int)((float)(this.me.rect.left) + (pingu:get_x() * 
-            (float)(this.me.rect.get_width()) / (float)(global:world!:me.get_width())));
+            (float)(this.me.rect.get_width()) / (float)(global:world!:get_width())));
             var int y = (int)((float)(this.me.rect.top)  + (pingu:get_y() * 
-            (float)(this.me.rect.get_height()) / (float)(global:world!:me.get_height())));
+            (float)(this.me.rect.get_height()) / (float)(global:world!:get_height())));
             gc:draw_line(_Vector2i(x, y), _Vector2i(x, y-2), _Color(255, 255, 
         0));
         end

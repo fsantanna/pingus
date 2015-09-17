@@ -106,8 +106,8 @@ DemoSession::DemoSession(const Pathname& pathname_) :
   gui_manager->add(pcounter);
   gui_manager->add(new ButtonPanel(server.get(), Vector2i(0, (size.height - 100)/2)));
 
-  int world_width  = server->get_world()->get_width();
-  int world_height = server->get_world()->get_height();
+  int world_width  = CEU_World_get_width(NULL, server->get_world()->ceu);
+  int world_height = CEU_World_get_height(NULL, server->get_world()->ceu);
 
   playfield = new Playfield(server.get(), 0,
                             Rect(Vector2i(Math::max((size.width  - world_width)/2,  0),
@@ -266,8 +266,8 @@ DemoSession::resize(const Size& size_)
 {
   GUIScreen::resize(size_);
 
-  int world_width  = server->get_world()->get_width();
-  int world_height = server->get_world()->get_height();
+  int world_width  = CEU_World_get_width(NULL, server->get_world()->ceu);
+  int world_height = CEU_World_get_height(NULL, server->get_world()->ceu);
 
   playfield->set_rect(Rect(Vector2i(Math::max((size.width  - world_width)/2,  0),
                                     Math::max((size.height - world_height)/2, 0)),

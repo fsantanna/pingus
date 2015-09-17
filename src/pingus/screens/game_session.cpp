@@ -68,8 +68,8 @@ GameSession::GameSession(const PingusLevel& arg_plf, bool arg_show_result_screen
   // These object will get deleted by the gui_manager
   button_panel = new ButtonPanel(get_server(), Vector2i(0, (size.height - 150)/2));
 
-  int world_width  = server->get_world()->get_width();
-  int world_height = server->get_world()->get_height();
+  int world_width  = CEU_World_get_width(NULL, server->get_world()->ceu);
+  int world_height = CEU_World_get_height(NULL, server->get_world()->ceu);
 
   playfield    = new Playfield(get_server(), this,
                                Rect(Vector2i(Math::max((Display::get_width()  - world_width)/2,  0),
@@ -405,8 +405,8 @@ GameSession::resize(const Size& size_)
 {
   GUIScreen::resize(size_);
 
-  int world_width  = server->get_world()->get_width();
-  int world_height = server->get_world()->get_height();
+  int world_width  = CEU_World_get_width(NULL, server->get_world()->ceu);
+  int world_height = CEU_World_get_height(NULL, server->get_world()->ceu);
 
   playfield->set_rect(Rect(Vector2i(Math::max((size.width  - world_width)/2,  0),
                                     Math::max((size.height - world_height)/2, 0)),

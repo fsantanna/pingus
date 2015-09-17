@@ -92,11 +92,6 @@ public:
   /** Issue an armageddon, all Pingus will explode in some seconds. */
   void    armageddon ();
 
-  /** @return The absolute height of the world. */
-  int     get_height ();
-  /** @return The absolute width of the world */
-  int     get_width();
-
   /** @return A pointer to the collision map used in this world */
   CollisionMap* get_colmap();
 
