@@ -30,7 +30,7 @@ do
     _vec1.x = this.pingu.get_pos().x;
     _vec1.y = this.pingu.get_pos().y;
 
-    global:world!:me.play_sound("ohno", _vec1);
+    global:world!:play_sound("ohno", _vec1, 0.5);
 
     par do
         // TODO: does it make any difference??
@@ -50,7 +50,7 @@ do
         _vec2.x = this.pingu.get_pos().x;
         _vec2.y = this.pingu.get_pos().y;
 
-        global:world!:me.play_sound("plop", _vec2);
+        global:world!:play_sound("plop", _vec2, 0.5);
 
         await WORLD_UPDATE
         until sprites.get():get_current_frame() == 13;
@@ -66,8 +66,8 @@ do
             );
         };
 
-        global:world!:me.remove(
-                _bomber_radius,
+        global:world!:remove(
+                &&_bomber_radius,
                 (int) ((int)(this.pingu.get_x()) 
                                 - (_bomber_radius.get_width()/2)),
                 (int) ((int)(this.pingu.get_y()) -

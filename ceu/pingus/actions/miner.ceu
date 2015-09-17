@@ -71,8 +71,8 @@ do
         if not final then
             if delay_count%2 == 0 then
                 // regular mine action
-                global:world!:me.remove(
-                    _miner_radius,
+                global:world!:remove(
+                    &&_miner_radius,
                     this.pingu.get_xi() - (_miner_radius.get_width()/2)
                         + this.pingu.direction,
                     this.pingu.get_yi() - _miner_radius.get_height() + 2
@@ -81,15 +81,15 @@ do
 
         // the last mine action before switching to another action
         else/if this.pingu.direction == {Direction::LEFT} then
-            global:world!:me.remove(
-                    _miner_radius_left,
+            global:world!:remove(
+                    &&_miner_radius_left,
                     this.pingu.get_xi() - (_miner_radius_left.get_width()/2)
                         + this.pingu.direction,
                     this.pingu.get_yi() - _miner_radius_left.get_height() + 2
             );
         else    // RIGHT
-            global:world!:me.remove(
-                    _miner_radius_right,
+            global:world!:remove(
+                    &&_miner_radius_right,
                     this.pingu.get_xi() - (_miner_radius_right.get_width()/2)
                         + this.pingu.direction,
                     this.pingu.get_yi() - _miner_radius_right.get_height() + 2

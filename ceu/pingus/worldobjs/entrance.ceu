@@ -68,7 +68,7 @@ do
             until global:world!:get_time() >= last_release+release_rate;
             last_release = global:world!:get_time();
 
-            if global:world!:me.check_armageddon() then
+            if global:world!:check_armageddon() then
                 break;
             end
 

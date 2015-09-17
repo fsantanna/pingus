@@ -16,17 +16,6 @@
 
 #include "pingus/world.hpp"
 
-#include <algorithm>
-
-#include "engine/display/scene_context.hpp"
-#include "engine/sound/sound.hpp"
-#include "pingus/collision_map.hpp"
-#include "pingus/ground_map.hpp"
-///#include "pingus/particles/rain_particle_holder.hpp"
-///#include "pingus/particles/snow_particle_holder.hpp"
-#include "pingus/pingus_level.hpp"
-#include "util/log.hpp"
-
 World::World(const PingusLevel& plf)
 {
   tceu__World___PingusLevel_ p = { this, (PingusLevel*)&plf };
@@ -59,34 +48,6 @@ void World::update() {
 
 void World::armageddon(void) {
   ceu_sys_go(&CEU_APP, CEU_IN_WORLD_ARMAGEDDON, NULL);
-}
-
-bool World::check_armageddon (void) {
-    CEU_World_check_armageddon(NULL, this->ceu);
-}
-
-void World::play_sound(std::string name, const Vector3f& pos, float volume) {
-    CEU_World_play_sound(NULL, this->ceu, &name, (Vector3f*)&pos, volume);
-}
-
-float World::get_gravity() {
-    CEU_World_get_gravity(NULL, this->ceu);
-}
-
-void World::put(int x, int y, Groundtype::GPType p) {
-    assert(!"IS THIS USED?");
-}
-
-void World::put(const CollisionMask& mask, int x, int y, Groundtype::GPType type) {
-    CEU_World_put(NULL, this->ceu, (CollisionMask*)&mask, x, y, type);
-}
-
-void World::remove(const CollisionMask& mask, int x, int y) {
-    CEU_World_remove(NULL, this->ceu, (CollisionMask*)&mask, x, y);
-}
-
-Vector2i World::get_start_pos(int player_id) {
-  return CEU_World_get_start_pos(NULL, this->ceu);
 }
 
 /// TODO: move to proper place!

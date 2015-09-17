@@ -54,13 +54,13 @@ do
         };
 
         if (not final) then
-            global:world!:me.remove(
-                    _digger_radius,
+            global:world!:remove(
+                    &&_digger_radius,
                     this.pingu.get_xi() - _digger_radius.get_width()/2,
                     this.pingu.get_yi() - _digger_radius.get_height() + 2);
         else
-            global:world!:me.remove(
-                    _digger_radius_final,
+            global:world!:remove(
+                    &&_digger_radius_final,
                     this.pingu.get_xi() - _digger_radius.get_width()/2,
                     this.pingu.get_yi() - _digger_radius.get_height() + 2);
         end

@@ -44,10 +44,8 @@ public:
   Surface  get_surface() const;
   uint8_t* get_data() const;
 
-private:
   void init_colmap(const Surface& surf, const std::string& surface_res);
 
-private:
   CollisionMask(const CollisionMask&);
   CollisionMask & operator=(const CollisionMask&);
 };

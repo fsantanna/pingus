@@ -72,7 +72,7 @@ GoalManager::update()
     {
       goal = GT_NO_PINGUS_IN_WORLD;
     }
-    else if (pingus->number_of_alive == 0 && world->check_armageddon())
+    else if (pingus->number_of_alive == 0 && CEU_World_check_armageddon(NULL,world->ceu))
     {
       goal = GT_ARMAGEDDON;
     }

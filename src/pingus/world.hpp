@@ -37,31 +37,13 @@ class SceneContext;
 struct CEU_World;
 struct CEU_PinguHolder;
 
-///namespace Particles {
-///class RainParticleHolder;
-///class SnowParticleHolder;
-///}
-
-/** The World holds all objects of the pingu enviroment.
-
-    It holds the pingus, traps, exits, entrances, etc.. It keeps
-    control that all objects become time to move and can catch each
-    other. */
 class World
 {
 private:
   CEU_World* ceu;
-
-  /** groundmap for the pingus */
   GroundMap* gfx_map;
-
-  ///Particles::RainParticleHolder*  rain_particle_holder;
-  ///Particles::SnowParticleHolder*  snow_particle_holder;
   CEU_PinguHolder* pingus;
-
-  // Pointers which are references to objects from other classes
   CollisionMap*  colmap;
-
 public:
   World(const PingusLevel& level);
   virtual ~World();
@@ -69,42 +51,10 @@ public:
 /// TEMP
   void render(int x, int y, Framebuffer& fb);
 
-  /** Draw the world onto the given SceneContext */
   void    draw (SceneContext& gc);
-
-  /** Draw the world onte the given SmallMap*/
   void    draw_smallmap(SmallMap* smallmap);
-
-  /** Update the World */
   void    update ();
-
-  /** Issue an armageddon, all Pingus will explode in some seconds. */
   void    armageddon ();
-
-  void put(int x, int y, Groundtype::GPType p = Groundtype::GP_GROUND);
-  void put(const CollisionMask&, int x, int y, Groundtype::GPType);
-
-  void remove(const CollisionMask&, int x, int y);
-
-  /** @return true if the world is currently doing an armageddon */
-  bool check_armageddon();
-
-  /** Play a sound as if it would have been generated at the given
-      position, adjust panning and volume by the position relative to
-      the center of the screen
-      @param name The name of the sound to play ("ohno", not "sounds/ohno.wav")
-      @param pos Position from which the sound seems to come (z-pos is
-      going to be ignored) void play_sound (std::string name, const
-      @param volume The volume of the sound
-  */
-  void play_sound (std::string name, const Vector3f& pos, float volume = 0.5f);
-
-  /** Get the acceleration due to gravity in the world */
-  float get_gravity();
-
-  /** Returns the start pos for the given player */
-  Vector2i get_start_pos(int player_id);
-
 private:
   World (const World&);
   World& operator= (const World&);

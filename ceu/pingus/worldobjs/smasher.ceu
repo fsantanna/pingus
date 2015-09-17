@@ -16,10 +16,10 @@ do
     do
         _log_info("Drawing colmap entry");
         { CollisionMask buf("traps/smasher_cmap"); };
-        global:world!:me.put(_buf,
-                             (int)(this.pos.x),
-                             (int)(this.pos.y),
-                             {Groundtype::GP_SOLID});
+        global:world!:put(&&_buf,
+                          (int)(this.pos.x),
+                          (int)(this.pos.y),
+                          {Groundtype::GP_SOLID});
     end
 
     loop do

@@ -30,9 +30,9 @@ do
         { CollisionMask mask(desc); };
         // FIXME: overdrawing of bridges and similar things aren't handled here
         if (gptype == {Groundtype::GP_REMOVE}) then
-            global:world!:me.remove(_mask, (int)(pos.x), (int)(pos.y));
+            global:world!:remove(&&_mask, (int)(pos.x), (int)(pos.y));
         else
-            global:world!:me.put(_mask, (int)(pos.x), (int)(pos.y), gptype);
+            global:world!:put(&&_mask, (int)(pos.x), (int)(pos.y), gptype);
         end
     end
 

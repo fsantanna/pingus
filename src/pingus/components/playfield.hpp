@@ -33,7 +33,7 @@ class View;
 /** This class encapsulates all the different Views */
 class Playfield : public GUI::RectComponent
 {
-private:
+public:
   Server* server;
   GameSession* session;
 

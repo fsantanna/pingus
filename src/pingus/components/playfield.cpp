@@ -45,7 +45,7 @@ Playfield::Playfield(Server* server_, GameSession* session_, const Rect& rect_) 
                             CEU_World_get_height(NULL,server->get_world()->ceu))));
 
   // FIXME: Temporary workaround till start-pos is integrated a bit more properly
-  state.set_pos(server->get_world()->get_start_pos(0));
+  state.set_pos(CEU_World_get_start_pos(NULL,server->get_world()->ceu,0));
 }
 
 Playfield::~Playfield()
@@ -202,27 +202,27 @@ Playfield::on_pointer_move (int x, int y)
     {
       CollisionMask mask("other/bash_radius_gfx");
       Vector2i p = state.screen2world(mouse_pos);
-      server->get_world()->remove(mask,
-                                  p.x - mask.get_width()/2,
-                                  p.y - mask.get_height()/2);
+      CEU_World_remove(NULL, server->get_world()->ceu, &mask,
+                             p.x - mask.get_width()/2,
+                             p.y - mask.get_height()/2);
     }
     else if (keystate[SDLK_INSERT])
     {
       CollisionMask mask("other/bash_radius_gfx");
       Vector2i p = state.screen2world(mouse_pos);
-      server->get_world()->put(mask,
-                               p.x - mask.get_width()/2,
-                               p.y - mask.get_height()/2,
-                               Groundtype::GP_GROUND);
+      CEU_World_put(NULL, server->get_world()->ceu, &mask,
+                          p.x - mask.get_width()/2,
+                          p.y - mask.get_height()/2,
+                          Groundtype::GP_GROUND);
     }
     else if (keystate[SDLK_HOME])
     {
       CollisionMask mask("other/bash_radius_gfx");
       Vector2i p = state.screen2world(mouse_pos);
-      server->get_world()->put(mask,
-                               p.x - mask.get_width()/2,
-                               p.y - mask.get_height()/2,
-                               Groundtype::GP_BRIDGE);
+      CEU_World_put(NULL, server->get_world()->ceu, &mask,
+                          p.x - mask.get_width()/2,
+                          p.y - mask.get_height()/2,
+                          Groundtype::GP_BRIDGE);
     }
   }
 }
