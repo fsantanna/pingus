@@ -50,40 +50,35 @@ do
             (int)(this.pos.y) - this.sprite.get_height());
     end
 
-    par/or do
-        var _Sprite&? smallmap_symbol;
-        finalize
-            smallmap_symbol = &{new Sprite}("core/misc/smallmap_exit");
-        with
-            //_delete(&&smallmap_symbol!);
-        end
-        every smallmap in WORLD_DRAW_SMALLMAP do
-            smallmap:draw_sprite(*(&&smallmap_symbol!), this.get_pos());
-        end
-    with
-        every WORLD_UPDATE do
-            var IPingu&&? pingu;
-            loop p in global:world!:get_pingu_holder().pingus do
-                // Make sure this particular exit is allowed for this pingu
-                if (p:get_owner() != this.owner_id) then
-                    continue;
-                end
+    var Sprite _ with
+        this.x = &pos.x;
+        this.y = &pos.y;
+        this.name = "core/misc/smallmap_exit";
+        this.is_world = false;
+    end;
 
-                // Now, make sure the pingu is within range
-                if ( (p:get_pos().x > this.pos.x-1) and
-                     (p:get_pos().x < this.pos.x+1) and
-                     (p:get_pos().y > this.pos.y-5) and
-                     (p:get_pos().y < this.pos.y+5) )
-                then
-                    // Now, make sure the pingu isn't already exiting, gone, or dead
-                    // Pingu actually exits
-                    pingu = p;
-                    break;
-                end
+    every WORLD_UPDATE do
+        var IPingu&&? pingu;
+        loop p in global:world!:get_pingu_holder().pingus do
+            // Make sure this particular exit is allowed for this pingu
+            if (p:get_owner() != this.owner_id) then
+                continue;
             end
-            if pingu? then
-                emit pingu!:go_action => {ActionName::EXITER};
+
+            // Now, make sure the pingu is within range
+            if ( (p:get_pos().x > this.pos.x-1) and
+                 (p:get_pos().x < this.pos.x+1) and
+                 (p:get_pos().y > this.pos.y-5) and
+                 (p:get_pos().y < this.pos.y+5) )
+            then
+                // Now, make sure the pingu isn't already exiting, gone, or dead
+                // Pingu actually exits
+                pingu = p;
+                break;
             end
+        end
+        if pingu? then
+            emit pingu!:go_action => {ActionName::EXITER};
         end
     end
 

@@ -65,6 +65,9 @@ public:
   bool is_at (int x, int y);
   bool mouse_over();
 
+/// TEMP
+  void render(int x, int y, Framebuffer& fb);
+
   void draw(DrawingContext& gc);
   void update(float delta);
   /*}*/

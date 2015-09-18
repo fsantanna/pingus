@@ -54,6 +54,8 @@ do
         global:world!:me.draw_smallmap(&&this.me)
             finalize with nothing; end; // draw_smallmap is @nohold
 
+        gc:draw(this.me, _Vector2i(0,0));
+
         // Draw Pingus
         loop pingu in this.pingu_holder.pingus do
             var int x = (int)((float)(this.me.rect.left) + (pingu:get_x() * 

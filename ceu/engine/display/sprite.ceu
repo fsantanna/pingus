@@ -11,7 +11,9 @@ end
 native @plain _SpriteCeu;
 native @plain _FramebufferSurface;
 
+/// TODO: unify
 input (int,int,_Framebuffer&&) WORLD_RENDER;
+input (int,int,_Rect&&,_Framebuffer&&) SMALLMAP_RENDER;
 
 class Sprite with
     function (void)=>int get_current_frame;
@@ -19,6 +21,8 @@ class Sprite with
     function (void)=>int get_frame_count;
     function (void)=>int get_width;
     function (void)=>int get_height;
+
+    var bool is_world = true;
 
     var float& x;
     var float& y;
@@ -120,13 +124,31 @@ do
         end
     with
         /* RENDER */
-        every (x0,y0,fb) in WORLD_RENDER do
-            fb:draw_surface(framebuffer_surface!,
-                _Rect(_Vector2i(this.frame_pos.x,this.frame_pos.y) +
-                           _Vector2i(this.frame_size.width  * (this.frame%this.array.width),
-                                     this.frame_size.height * (this.frame/this.array.width)),
-                       _Size(this.frame_size.width,this.frame_size.height)),
-                _Vector2i(x+x0-this.offset.x, y+y0-this.offset.y));
+        if this.is_world then
+            every (x0,y0,fb) in WORLD_RENDER do
+                fb:draw_surface(framebuffer_surface!,
+                    _Rect(_Vector2i(this.frame_pos.x,this.frame_pos.y) +
+                               _Vector2i(this.frame_size.width  * (this.frame%this.array.width),
+                                         this.frame_size.height * (this.frame/this.array.width)),
+                           _Size(this.frame_size.width,this.frame_size.height)),
+                    _Vector2i(x+x0-this.offset.x, y+y0-this.offset.y));
+            end
+        else
+            /* RENDER */
+            every (x0,y0,rect,fb) in SMALLMAP_RENDER do
+                var float x = (float)(rect:left) +
+                                    (this.x * (float)(rect:get_width()) /
+                                        (float)global:world!:get_width());
+                var float y = (float)(rect:top) +
+                                    (this.y * (float)(rect:get_height()) /
+                                        (float)global:world!:get_height());
+                fb:draw_surface(framebuffer_surface!,
+                    _Rect(_Vector2i(this.frame_pos.x,this.frame_pos.y) +
+                               _Vector2i(this.frame_size.width  * (this.frame%this.array.width),
+                                         this.frame_size.height * (this.frame/this.array.width)),
+                           _Size(this.frame_size.width,this.frame_size.height)),
+                    _Vector2i(x0+x-this.offset.x,y0+y-this.offset.y));
+            end
         end
     end
 

@@ -45,6 +45,12 @@ SmallMap::~SmallMap()
 }
 
 void
+SmallMap::render(int x, int y, Framebuffer& fb) {
+  tceu__int__int__Rect___Framebuffer_ p = {x,y,&rect,&fb};
+  ceu_sys_go(&CEU_APP, CEU_IN_SMALLMAP_RENDER, &p);
+}
+
+void
 SmallMap::draw(DrawingContext& gc)
 {
   DrawingContext* p = &gc;
@@ -67,7 +73,6 @@ SmallMap::draw_sprite(Sprite sprite, Vector3f pos)
   float y = static_cast<float>(rect.top) +
                 (pos.y * static_cast<float>(rect.get_height()) /
                     static_cast<float>(CEU_World_get_height(NULL,world->ceu)));
-
   gc_ptr->draw(sprite, Vector3f(x, y));
 }
 
