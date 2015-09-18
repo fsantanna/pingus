@@ -63,19 +63,6 @@ SmallMap::update (float delta)
   image->update(delta);
 }
 
-void
-SmallMap::draw_sprite(Sprite sprite, Vector3f pos)
-{
-  World* world = server->get_world();
-  float x = static_cast<float>(rect.left) +
-            (pos.x * static_cast<float>(rect.get_width()) /
-                static_cast<float>(CEU_World_get_width(NULL,world->ceu)));
-  float y = static_cast<float>(rect.top) +
-                (pos.y * static_cast<float>(rect.get_height()) /
-                    static_cast<float>(CEU_World_get_height(NULL,world->ceu)));
-  gc_ptr->draw(sprite, Vector3f(x, y));
-}
-
 bool
 SmallMap::is_at (int x, int y)
 {

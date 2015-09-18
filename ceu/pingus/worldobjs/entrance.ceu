@@ -47,51 +47,46 @@ do
             log_error("unknown direction: '%1%'", direction_str);
     };
 
-    par/or do
-        var _Sprite&? smallmap_symbol;
-        finalize
-            smallmap_symbol = &{new Sprite}("core/misc/smallmap_entrance");
-        with
-            //_delete(&&smallmap_symbol!);
+    var Sprite _ with
+        this.x = &pos.x;
+        this.y = &pos.y;
+        this.name = "core/misc/smallmap_entrance";
+        this.is_world = false;
+    end;
+
+    var int last_release = 150 - release_rate;
+        // wait ~2sec at startup to allow a 'lets go' sound
+
+    var bool last_was_right = false;
+
+    loop do
+        await WORLD_UPDATE
+        until global:world!:get_time() >= last_release+release_rate;
+        last_release = global:world!:get_time();
+
+        if global:world!:check_armageddon() then
+            break;
         end
-        every smallmap in WORLD_DRAW_SMALLMAP do
-            smallmap:draw_sprite(*(&&smallmap_symbol!), this.get_pos());
-        end
-    with
-        var int last_release = 150 - release_rate;
-            // wait ~2sec at startup to allow a 'lets go' sound
 
-        var bool last_was_right = false;
-
-        loop do
-            await WORLD_UPDATE
-            until global:world!:get_time() >= last_release+release_rate;
-            last_release = global:world!:get_time();
-
-            if global:world!:check_armageddon() then
-                break;
-            end
-
-            var s8 dir;
-            if this.direction == _ENTRANCE_LEFT then
+        var s8 dir;
+        if this.direction == _ENTRANCE_LEFT then
+            dir = _LEFT;
+        else/if this.direction == _ENTRANCE_RIGHT  then
+            dir = _RIGHT;
+        else/if this.direction == _ENTRANCE_MISC then
+            if last_was_right then
                 dir = _LEFT;
-            else/if this.direction == _ENTRANCE_RIGHT  then
-                dir = _RIGHT;
-            else/if this.direction == _ENTRANCE_MISC then
-                if last_was_right then
-                    dir = _LEFT;
-                else
-                    dir = _RIGHT;
-                end
-                last_was_right = not last_was_right;
             else
-                _log_error("warning direction is wrong: %1%", this.direction);
                 dir = _RIGHT;
             end
-
-            emit global:world!:get_pingu_holder().create =>
-                    (this.pos.x, this.pos.y, dir, this.owner_id);
+            last_was_right = not last_was_right;
+        else
+            _log_error("warning direction is wrong: %1%", this.direction);
+            dir = _RIGHT;
         end
+
+        emit global:world!:get_pingu_holder().create =>
+                (this.pos.x, this.pos.y, dir, this.owner_id);
     end
 
     /* PUBLIC */
