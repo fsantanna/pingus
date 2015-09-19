@@ -51,9 +51,6 @@ do
             (int)this.me.rect.top));
         gc:draw_rect(_view_rect, _Color(0, 255, 0));
 
-        global:world!:me.draw_smallmap(&&this.me)
-            finalize with nothing; end; // draw_smallmap is @nohold
-
         gc:draw(this.me, _Vector2i(0,0));
 
         // Draw Pingus

@@ -59,7 +59,7 @@ Playfield::draw(DrawingContext& gc)
 
   state.push(*scene_context);
 
-  server->get_world()->draw(*scene_context);
+  ceu_sys_go(&CEU_APP, CEU_IN_WORLD_DRAW, (void*)&scene_context);
 
   state.pop(*scene_context);
 

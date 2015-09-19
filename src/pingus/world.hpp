@@ -50,7 +50,6 @@ public:
   void render(int x, int y, Framebuffer& fb);
 
   void    draw (SceneContext& gc);
-  void    draw_smallmap(SmallMap* smallmap);
   void    update ();
   void    armageddon ();
 private:

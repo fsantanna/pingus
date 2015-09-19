@@ -20,7 +20,6 @@ input (_World&&, _PingusLevel&&) WORLD_NEW;
 input (_World&&) WORLD_DELETE;
 input void WORLD_UPDATE;
 input (_SceneContext&&) WORLD_DRAW;
-input (_SmallMap&&) WORLD_DRAW_SMALLMAP;
 
 input (_char&&, _FileReader&&) WORLD_NEWOBJ;
 

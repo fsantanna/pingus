@@ -37,10 +37,6 @@ void World::render(int x, int y, Framebuffer& fb) {
   ceu_sys_go(&CEU_APP, CEU_IN_WORLD_RENDER, &p);
 }
 
-void World::draw_smallmap(SmallMap* smallmap) {
-  ceu_sys_go(&CEU_APP, CEU_IN_WORLD_DRAW_SMALLMAP, &smallmap);
-}
-
 void World::update() {
   ceu_sys_go(&CEU_APP, CEU_IN_WORLD_UPDATE, NULL);
 }
