@@ -45,40 +45,4 @@ SmallMap::draw(DrawingContext& gc)
 {
 }
 
-void
-SmallMap::update (float delta)
-{
-}
-
-bool
-SmallMap::is_at (int x, int y)
-{
-  return false;
-}
-
-void
-SmallMap::on_pointer_move (int x, int y)
-{
-}
-
-void
-SmallMap::on_primary_button_press (int x, int y)
-{
-}
-
-void
-SmallMap::on_primary_button_release(int x, int y)
-{
-}
-
-void
-SmallMap::on_pointer_enter ()
-{
-}
-
-void
-SmallMap::on_pointer_leave ()
-{
-}
-
 /* EOF */

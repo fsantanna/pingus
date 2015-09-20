@@ -35,24 +35,10 @@ public:
   SmallMap(Server*, Playfield*, const Rect& rect);
   virtual ~SmallMap();
 
-  /*{ @name Stuff called from the GUIManager */
-  void on_primary_button_press(int x, int y);
-  void on_primary_button_release(int x, int y);
-  void on_pointer_move(int x, int y);
-
-  // Events
-  void on_pointer_enter ();
-  void on_pointer_leave ();
-
-  bool is_at (int x, int y);
-  bool mouse_over();
-
 /// TEMP
   void render(int x, int y, Framebuffer& fb);
 
   void draw(DrawingContext& gc);
-  void update(float delta);
-  /*}*/
 
 private:
   SmallMap (const SmallMap&);
