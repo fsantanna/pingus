@@ -36,8 +36,6 @@ private:
       on the position of the cursor in the small map */
   bool scroll_mode;
 
-  bool has_focus;
-
   /** Pointer to the current GC, only valid inside draw() */
   DrawingContext* gc_ptr;
 

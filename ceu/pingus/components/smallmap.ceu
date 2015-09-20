@@ -42,12 +42,6 @@ do
             _view_rect.bottom = this.me.rect.top + this.me.rect.get_height();
         end
 
-#if 0
-        gc:draw(this.me.image:get_surface(),
-                        _Vector2i((int)this.me.rect.left, 
-                        (int)this.me.rect.top));
-#endif
-
         gc:draw(this.me, _Vector2i(0,0));
 
         gc:draw_rect(_view_rect, _Color(0, 255, 0));

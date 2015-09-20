@@ -27,10 +27,6 @@ do
             call/rec this.update_surface();
         end
 
-
-#if 0
-        this.me.sur = _Sprite(this.me.canvas.clone());
-#else
         var float x=0, y=0;
         var Sprite _ with
             this.x = &x;
@@ -41,7 +37,6 @@ do
             this.surface = &&_SMALLMAP_IMAGE_sfc;
             this.is_world = false;
         end;
-#endif
 
         loop do
             var float dt = await GAMESESSION_UPDATE;

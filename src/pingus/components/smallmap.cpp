@@ -29,7 +29,6 @@ SmallMap::SmallMap(Server* server_, Playfield* playfield_, const Rect& rect_) :
   server(server_),
   playfield(playfield_),
   scroll_mode(),
-  has_focus(),
   gc_ptr(0)
 {
   scroll_mode = false;
@@ -101,13 +100,11 @@ SmallMap::on_primary_button_release(int x, int y)
 void
 SmallMap::on_pointer_enter ()
 {
-  has_focus = true;
 }
 
 void
 SmallMap::on_pointer_leave ()
 {
-  has_focus = false;
 }
 
 /* EOF */
