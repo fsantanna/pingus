@@ -3,10 +3,10 @@
 
 native/pre do
     ##include "../src/engine/display/drawing_context.hpp"
+    ##include "../src/engine/gui/component.hpp"
+    using namespace GUI;
 end
 native @plain _DrawingContext;
-
-input (_DrawingContext&&) SMALLMAP_DRAW;
 
 #define AWAIT_MY(EVT,x,y)   \
     (x,y) = await EVT       \
@@ -41,7 +41,7 @@ do
             end
         end
     with
-        every gc in SMALLMAP_DRAW do
+        every gc in GUISCREEN_DRAW do
             var int of_x = this.me.playfield:get_pos().x;
             var int of_y = this.me.playfield:get_pos().y;
             {

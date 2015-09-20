@@ -43,8 +43,6 @@ SmallMap::render(int x, int y, Framebuffer& fb) {
 void
 SmallMap::draw(DrawingContext& gc)
 {
-  DrawingContext* p = &gc;
-  ceu_sys_go(&CEU_APP, CEU_IN_SMALLMAP_DRAW, &p);
 }
 
 void

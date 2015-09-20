@@ -86,7 +86,7 @@ GLOBAL_SMALLMAP = small_map;
   gui_manager->add(playfield);
   gui_manager->add(button_panel);
   gui_manager->add(pcounter);
-  gui_manager->add(small_map);
+  ///gui_manager->add(small_map);
   gui_manager->add(time_display);
 
   armageddon_button = new ArmageddonButton(get_server(), Display::get_width() - 40, Display::get_height() - 62);

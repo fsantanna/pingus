@@ -47,8 +47,9 @@ GroupComponent::draw (DrawingContext& parent_gc)
 
   for(Components::iterator i = children.begin(); i != children.end(); ++i)
   {
-    if ((*i)->is_visible())
+    if ((*i)->is_visible()) {
       (*i)->draw(drawing_context);
+    }
   }
 
   parent_gc.draw(drawing_context);
