@@ -202,6 +202,7 @@ GameSession::update(float delta)
 {
   update_server(delta);
   GUIScreen::update(delta);
+  ceu_sys_go(&CEU_APP, CEU_IN_GAMESESSION_UPDATE, &delta);
 }
 
 void

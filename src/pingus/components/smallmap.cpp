@@ -28,8 +28,6 @@ SmallMap::SmallMap(Server* server_, Playfield* playfield_, const Rect& rect_) :
   RectComponent(rect_),
   server(server_),
   playfield(playfield_),
-  exit_sur(),
-  entrance_sur(),
   image(),
   scroll_mode(),
   has_focus(),
@@ -60,7 +58,7 @@ SmallMap::draw(DrawingContext& gc)
 void
 SmallMap::update (float delta)
 {
-  image->update(delta);
+  //image->update(delta);
 }
 
 bool

@@ -12,10 +12,16 @@ native do
     ##include "src/pingus/smallmap_image.hpp"
 end
 
+#include "../smallmap_image.ceu"
+
 class SmallMap with
     var _SmallMap& me;
     var PinguHolder& pingu_holder;
 do
+    var SmallMapImage _ with
+        this.me  = &_XXX_PTR2REF(outer.me.image.get());
+    end;
+
     every gc in SMALLMAP_DRAW do
         this.me.gc_ptr = gc;
 

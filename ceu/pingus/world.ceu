@@ -25,6 +25,8 @@ input (_char&&, _FileReader&&) WORLD_NEWOBJ;
 
 input void WORLD_ARMAGEDDON;
 
+input float GAMESESSION_UPDATE;
+
 #include "particles/pingu_particle_holder.ceu"
 #include "particles/smoke_particle_holder.ceu"
 

@@ -32,12 +32,6 @@ private:
   Server*    server;
   Playfield* playfield;
 
-  /** Graphic surface of the exit */
-  Sprite exit_sur;
-
-  /** Graphic surface of the entrance */
-  Sprite entrance_sur;
-
   std::unique_ptr<SmallMapImage> image;
 
   /** Indicates whether the playfield should can be scrolled around depending

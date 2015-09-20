@@ -1,0 +1,17 @@
+#ifndef _SMALLMAP_IMAGE_CEU
+#define _SMALLMAP_IMAGE_CEU
+
+native/pre do
+    ##include "src/pingus/smallmap_image.hpp"
+end
+native @plain _SmallMapImage;
+
+class SmallMapImage with
+    var _SmallMapImage& me;
+do
+    every dt in GAMESESSION_UPDATE do
+        this.me.update(dt);
+    end
+end
+
+#endif
