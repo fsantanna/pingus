@@ -8,20 +8,10 @@ native @plain _DrawingContext;
 
 input (_DrawingContext&&) SMALLMAP_DRAW;
 
-native do
-    ##include "src/pingus/smallmap_image.hpp"
-end
-
-#include "../smallmap_image.ceu"
-
 class SmallMap with
     var _SmallMap& me;
     var PinguHolder& pingu_holder;
 do
-    var SmallMapImage _ with
-        this.me  = &_XXX_PTR2REF(outer.me.image.get());
-    end;
-
     every gc in SMALLMAP_DRAW do
         this.me.gc_ptr = gc;
 
@@ -52,12 +42,15 @@ do
             _view_rect.bottom = this.me.rect.top + this.me.rect.get_height();
         end
 
+#if 0
         gc:draw(this.me.image:get_surface(),
                         _Vector2i((int)this.me.rect.left, 
-            (int)this.me.rect.top));
-        gc:draw_rect(_view_rect, _Color(0, 255, 0));
+                        (int)this.me.rect.top));
+#endif
 
         gc:draw(this.me, _Vector2i(0,0));
+
+        gc:draw_rect(_view_rect, _Color(0, 255, 0));
 
         // Draw Pingus
         loop pingu in this.pingu_holder.pingus do

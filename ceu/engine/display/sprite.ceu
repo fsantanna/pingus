@@ -4,6 +4,7 @@
 native/pre do
     ##include "engine/display/display.hpp"
     ##include "engine/display/framebuffer.hpp"
+    ##include "engine/display/sdl_framebuffer_surface_impl.hpp"
     ##include "engine/display/sprite_description.hpp"
     ##define loop_ loop
     extern FramebufferSurface* load_framebuffer_sdl_surface(const Pathname& filename, ResourceModifier::Enum modifier);
@@ -44,15 +45,19 @@ do
     var _FramebufferSurface&? framebuffer_surface;
     do
         if surface != null then
-            _assert(not "not tested, so yielding error");
             finalize
                 framebuffer_surface =
                     &{new FramebufferSurface}(
-                        {Display::get_framebuffer()->create_surface}(*surface)
-                            .get_impl());
+                        {new SDLFramebufferSurfaceImpl}(surface:get_surface()));
             with
                 //_delete(&&framebuffer_surface!);
             end
+
+            this.frame_pos   = Vector2i(0, 0);
+            this.offset      = Vector2i(0, 0);
+            this.array       = Size(surface:get_width(), surface:get_height());
+            this.frame_delay = 0;
+            this.frame_size  = this.array;
         else
             if name != null then
                 desc = _Resource__load_sprite_desc(name);

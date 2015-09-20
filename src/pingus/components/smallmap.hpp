@@ -32,8 +32,6 @@ private:
   Server*    server;
   Playfield* playfield;
 
-  std::unique_ptr<SmallMapImage> image;
-
   /** Indicates whether the playfield should can be scrolled around depending
       on the position of the cursor in the small map */
   bool scroll_mode;

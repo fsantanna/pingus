@@ -136,3 +136,10 @@ particles       manual add/rem          pool
 surface         U/D                     [1], anon
 livetime        control lifetime, if    loop
 particles       manual add/rem          pool
+
+================
+
+# SMALLMAP_IMAGE (+)
+surface         U/D externally          [2], anon
+update_count                            [2]
+

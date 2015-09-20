@@ -19,7 +19,7 @@
 #include "pingus/components/playfield.hpp"
 ///#include "pingus/pingu_holder.hpp"
 #include "pingus/server.hpp"
-#include "pingus/smallmap_image.hpp"
+///#include "pingus/smallmap_image.hpp"
 #include "pingus/world.hpp"
 
 #include "ceu_vars.h"
@@ -28,13 +28,10 @@ SmallMap::SmallMap(Server* server_, Playfield* playfield_, const Rect& rect_) :
   RectComponent(rect_),
   server(server_),
   playfield(playfield_),
-  image(),
   scroll_mode(),
   has_focus(),
   gc_ptr(0)
 {
-  image = std::unique_ptr<SmallMapImage>(new SmallMapImage(server, rect.get_width(), rect.get_height()));
-
   scroll_mode = false;
 }
 

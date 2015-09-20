@@ -35,6 +35,8 @@ input float GAMESESSION_UPDATE;
 interface IWorldObj with
 end
 
+#include "smallmap_image.ceu"
+
 #include "worldobjs/entrance.ceu"
 #include "worldobjs/exit.ceu"
 #include "worldobjs/groundpiece.ceu"
@@ -102,6 +104,11 @@ do
         this.plf       = outer.plf;
         this.gfx_map   = &gfx_map!;
         this.game_time = &game_time;
+    end;
+
+    var SmallMapImage _ with
+        this.width  = 175;      /// TODO: take from SmallMap
+        this.height = 100;      /// TODO: take from SmallMap
     end;
 
     var WorldObjFactory objs with

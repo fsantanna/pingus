@@ -1,30 +1,54 @@
 #ifndef _SMALLMAP_IMAGE_CEU
 #define _SMALLMAP_IMAGE_CEU
 
-native/pre do
-    ##include "src/pingus/smallmap_image.hpp"
-end
-native @plain _SmallMapImage;
-
 class SmallMapImage with
-    var _SmallMapImage& me;
+    var int width, height;
 do
     function @rec (void)=>void update_surface;
+
+    var uint colmap_serial = 0;
+
+    var _Surface&? canvas;
+    finalize
+        canvas = &{new Surface}(this.width, this.height);
+    with
+        _delete(&&this.canvas!);
+    end
 
     var float smallmap_update_time = 1.0;
     loop do
         var float update_count = 0;
+
+        // FIXME: surface -> clone -> displayFormat leaves room for
+        // optimizations, clone isn't really needed
+
+        var _CollisionMap&& colmap = _XXX_PURE(global:world!:get_colmap());
+        if (this.colmap_serial != colmap:get_serial()) then
+            call/rec this.update_surface();
+        end
+
+
+#if 0
+        this.me.sur = _Sprite(this.me.canvas.clone());
+#else
+        var float x=0, y=0;
+        var Sprite _ with
+            this.x = &x;
+            this.y = &y;
+
+            { static Surface SMALLMAP_IMAGE_sfc; };
+            _SMALLMAP_IMAGE_sfc = _XXX_PURE(canvas!.clone());
+            this.surface = &&_SMALLMAP_IMAGE_sfc;
+            this.is_world = false;
+        end;
+#endif
+
         loop do
             var float dt = await GAMESESSION_UPDATE;
             update_count = update_count + dt;
             if update_count > smallmap_update_time then
                 break;
             end
-        end
-
-        var _CollisionMap&& colmap = _XXX_PURE(global:world!:get_colmap());
-        if (this.me.colmap_serial != colmap:get_serial()) then
-            call/rec this.update_surface();
         end
     end
 
@@ -33,18 +57,18 @@ do
     function @rec (void)=>void update_surface do
         var _CollisionMap&& colmap = _XXX_PURE(global:world!:get_colmap());
 
-        this.me.colmap_serial = colmap:get_serial();
+        this.colmap_serial = colmap:get_serial();
 
-        this.me.canvas.lock();
+        this.canvas!.lock();
 
-        var _u8&& cbuffer := (u8&&)_XXX_PURE(this.me.canvas.get_data());
+        var _u8&& cbuffer := (u8&&)_XXX_PURE(this.canvas!.get_data());
 
         var int cmap_width  = colmap:get_width();
         var int cmap_height = colmap:get_height();
 
-        var int width  = this.me.canvas.get_width();
-        var int height = this.me.canvas.get_height();
-        var int pitch  = this.me.canvas.get_pitch();
+        var int width  = this.canvas!.get_width();
+        var int height = this.canvas!.get_height();
+        var int pitch  = this.canvas!.get_pitch();
 
         _assert(width < cmap_width and height < cmap_height);
 
@@ -96,11 +120,7 @@ do
             end
         end
 
-        this.me.canvas.unlock();
-
-        // FIXME: surface -> clone -> displayFormat leaves room for
-        // optimizations, clone isn't really needed
-        this.me.sur = _Sprite(this.me.canvas.clone());
+        this.canvas!.unlock();
     end
 end
 

@@ -1,3 +1,4 @@
+- BUG: pequeno glitch no smallmap no inicio da fase
 - BUG: procurar /// TODO: w/o me.ceu this function becomes @rec
 - z-order front entrance snow-tutorial
 - TODO: pos_offset em todos os objs em factory
