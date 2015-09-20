@@ -35,15 +35,11 @@ private:
   /** Graphic surface for the generated rectanglar background of the small map */
   Sprite sur;
 
-  /** number of seconds till the smallmap will update itself */
-  float update_count;
-
   /** The serial is used to track changes to the colmap */
   unsigned int colmap_serial;
 
 public:
   SmallMapImage (Server* s, int width, int height);
-  void update (float delta);
 
   Sprite get_surface();
 

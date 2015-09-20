@@ -58,7 +58,6 @@ SmallMap::draw(DrawingContext& gc)
 void
 SmallMap::update (float delta)
 {
-  //image->update(delta);
 }
 
 bool

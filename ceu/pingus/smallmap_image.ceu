@@ -9,8 +9,98 @@ native @plain _SmallMapImage;
 class SmallMapImage with
     var _SmallMapImage& me;
 do
-    every dt in GAMESESSION_UPDATE do
-        this.me.update(dt);
+    function @rec (void)=>void update_surface;
+
+    var float smallmap_update_time = 1.0;
+    loop do
+        var float update_count = 0;
+        loop do
+            var float dt = await GAMESESSION_UPDATE;
+            update_count = update_count + dt;
+            if update_count > smallmap_update_time then
+                break;
+            end
+        end
+
+        var _CollisionMap&& colmap = _XXX_PURE(global:world!:get_colmap());
+        if (this.me.colmap_serial != colmap:get_serial()) then
+            call/rec this.update_surface();
+        end
+    end
+
+    /* PRIVATE */
+
+    function @rec (void)=>void update_surface do
+        var _CollisionMap&& colmap = _XXX_PURE(global:world!:get_colmap());
+
+        this.me.colmap_serial = colmap:get_serial();
+
+        this.me.canvas.lock();
+
+        var _u8&& cbuffer := (u8&&)_XXX_PURE(this.me.canvas.get_data());
+
+        var int cmap_width  = colmap:get_width();
+        var int cmap_height = colmap:get_height();
+
+        var int width  = this.me.canvas.get_width();
+        var int height = this.me.canvas.get_height();
+        var int pitch  = this.me.canvas.get_pitch();
+
+        _assert(width < cmap_width and height < cmap_height);
+
+        var int red   = 0;
+        var int green = 1;
+        var int blue  = 2;
+        var int alpha = 3;
+
+        loop y in height do
+            loop x in width do
+                // Index on the smallmap canvas
+                var int i = y * pitch + 4 * x;
+
+                var int v = (colmap:getpixel_fast(x * cmap_width  / width,
+                                                  y * cmap_height / height));
+
+                if v == {Groundtype::GP_NOTHING} then
+                    cbuffer[i + red]     = 0;
+                    cbuffer[i + green] = 0;
+                    cbuffer[i + blue]    = 0;
+                    cbuffer[i + alpha] = 255;
+
+                else/if v == {Groundtype::GP_BRIDGE} then
+                    cbuffer[i + red]     =     0;
+                    cbuffer[i + green] = 255;
+                    cbuffer[i + blue]    = 100;
+                    cbuffer[i + alpha] = 255;
+
+                else/if v == {Groundtype::GP_SOLID} then
+                    cbuffer[i + red]     = 100;
+                    cbuffer[i + green] = 100;
+                    cbuffer[i + blue]    = 125;
+                    cbuffer[i + alpha] = 255;
+
+                else/if v=={Groundtype::GP_WATER} or
+                        v=={Groundtype::GP_LAVA}
+                then
+                    cbuffer[i + red]     = 0;
+                    cbuffer[i + green] = 0;
+                    cbuffer[i + blue]    = 200;
+                    cbuffer[i + alpha] = 255;
+
+                else
+                    cbuffer[i + red]     = 200;
+                    cbuffer[i + green] = 200;
+                    cbuffer[i + blue]    = 200;
+                    cbuffer[i + alpha] = 255;
+                end
+            end
+        end
+
+        this.me.canvas.unlock();
+
+        // FIXME: surface -> clone -> displayFormat leaves room for
+        // optimizations, clone isn't really needed
+        this.me.sur = _Sprite(this.me.canvas.clone());
     end
 end
 
