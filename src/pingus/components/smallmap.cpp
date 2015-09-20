@@ -26,12 +26,8 @@
 
 SmallMap::SmallMap(Server* server_, Playfield* playfield_, const Rect& rect_) :
   RectComponent(rect_),
-  server(server_),
-  playfield(playfield_),
-  scroll_mode(),
-  gc_ptr(0)
+  playfield(playfield_)
 {
-  scroll_mode = false;
 }
 
 SmallMap::~SmallMap()
@@ -59,42 +55,22 @@ SmallMap::update (float delta)
 bool
 SmallMap::is_at (int x, int y)
 {
-  return (x > rect.left && x < rect.left + static_cast<int>(rect.get_width())
-          && y > rect.top && y < rect.top + static_cast<int>(rect.get_height()));
+  return false;
 }
 
 void
 SmallMap::on_pointer_move (int x, int y)
 {
-  int cx, cy;
-  World* world = server->get_world();
-
-  if (scroll_mode)
-  {
-    cx = (x - rect.left) * static_cast<int>(CEU_World_get_width(NULL,world->ceu)  / rect.get_width());
-    cy = (y - rect.top) * static_cast<int>(CEU_World_get_height(NULL,world->ceu) / rect.get_height());
-
-    playfield->set_viewpoint(cx, cy);
-  }
 }
 
 void
 SmallMap::on_primary_button_press (int x, int y)
 {
-  scroll_mode = true;
-
-  // set view to the given COs
-  int cx, cy;
-  World* world = server->get_world();
-  cx = (x - rect.left) * int(CEU_World_get_width(NULL,world->ceu)) / rect.get_width();
-  cy = (y - rect.top) * int(CEU_World_get_height(NULL,world->ceu)) / rect.get_height();
-  playfield->set_viewpoint(cx, cy);
 }
 
 void
 SmallMap::on_primary_button_release(int x, int y)
 {
-  scroll_mode = false;
 }
 
 void

@@ -139,6 +139,9 @@ particles       manual add/rem          pool
 
 ================
 
+# SMALLMAP
+scroll_mode                             ---
+
 # SMALLMAP_IMAGE (+)
 surface         U/D externally          [2], anon
 update_count                            [2]

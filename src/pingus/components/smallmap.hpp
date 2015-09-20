@@ -29,15 +29,7 @@ class SmallMapImage;
 class SmallMap : public GUI::RectComponent
 {
 private:
-  Server*    server;
   Playfield* playfield;
-
-  /** Indicates whether the playfield should can be scrolled around depending
-      on the position of the cursor in the small map */
-  bool scroll_mode;
-
-  /** Pointer to the current GC, only valid inside draw() */
-  DrawingContext* gc_ptr;
 
 public:
   SmallMap(Server*, Playfield*, const Rect& rect);
@@ -61,12 +53,6 @@ public:
   void draw(DrawingContext& gc);
   void update(float delta);
   /*}*/
-
-  /** draws a symbolic sprite onto the smallmap
-      @param sprite the Sprite to draw, it will keep its original size
-      @param pos the position to draw it in World COs, it will get
-      recalculated to screen CO */
-  void draw_sprite(Sprite sprite, Vector3f pos);
 
 private:
   SmallMap (const SmallMap&);

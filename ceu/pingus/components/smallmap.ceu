@@ -8,55 +8,90 @@ native @plain _DrawingContext;
 
 input (_DrawingContext&&) SMALLMAP_DRAW;
 
+#define AWAIT_MY(EVT,x,y)   \
+    (x,y) = await EVT       \
+            until (this.me.is_visible() and this.is_at(x,y))
+
 class SmallMap with
     var _SmallMap& me;
     var PinguHolder& pingu_holder;
 do
-    every gc in SMALLMAP_DRAW do
-        this.me.gc_ptr = gc;
+    function (int x, int y)=>bool is_at;
 
-        var int of_x = this.me.playfield:get_pos().x;
-        var int of_y = this.me.playfield:get_pos().y;
-        {
-            Rect view_rect;
-        };
+    par do
+        loop do
+            var int x,y;
+            AWAIT_MY(ON_PRIMARY_BUTTON_PRESSED,x,y);
 
-        if (global:world!:get_width() > gc:get_width()) then
-            var int rwidth = (int)(gc:get_width()  * this.me.rect.get_width()  
-            / global:world!:get_width());
-            _view_rect.left  = this.me.rect.left + (of_x * 
-            this.me.rect.get_width()  / global:world!:get_width()) - rwidth/2;
-            _view_rect.right = _view_rect.left + rwidth;
-        else
-            _view_rect.left  = (int)this.me.rect.left;
-            _view_rect.right = this.me.rect.left + this.me.rect.get_width();
+            par/or do
+                await ON_PRIMARY_BUTTON_RELEASED;
+            with
+                loop do
+                    // set view to the given COs
+                    var int cx, cy;
+                    cx = (x - this.me.rect.left) *
+                            ((int)global:world!:get_width()) /
+                                this.me.rect.get_width();
+                    cy = (y - this.me.rect.top) *
+                            ((int)global:world!:get_height()) /
+                                this.me.rect.get_height();
+                    this.me.playfield:set_viewpoint(cx, cy);
+                    AWAIT_MY(ON_POINTER_MOVE,x,y);
+                end
+            end
         end
+    with
+        every gc in SMALLMAP_DRAW do
+            var int of_x = this.me.playfield:get_pos().x;
+            var int of_y = this.me.playfield:get_pos().y;
+            {
+                Rect view_rect;
+            };
 
-        if (global:world!:get_height() > gc:get_height()) then
-            var int rheight = (int)(gc:get_height() * this.me.rect.get_height() / global:world!:get_height());
-            _view_rect.top    = this.me.rect.top + (of_y * 
-            this.me.rect.get_height() / global:world!:get_height()) - rheight/2;
-            _view_rect.bottom = _view_rect.top + rheight;
-        else
-            _view_rect.top    = (int)this.me.rect.top;
-            _view_rect.bottom = this.me.rect.top + this.me.rect.get_height();
+            if (global:world!:get_width() > gc:get_width()) then
+                var int rwidth = (int)(gc:get_width()  * this.me.rect.get_width()  
+                / global:world!:get_width());
+                _view_rect.left  = this.me.rect.left + (of_x * 
+                this.me.rect.get_width()  / global:world!:get_width()) - rwidth/2;
+                _view_rect.right = _view_rect.left + rwidth;
+            else
+                _view_rect.left  = (int)this.me.rect.left;
+                _view_rect.right = this.me.rect.left + this.me.rect.get_width();
+            end
+
+            if (global:world!:get_height() > gc:get_height()) then
+                var int rheight = (int)(gc:get_height() * this.me.rect.get_height() / global:world!:get_height());
+                _view_rect.top    = this.me.rect.top + (of_y * 
+                this.me.rect.get_height() / global:world!:get_height()) - rheight/2;
+                _view_rect.bottom = _view_rect.top + rheight;
+            else
+                _view_rect.top    = (int)this.me.rect.top;
+                _view_rect.bottom = this.me.rect.top + this.me.rect.get_height();
+            end
+
+            gc:draw(this.me, _Vector2i(0,0));
+
+            gc:draw_rect(_view_rect, _Color(0, 255, 0));
+
+            // Draw Pingus
+            loop pingu in this.pingu_holder.pingus do
+                var int x = (int)((float)(this.me.rect.left) + (pingu:get_x() * 
+                (float)(this.me.rect.get_width()) / (float)(global:world!:get_width())));
+                var int y = (int)((float)(this.me.rect.top)  + (pingu:get_y() * 
+                (float)(this.me.rect.get_height()) / (float)(global:world!:get_height())));
+                gc:draw_line(_Vector2i(x, y), _Vector2i(x, y-2), _Color(255, 255, 
+            0));
+            end
         end
+    end
 
-        gc:draw(this.me, _Vector2i(0,0));
+    /* PIRVATE */
 
-        gc:draw_rect(_view_rect, _Color(0, 255, 0));
-
-        // Draw Pingus
-        loop pingu in this.pingu_holder.pingus do
-            var int x = (int)((float)(this.me.rect.left) + (pingu:get_x() * 
-            (float)(this.me.rect.get_width()) / (float)(global:world!:get_width())));
-            var int y = (int)((float)(this.me.rect.top)  + (pingu:get_y() * 
-            (float)(this.me.rect.get_height()) / (float)(global:world!:get_height())));
-            gc:draw_line(_Vector2i(x, y), _Vector2i(x, y-2), _Color(255, 255, 
-        0));
-        end
-
-        this.me.gc_ptr = 0;
+    function (int x, int y)=>bool is_at do
+        return (x > this.me.rect.left and
+                x < this.me.rect.left + (int)(this.me.rect.get_width()) and
+                y > this.me.rect.top and
+                y < this.me.rect.top + (int)(this.me.rect.get_height()));
     end
 end
 
