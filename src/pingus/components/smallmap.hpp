@@ -29,6 +29,7 @@ class SmallMapImage;
 class SmallMap : public GUI::RectComponent
 {
 public:
+  void* ceu;
   SmallMap(Server*, Playfield*, const Rect& rect);
   virtual ~SmallMap();
 

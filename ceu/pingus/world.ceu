@@ -35,6 +35,8 @@ input float GAMESESSION_UPDATE;
 interface IWorldObj with
 end
 
+#include "pingu_holder.ceu"
+#include "components/smallmap.ceu"
 #include "smallmap_image.ceu"
 
 #include "worldobjs/entrance.ceu"
@@ -49,9 +51,7 @@ end
 #include "worldobjs/surface_background.ceu"
 
 #include "worldobj_factory.ceu"
-#include "pingu_holder.ceu"
 #include "components/playfield.ceu"
-#include "components/smallmap.ceu"
 
 class WorldFirst with
     var IWorld&        world;
@@ -119,7 +119,8 @@ do
         this.number_of_allowed = plf:get_number_of_pingus();
     end;
 
-    await SDL_DT;   // TODO: World is created before Playfield in C++
+/// TODO
+await SDL_DT;   // TODO: World is created before Playfield in C++
 
     var _Playfield&? playfield_ := &_XXX_PURE(_GLOBAL_PLAYFIELD);
     var Playfield playfield with

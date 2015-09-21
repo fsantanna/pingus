@@ -14,7 +14,7 @@ native @plain _FramebufferSurface;
 
 /// TODO: unify
 input (int,int,_Framebuffer&&) WORLD_RENDER;
-input (int,int,_Rect&&,_Framebuffer&&) SMALLMAP_RENDER;
+input (int,int,_Framebuffer&&) SMALLMAP_RENDER;
 
 class Sprite with
     function (void)=>int get_current_frame;
@@ -35,6 +35,8 @@ class Sprite with
     var Size     array;
     var bool     is_loop;
     var int      frame;
+
+    var Rect&?   rect;      /// TODO: for smallmap
 
     // constructor
     var _Surface&&              surface = null;
@@ -140,12 +142,12 @@ do
             end
         else
             /* RENDER */
-            every (x0,y0,rect,fb) in SMALLMAP_RENDER do
-                var float x = (float)(rect:left) +
-                                    (this.x * (float)(rect:get_width()) /
+            every (x0,y0,fb) in SMALLMAP_RENDER do
+                var float x = (float)(this.rect!.left) +
+                                    (this.x * (float)(this.rect!.width) /
                                         (float)global:world!:get_width());
-                var float y = (float)(rect:top) +
-                                    (this.y * (float)(rect:get_height()) /
+                var float y = (float)(this.rect!.top) +
+                                    (this.y * (float)(this.rect!.height) /
                                         (float)global:world!:get_height());
                 fb:draw_surface(framebuffer_surface!,
                     _Rect(_Vector2i(this.frame_pos.x,this.frame_pos.y) +

@@ -27,6 +27,9 @@ do
             call/rec this.update_surface();
         end
 
+/// TODO
+await SDL_DT;
+await SDL_DT;
         var float x=0, y=0;
         var Sprite _ with
             this.x = &x;
@@ -35,7 +38,9 @@ do
             { static Surface SMALLMAP_IMAGE_sfc; };
             _SMALLMAP_IMAGE_sfc = _XXX_PURE(canvas!.clone());
             this.surface = &&_SMALLMAP_IMAGE_sfc;
+
             this.is_world = false;
+            this.rect = &((SmallMap&&)_GLOBAL_SMALLMAP:ceu):rect;
         end;
 
         loop do

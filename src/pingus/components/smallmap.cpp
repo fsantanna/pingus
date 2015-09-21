@@ -35,7 +35,7 @@ SmallMap::~SmallMap()
 
 void
 SmallMap::render(int x, int y, Framebuffer& fb) {
-  tceu__int__int__Rect___Framebuffer_ p = {x,y,&rect,&fb};
+  tceu__int__int__Framebuffer_ p = {x,y,&fb};
   ceu_sys_go(&CEU_APP, CEU_IN_SMALLMAP_RENDER, &p);
 }
 

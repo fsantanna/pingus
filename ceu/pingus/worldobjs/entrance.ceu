@@ -47,11 +47,19 @@ do
             log_error("unknown direction: '%1%'", direction_str);
     };
 
+/// TODO
+await SDL_DT;
+await SDL_DT;
+_printf("< SMALLMAP %p\n", _GLOBAL_SMALLMAP);
+_printf("< SMALLMAP %p\n", _GLOBAL_SMALLMAP:ceu);
+_printf("< SMALLMAP %p %p\n", _GLOBAL_SMALLMAP:ceu,
+                              &&((SmallMap&&)_GLOBAL_SMALLMAP:ceu):rect);
     var Sprite _ with
         this.x = &pos.x;
         this.y = &pos.y;
         this.name = "core/misc/smallmap_entrance";
         this.is_world = false;
+        this.rect = &((SmallMap&&)_GLOBAL_SMALLMAP:ceu):rect;
     end;
 
     var int last_release = 150 - release_rate;
