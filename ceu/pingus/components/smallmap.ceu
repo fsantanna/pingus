@@ -19,7 +19,6 @@ class SmallMap with
 do
     function (int x, int y)=>bool is_at;
     this.me.ceu = &&this;
-_printf("SMALLMAP %p %p %p\n", _GLOBAL_SMALLMAP, &&this, &&this.rect);
 
     par do
         loop do

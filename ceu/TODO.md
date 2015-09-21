@@ -1,4 +1,5 @@
 - BUG: queda do pingu saindo da entrada esta levemente desalinhado
+- BUG: glitch periodico no smallmap relacionado ao RENDER
 - BUG: pequeno glitch no smallmap no inicio da fase
 - BUG: procurar /// TODO: w/o me.ceu this function becomes @rec
 - z-order front entrance snow-tutorial
