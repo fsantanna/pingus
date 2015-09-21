@@ -34,6 +34,7 @@ interface IWorldObj with
 end
 
 #include "pingu_holder.ceu"
+#include "components/playfield.ceu"
 #include "components/smallmap.ceu"
 #include "smallmap_image.ceu"
 
@@ -49,7 +50,6 @@ end
 #include "worldobjs/surface_background.ceu"
 
 #include "worldobj_factory.ceu"
-#include "components/playfield.ceu"
 
 class WorldFirst with
     var IWorld&        world;
@@ -129,8 +129,9 @@ await SDL_DT;   // TODO: World is created before Playfield in C++
         // TODO: height originally comes from Screen/GUIScreen/SmallMap
 
     var SmallMap smallmap with
-        this.pingu_holder = &pingu_holder;
         this.rect         = rect;
+        this.pingu_holder = &pingu_holder;
+        this.playfield    = &playfield;
     end;
 
     var bool in_armageddon = false;

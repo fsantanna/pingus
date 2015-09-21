@@ -51,10 +51,6 @@ public:
   Playfield(Server*, GameSession*, const Rect& rect);
   virtual ~Playfield();
 
-  /** Returns the point onto which the Playfield is currently focused
-      (ie. center of the Playfield) in WorldCO */
-  Vector2i get_pos() const;
-
   void scroll (int x, int y);
 
   void set_viewpoint(int, int);

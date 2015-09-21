@@ -21,6 +21,8 @@ end
 class Playfield with
     interface IPlayfield;
     var PinguHolder& pingu_holder;
+
+    function (void)=>Vector2i get_pos;
 do
     this.me.state.set_limit(_Rect(_Vector2i(0, 0),
                        _Size(global:world!:get_width(),
@@ -198,8 +200,13 @@ do
         await FOREVER;
     end
 
-    /* PRIVATE */
+    /* PUBLIC */
 
+    function (void)=>Vector2i get_pos do
+        var Vector2i ret = Vector2i((int)(this.me.state.get_pos().x),
+                                    (int)(this.me.state.get_pos().y));
+        return ret;
+    end
 end
 
 #endif

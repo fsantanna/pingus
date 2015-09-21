@@ -60,13 +60,6 @@ Playfield::draw(DrawingContext& gc)
   gc.pop_modelview();
 }
 
-Vector2i
-Playfield::get_pos() const
-{
-  return Vector2i(static_cast<int>(state.get_pos().x),
-                  static_cast<int>(state.get_pos().y));
-}
-
 void
 Playfield::set_viewpoint(int x, int y)
 {
