@@ -78,10 +78,15 @@ GUIManager::update(const Input::Event& event)
       }
       else if (event.button.name == SECONDARY_BUTTON)
       {
-        if (event.button.state == Input::BUTTON_PRESSED)
+        if (event.button.state == Input::BUTTON_PRESSED) {
           on_secondary_button_press(mouse_pos.x, mouse_pos.y);
-        else if (event.button.state == Input::BUTTON_RELEASED)
+          tceu__int__int p = { mouse_pos.x, mouse_pos.y };
+          ceu_sys_go(&CEU_APP, CEU_IN_ON_SECONDARY_BUTTON_PRESSED, &p);
+        } else if (event.button.state == Input::BUTTON_RELEASED) {
           on_secondary_button_release(mouse_pos.x, mouse_pos.y);
+          tceu__int__int p = { mouse_pos.x, mouse_pos.y };
+          ceu_sys_go(&CEU_APP, CEU_IN_ON_SECONDARY_BUTTON_RELEASED, &p);
+        }
       }
       break;
 

@@ -37,10 +37,8 @@ public:
   Server* server;
   GameSession* session;
 
-  bool mouse_scrolling;
   int  scroll_speed;
 
-  Vector2i scroll_center;
 
   std::unique_ptr<SceneContext> scene_context;
   GraphicContextState state;

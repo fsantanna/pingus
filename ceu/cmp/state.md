@@ -146,3 +146,11 @@ scroll_mode                             ---
 surface         U/D externally          [2], anon
 update_count                            [2]
 
+
+================
+
+# PLAYFIELD
+
+(+)
+mouse_scrolling                         ---
+scroll_center                           [3]

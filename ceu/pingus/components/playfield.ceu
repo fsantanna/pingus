@@ -14,6 +14,10 @@ end
 
 #include "../capture_rectangle.ceu"
 
+#define AWAIT_MY(EVT,x,y)   \
+    (x,y) = await EVT       \
+            until this.me.is_at(x,y)
+
 class Playfield with
     interface IPlayfield;
     var PinguHolder& pingu_holder;
@@ -45,6 +49,74 @@ do
                         if this.me.server:action_holder.pop_action(action) then
                             emit pingu!:go_action => action;
                         end
+                    end
+                end
+            end
+        end
+    with
+        every (x,y) in ON_POINTER_MOVE do
+            x = x - this.me.rect.left;
+            y = y - this.me.rect.top;
+            // FIXME: useless stuff, but currently the controller doesn't have 
+            // a state
+            this.me.mouse_pos.x = x;
+            this.me.mouse_pos.y = y;
+        end
+    with
+        loop do
+            var int x,y;
+            AWAIT_MY(ON_SECONDARY_BUTTON_PRESSED,x,y);
+
+            var Vector2i scroll = Vector2i(x - this.me.rect.left,
+                                           y - this.me.rect.top);
+
+            watching ON_SECONDARY_BUTTON_RELEASED do
+                par do
+                    every WORLD_UPDATE do
+                        // FIXME: This should be delta dependant
+                        if {globals::drag_drop_scrolling} then
+                            this.me.state.set_pos(
+                                this.me.old_state_pos
+                                    + (_Vector2i(scroll.x,scroll.y)
+                                        - this.me.mouse_pos));
+                        else
+                            this.me.state.set_pos(
+                                _Vector2i(this.me.state.get_pos().x
+                                            - (int)((float)(scroll.x - 
+                                              this.me.mouse_pos.x) * 0.2),
+                                          this.me.state.get_pos().y
+                                            - (int)((float)(scroll.y - 
+                                              this.me.mouse_pos.y) * 0.2)
+                                )
+                            );
+                        end
+                    end
+                with
+                    every gc in GUISCREEN_DRAW do
+                        if {globals::drag_drop_scrolling} then
+                            continue;
+                        end
+
+                        gc:draw_line(this.me.mouse_pos,
+                                     _Vector2i(scroll.x,
+                                               scroll.y - 15),
+                                     _Color(0, 255, 0));
+                        gc:draw_line(this.me.mouse_pos,
+                                     _Vector2i(scroll.x,
+                                               scroll.y + 15),
+                                     _Color(0, 0, 255));
+                        gc:draw_line(this.me.mouse_pos,
+                                     _Vector2i(scroll.x + 15,
+                                               scroll.y),
+                                     _Color(0, 255, 255));
+                        gc:draw_line(this.me.mouse_pos,
+                                     _Vector2i(scroll.x - 15,
+                                               scroll.y),
+                                     _Color(255, 255, 0));
+                        gc:draw_line(this.me.mouse_pos,
+                                     _Vector2i(scroll.x,
+                                               scroll.y),
+                                     _Color(255, 0, 0));
                     end
                 end
             end

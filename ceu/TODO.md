@@ -1,3 +1,4 @@
+- BUG: small map esta atras da agua embaixo do level snow20
 - BUG: queda do pingu saindo da entrada esta levemente desalinhado
 - BUG: glitch periodico no smallmap relacionado ao RENDER
 - BUG: pequeno glitch no smallmap no inicio da fase

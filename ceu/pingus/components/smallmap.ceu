@@ -23,9 +23,7 @@ do
             var int x,y;
             AWAIT_MY(ON_PRIMARY_BUTTON_PRESSED,x,y);
 
-            par/or do
-                await ON_PRIMARY_BUTTON_RELEASED;
-            with
+            watching ON_PRIMARY_BUTTON_RELEASED do
                 loop do
                     // set view to the given COs
                     var int cx, cy;

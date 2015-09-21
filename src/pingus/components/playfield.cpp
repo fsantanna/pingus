@@ -29,17 +29,13 @@ Playfield::Playfield(Server* server_, GameSession* session_, const Rect& rect_) 
   RectComponent(rect_),
   server(server_),
   session(session_),
-  mouse_scrolling(),
   scroll_speed(),
-  scroll_center(),
   scene_context(new SceneContext(rect_)),
   state(rect_.get_width(), rect_.get_height()),
   clipping_rectangles(),
   mouse_pos(),
   old_state_pos()
 {
-  mouse_scrolling    = false;
-
   state.set_limit(Rect(Vector2i(0, 0),
                        Size(CEU_World_get_width(NULL,server->get_world()->ceu),
                             CEU_World_get_height(NULL,server->get_world()->ceu))));
@@ -58,57 +54,21 @@ Playfield::draw(DrawingContext& gc)
   scene_context->clear();
 
   state.push(*scene_context);
-
   ceu_sys_go(&CEU_APP, CEU_IN_WORLD_DRAW, (void*)&scene_context);
-
   state.pop(*scene_context);
 
   gc.draw(new SceneContextDrawingRequest(scene_context.get(), Vector2i(0,0), -10000));
 
   gc.push_modelview();
   gc.translate(rect.left, rect.top);
-  // Draw the scrolling band
-  if (mouse_scrolling && !globals::drag_drop_scrolling)
-  {
-    gc.draw_line(mouse_pos, scroll_center - Vector2i(0, 15),
-                 Color(0, 255, 0));
-
-    gc.draw_line(mouse_pos, scroll_center + Vector2i(0, 15),
-                 Color(0, 0, 255));
-
-    gc.draw_line(mouse_pos, scroll_center + Vector2i(15, 0),
-                 Color(0, 255, 255));
-
-    gc.draw_line(mouse_pos, scroll_center - Vector2i(15, 0),
-                 Color(255, 255, 0));
-
-    gc.draw_line(mouse_pos, scroll_center,
-                 Color(255, 0, 0));
-  }
   gc.pop_modelview();
 }
 
 void
 Playfield::update(float delta)
 {
-  // FIXME: This should be delta dependant
-  if (!mouse_scrolling)
-  {
-  }
-  else
-  {
-    if (globals::drag_drop_scrolling)
-    {
-      state.set_pos(old_state_pos + (scroll_center - mouse_pos));
-    }
-    else
-    {
-      state.set_pos(Vector2i(state.get_pos().x - static_cast<int>(static_cast<float>(scroll_center.x - mouse_pos.x) * 0.2f),
-                             state.get_pos().y - static_cast<int>(static_cast<float>(scroll_center.y - mouse_pos.y) * 0.2f)));
-    }
-  }
-
-  if (globals::auto_scrolling && (Display::is_fullscreen() || SDL_WM_GrabInput(SDL_GRAB_QUERY) == SDL_GRAB_ON))
+  if (globals::auto_scrolling && (Display::is_fullscreen() || 
+  SDL_WM_GrabInput(SDL_GRAB_QUERY) == SDL_GRAB_ON))
   {
     scroll_speed = static_cast<int>(800 * delta);
 
@@ -133,97 +93,15 @@ Playfield::update(float delta)
 }
 
 void
-Playfield::on_key_pressed(const Input::KeyboardEvent& ev)
-{
-  if (globals::developer_mode)
-  {
-    bool spawn = ev.keysym.sym == SDLK_l || ev.keysym.sym == SDLK_r;
-    if (spawn)
-    {
-assert(!"TODO");
-      Vector2i n = state.screen2world(mouse_pos);
-      Vector3f p = Vector3f(n.x,n.y,0);
-#if 0
-      void* pingu = server->get_world()->get_pingus()->create_pingu(p, 0);
-      if (pingu)
-      {
-        Direction d;
-        ev.keysym.sym == SDLK_l ? d.left() : d.right();
-        ///pingu->set_direction(d);
-      }
-#endif
-    }
-  }
-}
-
-void
-Playfield::on_primary_button_press(int x, int y)
-{
-}
-
-void
 Playfield::on_secondary_button_press(int x, int y)
 {
-  x -= rect.left;
-  y -= rect.top;
-
-  mouse_scrolling = true;
-  scroll_center.x = x;
-  scroll_center.y = y;
-
   old_state_pos = state.get_pos();
 }
 
-void
-Playfield::on_secondary_button_release (int x, int y)
-{
-  x -= rect.left;
-  y -= rect.top;
-
-  mouse_scrolling = false;
-}
-
-void
-Playfield::on_pointer_move (int x, int y)
-{
-  x -= rect.left;
-  y -= rect.top;
-
-  // FIXME: useless stuff, but currently the controller doesn't have a state
-  mouse_pos.x = x;
-  mouse_pos.y = y;
-
-  if (globals::developer_mode)
-  { // Some fun stuff that lets you draw directly on the level
-    Uint8 *keystate = SDL_GetKeyState(NULL);
-    if (keystate[SDLK_DELETE])
-    {
-      CollisionMask mask("other/bash_radius_gfx");
-      Vector2i p = state.screen2world(mouse_pos);
-      CEU_World_remove(NULL, server->get_world()->ceu, &mask,
-                             p.x - mask.get_width()/2,
-                             p.y - mask.get_height()/2);
-    }
-    else if (keystate[SDLK_INSERT])
-    {
-      CollisionMask mask("other/bash_radius_gfx");
-      Vector2i p = state.screen2world(mouse_pos);
-      CEU_World_put(NULL, server->get_world()->ceu, &mask,
-                          p.x - mask.get_width()/2,
-                          p.y - mask.get_height()/2,
-                          Groundtype::GP_GROUND);
-    }
-    else if (keystate[SDLK_HOME])
-    {
-      CollisionMask mask("other/bash_radius_gfx");
-      Vector2i p = state.screen2world(mouse_pos);
-      CEU_World_put(NULL, server->get_world()->ceu, &mask,
-                          p.x - mask.get_width()/2,
-                          p.y - mask.get_height()/2,
-                          Groundtype::GP_BRIDGE);
-    }
-  }
-}
+void Playfield::on_secondary_button_release (int x, int y) { }
+void Playfield::on_key_pressed(const Input::KeyboardEvent& ev) { }
+void Playfield::on_primary_button_press(int x, int y) { }
+void Playfield::on_pointer_move (int x, int y) { }
 
 Vector2i
 Playfield::get_pos() const
