@@ -81,7 +81,6 @@ class World with
     interface IWorld;
 
     var _PingusLevel&& plf;
-    function (int)=>_Vector2i     get_start_pos;
     function (void)=>PinguHolder& get_pingus;
 do
     this.me.ceu = &&this;

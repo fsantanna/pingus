@@ -22,6 +22,13 @@ class Playfield with
     interface IPlayfield;
     var PinguHolder& pingu_holder;
 do
+    this.me.state.set_limit(_Rect(_Vector2i(0, 0),
+                       _Size(global:world!:get_width(),
+                             global:world!:get_height())));
+
+    // FIXME: Temporary workaround till start-pos is integrated a bit more properly
+    this.me.state.set_pos(global:world!:get_start_pos(0));
+
     par do
         every (x,y) in ON_PRIMARY_BUTTON_PRESSED do
             x = x - this.me.rect.left;
@@ -67,6 +74,9 @@ do
             var int x,y;
             AWAIT_MY(ON_SECONDARY_BUTTON_PRESSED,x,y);
 
+            var Vector2i old_state_pos = Vector2i(this.me.state.get_pos().x,
+                                                  this.me.state.get_pos().y);
+
             var Vector2i scroll = Vector2i(x - this.me.rect.left,
                                            y - this.me.rect.top);
 
@@ -76,7 +86,7 @@ do
                         // FIXME: This should be delta dependant
                         if {globals::drag_drop_scrolling} then
                             this.me.state.set_pos(
-                                this.me.old_state_pos
+                                _Vector2i(old_state_pos.x,old_state_pos.y)
                                     + (_Vector2i(scroll.x,scroll.y)
                                         - this.me.mouse_pos));
                         else

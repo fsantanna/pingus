@@ -33,20 +33,11 @@ Playfield::Playfield(Server* server_, GameSession* session_, const Rect& rect_) 
   scene_context(new SceneContext(rect_)),
   state(rect_.get_width(), rect_.get_height()),
   clipping_rectangles(),
-  mouse_pos(),
-  old_state_pos()
-{
-  state.set_limit(Rect(Vector2i(0, 0),
-                       Size(CEU_World_get_width(NULL,server->get_world()->ceu),
-                            CEU_World_get_height(NULL,server->get_world()->ceu))));
-
-  // FIXME: Temporary workaround till start-pos is integrated a bit more properly
-  state.set_pos(CEU_World_get_start_pos(NULL,server->get_world()->ceu,0));
-}
-
-Playfield::~Playfield()
+  mouse_pos()
 {
 }
+
+Playfield::~Playfield() { }
 
 void
 Playfield::draw(DrawingContext& gc)
@@ -92,12 +83,7 @@ Playfield::update(float delta)
   }
 }
 
-void
-Playfield::on_secondary_button_press(int x, int y)
-{
-  old_state_pos = state.get_pos();
-}
-
+void Playfield::on_secondary_button_press(int x, int y) { }
 void Playfield::on_secondary_button_release (int x, int y) { }
 void Playfield::on_key_pressed(const Input::KeyboardEvent& ev) { }
 void Playfield::on_primary_button_press(int x, int y) { }

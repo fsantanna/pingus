@@ -135,6 +135,7 @@ interface IWorld with
 
     function (void)=>IPinguHolderPool& get_pingu_holder;
     function (void)=>int               get_time;
+    function (int)=>_Vector2i          get_start_pos;
     function (void)=>IComponent&       get_smallmap;
 
     function (void)=>int get_width;
