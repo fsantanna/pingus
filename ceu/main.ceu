@@ -50,6 +50,13 @@ data Position with
     var float y;
 end
 
+data Rect with
+    var int left;
+    var int top;
+    var int width;
+    var int height;
+end
+
 data Size with
     var int width;
     var int height;

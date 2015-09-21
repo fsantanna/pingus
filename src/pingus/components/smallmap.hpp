@@ -28,9 +28,6 @@ class SmallMapImage;
 /** This is the map that appears in the corner of the screen */
 class SmallMap : public GUI::RectComponent
 {
-private:
-  Playfield* playfield;
-
 public:
   SmallMap(Server*, Playfield*, const Rect& rect);
   virtual ~SmallMap();

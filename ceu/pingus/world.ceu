@@ -127,10 +127,14 @@ do
         this.me           = &playfield_!;
     end;
 
+    var Rect rect = Rect(6,{Display::get_size}().height-105, 175,100);
+        // TODO: height originally comes from Screen/GUIScreen/SmallMap
+
     var _SmallMap&? smallmap_ := &_XXX_PURE(_GLOBAL_SMALLMAP);
     var SmallMap smallmap with
         this.pingu_holder = &pingu_holder;
         this.me           = &smallmap_!;
+        this.rect         = rect;
     end;
 
     var bool in_armageddon = false;

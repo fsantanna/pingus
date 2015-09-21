@@ -25,8 +25,7 @@
 #include "ceu_vars.h"
 
 SmallMap::SmallMap(Server* server_, Playfield* playfield_, const Rect& rect_) :
-  RectComponent(rect_),
-  playfield(playfield_)
+  RectComponent(rect_)
 {
 }
 
