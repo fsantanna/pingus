@@ -85,7 +85,7 @@ do
 
             watching ON_SECONDARY_BUTTON_RELEASED do
                 par do
-                    every WORLD_UPDATE do
+                    every SCREENMANAGER_UPDATE do
                         // FIXME: This should be delta dependant
                         if {globals::drag_drop_scrolling} then
                             this.me.state.set_pos(
@@ -139,7 +139,7 @@ do
             // having current_pingu&&? is not enough because it can die and 
             // clear the variable
 
-        every WORLD_UPDATE do
+        every SCREENMANAGER_UPDATE do
             var Position pos = Position(
                                 this.me.state.screen2world(this.me.mouse_pos).x,
                                 this.me.state.screen2world(this.me.mouse_pos).y
@@ -172,7 +172,7 @@ do
             end
         end
     with
-        every delta in GUISCREEN_UPDATE do
+        every delta in SCREENMANAGER_UPDATE do
             if ({globals::auto_scrolling} and
                 ({Display::is_fullscreen()} or 
                     _SDL_WM_GrabInput(_SDL_GRAB_QUERY) == _SDL_GRAB_ON))
