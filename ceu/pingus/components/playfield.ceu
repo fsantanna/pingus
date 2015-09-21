@@ -23,6 +23,7 @@ class Playfield with
     var PinguHolder& pingu_holder;
 
     function (void)=>Vector2i get_pos;
+    function (int x, int y)=>void set_viewpoint;
 do
     this.me.state.set_limit(_Rect(_Vector2i(0, 0),
                        _Size(global:world!:get_width(),
@@ -206,6 +207,10 @@ do
         var Vector2i ret = Vector2i((int)(this.me.state.get_pos().x),
                                     (int)(this.me.state.get_pos().y));
         return ret;
+    end
+
+    function (int x, int y)=>void set_viewpoint do
+        this.me.state.set_pos(_Vector2i(x, y));
     end
 
 #if 0

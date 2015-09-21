@@ -34,7 +34,7 @@ do
                     cy = (y - this.rect.top) *
                             ((int)global:world!:get_height()) /
                                 this.rect.height;
-                    this.playfield.me.set_viewpoint(cx, cy);
+                    this.playfield.set_viewpoint(cx, cy);
                     AWAIT_MY(ON_POINTER_MOVE,x,y);
                 end
             end

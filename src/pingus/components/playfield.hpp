@@ -51,7 +51,6 @@ public:
   Playfield(Server*, GameSession*, const Rect& rect);
   virtual ~Playfield();
 
-  void set_viewpoint(int, int);
 
   void draw(DrawingContext& gc);
   void update(float delta);
