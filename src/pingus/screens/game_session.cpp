@@ -256,8 +256,9 @@ GameSession::update(const Input::Event& event)
 void
 GameSession::process_scroll_event (const Input::ScrollEvent& ev)
 {
-  playfield->scroll(static_cast<int>(-ev.x_delta),
-                    static_cast<int>(-ev.y_delta));
+assert(!"NOT PORTED!");
+  ///playfield->scroll(static_cast<int>(-ev.x_delta),
+                    ///static_cast<int>(-ev.y_delta));
 }
 
 void

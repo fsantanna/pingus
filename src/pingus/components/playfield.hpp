@@ -51,8 +51,6 @@ public:
   Playfield(Server*, GameSession*, const Rect& rect);
   virtual ~Playfield();
 
-  void scroll (int x, int y);
-
   void set_viewpoint(int, int);
 
   void draw(DrawingContext& gc);

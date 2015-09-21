@@ -207,6 +207,13 @@ do
                                     (int)(this.me.state.get_pos().y));
         return ret;
     end
+
+#if 0
+NOT PORTED
+    void Playfield::scroll (int x, int y) {
+        state.set_pos(state.get_pos() + Vector2i(x, y));
+    }
+#endif
 end
 
 #endif
