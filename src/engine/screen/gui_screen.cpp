@@ -48,6 +48,7 @@ void
 GUIScreen::update(float delta)
 {
   gui_manager->update(delta);
+  ceu_sys_go(&CEU_APP, CEU_IN_GUISCREEN_UPDATE, &delta);
 }
 
 void

@@ -29,7 +29,6 @@ Playfield::Playfield(Server* server_, GameSession* session_, const Rect& rect_) 
   RectComponent(rect_),
   server(server_),
   session(session_),
-  scroll_speed(),
   scene_context(new SceneContext(rect_)),
   state(rect_.get_width(), rect_.get_height()),
   clipping_rectangles(),
@@ -38,6 +37,12 @@ Playfield::Playfield(Server* server_, GameSession* session_, const Rect& rect_) 
 }
 
 Playfield::~Playfield() { }
+void Playfield::update(float delta) { }
+void Playfield::on_secondary_button_press(int x, int y) { }
+void Playfield::on_secondary_button_release (int x, int y) { }
+void Playfield::on_key_pressed(const Input::KeyboardEvent& ev) { }
+void Playfield::on_primary_button_press(int x, int y) { }
+void Playfield::on_pointer_move (int x, int y) { }
 
 void
 Playfield::draw(DrawingContext& gc)
@@ -54,40 +59,6 @@ Playfield::draw(DrawingContext& gc)
   gc.translate(rect.left, rect.top);
   gc.pop_modelview();
 }
-
-void
-Playfield::update(float delta)
-{
-  if (globals::auto_scrolling && (Display::is_fullscreen() || 
-  SDL_WM_GrabInput(SDL_GRAB_QUERY) == SDL_GRAB_ON))
-  {
-    scroll_speed = static_cast<int>(800 * delta);
-
-    if (mouse_pos.x < 10)
-    {
-      state.set_pos(state.get_pos() - Vector2i(scroll_speed, 0));
-    }
-    else if (mouse_pos.x > Display::get_width() - 10)
-    {
-      state.set_pos(state.get_pos() + Vector2i(scroll_speed, 0));
-    }
-
-    if (mouse_pos.y < 10)
-    {
-      state.set_pos(state.get_pos() - Vector2i(0, scroll_speed));
-    }
-    else if (mouse_pos.y > Display::get_height() - 10)
-    {
-      state.set_pos(state.get_pos() + Vector2i(0, scroll_speed));
-    }
-  }
-}
-
-void Playfield::on_secondary_button_press(int x, int y) { }
-void Playfield::on_secondary_button_release (int x, int y) { }
-void Playfield::on_key_pressed(const Input::KeyboardEvent& ev) { }
-void Playfield::on_primary_button_press(int x, int y) { }
-void Playfield::on_pointer_move (int x, int y) { }
 
 Vector2i
 Playfield::get_pos() const

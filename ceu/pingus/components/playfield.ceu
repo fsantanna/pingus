@@ -169,6 +169,27 @@ do
             end
         end
     with
+        every delta in GUISCREEN_UPDATE do
+            if ({globals::auto_scrolling} and
+                ({Display::is_fullscreen()} or 
+                    _SDL_WM_GrabInput(_SDL_GRAB_QUERY) == _SDL_GRAB_ON))
+            then
+                var int scroll_speed = (int)(800 * delta);
+
+                if (this.me.mouse_pos.x < 10) then
+                    this.me.state.set_pos(this.me.state.get_pos() - _Vector2i(scroll_speed, 0));
+                else/if (this.me.mouse_pos.x > {Display::get_width()} - 10) then
+                    this.me.state.set_pos(this.me.state.get_pos() + _Vector2i(scroll_speed, 0));
+                end
+
+                if (this.me.mouse_pos.y < 10) then
+                    this.me.state.set_pos(this.me.state.get_pos() - _Vector2i(0, scroll_speed));
+                else/if (this.me.mouse_pos.y > {Display::get_height()} - 10) then
+                    this.me.state.set_pos(this.me.state.get_pos() + _Vector2i(0, scroll_speed));
+                end
+            end
+        end
+    with
         // MUST BE UPDATED AFTER MYSELF
 
         var CaptureRectangle _ with
