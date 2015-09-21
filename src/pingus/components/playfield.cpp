@@ -159,8 +159,6 @@ assert(!"TODO");
 void
 Playfield::on_primary_button_press(int x, int y)
 {
-  tceu__int__int p = {x, y};
-  ceu_sys_go(&CEU_APP, CEU_IN_PLAYFIELD_ON_PRIMARY_BUTTON_PRESS, &p);
 }
 
 void

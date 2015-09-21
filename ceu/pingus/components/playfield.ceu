@@ -1,8 +1,6 @@
 #ifndef _PLAYFIELD_CEU
 #define _PLAYFIELD_CEU
 
-input (int,int) PLAYFIELD_ON_PRIMARY_BUTTON_PRESS;
-
 interface IPlayfield with
     var   IPingu&&?   current_pingu;
     event void        ok_pingu;
@@ -21,14 +19,14 @@ class Playfield with
     var PinguHolder& pingu_holder;
 do
     par do
-        every (x,y) in PLAYFIELD_ON_PRIMARY_BUTTON_PRESS do
+        every (x,y) in ON_PRIMARY_BUTTON_PRESSED do
             x = x - this.me.rect.left;
             y = y - this.me.rect.top;
             x = this.me.state.screen2world(_Vector2i(x,y)).x;
             y = this.me.state.screen2world(_Vector2i(x,y)).y;
 
             if this.me.session != null then
-                var IPingu&& pingu = null;
+                var IPingu&&? pingu;
                 var float min_dist = 500.0;
                 var float dist;
                 loop p in global:world!:get_pingu_holder().pingus do
@@ -41,11 +39,11 @@ do
                     end
                 end
 
-                if pingu != null then
+                if pingu? then
                     var _ActionName__Enum action = this.me.session:get_action_name();
-                    if pingu:check_action(action) then
+                    if pingu!:check_action(action) then
                         if this.me.server:action_holder.pop_action(action) then
-                            emit pingu:go_action => action;
+                            emit pingu!:go_action => action;
                         end
                     end
                 end
