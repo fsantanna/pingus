@@ -75,8 +75,6 @@ do
                 _view_rect.bottom = this.rect.top + this.rect.height;
             end
 
-            gc:draw(this.me, _Vector2i(0,0));
-
             gc:draw_rect(_view_rect, _Color(0, 255, 0));
 
             // Draw Pingus

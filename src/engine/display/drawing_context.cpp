@@ -96,25 +96,6 @@ public:
   }
 };
 
-class SmallMapDrawingRequest : public DrawingRequest
-{
-private:
-  SmallMap& smallmap;
-
-public:
-  SmallMapDrawingRequest(SmallMap& world_, const Vector2i& pos_, float z_)
-    : DrawingRequest(pos_, z_),
-      smallmap(world_)
-  {
-  }
-
-  virtual ~SmallMapDrawingRequest() {}
-
-  void render(Framebuffer& fb, const Rect& rect) {
-    smallmap.render(pos.x + rect.left, pos.y + rect.top, fb);
-  }
-};
-
 class FillScreenDrawingRequest : public DrawingRequest
 {
 private:
@@ -291,12 +272,6 @@ void
 DrawingContext::draw(World& world, const Vector2i& pos, float z)
 {
   draw(new WorldDrawingRequest(world, pos + translate_stack.back(), z));
-}
-
-void
-DrawingContext::draw(SmallMap& world, const Vector2i& pos, float z)
-{
-  draw(new SmallMapDrawingRequest(world, pos + translate_stack.back(), z));
 }
 
 void

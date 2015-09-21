@@ -24,19 +24,12 @@
 
 #include "ceu_vars.h"
 
-SmallMap::SmallMap(Server* server_, Playfield* playfield_, const Rect& rect_) :
-  RectComponent(rect_)
+SmallMap::SmallMap(Server* server_, Playfield* playfield_, const Rect& rect_)
 {
 }
 
 SmallMap::~SmallMap()
 {
-}
-
-void
-SmallMap::render(int x, int y, Framebuffer& fb) {
-  tceu__int__int__Framebuffer_ p = {x,y,&fb};
-  ceu_sys_go(&CEU_APP, CEU_IN_SMALLMAP_RENDER, &p);
 }
 
 void

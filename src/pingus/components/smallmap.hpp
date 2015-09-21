@@ -32,10 +32,6 @@ public:
   void* ceu;
   SmallMap(Server*, Playfield*, const Rect& rect);
   virtual ~SmallMap();
-
-/// TEMP
-  void render(int x, int y, Framebuffer& fb);
-
   void draw(DrawingContext& gc);
 
 private:
