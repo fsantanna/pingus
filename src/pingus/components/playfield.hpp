@@ -51,6 +51,7 @@ public:
   Playfield(Server*, GameSession*, const Rect& rect);
   virtual ~Playfield();
 
+  void scroll (int x, int y);
 
   void draw(DrawingContext& gc);
   void update(float delta);

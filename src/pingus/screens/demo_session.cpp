@@ -254,9 +254,8 @@ void
 DemoSession::on_scroller_move(float x, float y)
 {
   // FIXME: Rounding considered evil?
-assert(!"NOT PORTED!");
-  ///playfield->scroll(static_cast<int>(-x),
-                    ///static_cast<int>(-y));
+  playfield->scroll(static_cast<int>(-x),
+                    static_cast<int>(-y));
 }
 
 void

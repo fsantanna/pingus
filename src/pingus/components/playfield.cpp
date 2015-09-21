@@ -61,6 +61,12 @@ Playfield::draw(DrawingContext& gc)
 }
 
 void
+Playfield::scroll (int x, int y)
+{
+  state.set_pos(state.get_pos() + Vector2i(x, y));
+}
+
+void
 Playfield::update_layout()
 {
   state.set_size(rect.get_width(), rect.get_height());
