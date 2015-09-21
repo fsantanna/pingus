@@ -25,7 +25,6 @@
 #include "pingus/components/button_panel.hpp"
 #include "pingus/components/pingus_counter.hpp"
 #include "pingus/components/playfield.hpp"
-#include "pingus/components/smallmap.hpp"
 #include "pingus/components/time_display.hpp"
 #include "pingus/globals.hpp"
 #include "pingus/savegame_manager.hpp"
@@ -36,7 +35,6 @@
 #include "ceu_vars.h"
 
 Playfield* GLOBAL_PLAYFIELD = NULL;
-SmallMap*  GLOBAL_SMALLMAP  = NULL;
 
 GameSession::GameSession(const PingusLevel& arg_plf, bool arg_show_result_screen) :
   plf(arg_plf),
@@ -48,7 +46,6 @@ GameSession::GameSession(const PingusLevel& arg_plf, bool arg_show_result_screen
   pcounter     (0),
   playfield    (0),
   time_display (0),
-  small_map    (0),
   armageddon_button(),
   forward_button(),
   pause_button(),
@@ -79,14 +76,11 @@ GameSession::GameSession(const PingusLevel& arg_plf, bool arg_show_result_screen
 GLOBAL_PLAYFIELD = playfield;
 
   pcounter     = new PingusCounter(get_server());
-  small_map    = new SmallMap(get_server(), playfield, Rect(Vector2i(5, size.height - 105), Size(175, 100)));
-GLOBAL_SMALLMAP = small_map;
   time_display = new TimeDisplay(this);
 
   gui_manager->add(playfield);
   gui_manager->add(button_panel);
   gui_manager->add(pcounter);
-  ///gui_manager->add(small_map);
   gui_manager->add(time_display);
 
   armageddon_button = new ArmageddonButton(get_server(), Display::get_width() - 40, Display::get_height() - 62);
@@ -420,8 +414,6 @@ GameSession::resize(const Size& size_)
                                 Size(38, 60)));
   pause_button->set_rect(Rect(Vector2i(size.width - 40*3, size.height - 62),
                               Size(38, 60)));
-
-  small_map->set_rect(Rect(Vector2i(5, size.height - 105), Size(175, 100)));
 
   button_panel->set_pos(Vector2i(0, (size.height - 150)/2));
 }

@@ -8,10 +8,8 @@ end
 native do
     ##include "src/pingus/world.hpp"
     ##include "src/pingus/components/playfield.hpp"
-    ##include "src/pingus/components/smallmap.hpp"
     ##include "pingus/ground_map.hpp"
     extern Playfield* GLOBAL_PLAYFIELD;
-    extern SmallMap*  GLOBAL_SMALLMAP;
 end
 native @plain _World;
 native @plain _Playfield, _SmallMap, _SceneContext, _GroundMap;
@@ -131,10 +129,8 @@ await SDL_DT;   // TODO: World is created before Playfield in C++
     var Rect rect = Rect(6,{Display::get_size}().height-105, 175,100);
         // TODO: height originally comes from Screen/GUIScreen/SmallMap
 
-    var _SmallMap&? smallmap_ := &_XXX_PURE(_GLOBAL_SMALLMAP);
     var SmallMap smallmap with
         this.pingu_holder = &pingu_holder;
-        this.me           = &smallmap_!;
         this.rect         = rect;
     end;
 
@@ -216,6 +212,9 @@ await SDL_DT;   // TODO: World is created before Playfield in C++
 
     function (void)=>PinguHolder& get_pingus do
         return &this.pingu_holder;
+    end
+    function (void)=>IComponent& get_smallmap do
+        return &this.smallmap;
     end
 
     function (void)=>int get_width do

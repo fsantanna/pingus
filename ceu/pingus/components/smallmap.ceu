@@ -10,15 +10,13 @@ native @plain _DrawingContext;
 
 #define AWAIT_MY(EVT,x,y)   \
     (x,y) = await EVT       \
-            until (this.me.is_visible() and this.is_at(x,y))
+            until this.is_at(x,y)
 
 class SmallMap with
-    var _SmallMap& me;
+    interface IComponent;
     var PinguHolder& pingu_holder;
-    var Rect rect;
 do
     function (int x, int y)=>bool is_at;
-    this.me.ceu = &&this;
 
     par do
         loop do

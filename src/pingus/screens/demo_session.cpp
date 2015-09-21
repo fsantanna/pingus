@@ -24,7 +24,7 @@
 #include "engine/screen/screen_manager.hpp"
 #include "pingus/components/pingus_counter.hpp"
 #include "pingus/components/playfield.hpp"
-#include "pingus/components/smallmap.hpp"
+///#include "pingus/components/smallmap.hpp"
 #include "pingus/components/button_panel.hpp"
 #include "pingus/pingus_demo.hpp"
 #include "pingus/server.hpp"
@@ -76,7 +76,7 @@ DemoSession::DemoSession(const Pathname& pathname_) :
   events(),
   pcounter(),
   playfield(),
-  small_map(),
+  ///small_map(),
   fastforward_button(),
   pause_button(),
   restart_button(),
@@ -117,8 +117,11 @@ DemoSession::DemoSession(const Pathname& pathname_) :
 
   gui_manager->add(playfield);
 
+assert(!"NOT PORTED!");
+#if 0
   small_map    = new SmallMap(server.get(), playfield, Rect(Vector2i(5, size.height - 105), Size(175, 100)));
   gui_manager->add(small_map);
+#endif
 
   gui_manager->add(fastforward_button= new BButton(32+50, 32, "core/demo/fastforward",
                                                    std::bind(&DemoSession::on_fast_forward_press, this),
@@ -278,7 +281,7 @@ DemoSession::resize(const Size& size_)
   pause_button->set_pos(32,  32);
   restart_button->set_pos(size.width - 32 - 48, 32);
 
-  small_map->set_rect(Rect(Vector2i(5, size.height - 105), Size(175, 100)));
+  ///small_map->set_rect(Rect(Vector2i(5, size.height - 105), Size(175, 100)));
 }
 
 /* EOF */

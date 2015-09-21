@@ -53,7 +53,7 @@ private:
 
   PingusCounter* pcounter;
   Playfield*     playfield;
-  SmallMap*      small_map;
+  ///SmallMap*      small_map;
 
   BButton* fastforward_button;
   BButton* pause_button;

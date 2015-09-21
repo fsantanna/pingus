@@ -58,7 +58,7 @@ await SDL_DT;
         this.y = &pos.y;
         this.name = "core/misc/smallmap_exit";
         this.is_world = false;
-        this.rect = &((SmallMap&&)_GLOBAL_SMALLMAP:ceu):rect;
+        this.rect = &global:world!:get_smallmap().rect;
     end;
 
     every WORLD_UPDATE do

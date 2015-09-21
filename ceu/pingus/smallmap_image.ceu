@@ -40,7 +40,7 @@ await SDL_DT;
             this.surface = &&_SMALLMAP_IMAGE_sfc;
 
             this.is_world = false;
-            this.rect = &((SmallMap&&)_GLOBAL_SMALLMAP:ceu):rect;
+            this.rect = &global:world!:get_smallmap().rect;
         end;
 
         loop do

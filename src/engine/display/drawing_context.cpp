@@ -26,7 +26,6 @@
 
 ///
 #include "pingus/world.hpp"
-#include "pingus/components/smallmap.hpp"
 
 struct DrawingRequestsSorter
 {
