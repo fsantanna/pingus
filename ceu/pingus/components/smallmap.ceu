@@ -40,7 +40,7 @@ do
             end
         end
     with
-        every gc in GUISCREEN_DRAW do
+        every gc in SCREENMANAGER_DRAW do
             var int of_x = this.playfield.get_pos().x;
             var int of_y = this.playfield.get_pos().y;
             {

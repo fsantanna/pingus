@@ -41,7 +41,7 @@ input (int,int) ON_PRIMARY_BUTTON_PRESSED;
 input (int,int) ON_PRIMARY_BUTTON_RELEASED;
 input (int,int) ON_SECONDARY_BUTTON_PRESSED;
 input (int,int) ON_SECONDARY_BUTTON_RELEASED;
-input _DrawingContext&& GUISCREEN_DRAW;
+input _DrawingContext&& SCREENMANAGER_DRAW;
 input float SCREENMANAGER_UPDATE;
 
 data Color with

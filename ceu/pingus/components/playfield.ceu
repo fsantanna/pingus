@@ -105,7 +105,7 @@ do
                         end
                     end
                 with
-                    every gc in GUISCREEN_DRAW do
+                    every gc in SCREENMANAGER_DRAW do
                         if {globals::drag_drop_scrolling} then
                             continue;
                         end
@@ -139,6 +139,8 @@ do
             // having current_pingu&&? is not enough because it can die and 
             // clear the variable
 
+/// TODO
+        ///every SCREENMANAGER_UPDATE do
         every WORLD_UPDATE do
             var Position pos = Position(
                                 this.me.state.screen2world(this.me.mouse_pos).x,

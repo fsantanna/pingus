@@ -292,10 +292,7 @@ ScreenManager::update(float delta, const std::vector<Input::Event>& events)
   // Draw screen to DrawingContext
   get_current_screen()->draw(*display_gc);
 
-  {
-    //void* p = &gc;
-    //ceu_sys_go(&CEU_APP, CEU_IN_SREENMANAGER_DRAW, &p);
-  }
+  ceu_sys_go(&CEU_APP, CEU_IN_SCREENMANAGER_DRAW, &display_gc);
 
   // Render the DrawingContext to the screen
   display_gc->render(*Display::get_framebuffer(), Rect(Vector2i(0,0), Size(Display::get_width(),
