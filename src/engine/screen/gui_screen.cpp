@@ -21,6 +21,8 @@
 #include "pingus/globals.hpp"
 #include "util/log.hpp"
 
+#include "ceu_vars.h"
+
 GUIScreen::GUIScreen() :
   Screen(Display::get_size()),
   gui_manager(new GUI::GUIManager())

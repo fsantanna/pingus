@@ -139,7 +139,7 @@ do
             // having current_pingu&&? is not enough because it can die and 
             // clear the variable
 
-        every SCREENMANAGER_UPDATE do
+        every WORLD_UPDATE do
             var Position pos = Position(
                                 this.me.state.screen2world(this.me.mouse_pos).x,
                                 this.me.state.screen2world(this.me.mouse_pos).y
