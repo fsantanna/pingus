@@ -19,8 +19,6 @@ input (_World&&) WORLD_DELETE;
 input void WORLD_UPDATE;
 input (_SceneContext&&) WORLD_DRAW;
 
-input (_char&&, _FileReader&&) WORLD_NEWOBJ;
-
 input void WORLD_ARMAGEDDON;
 
 #include "particles/pingu_particle_holder.ceu"

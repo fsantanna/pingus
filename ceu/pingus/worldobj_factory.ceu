@@ -4,10 +4,16 @@
 // TODO: use spawn directly instead of ceu_sys_go
 //          - requires flatmap or traverse
 
+native/pre do
+    static std::vector<std::pair<FileReader,Vector3f>> WORLDOBJ_FACTORY_VECTOR;
+    static FileReader                                  WORLDOBJ_FACTORY_READER;
+end
+
 native do
     ##include "src/pingus/prefab_file.hpp"
     ##include "src/util/overrride_file_reader.hpp"
     Vector3f WORLDOBJ_FACTORY_pos = Vector3f(0,0,0);
+
     void WORLDOBJ_FACTORY_create (const FileReader& reader) {
         if (reader.get_name()=="prefab")
         {
@@ -37,8 +43,7 @@ native do
                 WORLDOBJ_FACTORY_create(*it);
             }
         } else {
-            tceu__char___FileReader_ p = { (char*)reader.get_name().c_str(), (FileReader*)&reader };
-            ceu_sys_go(&CEU_APP, CEU_IN_WORLD_NEWOBJ, &p);
+            WORLDOBJ_FACTORY_VECTOR.push_back(std::make_pair(reader,WORLDOBJ_FACTORY_pos));
         }
     }
 end
@@ -47,60 +52,64 @@ class WorldObjFactory with
     var _PingusLevel&& plf;
     pool Entrance[] entrances;
 do
-    par do
-        every (id_,reader_) in WORLD_NEWOBJ do
-            var Vector3f pos_offset = Vector3f(_WORLDOBJ_FACTORY_pos.x,
-                                               _WORLDOBJ_FACTORY_pos.y,
-                                               _WORLDOBJ_FACTORY_pos.z);
-            if _strcmp(id_,"entrance")==0 then
-                spawn Entrance in this.entrances with
-                    this.reader     = reader_;
-                    this.pos_offset = pos_offset;
-                end;
-            else/if _strcmp(id_,"exit")==0 then
-                spawn Exit with
-                    this.reader = reader_;
-                end;
-            else/if _strcmp(id_,"groundpiece")==0 then
-                spawn Groundpiece with
-                    this.reader = reader_;
-                end;
-            else/if _strcmp(id_,"guillotine")==0 then
-                spawn Guillotine with
-                    this.reader = reader_;
-                end;
-            else/if _strcmp(id_,"hotspot")==0 then
-                spawn Hotspot with
-                    this.reader     = reader_;
-                    this.pos_offset = pos_offset;
-                end;
-            else/if _strcmp(id_,"laser_exit")==0 then
-                spawn LaserExit with
-                    this.reader = reader_;
-                end;
-            else/if _strcmp(id_,"liquid")==0 then
-                spawn Liquid with
-                    this.reader = reader_;
-                end;
-            else/if _strcmp(id_,"smasher")==0 then
-                spawn Smasher with
-                    this.reader = reader_;
-                end;
-            else/if _strcmp(id_,"spike")==0 then
-                spawn Spike with
-                    this.reader = reader_;
-                end;
-            else/if _strcmp(id_,"surface-background")==0 then
-                spawn SurfaceBackground with
-                    this.reader = reader_;
-                end;
-            end
-        end
-    with
-        loop i in this.plf:get_objects().size() do
-            _WORLDOBJ_FACTORY_create(this.plf:get_objects().at(i));
+    loop i in this.plf:get_objects().size() do
+        _WORLDOBJ_FACTORY_create(this.plf:get_objects().at(i));
+    end
+
+    #define id_     _WORLDOBJ_FACTORY_VECTOR.at(i).first.get_name()
+    #define reader_ &&_WORLDOBJ_FACTORY_READER
+
+    loop i in _WORLDOBJ_FACTORY_VECTOR.size() do
+        _WORLDOBJ_FACTORY_READER = _XXX_PURE(_WORLDOBJ_FACTORY_VECTOR.at(i).first);
+        var Vector3f pos_offset = Vector3f(_WORLDOBJ_FACTORY_VECTOR.at(i).second.x,
+                                           _WORLDOBJ_FACTORY_VECTOR.at(i).second.y,
+                                           _WORLDOBJ_FACTORY_VECTOR.at(i).second.z);
+        if id_ == "entrance" then
+            spawn Entrance in this.entrances with
+                this.reader     = reader_;
+                this.pos_offset = pos_offset;
+            end;
+        else/if id_ == "exit" then
+            spawn Exit with
+                this.reader = reader_;
+            end;
+        else/if id_ == "groundpiece" then
+            spawn Groundpiece with
+                this.reader = reader_;
+            end;
+        else/if id_ == "guillotine" then
+            spawn Guillotine with
+                this.reader = reader_;
+            end;
+        else/if id_ == "hotspot" then
+            spawn Hotspot with
+                this.reader     = reader_;
+                this.pos_offset = pos_offset;
+            end;
+        else/if id_ == "laser_exit" then
+            spawn LaserExit with
+                this.reader = reader_;
+            end;
+        else/if id_ == "liquid" then
+            spawn Liquid with
+                this.reader = reader_;
+            end;
+        else/if id_ == "smasher" then
+            spawn Smasher with
+                this.reader = reader_;
+            end;
+        else/if id_ == "spike" then
+            spawn Spike with
+                this.reader = reader_;
+            end;
+        else/if id_ == "surface-background" then
+            spawn SurfaceBackground with
+                this.reader = reader_;
+            end;
         end
     end
+
+    await FOREVER;
 
 #if 0
     {
