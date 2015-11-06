@@ -46,14 +46,14 @@ do
             this.sprite.update(0.033);
         end
     with
-        every gc in WORLD_DRAW do
+        every gc in SCREENMANAGER_DRAW do
             var int x = (int)(this.pos.x);
             loop i do
                 if x >= (int)(this.pos.x) + this.width then
                     break;
                 end
                 x = x + this.sprite.get_width();
-                gc:color().draw(this.sprite, _Vector3f((float)(x), this.pos.y));
+                _GLOBAL_PLAYFIELD:scene_context:color().draw(this.sprite, _Vector3f((float)(x), this.pos.y));
             end
         end
     end

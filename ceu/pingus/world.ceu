@@ -17,8 +17,6 @@ native @plain _Playfield, _SmallMap, _SceneContext, _GroundMap;
 input (_World&&, _PingusLevel&&) WORLD_NEW;
 input (_World&&) WORLD_DELETE;
 input void WORLD_UPDATE;
-input (_SceneContext&&) WORLD_DRAW;
-
 input void WORLD_ARMAGEDDON;
 
 #include "particles/pingu_particle_holder.ceu"
@@ -62,13 +60,18 @@ do
             this.game_time = this.game_time + 1;
         end
     with
-        every gc in WORLD_DRAW do
-            gc:light().fill_screen(_Color(ambient_light.r,
-                                          ambient_light.g,
-                                          ambient_light.b,
-                                          ambient_light.a));
-            gfx_map.draw(*gc);
-            gc:color().draw(world.me, _Vector2i(0,0));
+        // Playfield
+        every gc in SCREENMANAGER_DRAW do
+            _GLOBAL_PLAYFIELD:scene_context:clear();
+            _GLOBAL_PLAYFIELD:state.push(*_GLOBAL_PLAYFIELD:scene_context);
+
+            _GLOBAL_PLAYFIELD:scene_context:light().fill_screen(
+                _Color(ambient_light.r,
+                       ambient_light.g,
+                       ambient_light.b,
+                       ambient_light.a));
+            gfx_map.draw(*_GLOBAL_PLAYFIELD:scene_context);
+            _GLOBAL_PLAYFIELD:scene_context:color().draw(world.me, _Vector2i(0,0));
         end
     end
 end
@@ -173,6 +176,15 @@ await SDL_DT;   // TODO: World is created before Playfield in C++
             if pingu? then
                 emit pingu!:go_action => {ActionName::BOMBER};
             end
+        end
+    with
+        // Playfield
+        every gc in SCREENMANAGER_DRAW do
+            _GLOBAL_PLAYFIELD:state.pop(*_GLOBAL_PLAYFIELD:scene_context);
+            gc:draw({new SceneContextDrawingRequest}(
+                _GLOBAL_PLAYFIELD:scene_context.get(),
+                _Vector2i(0,0),
+                -10000));
         end
     end
 

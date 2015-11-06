@@ -27,10 +27,7 @@ World::~World() {
   ceu_sys_go(&CEU_APP, CEU_IN_WORLD_DELETE, &this_);
 }
 
-void World::draw (SceneContext& gc) {
-  SceneContext* p = &gc;
-  ceu_sys_go(&CEU_APP, CEU_IN_WORLD_DRAW, &p);
-}
+void World::draw (SceneContext& gc) { }
 
 void World::render(int x, int y, Framebuffer& fb) {
   tceu__int__int__Framebuffer_ p = {x,y,&fb};

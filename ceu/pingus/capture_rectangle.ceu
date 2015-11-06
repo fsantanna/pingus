@@ -113,14 +113,15 @@ do
             end
         end
     with
-        every sc in WORLD_DRAW do
+        every sc in SCREENMANAGER_DRAW do
             if not this.playfield.current_pingu? then
                 continue;
             end
             var IPingu&& pingu = this.playfield.current_pingu!;
 
             if ({ActionName::CATCHABLE}[pingu:current_action]) then
-                sc:color().print_center({Fonts::courier_small},
+                _GLOBAL_PLAYFIELD:scene_context:color().print_center(
+                            {Fonts::courier_small},
                             _Vector2i((int)(pingu:get_center_pos().x),
                                       (int)(pingu:get_center_pos().y - 46)),
                             &&action_str,

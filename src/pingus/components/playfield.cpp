@@ -47,6 +47,7 @@ void Playfield::on_pointer_move (int x, int y) { }
 void
 Playfield::draw(DrawingContext& gc)
 {
+#if 0
   scene_context->clear();
 
   state.push(*scene_context);
@@ -54,10 +55,11 @@ Playfield::draw(DrawingContext& gc)
   state.pop(*scene_context);
 
   gc.draw(new SceneContextDrawingRequest(scene_context.get(), Vector2i(0,0), -10000));
+#endif
 
-  gc.push_modelview();
-  gc.translate(rect.left, rect.top);
-  gc.pop_modelview();
+  //gc.push_modelview();
+  //gc.translate(rect.left, rect.top);
+  //gc.pop_modelview();
 }
 
 void

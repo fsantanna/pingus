@@ -114,13 +114,14 @@ do
             end
         end
     with
-        every gc in WORLD_DRAW do
+        every gc in SCREENMANAGER_DRAW do
             var int offset_x=0;
             var int offset_y=0;
             do
-                var _Vector2i offset = gc:color().world_to_screen(_Vector2i(0,0));
-                 offset_x = offset.x - gc:color().get_rect().left;
-                 offset_y = offset.y - gc:color().get_rect().top;
+                var _Vector2i offset = 
+                 _GLOBAL_PLAYFIELD:scene_context:color().world_to_screen(_Vector2i(0,0));
+                 offset_x = offset.x - _GLOBAL_PLAYFIELD:scene_context:color().get_rect().left;
+                 offset_y = offset.y - _GLOBAL_PLAYFIELD:scene_context:color().get_rect().top;
             end
 
             var int start_x = (int)(((float)(offset_x) * this.para_x) + this.scroll_ox);
@@ -145,7 +146,8 @@ do
                     if x >= global:world!:get_width() then
                         break;
                     end
-                    gc:color().draw(this.bg_sprite,
+                    _GLOBAL_PLAYFIELD:scene_context:color().draw(
+                                    this.bg_sprite,
                                     _Vector2i(x-offset_x, y-offset_y),
                                     this.pos.z);
                     x = x + this.bg_sprite.get_width();
