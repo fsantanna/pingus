@@ -114,7 +114,7 @@ GameSession::update_server(float delta)
     result.needed = server->get_plf().get_number_to_save();
 
     result.max_time  = server->get_plf().get_time();
-    result.used_time = server->get_time();
+    result.used_time = CEU_World_get_time(NULL, GLOBAL_CEU_WORLD);
 
     { // Write the savegame
       Savegame savegame(result.plf.get_resname(),

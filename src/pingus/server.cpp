@@ -88,7 +88,7 @@ Server::Server(const PingusLevel& arg_plf, bool record_demo) :
 Server::~Server ()
 {
   if (demostream.get()) // FIXME: Any better place to put this?
-    (*demostream) << "(end (time " << get_time() << "))" << std::endl;
+    (*demostream) << "(end (time " << CEU_World_get_time(NULL, GLOBAL_CEU_WORLD) << "))" << std::endl;
 }
 
 void
@@ -101,7 +101,7 @@ Server::update()
 void
 Server::send_armageddon_event ()
 {
-  record(ServerEvent::make_armageddon_event(get_time()));
+  record(ServerEvent::make_armageddon_event(CEU_World_get_time(NULL, GLOBAL_CEU_WORLD)));
 
   ceu_sys_go(&CEU_APP, CEU_IN_WORLD_ARMAGEDDON, NULL);
 }
@@ -142,16 +142,10 @@ Server::get_action_holder ()
   return &action_holder;
 }
 
-int
-Server::get_time ()
-{
-  return CEU_World_get_time(NULL, GLOBAL_CEU_WORLD);
-}
-
 void
 Server::send_finish_event()
 {
-  record(ServerEvent::make_finish_event(get_time()));
+  record(ServerEvent::make_finish_event(CEU_World_get_time(NULL, GLOBAL_CEU_WORLD)));
   goal_manager->set_abort_goal();
 }
 

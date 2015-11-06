@@ -48,8 +48,6 @@ public:
 
   PingusLevel get_plf () { return plf; }
 
-  int get_time();
-
   ActionHolder* get_action_holder();
 
   /** @return true if the server is finished and the game can be

@@ -43,12 +43,12 @@ GoalManager::is_finished()
       {
         // we are finished, now wait a few second so that everybody can
         // see the particles, etc.
-        exit_time = server->get_time() + 125;
+        exit_time = CEU_World_get_time(NULL, GLOBAL_CEU_WORLD) + 125;
         return false;
       }
       else
       {
-        return (exit_time < server->get_time());
+        return (exit_time < CEU_World_get_time(NULL, GLOBAL_CEU_WORLD));
       }
 
     default:
@@ -75,7 +75,7 @@ GoalManager::update()
       goal = GT_ARMAGEDDON;
     }
     else if (plf.get_time() != -1
-             && plf.get_time() <= server->get_time())
+             && plf.get_time() <= CEU_World_get_time(NULL, GLOBAL_CEU_WORLD))
     {
       goal = GT_OUT_OF_TIME;
     }

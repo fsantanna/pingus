@@ -196,7 +196,7 @@ DemoSession::update(float delta)
 void
 DemoSession::update_demo()
 {
-  while(!events.empty() && events.back().time_stamp == server->get_time())
+  while(!events.empty() && events.back().time_stamp == CEU_World_get_time(NULL, GLOBAL_CEU_WORLD))
   {
     ServerEvent& event = events.back();
 
@@ -211,7 +211,7 @@ DemoSession::update_demo()
   }
 
   // Check for unexpected things (might happen if the demo file is broken)
-  if (!events.empty() && events.back().time_stamp < server->get_time())
+  if (!events.empty() && events.back().time_stamp < CEU_World_get_time(NULL, GLOBAL_CEU_WORLD))
   {
     log_info("DemoPlayer Bug: We missed a timestamp: %1%", events.back().time_stamp);
   }
@@ -237,7 +237,7 @@ void
 DemoSession::on_fast_forward_press()
 {
   if (0)
-    log_info("Fast Forward Pressed: %1% %2%", events.size(), server->get_time());
+    log_info("Fast Forward Pressed: %1% %2%", events.size(), CEU_World_get_time(NULL, GLOBAL_CEU_WORLD));
 
   fast_forward = !fast_forward;
 }
