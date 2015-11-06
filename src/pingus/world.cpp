@@ -16,16 +16,8 @@
 
 #include "pingus/world.hpp"
 
-World::World(const PingusLevel& plf)
-{
-  tceu__World___PingusLevel_ p = { this, (PingusLevel*)&plf };
-  ceu_sys_go(&CEU_APP, CEU_IN_WORLD_NEW, &p);
-}
-
-World::~World() {
-  void* this_ = this;
-  ceu_sys_go(&CEU_APP, CEU_IN_WORLD_DELETE, &this_);
-}
+World::World(const PingusLevel& plf) { }
+World::~World() {}
 
 /// TODO: move to proper place!
 #include "engine/display/sdl_framebuffer_surface_impl.hpp"

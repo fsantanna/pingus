@@ -35,7 +35,6 @@ class SceneContext;
 
 #include "ceu_vars.h"
 struct CEU_World;
-struct CEU_PinguHolder;
 
 class World
 {
