@@ -19,7 +19,6 @@
 #include "pingus/goal_manager.hpp"
 
 #include "pingus/server.hpp"
-#include "pingus/world.hpp"
 
 GoalManager::GoalManager(Server* s)
   : server(s), goal(GT_NONE), exit_time(0)
@@ -63,8 +62,7 @@ GoalManager::update()
 {
   if (exit_time == 0)
   {
-    World*       world  = server->get_world();
-    CEU_PinguHolder* pingus = CEU_World_get_pingus(NULL,world->ceu);
+    CEU_PinguHolder* pingus = CEU_World_get_pingus(NULL,GLOBAL_CEU_WORLD);
     const PingusLevel& plf    = server->get_plf();
 
     if (pingus->number_of_allowed == pingus->number_of_released
@@ -72,7 +70,7 @@ GoalManager::update()
     {
       goal = GT_NO_PINGUS_IN_WORLD;
     }
-    else if (pingus->number_of_alive == 0 && CEU_World_check_armageddon(NULL,world->ceu))
+    else if (pingus->number_of_alive == 0 && CEU_World_check_armageddon(NULL,GLOBAL_CEU_WORLD))
     {
       goal = GT_ARMAGEDDON;
     }

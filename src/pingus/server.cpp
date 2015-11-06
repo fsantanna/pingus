@@ -91,12 +91,6 @@ Server::~Server ()
     (*demostream) << "(end (time " << get_time() << "))" << std::endl;
 }
 
-World*
-Server::get_world()
-{
-  return world.get();
-}
-
 void
 Server::update()
 {
@@ -151,7 +145,7 @@ Server::get_action_holder ()
 int
 Server::get_time ()
 {
-  return CEU_World_get_time(NULL, get_world()->ceu);
+  return CEU_World_get_time(NULL, GLOBAL_CEU_WORLD);
 }
 
 void

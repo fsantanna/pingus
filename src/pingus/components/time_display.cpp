@@ -43,7 +43,7 @@ TimeDisplay::draw (DrawingContext& gc)
   if (level_time >= 0 || globals::developer_mode)
   {
     // get elapsed time from server
-    int time_value = CEU_World_get_time(NULL, server->get_world()->ceu);
+    int time_value = CEU_World_get_time(NULL, GLOBAL_CEU_WORLD);
 
     if (!globals::developer_mode)
     {

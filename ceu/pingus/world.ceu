@@ -3,6 +3,8 @@
 
 native/pre do
     class Playfield;
+    struct CEU_World;
+    extern CEU_World* GLOBAL_CEU_WORLD;
 end
 
 native do
@@ -82,6 +84,7 @@ class World with
     var _PingusLevel&& plf;
     function (void)=>PinguHolder& get_pingus;
 do
+    _GLOBAL_CEU_WORLD := &&this;
     this.me.ceu = &&this;
     global:world = &&this;
 

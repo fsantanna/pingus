@@ -43,7 +43,7 @@ ArmageddonButton::draw (DrawingContext& gc)
 {
   Vector2i pos(rect.left, rect.top);
 
-  if (CEU_World_check_armageddon(NULL,server->get_world()->ceu))
+  if (CEU_World_check_armageddon(NULL,GLOBAL_CEU_WORLD))
   {
     gc.draw(backgroundhl, pos);
     gc.draw(sprite, pos);

@@ -50,7 +50,6 @@ public:
 
   int get_time();
 
-  World* get_world();
   ActionHolder* get_action_holder();
 
   /** @return true if the server is finished and the game can be
