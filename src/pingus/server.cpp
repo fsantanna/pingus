@@ -98,7 +98,7 @@ Server::get_world()
 void
 Server::update()
 {
-  world->update();
+  ceu_sys_go(&CEU_APP, CEU_IN_WORLD_UPDATE, NULL);
   goal_manager->update();
 }
 
@@ -107,7 +107,7 @@ Server::send_armageddon_event ()
 {
   record(ServerEvent::make_armageddon_event(get_time()));
 
-  world->armageddon();
+  ceu_sys_go(&CEU_APP, CEU_IN_WORLD_ARMAGEDDON, NULL);
 }
 
 void

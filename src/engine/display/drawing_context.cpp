@@ -76,6 +76,7 @@ public:
   }
 };
 
+#include "ceu_vars.h"
 class WorldDrawingRequest : public DrawingRequest
 {
 private:
@@ -91,7 +92,8 @@ public:
   virtual ~WorldDrawingRequest() {}
 
   void render(Framebuffer& fb, const Rect& rect) {
-    world.render(pos.x + rect.left, pos.y + rect.top, fb);
+    tceu__int__int__Framebuffer_ p = {pos.x+rect.left,pos.y+rect.top,&fb};
+    ceu_sys_go(&CEU_APP, CEU_IN_WORLD_RENDER, &p);
   }
 };
 

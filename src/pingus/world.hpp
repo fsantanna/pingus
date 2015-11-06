@@ -45,13 +45,6 @@ private:
 public:
   World(const PingusLevel& level);
   virtual ~World();
-
-/// TEMP
-  void render(int x, int y, Framebuffer& fb);
-
-  void    draw (SceneContext& gc);
-  void    update ();
-  void    armageddon ();
 private:
   World (const World&);
   World& operator= (const World&);

@@ -43,24 +43,7 @@ void Playfield::on_secondary_button_release (int x, int y) { }
 void Playfield::on_key_pressed(const Input::KeyboardEvent& ev) { }
 void Playfield::on_primary_button_press(int x, int y) { }
 void Playfield::on_pointer_move (int x, int y) { }
-
-void
-Playfield::draw(DrawingContext& gc)
-{
-#if 0
-  scene_context->clear();
-
-  state.push(*scene_context);
-  ceu_sys_go(&CEU_APP, CEU_IN_WORLD_DRAW, (void*)&scene_context);
-  state.pop(*scene_context);
-
-  gc.draw(new SceneContextDrawingRequest(scene_context.get(), Vector2i(0,0), -10000));
-#endif
-
-  //gc.push_modelview();
-  //gc.translate(rect.left, rect.top);
-  //gc.pop_modelview();
-}
+void Playfield::draw(DrawingContext& gc) { }
 
 void
 Playfield::scroll (int x, int y)

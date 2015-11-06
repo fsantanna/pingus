@@ -27,21 +27,6 @@ World::~World() {
   ceu_sys_go(&CEU_APP, CEU_IN_WORLD_DELETE, &this_);
 }
 
-void World::draw (SceneContext& gc) { }
-
-void World::render(int x, int y, Framebuffer& fb) {
-  tceu__int__int__Framebuffer_ p = {x,y,&fb};
-  ceu_sys_go(&CEU_APP, CEU_IN_WORLD_RENDER, &p);
-}
-
-void World::update() {
-  ceu_sys_go(&CEU_APP, CEU_IN_WORLD_UPDATE, NULL);
-}
-
-void World::armageddon(void) {
-  ceu_sys_go(&CEU_APP, CEU_IN_WORLD_ARMAGEDDON, NULL);
-}
-
 /// TODO: move to proper place!
 #include "engine/display/sdl_framebuffer_surface_impl.hpp"
 FramebufferSurface* load_framebuffer_sdl_surface(const Pathname& filename, 
