@@ -42,10 +42,9 @@ do
             if this.me.session != null then
                 var IPingu&&? pingu;
                 var float min_dist = 500.0;
-                var float dist;
                 loop p in global:world!:get_pingu_holder().pingus do
                     if (p:is_over(x, y)) then
-                        dist = p:dist(x, y);
+                        var float dist = p:dist(x, y);
                         if (dist < min_dist) then
                             min_dist = dist;
                             pingu = p;

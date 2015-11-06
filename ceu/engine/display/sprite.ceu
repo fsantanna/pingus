@@ -28,13 +28,13 @@ class Sprite with
     var float& x;
     var float& y;
 
-    var Vector2i offset;
-    var Vector2i frame_pos;
-    var Size     frame_size;
+    var Vector2i offset      = Vector2i(0, 0);
+    var Vector2i frame_pos   = Vector2i(0, 0);
+    var Size     frame_size  = Size(0,0);
     var int      frame_delay = 0;
-    var Size     array;
-    var bool     is_loop;
-    var int      frame;
+    var Size     array       = Size(0,0);
+    var bool     is_loop     = false;
+    var int      frame       = 0;
 
     var Rect&?   rect;      /// TODO: for smallmap
 
@@ -45,7 +45,7 @@ class Sprite with
     var char&&                  name    = null;
 do
     var _FramebufferSurface&? framebuffer_surface;
-    do
+    //do
         if surface != null then
             finalize
                 framebuffer_surface =
@@ -93,7 +93,7 @@ do
             };
             this.offset = Vector2i(_vec.x, _vec.y);
         end
-    end
+    //end
 
     var int total_time = this.frame_delay *
                          (this.array.width * this.array.height);

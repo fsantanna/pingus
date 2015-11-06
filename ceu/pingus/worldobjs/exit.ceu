@@ -16,7 +16,7 @@ do
     this.reader:read_vector("position", _p);
     this.pos = Vector3f(_p.x,_p.y,_p.z);
 
-    var int owner_id;
+    var int owner_id=0;
     this.reader:read_int("owner-id", owner_id);
     // Set default owner ID to 0
     if (owner_id < 0 or owner_id > 3) then

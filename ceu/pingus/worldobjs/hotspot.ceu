@@ -16,7 +16,7 @@ do
                         pos_offset.y + _p.y,
                         pos_offset.z + _p.z);
 
-    var float para;
+    var float para=0;
     this.reader:read_float("parallax", para);
 
     /* Background image */

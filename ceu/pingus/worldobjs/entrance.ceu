@@ -24,7 +24,7 @@ do
                         pos_offset.y + _p.y,
                         pos_offset.z + _p.z);
 
-    var int owner_id;
+    var int owner_id=0;
     this.reader:read_int("owner-id", owner_id);
     // Set default owner ID to 0
     if (owner_id < 0 or owner_id > 3) then

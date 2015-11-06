@@ -41,7 +41,7 @@ do
     // Start a bash even so the action will stops instantly after the
     // first bash
     this.bash();
-    var int bash_reach; // set in bash
+    var int? bash_reach; // set in bash
 
     /* UPDATE */
     var bool is_first_bash = true;
@@ -130,7 +130,7 @@ do
 
     function (void)=>bool have_something_to_dig do
         // Check that there is something "within" the Basher's reach
-        loop x in this.bash_reach+1 do
+        loop x in this.bash_reach!+1 do
             loop i in (BASHER_MAX_BASH_HEIGHT-BASHER_MIN_BASH_HEIGHT+1) do
                 var int y = BASHER_MIN_BASH_HEIGHT + i;
                 if this.pingu.rel_getpixel(x, y) == {Groundtype::GP_GROUND} then

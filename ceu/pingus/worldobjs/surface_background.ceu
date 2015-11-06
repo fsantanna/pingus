@@ -42,7 +42,7 @@ do
     /* The vertical scrolling speed in pixels per tick */
     var float scroll_oy = 0;
 
-    do
+    //do
         { static Vector3f p; };
         if this.reader:read_vector("position", _p) then
             this.pos = Vector3f(_p.x,_p.y,_p.z);
@@ -69,7 +69,7 @@ do
         this.reader:read_bool("keep-aspect", this.keep_aspect);
 
         //_assert((not stretch_x) and (not stretch_y) and (color.a == 0));
-    end
+    //end
 
     /* Background image */
     // FIXME: would be nice to allow surface manipulation with
@@ -115,8 +115,8 @@ do
         end
     with
         every gc in WORLD_DRAW do
-            var int offset_x;
-            var int offset_y;
+            var int offset_x=0;
+            var int offset_y=0;
             do
                 var _Vector2i offset = gc:color().world_to_screen(_Vector2i(0,0));
                  offset_x = offset.x - gc:color().get_rect().left;

@@ -18,8 +18,8 @@ native do
     ##define XXX_PURE(x) x
     ##define XXX_NOHOLD(x) x
     ##define XXX_PTR2REF(x) x
-    ##define THIS(tp) ((tp*)_STK_ORG)
-    ##define THIS_F(tp) ((tp*)__ceu_org)
+    ##define THIS(tp) ((tp*)_ceu_org)
+    ##define THIS_F(tp) ((tp*)__ceu_this)
 end
 native @pure _Resource__load_sprite_desc(), _Pathname();
 native @plain _std__string, _Vector3f, _Vector2i, _Color, _Rect;
