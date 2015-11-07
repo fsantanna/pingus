@@ -5,6 +5,7 @@ native/pre do
     class Playfield;
     struct CEU_World;
     extern CEU_World* GLOBAL_CEU_WORLD;
+    ##include "engine/display/graphic_context_state.hpp"
 end
 
 native do
@@ -12,6 +13,7 @@ native do
     ##include "pingus/ground_map.hpp"
     extern Playfield* GLOBAL_PLAYFIELD;
     extern CollisionMap* GLOBAL_WORLD_COLMAP;
+    extern GraphicContextState* GLOBAL_WORLD_STATE;
 end
 native @plain _Playfield, _SmallMap, _SceneContext, _GroundMap;
 
@@ -63,7 +65,7 @@ do
         // Playfield
         every gc in SCREENMANAGER_DRAW do
             _GLOBAL_PLAYFIELD:scene_context:clear();
-            _GLOBAL_PLAYFIELD:state.push(*_GLOBAL_PLAYFIELD:scene_context);
+            _GLOBAL_WORLD_STATE:push(*_GLOBAL_PLAYFIELD:scene_context);
 
             _GLOBAL_PLAYFIELD:scene_context:light().fill_screen(
                 _Color(ambient_light.r,
@@ -94,6 +96,19 @@ do
     end
     _GLOBAL_WORLD_COLMAP = _XXX_PURE(gfx_map!.get_colmap());
 
+    var _GraphicContextState&? state;
+    finalize
+        state = &{new GraphicContextState}(
+                    {Math::min}({Display::get_width()},  this.get_width()),
+                    {Math::min}({Display::get_height()}, this.get_height()));
+    with
+        _delete(&&state!);
+    end
+    this.state!.set_limit(_Rect(_Vector2i(0, 0),
+                       _Size(this.get_width(),
+                             this.get_height())));
+    _GLOBAL_WORLD_STATE = _XXX_PURE(&&this.state!);
+
     var int game_time = 0;
     var WorldFirst _ with
         this.world     = &outer;
@@ -123,6 +138,7 @@ await SDL_DT;   // TODO: World is created before Playfield in C++
         this.pingu_holder = &pingu_holder;
         this.me           = &playfield_!;
     end;
+    this.state!.set_pos(this.get_start_pos(0));
 
     var Rect rect = Rect(6,{Display::get_size}().height-105, 175,100);
         // TODO: height originally comes from Screen/GUIScreen/SmallMap
@@ -178,7 +194,7 @@ await SDL_DT;   // TODO: World is created before Playfield in C++
     with
         // Playfield
         every gc in SCREENMANAGER_DRAW do
-            _GLOBAL_PLAYFIELD:state.pop(*_GLOBAL_PLAYFIELD:scene_context);
+            this.state!.pop(*_GLOBAL_PLAYFIELD:scene_context);
             gc:draw({new SceneContextDrawingRequest}(
                 _GLOBAL_PLAYFIELD:scene_context.get(),
                 _Vector2i(0,0),

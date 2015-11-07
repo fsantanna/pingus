@@ -29,7 +29,6 @@ Playfield::Playfield(Server* server_, GameSession* session_, const Rect& rect_) 
   server(server_),
   session(session_),
   scene_context(new SceneContext(rect_)),
-  state(rect_.get_width(), rect_.get_height()),
   clipping_rectangles(),
   mouse_pos()
 {

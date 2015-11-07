@@ -40,21 +40,13 @@ public:
   Server* server;
   GameSession* session;
   CEU_Playfield* ceu;
-
   int  scroll_speed;
-
-
   std::unique_ptr<SceneContext> scene_context;
-  GraphicContextState state;
-
   std::vector<Rect> clipping_rectangles;
-
   Vector2i mouse_pos;
 
-public:
   Playfield(Server*, GameSession*, const Rect& rect);
   virtual ~Playfield();
-
   void scroll (int x, int y);
 
   void draw(DrawingContext& gc);
