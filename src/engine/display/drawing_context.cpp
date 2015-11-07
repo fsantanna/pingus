@@ -25,7 +25,7 @@
 #include "util/log.hpp"
 
 ///
-#include "pingus/world.hpp"
+#include "pingus/components/playfield.hpp"
 
 struct DrawingRequestsSorter
 {
@@ -77,19 +77,19 @@ public:
 };
 
 #include "ceu_vars.h"
-class WorldDrawingRequest : public DrawingRequest
+class PlayfieldDrawingRequest : public DrawingRequest
 {
 private:
-  World& world;
+  Playfield& playfield;
 
 public:
-  WorldDrawingRequest(World& world_, const Vector2i& pos_, float z_)
+  PlayfieldDrawingRequest(Playfield& playfield_, const Vector2i& pos_, float z_)
     : DrawingRequest(pos_, z_),
-      world(world_)
+      playfield(playfield_)
   {
   }
 
-  virtual ~WorldDrawingRequest() {}
+  virtual ~PlayfieldDrawingRequest() {}
 
   void render(Framebuffer& fb, const Rect& rect) {
     tceu__int__int__Framebuffer_ p = {pos.x+rect.left,pos.y+rect.top,&fb};
@@ -270,9 +270,9 @@ DrawingContext::draw(DrawingContext& dc, float z)
 }
 
 void
-DrawingContext::draw(World& world, const Vector2i& pos, float z)
+DrawingContext::draw(Playfield& playfield, const Vector2i& pos, float z)
 {
-  draw(new WorldDrawingRequest(world, pos + translate_stack.back(), z));
+  draw(new PlayfieldDrawingRequest(playfield, pos + translate_stack.back(), z));
 }
 
 void
