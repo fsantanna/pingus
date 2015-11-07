@@ -33,6 +33,8 @@
 
 #include "ceu_vars.h"
 
+Server* GLOBAL_SERVER = NULL;
+GameSession* GLOBAL_SESSION = NULL;
 Playfield* GLOBAL_PLAYFIELD = NULL;
 CEU_World* GLOBAL_CEU_WORLD = NULL;
 CollisionMap* GLOBAL_WORLD_COLMAP = NULL;
@@ -56,7 +58,10 @@ GameSession::GameSession(const PingusLevel& arg_plf, bool arg_show_result_screen
   fast_forward(false),
   single_step(false)
 {
+  GLOBAL_SESSION = this;
+
   server = std::unique_ptr<Server>(new Server(plf, true));
+  GLOBAL_SERVER = server.get();
 
   // the world is initially on time
   world_delay = 0;
@@ -70,16 +75,7 @@ GameSession::GameSession(const PingusLevel& arg_plf, bool arg_show_result_screen
 
   void* p = &get_server()->plf;
   ceu_sys_go(&CEU_APP, CEU_IN_WORLD_NEW, &p);
-
-  int world_width  = CEU_World_get_width(NULL, GLOBAL_CEU_WORLD);
-  int world_height = CEU_World_get_height(NULL, GLOBAL_CEU_WORLD);
-
-  playfield    = new Playfield(get_server(), this,
-                               Rect(Vector2i(Math::max((Display::get_width()  - world_width)/2,  0),
-                                             Math::max((Display::get_height() - world_height)/2, 0)),
-                                    Size(Math::min(Display::get_width(),  world_width),
-                                         Math::min(Display::get_height(), world_height))));
-GLOBAL_PLAYFIELD = playfield;
+  playfield = GLOBAL_PLAYFIELD;
 
   pcounter     = new PingusCounter(get_server());
   time_display = new TimeDisplay(this);

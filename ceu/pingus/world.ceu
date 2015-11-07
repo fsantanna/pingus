@@ -11,6 +11,8 @@ end
 native do
     ##include "src/pingus/components/playfield.hpp"
     ##include "pingus/ground_map.hpp"
+    extern GameSession* GLOBAL_SESSION;
+    extern Server* GLOBAL_SERVER;
     extern Playfield* GLOBAL_PLAYFIELD;
     extern CollisionMap* GLOBAL_WORLD_COLMAP;
     extern GraphicContextState* GLOBAL_WORLD_STATE;
@@ -130,6 +132,19 @@ do
     end
     _GLOBAL_WORLD_SCENE_CONTEXT = _XXX_PURE(&&this.scene_context!);
 
+    _GLOBAL_PLAYFIELD = _XXX_PURE({new Playfield}(_GLOBAL_SERVER, _GLOBAL_SESSION,
+            {Rect}(
+                {Vector2i}(
+                    {Math::max}(
+                        ({Display::get_width()}-this.get_width())/2,
+                        0),
+                    {Math::max}(
+                        ({Display::get_height()}-this.get_height())/2,
+                        0)
+                ),
+                {Size}(
+                    {Math::min}({Display::get_width()},  this.get_width()),
+                    {Math::min}({Display::get_height()}, this.get_height())))));
 
     var int game_time = 0;
     var WorldFirst _ with
@@ -151,9 +166,6 @@ do
     var PinguHolder pingu_holder with
         this.number_of_allowed = plf:get_number_of_pingus();
     end;
-
-/// TODO
-await SDL_DT;   // TODO: World is created before Playfield in C++
 
     var _Playfield&? playfield_ := &_XXX_PURE(_GLOBAL_PLAYFIELD);
     var Playfield playfield with
