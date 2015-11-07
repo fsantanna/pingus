@@ -8,17 +8,15 @@ native/pre do
 end
 
 native do
-    ##include "src/pingus/world.hpp"
     ##include "src/pingus/components/playfield.hpp"
     ##include "pingus/ground_map.hpp"
     extern Playfield* GLOBAL_PLAYFIELD;
     extern CollisionMap* GLOBAL_WORLD_COLMAP;
 end
-native @plain _World;
 native @plain _Playfield, _SmallMap, _SceneContext, _GroundMap;
 
-input (_World&&, _PingusLevel&&) WORLD_NEW;
-input (_World&&) WORLD_DELETE;
+input (_void&&, _PingusLevel&&) WORLD_NEW;
+input (_void&&) WORLD_DELETE;
 input void WORLD_UPDATE;
 input void WORLD_ARMAGEDDON;
 
@@ -86,7 +84,6 @@ class World with
     function (void)=>PinguHolder&  get_pingus;
 do
     _GLOBAL_CEU_WORLD := &&this;
-    this.me.ceu = &&this;
     global:world = &&this;
 
     var _GroundMap&? gfx_map;
@@ -140,8 +137,6 @@ await SDL_DT;   // TODO: World is created before Playfield in C++
     var bool in_armageddon = false;
 
     par/or do
-        AWAIT_UNTIL_MYSELF(_World, WORLD_DELETE);
-    with
         every (x_,y_) in this.create_pingu_particles do
             loop i in 50 do
                 spawn PinguParticle with
@@ -270,7 +265,6 @@ class WorldFactory with
 do
     every (me_,plf_) in WORLD_NEW do
         spawn World with
-            this.me  = &_XXX_PTR2REF(me_);
             this.plf = plf_;
         end;
     end

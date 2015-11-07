@@ -32,10 +32,9 @@ do
             // Move to the destination one unit vector at a time
             loop i in move_length do
                 collided = {Colliders::PinguCollider(pingu_height)}( 
-                                &&global:world!:me,     // @nohold
+                                null,
                                 _pos,
-                                _step_vector)
-                                    finalize with nothing; end;
+                                _step_vector);
                 _pos = _pos + _step_vector;
                 if collided then
                     break;

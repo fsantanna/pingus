@@ -73,12 +73,11 @@ static std::unique_ptr<std::ostream> get_demostream(const PingusLevel& plf)
 
 Server::Server(const PingusLevel& arg_plf, bool record_demo) :
   plf(arg_plf),
-  world(new World (plf)),
   action_holder (plf),
   goal_manager(new GoalManager(this)),
   demostream()
 {
-  tceu__World___PingusLevel_ p = { world.get(), (PingusLevel*)&plf };
+  tceu__void___PingusLevel_ p = { NULL, (PingusLevel*)&plf };
   ceu_sys_go(&CEU_APP, CEU_IN_WORLD_NEW, &p);
   if (record_demo)
   {

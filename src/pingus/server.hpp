@@ -23,7 +23,6 @@
 #include <memory>
 
 class Pingu;
-class World;
 class DemoRecorder;
 class GoalManager;
 
@@ -32,7 +31,6 @@ class Server
 {
 protected:
   PingusLevel plf;
-  std::unique_ptr<World> world;
 
   /** Manager class for the number of available actions */
   ActionHolder action_holder;

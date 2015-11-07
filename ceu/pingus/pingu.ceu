@@ -11,7 +11,16 @@ end
 native @nohold _GC_COLOR_DRAW();
 
 native/pre do
-    ##include "../src/pingus/world.hpp"
+    class Vector3f;
+    class GroundMap;
+    class PinguHolder;
+    class PingusLevel;
+    class CollisionMap;
+    class Pingu;
+    class SmallMap;
+    class SceneContext;
+    ##include "pingus/collision_mask.hpp"
+    ##include "../src/pingus/groundtype.hpp"
     ##include "../src/pingus/action_name.hpp"
 end
 

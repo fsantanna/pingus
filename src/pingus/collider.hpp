@@ -18,7 +18,6 @@
 #define HEADER_PINGUS_PINGUS_COLLIDER_HPP
 
 class Vector3f;
-class World;
 
 class Collider
 {
@@ -30,13 +29,13 @@ public:
   virtual ~Collider() = 0;
 
   /** Find out if object will collide with something */
-  virtual bool operator() (World* const world, Vector3f current_pos,
+  virtual bool operator() (void* const _TODO, Vector3f current_pos,
                            const Vector3f& step_vector) const = 0;
 
 protected:
   /** Get the Collision Map pixel at the specified position in the specified
       world */
-  int getpixel(World* const world, const Vector3f& pos) const;
+  int getpixel(void* const _TODO, const Vector3f& pos) const;
 };
 
 #endif
