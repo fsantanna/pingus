@@ -66,6 +66,9 @@ GameSession::GameSession(const PingusLevel& arg_plf, bool arg_show_result_screen
   // These object will get deleted by the gui_manager
   button_panel = new ButtonPanel(get_server(), Vector2i(0, (size.height - 150)/2));
 
+  void* p = &get_server()->plf;
+  ceu_sys_go(&CEU_APP, CEU_IN_WORLD_NEW, &p);
+
   int world_width  = CEU_World_get_width(NULL, GLOBAL_CEU_WORLD);
   int world_height = CEU_World_get_height(NULL, GLOBAL_CEU_WORLD);
 

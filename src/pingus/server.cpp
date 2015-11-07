@@ -77,8 +77,6 @@ Server::Server(const PingusLevel& arg_plf, bool record_demo) :
   goal_manager(new GoalManager(this)),
   demostream()
 {
-  void* p = &plf;
-  ceu_sys_go(&CEU_APP, CEU_IN_WORLD_NEW, &p);
   if (record_demo)
   {
     demostream = get_demostream(plf);

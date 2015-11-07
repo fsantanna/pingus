@@ -29,7 +29,7 @@ class GoalManager;
 /** A abstract server-like class */
 class Server
 {
-protected:
+public:
   PingusLevel plf;
 
   /** Manager class for the number of available actions */
