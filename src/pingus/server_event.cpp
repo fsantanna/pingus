@@ -17,7 +17,6 @@
 #include <boost/format.hpp>
 
 #include "pingus/server.hpp"
-#include "pingus/world.hpp"
 #include "util/file_reader.hpp"
 #include "util/log.hpp"
 #include "util/raise_exception.hpp"

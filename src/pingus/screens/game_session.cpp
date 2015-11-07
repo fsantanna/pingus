@@ -29,7 +29,6 @@
 #include "pingus/globals.hpp"
 #include "pingus/savegame_manager.hpp"
 #include "pingus/screens/result_screen.hpp"
-#include "pingus/world.hpp"
 #include "util/log.hpp"
 
 #include "ceu_vars.h"

@@ -19,7 +19,8 @@
 #include "engine/display/drawing_context.hpp"
 #include "pingus/screens/game_session.hpp"
 #include "pingus/server.hpp"
-#include "pingus/world.hpp"
+
+#include "ceu_vars.h"
 
 ArmageddonButton::ArmageddonButton(Server* s, int x, int y) :
   RectComponent(Rect(Vector2i(x, y), Size(38, 60))),

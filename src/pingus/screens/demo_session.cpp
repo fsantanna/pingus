@@ -28,8 +28,9 @@
 #include "pingus/components/button_panel.hpp"
 #include "pingus/pingus_demo.hpp"
 #include "pingus/server.hpp"
-#include "pingus/world.hpp"
 #include "util/log.hpp"
+
+#include "ceu_vars.h"
 
 static bool false_func() { return false; }
 

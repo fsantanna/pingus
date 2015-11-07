@@ -20,10 +20,11 @@
 #include <time.h>
 
 #include "pingus/goal_manager.hpp"
-#include "pingus/world.hpp"
 #include "util/log.hpp"
 #include "util/sexpr_file_writer.hpp"
 #include "util/system.hpp"
+
+#include "ceu_vars.h"
 
 static std::string get_date_string ()
 {

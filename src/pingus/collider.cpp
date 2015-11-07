@@ -18,7 +18,8 @@
 
 #include "math/vector3f.hpp"
 #include "pingus/collision_map.hpp"
-#include "pingus/world.hpp"
+
+#include "ceu_vars.h"
 
 Collider::Collider()
 {

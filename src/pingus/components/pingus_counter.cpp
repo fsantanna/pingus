@@ -20,7 +20,6 @@
 #include "pingus/fonts.hpp"
 #include "pingus/gettext.h"
 #include "pingus/server.hpp"
-#include "pingus/world.hpp"
 
 #include "ceu_vars.h"
 
