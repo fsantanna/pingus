@@ -215,7 +215,7 @@ do
 
     function (void)=>void update_layout do
         _GLOBAL_WORLD_STATE:set_size(this.me.rect.get_width(), this.me.rect.get_height());
-        this.me.scene_context:set_rect(this.me.rect);
+        _GLOBAL_WORLD_SCENE_CONTEXT:set_rect(this.me.rect);
     end
 end
 

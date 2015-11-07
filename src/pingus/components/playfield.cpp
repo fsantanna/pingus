@@ -28,7 +28,6 @@ Playfield::Playfield(Server* server_, GameSession* session_, const Rect& rect_) 
   RectComponent(rect_),
   server(server_),
   session(session_),
-  scene_context(new SceneContext(rect_)),
   clipping_rectangles(),
   mouse_pos()
 {
@@ -46,15 +45,12 @@ void Playfield::draw(DrawingContext& gc) { }
 void
 Playfield::scroll (int x, int y)
 {
-  //state.set_pos(state.get_pos() + Vector2i(x, y));
   CEU_Playfield_scroll(&CEU_APP, this->ceu, x, y);
 }
 
 void
 Playfield::update_layout()
 {
-  //state.set_size(rect.get_width(), rect.get_height());
-  //scene_context->set_rect(rect);
   CEU_Playfield_update_layout(&CEU_APP, this->ceu);
 }
 

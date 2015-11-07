@@ -41,7 +41,6 @@ public:
   GameSession* session;
   CEU_Playfield* ceu;
   int  scroll_speed;
-  std::unique_ptr<SceneContext> scene_context;
   std::vector<Rect> clipping_rectangles;
   Vector2i mouse_pos;
 

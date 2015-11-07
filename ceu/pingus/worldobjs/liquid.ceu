@@ -53,7 +53,7 @@ do
                     break;
                 end
                 x = x + this.sprite.get_width();
-                _GLOBAL_PLAYFIELD:scene_context:color().draw(this.sprite, _Vector3f((float)(x), this.pos.y));
+                _GLOBAL_WORLD_SCENE_CONTEXT:color().draw(this.sprite, _Vector3f((float)(x), this.pos.y));
             end
         end
     end

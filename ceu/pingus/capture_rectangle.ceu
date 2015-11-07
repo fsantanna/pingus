@@ -120,7 +120,7 @@ do
             var IPingu&& pingu = this.playfield.current_pingu!;
 
             if ({ActionName::CATCHABLE}[pingu:current_action]) then
-                _GLOBAL_PLAYFIELD:scene_context:color().print_center(
+                _GLOBAL_WORLD_SCENE_CONTEXT:color().print_center(
                             {Fonts::courier_small},
                             _Vector2i((int)(pingu:get_center_pos().x),
                                       (int)(pingu:get_center_pos().y - 46)),

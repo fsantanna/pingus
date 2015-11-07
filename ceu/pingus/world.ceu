@@ -14,6 +14,7 @@ native do
     extern Playfield* GLOBAL_PLAYFIELD;
     extern CollisionMap* GLOBAL_WORLD_COLMAP;
     extern GraphicContextState* GLOBAL_WORLD_STATE;
+    extern SceneContext* GLOBAL_WORLD_SCENE_CONTEXT;
 end
 native @plain _Playfield, _SmallMap, _SceneContext, _GroundMap;
 
@@ -64,16 +65,16 @@ do
     with
         // Playfield
         every gc in SCREENMANAGER_DRAW do
-            _GLOBAL_PLAYFIELD:scene_context:clear();
-            _GLOBAL_WORLD_STATE:push(*_GLOBAL_PLAYFIELD:scene_context);
+            _GLOBAL_WORLD_SCENE_CONTEXT:clear();
+            _GLOBAL_WORLD_STATE:push(*_GLOBAL_WORLD_SCENE_CONTEXT);
 
-            _GLOBAL_PLAYFIELD:scene_context:light().fill_screen(
+            _GLOBAL_WORLD_SCENE_CONTEXT:light().fill_screen(
                 _Color(ambient_light.r,
                        ambient_light.g,
                        ambient_light.b,
                        ambient_light.a));
-            gfx_map.draw(*_GLOBAL_PLAYFIELD:scene_context);
-            _GLOBAL_PLAYFIELD:scene_context:color().draw(*_GLOBAL_PLAYFIELD, _Vector2i(0,0));
+            gfx_map.draw(*_GLOBAL_WORLD_SCENE_CONTEXT);
+            _GLOBAL_WORLD_SCENE_CONTEXT:color().draw(*_GLOBAL_PLAYFIELD, _Vector2i(0,0));
         end
     end
 end
@@ -108,6 +109,27 @@ do
                        _Size(this.get_width(),
                              this.get_height())));
     _GLOBAL_WORLD_STATE = _XXX_PURE(&&this.state!);
+
+    var _SceneContext&? scene_context;
+    finalize
+        scene_context = &{new SceneContext}(
+            {Rect}(
+                {Vector2i}(
+                    {Math::max}(
+                        ({Display::get_width()}-this.get_width())/2,
+                        0),
+                    {Math::max}(
+                        ({Display::get_height()}-this.get_height())/2,
+                        0)
+                ),
+                {Size}(
+                    {Math::min}({Display::get_width()},  this.get_width()),
+                    {Math::min}({Display::get_height()}, this.get_height()))));
+    with
+        _delete(&&scene_context!);
+    end
+    _GLOBAL_WORLD_SCENE_CONTEXT = _XXX_PURE(&&this.scene_context!);
+
 
     var int game_time = 0;
     var WorldFirst _ with
@@ -194,11 +216,14 @@ await SDL_DT;   // TODO: World is created before Playfield in C++
     with
         // Playfield
         every gc in SCREENMANAGER_DRAW do
-            this.state!.pop(*_GLOBAL_PLAYFIELD:scene_context);
-            gc:draw({new SceneContextDrawingRequest}(
-                _GLOBAL_PLAYFIELD:scene_context.get(),
-                _Vector2i(0,0),
-                -10000));
+            this.state!.pop(this.scene_context!);
+            gc:draw(
+                {new SceneContextDrawingRequest}(
+                    &&this.scene_context!,
+                    _Vector2i(0,0),
+                    -10000)
+                    finalize with nothing; end
+            );
         end
     end
 
