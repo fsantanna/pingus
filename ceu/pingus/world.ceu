@@ -15,8 +15,7 @@ native do
 end
 native @plain _Playfield, _SmallMap, _SceneContext, _GroundMap;
 
-input (_void&&, _PingusLevel&&) WORLD_NEW;
-input (_void&&) WORLD_DELETE;
+input _PingusLevel&& WORLD_NEW;
 input void WORLD_UPDATE;
 input void WORLD_ARMAGEDDON;
 
@@ -263,7 +262,7 @@ end
 
 class WorldFactory with
 do
-    every (me_,plf_) in WORLD_NEW do
+    every plf_ in WORLD_NEW do
         spawn World with
             this.plf = plf_;
         end;
