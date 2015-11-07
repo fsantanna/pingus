@@ -47,14 +47,16 @@ void Playfield::draw(DrawingContext& gc) { }
 void
 Playfield::scroll (int x, int y)
 {
-  state.set_pos(state.get_pos() + Vector2i(x, y));
+  //state.set_pos(state.get_pos() + Vector2i(x, y));
+  CEU_Playfield_scroll(&CEU_APP, this->ceu, x, y);
 }
 
 void
 Playfield::update_layout()
 {
-  state.set_size(rect.get_width(), rect.get_height());
-  scene_context->set_rect(rect);
+  //state.set_size(rect.get_width(), rect.get_height());
+  //scene_context->set_rect(rect);
+  CEU_Playfield_update_layout(&CEU_APP, this->ceu);
 }
 
 /* EOF */

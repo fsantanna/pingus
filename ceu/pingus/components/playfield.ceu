@@ -24,7 +24,10 @@ class Playfield with
 
     function (void)=>Vector2i get_pos;
     function (int x, int y)=>void set_viewpoint;
+    function (int x, int y)=>void scroll;
+    function (void)=>void update_layout;
 do
+    this.me.ceu = &&this;
     this.me.state.set_limit(_Rect(_Vector2i(0, 0),
                        _Size(global:world!:get_width(),
                              global:world!:get_height())));
@@ -212,12 +215,14 @@ do
         this.me.state.set_pos(_Vector2i(x, y));
     end
 
-#if 0
-NOT PORTED
-    void Playfield::scroll (int x, int y) {
-        state.set_pos(state.get_pos() + Vector2i(x, y));
-    }
-#endif
+    function (int x, int y)=>void scroll do
+        this.me.state.set_pos(this.me.state.get_pos() + _Vector2i(x, y));
+    end
+
+    function (void)=>void update_layout do
+        this.me.state.set_size(this.me.rect.get_width(), this.me.rect.get_height());
+        this.me.scene_context:set_rect(this.me.rect);
+    end
 end
 
 #endif

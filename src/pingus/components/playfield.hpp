@@ -30,12 +30,16 @@ class ButtonPanel;
 class Controller;
 class View;
 
+#include "ceu_vars.h"
+struct CEU_Playfield;
+
 /** This class encapsulates all the different Views */
 class Playfield : public GUI::RectComponent
 {
 public:
   Server* server;
   GameSession* session;
+  CEU_Playfield* ceu;
 
   int  scroll_speed;
 
