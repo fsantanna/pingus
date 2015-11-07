@@ -40,7 +40,6 @@ class World
 {
 private:
   CEU_World* ceu;
-  CollisionMap*  colmap;
 public:
   World(const PingusLevel& level);
   virtual ~World();

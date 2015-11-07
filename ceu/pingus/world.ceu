@@ -12,6 +12,7 @@ native do
     ##include "src/pingus/components/playfield.hpp"
     ##include "pingus/ground_map.hpp"
     extern Playfield* GLOBAL_PLAYFIELD;
+    extern CollisionMap* GLOBAL_CEU_WORLD_COLMAP;
 end
 native @plain _World;
 native @plain _Playfield, _SmallMap, _SceneContext, _GroundMap;
@@ -82,7 +83,7 @@ class World with
     interface IWorld;
 
     var _PingusLevel&& plf;
-    function (void)=>PinguHolder& get_pingus;
+    function (void)=>PinguHolder&  get_pingus;
 do
     _GLOBAL_CEU_WORLD := &&this;
     this.me.ceu = &&this;
@@ -95,7 +96,7 @@ do
     with
         _delete(&&gfx_map!);
     end
-    this.me.colmap  = gfx_map!.get_colmap();
+    _GLOBAL_CEU_WORLD_COLMAP = _XXX_PURE(gfx_map!.get_colmap());
 
     var int game_time = 0;
     var WorldFirst _ with
