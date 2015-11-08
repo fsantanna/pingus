@@ -41,7 +41,6 @@ do
         end
     with
         every gc in SCREENMANAGER_DRAW do
-#if 0
             var int of_x = this.playfield.get_pos().x;
             var int of_y = this.playfield.get_pos().y;
             {
@@ -85,7 +84,6 @@ do
                             / (float)(global:world!:get_height())));
                 gc:draw_line(_Vector2i(x, y), _Vector2i(x, y-2), _Color(255, 255, 0));
             end
-#endif
         end
     end
 
