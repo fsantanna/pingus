@@ -1,0 +1,24 @@
+#ifndef _GAME_SESSION_CEU
+#define _GAME_SESSION_CEU
+
+input (_GameSession&&, _PingusLevel&&, bool) GAME_SESSION_NEW;
+
+class GameSession with
+    var _GameSession&& me;
+    var _PingusLevel&& plf;
+    var bool show_result_screen;
+do
+end
+
+class GameSessionFactory with
+do
+    every (me_,plf_) in GAME_SESSION_NEW do
+        spawn World with
+            this.me  = &_XXX_PTR2REF(me_);
+            this.plf = plf_;
+        end;
+    end
+end
+var WorldFactory _;
+
+#endif
