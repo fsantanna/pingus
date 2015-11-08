@@ -52,6 +52,8 @@ end
 class World with
     interface IWorld;
 
+    var IScreen& screen;
+
     var _PingusLevel&& plf;
     function (void)=>PinguHolder&  get_pingus;
 do
@@ -67,39 +69,6 @@ do
     end
     _GLOBAL_WORLD_COLMAP = _XXX_PURE(gfx_map!.get_colmap());
 
-    var _GraphicContextState&? state;
-    finalize
-        state = &{new GraphicContextState}(
-                    {Math::min}({Display::get_width()},  this.get_width()),
-                    {Math::min}({Display::get_height()}, this.get_height()));
-    with
-        _delete(&&state!);
-    end
-    this.state!.set_limit(_Rect(_Vector2i(0, 0),
-                       _Size(this.get_width(),
-                             this.get_height())));
-    _GLOBAL_WORLD_STATE = _XXX_PURE(&&this.state!);
-
-    var _SceneContext&? scene_context;
-    finalize
-        scene_context = &{new SceneContext}(
-            {Rect}(
-                {Vector2i}(
-                    {Math::max}(
-                        ({Display::get_width()}-this.get_width())/2,
-                        0),
-                    {Math::max}(
-                        ({Display::get_height()}-this.get_height())/2,
-                        0)
-                ),
-                {Size}(
-                    {Math::min}({Display::get_width()},  this.get_width()),
-                    {Math::min}({Display::get_height()}, this.get_height()))));
-    with
-        _delete(&&scene_context!);
-    end
-    _GLOBAL_WORLD_SCENE_CONTEXT = _XXX_PURE(&&this.scene_context!);
-
     var int game_time = 0;
     var Color ambient_light = Color(this.plf:get_ambient_light().r,
                                     this.plf:get_ambient_light().g,
@@ -113,16 +82,16 @@ do
         with
             // Playfield
             every gc in SCREENMANAGER_DRAW do
-                this.scene_context!.clear();
-                this.state!.push(this.scene_context!);
+                this.screen.get_scene_context().clear();
+                this.screen.get_state().push(*_GLOBAL_WORLD_SCENE_CONTEXT);
 
-                this.scene_context!.light().fill_screen(
+                _GLOBAL_WORLD_SCENE_CONTEXT:light().fill_screen(
                     _Color(ambient_light.r,
                            ambient_light.g,
                            ambient_light.b,
                            ambient_light.a));
-                this.gfx_map!.draw(this.scene_context!);
-                this.scene_context!.color().draw(*_GLOBAL_PLAYFIELD, _Vector2i(0,0));
+                this.gfx_map!.draw(*_GLOBAL_WORLD_SCENE_CONTEXT);
+                _GLOBAL_WORLD_SCENE_CONTEXT:color().draw(*_GLOBAL_PLAYFIELD, _Vector2i(0,0));
             end
         end
     end
@@ -145,7 +114,7 @@ do
         this.pingu_holder = &pingu_holder;
         this.me           = &playfield_!;
     end;
-    this.state!.set_pos(this.get_start_pos(0));
+    _GLOBAL_WORLD_STATE:set_pos(this.get_start_pos(0));
 
     var Rect rect = Rect(6,{Display::get_size}().height-105, 175,100);
         // TODO: height originally comes from Screen/GUIScreen/SmallMap
@@ -201,13 +170,12 @@ do
     with
         // Playfield
         every gc in SCREENMANAGER_DRAW do
-            this.state!.pop(this.scene_context!);
+            _GLOBAL_WORLD_STATE:pop(*_GLOBAL_WORLD_SCENE_CONTEXT);
             gc:draw(
                 {new SceneContextDrawingRequest}(
-                    &&this.scene_context!,
+                    _GLOBAL_WORLD_SCENE_CONTEXT,
                     _Vector2i(0,0),
                     -10000)
-                    finalize with nothing; end
             );
         end
     end
