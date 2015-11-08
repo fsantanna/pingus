@@ -160,7 +160,7 @@ end
 
 var IWorld&&? world;
 
-#include "pingus/world.ceu"
+#include "pingus/screens/game_session.ceu"
 
 every 1s do
     var int e = 0;

@@ -20,7 +20,6 @@ native do
 end
 native @plain _Playfield, _SmallMap, _SceneContext, _GroundMap;
 
-input _PingusLevel&& WORLD_NEW;
 input void WORLD_UPDATE;
 input void WORLD_ARMAGEDDON;
 
@@ -49,37 +48,6 @@ end
 #include "worldobjs/surface_background.ceu"
 
 #include "worldobj_factory.ceu"
-
-class WorldFirst with
-    var IWorld&        world;
-    var _PingusLevel&& plf;
-    var _GroundMap&    gfx_map;
-    var int&           game_time;
-do
-    var Color ambient_light = Color(plf:get_ambient_light().r,
-                                    plf:get_ambient_light().g,
-                                    plf:get_ambient_light().b,
-                                    plf:get_ambient_light().a);
-    par do
-        every WORLD_UPDATE do
-            this.game_time = this.game_time + 1;
-        end
-    with
-        // Playfield
-        every gc in SCREENMANAGER_DRAW do
-            _GLOBAL_WORLD_SCENE_CONTEXT:clear();
-            _GLOBAL_WORLD_STATE:push(*_GLOBAL_WORLD_SCENE_CONTEXT);
-
-            _GLOBAL_WORLD_SCENE_CONTEXT:light().fill_screen(
-                _Color(ambient_light.r,
-                       ambient_light.g,
-                       ambient_light.b,
-                       ambient_light.a));
-            gfx_map.draw(*_GLOBAL_WORLD_SCENE_CONTEXT);
-            _GLOBAL_WORLD_SCENE_CONTEXT:color().draw(*_GLOBAL_PLAYFIELD, _Vector2i(0,0));
-        end
-    end
-end
 
 class World with
     interface IWorld;
@@ -132,27 +100,32 @@ do
     end
     _GLOBAL_WORLD_SCENE_CONTEXT = _XXX_PURE(&&this.scene_context!);
 
-    _GLOBAL_PLAYFIELD = _XXX_PURE({new Playfield}(_GLOBAL_SERVER, _GLOBAL_SESSION,
-            {Rect}(
-                {Vector2i}(
-                    {Math::max}(
-                        ({Display::get_width()}-this.get_width())/2,
-                        0),
-                    {Math::max}(
-                        ({Display::get_height()}-this.get_height())/2,
-                        0)
-                ),
-                {Size}(
-                    {Math::min}({Display::get_width()},  this.get_width()),
-                    {Math::min}({Display::get_height()}, this.get_height())))));
-
     var int game_time = 0;
-    var WorldFirst _ with
-        this.world     = &outer;
-        this.plf       = outer.plf;
-        this.gfx_map   = &gfx_map!;
-        this.game_time = &game_time;
-    end;
+    var Color ambient_light = Color(this.plf:get_ambient_light().r,
+                                    this.plf:get_ambient_light().g,
+                                    this.plf:get_ambient_light().b,
+                                    this.plf:get_ambient_light().a);
+    spawn do
+        par do
+            every WORLD_UPDATE do
+                this.game_time = this.game_time + 1;
+            end
+        with
+            // Playfield
+            every gc in SCREENMANAGER_DRAW do
+                this.scene_context!.clear();
+                this.state!.push(this.scene_context!);
+
+                this.scene_context!.light().fill_screen(
+                    _Color(ambient_light.r,
+                           ambient_light.g,
+                           ambient_light.b,
+                           ambient_light.a));
+                this.gfx_map!.draw(this.scene_context!);
+                this.scene_context!.color().draw(*_GLOBAL_PLAYFIELD, _Vector2i(0,0));
+            end
+        end
+    end
 
     var SmallMapImage _ with
         this.width  = 175;      /// TODO: take from SmallMap
@@ -312,15 +285,5 @@ do
         this.gfx_map!.get_colmap():remove(*mask, x, y);
     end
 end
-
-class WorldFactory with
-do
-    every plf_ in WORLD_NEW do
-        spawn World with
-            this.plf = plf_;
-        end;
-    end
-end
-var WorldFactory _;
 
 #endif
