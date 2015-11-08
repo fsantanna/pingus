@@ -1,0 +1,43 @@
+#ifndef _GAMESESSION_CEU
+#define _GAMESESSION_CEU
+
+input _PingusLevel&& GAMESESSION_NEW;
+
+#include "../world.ceu"
+
+class GameSession with
+    var _PingusLevel&& plf;
+do
+    var int width  = this.plf:get_size().width;
+    var int height = this.plf:get_size().height;
+
+    _GLOBAL_PLAYFIELD = _XXX_PURE({new Playfield}(_GLOBAL_SERVER, _GLOBAL_SESSION,
+            {Rect}(
+                {Vector2i}(
+                    {Math::max}(
+                        ({Display::get_width()}-width)/2,
+                        0),
+                    {Math::max}(
+                        ({Display::get_height()}-height)/2,
+                        0)
+                ),
+                {Size}(
+                    {Math::min}({Display::get_width()},  width),
+                    {Math::min}({Display::get_height()}, height)))));
+
+    var World _ with
+        this.plf = plf;
+    end;
+
+    await FOREVER;
+end
+
+spawn do
+    every plf_ in GAMESESSION_NEW do
+        spawn GameSession with
+            this.plf = plf_;
+        end;
+    end
+end
+
+#endif
