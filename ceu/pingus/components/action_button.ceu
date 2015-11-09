@@ -1,85 +1,58 @@
 #ifndef _ACTIONBUTTON_CEU
 #define _ACTIONBUTTON_CEU
 
+#include "../../engine/gui/rect_component.ceu"
+
 class ArmageddonButton with
-    var float x, y;
+    var int x;
+    var int y;
+    event void ok;
 do
+    var Rect rect = Rect(this.x,this.y, 38,60);
+    var RectComponent component with
+        this.rect  = &rect;
+        this.state = &global:world!:get_state();
+    end;
+
+    var float xf = this.x;
+    var float yf = this.y;
     do
         var Sprite _ with
-            this.x    = &outer.x;
-            this.y    = &outer.y;
+            this.x    = &xf;
+            this.y    = &yf;
             this.name = "core/buttons/hbuttonbgb";
         end;
         var Sprite sprite with
-            this.x    = &outer.x;
-            this.y    = &outer.y;
+            this.x    = &xf;
+            this.y    = &yf;
             this.name = "core/buttons/armageddon_anim";
         end;
         sprite.frame_delay = 0;
         sprite.set_frame(7);
-        await 5s;
+
+        loop do
+            await component.on_primary_button_pressed;
+            watching 1s do
+                await component.on_primary_button_pressed;
+                break;
+            end
+        end
     end
+
     do
         var Sprite _ with
-            this.x    = &outer.x;
-            this.y    = &outer.y;
+            this.x    = &xf;
+            this.y    = &yf;
             this.name = "core/buttons/hbuttonbg";
         end;
         var Sprite _ with
-            this.x    = &outer.x;
-            this.y    = &outer.y;
+            this.x    = &xf;
+            this.y    = &yf;
             this.name = "core/buttons/armageddon_anim";
         end;
+        emit this.ok;
         await FOREVER;
     end
 end
-
-#if 0
-class ArmageddonButton with
-    interface IGUI_Component;
-    var IServer& server;
-do
-    var Sprite sprite;
-    var Sprite background;
-    var Sprite backgroundhl;
-    call/rec background.reload_by_name("");
-    call/rec backgroundhl.reload_by_name("");
-    call/rec sprite.reload_by_name("core/buttons/armageddon_anim");
-
-
-    RECT_IS_AT(&&me);
-
-    par do
-        loop do
-            await mouse_click;
-            watching 1s do
-                await mouse_click;
-                emit mouse_double_click;
-            end
-        end
-    with
-        every mouse_double_click do
-            emit server.e_ARMAGEDDON;
-        end
-    with
-        every gc in draw do
-            if global:world:check_armageddon() then
-                _gc_draw(gc, backgroundhl.get(), me.rect);
-                _gc_draw(gc, sprite.get(), me.rect);
-            else
-                _gc_draw(gc, background.get(), me.rect);
-                sprite.set_frame(7);
-                _gc_draw(gc, sprite.get(), me.rect);
-            end
-        end
-    with
-        every delta in global:update do
-            if me.is_visible() then
-                sprite.update_delta(delta);
-            end
-        end
-    end
-end
-#endif
 
 #endif

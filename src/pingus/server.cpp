@@ -100,8 +100,6 @@ void
 Server::send_armageddon_event ()
 {
   record(ServerEvent::make_armageddon_event(CEU_World_get_time(NULL, GLOBAL_CEU_WORLD)));
-
-  ceu_sys_go(&CEU_APP, CEU_IN_WORLD_ARMAGEDDON, NULL);
 }
 
 void

@@ -174,8 +174,9 @@ do
             end;
         end
     with
-        await WORLD_ARMAGEDDON;
+        await armageddon.ok;
         this.in_armageddon = true;
+        _GLOBAL_SERVER:send_armageddon_event();
 
         {Sound::PingusSound::play_sound("goodidea");};
 
