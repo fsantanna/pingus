@@ -24,7 +24,7 @@
 #include "engine/sound/sound.hpp"
 #include "pingus/components/button_panel.hpp"
 #include "pingus/components/pingus_counter.hpp"
-#include "pingus/components/playfield.hpp"
+///#include "pingus/components/playfield.hpp"
 #include "pingus/components/time_display.hpp"
 #include "pingus/globals.hpp"
 #include "pingus/savegame_manager.hpp"
@@ -35,7 +35,6 @@
 
 Server* GLOBAL_SERVER = NULL;
 GameSession* GLOBAL_SESSION = NULL;
-Playfield* GLOBAL_PLAYFIELD = NULL;
 CEU_World* GLOBAL_CEU_WORLD = NULL;
 
 GameSession::GameSession(const PingusLevel& arg_plf, bool arg_show_result_screen) :
@@ -46,7 +45,7 @@ GameSession::GameSession(const PingusLevel& arg_plf, bool arg_show_result_screen
   is_finished  (false),
   button_panel (0),
   pcounter     (0),
-  playfield    (0),
+  ///playfield    (0),
   time_display (0),
   armageddon_button(),
   forward_button(),
@@ -72,12 +71,12 @@ GameSession::GameSession(const PingusLevel& arg_plf, bool arg_show_result_screen
 
   void* p = &get_server()->plf;
   ceu_sys_go(&CEU_APP, CEU_IN_WORLD_NEW, &p);
-  playfield = GLOBAL_PLAYFIELD;
+  ///playfield = GLOBAL_PLAYFIELD;
 
   pcounter     = new PingusCounter(get_server());
   time_display = new TimeDisplay(this);
 
-  gui_manager->add(playfield);
+  //gui_manager->add(playfield);
   gui_manager->add(button_panel);
   gui_manager->add(pcounter);
   gui_manager->add(time_display);
@@ -170,6 +169,7 @@ GameSession::update_server(float delta)
 void
 GameSession::draw_background (DrawingContext& gc)
 {
+#if 0
   Rect rect = playfield->get_rect();
 
   if (rect != Rect(Vector2i(0,0), Size(Display::get_width(), Display::get_height())))
@@ -188,6 +188,7 @@ GameSession::draw_background (DrawingContext& gc)
     gc.draw_fillrect(Rect(rect.right, rect.top, Display::get_width(), rect.bottom),
                      border_color);
   }
+#endif
 }
 
 void
@@ -254,8 +255,8 @@ GameSession::update(const Input::Event& event)
 void
 GameSession::process_scroll_event (const Input::ScrollEvent& ev)
 {
-  playfield->scroll(static_cast<int>(-ev.x_delta),
-                    static_cast<int>(-ev.y_delta));
+  //playfield->scroll(static_cast<int>(-ev.x_delta),
+                    //static_cast<int>(-ev.y_delta));
 }
 
 void
@@ -401,10 +402,12 @@ GameSession::resize(const Size& size_)
   int world_width  = CEU_World_get_width(NULL, GLOBAL_CEU_WORLD);
   int world_height = CEU_World_get_height(NULL, GLOBAL_CEU_WORLD);
 
+#if 0
   playfield->set_rect(Rect(Vector2i(Math::max((size.width  - world_width)/2,  0),
                                     Math::max((size.height - world_height)/2, 0)),
                            Size(Math::min(size.width,  world_width),
                                 Math::min(size.height, world_height))));
+#endif
 
   armageddon_button->set_rect(Rect(Vector2i(size.width - 40, size.height - 62),
                                    Size(38, 60)));

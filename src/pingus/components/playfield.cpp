@@ -45,13 +45,13 @@ void Playfield::draw(DrawingContext& gc) { }
 void
 Playfield::scroll (int x, int y)
 {
-  CEU_Playfield_scroll(&CEU_APP, this->ceu, x, y);
+  //CEU_Playfield_scroll(&CEU_APP, this->ceu, x, y);
 }
 
 void
 Playfield::update_layout()
 {
-  CEU_Playfield_update_layout(&CEU_APP, this->ceu);
+  //CEU_Playfield_update_layout(&CEU_APP, this->ceu);
 }
 
 /* EOF */

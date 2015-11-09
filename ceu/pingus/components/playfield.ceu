@@ -14,10 +14,6 @@ end
 
 #include "../capture_rectangle.ceu"
 
-#define AWAIT_MY(EVT,x,y)   \
-    (x,y) = await EVT       \
-            until this.me.is_at(x,y)
-
 class Playfield with
     interface IPlayfield;
     var PinguHolder& pingu_holder;
@@ -71,7 +67,7 @@ do
     with
         loop do
             var int x,y;
-            AWAIT_MY(ON_SECONDARY_BUTTON_PRESSED,x,y);
+            (x,y) = await ON_SECONDARY_BUTTON_PRESSED;
 
             var Vector2i old_state_pos = Vector2i(global:world!:get_state().get_pos().x,
                                                   global:world!:get_state().get_pos().y);

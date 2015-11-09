@@ -13,7 +13,6 @@ native do
     ##include "pingus/ground_map.hpp"
     extern GameSession* GLOBAL_SESSION;
     extern Server* GLOBAL_SERVER;
-    extern Playfield* GLOBAL_PLAYFIELD;
 end
 native @plain _Playfield, _SmallMap, _SceneContext, _GroundMap;
 
@@ -94,7 +93,14 @@ do
         _delete(&&scene_context!);
     end
 
-    _GLOBAL_PLAYFIELD = _XXX_PURE({new Playfield}(_GLOBAL_SERVER, _GLOBAL_SESSION,
+    var int game_time = 0;
+    var Color ambient_light = Color(this.plf:get_ambient_light().r,
+                                    this.plf:get_ambient_light().g,
+                                    this.plf:get_ambient_light().b,
+                                    this.plf:get_ambient_light().a);
+
+    var _Playfield&? playfield_ := &_XXX_PURE(
+        {new Playfield}(_GLOBAL_SERVER, _GLOBAL_SESSION,
             {Rect}(
                 {Vector2i}(
                     {Math::max}(
@@ -108,11 +114,6 @@ do
                     {Math::min}({Display::get_width()},  width),
                     {Math::min}({Display::get_height()}, height)))));
 
-    var int game_time = 0;
-    var Color ambient_light = Color(this.plf:get_ambient_light().r,
-                                    this.plf:get_ambient_light().g,
-                                    this.plf:get_ambient_light().b,
-                                    this.plf:get_ambient_light().a);
     spawn do
         par do
             // Playfield
@@ -133,7 +134,7 @@ do
                            ambient_light.b,
                            ambient_light.a));
                 this.gfx_map!.draw(this.get_scene_context());
-                this.get_scene_context().color().draw(*_GLOBAL_PLAYFIELD, _Vector2i(0,0));
+                this.get_scene_context().color().draw(*_GLOBAL_SESSION, _Vector2i(0,0));
             end
         end
     end
@@ -151,7 +152,6 @@ do
         this.number_of_allowed = plf:get_number_of_pingus();
     end;
 
-    var _Playfield&? playfield_ := &_XXX_PURE(_GLOBAL_PLAYFIELD);
     var Playfield playfield with
         this.pingu_holder = &pingu_holder;
         this.me           = &playfield_!;

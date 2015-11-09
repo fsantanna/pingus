@@ -28,7 +28,7 @@ class Font;
 class Sprite;
 
 ///
-class Playfield;
+class GUIScreen;
 
 /** The DrawingContext collects all DrawingRequests and allows you to
     flush them all down to the graphics card in one run, this has the
@@ -73,7 +73,7 @@ public:
   void draw(const Sprite& sprite, const Vector3f& pos);
 
 ///
-  void draw(Playfield& playfield, const Vector2i& pos, float z = 0);
+  void draw(GUIScreen& screen, const Vector2i& pos, float z = 0);
 
   /** Fills the screen with a given color, this is different from
       clear() in that it doesn't remove other DrawingRequest from the

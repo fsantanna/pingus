@@ -59,7 +59,7 @@ private:
 
   ButtonPanel*   button_panel;
   PingusCounter* pcounter;
-  Playfield*     playfield;
+  ///Playfield*     playfield;
   TimeDisplay*   time_display;
 
   ArmageddonButton* armageddon_button;
@@ -78,7 +78,7 @@ public:
   void update_server(float delta);
 
   Server*    get_server() { return server.get(); }
-  Playfield* get_playfield() { return playfield; }
+  ///Playfield* get_playfield() { return playfield; }
 
   void do_restart();
   bool finished();

@@ -25,7 +25,7 @@
 #include "util/log.hpp"
 
 ///
-#include "pingus/components/playfield.hpp"
+#include "engine/screen/gui_screen.hpp"
 
 struct DrawingRequestsSorter
 {
@@ -80,12 +80,13 @@ public:
 class PlayfieldDrawingRequest : public DrawingRequest
 {
 private:
-  Playfield& playfield;
+  GUIScreen& screen;
 
 public:
-  PlayfieldDrawingRequest(Playfield& playfield_, const Vector2i& pos_, float z_)
+  PlayfieldDrawingRequest(GUIScreen& playfield_, const Vector2i& pos_, float 
+    z_)
     : DrawingRequest(pos_, z_),
-      playfield(playfield_)
+      screen(playfield_)
   {
   }
 
@@ -270,9 +271,9 @@ DrawingContext::draw(DrawingContext& dc, float z)
 }
 
 void
-DrawingContext::draw(Playfield& playfield, const Vector2i& pos, float z)
+DrawingContext::draw(GUIScreen& screen, const Vector2i& pos, float z)
 {
-  draw(new PlayfieldDrawingRequest(playfield, pos + translate_stack.back(), z));
+  draw(new PlayfieldDrawingRequest(screen, pos + translate_stack.back(), z));
 }
 
 void
