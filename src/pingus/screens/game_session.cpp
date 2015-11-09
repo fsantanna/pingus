@@ -74,7 +74,7 @@ GameSession::GameSession(const PingusLevel& arg_plf, bool arg_show_result_screen
   button_panel = new ButtonPanel(get_server(), Vector2i(0, (size.height - 150)/2));
 
   void* p = &get_server()->plf;
-  ceu_sys_go(&CEU_APP, CEU_IN_GAMESESSION_NEW, &p);
+  ceu_sys_go(&CEU_APP, CEU_IN_WORLD_NEW, &p);
   playfield = GLOBAL_PLAYFIELD;
 
   pcounter     = new PingusCounter(get_server());

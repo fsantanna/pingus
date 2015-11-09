@@ -146,6 +146,8 @@ interface IWorld with
 
     function (void)=>_GroundMap&&    get_gfx_map;
     function (void)=>_CollisionMap&& get_colmap;
+    function (void)=>_GraphicContextState& get_state;
+    function (void)=>_SceneContext& get_scene_context;
 
     function (_CollisionMask&& mask,int x,int y,_Groundtype__GPType type)=>void put;
     function (_CollisionMask&& mask,int x,int y)=>void remove;
@@ -160,7 +162,7 @@ end
 
 var IWorld&&? world;
 
-#include "pingus/screens/game_session.ceu"
+#include "pingus/world.ceu"
 
 every 1s do
     var int e = 0;

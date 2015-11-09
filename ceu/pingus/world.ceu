@@ -20,6 +20,7 @@ native do
 end
 native @plain _Playfield, _SmallMap, _SceneContext, _GroundMap;
 
+input _PingusLevel&& WORLD_NEW;
 input void WORLD_UPDATE;
 input void WORLD_ARMAGEDDON;
 
@@ -51,23 +52,67 @@ end
 
 class World with
     interface IWorld;
-
-    var IScreen& screen;
-
     var _PingusLevel&& plf;
     function (void)=>PinguHolder&  get_pingus;
 do
     _GLOBAL_CEU_WORLD := &&this;
     global:world = &&this;
 
+    var int width  = this.plf:get_size().width;
+    var int height = this.plf:get_size().height;
+
     var _GroundMap&? gfx_map;
     finalize
-        gfx_map = &{new GroundMap}(this.plf:get_size().width,
-                                   this.plf:get_size().height);
+        gfx_map = &{new GroundMap}(width, height);
     with
         _delete(&&gfx_map!);
     end
     _GLOBAL_WORLD_COLMAP = _XXX_PURE(gfx_map!.get_colmap());
+
+    var _GraphicContextState&? state;
+    finalize
+        state = &{new GraphicContextState}(
+                    {Math::min}({Display::get_width()},  width),
+                    {Math::min}({Display::get_height()}, height));
+    with
+        _delete(&&state!);
+    end
+    this.state!.set_limit(_Rect(_Vector2i(0,0), _Size(width, height)));
+    _GLOBAL_WORLD_STATE = _XXX_PURE(&&this.state!);
+
+    var _SceneContext&? scene_context;
+    finalize
+        scene_context = &{new SceneContext}(
+            {Rect}(
+                {Vector2i}(
+                    {Math::max}(
+                        ({Display::get_width()}-width)/2,
+                        0),
+                    {Math::max}(
+                        ({Display::get_height()}-height)/2,
+                        0)
+                ),
+                {Size}(
+                    {Math::min}({Display::get_width()},  width),
+                    {Math::min}({Display::get_height()}, height))));
+    with
+        _delete(&&scene_context!);
+    end
+    _GLOBAL_WORLD_SCENE_CONTEXT = _XXX_PURE(&&this.scene_context!);
+
+    _GLOBAL_PLAYFIELD = _XXX_PURE({new Playfield}(_GLOBAL_SERVER, _GLOBAL_SESSION,
+            {Rect}(
+                {Vector2i}(
+                    {Math::max}(
+                        ({Display::get_width()}-width)/2,
+                        0),
+                    {Math::max}(
+                        ({Display::get_height()}-height)/2,
+                        0)
+                ),
+                {Size}(
+                    {Math::min}({Display::get_width()},  width),
+                    {Math::min}({Display::get_height()}, height)))));
 
     var int game_time = 0;
     var Color ambient_light = Color(this.plf:get_ambient_light().r,
@@ -76,22 +121,25 @@ do
                                     this.plf:get_ambient_light().a);
     spawn do
         par do
+            // Playfield
+            every gc in SCREENMANAGER_DRAW do
+                this.scene_context!.clear();
+                this.state!.push(this.scene_context!);
+            end
+        with
             every WORLD_UPDATE do
                 this.game_time = this.game_time + 1;
             end
         with
             // Playfield
             every gc in SCREENMANAGER_DRAW do
-                this.screen.get_scene_context().clear();
-                this.screen.get_state().push(*_GLOBAL_WORLD_SCENE_CONTEXT);
-
-                _GLOBAL_WORLD_SCENE_CONTEXT:light().fill_screen(
+                this.get_scene_context().light().fill_screen(
                     _Color(ambient_light.r,
                            ambient_light.g,
                            ambient_light.b,
                            ambient_light.a));
-                this.gfx_map!.draw(*_GLOBAL_WORLD_SCENE_CONTEXT);
-                _GLOBAL_WORLD_SCENE_CONTEXT:color().draw(*_GLOBAL_PLAYFIELD, _Vector2i(0,0));
+                this.gfx_map!.draw(this.get_scene_context());
+                this.get_scene_context().color().draw(*_GLOBAL_PLAYFIELD, _Vector2i(0,0));
             end
         end
     end
@@ -170,12 +218,13 @@ do
     with
         // Playfield
         every gc in SCREENMANAGER_DRAW do
-            _GLOBAL_WORLD_STATE:pop(*_GLOBAL_WORLD_SCENE_CONTEXT);
+            this.state!.pop(this.scene_context!);
             gc:draw(
                 {new SceneContextDrawingRequest}(
-                    _GLOBAL_WORLD_SCENE_CONTEXT,
+                    &&this.scene_context!,
                     _Vector2i(0,0),
                     -10000)
+                finalize with nothing; end
             );
         end
     end
@@ -218,10 +267,10 @@ do
     end
 
     function (void)=>int get_width do
-        return this.gfx_map!.get_width();
+        return this.width;
     end
     function (void)=>int get_height do
-        return this.gfx_map!.get_height();
+        return this.height;
     end
 
     function (void)=>bool check_armageddon do
@@ -243,6 +292,12 @@ do
     function (void)=>_CollisionMap&& get_colmap do
         return _XXX_PURE(this.gfx_map!.get_colmap());
     end
+    function (void)=>_GraphicContextState& get_state do
+        return &this.state!;
+    end
+    function (void)=>_SceneContext& get_scene_context do
+        return &this.scene_context!;
+    end
 
     function (_CollisionMask&& mask,int x,int y,_Groundtype__GPType type)=>void put do
         this.gfx_map!.put(mask:get_surface(), x, y);
@@ -251,6 +306,14 @@ do
     function (_CollisionMask&& mask,int x,int y)=>void remove do
         this.gfx_map!.remove(mask:get_surface(), x, y);
         this.gfx_map!.get_colmap():remove(*mask, x, y);
+    end
+end
+
+spawn do
+    every plf_ in WORLD_NEW do
+        spawn World with
+            this.plf = plf_;
+        end;
     end
 end
 
