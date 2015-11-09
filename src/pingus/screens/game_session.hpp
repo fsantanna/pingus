@@ -62,9 +62,9 @@ private:
   ///Playfield*     playfield;
   TimeDisplay*   time_display;
 
-  ArmageddonButton* armageddon_button;
-  ForwardButton*    forward_button;
-  PauseButton*      pause_button;
+  ///ArmageddonButton* armageddon_button;
+  ///ForwardButton*    forward_button;
+  ///PauseButton*      pause_button;
 
   bool pause;
   bool fast_forward;

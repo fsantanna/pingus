@@ -151,7 +151,15 @@ do
 
     var bool in_armageddon = false;
     var ArmageddonButton armageddon with
-        this.x = {Display::get_width()}  - 40;
+        this.x = {Display::get_width()}  - 40*1;
+        this.y = {Display::get_height()} - 62;
+    end;
+    var ForwardButton _ with
+        this.x = {Display::get_width()}  - 40*2;
+        this.y = {Display::get_height()} - 62;
+    end;
+    var PauseButton _ with
+        this.x = {Display::get_width()}  - 40*3;
         this.y = {Display::get_height()} - 62;
     end;
 

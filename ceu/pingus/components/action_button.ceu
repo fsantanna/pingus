@@ -55,4 +55,90 @@ do
     end
 end
 
+class ForwardButton with
+    var int x;
+    var int y;
+do
+    var Rect rect = Rect(this.x,this.y, 38,60);
+    var RectComponent component with
+        this.rect  = &rect;
+        this.state = &global:world!:get_state();
+    end;
+
+    var float xf = this.x;
+    var float yf = this.y;
+    spawn do
+        loop do
+            do
+                var Sprite _ with
+                    this.x    = &xf;
+                    this.y    = &yf;
+                    this.name = "core/buttons/hbuttonbgb";
+                end;
+                await component.on_primary_button_pressed;
+            end
+            _GLOBAL_SESSION:set_fast_forward(true);
+            do
+                var Sprite _ with
+                    this.x    = &xf;
+                    this.y    = &yf;
+                    this.name = "core/buttons/hbuttonbg";
+                end;
+                await ON_PRIMARY_BUTTON_RELEASED;
+            end
+            _GLOBAL_SESSION:set_fast_forward(false);
+        end
+    end
+
+    var Sprite _ with
+        this.x    = &xf;
+        this.y    = &yf;
+        this.name = "core/buttons/fast_forward";
+    end;
+    await FOREVER;
+end
+
+class PauseButton with
+    var int x;
+    var int y;
+do
+    var Rect rect = Rect(this.x,this.y, 38,60);
+    var RectComponent component with
+        this.rect  = &rect;
+        this.state = &global:world!:get_state();
+    end;
+
+    var float xf = this.x;
+    var float yf = this.y;
+    spawn do
+        loop do
+            do
+                var Sprite _ with
+                    this.x    = &xf;
+                    this.y    = &yf;
+                    this.name = "core/buttons/hbuttonbgb";
+                end;
+                await component.on_primary_button_pressed;
+            end
+            _GLOBAL_SESSION:set_pause(true);
+            do
+                var Sprite _ with
+                    this.x    = &xf;
+                    this.y    = &yf;
+                    this.name = "core/buttons/hbuttonbg";
+                end;
+                await component.on_primary_button_pressed;
+            end
+            _GLOBAL_SESSION:set_pause(false);
+        end
+    end
+
+    var Sprite _ with
+        this.x    = &xf;
+        this.y    = &yf;
+        this.name = "core/buttons/pause";
+    end;
+    await FOREVER;
+end
+
 #endif

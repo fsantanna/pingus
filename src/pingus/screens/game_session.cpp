@@ -48,8 +48,8 @@ GameSession::GameSession(const PingusLevel& arg_plf, bool arg_show_result_screen
   ///playfield    (0),
   time_display (0),
   ///armageddon_button(),
-  forward_button(),
-  pause_button(),
+  ///forward_button(),
+  ///pause_button(),
   pause(false),
   fast_forward(false),
   single_step(false)
@@ -83,12 +83,14 @@ GameSession::GameSession(const PingusLevel& arg_plf, bool arg_show_result_screen
 
   ///armageddon_button = new ArmageddonButton(get_server(), 
   //Display::get_width() - 40, Display::get_height() - 62);
-  forward_button    = new ForwardButton(this, Display::get_width() - 40 * 2, Display::get_height() - 62);
-  pause_button      = new PauseButton(this, Display::get_width() - 40 * 3, Display::get_height() - 62);
+  ///forward_button    = new ForwardButton(this, Display::get_width() - 40 * 2, 
+  //Display::get_height() - 62);
+  ///pause_button      = new PauseButton(this, Display::get_width() - 40 * 3, 
+  //Display::get_height() - 62);
 
   ///gui_manager->add(armageddon_button);
-  gui_manager->add(forward_button);
-  gui_manager->add(pause_button);
+  ///gui_manager->add(forward_button);
+  ///gui_manager->add(pause_button);
 }
 
 GameSession::~GameSession()
@@ -402,6 +404,7 @@ GameSession::resize(const Size& size_)
 
   int world_width  = CEU_World_get_width(NULL, GLOBAL_CEU_WORLD);
   int world_height = CEU_World_get_height(NULL, GLOBAL_CEU_WORLD);
+printf("RESIZE\n");
 
 #if 0
   playfield->set_rect(Rect(Vector2i(Math::max((size.width  - world_width)/2,  0),
@@ -411,11 +414,11 @@ GameSession::resize(const Size& size_)
 
   armageddon_button->set_rect(Rect(Vector2i(size.width - 40, size.height - 62),
                                    Size(38, 60)));
-#endif
   forward_button->set_rect(Rect(Vector2i(size.width - 40*2, size.height - 62),
                                 Size(38, 60)));
   pause_button->set_rect(Rect(Vector2i(size.width - 40*3, size.height - 62),
                               Size(38, 60)));
+#endif
 
   button_panel->set_pos(Vector2i(0, (size.height - 150)/2));
 }
