@@ -258,10 +258,7 @@ do
     end
 
     function (int x, int y)=>int rel_getpixel do
-/// TODO: w/o me.ceu this function becomes @rec
-        return _GLOBAL_WORLD_COLMAP:getpixel(
-        //return global:world!:get_colmap():getpixel(
-        //return global:world!:me.colmap:getpixel(
+        return global:world!:get_colmap():getpixel(
                 (int)(this.pos_x + (float)(x * this.direction)),
                 (int)(this.pos_y - (float)(y)));
     end

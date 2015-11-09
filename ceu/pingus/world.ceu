@@ -14,9 +14,6 @@ native do
     extern GameSession* GLOBAL_SESSION;
     extern Server* GLOBAL_SERVER;
     extern Playfield* GLOBAL_PLAYFIELD;
-    extern CollisionMap* GLOBAL_WORLD_COLMAP;
-    extern GraphicContextState* GLOBAL_WORLD_STATE;
-    extern SceneContext* GLOBAL_WORLD_SCENE_CONTEXT;
 end
 native @plain _Playfield, _SmallMap, _SceneContext, _GroundMap;
 
@@ -67,7 +64,6 @@ do
     with
         _delete(&&gfx_map!);
     end
-    _GLOBAL_WORLD_COLMAP = _XXX_PURE(gfx_map!.get_colmap());
 
     var _GraphicContextState&? state;
     finalize
@@ -78,7 +74,6 @@ do
         _delete(&&state!);
     end
     this.state!.set_limit(_Rect(_Vector2i(0,0), _Size(width, height)));
-    _GLOBAL_WORLD_STATE = _XXX_PURE(&&this.state!);
 
     var _SceneContext&? scene_context;
     finalize
@@ -98,7 +93,6 @@ do
     with
         _delete(&&scene_context!);
     end
-    _GLOBAL_WORLD_SCENE_CONTEXT = _XXX_PURE(&&this.scene_context!);
 
     _GLOBAL_PLAYFIELD = _XXX_PURE({new Playfield}(_GLOBAL_SERVER, _GLOBAL_SESSION,
             {Rect}(
@@ -162,7 +156,7 @@ do
         this.pingu_holder = &pingu_holder;
         this.me           = &playfield_!;
     end;
-    _GLOBAL_WORLD_STATE:set_pos(this.get_start_pos(0));
+    this.state!.set_pos(this.get_start_pos(0));
 
     var Rect rect = Rect(6,{Display::get_size}().height-105, 175,100);
         // TODO: height originally comes from Screen/GUIScreen/SmallMap

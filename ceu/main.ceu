@@ -144,10 +144,10 @@ interface IWorld with
     function (_std__string name, _Vector3f pos, float volume)=>void play_sound;
     function (void)=>float get_gravity;
 
-    function (void)=>_GroundMap&&    get_gfx_map;
-    function (void)=>_CollisionMap&& get_colmap;
+    function (void)=>_GroundMap&&          get_gfx_map;
+    function (void)=>_CollisionMap&&       get_colmap;
     function (void)=>_GraphicContextState& get_state;
-    function (void)=>_SceneContext& get_scene_context;
+    function (void)=>_SceneContext&        get_scene_context;
 
     function (_CollisionMask&& mask,int x,int y,_Groundtype__GPType type)=>void put;
     function (_CollisionMask&& mask,int x,int y)=>void remove;

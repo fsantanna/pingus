@@ -33,8 +33,8 @@ do
         every (x,y) in ON_PRIMARY_BUTTON_PRESSED do
             x = x - this.me.rect.left;
             y = y - this.me.rect.top;
-            x = _GLOBAL_WORLD_STATE:screen2world(_Vector2i(x,y)).x;
-            y = _GLOBAL_WORLD_STATE:screen2world(_Vector2i(x,y)).y;
+            x = global:world!:get_state().screen2world(_Vector2i(x,y)).x;
+            y = global:world!:get_state().screen2world(_Vector2i(x,y)).y;
 
             if this.me.session != null then
                 var IPingu&&? pingu;
@@ -73,8 +73,8 @@ do
             var int x,y;
             AWAIT_MY(ON_SECONDARY_BUTTON_PRESSED,x,y);
 
-            var Vector2i old_state_pos = Vector2i(_GLOBAL_WORLD_STATE:get_pos().x,
-                                                  _GLOBAL_WORLD_STATE:get_pos().y);
+            var Vector2i old_state_pos = Vector2i(global:world!:get_state().get_pos().x,
+                                                  global:world!:get_state().get_pos().y);
 
             var Vector2i scroll = Vector2i(x - this.me.rect.left,
                                            y - this.me.rect.top);
@@ -84,16 +84,16 @@ do
                     every SCREENMANAGER_UPDATE do
                         // FIXME: This should be delta dependant
                         if {globals::drag_drop_scrolling} then
-                            _GLOBAL_WORLD_STATE:set_pos(
+                            global:world!:get_state().set_pos(
                                 _Vector2i(old_state_pos.x,old_state_pos.y)
                                     + (_Vector2i(scroll.x,scroll.y)
                                         - this.me.mouse_pos));
                         else
-                            _GLOBAL_WORLD_STATE:set_pos(
-                                _Vector2i(_GLOBAL_WORLD_STATE:get_pos().x
+                            global:world!:get_state().set_pos(
+                                _Vector2i(global:world!:get_state().get_pos().x
                                             - (int)((float)(scroll.x - 
                                               this.me.mouse_pos.x) * 0.2),
-                                          _GLOBAL_WORLD_STATE:get_pos().y
+                                          global:world!:get_state().get_pos().y
                                             - (int)((float)(scroll.y - 
                                               this.me.mouse_pos.y) * 0.2)
                                 )
@@ -137,8 +137,8 @@ do
 
         every SCREENMANAGER_UPDATE do
             var Position pos = Position(
-                                _GLOBAL_WORLD_STATE:screen2world(this.me.mouse_pos).x,
-                                _GLOBAL_WORLD_STATE:screen2world(this.me.mouse_pos).y
+                                global:world!:get_state().screen2world(this.me.mouse_pos).x,
+                                global:world!:get_state().screen2world(this.me.mouse_pos).y
                                );
 
             var float min_dist = 500.0;
@@ -176,15 +176,15 @@ do
                 var int scroll_speed = (int)(800 * delta);
 
                 if (this.me.mouse_pos.x < 10) then
-                    _GLOBAL_WORLD_STATE:set_pos(_GLOBAL_WORLD_STATE:get_pos() - _Vector2i(scroll_speed, 0));
+                    global:world!:get_state().set_pos(global:world!:get_state().get_pos() - _Vector2i(scroll_speed, 0));
                 else/if (this.me.mouse_pos.x > {Display::get_width()} - 10) then
-                    _GLOBAL_WORLD_STATE:set_pos(_GLOBAL_WORLD_STATE:get_pos() + _Vector2i(scroll_speed, 0));
+                    global:world!:get_state().set_pos(global:world!:get_state().get_pos() + _Vector2i(scroll_speed, 0));
                 end
 
                 if (this.me.mouse_pos.y < 10) then
-                    _GLOBAL_WORLD_STATE:set_pos(_GLOBAL_WORLD_STATE:get_pos() - _Vector2i(0, scroll_speed));
+                    global:world!:get_state().set_pos(global:world!:get_state().get_pos() - _Vector2i(0, scroll_speed));
                 else/if (this.me.mouse_pos.y > {Display::get_height()} - 10) then
-                    _GLOBAL_WORLD_STATE:set_pos(_GLOBAL_WORLD_STATE:get_pos() + _Vector2i(0, scroll_speed));
+                    global:world!:get_state().set_pos(global:world!:get_state().get_pos() + _Vector2i(0, scroll_speed));
                 end
             end
         end
@@ -200,22 +200,22 @@ do
     /* PUBLIC */
 
     function (void)=>Vector2i get_pos do
-        var Vector2i ret = Vector2i((int)(_GLOBAL_WORLD_STATE:get_pos().x),
-                                    (int)(_GLOBAL_WORLD_STATE:get_pos().y));
+        var Vector2i ret = Vector2i((int)(global:world!:get_state().get_pos().x),
+                                    (int)(global:world!:get_state().get_pos().y));
         return ret;
     end
 
     function (int x, int y)=>void set_viewpoint do
-        _GLOBAL_WORLD_STATE:set_pos(_Vector2i(x, y));
+        global:world!:get_state().set_pos(_Vector2i(x, y));
     end
 
     function (int x, int y)=>void scroll do
-        _GLOBAL_WORLD_STATE:set_pos(_GLOBAL_WORLD_STATE:get_pos() + _Vector2i(x, y));
+        global:world!:get_state().set_pos(global:world!:get_state().get_pos() + _Vector2i(x, y));
     end
 
     function (void)=>void update_layout do
-        _GLOBAL_WORLD_STATE:set_size(this.me.rect.get_width(), this.me.rect.get_height());
-        _GLOBAL_WORLD_SCENE_CONTEXT:set_rect(this.me.rect);
+        global:world!:get_state().set_size(this.me.rect.get_width(), this.me.rect.get_height());
+        global:world!:get_scene_context().set_rect(this.me.rect);
     end
 end
 

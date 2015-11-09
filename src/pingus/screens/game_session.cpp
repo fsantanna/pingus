@@ -37,9 +37,6 @@ Server* GLOBAL_SERVER = NULL;
 GameSession* GLOBAL_SESSION = NULL;
 Playfield* GLOBAL_PLAYFIELD = NULL;
 CEU_World* GLOBAL_CEU_WORLD = NULL;
-CollisionMap* GLOBAL_WORLD_COLMAP = NULL;
-GraphicContextState* GLOBAL_WORLD_STATE = NULL;
-SceneContext* GLOBAL_WORLD_SCENE_CONTEXT = NULL;
 
 GameSession::GameSession(const PingusLevel& arg_plf, bool arg_show_result_screen) :
   plf(arg_plf),

@@ -119,9 +119,9 @@ do
             var int offset_y=0;
             do
                 var _Vector2i offset = 
-                 _GLOBAL_WORLD_SCENE_CONTEXT:color().world_to_screen(_Vector2i(0,0));
-                 offset_x = offset.x - _GLOBAL_WORLD_SCENE_CONTEXT:color().get_rect().left;
-                 offset_y = offset.y - _GLOBAL_WORLD_SCENE_CONTEXT:color().get_rect().top;
+                 global:world!:get_scene_context().color().world_to_screen(_Vector2i(0,0));
+                 offset_x = offset.x - global:world!:get_scene_context().color().get_rect().left;
+                 offset_y = offset.y - global:world!:get_scene_context().color().get_rect().top;
             end
 
             var int start_x = (int)(((float)(offset_x) * this.para_x) + this.scroll_ox);
@@ -146,7 +146,7 @@ do
                     if x >= global:world!:get_width() then
                         break;
                     end
-                    _GLOBAL_WORLD_SCENE_CONTEXT:color().draw(
+                    global:world!:get_scene_context().color().draw(
                                     this.bg_sprite,
                                     _Vector2i(x-offset_x, y-offset_y),
                                     this.pos.z);
