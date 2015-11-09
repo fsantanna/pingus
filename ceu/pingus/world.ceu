@@ -30,6 +30,7 @@ end
 #include "pingu_holder.ceu"
 #include "components/playfield.ceu"
 #include "components/smallmap.ceu"
+#include "components/action_button.ceu"
 #include "smallmap_image.ceu"
 
 #include "worldobjs/entrance.ceu"
@@ -149,6 +150,10 @@ do
     end;
 
     var bool in_armageddon = false;
+    var ArmageddonButton armageddon with
+        this.x = {Display::get_width()}  - 40;
+        this.y = {Display::get_height()} - 62 - 100;
+    end;
 
     par/or do
         every (x_,y_) in this.create_pingu_particles do
