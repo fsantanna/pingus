@@ -2,9 +2,8 @@
 #define _PLAYFIELD_CEU
 
 interface IPlayfield with
-    var   IPingu&&?   current_pingu;
-    event void        ok_pingu;
-    var   _Playfield& me;
+    var   IPingu&&? current_pingu;
+    event void      ok_pingu;
 end
 
 native do
@@ -18,51 +17,50 @@ class Playfield with
     interface IPlayfield;
     var PinguHolder& pingu_holder;
 
+    var Rect& rect;
+
     function (void)=>Vector2i get_pos;
     function (int x, int y)=>void set_viewpoint;
     function (int x, int y)=>void scroll;
     function (void)=>void update_layout;
 do
-    this.me.ceu = &&this;
+    #define POS2VEC(m) _Vector2i(m.x,m.y)
+
+    var Position mouse_pos = Position(0,0);
+    spawn do
+        every (x,y) in ON_POINTER_MOVE do
+            mouse_pos.x = x - this.rect.left;
+            mouse_pos.y = y - this.rect.top;
+        end
+    end
 
     par do
         every (x,y) in ON_PRIMARY_BUTTON_PRESSED do
-            x = x - this.me.rect.left;
-            y = y - this.me.rect.top;
+            x = x - this.rect.left;
+            y = y - this.rect.top;
             x = global:world!:get_state().screen2world(_Vector2i(x,y)).x;
             y = global:world!:get_state().screen2world(_Vector2i(x,y)).y;
 
-            if this.me.session != null then
-                var IPingu&&? pingu;
-                var float min_dist = 500.0;
-                loop p in global:world!:get_pingu_holder().pingus do
-                    if (p:is_over(x, y)) then
-                        var float dist = p:dist(x, y);
-                        if (dist < min_dist) then
-                            min_dist = dist;
-                            pingu = p;
-                        end
-                    end
-                end
-
-                if pingu? then
-                    var _ActionName__Enum action = this.me.session:get_action_name();
-                    if pingu!:check_action(action) then
-                        if this.me.server:action_holder.pop_action(action) then
-                            emit pingu!:go_action => action;
-                        end
+            var IPingu&&? pingu;
+            var float min_dist = 500.0;
+            loop p in global:world!:get_pingu_holder().pingus do
+                if (p:is_over(x, y)) then
+                    var float dist = p:dist(x, y);
+                    if (dist < min_dist) then
+                        min_dist = dist;
+                        pingu = p;
                     end
                 end
             end
-        end
-    with
-        every (x,y) in ON_POINTER_MOVE do
-            x = x - this.me.rect.left;
-            y = y - this.me.rect.top;
-            // FIXME: useless stuff, but currently the controller doesn't have 
-            // a state
-            this.me.mouse_pos.x = x;
-            this.me.mouse_pos.y = y;
+
+            if pingu? then
+                var _ActionName__Enum action = _GLOBAL_SESSION:get_action_name();
+                if pingu!:check_action(action) then
+                    if _GLOBAL_SERVER:action_holder.pop_action(action) then
+                        emit pingu!:go_action => action;
+                    end
+                end
+            end
         end
     with
         loop do
@@ -72,8 +70,8 @@ do
             var Vector2i old_state_pos = Vector2i(global:world!:get_state().get_pos().x,
                                                   global:world!:get_state().get_pos().y);
 
-            var Vector2i scroll = Vector2i(x - this.me.rect.left,
-                                           y - this.me.rect.top);
+            var Vector2i scroll = Vector2i(x - this.rect.left,
+                                           y - this.rect.top);
 
             watching ON_SECONDARY_BUTTON_RELEASED do
                 par do
@@ -83,15 +81,15 @@ do
                             global:world!:get_state().set_pos(
                                 _Vector2i(old_state_pos.x,old_state_pos.y)
                                     + (_Vector2i(scroll.x,scroll.y)
-                                        - this.me.mouse_pos));
+                                        - POS2VEC(this.mouse_pos)));
                         else
                             global:world!:get_state().set_pos(
                                 _Vector2i(global:world!:get_state().get_pos().x
                                             - (int)((float)(scroll.x - 
-                                              this.me.mouse_pos.x) * 0.2),
+                                              this.mouse_pos.x) * 0.2),
                                           global:world!:get_state().get_pos().y
                                             - (int)((float)(scroll.y - 
-                                              this.me.mouse_pos.y) * 0.2)
+                                              this.mouse_pos.y) * 0.2)
                                 )
                             );
                         end
@@ -102,23 +100,23 @@ do
                             continue;
                         end
 
-                        gc:draw_line(this.me.mouse_pos,
+                        gc:draw_line(POS2VEC(this.mouse_pos),
                                      _Vector2i(scroll.x,
                                                scroll.y - 15),
                                      _Color(0, 255, 0));
-                        gc:draw_line(this.me.mouse_pos,
+                        gc:draw_line(POS2VEC(this.mouse_pos),
                                      _Vector2i(scroll.x,
                                                scroll.y + 15),
                                      _Color(0, 0, 255));
-                        gc:draw_line(this.me.mouse_pos,
+                        gc:draw_line(POS2VEC(this.mouse_pos),
                                      _Vector2i(scroll.x + 15,
                                                scroll.y),
                                      _Color(0, 255, 255));
-                        gc:draw_line(this.me.mouse_pos,
+                        gc:draw_line(POS2VEC(this.mouse_pos),
                                      _Vector2i(scroll.x - 15,
                                                scroll.y),
                                      _Color(255, 255, 0));
-                        gc:draw_line(this.me.mouse_pos,
+                        gc:draw_line(POS2VEC(this.mouse_pos),
                                      _Vector2i(scroll.x,
                                                scroll.y),
                                      _Color(255, 0, 0));
@@ -133,8 +131,8 @@ do
 
         every SCREENMANAGER_UPDATE do
             var Position pos = Position(
-                                global:world!:get_state().screen2world(this.me.mouse_pos).x,
-                                global:world!:get_state().screen2world(this.me.mouse_pos).y
+                                global:world!:get_state().screen2world(POS2VEC(this.mouse_pos)).x,
+                                global:world!:get_state().screen2world(POS2VEC(this.mouse_pos)).y
                                );
 
             var float min_dist = 500.0;
@@ -171,15 +169,15 @@ do
             then
                 var int scroll_speed = (int)(800 * delta);
 
-                if (this.me.mouse_pos.x < 10) then
+                if (this.mouse_pos.x < 10) then
                     global:world!:get_state().set_pos(global:world!:get_state().get_pos() - _Vector2i(scroll_speed, 0));
-                else/if (this.me.mouse_pos.x > {Display::get_width()} - 10) then
+                else/if (this.mouse_pos.x > {Display::get_width()} - 10) then
                     global:world!:get_state().set_pos(global:world!:get_state().get_pos() + _Vector2i(scroll_speed, 0));
                 end
 
-                if (this.me.mouse_pos.y < 10) then
+                if (this.mouse_pos.y < 10) then
                     global:world!:get_state().set_pos(global:world!:get_state().get_pos() - _Vector2i(0, scroll_speed));
-                else/if (this.me.mouse_pos.y > {Display::get_height()} - 10) then
+                else/if (this.mouse_pos.y > {Display::get_height()} - 10) then
                     global:world!:get_state().set_pos(global:world!:get_state().get_pos() + _Vector2i(0, scroll_speed));
                 end
             end
@@ -210,8 +208,8 @@ do
     end
 
     function (void)=>void update_layout do
-        global:world!:get_state().set_size(this.me.rect.get_width(), this.me.rect.get_height());
-        global:world!:get_scene_context().set_rect(this.me.rect);
+        global:world!:get_state().set_size(this.rect.width, this.rect.height);
+        global:world!:get_scene_context().set_rect(_Rect(this.rect.left,this.rect.top,this.rect.width,this.rect.height));
     end
 end
 

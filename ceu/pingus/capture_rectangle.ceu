@@ -4,6 +4,8 @@
 native do
     ##include "pingus/globals.hpp"
     ##include "pingus/fonts.hpp"
+    extern GameSession* GLOBAL_SESSION;
+    extern Server* GLOBAL_SERVER;
 end
 
 class CaptureRectangle with
@@ -91,7 +93,7 @@ do
                         this.y = &pos_gb.y;
 
                         if {ActionName::CHANGE_ALLOWED}[action]
-                                                       [outer.playfield.me.session:get_action_name()]
+                                                       [_GLOBAL_SESSION:get_action_name()]
                         then
                             this.name = "game/cursors/capgood";
                         else

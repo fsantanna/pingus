@@ -2,19 +2,18 @@
 #define _WORLD_CEU
 
 native/pre do
-    class Playfield;
     struct CEU_World;
     extern CEU_World* GLOBAL_CEU_WORLD;
     ##include "engine/display/graphic_context_state.hpp"
 end
 
 native do
-    ##include "src/pingus/components/playfield.hpp"
+    ##include "src/pingus/screens/game_session.hpp"
     ##include "pingus/ground_map.hpp"
     extern GameSession* GLOBAL_SESSION;
     extern Server* GLOBAL_SERVER;
 end
-native @plain _Playfield, _SmallMap, _SceneContext, _GroundMap;
+native @plain _SmallMap, _SceneContext, _GroundMap;
 
 input _PingusLevel&& WORLD_NEW;
 input void WORLD_UPDATE;
@@ -57,6 +56,13 @@ do
     var int width  = this.plf:get_size().width;
     var int height = this.plf:get_size().height;
 
+    var Rect rect = Rect(
+        {Math::max}(({Display::get_width()}-width)/2, 0),
+        {Math::max}(({Display::get_height()}-height)/2, 0),
+        {Math::min}({Display::get_width()},  width),
+        {Math::min}({Display::get_height()}, height)
+    );
+
     var _GroundMap&? gfx_map;
     finalize
         gfx_map = &{new GroundMap}(width, height);
@@ -77,18 +83,8 @@ do
     var _SceneContext&? scene_context;
     finalize
         scene_context = &{new SceneContext}(
-            {Rect}(
-                {Vector2i}(
-                    {Math::max}(
-                        ({Display::get_width()}-width)/2,
-                        0),
-                    {Math::max}(
-                        ({Display::get_height()}-height)/2,
-                        0)
-                ),
-                {Size}(
-                    {Math::min}({Display::get_width()},  width),
-                    {Math::min}({Display::get_height()}, height))));
+            _Rect(_Vector2i(rect.left,rect.top), _Size(rect.width,rect.height))
+        );
     with
         _delete(&&scene_context!);
     end
@@ -98,21 +94,6 @@ do
                                     this.plf:get_ambient_light().g,
                                     this.plf:get_ambient_light().b,
                                     this.plf:get_ambient_light().a);
-
-    var _Playfield&? playfield_ := &_XXX_PURE(
-        {new Playfield}(_GLOBAL_SERVER, _GLOBAL_SESSION,
-            {Rect}(
-                {Vector2i}(
-                    {Math::max}(
-                        ({Display::get_width()}-width)/2,
-                        0),
-                    {Math::max}(
-                        ({Display::get_height()}-height)/2,
-                        0)
-                ),
-                {Size}(
-                    {Math::min}({Display::get_width()},  width),
-                    {Math::min}({Display::get_height()}, height)))));
 
     spawn do
         par do
@@ -154,15 +135,15 @@ do
 
     var Playfield playfield with
         this.pingu_holder = &pingu_holder;
-        this.me           = &playfield_!;
+        this.rect         = &rect;
     end;
     this.state!.set_pos(this.get_start_pos(0));
 
-    var Rect rect = Rect(6,{Display::get_size}().height-105, 175,100);
+    var Rect rect_small = Rect(6,{Display::get_size}().height-105, 175,100);
         // TODO: height originally comes from Screen/GUIScreen/SmallMap
 
     var SmallMap smallmap with
-        this.rect         = rect;
+        this.rect         = rect_small;
         this.pingu_holder = &pingu_holder;
         this.playfield    = &playfield;
     end;

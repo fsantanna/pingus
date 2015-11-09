@@ -52,7 +52,7 @@ private:
   std::vector<ServerEvent>  events;
 
   PingusCounter* pcounter;
-  Playfield*     playfield;
+  ///Playfield*     playfield;
 
   BButton* fastforward_button;
   BButton* pause_button;
