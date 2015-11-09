@@ -152,7 +152,7 @@ do
     var bool in_armageddon = false;
     var ArmageddonButton armageddon with
         this.x = {Display::get_width()}  - 40;
-        this.y = {Display::get_height()} - 62 - 100;
+        this.y = {Display::get_height()} - 62;
     end;
 
     par/or do

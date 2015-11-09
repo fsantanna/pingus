@@ -47,7 +47,7 @@ GameSession::GameSession(const PingusLevel& arg_plf, bool arg_show_result_screen
   pcounter     (0),
   ///playfield    (0),
   time_display (0),
-  armageddon_button(),
+  ///armageddon_button(),
   forward_button(),
   pause_button(),
   pause(false),
@@ -81,11 +81,12 @@ GameSession::GameSession(const PingusLevel& arg_plf, bool arg_show_result_screen
   gui_manager->add(pcounter);
   gui_manager->add(time_display);
 
-  armageddon_button = new ArmageddonButton(get_server(), Display::get_width() - 40, Display::get_height() - 62);
+  ///armageddon_button = new ArmageddonButton(get_server(), 
+  //Display::get_width() - 40, Display::get_height() - 62);
   forward_button    = new ForwardButton(this, Display::get_width() - 40 * 2, Display::get_height() - 62);
   pause_button      = new PauseButton(this, Display::get_width() - 40 * 3, Display::get_height() - 62);
 
-  gui_manager->add(armageddon_button);
+  ///gui_manager->add(armageddon_button);
   gui_manager->add(forward_button);
   gui_manager->add(pause_button);
 }
@@ -407,10 +408,10 @@ GameSession::resize(const Size& size_)
                                     Math::max((size.height - world_height)/2, 0)),
                            Size(Math::min(size.width,  world_width),
                                 Math::min(size.height, world_height))));
-#endif
 
   armageddon_button->set_rect(Rect(Vector2i(size.width - 40, size.height - 62),
                                    Size(38, 60)));
+#endif
   forward_button->set_rect(Rect(Vector2i(size.width - 40*2, size.height - 62),
                                 Size(38, 60)));
   pause_button->set_rect(Rect(Vector2i(size.width - 40*3, size.height - 62),
