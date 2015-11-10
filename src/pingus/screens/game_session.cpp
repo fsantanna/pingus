@@ -23,7 +23,7 @@
 
 #include "engine/sound/sound.hpp"
 #include "pingus/components/button_panel.hpp"
-#include "pingus/components/pingus_counter.hpp"
+///#include "pingus/components/pingus_counter.hpp"
 ///#include "pingus/components/playfield.hpp"
 #include "pingus/components/time_display.hpp"
 #include "pingus/globals.hpp"
@@ -44,7 +44,7 @@ GameSession::GameSession(const PingusLevel& arg_plf, bool arg_show_result_screen
   world_delay(),
   is_finished  (false),
   button_panel (0),
-  pcounter     (0),
+  ///pcounter     (0),
   ///playfield    (0),
   time_display (0),
   ///armageddon_button(),
@@ -73,12 +73,12 @@ GameSession::GameSession(const PingusLevel& arg_plf, bool arg_show_result_screen
   ceu_sys_go(&CEU_APP, CEU_IN_WORLD_NEW, &p);
   ///playfield = GLOBAL_PLAYFIELD;
 
-  pcounter     = new PingusCounter(get_server());
+  ///pcounter     = new PingusCounter(get_server());
   time_display = new TimeDisplay(this);
 
   //gui_manager->add(playfield);
   gui_manager->add(button_panel);
-  gui_manager->add(pcounter);
+  ///gui_manager->add(pcounter);
   gui_manager->add(time_display);
 
   ///armageddon_button = new ArmageddonButton(get_server(), 

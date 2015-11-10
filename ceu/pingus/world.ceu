@@ -31,6 +31,7 @@ end
 #include "components/playfield.ceu"
 #include "components/smallmap.ceu"
 #include "components/action_button.ceu"
+#include "components/pingus_counter.ceu"
 #include "smallmap_image.ceu"
 
 #include "worldobjs/entrance.ceu"
@@ -161,6 +162,10 @@ do
     var PauseButton _ with
         this.x = {Display::get_width()}  - 40*3;
         this.y = {Display::get_height()} - 62;
+    end;
+
+    var PingusCounter _ with
+        this.pingu_holder = &pingu_holder;
     end;
 
     par/or do

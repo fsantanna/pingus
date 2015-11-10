@@ -58,7 +58,7 @@ private:
   bool is_finished;
 
   ButtonPanel*   button_panel;
-  PingusCounter* pcounter;
+  ///PingusCounter* pcounter;
   ///Playfield*     playfield;
   TimeDisplay*   time_display;
 

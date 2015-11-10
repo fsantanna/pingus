@@ -1,0 +1,44 @@
+#ifndef _PINGUSCOUNTER_CEU
+#define _PINGUSCOUNTER_CEU
+
+native @plain _Font;
+
+class PingusCounter with
+    var PinguHolder& pingu_holder;
+do
+    //var _Font font = {Fonts::pingus_small_fixnum};
+
+    var float xf = {Display::get_size}().width/2;
+    var float yf = 0;
+    spawn do
+        every gc in SCREENMANAGER_DRAW do
+            xf = gc:get_width()/2;
+            yf = 0;
+        end
+    end
+
+    var Sprite _ with
+        this.x    = &xf;
+        this.y    = &yf;
+        this.name = "core/buttons/info";
+    end;
+
+    every gc in SCREENMANAGER_DRAW do
+        var _char[128] str;
+
+        _snprintf(&&str, 128,
+            __("Released:%3d/%d   Out:%3d   Saved:%3d/%d").c_str(),
+           this.pingu_holder.number_of_released,
+           this.pingu_holder.number_of_allowed,
+           this.pingu_holder.number_of_alive,
+           this.pingu_holder.number_of_exited,
+           _GLOBAL_SERVER:get_plf().get_number_to_save())
+            finalize with nothing; end;
+
+        gc:print_center({Fonts::pingus_small_fixnum},
+            _Vector2i(gc:get_width()/2, -2), &&str)
+                finalize with nothing; end;
+    end
+end
+
+#endif
