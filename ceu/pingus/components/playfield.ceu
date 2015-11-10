@@ -25,11 +25,6 @@ class Playfield with
     function (int x, int y)=>void scroll;
     function (void)=>void update_layout;
 do
-    var RectComponent component with
-        this.rect  = &outer.rect;
-        this.state = &global:world!:get_state();
-    end;
-
     #define POS2VEC(m) _Vector2i(m.x,m.y)
 
     var Position mouse_pos = Position(0,0);
@@ -41,9 +36,11 @@ do
     end
 
     par do
-        every (x,y) in component.on_primary_button_pressed do
+        every (x,y) in ON_PRIMARY_BUTTON_PRESSED do
             x = x - this.rect.left;
             y = y - this.rect.top;
+            x = global:world!:get_state().screen2world(_Vector2i(x,y)).x;
+            y = global:world!:get_state().screen2world(_Vector2i(x,y)).y;
 
             var IPingu&&? pingu;
             var float min_dist = 500.0;
