@@ -60,7 +60,7 @@ private:
   ButtonPanel*   button_panel;
   ///PingusCounter* pcounter;
   ///Playfield*     playfield;
-  TimeDisplay*   time_display;
+  ///TimeDisplay*   time_display;
 
   ///ArmageddonButton* armageddon_button;
   ///ForwardButton*    forward_button;

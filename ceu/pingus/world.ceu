@@ -30,8 +30,9 @@ end
 #include "pingu_holder.ceu"
 #include "components/playfield.ceu"
 #include "components/smallmap.ceu"
-#include "components/action_button.ceu"
+#include "components/time_display.ceu"
 #include "components/pingus_counter.ceu"
+#include "components/action_button.ceu"
 #include "smallmap_image.ceu"
 
 #include "worldobjs/entrance.ceu"
@@ -149,6 +150,8 @@ do
         this.pingu_holder = &pingu_holder;
         this.playfield    = &playfield;
     end;
+
+    var TimeDisplay _;
 
     var bool in_armageddon = false;
     var ArmageddonButton armageddon with

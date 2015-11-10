@@ -1,0 +1,30 @@
+#ifndef _TIMEDISPLAY_CEU
+#define _TIMEDISPLAY_CEU
+
+native do
+    ##include "pingus/game_time.hpp"
+end
+
+class TimeDisplay with
+do
+    every gc in SCREENMANAGER_DRAW do
+        var int level_time = _GLOBAL_SERVER:get_plf().get_time();
+        if (level_time>=0 or {globals::developer_mode}) then
+            // get elapsed time from server
+            var int time_value = global:world!:get_time();
+
+            if not {globals::developer_mode} then
+                time_value = {std::max}(0, level_time - time_value);
+            end
+
+            var _std__string time_string =
+                {GameTime::ticks_to_realtime_string}(time_value);
+            gc:print_right({Fonts::pingus_small_fixnum},
+                           _Vector2i({Display::get_width()} - 30, 3),
+                           time_string,
+                           150);
+        end
+    end
+end
+
+#endif

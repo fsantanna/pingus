@@ -25,7 +25,7 @@
 #include "pingus/components/button_panel.hpp"
 ///#include "pingus/components/pingus_counter.hpp"
 ///#include "pingus/components/playfield.hpp"
-#include "pingus/components/time_display.hpp"
+///#include "pingus/components/time_display.hpp"
 #include "pingus/globals.hpp"
 #include "pingus/savegame_manager.hpp"
 #include "pingus/screens/result_screen.hpp"
@@ -46,7 +46,7 @@ GameSession::GameSession(const PingusLevel& arg_plf, bool arg_show_result_screen
   button_panel (0),
   ///pcounter     (0),
   ///playfield    (0),
-  time_display (0),
+  ///time_display (0),
   ///armageddon_button(),
   ///forward_button(),
   ///pause_button(),
@@ -74,12 +74,12 @@ GameSession::GameSession(const PingusLevel& arg_plf, bool arg_show_result_screen
   ///playfield = GLOBAL_PLAYFIELD;
 
   ///pcounter     = new PingusCounter(get_server());
-  time_display = new TimeDisplay(this);
+  ///time_display = new TimeDisplay(this);
 
   //gui_manager->add(playfield);
   gui_manager->add(button_panel);
   ///gui_manager->add(pcounter);
-  gui_manager->add(time_display);
+  ///gui_manager->add(time_display);
 
   ///armageddon_button = new ArmageddonButton(get_server(), 
   //Display::get_width() - 40, Display::get_height() - 62);
