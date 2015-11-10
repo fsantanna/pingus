@@ -5,7 +5,7 @@ native @plain _GraphicContextState;
 
 class RectComponent with
     var Rect& rect;
-    var _GraphicContextState& state;
+    var _GraphicContextState&? state;
 
     event (int,int) on_primary_button_pressed;
 
@@ -18,8 +18,10 @@ do
     end
 
     function (int x, int y)=>bool is_at do
-        x = this.state.screen2world(_Vector2i(x,y)).x;
-        y = this.state.screen2world(_Vector2i(x,y)).y;
+        if this.state? then
+            x = this.state!.screen2world(_Vector2i(x,y)).x;
+            y = this.state!.screen2world(_Vector2i(x,y)).y;
+        end
 
         return rect.left<=x and x<=rect.left+rect.width
            and rect.top <=y and y<=rect.top+rect.height;

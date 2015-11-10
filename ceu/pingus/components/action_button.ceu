@@ -11,18 +11,20 @@ do
     var Rect rect = Rect(this.x,this.y, 38,60);
     var RectComponent component with
         this.rect  = &rect;
-        this.state = &global:world!:get_state();
+        //this.state = &global:world!:get_state();
     end;
 
     var float xf = this.x;
     var float yf = this.y;
     do
         var Sprite _ with
+            this.is_world = false;
             this.x    = &xf;
             this.y    = &yf;
             this.name = "core/buttons/hbuttonbgb";
         end;
         var Sprite sprite with
+            this.is_world = false;
             this.x    = &xf;
             this.y    = &yf;
             this.name = "core/buttons/armageddon_anim";
@@ -41,11 +43,13 @@ do
 
     do
         var Sprite _ with
+            this.is_world = false;
             this.x    = &xf;
             this.y    = &yf;
             this.name = "core/buttons/hbuttonbg";
         end;
         var Sprite _ with
+            this.is_world = false;
             this.x    = &xf;
             this.y    = &yf;
             this.name = "core/buttons/armageddon_anim";
@@ -62,7 +66,7 @@ do
     var Rect rect = Rect(this.x,this.y, 38,60);
     var RectComponent component with
         this.rect  = &rect;
-        this.state = &global:world!:get_state();
+        //this.state = &global:world!:get_state();
     end;
 
     var float xf = this.x;
@@ -71,6 +75,7 @@ do
         loop do
             do
                 var Sprite _ with
+                    this.is_world = false;
                     this.x    = &xf;
                     this.y    = &yf;
                     this.name = "core/buttons/hbuttonbgb";
@@ -80,6 +85,7 @@ do
             _GLOBAL_SESSION:set_fast_forward(true);
             do
                 var Sprite _ with
+                    this.is_world = false;
                     this.x    = &xf;
                     this.y    = &yf;
                     this.name = "core/buttons/hbuttonbg";
@@ -91,6 +97,7 @@ do
     end
 
     var Sprite _ with
+        this.is_world = false;
         this.x    = &xf;
         this.y    = &yf;
         this.name = "core/buttons/fast_forward";
@@ -105,7 +112,7 @@ do
     var Rect rect = Rect(this.x,this.y, 38,60);
     var RectComponent component with
         this.rect  = &rect;
-        this.state = &global:world!:get_state();
+        //this.state = &global:world!:get_state();
     end;
 
     var float xf = this.x;
@@ -114,6 +121,7 @@ do
         loop do
             do
                 var Sprite _ with
+                    this.is_world = false;
                     this.x    = &xf;
                     this.y    = &yf;
                     this.name = "core/buttons/hbuttonbgb";
@@ -123,6 +131,7 @@ do
             _GLOBAL_SESSION:set_pause(true);
             do
                 var Sprite _ with
+                    this.is_world = false;
                     this.x    = &xf;
                     this.y    = &yf;
                     this.name = "core/buttons/hbuttonbg";
@@ -134,6 +143,7 @@ do
     end
 
     var Sprite _ with
+        this.is_world = false;
         this.x    = &xf;
         this.y    = &yf;
         this.name = "core/buttons/pause";

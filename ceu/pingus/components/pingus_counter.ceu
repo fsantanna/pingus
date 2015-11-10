@@ -10,14 +10,8 @@ do
 
     var float xf = {Display::get_size}().width/2;
     var float yf = 0;
-    spawn do
-        every gc in SCREENMANAGER_DRAW do
-            xf = gc:get_width()/2;
-            yf = 0;
-        end
-    end
-
     var Sprite _ with
+        this.is_world = false;
         this.x    = &xf;
         this.y    = &yf;
         this.name = "core/buttons/info";

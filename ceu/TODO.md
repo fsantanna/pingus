@@ -1,3 +1,6 @@
+- BUG: is_world=false in sprite.ceu
+- BUG: cliques nos pingus
+- BUG: bg do pingu counter fixo
 - BUG: small map esta atras da agua embaixo do level snow20
 - BUG: queda do pingu saindo da entrada esta levemente desalinhado
 - BUG: glitch periodico no smallmap relacionado ao RENDER
