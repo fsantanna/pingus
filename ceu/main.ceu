@@ -7,6 +7,8 @@ native/pre do
     ##define std__string std::string
     ##define Resource__load_sprite_desc(name) Resource::load_sprite_desc(name)
     ##define ResourceModifier__Enum ResourceModifier::Enum
+    ##define Input__Event Input::Event
+    ##define Input__ButtonEvent Input::ButtonEvent
 end
 
 native do
@@ -24,6 +26,7 @@ end
 native @pure _Resource__load_sprite_desc(), _Pathname();
 native @plain _std__string, _Vector3f, _Vector2i, _Color, _Rect;
 native @plain _Sprite, _Surface, _SpriteDescription;
+native @plain _Input__Event, _Input__ButtonEvent;
 native @plain _ResourceModifier__Enum;
 native @pure   _XXX_PURE(), _XXX_PTR2REF();
 native @nohold _XXX_NOHOLD();
@@ -36,11 +39,13 @@ native @nohold _delete();
     end
 
 input int SDL_DT;
+input _Input__Event&& ON_INPUT_EVENT;
 input (int,int) ON_POINTER_MOVE;
 input (int,int) ON_PRIMARY_BUTTON_PRESSED;
 input (int,int) ON_PRIMARY_BUTTON_RELEASED;
 input (int,int) ON_SECONDARY_BUTTON_PRESSED;
 input (int,int) ON_SECONDARY_BUTTON_RELEASED;
+input float ON_ACTION_AXIS_MOVE;
 input _DrawingContext&& SCREENMANAGER_DRAW;
 input float SCREENMANAGER_UPDATE;
 

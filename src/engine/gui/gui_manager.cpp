@@ -93,6 +93,7 @@ GUIManager::update(const Input::Event& event)
     case Input::AXIS_EVENT_TYPE:
       // AxisEvents can be ignored in the GUI, they are handled elsewhere
       log_debug("GUIManager: AxisEvent: %1%", event.axis.dir);
+
       break;
 
     case Input::KEYBOARD_EVENT_TYPE:
@@ -114,6 +115,8 @@ GUIManager::update(const Input::Event& event)
       log_warn("unhandled event type %1%", event.type);
       break;
   }
+  Input::Event* p_event = (Input::Event*) &event;
+  ceu_sys_go(&CEU_APP, CEU_IN_ON_INPUT_EVENT, &p_event);
 }
 
 } // namespace GUI

@@ -6,14 +6,36 @@ native do
 end
 
 class ActionButtonE with
-    event void e;
+    event int e;
+    var int n = 0;
+    var int max;
 do
-    await FOREVER;
+    every v in ON_INPUT_EVENT do
+        if v:type != {Input::BUTTON_EVENT_TYPE} then
+            continue;
+        end
+        var _Input__ButtonEvent&& but = &&v:button;
+        if but:state != {Input::BUTTON_PRESSED} then
+            continue;
+        end
+        var int inc = 0;
+        if but:name == {Input::ACTION_DOWN_BUTTON} then
+            inc = 1;
+        else/if but:name == {Input::ACTION_UP_BUTTON} then
+            inc = -1;
+        end
+        if inc != 0 then
+            this.n = (this.n+inc) % this.max;
+_printf("MAX=%d, n=%d\n", this.max, this.n);
+            emit this.e => this.n;
+        end
+    end
 end
 
 class ActionButton with
     var int x;
     var int y;
+    var int n;
     var _ActionName__Enum  id_me;
     var _ActionName__Enum& id_out;
     var ActionButtonE&    out;
@@ -34,6 +56,23 @@ do
     var float xf2 = xf+20;
     var float yf2 = xf+16;
 
+    if n == 0 then
+        var Sprite _ with
+            this.is_world = false;
+            this.x    = &xf;
+            this.y    = &yf;
+            this.name = "core/buttons/buttonbackgroundhl";
+        end;
+        var Sprite sprite with
+            this.is_world = false;
+            this.x    = &xf2;
+            this.y    = &yf;
+            this.name = _XXX_PURE(&&name);
+        end;
+        sprite.is_loop = true;
+        await out.e;
+    end
+
     loop do
         do
             var Sprite _ with
@@ -50,9 +89,13 @@ do
             end;
             sprite.frame_delay = 0;
 
-            await component.on_primary_button_pressed;
+            par/or do
+                await component.on_primary_button_pressed;
+            with
+                var int n = await out.e until n==this.n;
+            end
             this.id_out = this.id_me;
-            emit out.e;
+            emit out.e => this.n;
         end
         do
             var Sprite _ with
@@ -85,13 +128,17 @@ end
 class ButtonPanel with
     var _ActionName__Enum action = {ActionName::WALKER};
 do
-    var ActionButtonE out;
-
     _ButtonPanel_load_actions();
+
+    var ActionButtonE out with
+        this.max = _ButtonPanel_actions.size();
+    end;
+
     loop i in _ButtonPanel_actions.size() do
         spawn ActionButton with
             this.x      = 100;
             this.y      = 100 + 38*i;
+            this.n      = i;
             this.id_me  = _ButtonPanel_actions[i];
             this.id_out = &outer.action;
             this.out    = &out;
