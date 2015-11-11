@@ -137,22 +137,7 @@ do
         this.number_of_allowed = plf:get_number_of_pingus();
     end;
 
-    var Playfield playfield with
-        this.pingu_holder = &pingu_holder;
-        this.rect         = &rect;
-    end;
-    this.state!.set_pos(this.get_start_pos(0));
-
-    var Rect rect_small = Rect(6,{Display::get_size}().height-105, 175,100);
-        // TODO: height originally comes from Screen/GUIScreen/SmallMap
-
-    var SmallMap smallmap with
-        this.rect         = rect_small;
-        this.pingu_holder = &pingu_holder;
-        this.playfield    = &playfield;
-    end;
-
-    var ButtonPanel _;
+    var ButtonPanel button_panel;
     var TimeDisplay _;
 
     var bool in_armageddon = false;
@@ -171,6 +156,22 @@ do
 
     var PingusCounter _ with
         this.pingu_holder = &pingu_holder;
+    end;
+
+    var Playfield playfield with
+        this.action       = &button_panel.action;
+        this.pingu_holder = &pingu_holder;
+        this.rect         = &rect;
+    end;
+    this.state!.set_pos(this.get_start_pos(0));
+
+    var Rect rect_small = Rect(6,{Display::get_size}().height-105, 175,100);
+        // TODO: height originally comes from Screen/GUIScreen/SmallMap
+
+    var SmallMap smallmap with
+        this.rect         = rect_small;
+        this.pingu_holder = &pingu_holder;
+        this.playfield    = &playfield;
     end;
 
     par/or do

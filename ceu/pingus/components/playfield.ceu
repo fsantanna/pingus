@@ -17,6 +17,7 @@ end
 class Playfield with
     interface IPlayfield;
     var PinguHolder& pingu_holder;
+    var _ActionName__Enum& action;
 
     var Rect& rect;
 
@@ -60,7 +61,7 @@ do
             end
 
             if pingu? then
-                var _ActionName__Enum action = _GLOBAL_SESSION:get_action_name();
+                var _ActionName__Enum action = this.action;
                 if pingu!:check_action(action) then
                     if _GLOBAL_SERVER:action_holder.pop_action(action) then
                         emit pingu!:go_action => action;

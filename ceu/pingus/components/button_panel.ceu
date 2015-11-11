@@ -31,6 +31,8 @@ do
 
     var float xf = this.x;
     var float yf = this.y;
+    var float xf2 = xf+20;
+    var float yf2 = xf+16;
 
     loop do
         do
@@ -42,7 +44,7 @@ do
             end;
             var Sprite sprite with
                 this.is_world = false;
-                this.x    = &xf;
+                this.x    = &xf2;
                 this.y    = &yf;
                 this.name = _XXX_PURE(&&name);
             end;
@@ -61,7 +63,7 @@ do
             end;
             var Sprite sprite with
                 this.is_world = false;
-                this.x    = &xf;
+                this.x    = &xf2;
                 this.y    = &yf;
                 this.name = _XXX_PURE(&&name);
             end;
