@@ -97,6 +97,7 @@ do
                 var int n = await out.e until n==this.n;
             end
             this.id_out = this.id_me;
+            out.n = this.n;
             emit out.e => this.n;
         end
         do
