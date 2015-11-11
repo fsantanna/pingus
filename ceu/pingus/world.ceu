@@ -159,7 +159,7 @@ do
     end;
 
     var Playfield playfield with
-        this.action       = &button_panel.action;
+        this.action_next  = &button_panel.action;
         this.pingu_holder = &pingu_holder;
         this.rect         = &rect;
     end;

@@ -26,7 +26,9 @@ do
         end
         if inc != 0 then
             this.n = (this.n+inc) % this.max;
-_printf("MAX=%d, n=%d\n", this.max, this.n);
+            if this.n < 0 then
+                this.n = this.n + this.max;
+            end
             emit this.e => this.n;
         end
     end

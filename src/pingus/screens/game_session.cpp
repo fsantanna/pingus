@@ -220,14 +220,6 @@ GameSession::update(const Input::Event& event)
         {
           button_panel->set_button(ev.name - Input::ACTION_1_BUTTON);
         }
-        else if (ev.name == Input::ACTION_DOWN_BUTTON)
-        {
-          button_panel->next_action();
-        }
-        else if (ev.name == Input::ACTION_UP_BUTTON)
-        {
-          button_panel->previous_action();
-        }
       }
     }
     break;
