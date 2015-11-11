@@ -1,0 +1,102 @@
+#ifndef _BUTTONPANEL_CEU
+#define _BUTTONPANEL_CEU
+
+native do
+    ##include "pingus/game_time.hpp"
+end
+
+class ActionButtonE with
+    event void e;
+do
+    await FOREVER;
+end
+
+class ActionButton with
+    var int x;
+    var int y;
+    var _ActionName__Enum  id_me;
+    var _ActionName__Enum& id_out;
+    var ActionButtonE&    out;
+do
+    var Rect rect = Rect(this.x,this.y, 60,38);
+    var RectComponent component with
+        this.rect  = &rect;
+        //this.state = &global:world!:get_state();
+    end;
+
+    var char[] name = []
+        .. "pingus/player0/"
+        ..  (char&&)({ActionName::to_string}(this.id_me).c_str())
+        .. "/right";
+
+    var float xf = this.x;
+    var float yf = this.y;
+
+    loop do
+        do
+            var Sprite _ with
+                this.is_world = false;
+                this.x    = &xf;
+                this.y    = &yf;
+                this.name = "core/buttons/buttonbackground";
+            end;
+            var Sprite sprite with
+                this.is_world = false;
+                this.x    = &xf;
+                this.y    = &yf;
+                this.name = _XXX_PURE(&&name);
+            end;
+            sprite.frame_delay = 0;
+
+            await component.on_primary_button_pressed;
+            this.id_out = this.id_me;
+            emit out.e;
+        end
+        do
+            var Sprite _ with
+                this.is_world = false;
+                this.x    = &xf;
+                this.y    = &yf;
+                this.name = "core/buttons/buttonbackgroundhl";
+            end;
+            var Sprite sprite with
+                this.is_world = false;
+                this.x    = &xf;
+                this.y    = &yf;
+                this.name = _XXX_PURE(&&name);
+            end;
+            sprite.is_loop = true;
+            await out.e;
+        end
+    end
+end
+
+native do
+    std::vector<ActionName::Enum> ButtonPanel_actions;
+    void ButtonPanel_load_actions (void) {
+        ActionHolder* aholder = GLOBAL_SERVER->get_action_holder();
+        ButtonPanel_actions = aholder->get_available_actions();
+        std::sort(ButtonPanel_actions.begin(), ButtonPanel_actions.end());
+    }
+end
+
+class ButtonPanel with
+    var _ActionName__Enum action = {ActionName::WALKER};
+do
+    var ActionButtonE out;
+
+    _ButtonPanel_load_actions();
+    loop i in _ButtonPanel_actions.size() do
+        spawn ActionButton with
+            this.x      = 100;
+            this.y      = 100 + 38*i;
+            this.id_me  = _ButtonPanel_actions[i];
+            this.id_out = &outer.action;
+            this.out    = &out;
+        end;
+    end
+
+    await FOREVER;
+end
+
+#endif

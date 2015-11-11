@@ -30,6 +30,7 @@ end
 #include "pingu_holder.ceu"
 #include "components/playfield.ceu"
 #include "components/smallmap.ceu"
+#include "components/button_panel.ceu"
 #include "components/time_display.ceu"
 #include "components/pingus_counter.ceu"
 #include "components/action_button.ceu"
@@ -151,6 +152,7 @@ do
         this.playfield    = &playfield;
     end;
 
+    var ButtonPanel _;
     var TimeDisplay _;
 
     var bool in_armageddon = false;
