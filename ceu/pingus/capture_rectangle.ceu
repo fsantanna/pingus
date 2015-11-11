@@ -9,7 +9,7 @@ native do
 end
 
 class CaptureRectangle with
-    var IPlayfield& playfield;
+    var Playfield& playfield;
 do
     pool Sprite[1] good_or_bad;
     pool Sprite[1] left_or_right;

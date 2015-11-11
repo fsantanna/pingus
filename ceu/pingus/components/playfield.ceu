@@ -1,22 +1,17 @@
 #ifndef _PLAYFIELD_CEU
 #define _PLAYFIELD_CEU
 
-interface IPlayfield with
-    var   IPingu&&? current_pingu;
-    event void      ok_pingu;
-    var _ActionName__Enum& action_next;
-end
-
 native do
     ##include "src/pingus/screens/game_session.hpp"
     ##include "pingus/server.hpp"
 end
 
 #include "../../engine/gui/rect_component.ceu"
-#include "../capture_rectangle.ceu"
 
 class Playfield with
-    interface IPlayfield;
+    var   IPingu&&? current_pingu;
+    event void      ok_pingu;
+    var _ActionName__Enum& action_next;
     var PinguHolder& pingu_holder;
 
     var Rect& rect;
@@ -188,11 +183,6 @@ do
                 end
             end
         end
-    with
-        var CaptureRectangle _ with
-            this.playfield = &outer;
-        end;
-        await FOREVER;
     end
 
     /* PUBLIC */

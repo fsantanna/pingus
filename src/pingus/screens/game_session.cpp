@@ -351,12 +351,6 @@ GameSession::on_startup ()
   }
 }
 
-ActionName::Enum
-GameSession::get_action_name() const
-{
-  return button_panel->get_action_name();
-}
-
 void
 GameSession::set_fast_forward(bool value)
 {

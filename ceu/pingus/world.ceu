@@ -34,6 +34,7 @@ end
 #include "components/time_display.ceu"
 #include "components/pingus_counter.ceu"
 #include "components/action_button.ceu"
+#include "capture_rectangle.ceu"
 #include "smallmap_image.ceu"
 
 #include "worldobjs/entrance.ceu"
@@ -164,6 +165,10 @@ do
         this.rect         = &rect;
     end;
     this.state!.set_pos(this.get_start_pos(0));
+
+    var CaptureRectangle _ with
+        this.playfield = &playfield;
+    end;
 
     var Rect rect_small = Rect(6,{Display::get_size}().height-105, 175,100);
         // TODO: height originally comes from Screen/GUIScreen/SmallMap
