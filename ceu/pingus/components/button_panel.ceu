@@ -72,6 +72,7 @@ do
             this.name = _XXX_PURE(&&name);
         end;
         sprite.is_loop = true;
+        this.id_out = this.id_me;
         await out.e;
     end
 
