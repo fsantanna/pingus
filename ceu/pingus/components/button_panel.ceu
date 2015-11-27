@@ -53,69 +53,75 @@ do
         ..  (char&&)({ActionName::to_string}(this.id_me).c_str())
         .. "/right";
 
-    var float xf = this.x;
-    var float yf = this.y;
-    var float xf2 = xf+20;
-    var float yf2 = xf+16;
+    var float xf  = this.x;
+    var float yf  = this.y;
+    var float xf2 = this.x + 20;
+    var float yf2 = this.y + 32;
 
-    if n == 0 then
-        var Sprite _ with
-            this.is_world = false;
-            this.x    = &xf;
-            this.y    = &yf;
-            this.name = "core/buttons/buttonbackgroundhl";
-        end;
-        var Sprite sprite with
-            this.is_world = false;
-            this.x    = &xf2;
-            this.y    = &yf;
-            this.name = _XXX_PURE(&&name);
-        end;
-        sprite.is_loop = true;
-        this.id_out = this.id_me;
-        await out.e;
-    end
-
-    loop do
-        do
-            var Sprite _ with
-                this.is_world = false;
-                this.x    = &xf;
-                this.y    = &yf;
-                this.name = "core/buttons/buttonbackground";
-            end;
-            var Sprite sprite with
-                this.is_world = false;
-                this.x    = &xf2;
-                this.y    = &yf;
-                this.name = _XXX_PURE(&&name);
-            end;
-            sprite.frame_delay = 0;
-
-            par/or do
-                await component.on_primary_button_pressed;
-            with
-                var int n = await out.e until n==this.n;
-            end
-            this.id_out = this.id_me;
-            out.n = this.n;
-            emit out.e => this.n;
-        end
-        do
-            var Sprite _ with
-                this.is_world = false;
-                this.x    = &xf;
-                this.y    = &yf;
-                this.name = "core/buttons/buttonbackgroundhl";
-            end;
-            var Sprite sprite with
-                this.is_world = false;
-                this.x    = &xf2;
-                this.y    = &yf;
-                this.name = _XXX_PURE(&&name);
-            end;
+    par do
+        if n == 0 then
+            var Sprite _ = Sprite.w_xy_name(false, &xf,&yf, "core/buttons/buttonbackgroundhl");
+            var Sprite sprite = Sprite.w_xy_name(false, &xf2,&yf2, _XXX_PURE(&&name));
             sprite.is_loop = true;
+            this.id_out = this.id_me;
             await out.e;
+        end
+
+        loop do
+            do
+                var Sprite _ = Sprite.w_xy_name(false, &xf,&yf, "core/buttons/buttonbackground");
+                var Sprite sprite = Sprite.w_xy_name(false, &xf2,&yf2, _XXX_PURE(&&name));
+                sprite.frame_delay = 0;
+
+                par/or do
+                    await component.on_primary_button_pressed;
+                with
+                    var int n = await out.e until n==this.n;
+                end
+                this.id_out = this.id_me;
+                out.n = this.n;
+                emit out.e => this.n;
+            end
+            do
+                var Sprite _ = Sprite.w_xy_name(false, &xf,&yf, "core/buttons/buttonbackgroundhl");
+                var Sprite sprite = Sprite.w_xy_name(false, &xf2,&yf2, _XXX_PURE(&&name));
+                sprite.is_loop = true;
+                await out.e;
+            end
+        end
+    with
+        every gc in SCREENMANAGER_DRAW do
+            if {globals::developer_mode} then
+#if 0
+                {
+                    std::ostringstream out;
+                    std::string str = StringUtil::to_string(aholder->get_available(buttons[i].name));
+                    out << aholder->get_available(buttons[i].name)
+                        << " / "
+                        << aholder->get_used(buttons[i].name);
+                };
+                gc:print_left(Fonts::pingus_small, Vector2i(rect.left + 46, rect.top + 5 + 38*static_cast<int>(i)), out.str());
+#endif
+            else
+                gc:print_center(
+                    {Fonts::pingus_small},
+                    _Vector2i(this.x+46, this.y+5),
+                    {StringUtil::to_string}(_GLOBAL_SERVER:get_action_holder():get_available(this.id_me))
+                );
+            end
+        end
+    with
+        loop do
+            await component.on_pointer_enter;
+            watching component.on_pointer_leave do
+                every gc in SCREENMANAGER_DRAW do
+                    gc:print_left(
+                        {Fonts::pingus_small},
+                        _Vector2i(this.x+65, this.y+5),
+                        {ActionName::to_screenname}(this.id_me)
+                    );
+                end
+            end
         end
     end
 end
@@ -138,10 +144,14 @@ do
         this.max = _ButtonPanel_actions.size();
     end;
 
+    var float x = 100;
+    var float y = ({Display::get_height()}-150)/2 - /// TODO: screen.size
+                    (_ButtonPanel_actions.size()*38/2);
+
     loop i in _ButtonPanel_actions.size() do
         spawn ActionButton with
-            this.x      = 100;
-            this.y      = 100 + 38*i;
+            this.x      = x;
+            this.y      = y + 38*i;
             this.n      = i;
             this.id_me  = _ButtonPanel_actions[i];
             this.id_out = &outer.action;

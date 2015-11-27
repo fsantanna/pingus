@@ -404,9 +404,8 @@ printf("RESIZE\n");
                                 Size(38, 60)));
   pause_button->set_rect(Rect(Vector2i(size.width - 40*3, size.height - 62),
                               Size(38, 60)));
-#endif
-
   button_panel->set_pos(Vector2i(0, (size.height - 150)/2));
+#endif
 }
 
 /* EOF */
