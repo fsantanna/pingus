@@ -8,12 +8,28 @@ class RectComponent with
     var _GraphicContextState&? state;
 
     event (int,int) on_primary_button_pressed;
+    event void      on_pointer_enter;
+    event void      on_pointer_leave;
 
     function (int x, int y)=>bool is_at;
 do
-    every (x,y) in ON_PRIMARY_BUTTON_PRESSED do
-        if this.is_at(x,y) then
-            emit this.on_primary_button_pressed => (x,y);
+    par do
+        every (x,y) in ON_PRIMARY_BUTTON_PRESSED do
+            if this.is_at(x,y) then
+                emit this.on_primary_button_pressed => (x,y);
+            end
+        end
+    with
+        var int is = false;
+        every (x,y) in ON_POINTER_MOVE do
+            if this.is_at(x,y) != is then
+                is = not is;
+                if is then
+                    emit this.on_pointer_enter;
+                else
+                    emit this.on_pointer_leave;
+                end
+            end
         end
     end
 
