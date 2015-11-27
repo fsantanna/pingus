@@ -43,7 +43,16 @@ class Sprite with
     var _SpriteDescription&&    desc    = null;
     var _ResourceModifier__Enum mod     = {ResourceModifier::ROT0};
     var char&&                  name    = null;
+
+    function (bool is_world, float& x, float& y, @hold char&& name)=>Sprite w_xy_name;
 do
+    function (bool is_world, float& x, float& y, @hold char&& name)=>Sprite w_xy_name do
+        this.is_world = is_world;
+        this.x        = &x;
+        this.y        = &y;
+        this.name     := name;
+    end
+
     var _FramebufferSurface&? framebuffer_surface;
     //do
         if surface != null then
