@@ -29,7 +29,7 @@ struct AxisEvent;
 struct Event;
 }
 
-class ButtonPanel;
+///class ButtonPanel;
 class PingusCounter;
 class Playfield;
 class TimeDisplay;
@@ -57,7 +57,7 @@ private:
   // -- Client stuff
   bool is_finished;
 
-  ButtonPanel*   button_panel;
+  ///ButtonPanel*   button_panel;
   ///PingusCounter* pcounter;
   ///Playfield*     playfield;
   ///TimeDisplay*   time_display;
@@ -89,7 +89,7 @@ public:
   void update (const Input::Event& event);
   void draw_background (DrawingContext& gc);
 
-  ButtonPanel* get_button_panel () { return button_panel; }
+  ///ButtonPanel* get_button_panel () { return button_panel; }
 
   // Overloaded GUIScreen stuff
   void on_startup ();

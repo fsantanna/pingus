@@ -22,7 +22,7 @@
 #include "pingus/server.hpp"
 
 #include "engine/sound/sound.hpp"
-#include "pingus/components/button_panel.hpp"
+///#include "pingus/components/button_panel.hpp"
 ///#include "pingus/components/pingus_counter.hpp"
 ///#include "pingus/components/playfield.hpp"
 ///#include "pingus/components/time_display.hpp"
@@ -43,7 +43,7 @@ GameSession::GameSession(const PingusLevel& arg_plf, bool arg_show_result_screen
   server(),
   world_delay(),
   is_finished  (false),
-  button_panel (0),
+  ///button_panel (0),
   ///pcounter     (0),
   ///playfield    (0),
   ///time_display (0),
@@ -67,7 +67,8 @@ GameSession::GameSession(const PingusLevel& arg_plf, bool arg_show_result_screen
   // -- Client stuff
 
   // These object will get deleted by the gui_manager
-  button_panel = new ButtonPanel(get_server(), Vector2i(0, (size.height - 150)/2));
+  ///button_panel = new ButtonPanel(get_server(), Vector2i(0, (size.height - 
+  //150)/2));
 
   void* p = &get_server()->plf;
   ceu_sys_go(&CEU_APP, CEU_IN_WORLD_NEW, &p);
@@ -77,7 +78,7 @@ GameSession::GameSession(const PingusLevel& arg_plf, bool arg_show_result_screen
   ///time_display = new TimeDisplay(this);
 
   //gui_manager->add(playfield);
-  gui_manager->add(button_panel);
+  ///gui_manager->add(button_panel);
   ///gui_manager->add(pcounter);
   ///gui_manager->add(time_display);
 
@@ -210,6 +211,7 @@ GameSession::update(const Input::Event& event)
 
   switch (event.type)
   {
+#if 0
     case Input::BUTTON_EVENT_TYPE:
     {
       const Input::ButtonEvent& ev = event.button;
@@ -223,6 +225,7 @@ GameSession::update(const Input::Event& event)
       }
     }
     break;
+#endif
 
     case Input::POINTER_EVENT_TYPE:
       // Ignore, is handled in GUIScreen
@@ -326,10 +329,12 @@ GameSession::on_armageddon_press ()
 void
 GameSession::on_action_axis_move (float move)
 {
+#if 0
   if (move > 0)
     button_panel->next_action ();
   else if (move < 0)
     button_panel->previous_action ();
+#endif
 }
 
 void

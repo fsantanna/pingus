@@ -151,7 +151,7 @@ do
         this.max = _ButtonPanel_actions.size();
     end;
 
-    var float x = 100;
+    var float x = 0;
     var float y = ({Display::get_height()}-150)/2 - /// TODO: screen.size
                     (_ButtonPanel_actions.size()*38/2);
 

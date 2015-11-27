@@ -37,7 +37,7 @@ class PingusDemo;
 class Playfield;
 class SmallMap;
 class BButton;
-class ButtonPanel;
+///class ButtonPanel;
 
 /** A DemoSession is analog to a GameSession, but instead of loading a
     level and letting the player play a game, a demo file will be
