@@ -1,0 +1,47 @@
+#ifndef _GAME_SESSION
+#define _GAME_SESSION
+
+class GameSession with
+do
+    var bool is_paused = false;
+    par do
+        every e in ON_INPUT_EVENT do
+            if e:type != {Input::BUTTON_EVENT_TYPE} then
+                continue;
+            end
+
+            var _Input__ButtonEvent&& but = &&e:button;
+            if but:state == {Input::BUTTON_PRESSED} then
+                if but:name == {Input::PAUSE_BUTTON} then
+                    emit global:pause_toggle;
+                else/if but:name == {Input::SINGLE_STEP_BUTTON} then
+                    if not is_paused then
+                        emit global:pause_toggle;
+                    end
+                    _GLOBAL_SESSION:single_step = true;
+                else/if but:name == {Input::FAST_FORWARD_BUTTON} then
+                    _GLOBAL_SESSION:set_fast_forward(true);
+                end
+            else
+                _assert(but:state == {Input::BUTTON_RELEASED});
+                if but:name == {Input::FAST_FORWARD_BUTTON} then
+                    _GLOBAL_SESSION:set_fast_forward(false);
+                end
+            end
+        end
+    with
+        every global:pause_toggle do
+            is_paused = not is_paused;
+            _GLOBAL_SESSION:set_pause(is_paused);
+        end
+    end
+end
+
+spawn do
+    every WORLD_NEW do
+        spawn GameSession with
+        end;
+    end
+end
+
+#endif

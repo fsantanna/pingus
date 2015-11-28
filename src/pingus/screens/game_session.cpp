@@ -219,17 +219,17 @@ GameSession:: on_escape_press ()
   server->send_finish_event();
 }
 
-void
-GameSession:: on_pause_press ()
-{
-  ///set_pause(!get_pause());
+void GameSession:: on_pause_press () {
+#if 0
+  set_pause(!get_pause());
+#endif
 }
 
-void
-GameSession::on_single_step_press ()
-{
+void GameSession::on_single_step_press () {
+#if 0
   set_pause(true);
   single_step = true;
+#endif
 }
 
 void
@@ -245,10 +245,10 @@ GameSession::on_fast_forward_press ()
   }
 }
 
-void
-GameSession::on_fast_forward_release ()
-{
+void GameSession::on_fast_forward_release () {
+#if 0
   set_fast_forward(false);
+#endif
 }
 
 void

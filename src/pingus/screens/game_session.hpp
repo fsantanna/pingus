@@ -42,7 +42,7 @@ class Server;
     of a single level. */
 class GameSession : public GUIScreen
 {
-private:
+public:
   /// The level data
   PingusLevel plf;
 
