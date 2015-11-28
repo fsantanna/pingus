@@ -163,11 +163,14 @@ end
 
 interface Global with
     var IWorld&&? world;
+    event void pause_toggle;
 end
 
 var IWorld&&? world;
+event void pause_toggle;
 
 #include "pingus/world.ceu"
+#include "pingus/screens/game_session.ceu"
 
 every 1s do
     var int e = 0;

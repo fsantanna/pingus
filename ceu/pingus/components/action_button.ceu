@@ -119,7 +119,10 @@ do
     var float yf = this.y;
     spawn do
         loop do
-            do
+            var bool from_out = true;
+            par/or do
+                await global:pause_toggle until from_out;
+            with
                 var Sprite _ with
                     this.is_world = false;
                     this.x    = &xf;
@@ -127,9 +130,14 @@ do
                     this.name = "core/buttons/hbuttonbgb";
                 end;
                 await component.on_primary_button_pressed;
+                from_out = false;
+                emit global:pause_toggle;
             end
-            _GLOBAL_SESSION:set_pause(true);
-            do
+
+            from_out = true;
+            par/or do
+                await global:pause_toggle until from_out;
+            with
                 var Sprite _ with
                     this.is_world = false;
                     this.x    = &xf;
@@ -137,8 +145,9 @@ do
                     this.name = "core/buttons/hbuttonbg";
                 end;
                 await component.on_primary_button_pressed;
+                from_out = false;
+                emit global:pause_toggle;
             end
-            _GLOBAL_SESSION:set_pause(false);
         end
     end
 

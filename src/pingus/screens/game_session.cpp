@@ -43,55 +43,18 @@ GameSession::GameSession(const PingusLevel& arg_plf, bool arg_show_result_screen
   server(),
   world_delay(),
   is_finished  (false),
-  ///button_panel (0),
-  ///pcounter     (0),
-  ///playfield    (0),
-  ///time_display (0),
-  ///armageddon_button(),
-  ///forward_button(),
-  ///pause_button(),
   pause(false),
   fast_forward(false),
   single_step(false)
 {
   GLOBAL_SESSION = this;
-
   server = std::unique_ptr<Server>(new Server(plf, true));
   GLOBAL_SERVER = server.get();
-
   // the world is initially on time
   world_delay = 0;
-
   log_debug("GameSession");
-
-  // -- Client stuff
-
-  // These object will get deleted by the gui_manager
-  ///button_panel = new ButtonPanel(get_server(), Vector2i(0, (size.height - 
-  //150)/2));
-
   void* p = &get_server()->plf;
   ceu_sys_go(&CEU_APP, CEU_IN_WORLD_NEW, &p);
-  ///playfield = GLOBAL_PLAYFIELD;
-
-  ///pcounter     = new PingusCounter(get_server());
-  ///time_display = new TimeDisplay(this);
-
-  //gui_manager->add(playfield);
-  ///gui_manager->add(button_panel);
-  ///gui_manager->add(pcounter);
-  ///gui_manager->add(time_display);
-
-  ///armageddon_button = new ArmageddonButton(get_server(), 
-  //Display::get_width() - 40, Display::get_height() - 62);
-  ///forward_button    = new ForwardButton(this, Display::get_width() - 40 * 2, 
-  //Display::get_height() - 62);
-  ///pause_button      = new PauseButton(this, Display::get_width() - 40 * 3, 
-  //Display::get_height() - 62);
-
-  ///gui_manager->add(armageddon_button);
-  ///gui_manager->add(forward_button);
-  ///gui_manager->add(pause_button);
 }
 
 GameSession::~GameSession()
@@ -206,46 +169,14 @@ void
 GameSession::update(const Input::Event& event)
 {
   GUIScreen::update(event);
-
-  //log_info("Events: " << event.get_type ());
-
   switch (event.type)
   {
-#if 0
-    case Input::BUTTON_EVENT_TYPE:
-    {
-      const Input::ButtonEvent& ev = event.button;
-
-      if (ev.state == Input::BUTTON_PRESSED)
-      {
-        if (ev.name >= Input::ACTION_1_BUTTON && ev.name <= Input::ACTION_10_BUTTON)
-        {
-          button_panel->set_button(ev.name - Input::ACTION_1_BUTTON);
-        }
-      }
-    }
-    break;
-#endif
-
-    case Input::POINTER_EVENT_TYPE:
-      // Ignore, is handled in GUIScreen
-      break;
-
     case Input::AXIS_EVENT_TYPE:
       // ???
       process_axis_event (event.axis);
       break;
-
     case Input::SCROLLER_EVENT_TYPE:
       process_scroll_event(event.scroll);
-      break;
-
-    case Input::KEYBOARD_EVENT_TYPE:
-      break;
-
-    default:
-      // unhandled event
-      log_info("GameSession::process_events (): unhandled event: %1%", event.type);
       break;
   }
 }
@@ -291,7 +222,7 @@ GameSession:: on_escape_press ()
 void
 GameSession:: on_pause_press ()
 {
-  set_pause(!get_pause());
+  ///set_pause(!get_pause());
 }
 
 void
@@ -395,7 +326,8 @@ GameSession::resize(const Size& size_)
 
   int world_width  = CEU_World_get_width(NULL, GLOBAL_CEU_WORLD);
   int world_height = CEU_World_get_height(NULL, GLOBAL_CEU_WORLD);
-printf("RESIZE\n");
+
+assert(!"RESIZE");
 
 #if 0
   playfield->set_rect(Rect(Vector2i(Math::max((size.width  - world_width)/2,  0),

@@ -29,7 +29,6 @@ struct AxisEvent;
 struct Event;
 }
 
-///class ButtonPanel;
 class PingusCounter;
 class Playfield;
 class TimeDisplay;
@@ -56,16 +55,6 @@ private:
 
   // -- Client stuff
   bool is_finished;
-
-  ///ButtonPanel*   button_panel;
-  ///PingusCounter* pcounter;
-  ///Playfield*     playfield;
-  ///TimeDisplay*   time_display;
-
-  ///ArmageddonButton* armageddon_button;
-  ///ForwardButton*    forward_button;
-  ///PauseButton*      pause_button;
-
   bool pause;
   bool fast_forward;
   bool single_step;
