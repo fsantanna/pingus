@@ -116,7 +116,7 @@ do
     _GAMESESSION_RESULT.total     = (int)_GLOBAL_SERVER:get_plf().get_number_of_pingus();
     _GAMESESSION_RESULT.needed    = (int)_GLOBAL_SERVER:get_plf().get_number_to_save();
     _GAMESESSION_RESULT.max_time  = (int)_GLOBAL_SERVER:get_plf().get_time();
-    _GAMESESSION_RESULT.used_time = global:world!:get_time();
+    _GAMESESSION_RESULT.used_time = world.get_time();
 
     { // Write the savegame
         Savegame savegame(GAMESESSION_RESULT.plf.get_resname(),
