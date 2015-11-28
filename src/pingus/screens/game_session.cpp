@@ -53,15 +53,6 @@ GameSession::GameSession(const PingusLevel& arg_plf, bool arg_show_result_screen
   ceu_sys_go(&CEU_APP, CEU_IN_GAMESESSION_NEW, &p);
 }
 
-GameSession::~GameSession()
-{
-}
-
-void
-GameSession::update_server(float delta)
-{
-}
-
 void
 GameSession::draw_background (DrawingContext& gc)
 {
@@ -123,13 +114,6 @@ GameSession::process_axis_event (const Input::AxisEvent& event)
   // log_info("GameSession::process_axis_event ()");
 }
 
-void GameSession:: on_escape_press () { }
-void GameSession:: on_pause_press () { }
-void GameSession::on_single_step_press () { }
-void GameSession::on_fast_forward_press () { }
-void GameSession::on_fast_forward_release () { }
-void GameSession::on_armageddon_press () { }
-
 void
 GameSession::on_action_axis_move (float move)
 {
@@ -139,23 +123,6 @@ GameSession::on_action_axis_move (float move)
   else if (move < 0)
     button_panel->previous_action ();
 #endif
-}
-
-void
-GameSession::on_startup ()
-{
-  if (globals::developer_mode)
-    log_info("Starting Music: %1%", server->get_plf().get_music());
-
-  if (server->get_plf().get_music() == "none" ||
-      server->get_plf().get_music().empty())
-  {
-    Sound::PingusSound::stop_music();
-  }
-  else
-  {
-    Sound::PingusSound::play_music(server->get_plf().get_music());
-  }
 }
 
 void
@@ -183,5 +150,15 @@ assert(!"RESIZE");
   button_panel->set_pos(Vector2i(0, (size.height - 150)/2));
 #endif
 }
+
+GameSession::~GameSession() { }
+void GameSession::on_startup () { }
+void GameSession::update_server(float delta) { }
+void GameSession:: on_escape_press () { }
+void GameSession:: on_pause_press () { }
+void GameSession::on_single_step_press () { }
+void GameSession::on_fast_forward_press () { }
+void GameSession::on_fast_forward_release () { }
+void GameSession::on_armageddon_press () { }
 
 /* EOF */

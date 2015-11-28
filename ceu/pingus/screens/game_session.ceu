@@ -20,6 +20,18 @@ do
     var bool is_fast_forwarded = false;
     var bool do_single_step    = false;
 
+    /// TODO: from "on_startup", called on creation and when popped back
+    if {globals::developer_mode} then
+        _log_info("Starting Music: %1%", _GLOBAL_SERVER:get_plf().get_music());
+    end
+    if _GLOBAL_SERVER:get_plf().get_music()=="none"
+    or _GLOBAL_SERVER:get_plf().get_music().empty()
+    then
+        {Sound::PingusSound::stop_music();};
+    else
+        {Sound::PingusSound::play_music(GLOBAL_SERVER->get_plf().get_music());};
+    end
+
     var World world with
         this.plf = plf;
     end;
