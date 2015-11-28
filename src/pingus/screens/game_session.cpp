@@ -213,10 +213,10 @@ GameSession::set_finished()
   server->send_finish_event();
 }
 
-void
-GameSession:: on_escape_press ()
-{
+void GameSession:: on_escape_press () {
+#if 0
   server->send_finish_event();
+#endif
 }
 
 void GameSession:: on_pause_press () {

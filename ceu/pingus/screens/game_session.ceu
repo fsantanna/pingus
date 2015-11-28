@@ -23,6 +23,8 @@ do
                     emit global:go_forward => true;
                 else/if but:name == {Input::ARMAGEDDON_BUTTON} then
                     emit global:go_armageddon;
+                else/if but:name == {Input::ESCAPE_BUTTON} then
+                    _GLOBAL_SERVER:send_finish_event();
                 end
             else
                 _assert(but:state == {Input::BUTTON_RELEASED});

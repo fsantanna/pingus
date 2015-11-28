@@ -119,10 +119,10 @@ GUIScreen::process_button_event (const Input::ButtonEvent& event)
       case Input::ARMAGEDDON_BUTTON:
         on_armageddon_press ();
         break;
-#endif
       case Input::ESCAPE_BUTTON:
         on_escape_press ();
         break;
+#endif
       case Input::ACTION_UP_BUTTON:
         on_action_up_press();
         break;
@@ -157,10 +157,10 @@ GUIScreen::process_button_event (const Input::ButtonEvent& event)
       case Input::ARMAGEDDON_BUTTON:
         on_armageddon_release ();
         break;
-#endif
       case Input::ESCAPE_BUTTON:
         on_escape_release ();
         break;
+#endif
       case Input::ACTION_UP_BUTTON:
         on_action_up_release();
         break;
