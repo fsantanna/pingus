@@ -173,7 +173,6 @@ event void go_pause_toggle;
 event bool go_forward;
 event void go_armageddon;
 
-#include "pingus/world.ceu"
 #include "pingus/screens/game_session.ceu"
 
 every 1s do

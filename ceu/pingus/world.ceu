@@ -15,7 +15,6 @@ native do
 end
 native @plain _SmallMap, _SceneContext, _GroundMap;
 
-input _PingusLevel&& WORLD_NEW;
 input void WORLD_UPDATE;
 input void WORLD_ARMAGEDDON;
 
@@ -311,14 +310,6 @@ do
     function (_CollisionMask&& mask,int x,int y)=>void remove do
         this.gfx_map!.remove(mask:get_surface(), x, y);
         this.gfx_map!.get_colmap():remove(*mask, x, y);
-    end
-end
-
-spawn do
-    every plf_ in WORLD_NEW do
-        spawn World with
-            this.plf = plf_;
-        end;
     end
 end
 

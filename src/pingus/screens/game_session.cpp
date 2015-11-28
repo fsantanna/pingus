@@ -51,7 +51,7 @@ GameSession::GameSession(const PingusLevel& arg_plf, bool arg_show_result_screen
   world_delay = 0;
   log_debug("GameSession");
   void* p = &get_server()->plf;
-  ceu_sys_go(&CEU_APP, CEU_IN_WORLD_NEW, &p);
+  ceu_sys_go(&CEU_APP, CEU_IN_GAMESESSION_NEW, &p);
 }
 
 GameSession::~GameSession()

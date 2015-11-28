@@ -9,11 +9,20 @@ native/pre do
     ##include "pingus/screens/result_screen.hpp"
 end
 
+#include "../world.ceu"
+
+input _PingusLevel&& GAMESESSION_NEW;
+
 class GameSession with
+    var _PingusLevel&& plf;
 do
     var bool is_paused         = false;
     var bool is_fast_forwarded = false;
     var bool do_single_step    = false;
+
+    var World world with
+        this.plf = plf;
+    end;
 
     par/or do
         loop do
@@ -126,8 +135,10 @@ do
 end
 
 spawn do
-    every WORLD_NEW do
-        spawn GameSession;
+    every plf_ in GAMESESSION_NEW do
+        spawn GameSession with
+            this.plf = plf_;
+        end;
     end
 end
 
