@@ -2,7 +2,6 @@
 #define _PLAYFIELD_CEU
 
 native do
-    ##include "src/pingus/screens/game_session.hpp"
     ##include "pingus/server.hpp"
 end
 

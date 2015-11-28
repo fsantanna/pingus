@@ -32,7 +32,7 @@
 #include "editor/message_box.hpp"
 #include "pingus/fonts.hpp"
 #include "pingus/gettext.h"
-#include "pingus/screens/game_session.hpp"
+//#include "pingus/screens/game_session.hpp"
 #include "util/log.hpp"
 
 namespace Editor {
@@ -367,10 +367,13 @@ EditorScreen::level_save_as()
 void
 EditorScreen::level_play()
 {
+  assert(!"NOT PORTED");
+#if 0
   Pathname tmp(System::get_userdir() + "backup/editortmpfile.pingus", Pathname::SYSTEM_PATH);
   plf->save_level(tmp.get_sys_path());
   PingusLevel level(tmp);
   ScreenManager::instance()->push_screen(std::make_shared<GameSession>(level, false));
+#endif
 }
 
 void

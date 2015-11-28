@@ -24,7 +24,6 @@
 #include "pingus/fonts.hpp"
 #include "pingus/game_time.hpp"
 #include "pingus/gettext.h"
-#include "pingus/screens/game_session.hpp"
 #include "util/string_util.hpp"
 
 class ResultScreenComponent : public GUI::Component
@@ -284,10 +283,20 @@ ResultScreen::on_startup()
   }
 }
 
+#include "pingus/screens/empty_session.hpp"
+#include "ceu_vars.h"
+#include "pingus/server.hpp"
+extern std::unique_ptr<Server> GLOBAL_SERVER_;
+extern Server* GLOBAL_SERVER;
+
 void
 ResultScreen::retry_level()
 {
-  ScreenManager::instance()->replace_screen(std::make_shared<GameSession>(result.plf, true));
+  //ScreenManager::instance()->replace_screen(std::make_shared<GameSession>(result.plf, true));
+  GLOBAL_SERVER_ = std::unique_ptr<Server>(new Server(result.plf, true));
+  GLOBAL_SERVER = GLOBAL_SERVER_.get();
+  tceu__PingusLevel___bool p = { &result.plf, true };
+  ceu_sys_go(&CEU_APP, CEU_IN_GAMESESSION_NEW, &p);
 }
 
 void

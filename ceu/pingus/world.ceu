@@ -8,9 +8,7 @@ native/pre do
 end
 
 native do
-    ##include "src/pingus/screens/game_session.hpp"
     ##include "pingus/ground_map.hpp"
-    extern Server* GLOBAL_SERVER;
 end
 native @plain _SmallMap, _SceneContext, _GroundMap;
 

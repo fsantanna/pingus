@@ -3,6 +3,7 @@
 
 native do
     ##include "pingus/game_time.hpp"
+    extern Server* GLOBAL_SERVER;
 end
 
 class ActionButtonE with
