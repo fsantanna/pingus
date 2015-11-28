@@ -32,6 +32,8 @@
 
 #include "ceu_vars.h"
 
+CEU_World* GLOBAL_CEU_WORLD = NULL;
+
 static bool false_func() { return false; }
 
 class BButton : public GUI::SurfaceButton
