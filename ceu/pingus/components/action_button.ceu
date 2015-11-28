@@ -82,7 +82,7 @@ do
                 end;
                 await component.on_primary_button_pressed;
             end
-            _GLOBAL_SESSION:set_fast_forward(true);
+            emit global:forward => true;
             do
                 var Sprite _ with
                     this.is_world = false;
@@ -92,7 +92,7 @@ do
                 end;
                 await ON_PRIMARY_BUTTON_RELEASED;
             end
-            _GLOBAL_SESSION:set_fast_forward(false);
+            emit global:forward => false;
         end
     end
 

@@ -20,12 +20,12 @@ do
                     end
                     _GLOBAL_SESSION:single_step = true;
                 else/if but:name == {Input::FAST_FORWARD_BUTTON} then
-                    _GLOBAL_SESSION:set_fast_forward(true);
+                    emit global:forward => true;
                 end
             else
                 _assert(but:state == {Input::BUTTON_RELEASED});
                 if but:name == {Input::FAST_FORWARD_BUTTON} then
-                    _GLOBAL_SESSION:set_fast_forward(false);
+                    emit global:forward => false;
                 end
             end
         end
@@ -34,13 +34,19 @@ do
             is_paused = not is_paused;
             _GLOBAL_SESSION:set_pause(is_paused);
         end
+    with
+        every v in global:forward do
+            _GLOBAL_SESSION:set_fast_forward(v);
+            if v==true and is_paused then
+                emit global:pause_toggle;
+            end
+        end
     end
 end
 
 spawn do
     every WORLD_NEW do
-        spawn GameSession with
-        end;
+        spawn GameSession;
     end
 end
 

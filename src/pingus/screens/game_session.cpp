@@ -232,9 +232,8 @@ void GameSession::on_single_step_press () {
 #endif
 }
 
-void
-GameSession::on_fast_forward_press ()
-{
+void GameSession::on_fast_forward_press () {
+#if 0
   if (get_pause())
   {
     set_pause(false);
@@ -243,6 +242,7 @@ GameSession::on_fast_forward_press ()
   {
     set_fast_forward(true);
   }
+#endif
 }
 
 void GameSession::on_fast_forward_release () {
