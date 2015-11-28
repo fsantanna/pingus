@@ -5,6 +5,10 @@ class GameSession with
 do
     var bool is_paused = false;
     par do
+        every dt in SCREENMANAGER_UPDATE do
+            _GLOBAL_SESSION:update_server(dt);
+        end
+    with
         every e in ON_INPUT_EVENT do
             if e:type != {Input::BUTTON_EVENT_TYPE} then
                 continue;

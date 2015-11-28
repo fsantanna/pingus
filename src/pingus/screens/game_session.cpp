@@ -161,7 +161,7 @@ GameSession::draw_background (DrawingContext& gc)
 void
 GameSession::update(float delta)
 {
-  update_server(delta);
+  ///update_server(delta);
   GUIScreen::update(delta);
 }
 

@@ -93,14 +93,12 @@ GUIScreen::update (const Input::Event& event)
   }
 }
 
-void
-GUIScreen::process_button_event (const Input::ButtonEvent& event)
-{
+void GUIScreen::process_button_event (const Input::ButtonEvent& event) {
+#if 0
   if (event.state == Input::BUTTON_PRESSED)
   {
     switch (event.name)
     {
-#if 0
       case Input::PRIMARY_BUTTON:
         // ignoring, handled in the gui_manager
         break;
@@ -122,7 +120,6 @@ GUIScreen::process_button_event (const Input::ButtonEvent& event)
       case Input::ESCAPE_BUTTON:
         on_escape_press ();
         break;
-#endif
       case Input::ACTION_UP_BUTTON:
         on_action_up_press();
         break;
@@ -138,7 +135,6 @@ GUIScreen::process_button_event (const Input::ButtonEvent& event)
   {
     switch (event.name)
     {
-#if 0
       case Input::PRIMARY_BUTTON:
         // ignoring, handled in the gui_manager
         break;
@@ -160,7 +156,6 @@ GUIScreen::process_button_event (const Input::ButtonEvent& event)
       case Input::ESCAPE_BUTTON:
         on_escape_release ();
         break;
-#endif
       case Input::ACTION_UP_BUTTON:
         on_action_up_release();
         break;
@@ -176,6 +171,7 @@ GUIScreen::process_button_event (const Input::ButtonEvent& event)
   {
     log_error("got unknown event.state: %1%", event.state);
   }
+#endif
 }
 
 void
