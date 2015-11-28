@@ -53,7 +53,7 @@ end
 class World with
     interface IWorld;
     var _PingusLevel&& plf;
-    function (void)=>PinguHolder&  get_pingus;
+    function (void)=>PinguHolder& get_pingus;
 do
     _GLOBAL_CEU_WORLD := &&this;
     global:world = &&this;

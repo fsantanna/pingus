@@ -61,36 +61,6 @@ GameSession::~GameSession()
 void
 GameSession::update_server(float delta)
 {
-  if (server->is_finished())
-  {
-    CEU_PinguHolder* pingu_holder = CEU_World_get_pingus(NULL,GLOBAL_CEU_WORLD);
-    Result result;
-
-    result.plf    = server->get_plf();
-
-    result.saved  = pingu_holder->number_of_exited;
-    result.killed = pingu_holder->number_of_killed;
-    result.total  = server->get_plf().get_number_of_pingus();
-
-    result.needed = server->get_plf().get_number_to_save();
-
-    result.max_time  = server->get_plf().get_time();
-    result.used_time = CEU_World_get_time(NULL, GLOBAL_CEU_WORLD);
-
-    { // Write the savegame
-      Savegame savegame(result.plf.get_resname(),
-                        (result.saved >= result.needed) ? Savegame::FINISHED : Savegame::ACCESSIBLE,
-                        result.used_time,
-                        result.saved);
-      SavegameManager::instance()->store(savegame);
-    }
-
-    if (show_result_screen)
-      ScreenManager::instance()->replace_screen(std::make_shared<ResultScreen>(result));
-    else
-      ScreenManager::instance()->pop_screen();
-
-  }
 }
 
 void

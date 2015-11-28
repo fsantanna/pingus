@@ -1,49 +1,59 @@
 #ifndef _GAME_SESSION
 #define _GAME_SESSION
 
+native/pre do
+    ##include "pingus/result.hpp"
+    ##include "pingus/savegame.hpp"
+    ##include "pingus/savegame_manager.hpp"
+    ##include "engine/screen/screen_manager.hpp"
+    ##include "pingus/screens/result_screen.hpp"
+end
+
 class GameSession with
 do
     var bool is_paused         = false;
     var bool is_fast_forwarded = false;
     var bool do_single_step    = false;
 
-    par do
-        every dt in SCREENMANAGER_UPDATE do
+    par/or do
+        loop do
+            var float dt = await SCREENMANAGER_UPDATE;
+
             if _GLOBAL_SERVER:is_finished() then
-                _GLOBAL_SESSION:update_server(dt);
-            else
-                // how much time we have to account for while doing world updates
-                var int time_passed = dt*1000 + _GLOBAL_SESSION:world_delay;
-                // how much time each world update represents
-                var int update_time = {globals::game_speed};
+                break;
+            end
 
-                // update the world (and the objects in it) in constant steps 
-                // to account for the time the previous frame took
+            // how much time we have to account for while doing world updates
+            var int time_passed = dt*1000 + _GLOBAL_SESSION:world_delay;
+            // how much time each world update represents
+            var int update_time = {globals::game_speed};
 
-                // invariant: world_updates - the number of times the world
-                // has been updated during this frame
-                var int world_updates = 0;
+            // update the world (and the objects in it) in constant steps 
+            // to account for the time the previous frame took
 
-                loop do
-                    if ((world_updates+1)*update_time > time_passed) then
-                        break;
-                    end
-                    if (not is_paused) or do_single_step then
-                        do_single_step = false;
-                        if is_fast_forwarded then
-                            loop i in {globals::fast_forward_time_scale} do
-                                _GLOBAL_SERVER:update();
-                            end
-                        else
+            // invariant: world_updates - the number of times the world
+            // has been updated during this frame
+            var int world_updates = 0;
+
+            loop do
+                if ((world_updates+1)*update_time > time_passed) then
+                    break;
+                end
+                if (not is_paused) or do_single_step then
+                    do_single_step = false;
+                    if is_fast_forwarded then
+                        loop i in {globals::fast_forward_time_scale} do
                             _GLOBAL_SERVER:update();
                         end
+                    else
+                        _GLOBAL_SERVER:update();
                     end
-                    world_updates = world_updates + 1;
                 end
-                // save how far behind is the world compared to the actual time
-                // so that we can account for that while updating in the next frame
-                _GLOBAL_SESSION:world_delay = time_passed - (world_updates*update_time);
+                world_updates = world_updates + 1;
             end
+            // save how far behind is the world compared to the actual time
+            // so that we can account for that while updating in the next frame
+            _GLOBAL_SESSION:world_delay = time_passed - (world_updates*update_time);
         end
     with
         every e in ON_INPUT_EVENT do
@@ -86,6 +96,32 @@ do
                 emit global:go_pause_toggle;
             end
         end
+    end
+
+    {
+        static Result GAMESESSION_RESULT;
+    };
+    _GAMESESSION_RESULT.plf       = _XXX_PURE(_GLOBAL_SERVER:get_plf());
+    _GAMESESSION_RESULT.saved     = 0;//global:world!:get_pingus().number_of_exited;
+    _GAMESESSION_RESULT.killed    = 0;//global:world!:get_pingus().number_of_killed;
+    _GAMESESSION_RESULT.total     = (int)_GLOBAL_SERVER:get_plf().get_number_of_pingus();
+    _GAMESESSION_RESULT.needed    = (int)_GLOBAL_SERVER:get_plf().get_number_to_save();
+    _GAMESESSION_RESULT.max_time  = (int)_GLOBAL_SERVER:get_plf().get_time();
+    _GAMESESSION_RESULT.used_time = global:world!:get_time();
+
+    { // Write the savegame
+        Savegame savegame(GAMESESSION_RESULT.plf.get_resname(),
+                        (GAMESESSION_RESULT.saved >= GAMESESSION_RESULT.needed) ? Savegame::FINISHED : 
+                        Savegame::ACCESSIBLE,
+                        GAMESESSION_RESULT.used_time,
+                        GAMESESSION_RESULT.saved);
+        SavegameManager::instance()->store(savegame);
+    };
+
+    if _GLOBAL_SESSION:show_result_screen then
+        {ScreenManager::instance()->replace_screen(std::make_shared<ResultScreen>(GAMESESSION_RESULT));};
+    else
+        {ScreenManager::instance()->pop_screen();};
     end
 end
 
