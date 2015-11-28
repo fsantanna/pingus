@@ -90,7 +90,12 @@ do
                     this.y    = &yf;
                     this.name = "core/buttons/hbuttonbg";
                 end;
-                await ON_PRIMARY_BUTTON_RELEASED;
+                par/or do
+                    await ON_PRIMARY_BUTTON_RELEASED;
+                with
+                    var int v = await global:go_forward
+                                until v == false;
+                end
             end
             emit global:go_forward => false;
         end

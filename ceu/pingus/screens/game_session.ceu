@@ -3,7 +3,9 @@
 
 class GameSession with
 do
-    var bool is_paused = false;
+    var bool is_paused         = false;
+    var bool is_fast_forwarded = false;
+
     par do
         every dt in SCREENMANAGER_UPDATE do
             if _GLOBAL_SERVER:is_finished() then
@@ -27,7 +29,7 @@ do
                     end
                     if (not is_paused) or _GLOBAL_SESSION:single_step then
                         _GLOBAL_SESSION:single_step = false;
-                        if _GLOBAL_SESSION:fast_forward then
+                        if is_fast_forwarded then
                             loop i in {globals::fast_forward_time_scale} do
                                 _GLOBAL_SERVER:update();
                             end
@@ -74,11 +76,11 @@ do
     with
         every global:go_pause_toggle do
             is_paused = not is_paused;
-            _GLOBAL_SESSION:set_pause(is_paused);
+            emit global:go_forward => false;
         end
     with
         every v in global:go_forward do
-            _GLOBAL_SESSION:set_fast_forward(v);
+            is_fast_forwarded = v;
             if v==true and is_paused then
                 emit global:go_pause_toggle;
             end

@@ -43,8 +43,6 @@ GameSession::GameSession(const PingusLevel& arg_plf, bool arg_show_result_screen
   server(),
   world_delay(),
   is_finished  (false),
-  pause(false),
-  fast_forward(false),
   single_step(false)
 {
   GLOBAL_SESSION = this;
@@ -215,49 +213,12 @@ GameSession::set_finished()
   server->send_finish_event();
 }
 
-void GameSession:: on_escape_press () {
-#if 0
-  server->send_finish_event();
-#endif
-}
-
-void GameSession:: on_pause_press () {
-#if 0
-  set_pause(!get_pause());
-#endif
-}
-
-void GameSession::on_single_step_press () {
-#if 0
-  set_pause(true);
-  single_step = true;
-#endif
-}
-
-void GameSession::on_fast_forward_press () {
-#if 0
-  if (get_pause())
-  {
-    set_pause(false);
-  }
-  else
-  {
-    set_fast_forward(true);
-  }
-#endif
-}
-
-void GameSession::on_fast_forward_release () {
-#if 0
-  set_fast_forward(false);
-#endif
-}
-
-void GameSession::on_armageddon_press () {
-#if 0
-  server->send_armageddon_event();
-#endif
-}
+void GameSession:: on_escape_press () { }
+void GameSession:: on_pause_press () { }
+void GameSession::on_single_step_press () { }
+void GameSession::on_fast_forward_press () { }
+void GameSession::on_fast_forward_release () { }
+void GameSession::on_armageddon_press () { }
 
 void
 GameSession::on_action_axis_move (float move)
@@ -287,38 +248,6 @@ GameSession::on_startup ()
   {
     Sound::PingusSound::play_music(server->get_plf().get_music());
   }
-}
-
-void
-GameSession::set_fast_forward(bool value)
-{
-  fast_forward = value;
-  if (fast_forward)
-  {
-    pause = false;
-  }
-}
-
-bool
-GameSession::get_fast_forward() const
-{
-  return fast_forward;
-}
-
-void
-GameSession::set_pause(bool value)
-{
-  pause = value;
-  if (pause)
-  {
-    fast_forward = false;
-  }
-}
-
-bool
-GameSession::get_pause() const
-{
-  return pause;
 }
 
 void

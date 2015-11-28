@@ -55,7 +55,6 @@ public:
 
   // -- Client stuff
   bool is_finished;
-  bool pause;
   bool fast_forward;
   bool single_step;
 
@@ -90,14 +89,6 @@ public:
   void on_armageddon_press ();
   void on_escape_press ();
   void on_action_axis_move (float);
-
-
-  void set_fast_forward(bool value);
-  bool get_fast_forward() const;
-
-  void set_pause(bool value);
-  bool get_pause() const;
-
   void resize(const Size&);
 
 private:
