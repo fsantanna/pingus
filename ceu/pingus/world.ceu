@@ -50,14 +50,14 @@ end
 
 class World with
     interface IWorld;
-    var _PingusLevel&& plf;
+    var _PingusLevel& plf;
     function (void)=>PinguHolder& get_pingus;
 do
     _GLOBAL_CEU_WORLD := &&this;
     global:world = &&this;
 
-    var int width  = this.plf:get_size().width;
-    var int height = this.plf:get_size().height;
+    var int width  = this.plf.get_size().width;
+    var int height = this.plf.get_size().height;
 
     var Rect rect = Rect(
         {Math::max}(({Display::get_width()}-width)/2, 0),
@@ -93,10 +93,10 @@ do
     end
 
     var int game_time = 0;
-    var Color ambient_light = Color(this.plf:get_ambient_light().r,
-                                    this.plf:get_ambient_light().g,
-                                    this.plf:get_ambient_light().b,
-                                    this.plf:get_ambient_light().a);
+    var Color ambient_light = Color(this.plf.get_ambient_light().r,
+                                    this.plf.get_ambient_light().g,
+                                    this.plf.get_ambient_light().b,
+                                    this.plf.get_ambient_light().a);
 
     spawn do
         par do
@@ -129,11 +129,11 @@ do
     end;
 
     var WorldObjFactory objs with
-        this.plf = outer.plf;
+        this.plf = &outer.plf;
     end;
 
     var PinguHolder pingu_holder with
-        this.number_of_allowed = plf:get_number_of_pingus();
+        this.number_of_allowed = plf.get_number_of_pingus();
     end;
 
     var ButtonPanel button_panel;

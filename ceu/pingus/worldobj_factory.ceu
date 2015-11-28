@@ -49,11 +49,11 @@ native do
 end
 
 class WorldObjFactory with
-    var _PingusLevel&& plf;
+    var _PingusLevel& plf;
     pool Entrance[] entrances;
 do
-    loop i in this.plf:get_objects().size() do
-        _WORLDOBJ_FACTORY_create(this.plf:get_objects().at(i));
+    loop i in this.plf.get_objects().size() do
+        _WORLDOBJ_FACTORY_create(this.plf.get_objects().at(i));
     end
 
     #define id_     _WORLDOBJ_FACTORY_VECTOR.at(i).first.get_name()

@@ -14,19 +14,26 @@ end
 input (_PingusLevel&&,bool) GAMESESSION_NEW;
 
 class GameSession with
-    var _PingusLevel&& plf;
+    var _PingusLevel&& plf_;
     var bool show_result_screen;
 do
     var bool is_paused         = false;
     var bool is_fast_forwarded = false;
     var bool do_single_step    = false;
 
+    var _PingusLevel&? plf;
+    finalize
+        this.plf = &_XXX_NOHOLD(this.plf_);
+    with
+        // TODO
+    end
+
     /// TODO: from "on_startup", called on creation and when popped back
     if {globals::developer_mode} then
-        _log_info("Starting Music: %1%", _GLOBAL_SERVER:get_plf().get_music());
+        _log_info("Starting Music: %1%", this.plf!.get_music());
     end
-    if _GLOBAL_SERVER:get_plf().get_music()=="none"
-    or _GLOBAL_SERVER:get_plf().get_music().empty()
+    if this.plf!.get_music()=="none"
+    or this.plf!.get_music().empty()
     then
         {Sound::PingusSound::stop_music();};
     else
@@ -34,7 +41,7 @@ do
     end
 
     var World world with
-        this.plf = plf;
+        this.plf = &plf!;
     end;
 
     par/or do
@@ -124,12 +131,12 @@ do
     {
         static Result GAMESESSION_RESULT;
     };
-    _GAMESESSION_RESULT.plf       = _XXX_PURE(_GLOBAL_SERVER:get_plf());
+    _GAMESESSION_RESULT.plf       = _XXX_PURE(this.plf!);
     _GAMESESSION_RESULT.saved     = 0;//global:world!:get_pingus().number_of_exited;
     _GAMESESSION_RESULT.killed    = 0;//global:world!:get_pingus().number_of_killed;
-    _GAMESESSION_RESULT.total     = (int)_GLOBAL_SERVER:get_plf().get_number_of_pingus();
-    _GAMESESSION_RESULT.needed    = (int)_GLOBAL_SERVER:get_plf().get_number_to_save();
-    _GAMESESSION_RESULT.max_time  = (int)_GLOBAL_SERVER:get_plf().get_time();
+    _GAMESESSION_RESULT.total     = (int)this.plf!.get_number_of_pingus();
+    _GAMESESSION_RESULT.needed    = (int)this.plf!.get_number_to_save();
+    _GAMESESSION_RESULT.max_time  = (int)this.plf!.get_time();
     _GAMESESSION_RESULT.used_time = world.get_time();
 
     { // Write the savegame
@@ -151,7 +158,7 @@ end
 spawn do
     every (plf_,show_) in GAMESESSION_NEW do
         spawn GameSession with
-            this.plf = plf_;
+            this.plf_ = plf_;
             this.show_result_screen = show_;
         end;
     end
