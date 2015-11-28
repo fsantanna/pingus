@@ -43,11 +43,9 @@ class Server;
 class GameSession : public GUIScreen
 {
 public:
-  std::unique_ptr<Server> server;
   GameSession(const PingusLevel& arg_plf, bool arg_show_result_screen);
   ~GameSession ();
   void update_server(float delta);
-  Server* get_server() { return server.get(); }
   void draw_background (DrawingContext& gc);
   void on_startup ();
   void on_pause_press ();

@@ -36,11 +36,8 @@
 Server* GLOBAL_SERVER = NULL;
 CEU_World* GLOBAL_CEU_WORLD = NULL;
 
-GameSession::GameSession(const PingusLevel& arg_plf, bool arg_show_result_screen) :
-  server()
-{
-  server = std::unique_ptr<Server>(new Server(arg_plf, true));
-  GLOBAL_SERVER = server.get();
+GameSession::GameSession(const PingusLevel& arg_plf, bool arg_show_result_screen) {
+  GLOBAL_SERVER = std::unique_ptr<Server>(new Server(arg_plf, true));
   log_debug("GameSession");
   tceu__PingusLevel___bool p = { &get_server()->plf, arg_show_result_screen };
   ceu_sys_go(&CEU_APP, CEU_IN_GAMESESSION_NEW, &p);
