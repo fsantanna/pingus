@@ -5,6 +5,7 @@ class GameSession with
 do
     var bool is_paused         = false;
     var bool is_fast_forwarded = false;
+    var bool do_single_step    = false;
 
     par do
         every dt in SCREENMANAGER_UPDATE do
@@ -27,8 +28,8 @@ do
                     if ((world_updates+1)*update_time > time_passed) then
                         break;
                     end
-                    if (not is_paused) or _GLOBAL_SESSION:single_step then
-                        _GLOBAL_SESSION:single_step = false;
+                    if (not is_paused) or do_single_step then
+                        do_single_step = false;
                         if is_fast_forwarded then
                             loop i in {globals::fast_forward_time_scale} do
                                 _GLOBAL_SERVER:update();
@@ -58,7 +59,7 @@ do
                     if not is_paused then
                         emit global:go_pause_toggle;
                     end
-                    _GLOBAL_SESSION:single_step = true;
+                    do_single_step = true;
                 else/if but:name == {Input::FAST_FORWARD_BUTTON} then
                     emit global:go_forward => true;
                 else/if but:name == {Input::ARMAGEDDON_BUTTON} then

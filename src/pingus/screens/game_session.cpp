@@ -42,8 +42,7 @@ GameSession::GameSession(const PingusLevel& arg_plf, bool arg_show_result_screen
   show_result_screen(arg_show_result_screen),
   server(),
   world_delay(),
-  is_finished  (false),
-  single_step(false)
+  is_finished  (false)
 {
   GLOBAL_SESSION = this;
   server = std::unique_ptr<Server>(new Server(plf, true));
@@ -91,45 +90,6 @@ GameSession::update_server(float delta)
     else
       ScreenManager::instance()->pop_screen();
 
-  }
-  else
-  {
-#if 0
-    // how much time we have to account for while doing world updates
-    int time_passed = int(delta * 1000) + world_delay;
-    // how much time each world update represents
-    int update_time = globals::game_speed;
-
-    // update the world (and the objects in it) in constant steps to account
-    // for the time the previous frame took
-
-    // invariant: world_updates - the number of times the world
-    // has been updated during this frame
-    int world_updates = 0;
-
-    while ((world_updates+1)*update_time <= time_passed)
-    {
-      if (!pause || single_step)
-      {
-        single_step = false;
-
-        if (fast_forward)
-        {
-          for (int i = 0; i < globals::fast_forward_time_scale; ++i)
-            server->update();
-        }
-        else
-        {
-          server->update();
-        }
-      }
-
-      world_updates++;
-    }
-    // save how far behind is the world compared to the actual time
-    // so that we can account for that while updating in the next frame
-    world_delay = time_passed - (world_updates*update_time);
-#endif
   }
 }
 

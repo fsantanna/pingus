@@ -55,8 +55,6 @@ public:
 
   // -- Client stuff
   bool is_finished;
-  bool fast_forward;
-  bool single_step;
 
 public:
   GameSession(const PingusLevel& arg_plf, bool arg_show_result_screen);
@@ -65,8 +63,7 @@ public:
   /** Pass a delta to the screen */
   void update_server(float delta);
 
-  Server*    get_server() { return server.get(); }
-  ///Playfield* get_playfield() { return playfield; }
+  Server* get_server() { return server.get(); }
 
   void do_restart();
   bool finished();
@@ -77,11 +74,7 @@ public:
   void update (const Input::Event& event);
   void draw_background (DrawingContext& gc);
 
-  ///ButtonPanel* get_button_panel () { return button_panel; }
-
-  // Overloaded GUIScreen stuff
   void on_startup ();
-
   void on_pause_press ();
   void on_single_step_press ();
   void on_fast_forward_press ();
