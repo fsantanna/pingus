@@ -13,32 +13,34 @@ do
             var _Input__ButtonEvent&& but = &&e:button;
             if but:state == {Input::BUTTON_PRESSED} then
                 if but:name == {Input::PAUSE_BUTTON} then
-                    emit global:pause_toggle;
+                    emit global:go_pause_toggle;
                 else/if but:name == {Input::SINGLE_STEP_BUTTON} then
                     if not is_paused then
-                        emit global:pause_toggle;
+                        emit global:go_pause_toggle;
                     end
                     _GLOBAL_SESSION:single_step = true;
                 else/if but:name == {Input::FAST_FORWARD_BUTTON} then
-                    emit global:forward => true;
+                    emit global:go_forward => true;
+                else/if but:name == {Input::ARMAGEDDON_BUTTON} then
+                    emit global:go_armageddon;
                 end
             else
                 _assert(but:state == {Input::BUTTON_RELEASED});
                 if but:name == {Input::FAST_FORWARD_BUTTON} then
-                    emit global:forward => false;
+                    emit global:go_forward => false;
                 end
             end
         end
     with
-        every global:pause_toggle do
+        every global:go_pause_toggle do
             is_paused = not is_paused;
             _GLOBAL_SESSION:set_pause(is_paused);
         end
     with
-        every v in global:forward do
+        every v in global:go_forward do
             _GLOBAL_SESSION:set_fast_forward(v);
             if v==true and is_paused then
-                emit global:pause_toggle;
+                emit global:go_pause_toggle;
             end
         end
     end

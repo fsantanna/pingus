@@ -116,10 +116,10 @@ GUIScreen::process_button_event (const Input::ButtonEvent& event)
       case Input::FAST_FORWARD_BUTTON:
         on_fast_forward_press ();
         break;
-#endif
       case Input::ARMAGEDDON_BUTTON:
         on_armageddon_press ();
         break;
+#endif
       case Input::ESCAPE_BUTTON:
         on_escape_press ();
         break;
@@ -154,10 +154,10 @@ GUIScreen::process_button_event (const Input::ButtonEvent& event)
       case Input::FAST_FORWARD_BUTTON:
         on_fast_forward_release ();
         break;
-#endif
       case Input::ARMAGEDDON_BUTTON:
         on_armageddon_release ();
         break;
+#endif
       case Input::ESCAPE_BUTTON:
         on_escape_release ();
         break;

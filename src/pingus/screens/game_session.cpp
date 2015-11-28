@@ -251,10 +251,10 @@ void GameSession::on_fast_forward_release () {
 #endif
 }
 
-void
-GameSession::on_armageddon_press ()
-{
+void GameSession::on_armageddon_press () {
+#if 0
   server->send_armageddon_event();
+#endif
 }
 
 void
