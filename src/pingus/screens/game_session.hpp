@@ -43,30 +43,14 @@ class Server;
 class GameSession : public GUIScreen
 {
 public:
-  /// The level data
-  PingusLevel plf;
-
-  bool show_result_screen;
-
-  /// The server
   std::unique_ptr<Server> server;
-
-  int world_delay; ///< how many milliseconds is the world behind the actual time
-
-public:
   GameSession(const PingusLevel& arg_plf, bool arg_show_result_screen);
   ~GameSession ();
-
-  /** Pass a delta to the screen */
   void update_server(float delta);
-
   Server* get_server() { return server.get(); }
-
-  /** Update all parts of the world */
   void update (float delta);
   void update (const Input::Event& event);
   void draw_background (DrawingContext& gc);
-
   void on_startup ();
   void on_pause_press ();
   void on_single_step_press ();
@@ -76,12 +60,8 @@ public:
   void on_escape_press ();
   void on_action_axis_move (float);
   void resize(const Size&);
-
-private:
   void process_scroll_event (const Input::ScrollEvent&);
   void process_axis_event (const Input::AxisEvent&);
-
-private:
   GameSession (const GameSession&);
   GameSession& operator= (const GameSession&);
 };

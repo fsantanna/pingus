@@ -38,18 +38,13 @@ GameSession* GLOBAL_SESSION = NULL;
 CEU_World* GLOBAL_CEU_WORLD = NULL;
 
 GameSession::GameSession(const PingusLevel& arg_plf, bool arg_show_result_screen) :
-  plf(arg_plf),
-  show_result_screen(arg_show_result_screen),
-  server(),
-  world_delay()
+  server()
 {
   GLOBAL_SESSION = this;
-  server = std::unique_ptr<Server>(new Server(plf, true));
+  server = std::unique_ptr<Server>(new Server(arg_plf, true));
   GLOBAL_SERVER = server.get();
-  // the world is initially on time
-  world_delay = 0;
   log_debug("GameSession");
-  void* p = &get_server()->plf;
+  tceu__PingusLevel___bool p = { &get_server()->plf, arg_show_result_screen };
   ceu_sys_go(&CEU_APP, CEU_IN_GAMESESSION_NEW, &p);
 }
 

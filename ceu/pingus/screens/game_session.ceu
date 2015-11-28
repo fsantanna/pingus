@@ -11,10 +11,11 @@ end
 
 #include "../world.ceu"
 
-input _PingusLevel&& GAMESESSION_NEW;
+input (_PingusLevel&&,bool) GAMESESSION_NEW;
 
 class GameSession with
     var _PingusLevel&& plf;
+    var bool show_result_screen;
 do
     var bool is_paused         = false;
     var bool is_fast_forwarded = false;
@@ -37,6 +38,7 @@ do
     end;
 
     par/or do
+        var int world_delay = 0; // the world is initially on time
         loop do
             var float dt = await SCREENMANAGER_UPDATE;
 
@@ -45,7 +47,7 @@ do
             end
 
             // how much time we have to account for while doing world updates
-            var int time_passed = dt*1000 + _GLOBAL_SESSION:world_delay;
+            var int time_passed = dt*1000 + world_delay;
             // how much time each world update represents
             var int update_time = {globals::game_speed};
 
@@ -74,7 +76,7 @@ do
             end
             // save how far behind is the world compared to the actual time
             // so that we can account for that while updating in the next frame
-            _GLOBAL_SESSION:world_delay = time_passed - (world_updates*update_time);
+            world_delay = time_passed - (world_updates*update_time);
         end
     with
         every e in ON_INPUT_EVENT do
@@ -139,7 +141,7 @@ do
         SavegameManager::instance()->store(savegame);
     };
 
-    if _GLOBAL_SESSION:show_result_screen then
+    if this.show_result_screen then
         {ScreenManager::instance()->replace_screen(std::make_shared<ResultScreen>(GAMESESSION_RESULT));};
     else
         {ScreenManager::instance()->pop_screen();};
@@ -147,9 +149,10 @@ do
 end
 
 spawn do
-    every plf_ in GAMESESSION_NEW do
+    every (plf_,show_) in GAMESESSION_NEW do
         spawn GameSession with
             this.plf = plf_;
+            this.show_result_screen = show_;
         end;
     end
 end
