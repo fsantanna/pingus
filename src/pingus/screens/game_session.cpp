@@ -96,6 +96,7 @@ GameSession::update_server(float delta)
   }
   else
   {
+#if 0
     // how much time we have to account for while doing world updates
     int time_passed = int(delta * 1000) + world_delay;
     // how much time each world update represents
@@ -130,6 +131,7 @@ GameSession::update_server(float delta)
     // save how far behind is the world compared to the actual time
     // so that we can account for that while updating in the next frame
     world_delay = time_passed - (world_updates*update_time);
+#endif
   }
 }
 

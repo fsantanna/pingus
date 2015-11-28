@@ -6,7 +6,41 @@ do
     var bool is_paused = false;
     par do
         every dt in SCREENMANAGER_UPDATE do
-            _GLOBAL_SESSION:update_server(dt);
+            if _GLOBAL_SERVER:is_finished() then
+                _GLOBAL_SESSION:update_server(dt);
+            else
+                // how much time we have to account for while doing world updates
+                var int time_passed = dt*1000 + _GLOBAL_SESSION:world_delay;
+                // how much time each world update represents
+                var int update_time = {globals::game_speed};
+
+                // update the world (and the objects in it) in constant steps 
+                // to account for the time the previous frame took
+
+                // invariant: world_updates - the number of times the world
+                // has been updated during this frame
+                var int world_updates = 0;
+
+                loop do
+                    if ((world_updates+1)*update_time > time_passed) then
+                        break;
+                    end
+                    if (not is_paused) or _GLOBAL_SESSION:single_step then
+                        _GLOBAL_SESSION:single_step = false;
+                        if _GLOBAL_SESSION:fast_forward then
+                            loop i in {globals::fast_forward_time_scale} do
+                                _GLOBAL_SERVER:update();
+                            end
+                        else
+                            _GLOBAL_SERVER:update();
+                        end
+                    end
+                    world_updates = world_updates + 1;
+                end
+                // save how far behind is the world compared to the actual time
+                // so that we can account for that while updating in the next frame
+                _GLOBAL_SESSION:world_delay = time_passed - (world_updates*update_time);
+            end
         end
     with
         every e in ON_INPUT_EVENT do
