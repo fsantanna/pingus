@@ -48,104 +48,11 @@ GameSession::GameSession(const PingusLevel& arg_plf, bool arg_show_result_screen
   ceu_sys_go(&CEU_APP, CEU_IN_GAMESESSION_NEW, &p);
 }
 
-void
-GameSession::draw_background (DrawingContext& gc)
-{
-#if 0
-  Rect rect = playfield->get_rect();
-
-  if (rect != Rect(Vector2i(0,0), Size(Display::get_width(), Display::get_height())))
-  { // Draw a black border around the playfield when the playfield is smaller then the screen
-    Color border_color(0, 0, 0);
-    // top
-    gc.draw_fillrect(Rect(0, 0, Display::get_width(), rect.top),
-                     border_color);
-    // bottom
-    gc.draw_fillrect(Rect(0, rect.bottom, Display::get_width(), Display::get_height()),
-                     border_color);
-    // left
-    gc.draw_fillrect(Rect(0, rect.top, rect.left, rect.bottom),
-                     border_color);
-    // right
-    gc.draw_fillrect(Rect(rect.right, rect.top, Display::get_width(), rect.bottom),
-                     border_color);
-  }
-#endif
-}
-
-void
-GameSession::update(float delta)
-{
-  ///update_server(delta);
-  GUIScreen::update(delta);
-}
-
-void
-GameSession::update(const Input::Event& event)
-{
-  GUIScreen::update(event);
-  switch (event.type)
-  {
-    case Input::AXIS_EVENT_TYPE:
-      // ???
-      process_axis_event (event.axis);
-      break;
-    case Input::SCROLLER_EVENT_TYPE:
-      process_scroll_event(event.scroll);
-      break;
-  }
-}
-
-void
-GameSession::process_scroll_event (const Input::ScrollEvent& ev)
-{
-  //playfield->scroll(static_cast<int>(-ev.x_delta),
-                    //static_cast<int>(-ev.y_delta));
-}
-
-void
-GameSession::process_axis_event (const Input::AxisEvent& event)
-{
-  // log_info("GameSession::process_axis_event ()");
-}
-
-void
-GameSession::on_action_axis_move (float move)
-{
-#if 0
-  if (move > 0)
-    button_panel->next_action ();
-  else if (move < 0)
-    button_panel->previous_action ();
-#endif
-}
-
-void
-GameSession::resize(const Size& size_)
-{
-  GUIScreen::resize(size_);
-
-  int world_width  = CEU_World_get_width(NULL, GLOBAL_CEU_WORLD);
-  int world_height = CEU_World_get_height(NULL, GLOBAL_CEU_WORLD);
-
-assert(!"RESIZE");
-
-#if 0
-  playfield->set_rect(Rect(Vector2i(Math::max((size.width  - world_width)/2,  0),
-                                    Math::max((size.height - world_height)/2, 0)),
-                           Size(Math::min(size.width,  world_width),
-                                Math::min(size.height, world_height))));
-
-  armageddon_button->set_rect(Rect(Vector2i(size.width - 40, size.height - 62),
-                                   Size(38, 60)));
-  forward_button->set_rect(Rect(Vector2i(size.width - 40*2, size.height - 62),
-                                Size(38, 60)));
-  pause_button->set_rect(Rect(Vector2i(size.width - 40*3, size.height - 62),
-                              Size(38, 60)));
-  button_panel->set_pos(Vector2i(0, (size.height - 150)/2));
-#endif
-}
-
+void GameSession::draw_background (DrawingContext& gc) { }
+void GameSession::process_scroll_event (const Input::ScrollEvent& ev) { }
+void GameSession::process_axis_event (const Input::AxisEvent& event) { }
+void GameSession::on_action_axis_move (float move) { }
+void GameSession::resize(const Size& size_) { }
 GameSession::~GameSession() { }
 void GameSession::on_startup () { }
 void GameSession::update_server(float delta) { }

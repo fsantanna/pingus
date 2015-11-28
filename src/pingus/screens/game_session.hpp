@@ -48,8 +48,6 @@ public:
   ~GameSession ();
   void update_server(float delta);
   Server* get_server() { return server.get(); }
-  void update (float delta);
-  void update (const Input::Event& event);
   void draw_background (DrawingContext& gc);
   void on_startup ();
   void on_pause_press ();
