@@ -34,13 +34,11 @@
 #include "ceu_vars.h"
 
 Server* GLOBAL_SERVER = NULL;
-GameSession* GLOBAL_SESSION = NULL;
 CEU_World* GLOBAL_CEU_WORLD = NULL;
 
 GameSession::GameSession(const PingusLevel& arg_plf, bool arg_show_result_screen) :
   server()
 {
-  GLOBAL_SESSION = this;
   server = std::unique_ptr<Server>(new Server(arg_plf, true));
   GLOBAL_SERVER = server.get();
   log_debug("GameSession");

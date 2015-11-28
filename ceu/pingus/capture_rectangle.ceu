@@ -4,7 +4,6 @@
 native do
     ##include "pingus/globals.hpp"
     ##include "pingus/fonts.hpp"
-    extern GameSession* GLOBAL_SESSION;
     extern Server* GLOBAL_SERVER;
 end
 

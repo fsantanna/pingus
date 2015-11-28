@@ -10,7 +10,6 @@ end
 native do
     ##include "src/pingus/screens/game_session.hpp"
     ##include "pingus/ground_map.hpp"
-    extern GameSession* GLOBAL_SESSION;
     extern Server* GLOBAL_SERVER;
 end
 native @plain _SmallMap, _SceneContext, _GroundMap;
@@ -119,7 +118,7 @@ do
                            ambient_light.b,
                            ambient_light.a));
                 this.gfx_map!.draw(this.get_scene_context());
-                this.get_scene_context().color().draw(*_GLOBAL_SESSION, _Vector2i(0,0));
+                this.get_scene_context().color().draw(*gc, _Vector2i(0,0));
             end
         end
     end

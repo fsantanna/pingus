@@ -24,9 +24,6 @@
 #include "engine/display/sprite.hpp"
 #include "util/log.hpp"
 
-///
-#include "engine/screen/gui_screen.hpp"
-
 struct DrawingRequestsSorter
 {
   bool operator()(DrawingRequest* a, DrawingRequest* b) {
@@ -77,20 +74,19 @@ public:
 };
 
 #include "ceu_vars.h"
-class PlayfieldDrawingRequest : public DrawingRequest
+class XXXDrawingRequest : public DrawingRequest
 {
 private:
-  GUIScreen& screen;
+  DrawingContext& xxx;
 
 public:
-  PlayfieldDrawingRequest(GUIScreen& playfield_, const Vector2i& pos_, float 
-    z_)
+  XXXDrawingRequest(DrawingContext& xxx_, const Vector2i& pos_, float z_)
     : DrawingRequest(pos_, z_),
-      screen(playfield_)
+      xxx(xxx_)
   {
   }
 
-  virtual ~PlayfieldDrawingRequest() {}
+  virtual ~XXXDrawingRequest() {}
 
   void render(Framebuffer& fb, const Rect& rect) {
     tceu__int__int__Framebuffer_ p = {pos.x+rect.left,pos.y+rect.top,&fb};
@@ -271,9 +267,9 @@ DrawingContext::draw(DrawingContext& dc, float z)
 }
 
 void
-DrawingContext::draw(GUIScreen& screen, const Vector2i& pos, float z)
+DrawingContext::draw(DrawingContext& xxx, const Vector2i& pos, float z)
 {
-  draw(new PlayfieldDrawingRequest(screen, pos + translate_stack.back(), z));
+  draw(new XXXDrawingRequest(xxx, pos + translate_stack.back(), z));
 }
 
 void

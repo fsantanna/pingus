@@ -27,9 +27,6 @@ class Framebuffer;
 class Font;
 class Sprite;
 
-///
-class GUIScreen;
-
 /** The DrawingContext collects all DrawingRequests and allows you to
     flush them all down to the graphics card in one run, this has the
     advantage that it is possible to z-sort, texture-id sort or
@@ -73,7 +70,7 @@ public:
   void draw(const Sprite& sprite, const Vector3f& pos);
 
 ///
-  void draw(GUIScreen& screen, const Vector2i& pos, float z = 0);
+  void draw(DrawingContext& xxx, const Vector2i& pos, float z = 0);
 
   /** Fills the screen with a given color, this is different from
       clear() in that it doesn't remove other DrawingRequest from the
