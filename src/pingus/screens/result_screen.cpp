@@ -292,7 +292,7 @@ extern Server* GLOBAL_SERVER;
 void
 ResultScreen::retry_level()
 {
-  //ScreenManager::instance()->replace_screen(std::make_shared<GameSession>(result.plf, true));
+  ScreenManager::instance()->replace_screen(std::make_shared<EmptySession>(result.plf, true));
   GLOBAL_SERVER_ = std::unique_ptr<Server>(new Server(result.plf, true));
   GLOBAL_SERVER = GLOBAL_SERVER_.get();
   tceu__PingusLevel___bool p = { &result.plf, true };

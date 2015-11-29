@@ -28,6 +28,11 @@ do
         // TODO
     end
 
+    {
+        static Result GAMESESSION_RESULT;
+    };
+    _GAMESESSION_RESULT.plf       = _XXX_PURE(this.plf!);
+
     /// TODO: from "on_startup", called on creation and when popped back
     if {globals::developer_mode} then
         _log_info("Starting Music: %1%", this.plf!.get_music());
@@ -128,15 +133,11 @@ do
         end
     end
 
-    {
-        static Result GAMESESSION_RESULT;
-    };
-    _GAMESESSION_RESULT.plf       = _XXX_PURE(this.plf!);
     _GAMESESSION_RESULT.saved     = 0;//global:world!:get_pingus().number_of_exited;
     _GAMESESSION_RESULT.killed    = 0;//global:world!:get_pingus().number_of_killed;
-    _GAMESESSION_RESULT.total     = (int)this.plf!.get_number_of_pingus();
-    _GAMESESSION_RESULT.needed    = (int)this.plf!.get_number_to_save();
-    _GAMESESSION_RESULT.max_time  = (int)this.plf!.get_time();
+    _GAMESESSION_RESULT.total     = (int)_GAMESESSION_RESULT.plf.get_number_of_pingus();
+    _GAMESESSION_RESULT.needed    = (int)_GAMESESSION_RESULT.plf.get_number_to_save();
+    _GAMESESSION_RESULT.max_time  = (int)_GAMESESSION_RESULT.plf.get_time();
     _GAMESESSION_RESULT.used_time = world.get_time();
 
     { // Write the savegame
