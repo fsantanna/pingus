@@ -19,6 +19,9 @@
 #include "math/vector3f.hpp"
 #include "pingus/groundtype.hpp"
 
+#include "pingus/collision_map.hpp"
+#include "ceu_vars.h"
+
 namespace Colliders {
 
 PinguCollider::PinguCollider(const int height_arg) : height(height_arg)
@@ -29,8 +32,14 @@ PinguCollider::~PinguCollider()
 {
 }
 
-bool PinguCollider::operator() (void* const _TODO, Vector3f current_pos,
-                                const Vector3f& step_vector) const
+int PinguCollider::getpixel(const Vector3f& pos) const
+{
+  return CEU_World_get_colmap(NULL,GLOBAL_CEU_WORLD)->getpixel(
+            static_cast<int>(pos.x),
+            static_cast<int>(pos.y));
+}
+
+bool PinguCollider::operator() (Vector3f current_pos, const Vector3f& step_vector) const
 {
   Vector3f new_pos = current_pos + step_vector;
   int pixel;
@@ -47,7 +56,7 @@ bool PinguCollider::operator() (void* const _TODO, Vector3f current_pos,
 
     for (; new_pos.y >= top_of_pingu; --new_pos.y)
     {
-      pixel = getpixel(_TODO, new_pos);
+      pixel = getpixel(new_pos);
 
       // If there is something in the way, then Pingu has collided with
       // something.  However, if not falling and colliding with a
@@ -63,7 +72,7 @@ bool PinguCollider::operator() (void* const _TODO, Vector3f current_pos,
   // If the Pingu is not falling...
   else if (!falling)
   {
-    pixel = getpixel(_TODO, Vector3f(new_pos.x, new_pos.y - static_cast<float>(height)));
+    pixel = getpixel(Vector3f(new_pos.x, new_pos.y - static_cast<float>(height)));
 
     // If the top of the Pingu has hit something except a bridge...
     if (pixel != Groundtype::GP_NOTHING && pixel != Groundtype::GP_BRIDGE)
@@ -72,7 +81,7 @@ bool PinguCollider::operator() (void* const _TODO, Vector3f current_pos,
     }
   }
   // If the Pingu's "feet" has hit something...
-  else if (getpixel(_TODO, new_pos) != Groundtype::GP_NOTHING)
+  else if (getpixel(new_pos) != Groundtype::GP_NOTHING)
   {
     collided = true;
   }

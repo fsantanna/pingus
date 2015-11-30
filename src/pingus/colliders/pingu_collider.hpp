@@ -17,11 +17,13 @@
 #ifndef HEADER_PINGUS_PINGUS_COLLIDERS_PINGU_COLLIDER_HPP
 #define HEADER_PINGUS_PINGUS_COLLIDERS_PINGU_COLLIDER_HPP
 
-#include "pingus/collider.hpp"
+//#include "pingus/collider.hpp"
+
+class Vector3f;
 
 namespace Colliders {
 
-class PinguCollider : public Collider
+class PinguCollider
 {
 public:
   /** Constructor */
@@ -32,8 +34,9 @@ public:
 
   /** Find out if a Pingu at the specified position is colliding with
       something */
-  bool operator() (void* const _TODO, Vector3f current_pos,
-                   const Vector3f& step_vector) const;
+  bool operator() (Vector3f current_pos, const Vector3f& step_vector) const;
+
+  int getpixel(const Vector3f& pos) const;
 
 private:
   /** Pingu could be on its belly.  Therefore, this is the current height of
