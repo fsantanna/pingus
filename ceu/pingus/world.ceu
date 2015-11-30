@@ -230,11 +230,6 @@ do
         return this.height;
     end
 
-    function (_std__string name, _Vector3f pos, float volume)=>void play_sound do
-        var float panning = 0.0;
-        return {Sound::PingusSound::play_sound}(name, volume, panning);
-    end
-
     function (void)=>float get_gravity do
         return WORLD_gravitational_acceleration;
     end

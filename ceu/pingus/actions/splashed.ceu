@@ -12,7 +12,8 @@ do
     _vec.x = this.pingu.get_pos().x;
     _vec.y = this.pingu.get_pos().y;
 
-    global:world!:play_sound("splash", _vec, 0.5);
+    //global:world!:play_sound("splash", _vec, 0.5);
+    call {Sound::PingusSound::play_sound}("splash", 0.5, 0.0);
 
     var char[] str = [] .. "pingus/player"
                         .. (char&&)this.pingu.get_owner_str().c_str()

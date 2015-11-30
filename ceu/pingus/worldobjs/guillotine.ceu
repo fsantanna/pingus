@@ -59,7 +59,8 @@ do
                           pos.y = THIS(CEU_Guillotine)->pos.y;
                           pos.z = THIS(CEU_Guillotine)->pos.z;
                         };
-                        global:world!:play_sound("splash", _pos, 0.5);
+                        //global:world!:play_sound("splash", _pos, 0.5);
+                        call {Sound::PingusSound::play_sound}("splash", 0.5, 0.0);
                     end
                 end
             end

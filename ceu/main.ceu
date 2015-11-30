@@ -145,7 +145,6 @@ interface IWorld with
     function (void)=>int get_width;
     function (void)=>int get_height;
 
-    function (_std__string name, _Vector3f pos, float volume)=>void play_sound;
     function (void)=>float get_gravity;
 
     function (void)=>_GroundMap&&          get_gfx_map;

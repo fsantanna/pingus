@@ -30,7 +30,8 @@ do
     _vec1.x = this.pingu.get_pos().x;
     _vec1.y = this.pingu.get_pos().y;
 
-    global:world!:play_sound("ohno", _vec1, 0.5);
+    //global:world!:play_sound("ohno", _vec1, 0.5);
+    call {Sound::PingusSound::play_sound}("ohno", 0.5, 0.0);
 
     par do
         // TODO: does it make any difference??
@@ -50,7 +51,8 @@ do
         _vec2.x = this.pingu.get_pos().x;
         _vec2.y = this.pingu.get_pos().y;
 
-        global:world!:play_sound("plop", _vec2, 0.5);
+        //global:world!:play_sound("plop", _vec2, 0.5);
+        call {Sound::PingusSound::play_sound}("plop", 0.5, 0.0);
 
         await WORLD_UPDATE
         until sprites.get():get_current_frame() == 13;
