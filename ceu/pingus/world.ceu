@@ -133,7 +133,6 @@ do
     var Rect rect_small = Rect(6,{Display::get_size}().height-105, 175,100);
         // TODO: height originally comes from Screen/GUIScreen/SmallMap
 
-    var SmallMapImage    _ = SmallMapImage.build(175,100); /// TODO: take from SmallMap
     var TimeDisplay      _ = TimeDisplay.build(plf.get_time(), &game_time);
     var CPingusCounter   _ = CPingusCounter.build(&counter);
 
@@ -144,21 +143,24 @@ do
     var PauseButton      _ = PauseButton.build     (dwidth-40*3, dheight-62);
     var ButtonPanel button_panel;
 
-    var WorldObjFactory objs with
-        this.plf = &plf;
-        this.pingus = &pingus;
-        this.game_time = &game_time;
-    end;
-
     var Playfield playfield with
         this.action_next = &button_panel.action;
         this.pingus      = &pingus;
         this.rect        = &rect;
     end;
-    this.state!.set_pos(_Vector2i(objs.pos_start.x,objs.pos_start.y));
 
     var SmallMap smallmap  = SmallMap.build(rect_small, &pingu_holder, &playfield);
+    var SmallMapImage    _ = SmallMapImage.build(&smallmap);
     var CaptureRectangle _ = CaptureRectangle.build(&playfield);
+
+    var WorldObjFactory objs with
+        this.plf = &plf;
+        this.pingus = &pingus;
+        this.game_time = &game_time;
+        this.smallmap = &smallmap;
+    end;
+
+    this.state!.set_pos(_Vector2i(objs.pos_start.x,objs.pos_start.y));
 
     par/or do
         await goal_manager;
@@ -217,10 +219,6 @@ do
     end
 
     /* PUBLIC */
-
-    function (void)=>IComponent& get_smallmap do
-        return &this.smallmap;
-    end
 
     function (void)=>int get_width do
         return this.width;

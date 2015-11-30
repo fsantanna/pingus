@@ -134,13 +134,7 @@ interface IPinguAction with
     var _ActionName__Enum previous_action;
 end
 
-interface IComponent with
-    var Rect rect;
-end
-
 interface IWorld with
-    function (void)=>IComponent& get_smallmap;
-
     function (void)=>int get_width;
     function (void)=>int get_height;
 

@@ -4,6 +4,7 @@
 class Exit with
     pool IPingu[]& pingus;
     var _FileReader&& reader;
+    var SmallMap& smallmap;
 
     function (void)       =>float     get_z_pos;
     function (_Vector3f&&)=>void      set_pos;
@@ -59,7 +60,7 @@ await SDL_DT;
         this.y = &pos.y;
         this.name = "core/misc/smallmap_exit";
         this.is_world = false;
-        this.rect = &global:world!:get_smallmap().rect;
+        this.rect = &outer.smallmap.rect;
     end;
 
     every WORLD_UPDATE do

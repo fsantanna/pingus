@@ -9,7 +9,7 @@ end
 native @plain _DrawingContext;
 
 class SmallMap with
-    interface IComponent;
+    var Rect rect;
     var PinguHolder& pingu_holder;
     var Playfield&   playfield;
 
