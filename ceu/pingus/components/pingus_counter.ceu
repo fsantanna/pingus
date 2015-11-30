@@ -3,6 +3,7 @@
 
 class PingusCounter with
     var IPinguHolder& pingu_holder;
+    var int pingus_to_save;
 do
     //var _Font font = {Fonts::pingus_small_fixnum};
 
@@ -24,7 +25,7 @@ do
            this.pingu_holder.number_of_allowed,
            this.pingu_holder.number_of_alive,
            this.pingu_holder.number_of_exited,
-           _GLOBAL_SERVER:get_plf().get_number_to_save())
+           this.pingus_to_save)
             finalize with nothing; end;
 
         gc:print_center({Fonts::pingus_small_fixnum},

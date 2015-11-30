@@ -24,7 +24,7 @@
 #include "engine/input/manager.hpp"
 #include "engine/system/sdl_system.hpp"
 #include "pingus/config_manager.hpp"
-#include "pingus/screens/demo_session.hpp"
+///#include "pingus/screens/demo_session.hpp"
 #include "pingus/screens/pingus_menu.hpp"
 #include "pingus/screens/level_menu.hpp"
 #include "pingus/worldmap/worldmap_screen.hpp"
@@ -562,8 +562,11 @@ PingusMain::start_game ()
   { // just start the map that was passed on the command line
     if (StringUtil::has_suffix(cmd_options.rest.get(), ".pingus-demo"))
     { // Demo file
+assert(!"NOT PORTED");
+#if 0
       screen_manager.push_screen
         (std::make_shared<DemoSession>(Pathname(cmd_options.rest.get(), Pathname::SYSTEM_PATH)));
+#endif
     }
     else if (StringUtil::has_suffix(cmd_options.rest.get(), ".font"))
     {

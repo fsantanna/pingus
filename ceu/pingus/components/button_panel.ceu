@@ -3,7 +3,6 @@
 
 native do
     ##include "pingus/game_time.hpp"
-    extern Server* GLOBAL_SERVER;
 end
 
 class ActionButtonE with
@@ -114,7 +113,7 @@ do
                 gc:print_center(
                     {Fonts::pingus_small},
                     _Vector2i(this.x+46, this.y+5),
-                    {StringUtil::to_string}(_GLOBAL_SERVER:get_action_holder():get_available(this.id_me))
+                    {StringUtil::to_string}(_GLOBAL_ACTIONHOLDER:get_available(this.id_me))
                 );
             end
         end
@@ -137,8 +136,7 @@ end
 native do
     std::vector<ActionName::Enum> ButtonPanel_actions;
     void ButtonPanel_load_actions (void) {
-        ActionHolder* aholder = GLOBAL_SERVER->get_action_holder();
-        ButtonPanel_actions = aholder->get_available_actions();
+        ButtonPanel_actions = GLOBAL_ACTIONHOLDER->get_available_actions();
         std::sort(ButtonPanel_actions.begin(), ButtonPanel_actions.end());
     }
 end

@@ -234,16 +234,11 @@ StartScreen::on_escape_press()
 
 #include "pingus/screens/empty_session.hpp"
 #include "ceu_vars.h"
-#include "pingus/server.hpp"
-std::unique_ptr<Server> GLOBAL_SERVER_;
-Server* GLOBAL_SERVER = NULL;
 
 void
 StartScreen::start_game()
 {
   ScreenManager::instance()->replace_screen(std::make_shared<EmptySession>(plf, true));
-  GLOBAL_SERVER_ = std::unique_ptr<Server>(new Server(plf, true));
-  GLOBAL_SERVER = GLOBAL_SERVER_.get();
   tceu__PingusLevel___bool p = { &plf, true };
   ceu_sys_go(&CEU_APP, CEU_IN_GAMESESSION_NEW, &p);
 }

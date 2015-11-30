@@ -4,7 +4,6 @@
 native do
     ##include "pingus/globals.hpp"
     ##include "pingus/fonts.hpp"
-    extern Server* GLOBAL_SERVER;
 end
 
 class CaptureRectangle with

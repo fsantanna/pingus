@@ -135,7 +135,9 @@ do
     end;
 
     var ButtonPanel button_panel;
-    var TimeDisplay _;
+    var TimeDisplay _ with
+        this.total = outer.plf.get_time();
+    end;
 
     var bool in_armageddon = false;
     var ArmageddonButton armageddon with
@@ -153,6 +155,7 @@ do
 
     var PingusCounter _ with
         this.pingu_holder = &pingu_holder;
+        this.pingus_to_save = plf.get_number_to_save();
     end;
 
     var Playfield playfield with
@@ -196,7 +199,7 @@ do
     with
         await global:go_armageddon;
         this.in_armageddon = true;
-        _GLOBAL_SERVER:send_armageddon_event();
+        ///_GLOBAL_SERVER:send_armageddon_event();
 
         {Sound::PingusSound::play_sound("goodidea");};
 

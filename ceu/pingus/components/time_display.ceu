@@ -6,15 +6,15 @@ native do
 end
 
 class TimeDisplay with
+    var int total;
 do
     every gc in SCREENMANAGER_DRAW do
-        var int level_time = _GLOBAL_SERVER:get_plf().get_time();
-        if (level_time>=0 or {globals::developer_mode}) then
+        if (total>=0 or {globals::developer_mode}) then
             // get elapsed time from server
             var int time_value = global:world!:get_time();
 
             if not {globals::developer_mode} then
-                time_value = {std::max}(0, level_time - time_value);
+                time_value = {std::max}(0, total - time_value);
             end
 
             var _std__string time_string =

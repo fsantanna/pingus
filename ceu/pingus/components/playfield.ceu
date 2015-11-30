@@ -1,10 +1,6 @@
 #ifndef _PLAYFIELD_CEU
 #define _PLAYFIELD_CEU
 
-native do
-    ##include "pingus/server.hpp"
-end
-
 #include "../../engine/gui/rect_component.ceu"
 
 class Playfield with
@@ -56,7 +52,7 @@ do
 
             if pingu? then
                 if pingu!:check_action(this.action_next) then
-                    if _GLOBAL_SERVER:action_holder.pop_action(this.action_next) then
+                    if _GLOBAL_ACTIONHOLDER:pop_action(this.action_next) then
                         emit pingu!:go_action => this.action_next;
                     end
                 end
