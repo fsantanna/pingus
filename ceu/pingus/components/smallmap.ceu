@@ -8,22 +8,25 @@ native/pre do
 end
 native @plain _DrawingContext;
 
-#define AWAIT_MY(EVT,x,y)   \
-    (x,y) = await EVT       \
-            until this.is_at(x,y)
-
 class SmallMap with
     interface IComponent;
     var PinguHolder& pingu_holder;
     var Playfield&   playfield;
+
+    function (Rect rect, PinguHolder& pingu_holder, Playfield& playfield)=>SmallMap build;
 do
+    function (Rect rect, PinguHolder& pingu_holder, Playfield& playfield)=>SmallMap build do
+        this.rect = rect;
+        this.pingu_holder = &pingu_holder;
+        this.playfield = &playfield;
+    end
+
     function (int x, int y)=>bool is_at;
 
     par do
         loop do
             var int x,y;
-            AWAIT_MY(ON_PRIMARY_BUTTON_PRESSED,x,y);
-
+            (x,y) = await ON_PRIMARY_BUTTON_PRESSED until this.is_at(x,y);
             watching ON_PRIMARY_BUTTON_RELEASED do
                 loop do
                     // set view to the given COs
@@ -35,7 +38,7 @@ do
                             ((int)global:world!:get_height()) /
                                 this.rect.height;
                     this.playfield.set_viewpoint(cx, cy);
-                    AWAIT_MY(ON_POINTER_MOVE,x,y);
+                    (x,y) = await ON_POINTER_MOVE until this.is_at(x,y);
                 end
             end
         end

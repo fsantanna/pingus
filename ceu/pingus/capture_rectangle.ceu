@@ -8,7 +8,13 @@ end
 
 class CaptureRectangle with
     var Playfield& playfield;
+
+    function (Playfield& playfield)=>CaptureRectangle build;
 do
+    function (Playfield& playfield)=>CaptureRectangle build do
+        this.playfield = &playfield;
+    end
+
     pool Sprite[1] good_or_bad;
     pool Sprite[1] left_or_right;
 

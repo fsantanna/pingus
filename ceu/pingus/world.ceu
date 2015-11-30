@@ -126,23 +126,19 @@ do
         this.number_of_allowed = plf.get_number_of_pingus();
     end;
 
-    var SmallMapImage    _            = SmallMapImage.build(175,100); /// TODO: take from SmallMap
-    var ButtonPanel      button_panel;
-    var TimeDisplay      _            = TimeDisplay.build(plf.get_time(), &game_time);
-    var ArmageddonButton armageddon   = ArmageddonButton.build(
-                                            {Display::get_width()}  - 40*1,
-                                            {Display::get_height()} - 62
-                                        );
-    var ForwardButton    _            = ForwardButton.build(
-                                            {Display::get_width()}  - 40*2,
-                                            {Display::get_height()} - 62
-                                        );
+    var Rect rect_small = Rect(6,{Display::get_size}().height-105, 175,100);
+        // TODO: height originally comes from Screen/GUIScreen/SmallMap
 
-    var PauseButton      _            = PauseButton.build(
-                                            {Display::get_width()}  - 40*3,
-                                            {Display::get_height()} - 62
-                                        );
-    var PingusCounter    _            = PingusCounter.build(&pingu_holder, plf.get_number_to_save());
+    var SmallMapImage    _ = SmallMapImage.build(175,100); /// TODO: take from SmallMap
+    var TimeDisplay      _ = TimeDisplay.build(plf.get_time(), &game_time);
+    var PingusCounter    _ = PingusCounter.build(&pingu_holder, plf.get_number_to_save());
+
+    var int dwidth  = {Display::get_width()};
+    var int dheight = {Display::get_height()};
+    var ArmageddonButton _ = ArmageddonButton.build(dwidth-40*1, dheight-62);
+    var ForwardButton    _ = ForwardButton.build   (dwidth-40*2, dheight-62);
+    var PauseButton      _ = PauseButton.build     (dwidth-40*3, dheight-62);
+    var ButtonPanel button_panel;
 
     var WorldObjFactory objs with
         this.plf = &plf;
@@ -156,18 +152,8 @@ do
     end;
     this.state!.set_pos(_Vector2i(objs.pos_start.x,objs.pos_start.y));
 
-    var CaptureRectangle _ with
-        this.playfield = &playfield;
-    end;
-
-    var Rect rect_small = Rect(6,{Display::get_size}().height-105, 175,100);
-        // TODO: height originally comes from Screen/GUIScreen/SmallMap
-
-    var SmallMap smallmap with
-        this.rect         = rect_small;
-        this.pingu_holder = &pingu_holder;
-        this.playfield    = &playfield;
-    end;
+    var SmallMap smallmap  = SmallMap.build(rect_small, &pingu_holder, &playfield);
+    var CaptureRectangle _ = CaptureRectangle.build(&playfield);
 
     par do
         every (x_,y_) in this.create_pingu_particles do
