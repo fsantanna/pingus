@@ -24,16 +24,10 @@
 
 namespace Colliders {
 
-PinguCollider::PinguCollider(const int height_arg) : height(height_arg)
-{
-}
+PinguCollider::PinguCollider() { }
+PinguCollider::~PinguCollider() { }
 
-PinguCollider::~PinguCollider()
-{
-}
-
-int PinguCollider::getpixel(const Vector3f& pos) const
-{
+int PinguCollider::getpixel(const Vector3f& pos) const {
   return CEU_World_get_colmap(NULL,GLOBAL_CEU_WORLD)->getpixel(
             static_cast<int>(pos.x),
             static_cast<int>(pos.y));
@@ -52,7 +46,7 @@ bool PinguCollider::operator() (Vector3f current_pos, const Vector3f& step_vecto
   // If the Pingu is going to move sideways to the next pixel...
   if (static_cast<int>(new_pos.x) != static_cast<int>(current_pos.x))
   {
-    float top_of_pingu = new_pos.y - static_cast<float>(height);
+    float top_of_pingu = new_pos.y - static_cast<float>(pingu_height);
 
     for (; new_pos.y >= top_of_pingu; --new_pos.y)
     {
@@ -72,7 +66,7 @@ bool PinguCollider::operator() (Vector3f current_pos, const Vector3f& step_vecto
   // If the Pingu is not falling...
   else if (!falling)
   {
-    pixel = getpixel(Vector3f(new_pos.x, new_pos.y - static_cast<float>(height)));
+    pixel = getpixel(Vector3f(new_pos.x, new_pos.y - static_cast<float>(pingu_height)));
 
     // If the top of the Pingu has hit something except a bridge...
     if (pixel != Groundtype::GP_NOTHING && pixel != Groundtype::GP_BRIDGE)

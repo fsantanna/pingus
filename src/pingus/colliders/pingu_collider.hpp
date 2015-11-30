@@ -27,7 +27,7 @@ class PinguCollider
 {
 public:
   /** Constructor */
-  PinguCollider(const int height_arg);
+  PinguCollider();
 
   /** Destructor */
   ~PinguCollider();
