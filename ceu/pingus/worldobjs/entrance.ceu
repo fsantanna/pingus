@@ -63,34 +63,32 @@ await SDL_DT;
 
     var bool last_was_right = false;
 
-    loop do
-        await WORLD_UPDATE
-        until global:world!:get_time() >= last_release+release_rate;
-        last_release = global:world!:get_time();
+    watching global:go_armageddon do
+        loop do
+            await WORLD_UPDATE
+            until global:world!:get_time() >= last_release+release_rate;
+            last_release = global:world!:get_time();
 
-        if global:world!:check_armageddon() then
-            break;
-        end
-
-        var s8 dir;
-        if this.direction == _ENTRANCE_LEFT then
-            dir = _LEFT;
-        else/if this.direction == _ENTRANCE_RIGHT  then
-            dir = _RIGHT;
-        else/if this.direction == _ENTRANCE_MISC then
-            if last_was_right then
+            var s8 dir;
+            if this.direction == _ENTRANCE_LEFT then
                 dir = _LEFT;
+            else/if this.direction == _ENTRANCE_RIGHT  then
+                dir = _RIGHT;
+            else/if this.direction == _ENTRANCE_MISC then
+                if last_was_right then
+                    dir = _LEFT;
+                else
+                    dir = _RIGHT;
+                end
+                last_was_right = not last_was_right;
             else
+                _log_error("warning direction is wrong: %1%", this.direction);
                 dir = _RIGHT;
             end
-            last_was_right = not last_was_right;
-        else
-            _log_error("warning direction is wrong: %1%", this.direction);
-            dir = _RIGHT;
-        end
 
-        emit global:world!:get_pingu_holder().create =>
-                (this.pos.x, this.pos.y, dir, this.owner_id);
+            emit global:world!:get_pingu_holder().create =>
+                    (this.pos.x, this.pos.y, dir, this.owner_id);
+        end
     end
 
     /* PUBLIC */

@@ -119,8 +119,6 @@ do
         end
     end
 
-    var bool in_armageddon = false;
-
     var SmallMapImage    _            = SmallMapImage.build(175,100); /// TODO: take from SmallMap
     var WorldObjFactory  objs         = WorldObjFactory.build(&plf);
     var PinguHolder      pingu_holder = PinguHolder.build(plf.get_number_of_pingus());
@@ -165,7 +163,7 @@ do
         this.playfield    = &playfield;
     end;
 
-    par/or do
+    par do
         every (x_,y_) in this.create_pingu_particles do
             loop i in 50 do
                 spawn PinguParticle with
@@ -185,7 +183,6 @@ do
         end
     with
         await global:go_armageddon;
-        this.in_armageddon = true;
         ///_GLOBAL_SERVER:send_armageddon_event();
 
         {Sound::PingusSound::play_sound("goodidea");};
@@ -242,10 +239,6 @@ do
     end
     function (void)=>int get_height do
         return this.height;
-    end
-
-    function (void)=>bool check_armageddon do
-        return this.in_armageddon;
     end
 
     function (_std__string name, _Vector3f pos, float volume)=>void play_sound do
