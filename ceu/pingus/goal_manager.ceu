@@ -3,6 +3,7 @@
 
 class GoalManager with
     var _PingusLevel& plf;
+    var PingusCounter& counter;
 do
     var int time = this.plf.get_time();
 
@@ -14,12 +15,11 @@ do
 
     loop do
         await SCREENMANAGER_UPDATE;
-        var IPinguHolder& pingus = &global:world!:get_pingu_holder();
-        if pingus.number_of_allowed==pingus.number_of_released and pingus.number_of_alive==0 then
+        if counter.number_of_allowed==counter.number_of_released and counter.number_of_alive==0 then
             //goal = GT_NO_PINGUS_IN_WORLD;
             break;
         end
-        if pingus.number_of_alive==0 and in_armageddon then
+        if counter.number_of_alive==0 and in_armageddon then
             //goal = GT_ARMAGEDDON;
             break;
         end

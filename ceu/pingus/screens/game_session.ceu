@@ -51,12 +51,18 @@ do
         call {Sound::PingusSound::play_music}(this.plf!.get_music());
     end
 
+    var PingusCounter counter = PingusCounter(0,0,0,0,
+                                    plf!.get_number_of_pingus(),
+                                    plf!.get_number_to_save());
+
     var GoalManager goal_manager with
         this.plf = &plf!;
+        this.counter = &counter;
     end;
 
     var World world with
         this.plf = &plf!;
+        this.counter = &counter;
     end;
 
     par/or do

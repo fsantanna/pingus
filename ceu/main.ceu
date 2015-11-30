@@ -119,19 +119,18 @@ interface IPingu with
     function (void)         => char[]&      get_name;
 end
 
-interface IPinguHolder with
-    pool IPingu[]& pingus;
-
+data PingusCounter with
     var int number_of_exited;
     var int number_of_killed;
     var int number_of_alive;
     var int number_of_released;
     var int number_of_allowed;
+    var int number_to_save;
 end
 
 interface IPinguAction with
     pool IPingu[]& pingus;
-    var IPingu&           pingu;
+    var IPingu& pingu;
     var _ActionName__Enum previous_action;
 end
 
@@ -140,9 +139,8 @@ interface IComponent with
 end
 
 interface IWorld with
-    function (void)=>IPinguHolder& get_pingu_holder;
-    function (void)=>int               get_time;
-    function (void)=>IComponent&       get_smallmap;
+    function (void)=>int         get_time;
+    function (void)=>IComponent& get_smallmap;
 
     function (void)=>int get_width;
     function (void)=>int get_height;

@@ -1,14 +1,12 @@
 #ifndef _PINGUSCOUNTER_CEU
 #define _PINGUSCOUNTER_CEU
 
-class PingusCounter with
-    var IPinguHolder& pingu_holder;
-    var int pingus_to_save;
-    function (IPinguHolder& pingu_holder, int pingus_to_save)=>PingusCounter build;
+class CPingusCounter with
+    var PingusCounter& counter;
+    function (PingusCounter& counter)=>CPingusCounter build;
 do
-    function (IPinguHolder& pingu_holder, int pingus_to_save)=>PingusCounter build do
-        this.pingu_holder   = &pingu_holder;
-        this.pingus_to_save = pingus_to_save;
+    function (PingusCounter& counter)=>CPingusCounter build do
+        this.counter = &counter;
     end
 
     //var _Font font = {Fonts::pingus_small_fixnum};
@@ -27,11 +25,11 @@ do
 
         _snprintf(&&str, 128,
             __("Released:%3d/%d   Out:%3d   Saved:%3d/%d").c_str(),
-           this.pingu_holder.number_of_released,
-           this.pingu_holder.number_of_allowed,
-           this.pingu_holder.number_of_alive,
-           this.pingu_holder.number_of_exited,
-           this.pingus_to_save)
+           this.counter.number_of_released,
+           this.counter.number_of_allowed,
+           this.counter.number_of_alive,
+           this.counter.number_of_exited,
+           this.counter.number_to_save)
             finalize with nothing; end;
 
         gc:print_center({Fonts::pingus_small_fixnum},
