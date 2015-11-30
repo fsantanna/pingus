@@ -52,9 +52,6 @@ do
             (int)(this.pos.y) - this.sprite.get_height());
     end
 
-/// TODO
-await SDL_DT;
-await SDL_DT;
     var Sprite _ with
         this.x = &pos.x;
         this.y = &pos.y;

@@ -32,9 +32,6 @@ do
             call/rec this.update_surface();
         end
 
-/// TODO
-await SDL_DT;
-await SDL_DT;
         var float x=0, y=0;
         var Sprite _ with
             this.x = &x;

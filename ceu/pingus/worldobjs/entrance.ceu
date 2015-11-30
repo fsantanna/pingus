@@ -49,9 +49,6 @@ do
             log_error("unknown direction: '%1%'", direction_str);
     };
 
-/// TODO
-await SDL_DT;
-await SDL_DT;
     var Sprite _ with
         this.x = &pos.x;
         this.y = &pos.y;

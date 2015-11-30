@@ -36,7 +36,7 @@ do
         loop do
             await mover.ok_collided;
 
-/// TODO: FIX
+/// TODO: FIX (from original version in C++)
 // For some reasone, the LinearMover detects the collision before the Pingu 
 // UPDATE loop. Have to make them detect at the same time, so that the Pingu 
 // loop reacts first.
