@@ -10,6 +10,7 @@ end
 class Entrance with
     var _FileReader&& reader;
     var Vector3f      pos_offset;
+    var int&          game_time;
 
     var s8 direction = _ENTRANCE_MISC;
 
@@ -66,8 +67,8 @@ await SDL_DT;
     watching global:go_armageddon do
         loop do
             await WORLD_UPDATE
-            until global:world!:get_time() >= last_release+release_rate;
-            last_release = global:world!:get_time();
+            until this.game_time >= last_release+release_rate;
+            last_release = this.game_time;
 
             var s8 dir;
             if this.direction == _ENTRANCE_LEFT then

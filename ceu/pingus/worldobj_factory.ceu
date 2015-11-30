@@ -51,6 +51,7 @@ end
 class WorldObjFactory with
     var _PingusLevel& plf;  // TODO: private
     pool IPingu[]& pingus;
+    var int& game_time;
     var Vector2i pos_start = Vector2i(0,0);
 do
     loop i in this.plf.get_objects().size() do
@@ -71,6 +72,7 @@ do
             spawn Entrance in entrances with
                 this.reader     = reader_;
                 this.pos_offset = pos_offset;
+                this.game_time  = &game_time;
             end;
         else/if id_ == "exit" then
             spawn Exit with

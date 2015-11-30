@@ -4,6 +4,7 @@
 class GoalManager with
     var _PingusLevel& plf;
     var PingusCounter& counter;
+    var int& game_time;
 do
     var int time = this.plf.get_time();
 
@@ -23,13 +24,13 @@ do
             //goal = GT_ARMAGEDDON;
             break;
         end
-        if time!=-1 and time<=global:world!:get_time() then
+        if time!=-1 and time<=game_time then
             //goal = GT_OUT_OF_TIME;
             break;
         end
     end
-    var int exit_time = global:world!:get_time() + 125;
-    await SCREENMANAGER_UPDATE until exit_time < global:world!:get_time();
+    var int exit_time = game_time + 125;
+    await SCREENMANAGER_UPDATE until exit_time < game_time;
 end
 
 #endif

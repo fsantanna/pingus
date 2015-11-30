@@ -27,8 +27,7 @@ do
         var float tmp_y_add = 0.0;
 
         // Simulated gravity
-        this.velocity.y = this.velocity.y +
-                          global:world!:get_gravity();
+        this.velocity.y = this.velocity.y + global:gravity;
 
         if (this.velocity.y > 0) then
             tmp_y_add = this.velocity.y;

@@ -17,8 +17,6 @@ input void WORLD_ARMAGEDDON;
 #include "particles/pingu_particle_holder.ceu"
 #include "particles/smoke_particle_holder.ceu"
 
-#define WORLD_gravitational_acceleration 0.2
-
 interface IWorldObj with
 end
 
@@ -48,8 +46,7 @@ end
 class World with
     interface IWorld;
     var _PingusLevel& plf;
-    var PingusCounter& counter;
-    function (void)=>PinguHolder& get_pingus;
+    var int game_time = 0;
 do
     global:world = &&this;
 
@@ -89,7 +86,6 @@ do
         _delete(&&scene_context!);
     end
 
-    var int game_time = 0;
     var Color ambient_light = Color(this.plf.get_ambient_light().r,
                                     this.plf.get_ambient_light().g,
                                     this.plf.get_ambient_light().b,
@@ -122,9 +118,19 @@ do
 
     pool IPingu[] pingus;
 
+    var PingusCounter counter = PingusCounter(0,0,0,0,
+                                    plf.get_number_of_pingus(),
+                                    plf.get_number_to_save());
+
+    var GoalManager goal_manager with
+        this.plf = &plf;
+        this.counter = &counter;
+        this.game_time = &game_time;
+    end;
+
     var PinguHolder pingu_holder with
         this.pingus  = &pingus;
-        this.counter = &outer.counter;
+        this.counter = &counter;
     end;
 
     var Rect rect_small = Rect(6,{Display::get_size}().height-105, 175,100);
@@ -144,6 +150,7 @@ do
     var WorldObjFactory objs with
         this.plf = &plf;
         this.pingus = &pingus;
+        this.game_time = &game_time;
     end;
 
     var Playfield playfield with
@@ -156,7 +163,9 @@ do
     var SmallMap smallmap  = SmallMap.build(rect_small, &pingu_holder, &playfield);
     var CaptureRectangle _ = CaptureRectangle.build(&playfield);
 
-    par do
+    par/or do
+        await goal_manager;
+    with
         every (x_,y_) in this.create_pingu_particles do
             loop i in 50 do
                 spawn PinguParticle with
@@ -212,13 +221,6 @@ do
 
     /* PUBLIC */
 
-    function (void)=>int get_time do
-        return this.game_time;
-    end
-
-    function (void)=>PinguHolder& get_pingus do
-        return &this.pingu_holder;
-    end
     function (void)=>IComponent& get_smallmap do
         return &this.smallmap;
     end
@@ -228,10 +230,6 @@ do
     end
     function (void)=>int get_height do
         return this.height;
-    end
-
-    function (void)=>float get_gravity do
-        return WORLD_gravitational_acceleration;
     end
 
     function (void)=>_GroundMap&& get_gfx_map do

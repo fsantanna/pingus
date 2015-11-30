@@ -51,22 +51,12 @@ do
         call {Sound::PingusSound::play_music}(this.plf!.get_music());
     end
 
-    var PingusCounter counter = PingusCounter(0,0,0,0,
-                                    plf!.get_number_of_pingus(),
-                                    plf!.get_number_to_save());
-
-    var GoalManager goal_manager with
-        this.plf = &plf!;
-        this.counter = &counter;
-    end;
-
     var World world with
         this.plf = &plf!;
-        this.counter = &counter;
     end;
 
     par/or do
-        await goal_manager;
+        await world;
     with
         var int world_delay = 0; // the world is initially on time
         every dt in SCREENMANAGER_UPDATE do
@@ -127,7 +117,7 @@ do
                 else/if but:name == {Input::ARMAGEDDON_BUTTON} then
                     emit global:go_armageddon;
                 else/if but:name == {Input::ESCAPE_BUTTON} then
-                    kill goal_manager;  // aborts everything
+                    kill world;  // aborts everything
                 end
             else
                 _assert(but:state == {Input::BUTTON_RELEASED});
@@ -155,7 +145,7 @@ do
     _GAMESESSION_RESULT.total     = (int)_GAMESESSION_RESULT.plf.get_number_of_pingus();
     _GAMESESSION_RESULT.needed    = (int)_GAMESESSION_RESULT.plf.get_number_to_save();
     _GAMESESSION_RESULT.max_time  = (int)_GAMESESSION_RESULT.plf.get_time();
-    _GAMESESSION_RESULT.used_time = world.get_time();
+    _GAMESESSION_RESULT.used_time = world.game_time;
 
     { // Write the savegame
         Savegame savegame(GAMESESSION_RESULT.plf.get_resname(),

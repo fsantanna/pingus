@@ -139,13 +139,10 @@ interface IComponent with
 end
 
 interface IWorld with
-    function (void)=>int         get_time;
     function (void)=>IComponent& get_smallmap;
 
     function (void)=>int get_width;
     function (void)=>int get_height;
-
-    function (void)=>float get_gravity;
 
     function (void)=>_GroundMap&&          get_gfx_map;
     function (void)=>_CollisionMap&&       get_colmap;
@@ -160,20 +157,24 @@ interface IWorld with
 end
 
 interface Global with
-    var IWorld&&? world;
     event void go_pause_toggle;
     event bool go_forward;
     event void go_armageddon;
     event int  ok_pingu;
     event (float,float,s8,int) go_create_pingu;
+
+    var IWorld&&? world;
+    var float gravity;
 end
 
-var IWorld&&? world;
 event void go_pause_toggle;
 event bool go_forward;
 event void go_armageddon;
 event int  ok_pingu;
 event (float,float,s8,int) go_create_pingu;
+
+var IWorld&&? world;
+var float gravity = 0.2;
 
 #include "pingus/screens/game_session.ceu"
 

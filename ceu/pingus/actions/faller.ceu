@@ -26,7 +26,7 @@ do
 
             // Apply gravity
             var Vector3f velocity = this.pingu.get_velocity();
-            velocity.y = velocity.y + global:world!:get_gravity();
+            velocity.y = velocity.y + global:gravity;
             this.pingu.set_velocity(velocity);
         end
     with
