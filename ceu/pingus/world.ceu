@@ -46,6 +46,7 @@ end
 class World with
     interface IWorld;
     var _PingusLevel& plf;
+    var PingusCounter& counter;
     var int game_time = 0;
 do
     global:world = &&this;
@@ -118,19 +119,15 @@ do
 
     pool IPingu[] pingus;
 
-    var PingusCounter counter = PingusCounter(0,0,0,0,
-                                    plf.get_number_of_pingus(),
-                                    plf.get_number_to_save());
-
     var GoalManager goal_manager with
         this.plf = &plf;
-        this.counter = &counter;
+        this.counter = &outer.counter;
         this.game_time = &game_time;
     end;
 
     var PinguHolder pingu_holder with
         this.pingus  = &pingus;
-        this.counter = &counter;
+        this.counter = &outer.counter;
     end;
 
     var Rect rect_small = Rect(6,{Display::get_size}().height-105, 175,100);

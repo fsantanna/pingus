@@ -51,8 +51,13 @@ do
         call {Sound::PingusSound::play_music}(this.plf!.get_music());
     end
 
+    var PingusCounter counter = PingusCounter(0,0,0,0,
+                                    this.plf!.get_number_of_pingus(),
+                                    this.plf!.get_number_to_save());
+
     var World world with
         this.plf = &plf!;
+        this.counter = &counter;
     end;
 
     par/or do
@@ -140,8 +145,8 @@ do
         end
     end
 
-    _GAMESESSION_RESULT.saved     = 0;//global:world!:get_pingus().number_of_exited;
-    _GAMESESSION_RESULT.killed    = 0;//global:world!:get_pingus().number_of_killed;
+    _GAMESESSION_RESULT.saved     = counter.number_of_exited;
+    _GAMESESSION_RESULT.killed    = counter.number_of_killed;
     _GAMESESSION_RESULT.total     = (int)_GAMESESSION_RESULT.plf.get_number_of_pingus();
     _GAMESESSION_RESULT.needed    = (int)_GAMESESSION_RESULT.plf.get_number_to_save();
     _GAMESESSION_RESULT.max_time  = (int)_GAMESESSION_RESULT.plf.get_time();
