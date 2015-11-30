@@ -1,0 +1,29 @@
+#ifndef _GOALMANAGER_CEU
+#define _GOALMANAGER_CEU
+
+class GoalManager with
+    var _PingusLevel& plf;
+do
+    var int time = this.plf.get_time();
+
+    loop do
+        await SCREENMANAGER_UPDATE;
+        var IPinguHolder& pingus = &global:world!:get_pingu_holder();
+        if pingus.number_of_allowed==pingus.number_of_released and pingus.number_of_alive==0 then
+            //goal = GT_NO_PINGUS_IN_WORLD;
+            break;
+        end
+        if pingus.number_of_alive==0 and global:world!:check_armageddon() then
+            //goal = GT_ARMAGEDDON;
+            break;
+        end
+        if time!=-1 and time<=global:world!:get_time() then
+            //goal = GT_OUT_OF_TIME;
+            break;
+        end
+    end
+    var int exit_time = global:world!:get_time() + 125;
+    await SCREENMANAGER_UPDATE until exit_time < global:world!:get_time();
+end
+
+#endif

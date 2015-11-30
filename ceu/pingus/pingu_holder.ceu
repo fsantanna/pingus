@@ -4,7 +4,7 @@
 #include "pingu.ceu"
 
 class PinguHolder with
-    interface IPinguHolderPool;
+    interface IPinguHolder;
     interface IPinguHolderStatus;
     var int number_of_exited   = 0;
     var int number_of_killed   = 0;

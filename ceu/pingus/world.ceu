@@ -232,7 +232,7 @@ do
 
     /* PUBLIC */
 
-    function (void)=>IPinguHolderPool& get_pingu_holder do
+    function (void)=>IPinguHolder& get_pingu_holder do
         return &this.pingu_holder;
     end
 

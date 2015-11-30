@@ -28,6 +28,7 @@ native @plain _std__string, _Vector3f, _Vector2i, _Color, _Rect;
 native @plain _Sprite, _Surface, _SpriteDescription;
 native @plain _Input__Event, _Input__ButtonEvent;
 native @plain _ResourceModifier__Enum;
+native @plain _PingusLevel;
 native @pure   _XXX_PURE(), _XXX_PTR2REF();
 native @nohold _XXX_NOHOLD();
 native @nohold _delete();
@@ -122,9 +123,15 @@ interface IPingu with
     function (void)         => char[]&      get_name;
 end
 
-interface IPinguHolderPool with
+interface IPinguHolder with
     pool IPingu[] pingus;
     event (float,float,s8,int) create;
+
+    var int number_of_exited;
+    var int number_of_killed;
+    var int number_of_alive;
+    var int number_of_released;
+    var int number_of_allowed;
 end
 
 interface IPinguAction with
@@ -137,7 +144,7 @@ interface IComponent with
 end
 
 interface IWorld with
-    function (void)=>IPinguHolderPool& get_pingu_holder;
+    function (void)=>IPinguHolder& get_pingu_holder;
     function (void)=>int               get_time;
     function (int)=>_Vector2i          get_start_pos;
     function (void)=>IComponent&       get_smallmap;

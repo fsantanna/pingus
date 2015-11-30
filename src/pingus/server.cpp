@@ -89,12 +89,8 @@ Server::~Server ()
     (*demostream) << "(end (time " << CEU_World_get_time(NULL, GLOBAL_CEU_WORLD) << "))" << std::endl;
 }
 
-void
-Server::update()
-{
-  ceu_sys_go(&CEU_APP, CEU_IN_WORLD_UPDATE, NULL);
-  goal_manager->update();
-}
+void Server::update() { }
+bool Server::is_finished () { }
 
 void
 Server::send_armageddon_event ()
@@ -126,12 +122,6 @@ Server::record(const ServerEvent& event)
     event.write(*demostream);
 }
 
-bool
-Server::is_finished ()
-{
-  return goal_manager->is_finished();
-}
-
 ActionHolder*
 Server::get_action_holder ()
 {
@@ -142,7 +132,6 @@ void
 Server::send_finish_event()
 {
   record(ServerEvent::make_finish_event(CEU_World_get_time(NULL, GLOBAL_CEU_WORLD)));
-  goal_manager->set_abort_goal();
 }
 
 /// TODO: move to proper place!

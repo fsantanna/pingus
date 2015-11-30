@@ -1,3 +1,4 @@
+- BUG: a cada reinicio, o dobro de pingus sao criados
 - BUG: is_world=false in sprite.ceu
 - BUG: cliques nos pingus
 - BUG: bg do pingu counter fixo

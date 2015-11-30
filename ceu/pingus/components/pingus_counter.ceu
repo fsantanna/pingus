@@ -2,7 +2,7 @@
 #define _PINGUSCOUNTER_CEU
 
 class PingusCounter with
-    var PinguHolder& pingu_holder;
+    var IPinguHolder& pingu_holder;
 do
     //var _Font font = {Fonts::pingus_small_fixnum};
 

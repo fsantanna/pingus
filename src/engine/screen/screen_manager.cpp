@@ -282,6 +282,7 @@ ScreenManager::update(float delta, const std::vector<Input::Event>& events)
 
   last_screen->update(delta);
   ceu_sys_go(&CEU_APP, CEU_IN_SCREENMANAGER_UPDATE, &delta);
+  ceu_sys_go(&CEU_APP, CEU_IN__ASYNC, NULL);    /// TODO: remove
 
   if (last_screen != get_current_screen())
   {
