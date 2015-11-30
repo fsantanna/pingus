@@ -138,10 +138,7 @@ do
                                             {Display::get_height()} - 62
                                         );
 
-    var PingusCounter _ with
-        this.pingu_holder = &pingu_holder;
-        this.pingus_to_save = plf.get_number_to_save();
-    end;
+    var PingusCounter    _            = PingusCounter.build(&pingu_holder, plf.get_number_to_save());
 
     var Playfield playfield with
         this.action_next  = &button_panel.action;

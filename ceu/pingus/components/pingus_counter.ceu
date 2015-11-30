@@ -4,7 +4,13 @@
 class PingusCounter with
     var IPinguHolder& pingu_holder;
     var int pingus_to_save;
+    function (IPinguHolder& pingu_holder, int pingus_to_save)=>PingusCounter build;
 do
+    function (IPinguHolder& pingu_holder, int pingus_to_save)=>PingusCounter build do
+        this.pingu_holder   = &pingu_holder;
+        this.pingus_to_save = pingus_to_save;
+    end
+
     //var _Font font = {Fonts::pingus_small_fixnum};
 
     var float xf = {Display::get_size}().width/2;
