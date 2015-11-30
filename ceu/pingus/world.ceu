@@ -119,33 +119,26 @@ do
         end
     end
 
-    var SmallMapImage _ with
-        this.width  = 175;      /// TODO: take from SmallMap
-        this.height = 100;      /// TODO: take from SmallMap
-    end;
-
-    var WorldObjFactory objs = WorldObjFactory.build(&plf);
-
-    var PinguHolder pingu_holder with
-        this.number_of_allowed = plf.get_number_of_pingus();
-    end;
-
-    var ButtonPanel button_panel;
-    var TimeDisplay _ = TimeDisplay.build(plf.get_time(), &game_time);
-
     var bool in_armageddon = false;
-    var ArmageddonButton armageddon with
-        this.x = {Display::get_width()}  - 40*1;
-        this.y = {Display::get_height()} - 62;
-    end;
-    var ForwardButton _ with
-        this.x = {Display::get_width()}  - 40*2;
-        this.y = {Display::get_height()} - 62;
-    end;
-    var PauseButton _ with
-        this.x = {Display::get_width()}  - 40*3;
-        this.y = {Display::get_height()} - 62;
-    end;
+
+    var SmallMapImage    _            = SmallMapImage.build(175,100); /// TODO: take from SmallMap
+    var WorldObjFactory  objs         = WorldObjFactory.build(&plf);
+    var PinguHolder      pingu_holder = PinguHolder.build(plf.get_number_of_pingus());
+    var ButtonPanel      button_panel;
+    var TimeDisplay      _            = TimeDisplay.build(plf.get_time(), &game_time);
+    var ArmageddonButton armageddon   = ArmageddonButton.build(
+                                            {Display::get_width()}  - 40*1,
+                                            {Display::get_height()} - 62
+                                        );
+    var ForwardButton    _            = ForwardButton.build(
+                                            {Display::get_width()}  - 40*2,
+                                            {Display::get_height()} - 62
+                                        );
+
+    var PauseButton      _            = PauseButton.build(
+                                            {Display::get_width()}  - 40*3,
+                                            {Display::get_height()} - 62
+                                        );
 
     var PingusCounter _ with
         this.pingu_holder = &pingu_holder;

@@ -3,7 +3,13 @@
 
 class SmallMapImage with
     var int width, height;
+    function (int width, int height)=>SmallMapImage build;
 do
+    function (int width, int height)=>SmallMapImage build do
+        this.width  = width;
+        this.height = height;
+    end
+
     function @rec (void)=>void update_surface;
 
     var uint colmap_serial = 0;

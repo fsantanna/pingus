@@ -11,7 +11,12 @@ class PinguHolder with
     var int number_of_alive    = 0;
     var int number_of_released = 0;
     var int number_of_allowed;//=0;
+    function (int number_of_allowed)=>PinguHolder build;
 do
+    function (int number_of_allowed)=>PinguHolder build do
+        this.number_of_allowed = number_of_allowed;
+    end
+
     par do
         var int id_total = 0;
         every (x_,y_,dir_,owner_id_) in this.create do

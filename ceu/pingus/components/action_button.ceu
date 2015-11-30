@@ -7,7 +7,13 @@ class ArmageddonButton with
     var int x;
     var int y;
     event void ok;
+    function (int x, int y)=>ArmageddonButton build;
 do
+    function (int x, int y)=>ArmageddonButton build do
+        this.x = x;
+        this.y = y;
+    end
+
     var Rect rect = Rect(this.x,this.y, 38,60);
     var RectComponent component with
         this.rect  = &rect;
@@ -62,7 +68,13 @@ end
 class ForwardButton with
     var int x;
     var int y;
+    function (int x, int y)=>ForwardButton build;
 do
+    function (int x, int y)=>ForwardButton build do
+        this.x = x;
+        this.y = y;
+    end
+
     var Rect rect = Rect(this.x,this.y, 38,60);
     var RectComponent component with
         this.rect  = &rect;
@@ -113,7 +125,13 @@ end
 class PauseButton with
     var int x;
     var int y;
+    function (int x, int y)=>PauseButton build;
 do
+    function (int x, int y)=>PauseButton build do
+        this.x = x;
+        this.y = y;
+    end
+
     var Rect rect = Rect(this.x,this.y, 38,60);
     var RectComponent component with
         this.rect  = &rect;
