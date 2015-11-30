@@ -49,9 +49,14 @@ native do
 end
 
 class WorldObjFactory with
-    var _PingusLevel& plf;
-    pool Entrance[] entrances;
+    var _PingusLevel& plf;  // TODO: private
+    var Vector2i pos_start = Vector2i(0,0);
+    function (_PingusLevel& plf)=>WorldObjFactory build;
 do
+    function (_PingusLevel& plf)=>WorldObjFactory build do
+        this.plf = &plf;
+    end
+
     loop i in this.plf.get_objects().size() do
         _WORLDOBJ_FACTORY_create(this.plf.get_objects().at(i));
     end
@@ -59,13 +64,15 @@ do
     #define id_     _WORLDOBJ_FACTORY_VECTOR.at(i).first.get_name()
     #define reader_ &&_WORLDOBJ_FACTORY_READER
 
+    pool Entrance[] entrances;
+
     loop i in _WORLDOBJ_FACTORY_VECTOR.size() do
         _WORLDOBJ_FACTORY_READER = _XXX_PURE(_WORLDOBJ_FACTORY_VECTOR.at(i).first);
         var Vector3f pos_offset = Vector3f(_WORLDOBJ_FACTORY_VECTOR.at(i).second.x,
                                            _WORLDOBJ_FACTORY_VECTOR.at(i).second.y,
                                            _WORLDOBJ_FACTORY_VECTOR.at(i).second.z);
         if id_ == "entrance" then
-            spawn Entrance in this.entrances with
+            spawn Entrance in entrances with
                 this.reader     = reader_;
                 this.pos_offset = pos_offset;
             end;
@@ -107,6 +114,21 @@ do
                 this.reader = reader_;
             end;
         end
+    end
+
+    // FIXME: Workaround for lack of start-pos
+    var int num_entrances = 0;
+    loop e in entrances do
+        num_entrances = num_entrances + 1;
+        var _Vector3f pos_ = e:get_pos();
+        pos_start.x = pos_start.x + (int)pos_.x;
+        pos_start.y = pos_start.y + (int)pos_.y;
+    end
+
+    if (num_entrances > 0) then
+        pos_start.x = pos_start.x / num_entrances;
+        pos_start.y = pos_start.y / num_entrances;
+        pos_start.y = pos_start.y + 100;
     end
 
     await FOREVER;
