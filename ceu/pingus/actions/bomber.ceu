@@ -57,8 +57,8 @@ do
         await WORLD_UPDATE
         until sprites.get():get_current_frame() == 13;
 
-        emit global:world!:create_pingu_particles => (this.pingu.get_x(),
-                                                      this.pingu.get_y()-5);
+        emit global:go_create_pingu_particles => (this.pingu.get_x(),
+                                                  this.pingu.get_y()-5);
 
         {
             ##include "../../../src/pingus/collision_mask.hpp"

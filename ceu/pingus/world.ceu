@@ -12,13 +12,9 @@ end
 native @plain _SmallMap, _SceneContext, _GroundMap;
 
 input void WORLD_UPDATE;
-input void WORLD_ARMAGEDDON;
 
 #include "particles/pingu_particle_holder.ceu"
 #include "particles/smoke_particle_holder.ceu"
-
-interface IWorldObj with
-end
 
 #include "pingu_holder.ceu"
 #include "components/playfield.ceu"
@@ -165,7 +161,7 @@ do
     par/or do
         await goal_manager;
     with
-        every (x_,y_) in this.create_pingu_particles do
+        every (x_,y_) in global:go_create_pingu_particles do
             loop i in 50 do
                 spawn PinguParticle with
                     this.x = x_;
@@ -174,7 +170,7 @@ do
             end
         end
     with
-        every (x_,y_,vel_x_,vel_y_) in this.create_smoke_particles do
+        every (x_,y_,vel_x_,vel_y_) in global:go_create_smoke_particles do
             spawn SmokeParticle with
                 this.x     = x_;
                 this.y     = y_;
@@ -227,9 +223,6 @@ do
         return this.height;
     end
 
-    function (void)=>_GroundMap&& get_gfx_map do
-        return _XXX_PURE(&&this.gfx_map!);
-    end
     function (void)=>_CollisionMap&& get_colmap do
         return _XXX_PURE(this.gfx_map!.get_colmap());
     end
