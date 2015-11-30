@@ -4,6 +4,7 @@
 #include "../../engine/display/sprite.ceu"
 
 class Guillotine with
+    pool IPingu[]& pingus;
     var _FileReader&& reader;
 
     function (void)       =>float     get_z_pos;
@@ -26,7 +27,7 @@ do
             loop do
                 await WORLD_UPDATE;
                 var IPingu&&? pingu;
-                loop p in global:world!:get_pingu_holder().pingus do
+                loop p in this.pingus do
                     if (p:is_inside((int)(this.pos.x + 38),
                                     (int)(this.pos.y + 90),
                                     (int)(this.pos.x + 42),

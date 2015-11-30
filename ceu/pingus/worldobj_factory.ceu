@@ -50,13 +50,9 @@ end
 
 class WorldObjFactory with
     var _PingusLevel& plf;  // TODO: private
+    pool IPingu[]& pingus;
     var Vector2i pos_start = Vector2i(0,0);
-    function (_PingusLevel& plf)=>WorldObjFactory build;
 do
-    function (_PingusLevel& plf)=>WorldObjFactory build do
-        this.plf = &plf;
-    end
-
     loop i in this.plf.get_objects().size() do
         _WORLDOBJ_FACTORY_create(this.plf.get_objects().at(i));
     end
@@ -78,6 +74,7 @@ do
             end;
         else/if id_ == "exit" then
             spawn Exit with
+                this.pingus = &outer.pingus;
                 this.reader = reader_;
             end;
         else/if id_ == "groundpiece" then
@@ -86,6 +83,7 @@ do
             end;
         else/if id_ == "guillotine" then
             spawn Guillotine with
+                this.pingus = &outer.pingus;
                 this.reader = reader_;
             end;
         else/if id_ == "hotspot" then
@@ -95,6 +93,7 @@ do
             end;
         else/if id_ == "laser_exit" then
             spawn LaserExit with
+                this.pingus = &outer.pingus;
                 this.reader = reader_;
             end;
         else/if id_ == "liquid" then
@@ -103,10 +102,12 @@ do
             end;
         else/if id_ == "smasher" then
             spawn Smasher with
+                this.pingus = &outer.pingus;
                 this.reader = reader_;
             end;
         else/if id_ == "spike" then
             spawn Spike with
+                this.pingus = &outer.pingus;
                 this.reader = reader_;
             end;
         else/if id_ == "surface-background" then

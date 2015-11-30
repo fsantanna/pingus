@@ -2,6 +2,7 @@
 #define _LASEREXIT_CEU
 
 class LaserExit with
+    pool IPingu[]& pingus;
     var _FileReader&& reader;
 
     function (void)       =>float     get_z_pos;
@@ -26,7 +27,7 @@ do
                 loop do
                     await WORLD_UPDATE;
                     var IPingu&&? pingu;
-                    loop p in global:world!:get_pingu_holder().pingus do
+                    loop p in this.pingus do
                         if (p:get_x() < this.pos.x+34+10 and
                             p:get_x() > this.pos.x+34    and
                             p:get_y() < this.pos.y+43+20 and

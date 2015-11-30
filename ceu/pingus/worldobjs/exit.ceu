@@ -2,6 +2,7 @@
 #define _EXIT_CEU
 
 class Exit with
+    pool IPingu[]& pingus;
     var _FileReader&& reader;
 
     function (void)       =>float     get_z_pos;
@@ -63,7 +64,7 @@ await SDL_DT;
 
     every WORLD_UPDATE do
         var IPingu&&? pingu;
-        loop p in global:world!:get_pingu_holder().pingus do
+        loop p in this.pingus do
             // Make sure this particular exit is allowed for this pingu
             if (p:get_owner() != this.owner_id) then
                 continue;

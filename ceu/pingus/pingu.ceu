@@ -136,6 +136,7 @@ do
                     #define DO_PINGU_ACTION(T)                              \
                     do                                                      \
                         var int a = do T with                               \
+                            this.pingus = &outer.pingus;                    \
                             this.pingu = &outer;                            \
                             this.previous_action = outer.current_action;    \
                         end;                                                \
@@ -191,7 +192,7 @@ do
     end;
 
     _assert(ret != _PS_ALIVE);
-    emit holder.ok_pingu => ret;
+    emit global:ok_pingu => ret;
 
     /* END-OF-BODY */
 

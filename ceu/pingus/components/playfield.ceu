@@ -7,7 +7,7 @@ class Playfield with
     var   IPingu&&? current_pingu;
     event void      ok_pingu;
     var _ActionName__Enum& action_next;
-    var PinguHolder& pingu_holder;
+    pool IPingu[]& pingus;
 
     var Rect& rect;
 
@@ -40,7 +40,7 @@ do
 
             var IPingu&&? pingu;
             var float min_dist = 500.0;
-            loop p in global:world!:get_pingu_holder().pingus do
+            loop p in this.pingus do
                 if (p:is_over(x, y)) then
                     var float dist = p:dist(x, y);
                     if (dist < min_dist) then
@@ -133,7 +133,7 @@ do
 
             var float min_dist = 500.0;
             var IPingu&&? cur;
-            loop p in pingu_holder.pingus do
+            loop p in this.pingus do
                 if p:is_over((int)pos.x, (int)pos.y) then
                     var float dist = p:dist((int)pos.x, (int)pos.y);
                     if (dist < min_dist) then

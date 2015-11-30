@@ -5,18 +5,12 @@
 
 class PinguHolder with
     interface IPinguHolder;
-    interface IPinguHolderStatus;
     var int number_of_exited   = 0;
     var int number_of_killed   = 0;
     var int number_of_alive    = 0;
     var int number_of_released = 0;
     var int number_of_allowed;//=0;
-    function (int number_of_allowed)=>PinguHolder build;
 do
-    function (int number_of_allowed)=>PinguHolder build do
-        this.number_of_allowed = number_of_allowed;
-    end
-
     par do
         var int id_total = 0;
         every (x_,y_,dir_,owner_id_) in this.create do
@@ -25,7 +19,7 @@ do
                 this.number_of_released = this.number_of_released + 1;
                 this.number_of_alive    = this.number_of_alive    + 1;
                 spawn Pingu in this.pingus with
-                    this.holder    = &outer;
+                    this.pingus    = &outer.pingus;
                     this.id        = id_total;
                     this.owner_id  = owner_id_;
                     this.pos_x     = x_;
@@ -35,7 +29,7 @@ do
             end
         end
     with
-        every status in this.ok_pingu do
+        every status in global:ok_pingu do
             if status == _PS_DEAD then
 //_assert(0);
                 this.number_of_killed = this.number_of_killed + 1;

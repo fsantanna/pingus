@@ -29,7 +29,7 @@ do
         end
 
         // FIXME: PinguHolder iterations should be handled otherwise
-        loop p in global:world!:get_pingu_holder().pingus do
+        loop p in this.pingus do
             this.catch_pingu(p);
         end
     end

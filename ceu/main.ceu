@@ -82,12 +82,8 @@ data Vector3f with
     var float z;
 end
 
-interface IPinguHolderStatus with
-    event int ok_pingu;
-end
-
 interface IPingu with
-    var   IPinguHolderStatus& holder;
+    pool IPingu[]& pingus;
 
     var  float              pos_x, pos_y;
     var   s8                direction;
@@ -124,7 +120,7 @@ interface IPingu with
 end
 
 interface IPinguHolder with
-    pool IPingu[] pingus;
+    pool IPingu[]& pingus;
     event (float,float,s8,int) create;
 
     var int number_of_exited;
@@ -135,6 +131,7 @@ interface IPinguHolder with
 end
 
 interface IPinguAction with
+    pool IPingu[]& pingus;
     var IPingu&           pingu;
     var _ActionName__Enum previous_action;
 end
@@ -171,12 +168,14 @@ interface Global with
     event void go_pause_toggle;
     event bool go_forward;
     event void go_armageddon;
+    event int  ok_pingu;
 end
 
 var IWorld&&? world;
 event void go_pause_toggle;
 event bool go_forward;
 event void go_armageddon;
+event int  ok_pingu;
 
 #include "pingus/screens/game_session.ceu"
 

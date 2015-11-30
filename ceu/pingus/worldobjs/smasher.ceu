@@ -2,6 +2,7 @@
 #define _SMASHER_CEU
 
 class Smasher with
+    pool IPingu[]& pingus;
     var _FileReader&& reader;
 
     function (void)       =>float     get_z_pos;
@@ -35,7 +36,7 @@ do
             loop do
                 await WORLD_UPDATE;
 
-                loop pingu in global:world!:get_pingu_holder().pingus do
+                loop pingu in this.pingus do
                     // Activate the smasher if a Pingu is under it
                     if ((pingu:direction == _LEFT             and
                          pingu:get_pos().x > this.pos.x + 65  and
@@ -78,7 +79,7 @@ do
             end
 
             var IPingu&&?[] pingus;
-            loop pingu in global:world!:get_pingu_holder().pingus do
+            loop pingu in this.pingus do
                 pingus = [] .. pingus .. [pingu];
             end
             loop i in $pingus do
