@@ -121,7 +121,6 @@ end
 
 interface IPinguHolder with
     pool IPingu[]& pingus;
-    event (float,float,s8,int) create;
 
     var int number_of_exited;
     var int number_of_killed;
@@ -169,6 +168,7 @@ interface Global with
     event bool go_forward;
     event void go_armageddon;
     event int  ok_pingu;
+    event (float,float,s8,int) go_create_pingu;
 end
 
 var IWorld&&? world;
@@ -176,6 +176,7 @@ event void go_pause_toggle;
 event bool go_forward;
 event void go_armageddon;
 event int  ok_pingu;
+event (float,float,s8,int) go_create_pingu;
 
 #include "pingus/screens/game_session.ceu"
 

@@ -13,7 +13,7 @@ class PinguHolder with
 do
     par do
         var int id_total = 0;
-        every (x_,y_,dir_,owner_id_) in this.create do
+        every (x_,y_,dir_,owner_id_) in global:go_create_pingu do
             if this.number_of_released < this.number_of_allowed then
                 id_total = id_total+1;
                 this.number_of_released = this.number_of_released + 1;
