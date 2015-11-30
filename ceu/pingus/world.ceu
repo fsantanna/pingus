@@ -133,9 +133,7 @@ do
     end;
 
     var ButtonPanel button_panel;
-    var TimeDisplay _ with
-        this.total = outer.plf.get_time();
-    end;
+    var TimeDisplay _ = TimeDisplay.build(plf.get_time(), &game_time);
 
     var bool in_armageddon = false;
     var ArmageddonButton armageddon with

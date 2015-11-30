@@ -6,19 +6,28 @@ native do
 end
 
 class TimeDisplay with
-    var int total;
+    // TODO: move to private
+    var int  time_level;
+    var int& time_world;
+
+    function (int time_level, int& time_world)=>TimeDisplay build;
 do
+    function (int time_level, int& time_world)=>TimeDisplay build do
+        this.time_level = time_level;
+        this.time_world = &time_world;
+    end
+
     every gc in SCREENMANAGER_DRAW do
-        if (total>=0 or {globals::developer_mode}) then
+        if (time_level>=0 or {globals::developer_mode}) then
             // get elapsed time from server
-            var int time_value = global:world!:get_time();
+            var int time_world = this.time_world;
 
             if not {globals::developer_mode} then
-                time_value = {std::max}(0, total - time_value);
+                time_world = {std::max}(0, time_level - time_world);
             end
 
             var _std__string time_string =
-                {GameTime::ticks_to_realtime_string}(time_value);
+                {GameTime::ticks_to_realtime_string}(time_world);
             gc:print_right({Fonts::pingus_small_fixnum},
                            _Vector2i({Display::get_width()} - 30, 3),
                            time_string,
