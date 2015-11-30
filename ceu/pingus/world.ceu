@@ -3,7 +3,6 @@
 
 native/pre do
     struct CEU_World;
-    extern CEU_World* GLOBAL_CEU_WORLD;
     ##include "engine/display/graphic_context_state.hpp"
 end
 
@@ -51,7 +50,6 @@ class World with
     var _PingusLevel& plf;
     function (void)=>PinguHolder& get_pingus;
 do
-    _GLOBAL_CEU_WORLD := &&this;
     global:world = &&this;
 
     var int width  = this.plf.get_size().width;

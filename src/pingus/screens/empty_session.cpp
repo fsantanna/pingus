@@ -1,7 +1,6 @@
 #include "pingus/screens/empty_session.hpp"
 #include "ceu_vars.h"
 
-CEU_World* GLOBAL_CEU_WORLD = NULL;
 EmptySession::EmptySession(const PingusLevel& arg_plf, bool arg_show_result_screen) { }
 
 /// TODO: move to proper place!
