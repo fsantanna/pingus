@@ -1,0 +1,43 @@
+#ifndef _SURFACE_BUTTON_CEU
+#define _SURFACE_BUTTON_CEU
+
+#include "../display/sprite.ceu"
+#include "rect_component.ceu"
+
+class SurfaceButton with
+    var float x;
+    var float y;
+    var char&& button;
+    var char&& button_pressed;
+    var char&& button_over;
+do
+    var char[] b         = []..button;
+    var char[] b_pressed = []..button_pressed;
+    var char[] b_over    = []..button_over;
+
+    var Sprite sprite = Sprite.w_xy_name(false, &x,&y, _XXX_PURE(&&b));
+    var Rect rect = Rect(x, y, sprite.get_width(), sprite.get_height());
+    var RectComponent component with
+        this.rect = &rect;
+    end;
+    kill sprite;
+
+    loop do
+        do
+            var Sprite _ = Sprite.w_xy_name(false, &x,&y, _XXX_PURE(&&b));
+            await component.on_pointer_enter;
+        end
+        watching component.on_pointer_leave do
+            loop do
+                do
+                    var Sprite _ = Sprite.w_xy_name(false, &x,&y, _XXX_PURE(&&b_over));
+                    await component.on_primary_button_pressed;
+                end
+                var Sprite _ = Sprite.w_xy_name(false, &x,&y, _XXX_PURE(&&b_pressed));
+                await ON_PRIMARY_BUTTON_RELEASED;
+            end
+        end
+    end
+end
+
+#endif

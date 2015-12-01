@@ -7,6 +7,7 @@ native/pre do
 end
 
 #include "../../engine/display/sprite.ceu"
+#include "../../engine/gui/surface_button.ceu"
 
 input (_StartScreen&&,_PingusLevel&&) STARTSCREEN_NEW;
 input void STARTSCREEN_DELETE;
@@ -36,6 +37,14 @@ do
     //var Sprite _ = Sprite.w_xy_name(false, &x,&y, "core/menu/wood");
 
     var Sprite _ = Sprite.w_xy_name(false, &x,&y, "core/menu/blackboard");
+
+    var SurfaceButton _ with
+        this.x = {Display::get_width()/2}  + 245;
+        this.y = {Display::get_height()/2} + 150;
+        this.button         = "core/start/ok";
+        this.button_pressed = "core/start/ok_clicked";
+        this.button_over    = "core/start/ok_hover";
+    end;
 
     watching STARTSCREEN_DELETE do
         every gc in SCREENMANAGER_DRAW do
