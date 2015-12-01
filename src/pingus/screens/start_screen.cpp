@@ -45,48 +45,6 @@ private:
   const std::string& format_description(int length);
 };
 
-class StartScreenOkButton : public GUI::SurfaceButton
-{
-private:
-  StartScreen* parent;
-public:
-  StartScreenOkButton(StartScreen* p)
-    : GUI::SurfaceButton(Display::get_width()/2 + 245,
-                         Display::get_height()/2 + 150,
-                         "core/start/ok",
-                         "core/start/ok_clicked",
-                         "core/start/ok_hover"),
-      parent(p)
-  {
-  }
-
-  void draw(DrawingContext& gc) {
-    SurfaceButton::draw(gc);
-    gc.print_center(Fonts::chalk_normal, Vector2i(x_pos + 30, y_pos - 20), _("Play"));
-  }
-
-  bool is_at(int x, int y) {
-    return x > x_pos && x < x_pos + int(button_surface.get_width())
-      && y > y_pos - 20 && y < y_pos + int(button_surface.get_height());
-  }
-
-  void on_click()
-  {
-    Sound::PingusSound::play_sound("yipee");
-    parent->start_game();
-  }
-
-  void on_pointer_enter()
-  {
-    SurfaceButton::on_pointer_enter();
-    Sound::PingusSound::play_sound ("tick");
-  }
-
-private:
-  StartScreenOkButton(const StartScreenOkButton&);
-  StartScreenOkButton & operator=(const StartScreenOkButton&);
-};
-
 class StartScreenAbortButton
   : public GUI::SurfaceButton
 {
@@ -130,12 +88,10 @@ const std::string& StartScreenComponent::format_description(int length) { }
 
 StartScreen::StartScreen(const PingusLevel& arg_plf) :
   plf(arg_plf),
-  abort_button(),
-  ok_button()
+  abort_button()
 {
   StartScreenComponent* comp = new StartScreenComponent(plf);
   gui_manager->add(comp);
-  //gui_manager->add(ok_button = new StartScreenOkButton(this));
   gui_manager->add(abort_button = new StartScreenAbortButton(this));
 
   tceu__StartScreen___PingusLevel_ p = { this, &plf };
@@ -183,7 +139,6 @@ StartScreen::resize(const Size& size_)
   GUIScreen::resize(size_);
 
   abort_button->set_pos(size.width /2 - 300, size.height/2 + 200);
-  ok_button   ->set_pos(size.width/2 + 245, size.height/2 + 150);
 }
 
 /* EOF */
