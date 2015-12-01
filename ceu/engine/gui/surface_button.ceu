@@ -10,6 +10,7 @@ class SurfaceButton with
     var char&& button;
     var char&& button_pressed;
     var char&& button_over;
+    event void ok_clicked;
 do
     var char[] b         = []..button;
     var char[] b_pressed = []..button_pressed;
@@ -35,6 +36,7 @@ do
                 end
                 var Sprite _ = Sprite.w_xy_name(false, &x,&y, _XXX_PURE(&&b_pressed));
                 await ON_PRIMARY_BUTTON_RELEASED;
+                emit this.ok_clicked;
             end
         end
     end

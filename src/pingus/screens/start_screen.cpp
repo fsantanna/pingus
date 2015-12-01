@@ -165,7 +165,7 @@ StartScreen::on_escape_press()
 void
 StartScreen::start_game()
 {
-  ceu_sys_go(&CEU_APP, CEU_IN_STARTSCREEN_DELETE, NULL);
+  //ceu_sys_go(&CEU_APP, CEU_IN_STARTSCREEN_DELETE, NULL);
   ScreenManager::instance()->replace_screen(std::make_shared<EmptySession>(plf, true));
   tceu__PingusLevel___bool p = { &plf, true };
   ceu_sys_go(&CEU_APP, CEU_IN_GAMESESSION_NEW, &p);

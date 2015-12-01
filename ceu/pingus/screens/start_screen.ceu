@@ -38,7 +38,7 @@ do
 
     var Sprite _ = Sprite.w_xy_name(false, &x,&y, "core/menu/blackboard");
 
-    var SurfaceButton _ with
+    var SurfaceButton start with
         this.x = {Display::get_width()/2}  + 245;
         this.y = {Display::get_height()/2} + 150;
         this.button         = "core/start/ok";
@@ -46,7 +46,13 @@ do
         this.button_over    = "core/start/ok_hover";
     end;
 
-    watching STARTSCREEN_DELETE do
+    par/or do
+        await STARTSCREEN_DELETE;
+    with
+        await start.ok_clicked;
+        call {Sound::PingusSound::play_sound}("yipee");
+        this.me!.start_game();
+    with
         every gc in SCREENMANAGER_DRAW do
             var int left_x  = gc:get_width()/2 - 150;
             var int right_x = gc:get_width()/2 + 150;
