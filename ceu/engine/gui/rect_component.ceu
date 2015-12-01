@@ -10,13 +10,19 @@ class RectComponent with
     event (int,int) on_primary_button_pressed;
     event void      on_pointer_enter;
     event void      on_pointer_leave;
+    event void      on_click;
 
     function (int x, int y)=>bool is_at;
 do
     par do
-        every (x,y) in ON_PRIMARY_BUTTON_PRESSED do
+        loop do
+            var int x, y;
+            (x,y) = await ON_PRIMARY_BUTTON_PRESSED
+                    until this.is_at(x,y);
+            emit this.on_primary_button_pressed => (x,y);
+            (x,y) = await ON_PRIMARY_BUTTON_RELEASED;
             if this.is_at(x,y) then
-                emit this.on_primary_button_pressed => (x,y);
+                emit this.on_click;
             end
         end
     with

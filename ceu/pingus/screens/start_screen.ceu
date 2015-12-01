@@ -49,7 +49,11 @@ do
     par/or do
         await STARTSCREEN_DELETE;
     with
-        await start.ok_clicked;
+        every start.get_component().on_pointer_enter do
+            call {Sound::PingusSound::play_sound}("tick");
+        end
+    with
+        await start.get_component().on_click;
         call {Sound::PingusSound::play_sound}("yipee");
         this.me!.start_game();
     with
