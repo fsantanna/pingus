@@ -15,8 +15,6 @@ end
 #include "../goal_manager.ceu"
 #include "../world.ceu"
 
-input (_PingusLevel&&,bool) GAMESESSION_NEW;
-
 class GameSession with
     var _PingusLevel&& plf_;
     var bool show_result_screen;
@@ -165,15 +163,6 @@ do
         {ScreenManager::instance()->replace_screen(std::make_shared<ResultScreen>(GAMESESSION_RESULT));};
     else
         {ScreenManager::instance()->pop_screen();};
-    end
-end
-
-spawn do
-    every (plf_,show_) in GAMESESSION_NEW do
-        spawn GameSession with
-            this.plf_ = plf_;
-            this.show_result_screen = show_;
-        end;
     end
 end
 

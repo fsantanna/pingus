@@ -171,13 +171,36 @@ event (float,float,float,float) go_create_smoke_particles;
 var IWorld&&? world;
 var float gravity = 0.2;
 
+input _PingusLevel&& MAIN;
+
 #include "pingus/screens/start_screen.ceu"
 #include "pingus/screens/game_session.ceu"
 
+native/pre do
+    static PingusLevel CEU_MAIN_LEVEL;
+end
+var _PingusLevel&& plf = await MAIN;
+_CEU_MAIN_LEVEL = *plf;
+
+loop do
+    var int ok = do StartScreen with
+                    this.plf_ = &&_CEU_MAIN_LEVEL;
+                 end;
+    if not ok then
+        break;
+    end
+    do GameSession with
+        this.plf_ = &&_CEU_MAIN_LEVEL;
+        this.show_result_screen = true;
+    end;
+    //do ResultScreen;
+end
+{ScreenManager::instance()->pop_screen();};
+
+#if 0
 every 1s do
     var int e = 0;
     var int v = 0;
-#if 0
     loop i in 255 do
         if _CEU_SYS_GO_EVTS[i] > v then
             e = i;
@@ -194,5 +217,5 @@ every 1s do
 
     _CEU_SYS_GO_NTRAILS_MAX = 0;
     _memset(_CEU_SYS_GO_EVTS, 0, sizeof(int)*255);
-#endif
 end
+#endif

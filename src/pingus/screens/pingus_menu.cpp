@@ -27,7 +27,7 @@
 #include "pingus/screens/credits.hpp"
 #include "pingus/screens/level_menu.hpp"
 #include "pingus/screens/option_menu.hpp"
-#include "pingus/screens/start_screen.hpp"
+///#include "pingus/screens/start_screen.hpp"
 #include "pingus/screens/story_screen.hpp"
 #include "pingus/worldmap/worldmap_screen.hpp"
 #include "pingus/stat_manager.hpp"
@@ -128,8 +128,11 @@ PingusMenu::do_start(const std::string &filename)
 void PingusMenu::do_contrib(const std::string &levelfile)
 { // Launch the specified level - don't bother checking for it, it has to exist
   Sound::PingusSound::play_sound ("letsgo");
+  assert(!"NOT PORTED");
+#if 0
   ScreenManager::instance()->push_screen
     (std::make_shared<StartScreen>(PLFResMgr::load_plf_from_filename(Pathname(levelfile, Pathname::SYSTEM_PATH))));
+#endif
 }
 
 void PingusMenu::do_edit()

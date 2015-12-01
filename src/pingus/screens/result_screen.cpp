@@ -290,8 +290,9 @@ void
 ResultScreen::retry_level()
 {
   ScreenManager::instance()->replace_screen(std::make_shared<EmptySession>(result.plf, true));
-  tceu__PingusLevel___bool p = { &result.plf, true };
-  ceu_sys_go(&CEU_APP, CEU_IN_GAMESESSION_NEW, &p);
+assert(!"NOT PORTED");
+  //tceu__PingusLevel___bool p = { &result.plf, true };
+  //ceu_sys_go(&CEU_APP, CEU_IN_GAMESESSION_NEW, &p);
 }
 
 void

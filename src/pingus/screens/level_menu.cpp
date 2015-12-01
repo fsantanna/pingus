@@ -26,7 +26,7 @@
 #include "pingus/fonts.hpp"
 #include "pingus/gettext.h"
 #include "pingus/globals.hpp"
-#include "pingus/screens/start_screen.hpp"
+////#include "pingus/screens/start_screen.hpp"
 #include "util/log.hpp"
 #include "util/system.hpp"
 
@@ -434,7 +434,10 @@ public:
     {
       if (levelset->get_level(current_level)->accessible)
       {
+assert(!"NOT PORTED");
+#if 0
         ScreenManager::instance()->push_screen(std::make_shared<StartScreen>(levelset->get_level(current_level)->plf));
+#endif
       }
     }
   }

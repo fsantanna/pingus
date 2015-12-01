@@ -24,7 +24,7 @@
 #include "pingus/globals.hpp"
 #include "pingus/plf_res_mgr.hpp"
 #include "pingus/savegame_manager.hpp"
-#include "pingus/screens/start_screen.hpp"
+///#include "pingus/screens/start_screen.hpp"
 
 namespace WorldmapNS {
 
@@ -92,7 +92,10 @@ void
 LevelDot::on_click()
 {
   //log_info("Starting level: " << levelname);
+assert(!"NOT PORTED");
+#if 0
   ScreenManager::instance()->push_screen(std::make_shared<StartScreen>(plf));
+#endif
 }
 
 bool

@@ -65,9 +65,12 @@ extern "C" {
 #include "pingus/savegame_manager.hpp"
 #include "pingus/screens/credits.hpp"
 #include "pingus/screens/font_test_screen.hpp"
-#include "pingus/screens/start_screen.hpp"
+///#include "pingus/screens/start_screen.hpp"
+#include "pingus/screens/empty_session.hpp"
 #include "pingus/screens/story_screen.hpp"
 #include "pingus/stat_manager.hpp"
+
+#include "ceu_vars.h"
 
 #if _MSC_VER >= 1400
 // Disable stupid deprecation warnings
@@ -600,9 +603,15 @@ assert(!"NOT PORTED");
     }
     else
     { // Level file
+      PingusLevel plf = PLFResMgr::load_plf_from_filename(Pathname(cmd_options.rest.get(), Pathname::SYSTEM_PATH));
+      screen_manager.push_screen(std::make_shared<EmptySession>(plf,true));
+      PingusLevel* p = &plf;
+      ceu_sys_go(&CEU_APP, CEU_IN_MAIN, &p);
+#if 0
       screen_manager.push_screen
         (std::make_shared<StartScreen>(PLFResMgr::load_plf_from_filename(Pathname(cmd_options.rest.get(),
                                                                                   Pathname::SYSTEM_PATH))));
+#endif
     }
   }
   else // start a normal game
