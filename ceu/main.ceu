@@ -49,6 +49,7 @@ input (int,int) ON_SECONDARY_BUTTON_RELEASED;
 input float ON_ACTION_AXIS_MOVE;
 input _DrawingContext&& SCREENMANAGER_DRAW;
 input float SCREENMANAGER_UPDATE;
+input void WORLD_UPDATE;
 
 data Color with
     var u8 r, g, b, a;

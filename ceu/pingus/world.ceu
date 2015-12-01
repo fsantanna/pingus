@@ -11,8 +11,6 @@ native do
 end
 native @plain _SmallMap, _SceneContext, _GroundMap;
 
-input void WORLD_UPDATE;
-
 #include "particles/pingu_particle_holder.ceu"
 #include "particles/smoke_particle_holder.ceu"
 

@@ -37,7 +37,6 @@ private:
   PingusLevel plf;
   Sprite background;
   Sprite blackboard;
-  std::string time_str;
   std::string description;
 
 public:
@@ -132,21 +131,20 @@ StartScreenComponent::StartScreenComponent(const PingusLevel& p) :
   plf(p),
   background("core/menu/wood"),
   blackboard("core/menu/blackboard"),
-  time_str(),
   description()
 {
-  time_str = GameTime::ticks_to_realtime_string(plf.get_time());
 }
 
 void
 StartScreenComponent::draw(DrawingContext& gc)
 {
   // Paint the background wood panel
+#if 0
   for(int y = 0; y < gc.get_height(); y += background.get_height())
     for(int x = 0; x < gc.get_width(); x += background.get_width())
       gc.draw(background, Vector2i(x, y));
 
-  gc.draw(blackboard, Vector2i(gc.get_width()/2, gc.get_height()/2));
+/ gc.draw(blackboard, Vector2i(gc.get_width()/2, gc.get_height()/2));
 
   int left_x  = gc.get_width()/2 - 150;
   int right_x = gc.get_width()/2 + 150;
@@ -183,6 +181,7 @@ StartScreenComponent::draw(DrawingContext& gc)
   {
     gc.print_center(Fonts::chalk_small, Vector2i(gc.get_width()/2, gc.get_height()-50), plf.get_resname());
   }
+#endif
 }
 
 const std::string&
@@ -211,7 +210,8 @@ StartScreen::StartScreen(const PingusLevel& arg_plf) :
   gui_manager->add(ok_button = new StartScreenOkButton(this));
   gui_manager->add(abort_button = new StartScreenAbortButton(this));
 
-  ceu_sys_go(&CEU_APP, CEU_IN_STARTSCREEN_NEW, &plf);
+  tceu__StartScreen___PingusLevel_ p = { this, &plf };
+  ceu_sys_go(&CEU_APP, CEU_IN_STARTSCREEN_NEW, &p);
 }
 
 StartScreen::~StartScreen()
