@@ -33,9 +33,9 @@ do
     var float y = {Display::get_height()} / 2;
 
     // TODO: has to fill the screen
-    var Sprite _ = Sprite.w_xy_name(false, &x,&y, "core/menu/wood");
+    //var Sprite _ = Sprite.w_xy_name(false, &x,&y, "core/menu/wood");
 
-    //var Sprite _ = Sprite.w_xy_name(false, &x,&y, "core/menu/blackboard");
+    var Sprite _ = Sprite.w_xy_name(false, &x,&y, "core/menu/blackboard");
 
     watching STARTSCREEN_DELETE do
         every gc in SCREENMANAGER_DRAW do

@@ -71,7 +71,7 @@ do
             var Sprite sprite = Sprite.w_xy_name(false, &xf2,&yf2, _XXX_PURE(&&name));
             sprite.is_loop = true;
             this.id_out = this.id_me;
-            await out.e;
+            await out.e until n!=this.n;
         end
 
         loop do
@@ -93,7 +93,7 @@ do
                 var Sprite _ = Sprite.w_xy_name(false, &xf,&yf, "core/buttons/buttonbackgroundhl");
                 var Sprite sprite = Sprite.w_xy_name(false, &xf2,&yf2, _XXX_PURE(&&name));
                 sprite.is_loop = true;
-                await out.e;
+                await out.e until n!=this.n;
             end
         end
     with
