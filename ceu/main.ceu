@@ -191,7 +191,6 @@ loop do
     end
     do GameSession with
         this.plf_ = &&_CEU_MAIN_LEVEL;
-        this.show_result_screen = true;
     end;
     //do ResultScreen;
 end

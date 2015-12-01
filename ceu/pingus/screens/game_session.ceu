@@ -17,7 +17,6 @@ end
 
 class GameSession with
     var _PingusLevel&& plf_;
-    var bool show_result_screen;
 do
     var bool is_paused         = false;
     var bool is_fast_forwarded = false;
@@ -158,12 +157,6 @@ do
                         GAMESESSION_RESULT.saved);
         SavegameManager::instance()->store(savegame);
     };
-
-    if this.show_result_screen then
-        {ScreenManager::instance()->replace_screen(std::make_shared<ResultScreen>(GAMESESSION_RESULT));};
-    else
-        {ScreenManager::instance()->pop_screen();};
-    end
 end
 
 #endif
