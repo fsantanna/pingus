@@ -54,74 +54,97 @@ do
         this.button_over    = "core/start/back_hover";
     end;
 
-    par/or do
-        await STARTSCREEN_DELETE;
-    with
-        every cancel.get_component().on_pointer_enter do
-            call {Sound::PingusSound::play_sound}("tick");
-        end
-    with
-        await cancel.get_component().on_click;
-        this.me!.cancel_game();
-    with
-        every start.get_component().on_pointer_enter do
-            call {Sound::PingusSound::play_sound}("tick");
-        end
-    with
-        await start.get_component().on_click;
-        call {Sound::PingusSound::play_sound}("yipee");
-        this.me!.start_game();
-    with
-        every gc in SCREENMANAGER_DRAW do
-            var int left_x  = gc:get_width()/2 - 150;
-            var int right_x = gc:get_width()/2 + 150;
-            var int y = gc:get_height()/2 + 40;
-
-            // cancel button
-            gc:print_center({Fonts::chalk_normal},
-                            _Vector2i(cancel.x+55, cancel.y),
-                            __("Back"));
-
-            gc:print_center({Fonts::chalk_large},
-                            _Vector2i(gc:get_width() /2,
-                                      gc:get_height()/2 - 230),
-                            __(plf!.get_levelname()));
-
-            gc:print_left({Fonts::chalk_normal},
-                            _Vector2i(gc:get_width() /2 - 300,
-                                      gc:get_height()/2 - 170),
-                            &&description)
-                finalize with nothing; end;
-
-            y = y+32;
-            y = y+45;
-
-            gc:print_left({Fonts::chalk_normal}, _Vector2i(left_x, y),
-                          __("Number of Pingus: "));
-            gc:print_right({Fonts::chalk_normal}, _Vector2i(right_x, y),
-                           {StringUtil::to_string}(plf!.get_number_of_pingus()));
-
-            gc:print_left({Fonts::chalk_normal}, _Vector2i(left_x, y),
-                         __("Number to Save: "));
-            y = y+30;
-            gc:print_right({Fonts::chalk_normal}, _Vector2i(right_x, y),
-                           {StringUtil::to_string}(plf!.get_number_to_save()));
-
-            gc:print_left({Fonts::chalk_normal}, _Vector2i(left_x, y),
-                          __("Time: "));
-            y = y+30;
-            gc:print_right({Fonts::chalk_normal}, _Vector2i(right_x, y),
-                           {GameTime::ticks_to_realtime_string}(plf!.get_time()));
-
-            gc:print_center({Fonts::chalk_small},
-                            _Vector2i(gc:get_width()/2, gc:get_height()/2 + 215),
-                            __("Author: ") + plf!.get_author());
-
-            if {globals::developer_mode} then
-                gc:print_center({Fonts::chalk_small}, _Vector2i(gc:get_width()/2,
-                                gc:get_height()-50), plf!.get_resname());
+    var int ok =
+        par do
+            every cancel.get_component().on_pointer_enter do
+                call {Sound::PingusSound::play_sound}("tick");
             end
-        end
+        with
+            await cancel.get_component().on_click;
+            escape false;
+        with
+            every start.get_component().on_pointer_enter do
+                call {Sound::PingusSound::play_sound}("tick");
+            end
+        with
+            await start.get_component().on_click;
+            call {Sound::PingusSound::play_sound}("yipee");
+            escape 1;
+        with
+            loop do
+                var _Input__Event&& e = await ON_INPUT_EVENT;
+                var _Input__ButtonEvent&& but = &&e:button;
+                if e:type != {Input::BUTTON_EVENT_TYPE}
+                or but:state != {Input::BUTTON_PRESSED}
+                then
+                    continue;
+                end
+
+                if but:name == {Input::PAUSE_BUTTON} then
+                    escape true;
+                else/if but:name == {Input::FAST_FORWARD_BUTTON} then
+                    escape true;
+                else/if but:name == {Input::ESCAPE_BUTTON} then
+                    escape false;
+                end
+            end
+        with
+            every gc in SCREENMANAGER_DRAW do
+                var int left_x  = gc:get_width()/2 - 150;
+                var int right_x = gc:get_width()/2 + 150;
+                var int y = gc:get_height()/2 + 40;
+
+                // cancel button
+                gc:print_center({Fonts::chalk_normal},
+                                _Vector2i(cancel.x+55, cancel.y),
+                                __("Back"));
+
+                gc:print_center({Fonts::chalk_large},
+                                _Vector2i(gc:get_width() /2,
+                                          gc:get_height()/2 - 230),
+                                __(plf!.get_levelname()));
+
+                gc:print_left({Fonts::chalk_normal},
+                                _Vector2i(gc:get_width() /2 - 300,
+                                          gc:get_height()/2 - 170),
+                                &&description)
+                    finalize with nothing; end;
+
+                y = y+32;
+                y = y+45;
+
+                gc:print_left({Fonts::chalk_normal}, _Vector2i(left_x, y),
+                              __("Number of Pingus: "));
+                gc:print_right({Fonts::chalk_normal}, _Vector2i(right_x, y),
+                               {StringUtil::to_string}(plf!.get_number_of_pingus()));
+
+                gc:print_left({Fonts::chalk_normal}, _Vector2i(left_x, y),
+                             __("Number to Save: "));
+                y = y+30;
+                gc:print_right({Fonts::chalk_normal}, _Vector2i(right_x, y),
+                               {StringUtil::to_string}(plf!.get_number_to_save()));
+
+                gc:print_left({Fonts::chalk_normal}, _Vector2i(left_x, y),
+                              __("Time: "));
+                y = y+30;
+                gc:print_right({Fonts::chalk_normal}, _Vector2i(right_x, y),
+                               {GameTime::ticks_to_realtime_string}(plf!.get_time()));
+
+                gc:print_center({Fonts::chalk_small},
+                                _Vector2i(gc:get_width()/2, gc:get_height()/2 + 215),
+                                __("Author: ") + plf!.get_author());
+
+                if {globals::developer_mode} then
+                    gc:print_center({Fonts::chalk_small}, _Vector2i(gc:get_width()/2,
+                                    gc:get_height()-50), plf!.get_resname());
+                end
+            end
+        end;
+
+    if ok then
+        this.me!.start_game();
+    else
+        this.me!.cancel_game();
     end
 end
 

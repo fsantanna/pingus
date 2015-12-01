@@ -36,10 +36,6 @@ public:
   void start_game();
   void cancel_game();
 
-  void on_pause_press();
-  void on_fast_forward_press();
-  void on_escape_press();
-
   void resize(const Size&);
 
 private:

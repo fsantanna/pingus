@@ -62,27 +62,8 @@ StartScreen::StartScreen(const PingusLevel& arg_plf) :
 StartScreen::~StartScreen() { }
 
 void
-StartScreen::on_fast_forward_press()
-{
-  start_game();
-}
-
-void
-StartScreen::on_pause_press ()
-{
-  start_game();
-}
-
-void
-StartScreen::on_escape_press()
-{
-  cancel_game();
-}
-
-void
 StartScreen::start_game()
 {
-  //ceu_sys_go(&CEU_APP, CEU_IN_STARTSCREEN_DELETE, NULL);
   ScreenManager::instance()->replace_screen(std::make_shared<EmptySession>(plf, true));
   tceu__PingusLevel___bool p = { &plf, true };
   ceu_sys_go(&CEU_APP, CEU_IN_GAMESESSION_NEW, &p);
