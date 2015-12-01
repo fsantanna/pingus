@@ -1,0 +1,41 @@
+#ifndef _START_SCREEN
+#define _START_SCREEN
+
+native/pre do
+    ##include "pingus/result.hpp"
+    ##include "pingus/savegame.hpp"
+    ##include "pingus/savegame_manager.hpp"
+    ##include "engine/screen/screen_manager.hpp"
+    ##include "pingus/screens/result_screen.hpp"
+    ##include "pingus/action_holder.hpp"
+
+    static ActionHolder* GLOBAL_ACTIONHOLDER = NULL;
+end
+
+#include "../goal_manager.ceu"
+#include "../world.ceu"
+
+input (_PingusLevel&&,bool) STARTSCREEN_NEW;
+
+class StartScreen with
+    var _PingusLevel&& plf_;
+do
+    var _PingusLevel&? plf;
+    finalize
+        this.plf = &_XXX_NOHOLD(this.plf_);
+    with
+        // TODO
+    end
+
+    _printf("DONE\n");
+end
+
+spawn do
+    every (plf_,show_) in STARTSCREEN_NEW do
+        spawn StartScreen with
+            this.plf_ = plf_;
+        end;
+    end
+end
+
+#endif

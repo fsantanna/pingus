@@ -170,6 +170,7 @@ event (float,float,float,float) go_create_smoke_particles;
 var IWorld&&? world;
 var float gravity = 0.2;
 
+#include "pingus/screens/start_screen.ceu"
 #include "pingus/screens/game_session.ceu"
 
 every 1s do

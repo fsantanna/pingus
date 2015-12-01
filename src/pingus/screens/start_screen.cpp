@@ -28,6 +28,9 @@
 #include "pingus/string_format.hpp"
 #include "util/string_util.hpp"
 
+#include "pingus/screens/empty_session.hpp"
+#include "ceu_vars.h"
+
 class StartScreenComponent : public GUI::Component
 {
 private:
@@ -207,6 +210,8 @@ StartScreen::StartScreen(const PingusLevel& arg_plf) :
   gui_manager->add(comp);
   gui_manager->add(ok_button = new StartScreenOkButton(this));
   gui_manager->add(abort_button = new StartScreenAbortButton(this));
+
+  ceu_sys_go(&CEU_APP, CEU_IN_STARTSCREEN_NEW, &plf);
 }
 
 StartScreen::~StartScreen()
@@ -231,9 +236,6 @@ StartScreen::on_escape_press()
 {
   cancel_game();
 }
-
-#include "pingus/screens/empty_session.hpp"
-#include "ceu_vars.h"
 
 void
 StartScreen::start_game()
