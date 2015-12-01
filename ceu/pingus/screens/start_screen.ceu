@@ -46,8 +46,23 @@ do
         this.button_over    = "core/start/ok_hover";
     end;
 
+    var SurfaceButton cancel with
+        this.x = {Display::get_width()/2}  - 300;
+        this.y = {Display::get_height()/2} + 200;
+        this.button         = "core/start/back";
+        this.button_pressed = "core/start/back_clicked";
+        this.button_over    = "core/start/back_hover";
+    end;
+
     par/or do
         await STARTSCREEN_DELETE;
+    with
+        every cancel.get_component().on_pointer_enter do
+            call {Sound::PingusSound::play_sound}("tick");
+        end
+    with
+        await cancel.get_component().on_click;
+        this.me!.cancel_game();
     with
         every start.get_component().on_pointer_enter do
             call {Sound::PingusSound::play_sound}("tick");
@@ -61,6 +76,11 @@ do
             var int left_x  = gc:get_width()/2 - 150;
             var int right_x = gc:get_width()/2 + 150;
             var int y = gc:get_height()/2 + 40;
+
+            // cancel button
+            gc:print_center({Fonts::chalk_normal},
+                            _Vector2i(cancel.x+55, cancel.y),
+                            __("Back"));
 
             gc:print_center({Fonts::chalk_large},
                             _Vector2i(gc:get_width() /2,

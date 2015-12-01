@@ -45,54 +45,15 @@ private:
   const std::string& format_description(int length);
 };
 
-class StartScreenAbortButton
-  : public GUI::SurfaceButton
-{
-private:
-  StartScreen* parent;
-
-public:
-  StartScreenAbortButton(StartScreen* p)
-    : GUI::SurfaceButton(Display::get_width()/2 - 300,
-                         Display::get_height()/2 + 200,
-                         "core/start/back",
-                         "core/start/back_clicked",
-                         "core/start/back_hover"),
-      parent(p)
-  {
-  }
-
-  void draw(DrawingContext& gc) {
-    SurfaceButton::draw(gc);
-    gc.print_center(Fonts::chalk_normal, Vector2i(x_pos + 55, y_pos), _("Back"));
-  }
-
-  void on_click() {
-    parent->cancel_game();
-  }
-
-  void on_pointer_enter()
-  {
-    SurfaceButton::on_pointer_enter();
-    Sound::PingusSound::play_sound ("tick");
-  }
-
-private:
-  StartScreenAbortButton(const StartScreenAbortButton&);
-  StartScreenAbortButton & operator=(const StartScreenAbortButton&);
-};
-
 StartScreenComponent::StartScreenComponent(const PingusLevel& p) : plf(p) { }
 void StartScreenComponent::draw(DrawingContext& gc) { }
 const std::string& StartScreenComponent::format_description(int length) { }
 
 StartScreen::StartScreen(const PingusLevel& arg_plf) :
-  plf(arg_plf),
-  abort_button()
+  plf(arg_plf)
 {
   StartScreenComponent* comp = new StartScreenComponent(plf);
   gui_manager->add(comp);
-  gui_manager->add(abort_button = new StartScreenAbortButton(this));
 
   tceu__StartScreen___PingusLevel_ p = { this, &plf };
   ceu_sys_go(&CEU_APP, CEU_IN_STARTSCREEN_NEW, &p);
@@ -138,7 +99,6 @@ StartScreen::resize(const Size& size_)
 {
   GUIScreen::resize(size_);
 
-  abort_button->set_pos(size.width /2 - 300, size.height/2 + 200);
 }
 
 /* EOF */

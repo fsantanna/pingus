@@ -28,7 +28,6 @@ class StartScreen : public GUIScreen
 {
 private:
   PingusLevel plf;
-  GUI::SurfaceButton* abort_button;
 
 public:
   StartScreen(const PingusLevel& plf);
