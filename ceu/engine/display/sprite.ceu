@@ -12,10 +12,6 @@ end
 native @plain _SpriteCeu;
 native @plain _FramebufferSurface;
 
-/// TODO: unify
-input (int,int,_Framebuffer&&) WORLD_RENDER;
-input (int,int,_Framebuffer&&) SMALLMAP_RENDER;
-
 class Sprite with
     function (void)=>int get_current_frame;
     function (int)=>void set_frame;
@@ -139,12 +135,8 @@ do
             end
         end
     with
-        /* RENDER */
-        every (x0,y0,fb) in WORLD_RENDER do
-            if not this.is_world then
-                x0 = 0;
-                y0 = 0;
-            end
+        /* DRAW */
+        every gc in SCREENMANAGER_DRAW do
             var float xx, yy;
             if this.rect? then
                 xx = (float)(this.rect!.left) +
@@ -157,12 +149,13 @@ do
                 xx = this.x;
                 yy = this.y;
             end
-            fb:draw_surface(framebuffer_surface!,
-                _Rect(_Vector2i(this.frame_pos.x,this.frame_pos.y) +
-                           _Vector2i(this.frame_size.width  * (this.frame%this.array.width),
-                                     this.frame_size.height * (this.frame/this.array.width)),
-                       _Size(this.frame_size.width,this.frame_size.height)),
-                _Vector2i(x0+xx-this.offset.x,y0+yy-this.offset.y));
+            if this.is_world then
+                global:world!:get_scene_context().color().draw(&&this, _Vector2i(xx,yy))
+                    finalize with nothing; end;
+            else
+                gc:draw(&&this, _Vector2i(xx,yy))
+                    finalize with nothing; end;
+            end
         end
     end
 

@@ -35,9 +35,6 @@ class StartScreenComponent : public GUI::Component
 {
 private:
   PingusLevel plf;
-  Sprite background;
-  Sprite blackboard;
-  std::string description;
 
 public:
   StartScreenComponent(const PingusLevel& plf);
@@ -127,78 +124,9 @@ private:
   StartScreenAbortButton & operator=(const StartScreenAbortButton&);
 };
 
-StartScreenComponent::StartScreenComponent(const PingusLevel& p) :
-  plf(p),
-  background("core/menu/wood"),
-  blackboard("core/menu/blackboard"),
-  description()
-{
-}
-
-void
-StartScreenComponent::draw(DrawingContext& gc)
-{
-  // Paint the background wood panel
-#if 0
-  for(int y = 0; y < gc.get_height(); y += background.get_height())
-    for(int x = 0; x < gc.get_width(); x += background.get_width())
-      gc.draw(background, Vector2i(x, y));
-
-/ gc.draw(blackboard, Vector2i(gc.get_width()/2, gc.get_height()/2));
-
-  int left_x  = gc.get_width()/2 - 150;
-  int right_x = gc.get_width()/2 + 150;
-  int y = gc.get_height()/2 + 40;
-
-  gc.print_center(Fonts::chalk_large,
-                  Vector2i(gc.get_width() /2,
-                           gc.get_height()/2 - 230),
-                  _(plf.get_levelname()));
-
-  gc.print_left(Fonts::chalk_normal,
-                Vector2i(gc.get_width() /2 - 300,
-                         gc.get_height()/2 - 170),
-                format_description(800 - 200));
-
-  y += 32;
-  y += 45;
-
-  gc.print_left (Fonts::chalk_normal, Vector2i(left_x,  y), _("Number of Pingus: "));
-  gc.print_right(Fonts::chalk_normal, Vector2i(right_x, y), StringUtil::to_string(plf.get_number_of_pingus()));
-
-  gc.print_left (Fonts::chalk_normal, Vector2i(left_x,  (y += 30)), _("Number to Save: "));
-  gc.print_right(Fonts::chalk_normal, Vector2i(right_x, y), StringUtil::to_string(plf.get_number_to_save()));
-
-  gc.print_left (Fonts::chalk_normal, Vector2i(left_x,  (y += 30)), _("Time: "));
-  gc.print_right(Fonts::chalk_normal, Vector2i(right_x, y), time_str);
-
-  gc.print_center(Fonts::chalk_small,
-                  Vector2i(gc.get_width()/2,
-                           gc.get_height()/2 + 215),
-                  _("Author: ") + plf.get_author());
-
-  if (globals::developer_mode)
-  {
-    gc.print_center(Fonts::chalk_small, Vector2i(gc.get_width()/2, gc.get_height()-50), plf.get_resname());
-  }
-#endif
-}
-
-const std::string&
-StartScreenComponent::format_description(int length)
-{
-  if (description != "")
-    return description;
-
-  description = _(plf.get_description());
-
-  if (description == "")
-    return description;
-
-  description = StringFormat::break_line(description, length, Fonts::chalk_normal);
-
-  return description;
-}
+StartScreenComponent::StartScreenComponent(const PingusLevel& p) : plf(p) { }
+void StartScreenComponent::draw(DrawingContext& gc) { }
+const std::string& StartScreenComponent::format_description(int length) { }
 
 StartScreen::StartScreen(const PingusLevel& arg_plf) :
   plf(arg_plf),
@@ -214,10 +142,7 @@ StartScreen::StartScreen(const PingusLevel& arg_plf) :
   ceu_sys_go(&CEU_APP, CEU_IN_STARTSCREEN_NEW, &p);
 }
 
-StartScreen::~StartScreen()
-{
-
-}
+StartScreen::~StartScreen() { }
 
 void
 StartScreen::on_fast_forward_press()
@@ -240,6 +165,7 @@ StartScreen::on_escape_press()
 void
 StartScreen::start_game()
 {
+  ceu_sys_go(&CEU_APP, CEU_IN_STARTSCREEN_DELETE, NULL);
   ScreenManager::instance()->replace_screen(std::make_shared<EmptySession>(plf, true));
   tceu__PingusLevel___bool p = { &plf, true };
   ceu_sys_go(&CEU_APP, CEU_IN_GAMESESSION_NEW, &p);

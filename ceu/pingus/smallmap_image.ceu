@@ -2,11 +2,11 @@
 #define _SMALLMAP_IMAGE_CEU
 
 class SmallMapImage with
-    var SmallMap& smallmap;
-    function (SmallMap& smallmap)=>SmallMapImage build;
+    var Rect& rect;
+    function (Rect& rect)=>SmallMapImage build;
 do
-    function (SmallMap& smallmap)=>SmallMapImage build do
-        this.smallmap = &smallmap;
+    function (Rect& rect)=>SmallMapImage build do
+        this.rect = &rect;
     end
 
     function @rec (void)=>void update_surface;
@@ -15,7 +15,7 @@ do
 
     var _Surface&? canvas;
     finalize
-        canvas = &{new Surface}(smallmap.rect.width, smallmap.rect.height);
+        canvas = &{new Surface}(this.rect.width, this.rect.height);
     with
         _delete(&&this.canvas!);
     end
@@ -42,7 +42,7 @@ do
             this.surface = &&_SMALLMAP_IMAGE_sfc;
 
             this.is_world = false;
-            this.rect = &outer.smallmap.rect;
+            this.rect = &outer.rect;
         end;
 
         loop do

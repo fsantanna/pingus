@@ -106,7 +106,7 @@ do
                            ambient_light.b,
                            ambient_light.a));
                 this.gfx_map!.draw(this.get_scene_context());
-                this.get_scene_context().color().draw(*gc, _Vector2i(0,0));
+                //this.get_scene_context().color().draw(*gc, _Vector2i(0,0));
             end
         end
     end
@@ -124,9 +124,6 @@ do
         this.counter = &outer.counter;
     end;
 
-    var Rect rect_small = Rect(6,{Display::get_size}().height-105, 175,100);
-        // TODO: height originally comes from Screen/GUIScreen/SmallMap
-
     var TimeDisplay      _ = TimeDisplay.build(plf.get_time(), &game_time);
     var CPingusCounter   _ = CPingusCounter.build(&counter);
 
@@ -143,8 +140,14 @@ do
         this.rect        = &rect;
     end;
 
-    var SmallMap smallmap  = SmallMap.build(rect_small, &pingu_holder, &playfield);
-    var SmallMapImage    _ = SmallMapImage.build(&smallmap);
+    var Rect rect_small = Rect(6,{Display::get_size}().height-105, 175,100);
+    var SmallMapImage _ = SmallMapImage.build(&rect_small);
+    var SmallMap smallmap with
+        this.rect      = &rect_small;
+        this.pingus    = &pingus;
+        this.playfield = &playfield;
+    end;
+
     var CaptureRectangle _ = CaptureRectangle.build(&playfield);
 
     var WorldObjFactory objs with

@@ -9,18 +9,10 @@ end
 native @plain _DrawingContext;
 
 class SmallMap with
-    var Rect rect;
-    var PinguHolder& pingu_holder;
-    var Playfield&   playfield;
-
-    function (Rect rect, PinguHolder& pingu_holder, Playfield& playfield)=>SmallMap build;
+    var  Rect&        rect;
+    pool IPingu[]&    pingus;
+    var  Playfield&   playfield;
 do
-    function (Rect rect, PinguHolder& pingu_holder, Playfield& playfield)=>SmallMap build do
-        this.rect = rect;
-        this.pingu_holder = &pingu_holder;
-        this.playfield = &playfield;
-    end
-
     function (int x, int y)=>bool is_at;
 
     par do
@@ -78,7 +70,7 @@ do
             gc:draw_rect(_view_rect, _Color(0, 255, 0));
 
             // Draw Pingus
-            loop pingu in this.pingu_holder.pingus do
+            loop pingu in this.pingus do
                 var int x = (int)((float)(this.rect.left)
                           + (pingu:get_x() * (float)(this.rect.width)
                             / (float)(global:world!:get_width())));

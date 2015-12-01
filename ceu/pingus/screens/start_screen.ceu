@@ -9,6 +9,7 @@ end
 #include "../../engine/display/sprite.ceu"
 
 input (_StartScreen&&,_PingusLevel&&) STARTSCREEN_NEW;
+input void STARTSCREEN_DELETE;
 
 class StartScreen with
     var _StartScreen&& me_;
@@ -32,53 +33,55 @@ do
     var float y = {Display::get_height()} / 2;
 
     // TODO: has to fill the screen
-    ///var Sprite _ = Sprite.w_xy_name(false, &x,&y, "core/menu/wood");
+    var Sprite _ = Sprite.w_xy_name(false, &x,&y, "core/menu/wood");
 
-    var Sprite _ = Sprite.w_xy_name(false, &x,&y, "core/menu/blackboard");
+    //var Sprite _ = Sprite.w_xy_name(false, &x,&y, "core/menu/blackboard");
 
-    every gc in SCREENMANAGER_DRAW do
-        var int left_x  = gc:get_width()/2 - 150;
-        var int right_x = gc:get_width()/2 + 150;
-        var int y = gc:get_height()/2 + 40;
+    watching STARTSCREEN_DELETE do
+        every gc in SCREENMANAGER_DRAW do
+            var int left_x  = gc:get_width()/2 - 150;
+            var int right_x = gc:get_width()/2 + 150;
+            var int y = gc:get_height()/2 + 40;
 
-        gc:print_center({Fonts::chalk_large},
-                        _Vector2i(gc:get_width() /2,
-                                  gc:get_height()/2 - 230),
-                        __(plf!.get_levelname()));
+            gc:print_center({Fonts::chalk_large},
+                            _Vector2i(gc:get_width() /2,
+                                      gc:get_height()/2 - 230),
+                            __(plf!.get_levelname()));
 
-        gc:print_left({Fonts::chalk_normal},
-                        _Vector2i(gc:get_width() /2 - 300,
-                                  gc:get_height()/2 - 170),
-                        &&description)
-            finalize with nothing; end;
+            gc:print_left({Fonts::chalk_normal},
+                            _Vector2i(gc:get_width() /2 - 300,
+                                      gc:get_height()/2 - 170),
+                            &&description)
+                finalize with nothing; end;
 
-        y = y+32;
-        y = y+45;
+            y = y+32;
+            y = y+45;
 
-        gc:print_left({Fonts::chalk_normal}, _Vector2i(left_x, y),
-                      __("Number of Pingus: "));
-        gc:print_right({Fonts::chalk_normal}, _Vector2i(right_x, y),
-                       {StringUtil::to_string}(plf!.get_number_of_pingus()));
+            gc:print_left({Fonts::chalk_normal}, _Vector2i(left_x, y),
+                          __("Number of Pingus: "));
+            gc:print_right({Fonts::chalk_normal}, _Vector2i(right_x, y),
+                           {StringUtil::to_string}(plf!.get_number_of_pingus()));
 
-        gc:print_left({Fonts::chalk_normal}, _Vector2i(left_x, y),
-                     __("Number to Save: "));
-        y = y+30;
-        gc:print_right({Fonts::chalk_normal}, _Vector2i(right_x, y),
-                       {StringUtil::to_string}(plf!.get_number_to_save()));
+            gc:print_left({Fonts::chalk_normal}, _Vector2i(left_x, y),
+                         __("Number to Save: "));
+            y = y+30;
+            gc:print_right({Fonts::chalk_normal}, _Vector2i(right_x, y),
+                           {StringUtil::to_string}(plf!.get_number_to_save()));
 
-        gc:print_left({Fonts::chalk_normal}, _Vector2i(left_x, y),
-                      __("Time: "));
-        y = y+30;
-        gc:print_right({Fonts::chalk_normal}, _Vector2i(right_x, y),
-                       {GameTime::ticks_to_realtime_string}(plf!.get_time()));
+            gc:print_left({Fonts::chalk_normal}, _Vector2i(left_x, y),
+                          __("Time: "));
+            y = y+30;
+            gc:print_right({Fonts::chalk_normal}, _Vector2i(right_x, y),
+                           {GameTime::ticks_to_realtime_string}(plf!.get_time()));
 
-        gc:print_center({Fonts::chalk_small},
-                        _Vector2i(gc:get_width()/2, gc:get_height()/2 + 215),
-                        __("Author: ") + plf!.get_author());
+            gc:print_center({Fonts::chalk_small},
+                            _Vector2i(gc:get_width()/2, gc:get_height()/2 + 215),
+                            __("Author: ") + plf!.get_author());
 
-        if {globals::developer_mode} then
-            gc:print_center({Fonts::chalk_small}, _Vector2i(gc:get_width()/2,
-                            gc:get_height()-50), plf!.get_resname());
+            if {globals::developer_mode} then
+                gc:print_center({Fonts::chalk_small}, _Vector2i(gc:get_width()/2,
+                                gc:get_height()-50), plf!.get_resname());
+            end
         end
     end
 end

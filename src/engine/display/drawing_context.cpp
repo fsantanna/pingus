@@ -74,25 +74,47 @@ public:
 };
 
 #include "ceu_vars.h"
-class XXXDrawingRequest : public DrawingRequest
+class CEUSpriteDrawingRequest : public DrawingRequest
 {
 private:
-  DrawingContext& xxx;
+  CEU_Sprite* sprite;
 
 public:
-  XXXDrawingRequest(DrawingContext& xxx_, const Vector2i& pos_, float z_)
+  CEUSpriteDrawingRequest(CEU_Sprite* sprite_, const Vector2i& pos_, float z_)
     : DrawingRequest(pos_, z_),
-      xxx(xxx_)
+      sprite(sprite_)
   {
   }
 
-  virtual ~XXXDrawingRequest() {}
+  virtual ~CEUSpriteDrawingRequest() {}
 
   void render(Framebuffer& fb, const Rect& rect) {
-    tceu__int__int__Framebuffer_ p = {pos.x+rect.left,pos.y+rect.top,&fb};
-    ceu_sys_go(&CEU_APP, CEU_IN_WORLD_RENDER, &p);
+    fb.draw_surface(
+        *sprite->framebuffer_surface.SOME.v,
+        Rect(
+            Vector2i(sprite->frame_pos.x,sprite->frame_pos.y) +
+                Vector2i(sprite->frame_size.width  * (sprite->frame%sprite->array.width),
+                         sprite->frame_size.height * (sprite->frame/sprite->array.width)),
+            Size(sprite->frame_size.width,sprite->frame_size.height)),
+        Vector2i(pos.x + rect.left - sprite->offset.x,
+                 pos.y + rect.top  - sprite->offset.y));
   }
 };
+
+#if 0
+  void render(Framebuffer& fb, const Rect& rect) {
+    sprite.render(pos.x + rect.left, pos.y + rect.top, fb);
+  }
+
+SpriteImpl::render(int x, int y, Framebuffer& fb)
+{
+  fb.draw_surface(framebuffer_surface,
+                  Rect(frame_pos + Vector2i(frame_size.width  * (frame%array.width),
+                                            frame_size.height * (frame/array.width)),
+                       frame_size),
+                  Vector2i(x - offset.x, y - offset.y));
+}
+#endif
 
 class FillScreenDrawingRequest : public DrawingRequest
 {
@@ -267,9 +289,9 @@ DrawingContext::draw(DrawingContext& dc, float z)
 }
 
 void
-DrawingContext::draw(DrawingContext& xxx, const Vector2i& pos, float z)
+DrawingContext::draw(CEU_Sprite* sprite, const Vector2i& pos, float z)
 {
-  draw(new XXXDrawingRequest(xxx, pos + translate_stack.back(), z));
+  draw(new CEUSpriteDrawingRequest(sprite, pos + translate_stack.back(), z));
 }
 
 void
