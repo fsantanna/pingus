@@ -26,9 +26,13 @@ do
     var char[] l1 = [].."Fullscreen";
     var Rect r11 = Rect(rect.left,   rect.top, 32,32);
     var Rect r12 = Rect(rect.left+40,rect.top, 32,32);
-    var CheckBox fullscreen_box = CheckBox.build(r11,
-                                    _config_manager.get_fullscreen());
+    var CheckBox b1 = CheckBox.build(r11, _config_manager.get_fullscreen());
     var Label _ = Label.build(&l1, r12);
+    spawn do
+        every v in b1.ok_clicked do
+            _config_manager.set_fullscreen(v);
+        end
+    end
 
     rect.top = rect.top + 32;
 
@@ -36,9 +40,13 @@ do
     var char[] l2 = [].."Mouse Grab";
     var Rect r21 = Rect(rect.left,   rect.top, 32,32);
     var Rect r22 = Rect(rect.left+40,rect.top, 32,32);
-    var CheckBox mousegrab_box = CheckBox.build(r21, 
-                                    _config_manager.get_mouse_grab());
+    var CheckBox b2 = CheckBox.build(r21, _config_manager.get_mouse_grab());
     var Label _ = Label.build(&l2, r22);
+    spawn do
+        every v in b2.ok_clicked do
+            _config_manager.set_mouse_grab(v);
+        end
+    end
 
     rect.top = rect.top + 32;
     rect.top = rect.top + 32;
@@ -47,9 +55,13 @@ do
     var char[] l3 = [].."Software Cursor";
     var Rect r31 = Rect(rect.left,   rect.top, 32,32);
     var Rect r32 = Rect(rect.left+40,rect.top, 32,32);
-    var CheckBox software_cursor_box = CheckBox.build(r31,
-                                        _config_manager.get_software_cursor());
+    var CheckBox b3 = CheckBox.build(r31, _config_manager.get_software_cursor());
     var Label _ = Label.build(&l3, r32);
+    spawn do
+        every v in b3.ok_clicked do
+            _config_manager.set_software_cursor(v);
+        end
+    end
 
     rect.top = rect.top + 32;
 
@@ -57,9 +69,13 @@ do
     var char[] l4 = [].."Autoscrolling";
     var Rect r41 = Rect(rect.left,   rect.top, 32,32);
     var Rect r42 = Rect(rect.left+40,rect.top, 32,32);
-    var CheckBox autoscroll_box = CheckBox.build(r41,
-                                    _config_manager.get_auto_scrolling());
+    var CheckBox b4 = CheckBox.build(r41, _config_manager.get_auto_scrolling());
     var Label _ = Label.build(&l4, r42);
+    spawn do
+        every v in b4.ok_clicked do
+            _config_manager.set_auto_scrolling(v);
+        end
+    end
 
     rect.top = rect.top + 32;
 
@@ -67,9 +83,13 @@ do
     var char[] l5 = [].."Drag&Drop Scrolling";
     var Rect r51 = Rect(rect.left,   rect.top, 32,32);
     var Rect r52 = Rect(rect.left+40,rect.top, 32,32);
-    var CheckBox dragdrop_scroll_box = CheckBox.build(r51,
-                                        _config_manager.get_drag_drop_scrolling());
+    var CheckBox b5 = CheckBox.build(r51, _config_manager.get_drag_drop_scrolling());
     var Label _ = Label.build(&l5, r52);
+    spawn do
+        every v in b5.ok_clicked do
+            _config_manager.set_drag_drop_scrolling(v);
+        end
+    end
 
     rect.top = rect.top + 32;
     rect.top = rect.top + 32;
@@ -78,9 +98,13 @@ do
     var char[] l6 = [].."Print FPS";
     var Rect r61 = Rect(rect.left,   rect.top, 32,32);
     var Rect r62 = Rect(rect.left+40,rect.top, 32,32);
-    var CheckBox printfps_box = CheckBox.build(r61,
-                                    _config_manager.get_print_fps());
+    var CheckBox b6 = CheckBox.build(r61, _config_manager.get_print_fps());
     var Label _ = Label.build(&l6, r62);
+    spawn do
+        every v in b6.ok_clicked do
+            _config_manager.set_print_fps(v);
+        end
+    end
 
     // Close
     var SurfaceButton close with
