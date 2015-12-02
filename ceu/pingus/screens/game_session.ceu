@@ -6,7 +6,6 @@ native/pre do
     ##include "pingus/savegame.hpp"
     ##include "pingus/savegame_manager.hpp"
     ##include "engine/screen/screen_manager.hpp"
-    ##include "pingus/screens/result_screen.hpp"
     ##include "pingus/action_holder.hpp"
 
     static ActionHolder* GLOBAL_ACTIONHOLDER = NULL;
@@ -31,9 +30,6 @@ do
 
     _GLOBAL_ACTIONHOLDER = _XXX_PURE({new ActionHolder}(this.plf!));
 
-    {
-        static Result GAMESESSION_RESULT;
-    };
     _GAMESESSION_RESULT.plf = _XXX_PURE(this.plf!);
 
     /// TODO: from "on_startup", called on creation and when popped back

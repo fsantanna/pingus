@@ -178,7 +178,9 @@ input _PingusLevel&& MAIN;
 #include "pingus/screens/game_session.ceu"
 
 native/pre do
+    ##include "pingus/result.hpp"
     static PingusLevel CEU_MAIN_LEVEL;
+    static Result GAMESESSION_RESULT;
 end
 var _PingusLevel&& plf = await MAIN;
 _CEU_MAIN_LEVEL = *plf;
@@ -187,26 +189,24 @@ finalize with
     {ScreenManager::instance()->pop_screen();};
 end;
 
+var bool ok;
+ok = do StartScreen with
+        this.plf_ = &&_CEU_MAIN_LEVEL;
+     end;
+if not ok then
+    escape 0;
+end
+
 loop do
-    var int ok;
-    ok = do StartScreen with
-            this.plf_ = &&_CEU_MAIN_LEVEL;
-         end;
-    if not ok then
+    do GameSession with
+        this.plf_ = &&_CEU_MAIN_LEVEL;
+    end;
+
+    var bool retry = do ResultScreen with
+                        this.result = &&_GAMESESSION_RESULT;
+                     end;
+    if not retry then
         escape 0;
-    end
-
-    loop do
-        do GameSession with
-            this.plf_ = &&_CEU_MAIN_LEVEL;
-        end;
-
-        ok = do ResultScreen with
-                this.plf_ = &&_CEU_MAIN_LEVEL;
-             end;
-        if not ok then
-            escape 0;
-        end
     end
 end
 

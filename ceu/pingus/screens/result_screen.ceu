@@ -9,19 +9,56 @@ end
 #include "../../engine/gui/surface_button.ceu"
 
 class ResultScreen with
-    var _PingusLevel&& plf_;
+    var _Result&& result;
 do
-    var _PingusLevel&? plf;
-    finalize
-        this.plf = &_XXX_NOHOLD(this.plf_);
-    with
-        // TODO
+    var bool has_succeeded = result:success();
+    var int n_killed = result:killed;
+
+    {
+        static std::string RESULT_SCREEN_time_str;
+    };
+    if result:max_time == -1 then
+        _RESULT_SCREEN_time_str = "-";
+    else
+        _RESULT_SCREEN_time_str = _XXX_PURE(
+            {GameTime::ticks_to_realtime_string}(
+                {std::max}(0, result:max_time - result:used_time))
+        );
     end
 
-    var char[] description = [] .. (char&&)
-        {StringFormat::break_line}(__(plf!.get_description()),
-                                   800-200,
-                                   {Fonts::chalk_normal}).c_str();
+    var char[] level_name = [] ..  (char&&)__(result:plf.get_levelname()).c_str();
+    var char[] message;
+    if has_succeeded then
+        if (result:killed == 0 and result:saved == result:total) then
+            message = [] .. "Perfect! You saved everyone possible - great!";
+        else/if (result:killed == 0) then
+            message = [] .. "No-one got killed, pretty good work.";
+        else/if (result:saved == result:needed) then
+            message = [] .. "You saved exactly what you needed - you made it, but\nmaybe you can do better?";
+        else/if (result:killed >= 5) then
+            message = [] .. "Not everybody was saved, but still good work!";
+        else
+            message = [] .. "What can I say, you made it - congratulations!";
+        end
+    else
+        if (result:killed == result:total) then
+            message = [] .. "You killed everybody, not good.";
+        else/if (result:saved == 0) then
+            message = [] .. "No-one got saved - I know you can do better.";
+        else/if (result:saved > 0) then
+            message = [] .. "You didn't save enough, but you saved a few.  Next\ntime you might do better.";
+        else/if (result:saved + 1 >= result:needed) then
+            message = [] .. "Only one more and you would have made it - try again!";
+        else/if (result:saved + 5 >= result:needed) then
+            message = [] .. "Only a handful more and you would have made it - try again!";
+        else
+            message = [] .. "Better luck next time!";
+        end
+    end
+
+    var char[] saved_needed = [] ..  
+        (char&&){StringUtil::to_string}((int)result:saved).c_str() .. ['/'] ..
+        (char&&){StringUtil::to_string}((int)result:needed).c_str();
 
     var float x = {Display::get_width()}  / 2;
     var float y = {Display::get_height()} / 2;
@@ -31,7 +68,7 @@ do
 
     var Sprite _ = Sprite.w_xy_name(false, &x,&y, "core/menu/blackboard");
 
-    var SurfaceButton start with
+    var SurfaceButton ok with
         this.x = {Display::get_width()/2}  + 245;
         this.y = {Display::get_height()/2} + 150;
         this.button         = "core/start/ok";
@@ -39,7 +76,7 @@ do
         this.button_over    = "core/start/ok_hover";
     end;
 
-    var SurfaceButton cancel with
+    var SurfaceButton abort with
         this.x = {Display::get_width()/2}  - 300;
         this.y = {Display::get_height()/2} + 200;
         this.button         = "core/start/back";
@@ -47,21 +84,45 @@ do
         this.button_over    = "core/start/back_hover";
     end;
 
+    var SurfaceButton retry with
+        this.x = {Display::get_width()/2}  + 245;
+        this.y = {Display::get_height()/2} + 150;
+        this.button         = "core/start/ok";
+        this.button_pressed = "core/start/ok_clicked";
+        this.button_over    = "core/start/ok_hover";
+    end;
+
+    if has_succeeded then
+        kill abort;
+        kill retry;
+        {Sound::PingusSound::play_music("success_1.it", 1.f, false);};
+    else
+        kill ok;
+        {Sound::PingusSound::play_music("pingus-2.it", 1.f, false);};
+    end
+
     par do
-        every cancel.get_component().on_pointer_enter do
+        every abort.get_component().on_pointer_enter do
             call {Sound::PingusSound::play_sound}("tick");
         end
     with
-        await cancel.get_component().on_click;
+        await abort.get_component().on_click;
         escape false;
     with
-        every start.get_component().on_pointer_enter do
+        every retry.get_component().on_pointer_enter do
             call {Sound::PingusSound::play_sound}("tick");
         end
     with
-        await start.get_component().on_click;
+        await retry.get_component().on_click;
+        escape true;
+    with
+        every ok.get_component().on_pointer_enter do
+            call {Sound::PingusSound::play_sound}("tick");
+        end
+    with
+        await ok.get_component().on_click;
         call {Sound::PingusSound::play_sound}("yipee");
-        escape 1;
+        escape false;
     with
         loop do
             var _Input__Event&& e = await ON_INPUT_EVENT;
@@ -73,9 +134,9 @@ do
             end
 
             if but:name == {Input::PAUSE_BUTTON} then
-                escape true;
+                escape (not has_succeeded);
             else/if but:name == {Input::FAST_FORWARD_BUTTON} then
-                escape true;
+                escape (not has_succeeded);
             else/if but:name == {Input::ESCAPE_BUTTON} then
                 escape false;
             end
@@ -86,50 +147,55 @@ do
             var int right_x = gc:get_width()/2 + 150;
             var int y = gc:get_height()/2 + 40;
 
-            // cancel button
-            gc:print_center({Fonts::chalk_normal},
-                            _Vector2i(cancel.x+55, cancel.y),
-                            __("Back"));
+            if not has_succeeded then
+                // abort button
+                gc:print_center({Fonts::chalk_normal},
+                                _Vector2i(abort.x+55, abort.y-4),
+                                __("Give Up"));
+                gc:print_center({Fonts::chalk_normal},
+                                _Vector2i(retry.x+30, retry.y-24),
+                                __("Retry"));
+            end
 
             gc:print_center({Fonts::chalk_large},
-                            _Vector2i(gc:get_width() /2,
-                                      gc:get_height()/2 - 230),
-                            __(plf!.get_levelname()));
-
-            gc:print_left({Fonts::chalk_normal},
-                            _Vector2i(gc:get_width() /2 - 300,
-                                      gc:get_height()/2 - 170),
-                            &&description)
+                            _Vector2i(gc:get_width()/2, {Display::get_height()}/2 - 200),
+                            &&level_name)
                 finalize with nothing; end;
 
-            y = y+32;
-            y = y+45;
-
-            gc:print_left({Fonts::chalk_normal}, _Vector2i(left_x, y),
-                          __("Number of Pingus: "));
-            gc:print_right({Fonts::chalk_normal}, _Vector2i(right_x, y),
-                           {StringUtil::to_string}(plf!.get_number_of_pingus()));
-
-            gc:print_left({Fonts::chalk_normal}, _Vector2i(left_x, y),
-                         __("Number to Save: "));
-            y = y+30;
-            gc:print_right({Fonts::chalk_normal}, _Vector2i(right_x, y),
-                           {StringUtil::to_string}(plf!.get_number_to_save()));
-
-            gc:print_left({Fonts::chalk_normal}, _Vector2i(left_x, y),
-                          __("Time: "));
-            y = y+30;
-            gc:print_right({Fonts::chalk_normal}, _Vector2i(right_x, y),
-                           {GameTime::ticks_to_realtime_string}(plf!.get_time()));
-
-            gc:print_center({Fonts::chalk_small},
-                            _Vector2i(gc:get_width()/2, gc:get_height()/2 + 215),
-                            __("Author: ") + plf!.get_author());
-
-            if {globals::developer_mode} then
-                gc:print_center({Fonts::chalk_small}, _Vector2i(gc:get_width()/2,
-                                gc:get_height()-50), plf!.get_resname());
+            if has_succeeded then
+                gc:print_center({Fonts::chalk_large},
+                                _Vector2i(gc:get_width()/2, {Display::get_height()}/2 - 140),
+                                __("Success!"));
+                /*gc:print_center(Fonts::pingus_small, gc:get_width()/2, * gc:get_height()-30,
+                "..:: Press Space to continue ::..");*/
+            else
+                gc:print_center({Fonts::chalk_large},
+                                _Vector2i(gc:get_width()/2, {Display::get_height()}/2 - 140),
+                                __("Failure!"));
+                /*gc:print_center(Fonts::pingus_normal, gc:get_width()/2, * gc:get_height()-30,
+                "..:: Press Space to retry the level ::..");*/
             end
+
+            gc:print_center({Fonts::chalk_normal},
+                            _Vector2i(gc:get_width()/2, gc:get_height()/2 - 70),
+                            &&message)
+                finalize with nothing; end;
+
+            var int left_x  = gc:get_width()/2 - 100;
+            var int right_x = gc:get_width()/2 + 100;
+            var int y = {Display::get_height()}/2 + 10;
+
+            gc:print_left({Fonts::chalk_normal}, _Vector2i(left_x,  y), __("Saved: "));
+            gc:print_right({Fonts::chalk_normal},_Vector2i(right_x, y), &&saved_needed)
+                finalize with nothing; end;
+
+            y = y + 30;
+            gc:print_left({Fonts::chalk_normal}, _Vector2i(left_x,  y), __("Died: "));
+            gc:print_right({Fonts::chalk_normal},_Vector2i(right_x, y), {StringUtil::to_string}(n_killed));
+
+            y = y + 30;
+            gc:print_left({Fonts::chalk_normal}, _Vector2i(left_x,  y), __("Time left: "));
+            gc:print_right({Fonts::chalk_normal},_Vector2i(right_x, y), _RESULT_SCREEN_time_str);
         end
     end
 end
