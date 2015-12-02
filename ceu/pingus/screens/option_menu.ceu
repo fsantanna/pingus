@@ -18,22 +18,61 @@ do
 
     var Rect rect  = Rect(80+x_offset, 140+y_offset, 320, 32);
 
-    // Software Cursor
-    var char[] l1 = [].."Software Cursor";
+    // Fullscreen
+    var char[] l1 = [].."Fullscreen";
     var Rect r11 = Rect(rect.left,   rect.top, 32,32);
     var Rect r12 = Rect(rect.left+40,rect.top, 32,32);
-    var CheckBox software_cursor_box = CheckBox.build(r11);
+    var CheckBox fullscreen_box = CheckBox.build(r11);
     var Label _ = Label.build(&l1, r12);
 
     rect.top = rect.top + 32;
 
-    // Fullscrren
-    var char[] l2 = [].."Fullscreen";
+    // Mouse Grab
+    var char[] l2 = [].."Mouse Grab";
     var Rect r21 = Rect(rect.left,   rect.top, 32,32);
     var Rect r22 = Rect(rect.left+40,rect.top, 32,32);
-    var CheckBox fullscreen_box = CheckBox.build(r21);
+    var CheckBox mousegrab_box = CheckBox.build(r21);
     var Label _ = Label.build(&l2, r22);
 
+    rect.top = rect.top + 32;
+    rect.top = rect.top + 32;
+
+    // Software Cursor
+    var char[] l3 = [].."Software Cursor";
+    var Rect r31 = Rect(rect.left,   rect.top, 32,32);
+    var Rect r32 = Rect(rect.left+40,rect.top, 32,32);
+    var CheckBox software_cursor_box = CheckBox.build(r31);
+    var Label _ = Label.build(&l3, r32);
+
+    rect.top = rect.top + 32;
+
+    // Auto Scrolling
+    var char[] l4 = [].."Autoscrolling";
+    var Rect r41 = Rect(rect.left,   rect.top, 32,32);
+    var Rect r42 = Rect(rect.left+40,rect.top, 32,32);
+    var CheckBox autoscroll_box = CheckBox.build(r41);
+    var Label _ = Label.build(&l4, r42);
+
+    rect.top = rect.top + 32;
+
+    // Drag & Drop Scrolling
+    var char[] l5 = [].."Drag&Drop Scrolling";
+    var Rect r51 = Rect(rect.left,   rect.top, 32,32);
+    var Rect r52 = Rect(rect.left+40,rect.top, 32,32);
+    var CheckBox dragdrop_scroll_box = CheckBox.build(r51);
+    var Label _ = Label.build(&l5, r52);
+
+    rect.top = rect.top + 32;
+    rect.top = rect.top + 32;
+
+    // Print FPS
+    var char[] l6 = [].."Print FPS";
+    var Rect r61 = Rect(rect.left,   rect.top, 32,32);
+    var Rect r62 = Rect(rect.left+40,rect.top, 32,32);
+    var CheckBox printfps_box = CheckBox.build(r61);
+    var Label _ = Label.build(&l6, r62);
+
+    // Close
     var SurfaceButton close with
         this.x = {Display::get_width()/2}  + 245;
         this.y = {Display::get_height()/2} + 150;
