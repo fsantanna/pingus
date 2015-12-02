@@ -65,8 +65,10 @@ GlobalEvent::on_button_press(const SDL_KeyboardEvent& event)
       break;
 
     case SDLK_F5:
+#if 0
       if (!dynamic_cast<OptionMenu*>(ScreenManager::instance()->get_current_screen().get()))
         ScreenManager::instance()->push_screen(std::make_shared<OptionMenu>());
+#endif
       break;
 
     case SDLK_o:

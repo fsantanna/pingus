@@ -20,6 +20,8 @@
 #include "engine/screen/screen_manager.hpp"
 #include "pingus/global_event.hpp"
 
+#include "ceu_vars.h"
+
 namespace Input {
 
 SDLDriver::SDLDriver() :
@@ -264,10 +266,16 @@ SDLDriver::update(float delta)
           keyboard_binding->send_char(event.key);
 
         // global event hacks
-        if (event.key.state == SDL_PRESSED)
+{
+        void* p = &event;
+        if (event.key.state == SDL_PRESSED) {
           global_event.on_button_press(event.key);
-        else
+          ceu_sys_go(&CEU_APP, CEU_IN_SDL_KEYDOWN, &p);
+        } else {
           global_event.on_button_release(event.key);
+          ceu_sys_go(&CEU_APP, CEU_IN_SDL_KEYUP, &p);
+        }
+}
 
         // game button events
         for(std::vector<KeyboardButtonBinding>::iterator i = keyboard_button_bindings.begin();

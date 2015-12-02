@@ -171,7 +171,9 @@ event (float,float,float,float) go_create_smoke_particles;
 var IWorld&&? world;
 var float gravity = 0.2;
 
-input _PingusLevel&& MAIN;
+input _SDL_KeyboardEvent&& SDL_KEYDOWN;
+input _SDL_KeyboardEvent&& SDL_KEYUP;
+input _PingusLevel&&       MAIN;
 
 #include "pingus/screens/start_screen.ceu"
 #include "pingus/screens/result_screen.ceu"
@@ -189,24 +191,39 @@ finalize with
     {ScreenManager::instance()->pop_screen();};
 end;
 
-var bool ok;
-ok = do StartScreen with
-        this.plf_ = &&_CEU_MAIN_LEVEL;
-     end;
-if not ok then
-    escape 0;
-end
+event bool go_pause;
 
-loop do
-    do GameSession with
-        this.plf_ = &&_CEU_MAIN_LEVEL;
-    end;
+par do
+    pause/if go_pause do
+        var bool ok;
+        ok = do StartScreen with
+                this.plf_ = &&_CEU_MAIN_LEVEL;
+             end;
+        if not ok then
+            escape 0;
+        end
 
-    var bool retry = do ResultScreen with
-                        this.result = &&_GAMESESSION_RESULT;
-                     end;
-    if not retry then
-        escape 0;
+        loop do
+            do GameSession with
+                this.plf_ = &&_CEU_MAIN_LEVEL;
+            end;
+
+            var bool retry = do ResultScreen with
+                                this.result = &&_GAMESESSION_RESULT;
+                             end;
+            if not retry then
+                escape 0;
+            end
+        end
+    end
+with
+    loop do
+        var _SDL_KeyboardEvent&& key = await SDL_KEYDOWN;
+        if key:keysym.sym == _SDLK_F5 then
+            emit go_pause => true;
+            await 3s;
+            emit go_pause => false;
+        end
     end
 end
 
