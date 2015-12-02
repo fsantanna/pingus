@@ -1,0 +1,45 @@
+#ifndef _OPTIONMENU_CEU
+#define _OPTIONMENU_CEU
+
+#include "../../engine/gui/surface_button.ceu"
+
+class OptionMenu with
+do
+    var float x = {Display::get_width()}  / 2;
+    var float y = {Display::get_height()} / 2;
+
+    // TODO: has to fill the screen
+    //var Sprite _ = Sprite.w_xy_name(false, &x,&y, "core/menu/wood");
+    var Sprite _ = Sprite.w_xy_name(false, &x,&y, "core/menu/blackboard");
+
+    var SurfaceButton close with
+        this.x = {Display::get_width()/2}  + 245;
+        this.y = {Display::get_height()/2} + 150;
+        this.button         = "core/start/ok";
+        this.button_pressed = "core/start/ok_clicked";
+        this.button_over    = "core/start/ok_hover";
+    end;
+
+    par do
+        every close.get_component().on_pointer_enter do
+            call {Sound::PingusSound::play_sound}("tick");
+        end
+    with
+        await close.get_component().on_click;
+        call {Sound::PingusSound::play_sound}("yipee");
+        escape 0;
+    with
+        loop do
+            var _Input__Event&& e = await ON_INPUT_EVENT;
+            var _Input__ButtonEvent&& but = &&e:button;
+            if  e:type    == {Input::BUTTON_EVENT_TYPE}
+            and but:state == {Input::BUTTON_PRESSED}
+            and but:name  == {Input::ESCAPE_BUTTON}
+            then
+                escape 0;
+            end
+        end
+    end
+end
+
+#endif

@@ -178,6 +178,7 @@ input _PingusLevel&&       MAIN;
 #include "pingus/screens/start_screen.ceu"
 #include "pingus/screens/result_screen.ceu"
 #include "pingus/screens/game_session.ceu"
+#include "pingus/screens/option_menu.ceu"
 
 native/pre do
     ##include "pingus/result.hpp"
@@ -221,7 +222,7 @@ with
         var _SDL_KeyboardEvent&& key = await SDL_KEYDOWN;
         if key:keysym.sym == _SDLK_F5 then
             emit go_pause => true;
-            await 3s;
+            do OptionMenu;
             emit go_pause => false;
         end
     end

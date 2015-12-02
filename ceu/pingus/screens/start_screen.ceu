@@ -28,7 +28,6 @@ do
 
     // TODO: has to fill the screen
     //var Sprite _ = Sprite.w_xy_name(false, &x,&y, "core/menu/wood");
-
     var Sprite _ = Sprite.w_xy_name(false, &x,&y, "core/menu/blackboard");
 
     var SurfaceButton start with
