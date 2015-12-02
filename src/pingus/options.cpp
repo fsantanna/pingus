@@ -146,7 +146,7 @@ Options::from_file_reader(const FileReader& reader)
 
   if (reader.read_bool("print-fps", bool_value))
   {
-    opts.mouse_grab.set(bool_value);
+    opts.print_fps.set(bool_value);
   }
 
   if (reader.read_string("controller", string_value))

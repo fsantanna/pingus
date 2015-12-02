@@ -9,6 +9,7 @@ end
 #include "../../engine/gui/surface_button.ceu"
 #include "../components/check_box.ceu"
 #include "../components/label.ceu"
+#include "../components/choice_box.ceu"
 
 class OptionMenu with
 do
@@ -21,7 +22,8 @@ do
     var int x_offset = ({Display::get_width()}  - 800) / 2;
     var int y_offset = ({Display::get_height()} - 600) / 2;
 
-    var Rect rect  = Rect(80+x_offset, 140+y_offset, 320, 32);
+    var int yy = 140 + y_offset;
+    var Rect rect = Rect(80+x_offset, yy, 320, 32);
 
     // Fullscreen
     var char[] l1 = [].."Fullscreen";
@@ -106,6 +108,12 @@ do
             _config_manager.set_print_fps(v);
         end
     end
+
+    rect.top  = yy;
+    rect.left = rect.left + 320;
+
+    // Resolution
+    var ChoiceBox c1 = ChoiceBox.build(rect, 1);
 
     // Close
     var SurfaceButton close with

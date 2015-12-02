@@ -1,0 +1,41 @@
+#ifndef _CHOICEBOX_CEU
+#define _CHOICEBOX_CEU
+
+class ChoiceBox with
+    var Rect rect;
+    var int  choice;
+    event int ok_changed;
+    function (Rect rect, int choice)=>ChoiceBox build;
+do
+    function (Rect rect, int choice)=>ChoiceBox build do
+        this.rect   = rect;
+        this.choice = choice;
+    end
+
+    var RectComponent component with
+        this.rect = &outer.rect;
+    end;
+
+    var float x = rect.left;
+    var float y = rect.top;
+
+        every gc in SCREENMANAGER_DRAW do
+            if {globals::developer_mode} then
+                gc:draw_rect(_Rect(rect.left,rect.width,rect.width,rect.height),
+                             _Color(0, 255, 255));
+            end
+
+            gc:print_left({Fonts::chalk_normal},
+                          _Vector2i(rect.left, rect.top),
+                          "<");
+            gc:print_right({Fonts::chalk_normal},
+                           _Vector2i(rect.left+rect.width, rect.top),
+                           ">");
+            gc:print_center({Fonts::chalk_normal},
+                            _Vector2i(rect.left + rect.width/2, rect.top),
+                            "choice");
+        end
+end
+
+#endif
+
