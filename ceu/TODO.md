@@ -3,6 +3,11 @@
     - state machines vs await
     - class hierarchies/dispatching vs await
     - CPS vs return continue
+        - screen trasnitions
+        - worse w/o closures
+    - signaling/f pointer vs events
+        - option save on click
+        - worse w/o closures
 - BUG: a cada reinicio, o dobro de pingus sao criados
 - BUG: is_world=false in sprite.ceu
 - BUG: cliques nos pingus
