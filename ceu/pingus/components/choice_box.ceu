@@ -49,7 +49,7 @@ do
 
     par do
         every (x,y) in component.on_primary_button_pressed do
-            emit options[current]!:go_pause => true;
+            var int old = current;
             x = x - rect.left;
             if x > rect.width/2 then
                 current = (current + 1) % $options;
@@ -59,7 +59,11 @@ do
                     current = $options - 1;
                 end
             end
-            emit options[current]!:go_pause => false;
+            if old != current then
+                emit options[old]!:go_pause => true;
+                emit options[current]!:go_pause => false;
+                emit this.ok_changed => current;
+            end
         end
     with
         every gc in SCREENMANAGER_DRAW do
