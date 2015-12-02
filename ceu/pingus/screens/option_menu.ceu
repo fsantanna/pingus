@@ -2,6 +2,7 @@
 #define _OPTIONMENU_CEU
 
 native do
+    ##include "util/system.hpp"
     ##include "pingus/config_manager.hpp"
 end
 
@@ -132,6 +133,23 @@ do
             then
                 break;
             end
+        end
+    with
+        every gc in SCREENMANAGER_DRAW do
+            gc:print_center({Fonts::chalk_large},
+                            _Vector2i(gc:get_width()/2,
+                                      gc:get_height()/2 - 240),
+                            __("Option Menu"));
+
+            gc:print_center({Fonts::chalk_normal},
+                            _Vector2i(gc:get_width()/2 + 245 + 30,
+                                      gc:get_height()/2 + 150 - 20),
+                            __("Close"));
+
+            gc:print_left({Fonts::chalk_normal},
+                          _Vector2i(gc:get_width()/2 - 320,
+                                    gc:get_height()/2 + 200),
+                          __("Some options require a restart of the game to take effect."));
         end
     end
 
