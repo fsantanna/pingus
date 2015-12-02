@@ -1,24 +1,67 @@
 #ifndef _CHOICEBOX_CEU
 #define _CHOICEBOX_CEU
 
+class ChoiceItem with
+    var Rect   rect;
+    var char[] value;
+    event bool go_pause;
+    function (Rect rect, char&& value)=>ChoiceItem build;
+do
+    function (Rect rect, char&& value)=>ChoiceItem build do
+        this.rect  = rect;
+        this.value = []..value;
+    end
+
+    par do
+        pause/if this.go_pause do
+            every gc in SCREENMANAGER_DRAW do
+                gc:print_center({Fonts::chalk_normal},
+                                _Vector2i(rect.left + rect.width/2, rect.top),
+                                &&this.value)
+                    finalize with end;
+            end
+        end
+    with
+        // starts paused
+        emit this.go_pause => true;
+        await FOREVER;
+    end
+end
+
 class ChoiceBox with
     var Rect rect;
-    var int  choice;
+    var ChoiceItem&&?[]& options;
+    var int  current;
     event int ok_changed;
-    function (Rect rect, int choice)=>ChoiceBox build;
+    function (Rect rect, ChoiceItem&&?[]& options, int current)=>ChoiceBox build;
 do
-    function (Rect rect, int choice)=>ChoiceBox build do
-        this.rect   = rect;
-        this.choice = choice;
+    function (Rect rect, ChoiceItem&&?[]& options, int current)=>ChoiceBox build do
+        this.rect    = rect;
+        this.options = &options;
+        this.current = current;
     end
 
     var RectComponent component with
         this.rect = &outer.rect;
     end;
 
-    var float x = rect.left;
-    var float y = rect.top;
+    emit options[current]!:go_pause => false;
 
+    par do
+        every (x,y) in component.on_primary_button_pressed do
+            emit options[current]!:go_pause => true;
+            x = x - rect.left;
+            if x > rect.width/2 then
+                current = (current + 1) % $options;
+            else
+                current = current - 1;
+                if current < 0 then
+                    current = $options - 1;
+                end
+            end
+            emit options[current]!:go_pause => false;
+        end
+    with
         every gc in SCREENMANAGER_DRAW do
             if {globals::developer_mode} then
                 gc:draw_rect(_Rect(rect.left,rect.width,rect.width,rect.height),
@@ -31,10 +74,8 @@ do
             gc:print_right({Fonts::chalk_normal},
                            _Vector2i(rect.left+rect.width, rect.top),
                            ">");
-            gc:print_center({Fonts::chalk_normal},
-                            _Vector2i(rect.left + rect.width/2, rect.top),
-                            "choice");
         end
+    end
 end
 
 #endif

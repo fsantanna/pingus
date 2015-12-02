@@ -3,7 +3,15 @@
 
 native do
     ##include "util/system.hpp"
+    ##include "tinygettext/dictionary_manager.hpp"
     ##include "pingus/config_manager.hpp"
+    extern tinygettext::DictionaryManager dictionary_manager;
+    struct LanguageSorter {
+        bool operator()(const tinygettext::Language& lhs,
+                      const tinygettext::Language& rhs) {
+            return lhs.get_name() < rhs.get_name();
+        }
+    };
 end
 
 #include "../../engine/gui/surface_button.ceu"
@@ -24,6 +32,8 @@ do
 
     var int yy = 140 + y_offset;
     var Rect rect = Rect(80+x_offset, yy, 320, 32);
+
+    // LEFT OPTIONS //
 
     // Fullscreen
     var char[] l1 = [].."Fullscreen";
@@ -109,13 +119,106 @@ do
         end
     end
 
+    // RIGHT OPTIONS //
+
     rect.top  = yy;
     rect.left = rect.left + 320;
 
     // Resolution
-    var ChoiceBox c1 = ChoiceBox.build(rect, 1);
+    pool ChoiceItem[] its1;
+    var ChoiceItem&&?[] vec1;
 
-    // Close
+    {
+        static std::vector<Size> resolutions = Display::get_fullscreen_video_modes();
+        static Size fullscreen = config_manager.get_fullscreen_resolution();
+        static auto it1 = resolutions.begin();
+    };
+    var int current1 = _resolutions.size() - 1;
+    loop do
+        if _it1 == _resolutions.end() then
+            break;
+        end
+
+        // add resolution to the box
+        {
+            std::ostringstream ostr;
+            ostr << it1->width << "x" << it1->height;
+        };
+        var char&& str = _XXX_PURE((char&&) _ostr.str().c_str());
+        var ChoiceItem&&? it = spawn ChoiceItem.build(rect, str) in its1;
+        vec1 = vec1..[it];
+
+        if _fullscreen == *_it1 then
+            current1 = (_it1 - _resolutions.begin());
+        end
+        {it1++;};
+    end
+    var ChoiceBox _ = ChoiceBox.build(rect, &vec1, current1);
+
+    rect.top = rect.top + 32;
+
+    // Renderer
+    var int current2;
+    if _config_manager.get_renderer() == _SDL_FRAMEBUFFER then
+        current2 = 0;
+    else/if _config_manager.get_renderer() == _DELTA_FRAMEBUFFER then
+        current2 = 1;
+#ifdef HAVE_OPENGL
+    else/if _config_manager.get_renderer() == _OPENGL_FRAMEBUFFER then
+        current2 = 2;
+#endif
+    else
+        current2 = -1;
+        _assert(not "unknown renderer type");
+    end
+    var ChoiceItem&&?[] vec2;
+    var ChoiceItem it21 = ChoiceItem.build(rect, "sdl");
+    vec2 = vec2 .. [ &&it21 ];
+    var ChoiceItem it22 = ChoiceItem.build(rect, "delta");
+    vec2 = vec2 .. [ &&it22 ];
+#ifdef HAVE_OPENGL
+    var ChoiceItem it23 = ChoiceItem.build(rect, "opengl");
+    vec2 = vec2 .. [ &&it23 ];
+#endif
+    var ChoiceBox _ = ChoiceBox.build(rect, &vec2, current2);
+
+    rect.top = rect.top + 32;
+
+    // Language
+    var ChoiceItem&&?[] vec3;
+    pool ChoiceItem[] its2;
+
+    {
+        static std::set<tinygettext::Language> languages =
+            dictionary_manager.get_languages();
+        // English is the default language, thus it's not in the list of
+        // languages returned by tinygettext and we have to add it manually
+        languages.insert(tinygettext::Language::from_name("en"));
+        static std::vector<tinygettext::Language> langs(languages.begin(), languages.end());
+        std::sort(langs.begin(), langs.end(), LanguageSorter());
+        static auto it2 = langs.begin();
+    };
+    var int? current3;
+    loop do
+        if _it2 == _langs.end() then
+            break;
+        end
+
+        var char&& str = _XXX_PURE((char&&)_it2:get_name().c_str());
+        var ChoiceItem&&? it = spawn ChoiceItem.build(rect, str) in its2;
+        vec3 = vec3..[it];
+
+        if _dictionary_manager.get_language() == *_it2 then
+            current3 = (_it2 - _langs.begin());
+        end
+        {it2++;};
+    end
+    var ChoiceBox _ = ChoiceBox.build(rect, &vec3, current3!);
+
+    rect.top = rect.top + 32;
+
+    // CLOSE //
+
     var SurfaceButton close with
         this.x = {Display::get_width()/2}  + 245;
         this.y = {Display::get_height()/2} + 150;

@@ -20,6 +20,20 @@
 
 int XXX_FROM_CEU = 0;
 
+void ceu_sys_log (int mode, long s) {
+    switch (mode) {
+        case 0:
+            printf("%s", (char*)s);
+            break;
+        case 1:
+            printf("%lX", s);
+            break;
+        case 2:
+            printf("%ld", s);
+            break;
+    }
+}
+
 #include "ceu_vars.h"
 #include "_ceu_app.c"
 tceu_app CEU_APP;
