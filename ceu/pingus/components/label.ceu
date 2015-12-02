@@ -1,0 +1,16 @@
+#ifndef _LABEL_CEU
+#define _LABEL_CEU
+
+class Label with
+    var char[]& label;
+    var Rect    rect;
+do
+    every gc in SCREENMANAGER_DRAW do
+        gc:print_left({Fonts::chalk_normal},
+                      _Vector2i(this.rect.left, this.rect.top),
+                      &&this.label)
+            finalize with nothing; end;
+    end
+end
+
+#endif

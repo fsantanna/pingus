@@ -2,15 +2,43 @@
 #define _OPTIONMENU_CEU
 
 #include "../../engine/gui/surface_button.ceu"
+#include "../components/check_box.ceu"
+#include "../components/label.ceu"
 
 class OptionMenu with
 do
     var float x = {Display::get_width()}  / 2;
     var float y = {Display::get_height()} / 2;
-
     // TODO: has to fill the screen
     //var Sprite _ = Sprite.w_xy_name(false, &x,&y, "core/menu/wood");
     var Sprite _ = Sprite.w_xy_name(false, &x,&y, "core/menu/blackboard");
+
+    var int x_offset = ({Display::get_width()}  - 800) / 2;
+    var int y_offset = ({Display::get_height()} - 600) / 2;
+
+    var Rect rect  = Rect(80+x_offset, 140+y_offset, 320, 32);
+
+    // Software Cursor
+    var char[] l1 = [].."Software Cursor";
+    var CheckBox software_cursor_box with
+        this.rect = Rect(rect.left,rect.top, 32,32);
+    end;
+    var Label _ with
+        this.label = &l1;
+        this.rect = Rect(rect.left+40,rect.top, 32,32);
+    end;
+
+    rect.top = rect.top + 32;
+
+    // Fullscrren
+    var char[] l2 = [].."Fullscreen";
+    var CheckBox fullscreen_box with
+        this.rect = Rect(rect.left,rect.top, 32,32);
+    end;
+    var Label _ with
+        this.label = &l2;
+        this.rect = Rect(rect.left+40,rect.top, 32,32);
+    end;
 
     var SurfaceButton close with
         this.x = {Display::get_width()/2}  + 245;
