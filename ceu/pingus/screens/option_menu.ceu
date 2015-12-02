@@ -20,25 +20,19 @@ do
 
     // Software Cursor
     var char[] l1 = [].."Software Cursor";
-    var CheckBox software_cursor_box with
-        this.rect = Rect(rect.left,rect.top, 32,32);
-    end;
-    var Label _ with
-        this.label = &l1;
-        this.rect = Rect(rect.left+40,rect.top, 32,32);
-    end;
+    var Rect r11 = Rect(rect.left,   rect.top, 32,32);
+    var Rect r12 = Rect(rect.left+40,rect.top, 32,32);
+    var CheckBox software_cursor_box = CheckBox.build(r11);
+    var Label _ = Label.build(&l1, r12);
 
     rect.top = rect.top + 32;
 
     // Fullscrren
     var char[] l2 = [].."Fullscreen";
-    var CheckBox fullscreen_box with
-        this.rect = Rect(rect.left,rect.top, 32,32);
-    end;
-    var Label _ with
-        this.label = &l2;
-        this.rect = Rect(rect.left+40,rect.top, 32,32);
-    end;
+    var Rect r21 = Rect(rect.left,   rect.top, 32,32);
+    var Rect r22 = Rect(rect.left+40,rect.top, 32,32);
+    var CheckBox fullscreen_box = CheckBox.build(r21);
+    var Label _ = Label.build(&l2, r22);
 
     var SurfaceButton close with
         this.x = {Display::get_width()/2}  + 245;

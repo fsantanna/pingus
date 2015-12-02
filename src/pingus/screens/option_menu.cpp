@@ -36,6 +36,37 @@
 
 extern tinygettext::DictionaryManager dictionary_manager;
 
+class OptionMenuCloseButton
+  : public GUI::SurfaceButton
+{
+private:
+  OptionMenu* parent;
+public:
+  OptionMenuCloseButton(OptionMenu* p, int x, int y)
+    : GUI::SurfaceButton(x, y,
+                         "core/start/ok",
+                         "core/start/ok_clicked",
+                         "core/start/ok_hover"),
+      parent(p)
+  {
+  }
+
+  void on_pointer_enter ()
+  {
+    SurfaceButton::on_pointer_enter();
+    Sound::PingusSound::play_sound("tick");
+  }
+
+  void on_click() {
+    parent->on_escape_press();
+    Sound::PingusSound::play_sound("yipee");
+  }
+
+private:
+  OptionMenuCloseButton(const OptionMenuCloseButton&);
+  OptionMenuCloseButton & operator=(const OptionMenuCloseButton&);
+};
+
 struct LanguageSorter
 {
   bool operator()(const tinygettext::Language& lhs,
@@ -48,6 +79,7 @@ struct LanguageSorter
 OptionMenu::OptionMenu() :
   m_background("core/menu/wood"),
   m_blackboard("core/menu/blackboard"),
+  ok_button(),
   x_pos(),
   y_pos(),
   options(),
@@ -66,6 +98,10 @@ OptionMenu::OptionMenu() :
   m_language(),
   m_language_map()
 {
+  gui_manager->add(ok_button = new OptionMenuCloseButton(this,
+                                                         Display::get_width()/2 + 245,
+                                                         Display::get_height()/2 + 150));
+
   x_pos = 0;
   y_pos = 0;
 
@@ -219,6 +255,9 @@ OptionMenu::OptionMenu() :
 void
 OptionMenu::add_item(const std::string& label, GUI::RectComponent* control)
 {
+  int x_offset = (Display::get_width()  - 800) / 2;
+  int y_offset = (Display::get_height() - 600) / 2;
+
   Rect rect(Vector2i(80 + x_offset + x_pos * 320,
                      140 + y_offset + y_pos * 32),
             Size(320, 32));
@@ -319,6 +358,8 @@ OptionMenu::resize(const Size& size_)
   Size old_size = size;
   GUIScreen::resize(size_);
 
+  if (ok_button)
+    ok_button->set_pos(size.width/2 + 245, size.height/2 + 150);
   /*
   if (defaults_label)
     defaults_label->set_rect(Rect(Vector2i(Display::get_width()/2 - 100, Display::get_height()/2 + 160), Size(170, 32)));
