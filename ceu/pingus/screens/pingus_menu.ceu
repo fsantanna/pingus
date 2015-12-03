@@ -1,0 +1,68 @@
+#ifndef _PINGUSMENU_CEU
+#define _PINGUSMENU_CEU
+
+#include "../../engine/display/sprite.ceu"
+//#include "../components/menu_button.ceu"
+
+class PingusMenu with
+do
+    var float x = {Display::get_width()}  / 2;
+    var float y = {Display::get_height()} / 2;
+    var Sprite logo = Sprite.w_xy_name(false, &x,&y, "core/misc/logo");
+
+#if 0
+    // TODO: has to fill the screen
+    //var Sprite _ = Sprite.w_xy_name(false, &x,&y, "core/menu/wood");
+    var Sprite _ = Sprite.w_xy_name(false, &x,&y, "core/menu/blackboard");
+
+    var int x_offset = ({Display::get_width()}  - 800) / 2;
+    var int y_offset = ({Display::get_height()} - 600) / 2;
+
+    var int yy = 140 + y_offset;
+    var Rect rect = Rect(80+x_offset, yy, 320, 32);
+
+    // LEFT OPTIONS //
+
+    // Fullscreen
+    var Rect r11 = Rect(rect.left,   rect.top, 32,32);
+    var Rect r12 = Rect(rect.left+40,rect.top, 32,32);
+    var CheckBox b1 = CheckBox.build(r11, _config_manager.get_fullscreen());
+    var Label _ = Label.build("Fullscreen", r12);
+    spawn do
+        every v in b1.ok_clicked do
+            _config_manager.set_fullscreen(v);
+        end
+    end
+
+    rect.top = rect.top + 32;
+#endif
+
+    {Sound::PingusSound::play_music("pingus-1.it");};
+
+    par do
+        await FOREVER;
+    with
+        every gc in SCREENMANAGER_DRAW do
+            gc:print_left({Fonts::pingus_small},
+                          _Vector2i(gc:get_width()/2 - 400 + 25, gc:get_height()-140),
+            {
+"Pingus " VERSION " - Copyright (C) 1998-2011 Ingo Ruhnke <grumbel@gmail.com>\n"
+"See the file AUTHORS for a complete list of contributors.\n"
+"Pingus comes with ABSOLUTELY NO WARRANTY. This is free software, and you are\n"
+            "welcome to redistribute it under certain conditions; see the file COPYING for details.\n"
+            });
+
+            gc:draw_fillrect(_Rect(0,
+                                   {Display::get_height()} - 26,
+                                   {Display::get_width ()},
+                                   {Display::get_height()}),
+                             _Color(0, 0, 0, 255));
+            gc:print_center({Fonts::pingus_small},
+                             _Vector2i(gc:get_width() / 2,
+                                       gc:get_height() - {Fonts::pingus_small.get_height()} - 8),
+"..:: Ctrl-g: mouse grab   ::   F10: fps counter   ::   F11: fullscreen   ::   F12: screenshot ::..");
+        end
+    end
+end
+
+#endif

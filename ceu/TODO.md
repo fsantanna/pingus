@@ -13,6 +13,17 @@
         - verificar caso do option_menu
             - configuracao pode ser alterada por fora?
         - worse w/o closures
+    = WHY
+        - state machines
+        - C libraries
+        - static memory
+        - control safety
+    = WHY NOT
+        - functional, immutability
+        - type safety
+        - generic code
+        - tooling
+    = BOUNS: Lua
 - BUG: a cada reinicio, o dobro de pingus sao criados
 - BUG: is_world=false in sprite.ceu
 - BUG: cliques nos pingus
