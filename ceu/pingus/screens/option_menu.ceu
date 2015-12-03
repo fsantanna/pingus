@@ -241,10 +241,10 @@ _printf("> ren %d %s\n", v, &&vec2[v]!:value);
     var ChoiceBox c3 = ChoiceBox.build(rect, &vec3, current3!);
     spawn do
         every v in c3.ok_changed do
-_printf("> lan %d %s\n", v, &&vec3[v]!:value);
             { static char* str; };
             _str = _XXX_PURE(&&vec3[v]!:value);
             { static auto it = m_language_map.find(str); };
+            { it = m_language_map.find(str); };
             if _it == _m_language_map.end() then
                 _log_error("unknown language: %1%", &&vec3[v]!:value);
             else
