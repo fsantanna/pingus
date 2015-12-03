@@ -19,15 +19,23 @@ do
     end;
 
     par do
-        every (x,y) in component.on_primary_button_pressed do
-            var int old = this.current;
-            x = x - this.rect.left;
+        var int x=0,y=0;
+        loop do
+            (x,y) = await component.on_primary_button_pressed;
+            watching ON_PRIMARY_BUTTON_RELEASED do
+                loop do
+                    var int old = this.current;
+                    x = x - this.rect.left;
 
-            this.current = this.max*x / (rect.width-12);
-            this.current = {Math::clamp}(0, current, max);
+                    this.current = this.max*x / (rect.width-12);
+                    this.current = {Math::clamp}(0, current, max);
 
-            if this.current != old then
-                emit this.ok_changed => current*5; // scale to [0,100]
+                    if this.current != old then
+                        emit this.ok_changed => current*5; // scale to [0,100]
+                    end
+
+                    (x,y) = await ON_POINTER_MOVE;
+                end
             end
         end
     with

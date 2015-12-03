@@ -135,6 +135,7 @@ do
         static std::vector<Size> resolutions = Display::get_fullscreen_video_modes();
         static Size fullscreen = config_manager.get_fullscreen_resolution();
         static auto it1 = resolutions.begin();
+        it1 = resolutions.begin();
     };
     var int current1 = _resolutions.size() - 1;
     loop do
@@ -221,6 +222,7 @@ _printf("> ren %d %s\n", v, &&vec2[v]!:value);
         static std::vector<tinygettext::Language> langs(languages.begin(), languages.end());
         std::sort(langs.begin(), langs.end(), LanguageSorter());
         static auto it2 = langs.begin();
+        it2 = langs.begin();
     };
     var int? current3;
     loop do

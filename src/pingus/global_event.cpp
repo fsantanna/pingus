@@ -21,7 +21,6 @@
 #include "pingus/config_manager.hpp"
 #include "pingus/globals.hpp"
 #include "pingus/screens/addon_menu.hpp"
-#include "pingus/screens/option_menu.hpp"
 #include "util/log.hpp"
 
 GlobalEvent global_event;
@@ -64,11 +63,10 @@ GlobalEvent::on_button_press(const SDL_KeyboardEvent& event)
       config_manager.set_fullscreen(!config_manager.get_fullscreen());
       break;
 
-    case SDLK_F5:
 #if 0
+    case SDLK_F5:
       if (!dynamic_cast<OptionMenu*>(ScreenManager::instance()->get_current_screen().get()))
         ScreenManager::instance()->push_screen(std::make_shared<OptionMenu>());
-#endif
       break;
 
     case SDLK_o:
@@ -78,6 +76,7 @@ GlobalEvent::on_button_press(const SDL_KeyboardEvent& event)
           ScreenManager::instance()->push_screen(std::make_shared<OptionMenu>());
       }
       break;
+#endif
 
     case SDLK_F6:
       if (globals::developer_mode)

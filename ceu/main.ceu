@@ -219,8 +219,13 @@ par do
     end
 with
     loop do
+        var _u8&& keystate = _XXX_PURE(_SDL_GetKeyState(null));
+        var bool has_ctrl = keystate[_SDLK_LCTRL] or keystate[_SDLK_RCTRL];
+
         var _SDL_KeyboardEvent&& key = await SDL_KEYDOWN;
-        if key:keysym.sym == _SDLK_F5 then
+        if key:keysym.sym == _SDLK_F5
+        or key:keysym.sym == _SDLK_o  and has_ctrl
+        then
             emit go_pause => true;
             do OptionMenu;
             emit go_pause => false;

@@ -26,7 +26,7 @@
 #include "pingus/resource.hpp"
 #include "pingus/screens/credits.hpp"
 #include "pingus/screens/level_menu.hpp"
-#include "pingus/screens/option_menu.hpp"
+///#include "pingus/screens/option_menu.hpp"
 ///#include "pingus/screens/start_screen.hpp"
 #include "pingus/screens/story_screen.hpp"
 #include "pingus/worldmap/worldmap_screen.hpp"
@@ -202,7 +202,7 @@ PingusMenu::on_click(MenuButton* button)
   }
   else if (button == options_button)
   {
-    ScreenManager::instance()->push_screen(std::make_shared<OptionMenu>());
+    ///ScreenManager::instance()->push_screen(std::make_shared<OptionMenu>());
   }
 }
 
