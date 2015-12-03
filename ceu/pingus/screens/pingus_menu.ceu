@@ -16,10 +16,11 @@ do
 
     {Sound::PingusSound::play_music("pingus-1.it");};
 
-    par/or do
+    par do
         do MenuButton.build(size.width/2 - 125,
                             size.height/2 - 20,
                             "Story", "");
+        escape true;
     with
         do MenuButton.build(size.width/2 + 125,
                             size.height/2 - 20,
@@ -36,6 +37,7 @@ do
         do MenuButton.build(size.width/2,
                             size.height/2 + 120,
                             "Exit", "");
+        escape false;
     with
         every gc in SCREENMANAGER_DRAW do
             gc:print_left({Fonts::pingus_small},

@@ -197,26 +197,28 @@ end;
 
 par do
     pause/if go_pause do
-        do PingusMenu;
-
-        var bool ok;
-        ok = do StartScreen with
-                this.plf_ = &&_CEU_MAIN_LEVEL;
-             end;
-        if not ok then
-            escape 0;
-        end
-
         loop do
-            do GameSession with
-                this.plf_ = &&_CEU_MAIN_LEVEL;
-            end;
-
-            var bool retry = do ResultScreen with
-                                this.result = &&_GAMESESSION_RESULT;
-                             end;
-            if not retry then
+            var bool go = do PingusMenu;
+            if not go then
                 escape 0;
+            end
+
+            go = do StartScreen with
+                    this.plf_ = &&_CEU_MAIN_LEVEL;
+                 end;
+            if go then
+                loop do
+                    do GameSession with
+                        this.plf_ = &&_CEU_MAIN_LEVEL;
+                    end;
+
+                    var bool retry = do ResultScreen with
+                                        this.result = &&_GAMESESSION_RESULT;
+                                     end;
+                    if not retry then
+                        break;
+                    end
+                end
             end
         end
     end
