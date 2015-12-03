@@ -39,11 +39,10 @@ do
     // LEFT OPTIONS //
 
     // Fullscreen
-    var char[] l1 = [].."Fullscreen";
     var Rect r11 = Rect(rect.left,   rect.top, 32,32);
     var Rect r12 = Rect(rect.left+40,rect.top, 32,32);
     var CheckBox b1 = CheckBox.build(r11, _config_manager.get_fullscreen());
-    var Label _ = Label.build(&l1, r12);
+    var Label _ = Label.build("Fullscreen", r12);
     spawn do
         every v in b1.ok_clicked do
             _config_manager.set_fullscreen(v);
@@ -53,11 +52,10 @@ do
     rect.top = rect.top + 32;
 
     // Mouse Grab
-    var char[] l2 = [].."Mouse Grab";
     var Rect r21 = Rect(rect.left,   rect.top, 32,32);
     var Rect r22 = Rect(rect.left+40,rect.top, 32,32);
     var CheckBox b2 = CheckBox.build(r21, _config_manager.get_mouse_grab());
-    var Label _ = Label.build(&l2, r22);
+    var Label _ = Label.build("Mouse Grab", r22);
     spawn do
         every v in b2.ok_clicked do
             _config_manager.set_mouse_grab(v);
@@ -68,11 +66,10 @@ do
     rect.top = rect.top + 32;
 
     // Software Cursor
-    var char[] l3 = [].."Software Cursor";
     var Rect r31 = Rect(rect.left,   rect.top, 32,32);
     var Rect r32 = Rect(rect.left+40,rect.top, 32,32);
     var CheckBox b3 = CheckBox.build(r31, _config_manager.get_software_cursor());
-    var Label _ = Label.build(&l3, r32);
+    var Label _ = Label.build("Software Cursor", r32);
     spawn do
         every v in b3.ok_clicked do
             _config_manager.set_software_cursor(v);
@@ -82,11 +79,10 @@ do
     rect.top = rect.top + 32;
 
     // Auto Scrolling
-    var char[] l4 = [].."Autoscrolling";
     var Rect r41 = Rect(rect.left,   rect.top, 32,32);
     var Rect r42 = Rect(rect.left+40,rect.top, 32,32);
     var CheckBox b4 = CheckBox.build(r41, _config_manager.get_auto_scrolling());
-    var Label _ = Label.build(&l4, r42);
+    var Label _ = Label.build("Autoscrolling", r42);
     spawn do
         every v in b4.ok_clicked do
             _config_manager.set_auto_scrolling(v);
@@ -96,11 +92,10 @@ do
     rect.top = rect.top + 32;
 
     // Drag & Drop Scrolling
-    var char[] l5 = [].."Drag&Drop Scrolling";
     var Rect r51 = Rect(rect.left,   rect.top, 32,32);
     var Rect r52 = Rect(rect.left+40,rect.top, 32,32);
     var CheckBox b5 = CheckBox.build(r51, _config_manager.get_drag_drop_scrolling());
-    var Label _ = Label.build(&l5, r52);
+    var Label _ = Label.build("Drag&Drop Scrolling", r52);
     spawn do
         every v in b5.ok_clicked do
             _config_manager.set_drag_drop_scrolling(v);
@@ -111,11 +106,10 @@ do
     rect.top = rect.top + 32;
 
     // Print FPS
-    var char[] l6 = [].."Print FPS";
     var Rect r61 = Rect(rect.left,   rect.top, 32,32);
     var Rect r62 = Rect(rect.left+40,rect.top, 32,32);
     var CheckBox b6 = CheckBox.build(r61, _config_manager.get_print_fps());
-    var Label _ = Label.build(&l6, r62);
+    var Label _ = Label.build("Print FPS", r62);
     spawn do
         every v in b6.ok_clicked do
             _config_manager.set_print_fps(v);
@@ -124,10 +118,13 @@ do
 
     // RIGHT OPTIONS //
 
-    rect.top  = yy;
-    rect.left = rect.left + 320;
+    var Rect left  = Rect(rect.left+320,         yy,
+                          rect.width-180,        rect.height);
+    var Rect right = Rect(rect.left+320+140,     yy,
+                          rect.width-left.width, rect.height);
 
     // Resolution
+    var Label _ = Label.build("Resolution", left);
     pool ChoiceItem[] its1;
     var ChoiceItem&&?[] vec1;
 
@@ -149,7 +146,7 @@ do
             ostr << it1->width << "x" << it1->height;
         };
         var char&& str = _XXX_PURE((char&&) _ostr.str().c_str());
-        var ChoiceItem&&? it = spawn ChoiceItem.build(rect, str) in its1;
+        var ChoiceItem&&? it = spawn ChoiceItem.build(right, str) in its1;
         vec1 = vec1..[it];
 
         if _fullscreen == *_it1 then
@@ -157,10 +154,9 @@ do
         end
         {it1++;};
     end
-    var ChoiceBox c1 = ChoiceBox.build(rect, &vec1, current1);
+    var ChoiceBox c1 = ChoiceBox.build(right, &vec1, current1);
     spawn do
         every v in c1.ok_changed do
-_printf("> res %d %s\n", v, &&vec1[v]!:value);
             { Size size_; };
             if _sscanf(&&vec1[v]!:value, "%dx%d", &&_size_.width, &&_size_.height) != 2 then
                 _log_error("failed to parse: %1%", &&vec1[v]!:value);
@@ -170,9 +166,11 @@ _printf("> res %d %s\n", v, &&vec1[v]!:value);
         end
     end
 
-    rect.top = rect.top + 32;
+    left.top  = left.top + 32;
+    right.top = right.top + 32;
 
     // Renderer
+    var Label _ = Label.build("Renderer", left);
     var int current2;
     if _config_manager.get_renderer() == _SDL_FRAMEBUFFER then
         current2 = 0;
@@ -187,18 +185,17 @@ _printf("> res %d %s\n", v, &&vec1[v]!:value);
         _assert(not "unknown renderer type");
     end
     var ChoiceItem&&?[] vec2;
-    var ChoiceItem it21 = ChoiceItem.build(rect, "sdl");
+    var ChoiceItem it21 = ChoiceItem.build(right, "sdl");
     vec2 = vec2 .. [ &&it21 ];
-    var ChoiceItem it22 = ChoiceItem.build(rect, "delta");
+    var ChoiceItem it22 = ChoiceItem.build(right, "delta");
     vec2 = vec2 .. [ &&it22 ];
 #ifdef HAVE_OPENGL
-    var ChoiceItem it23 = ChoiceItem.build(rect, "opengl");
+    var ChoiceItem it23 = ChoiceItem.build(right, "opengl");
     vec2 = vec2 .. [ &&it23 ];
 #endif
-    var ChoiceBox c2 = ChoiceBox.build(rect, &vec2, current2);
+    var ChoiceBox c2 = ChoiceBox.build(right, &vec2, current2);
     spawn do
         every v in c2.ok_changed do
-_printf("> ren %d %s\n", v, &&vec2[v]!:value);
             _config_manager.set_renderer(
                 _framebuffer_type_from_string(&&vec2[v]!:value)
                     finalize with end
@@ -206,10 +203,13 @@ _printf("> ren %d %s\n", v, &&vec2[v]!:value);
         end
     end
 
-    rect.top = rect.top + 32;
-    rect.top = rect.top + 32;
+    left.top  = left.top + 32;
+    left.top  = left.top + 32;
+    right.top = right.top + 32;
+    right.top = right.top + 32;
 
     // Language
+    var Label _ = Label.build("Language", left);
     var ChoiceItem&&?[] vec3;
     pool ChoiceItem[] its2;
 
@@ -233,7 +233,7 @@ _printf("> ren %d %s\n", v, &&vec2[v]!:value);
         var char&& str = _XXX_PURE((char&&)_it2:get_name().c_str());
         _m_language_map[_XXX_PURE(str)] = *_it2;
 
-        var ChoiceItem&&? it = spawn ChoiceItem.build(rect, str) in its2;
+        var ChoiceItem&&? it = spawn ChoiceItem.build(right, str) in its2;
         vec3 = vec3..[it];
 
         if _dictionary_manager.get_language() == *_it2 then
@@ -241,7 +241,7 @@ _printf("> ren %d %s\n", v, &&vec2[v]!:value);
         end
         {it2++;};
     end
-    var ChoiceBox c3 = ChoiceBox.build(rect, &vec3, current3!);
+    var ChoiceBox c3 = ChoiceBox.build(right, &vec3, current3!);
     spawn do
         every v in c3.ok_changed do
             { static char* str; };
@@ -257,10 +257,14 @@ _printf("> ren %d %s\n", v, &&vec2[v]!:value);
         end
     end
 
-    rect.top = rect.top + 32;
+    left.top  = left.top + 32;
+    left.top  = left.top + 32;
+    right.top = right.top + 32;
+    right.top = right.top + 32;
 
     // Master Volume
-    var SliderBox s1 = SliderBox.build(rect, 25,
+    var Label _ = Label.build("Master Volume", left);
+    var SliderBox s1 = SliderBox.build(right, 25,
                         _config_manager.get_master_volume());
     spawn do
         every v in s1.ok_changed do
@@ -268,10 +272,12 @@ _printf("> ren %d %s\n", v, &&vec2[v]!:value);
         end
     end
 
-    rect.top = rect.top + 32;
+    left.top  = left.top + 32;
+    right.top = right.top + 32;
 
     // Sound Volume
-    var SliderBox s2 = SliderBox.build(rect, 25,
+    var Label _ = Label.build("Sound Volume", left);
+    var SliderBox s2 = SliderBox.build(right, 25,
                         _config_manager.get_sound_volume());
     spawn do
         every v in s2.ok_changed do
@@ -279,10 +285,12 @@ _printf("> ren %d %s\n", v, &&vec2[v]!:value);
         end
     end
 
-    rect.top = rect.top + 32;
+    left.top  = left.top + 32;
+    right.top = right.top + 32;
 
     // Music Volume
-    var SliderBox s3 = SliderBox.build(rect, 25,
+    var Label _ = Label.build("Music Volume", left);
+    var SliderBox s3 = SliderBox.build(right, 25,
                         _config_manager.get_music_volume());
     spawn do
         every v in s3.ok_changed do
@@ -290,7 +298,8 @@ _printf("> ren %d %s\n", v, &&vec2[v]!:value);
         end
     end
 
-    rect.top = rect.top + 32;
+    left.top  = left.top + 32;
+    right.top = right.top + 32;
 
     // CLOSE //
 

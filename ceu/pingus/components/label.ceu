@@ -2,12 +2,12 @@
 #define _LABEL_CEU
 
 class Label with
-    var char[]& label;
-    var Rect    rect;
-    function (char[]& label, Rect rect)=>Label build;
+    var char[] label;
+    var Rect   rect;
+    function (char&& label, Rect rect)=>Label build;
 do
-    function (char[]& label, Rect rect)=>Label build do
-        this.label = &label;
+    function (char&& label, Rect rect)=>Label build do
+        this.label = []..label;
         this.rect  = rect;
     end
 
