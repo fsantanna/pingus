@@ -6,19 +6,36 @@
 
 class PingusMenu with
 do
-    var float x = {Display::get_width()}  / 2;
-    var float y = {Display::get_height()} / 2;
+    var Size size = Size({Display::get_width()}, {Display::get_height()});
+
+    var float x = size.width  / 2;
+    var float y = size.height / 2;
     var Sprite logo = Sprite.w_xy_name(false, &x,&y, "core/misc/logo");
         x = x - logo.get_width()/2;
         y = y - 280;
 
-    var Rect rect = Rect(100,100,100,100);
-    var MenuButton b1 = MenuButton.build(rect, true);
-
     {Sound::PingusSound::play_music("pingus-1.it");};
 
-    par do
-        await FOREVER;
+    par/or do
+        do MenuButton.build(size.width/2 - 125,
+                            size.height/2 - 20,
+                            "Story", "");
+    with
+        do MenuButton.build(size.width/2 + 125,
+                            size.height/2 - 20,
+                            "Editor", "");
+    with
+        do MenuButton.build(size.width/2 - 125,
+                            size.height/2 + 50,
+                            "Options", "");
+    with
+        do MenuButton.build(size.width/2 + 125,
+                            size.height/2 + 50,
+                            "Levelsets", "");
+    with
+        do MenuButton.build(size.width/2,
+                            size.height/2 + 120,
+                            "Exit", "");
     with
         every gc in SCREENMANAGER_DRAW do
             gc:print_left({Fonts::pingus_small},

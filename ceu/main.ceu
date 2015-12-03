@@ -175,6 +175,8 @@ input _SDL_KeyboardEvent&& SDL_KEYDOWN;
 input _SDL_KeyboardEvent&& SDL_KEYUP;
 input _PingusLevel&&       MAIN;
 
+event bool go_pause;
+
 #include "pingus/screens/pingus_menu.ceu"
 #include "pingus/screens/option_menu.ceu"
 #include "pingus/screens/start_screen.ceu"
@@ -189,16 +191,14 @@ end
 var _PingusLevel&& plf = await MAIN;
 _CEU_MAIN_LEVEL = *plf;
 
-do PingusMenu;
-
 finalize with
     {ScreenManager::instance()->pop_screen();};
 end;
 
-event bool go_pause;
-
 par do
     pause/if go_pause do
+        do PingusMenu;
+
         var bool ok;
         ok = do StartScreen with
                 this.plf_ = &&_CEU_MAIN_LEVEL;
