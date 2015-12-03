@@ -7,6 +7,11 @@
         - worse w/o closures
     - signaling/f pointer vs events
         - option save on click
+        - global events double direction
+            - key/mouse-but events
+                - sendo que but tem que ficar highlight ou nao
+        - verificar caso do option_menu
+            - configuracao pode ser alterada por fora?
         - worse w/o closures
 - BUG: a cada reinicio, o dobro de pingus sao criados
 - BUG: is_world=false in sprite.ceu

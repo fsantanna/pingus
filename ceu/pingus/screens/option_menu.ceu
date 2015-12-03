@@ -17,9 +17,10 @@ native do
 end
 
 #include "../../engine/gui/surface_button.ceu"
-#include "../components/check_box.ceu"
 #include "../components/label.ceu"
+#include "../components/check_box.ceu"
 #include "../components/choice_box.ceu"
+#include "../components/slider_box.ceu"
 
 class OptionMenu with
 do
@@ -255,6 +256,8 @@ _printf("> ren %d %s\n", v, &&vec2[v]!:value);
     end
 
     rect.top = rect.top + 32;
+
+    var SliderBox _ = SliderBox.build(rect, 100, 20);
 
     // CLOSE //
 

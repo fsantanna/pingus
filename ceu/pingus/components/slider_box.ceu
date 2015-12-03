@@ -1,0 +1,49 @@
+#ifndef _SLIDERBOX_CEU
+#define _SLIDERBOX_CEU
+
+class SliderBox with
+    var Rect rect;
+    var int  max;
+    var int  current;
+    function (Rect rect, int max, int current)=>SliderBox build;
+    event bool ok_clicked;
+do
+    function (Rect rect, int max, int current)=>SliderBox build do
+        this.rect    = rect;
+        this.max     = max;
+        this.current = current;
+    end
+
+    var RectComponent component with
+        this.rect = &outer.rect;
+    end;
+
+    every gc in SCREENMANAGER_DRAW do
+        if {globals::developer_mode} then
+            gc:draw_rect(_Rect(rect.left,rect.width,rect.top,rect.height),
+                         _Color(0, 255, 255));
+        end
+        if this.current == 0 then
+            gc:print_center({Fonts::chalk_normal},
+                            _Vector2i(rect.left + rect.width/2, rect.top),
+                            "off");
+        else
+            loop i in this.max do
+                if i < this.current then
+                    gc:print_left({Fonts::chalk_normal},
+                                  _Vector2i(rect.left + i*(rect.width-12)/this.max + 6, rect.top),
+                                  "|");
+                end
+            end
+        end
+        gc:print_left({Fonts::chalk_normal},
+                      _Vector2i(rect.left, rect.top),
+                      "[");
+        gc:print_right({Fonts::chalk_normal},
+                       _Vector2i(rect.left+rect.width, rect.top),
+                       "]");
+    end
+end
+
+#endif
+
