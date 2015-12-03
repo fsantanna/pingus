@@ -257,7 +257,38 @@ _printf("> ren %d %s\n", v, &&vec2[v]!:value);
 
     rect.top = rect.top + 32;
 
-    var SliderBox _ = SliderBox.build(rect, 100, 20);
+    // Master Volume
+    var SliderBox s1 = SliderBox.build(rect, 25,
+                        _config_manager.get_master_volume());
+    spawn do
+        every v in s1.ok_changed do
+            _config_manager.set_master_volume(v);
+        end
+    end
+
+    rect.top = rect.top + 32;
+
+    // Sound Volume
+    var SliderBox s2 = SliderBox.build(rect, 25,
+                        _config_manager.get_sound_volume());
+    spawn do
+        every v in s2.ok_changed do
+            _config_manager.set_sound_volume(v);
+        end
+    end
+
+    rect.top = rect.top + 32;
+
+    // Music Volume
+    var SliderBox s3 = SliderBox.build(rect, 25,
+                        _config_manager.get_music_volume());
+    spawn do
+        every v in s3.ok_changed do
+            _config_manager.set_music_volume(v);
+        end
+    end
+
+    rect.top = rect.top + 32;
 
     // CLOSE //
 
