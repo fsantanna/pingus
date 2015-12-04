@@ -183,6 +183,7 @@ event bool go_pause;
 #include "pingus/screens/story_screen.ceu"
 #include "pingus/screens/pingus_menu.ceu"
 #include "pingus/screens/option_menu.ceu"
+#include "pingus/screens/level_menu.ceu"
 #include "pingus/screens/start_screen.ceu"
 #include "pingus/screens/result_screen.ceu"
 #include "pingus/screens/game_session.ceu"
@@ -201,6 +202,8 @@ _CEU_MAIN_LEVEL = *plf;
 finalize with
     {ScreenManager::instance()->pop_screen();};
 end;
+
+do LevelMenu;
 
 do StoryScreen with
     this.reader = &&_reader_story;

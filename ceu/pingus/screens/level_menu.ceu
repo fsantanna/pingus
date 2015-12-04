@@ -1,0 +1,82 @@
+#ifndef _LEVELMENU_CEU
+#define _LEVELMENU_CEU
+
+#include "../../engine/display/sprite.ceu"
+#include "../../engine/gui/surface_button.ceu"
+
+class LevelMenu with
+do
+    var float xc = {Display::get_width()}  / 2;
+    var float yc = {Display::get_height()} / 2;
+
+    // TODO: has to fill the screen
+    //var Sprite _ = Sprite.w_xy_name(false, &xc,&yc, "core/menu/wood");
+    var Sprite _ = Sprite.w_xy_name(false, &xc,&yc, "core/menu/blackboard");
+
+    var SurfaceButton cancel with
+        this.x = xc - 300;
+        this.y = yc + 144;
+        this.button         = "core/start/back";
+        this.button_pressed = "core/start/back_clicked";
+        this.button_over    = "core/start/back_hover";
+    end;
+
+    var SurfaceButton prv with
+        this.x = xc + 280;
+        this.y = yc - 150;
+        this.button         = "core/menu/arrow_up";
+        this.button_pressed = "core/menu/arrow_up_pressed";
+        this.button_over    = "core/menu/arrow_up_hover";
+    end;
+
+    var SurfaceButton nxt with
+        this.x = xc + 280;
+        this.y = yc +  70;
+        this.button         = "core/menu/arrow_down";
+        this.button_pressed = "core/menu/arrow_down_pressed";
+        this.button_over    = "core/menu/arrow_down_hover";
+    end;
+
+    par do
+        every cancel.get_component().on_pointer_enter do
+            call {Sound::PingusSound::play_sound}("tick");
+        end
+    with
+        await cancel.get_component().on_click;
+        escape 0;
+    with
+        every prv.get_component().on_pointer_enter do
+            call {Sound::PingusSound::play_sound}("tick");
+        end
+    with
+        every prv.get_component().on_click do
+            _printf("PRV\n");
+        end
+    with
+        every nxt.get_component().on_pointer_enter do
+            call {Sound::PingusSound::play_sound}("tick");
+        end
+    with
+        every nxt.get_component().on_click do
+            _printf("NXT\n");
+        end
+    with
+        loop do
+            var _Input__Event&& e = await ON_INPUT_EVENT;
+            var _Input__ButtonEvent&& but = &&e:button;
+            if e:type != {Input::BUTTON_EVENT_TYPE}
+            or but:state != {Input::BUTTON_PRESSED}
+            then
+                continue;
+            end
+            if but:name == {Input::PAUSE_BUTTON} then
+                escape 0;
+            end
+        end
+    with
+        every gc in SCREENMANAGER_DRAW do
+        end
+    end
+end
+
+#endif
