@@ -25,12 +25,13 @@
 #include "engine/system/sdl_system.hpp"
 #include "pingus/config_manager.hpp"
 ///#include "pingus/screens/demo_session.hpp"
-#include "pingus/screens/pingus_menu.hpp"
+///#include "pingus/screens/pingus_menu.hpp"
 #include "pingus/screens/level_menu.hpp"
 #include "pingus/worldmap/worldmap_screen.hpp"
 #include "util/log.hpp"
 #include "util/string_util.hpp"
 #include "util/system.hpp"
+#include "pingus/fonts.hpp"
 
 #if defined(__APPLE__)
 /* Can't use the include, some type names conflict.
@@ -616,8 +617,9 @@ assert(!"NOT PORTED");
   }
   else // start a normal game
   {
+assert(!"NOT PORTED");
     log_info("starting normal game");
-    screen_manager.push_screen(std::make_shared<PingusMenu>());
+    ///screen_manager.push_screen(std::make_shared<PingusMenu>());
     log_info("done: starting normal game");
   }
 

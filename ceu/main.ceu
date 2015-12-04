@@ -198,27 +198,51 @@ end;
 par do
     pause/if go_pause do
         loop do
-            var bool go = do PingusMenu;
-            if not go then
+            var int opt = do PingusMenu;
+            if opt == _PINGUSMENU_EXIT then
                 escape 0;
-            end
+            else/if opt == _PINGUSMENU_LEVELSETS then
+                var bool go = do StartScreen with
+                                this.plf_ = &&_CEU_MAIN_LEVEL;
+                              end;
+                if go then
+                    loop do
+                        do GameSession with
+                            this.plf_ = &&_CEU_MAIN_LEVEL;
+                        end;
 
-            go = do StartScreen with
-                    this.plf_ = &&_CEU_MAIN_LEVEL;
-                 end;
-            if go then
-                loop do
-                    do GameSession with
-                        this.plf_ = &&_CEU_MAIN_LEVEL;
-                    end;
-
-                    var bool retry = do ResultScreen with
-                                        this.result = &&_GAMESESSION_RESULT;
-                                     end;
-                    if not retry then
-                        break;
+                        var bool retry = do ResultScreen with
+                                            this.result = &&_GAMESESSION_RESULT;
+                                         end;
+                        if not retry then
+                            break;
+                        end
                     end
                 end
+            else
+                //do_start("worldmaps/tutorial.worldmap");
+#if 0
+void PingusMenu::do_start(const std::string &filename)
+{ // Start the story or worldmap mode
+  Sound::PingusSound::play_sound ("letsgo");
+
+  std::shared_ptr<WorldmapNS::WorldmapScreen> worldmap_screen = std::make_shared<WorldmapNS::WorldmapScreen>();
+  worldmap_screen->load(Pathname(filename, Pathname::DATA_PATH));
+  ScreenManager::instance()->push_screen(worldmap_screen);
+
+  bool story_seen = false;
+  StatManager::instance()->get_bool("tutorial-startstory-seen", story_seen); // FIXME: Hardcoding tutorial is evil
+  if (!story_seen)
+  {
+    FileReader reader = FileReader::parse(Pathname("stories/tutorial_intro.story", Pathname::DATA_PATH));
+    ScreenManager::instance()->push_screen(std::make_shared<StoryScreen>(reader));
+    StatManager::instance()->set_bool("tutorial-startstory-seen", true);
+  }
+}
+#endif
+
+                //ScreenManager::instance()->push_screen(std::make_shared<LevelMenu>());
+                _assert(not "NOT PORTED");
             end
         end
     end

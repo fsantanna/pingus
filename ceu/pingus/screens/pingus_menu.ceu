@@ -4,6 +4,16 @@
 #include "../../engine/display/sprite.ceu"
 #include "../components/menu_button.ceu"
 
+native do
+    enum {
+        PINGUSMENU_STORY,
+        PINGUSMENU_EDITOR,
+        PINGUSMENU_LEVELSETS,
+        PINGUSMENU_OPTIONS,
+        PINGUSMENU_EXIT
+    };
+end
+
 class PingusMenu with
 do
     var Size size = Size({Display::get_width()}, {Display::get_height()});
@@ -20,24 +30,28 @@ do
         do MenuButton.build(size.width/2 - 125,
                             size.height/2 - 20,
                             "Story", "");
-        escape true;
+        escape _PINGUSMENU_STORY;
     with
         do MenuButton.build(size.width/2 + 125,
                             size.height/2 - 20,
                             "Editor", "");
+        {Sound::PingusSound::stop_music();};
+        escape _PINGUSMENU_EDITOR;
     with
         do MenuButton.build(size.width/2 - 125,
                             size.height/2 + 50,
                             "Options", "");
+        escape _PINGUSMENU_OPTIONS;
     with
         do MenuButton.build(size.width/2 + 125,
                             size.height/2 + 50,
                             "Levelsets", "");
+        escape _PINGUSMENU_LEVELSETS;
     with
         do MenuButton.build(size.width/2,
                             size.height/2 + 120,
                             "Exit", "");
-        escape false;
+        escape _PINGUSMENU_EXIT;
     with
         every gc in SCREENMANAGER_DRAW do
             gc:print_left({Fonts::pingus_small},
@@ -61,5 +75,53 @@ do
         end
     end
 end
+
+#if 0
+void PingusMenu::draw_background(DrawingContext& gc) {
+  background->draw(gc);
+}
+void PingusMenu::update(float delta) {
+  background->update(delta);
+}
+void PingusMenu::create_background(const Size& size_) {
+  // Recreate the layer manager in the new size
+  background = std::unique_ptr<LayerManager>(new LayerManager());
+
+  Surface layer1 = Resource::load_surface("core/menu/layer1");
+  Surface layer2 = Resource::load_surface("core/menu/layer2");
+  Surface layer3 = Resource::load_surface("core/menu/layer3");
+  Surface layer4 = Resource::load_surface("core/menu/layer4");
+  Surface layer5 = Resource::load_surface("core/menu/layer5");
+
+  int w = size_.width;
+  int h = size_.height;
+
+  // We only need to scale the background main menu images if the screen
+  // resolution is not default
+  if (w != globals::default_screen_width ||
+      h != globals::default_screen_height)
+  {
+    layer1 = layer1.scale(w, 185 * h / globals::default_screen_height);
+    layer2 = layer2.scale(w, 362 * h / globals::default_screen_height);
+    layer3 = layer3.scale(w, 306 * h / globals::default_screen_height);
+    layer4 = layer4.scale(w, 171 * h / globals::default_screen_height);
+    layer5 = layer5.scale(302 * w / globals::default_screen_width, 104 * h / globals::default_screen_height);
+
+    background->add_layer(Sprite(layer1), 0, 0, 12, 0);
+    background->add_layer(Sprite(layer2), 0, 150 * static_cast<float>(h) / static_cast<float>(globals::default_screen_height), 25, 0);
+    background->add_layer(Sprite(layer3), 0, 200 * static_cast<float>(h) / static_cast<float>(globals::default_screen_height), 50, 0);
+    background->add_layer(Sprite(layer4), 0, 429 * static_cast<float>(h) / static_cast<float>(globals::default_screen_height), 100, 0);
+    background->add_layer(Sprite(layer5), 0, 500 * static_cast<float>(h) / static_cast<float>(globals::default_screen_height), 200, 0);
+  }
+  else
+  {
+    background->add_layer(Sprite(layer1), 0, 0, 12, 0);
+    background->add_layer(Sprite(layer2), 0, 150, 25, 0);
+    background->add_layer(Sprite(layer3), 0, 200, 50, 0);
+    background->add_layer(Sprite(layer4), 0, 429, 100, 0);
+    background->add_layer(Sprite(layer5), 0, 500, 200, 0);
+  }
+}
+#endif
 
 #endif
