@@ -180,6 +180,7 @@ input _PingusLevel&&       MAIN;
 event bool go_pause;
 
 #include "pingus/screens/credits.ceu"
+#include "pingus/screens/story_screen.ceu"
 #include "pingus/screens/pingus_menu.ceu"
 #include "pingus/screens/option_menu.ceu"
 #include "pingus/screens/start_screen.ceu"
@@ -190,7 +191,9 @@ native/pre do
     ##include "pingus/result.hpp"
     static PingusLevel CEU_MAIN_LEVEL;
     static Result GAMESESSION_RESULT;
-    static Pathname filename("data/credits/pingus.credits", Pathname::SYSTEM_PATH);
+    static Pathname filename_credits("data/credits/pingus.credits", Pathname::SYSTEM_PATH);
+    static FileReader reader_story = FileReader::parse(Pathname("data/stories/tutorial_intro.story",
+                                                       Pathname::SYSTEM_PATH));
 end
 var _PingusLevel&& plf = await MAIN;
 _CEU_MAIN_LEVEL = *plf;
@@ -199,8 +202,12 @@ finalize with
     {ScreenManager::instance()->pop_screen();};
 end;
 
+do StoryScreen with
+    this.reader = &&_reader_story;
+end;
+
 do Credits with
-    this.filename = &&_filename;
+    this.filename = &&_filename_credits;
 end;
 
 par do

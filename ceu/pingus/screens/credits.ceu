@@ -25,10 +25,10 @@ do
         {
             std::ifstream in(THIS(CEU_Credits)->filename->get_sys_path());
             if (!in) {
-                log_error("couldn't open %1%", filename);
+                log_error("couldn't open %1%", THIS(CEU_Credits)->filename);
 
                 std::ostringstream out;
-                out << "couldn't open " << filename;
+                out << "couldn't open " << THIS(CEU_Credits)->filename;
                 credits.push_back(out.str());
             } else {
                 std::string line;

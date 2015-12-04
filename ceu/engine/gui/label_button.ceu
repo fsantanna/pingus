@@ -1,0 +1,37 @@
+#ifndef _LABEL_BUTTON_CEU
+#define _LABEL_BUTTON_CEU
+
+#include "rect_component.ceu"
+
+class LabelButton with
+    var float  x;
+    var float  y;
+    var char[] label;
+    function (void)=>RectComponent& get_component;
+    function (float x, float y, char&& label)=>LabelButton build;
+do
+    function (float x, float y, char&& label)=>LabelButton build do
+        this.x = x;
+        this.y = y;
+        this.label = []..label;
+    end
+
+    var Rect rect = Rect(x, y,
+                         {Fonts::chalk_small}.get_width(&&this.label)
+                            finalize with end,
+                         {Fonts::chalk_small}.get_height());
+    var RectComponent component with
+        this.rect = &rect;
+    end;
+
+    every gc in SCREENMANAGER_DRAW do
+        gc:print_left({Fonts::chalk_small}, _Vector2i(x, y), &&this.label)
+            finalize with end;
+    end
+
+    function (void)=>RectComponent& get_component do
+        return &this.component;
+    end
+end
+
+#endif

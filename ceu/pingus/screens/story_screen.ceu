@@ -1,0 +1,136 @@
+#ifndef _STORYSCREEN_CEU
+#define _STROYSCREEN_CEU
+
+#include "../../engine/display/sprite.ceu"
+#include "../../engine/gui/surface_button.ceu"
+#include "../../engine/gui/label_button.ceu"
+
+native do
+    ##include "util/utf8.hpp"
+    ##include "pingus/worldmap/worldmap_story.hpp"
+end
+
+class StoryScreen with
+    var _FileReader&& reader;
+do
+    var float xc = {Display::get_width()}  / 2;
+    var float yc = {Display::get_height()} / 2;
+    // TODO: has to fill the screen
+    //var Sprite _ = Sprite.w_xy_name(false, &x,&y, "core/menu/wood");
+    var Sprite _ = Sprite.w_xy_name(false, &xc,&yc, "core/menu/blackboard");
+
+    var SurfaceButton next with
+        this.x = xc + 220 + 40;
+        this.y = yc + 180 + 32;
+        this.button         = "core/misc/next";
+        this.button_pressed = "core/misc/next";
+        this.button_over    = "core/misc/next_hover";
+    end;
+
+    var LabelButton skip = LabelButton.build(
+                            {Display::get_width()}  - 36,
+                            {Display::get_height()} - 26,
+                            "skip");
+    if not {globals::developer_mode} then
+        //kill skip;
+    end
+
+    event void next_text;
+
+    {
+        static WorldmapNS::WorldmapStory story = WorldmapNS::WorldmapStory(*THIS(CEU_StoryScreen)->reader);
+        static std::vector<StoryPage> pages;
+        static StoryPage page;
+    };
+    _story = _XXX_PURE({WorldmapNS::WorldmapStory}(*reader)
+                finalize with end);
+
+    var char[] title = [] .. (char&&)_story.get_title().c_str();
+    {
+        pages = story.get_pages();
+    };
+
+    // FIXME: Load the song from the WorldmapStory
+    call{Sound::PingusSound::play_music}(_story.get_music(), 0.7);
+
+    par do
+        loop do
+            _page = _XXX_PURE(_pages.back());
+            var char[] text;
+            var char&& image = _XXX_PURE((char&&)_page.image.res_name.c_str());
+            var float y = yc - 65;
+            var Sprite _ = Sprite.w_xy_name(false, &xc,&y, _XXX_PURE(image));
+            par/or do
+                var float time = 0;
+                watching next_text do
+                    loop do
+                        var float dt = await SCREENMANAGER_UPDATE;
+                        time = time + dt;
+                        var int cur = 20*time;
+                        var int max = {UTF8::length}(_page.text);
+
+                        text = [] .. (char&&)
+                            {UTF8::substr}(_page.text,0,{Math::min}(max,cur)).c_str();
+
+                        if cur >= max then
+                            break;
+                        end
+                    end
+                end
+                text = [] .. (char&&)_page.text.c_str();
+                await next_text;
+            with
+                every gc in SCREENMANAGER_DRAW do
+                    gc:print_left({Fonts::chalk_normal},
+                                  _Vector2i(gc:get_width()/2  - 280,
+                                            gc:get_height()/2 + 35),
+                                  &&text)
+                        finalize with end;
+                end
+            end
+            _pages.pop_back();
+            if _pages.empty() then
+                escape 0;
+            end
+        end
+    with
+        every next.get_component().on_click do
+            emit next_text;
+        end
+    with
+        every next.get_component().on_pointer_enter do
+            call {Sound::PingusSound::play_sound}("tick");
+        end
+    with
+        await skip.get_component().on_click;
+        escape 0;
+    with
+        every skip.get_component().on_pointer_enter do
+            call {Sound::PingusSound::play_sound}("tick");
+        end
+    with
+        loop do
+            var _Input__Event&& e = await ON_INPUT_EVENT;
+            var _Input__ButtonEvent&& but = &&e:button;
+            if e:type != {Input::BUTTON_EVENT_TYPE}
+            or but:state != {Input::BUTTON_PRESSED}
+            then
+                continue;
+            end
+            if but:name == {Input::ESCAPE_BUTTON} then
+                escape 0;
+            else/if but:name == {Input::FAST_FORWARD_BUTTON} then
+                emit next_text;
+            end
+        end
+    with
+        every gc in SCREENMANAGER_DRAW do
+            gc:print_center({Fonts::chalk_large},
+                  _Vector2i(gc:get_width()/2, gc:get_height()/2 - 200),
+                  &&title)
+                finalize with end;
+        end
+    end
+end
+
+#endif

@@ -68,7 +68,7 @@ extern "C" {
 #include "pingus/screens/font_test_screen.hpp"
 ///#include "pingus/screens/start_screen.hpp"
 #include "pingus/screens/empty_session.hpp"
-#include "pingus/screens/story_screen.hpp"
+///#include "pingus/screens/story_screen.hpp"
 #include "pingus/stat_manager.hpp"
 
 #include "ceu_vars.h"
@@ -595,8 +595,11 @@ assert(!"NOT PORTED");
     }
     else if (StringUtil::has_suffix(cmd_options.rest.get(), ".story"))
     {
+assert(!"NOT PORTED");
+#if 0
       screen_manager.push_screen(std::make_shared<StoryScreen>(FileReader::parse(Pathname(cmd_options.rest.get(),
                                                                                           Pathname::SYSTEM_PATH))));
+#endif
     }
     else if (StringUtil::has_suffix(cmd_options.rest.get(), ".levelset"))
     {

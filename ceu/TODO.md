@@ -4,6 +4,8 @@
     - class hierarchies/dispatching vs await
     - CPS vs return continue
         - screen trasnitions
+        - story screen advancing
+        - story screen -> credits screen
         - worse w/o closures
     - signaling/f pointer vs events
         - option save on click
@@ -13,6 +15,9 @@
         - verificar caso do option_menu
             - configuracao pode ser alterada por fora?
         - worse w/o closures
+    - wall-clock time
+        - story chars
+        - credits up
     = WHY
         - state machines
         - C libraries

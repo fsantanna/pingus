@@ -22,7 +22,7 @@
 #include "engine/sound/sound.hpp"
 #include "pingus/fonts.hpp"
 #include "pingus/gettext.h"
-#include "pingus/screens/story_screen.hpp"
+///#include "pingus/screens/story_screen.hpp"
 #include "pingus/worldmap/pingus.hpp"
 #include "pingus/worldmap/worldmap.hpp"
 #include "pingus/worldmap/worldmap_component.hpp"
@@ -202,13 +202,19 @@ WorldmapScreen::get_trans_rect() const
 void
 WorldmapScreen::show_intro_story()
 {
+assert(!"NOT PORTED");
+#if 0
   ScreenManager::instance()->push_screen(std::make_shared<StoryScreen>(worldmap->get_worldmap().get_intro_story()));
+#endif
 }
 
 void
 WorldmapScreen::show_end_story()
 {
+assert(!"NOT PORTED");
+#if 0
   ScreenManager::instance()->push_screen(std::make_shared<StoryScreen>(worldmap->get_worldmap().get_end_story()));
+#endif
 }
 
 void

@@ -20,7 +20,7 @@
 #include "engine/screen/screen_manager.hpp"
 #include "pingus/fonts.hpp"
 #include "pingus/gettext.h"
-#include "pingus/screens/story_screen.hpp"
+///#include "pingus/screens/story_screen.hpp"
 #include "util/file_reader.hpp"
 #include "util/file_reader.hpp"
 #include "util/log.hpp"
@@ -70,7 +70,10 @@ StoryDot::on_click()
   try
   {
     FileReader reader = FileReader::parse(Pathname(m_story, Pathname::DATA_PATH));
+assert(!"NOT PORTED");
+#if 0
     ScreenManager::instance()->push_screen(std::make_shared<StoryScreen>(reader, m_credits));
+#endif
   }
   catch(const std::exception& err)
   {
