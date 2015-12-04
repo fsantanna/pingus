@@ -197,6 +197,14 @@ finalize with
     {ScreenManager::instance()->pop_screen();};
 end;
 
+#if 0
+#include "pingus/screens/credits.ceu"
+static Pathname filename("data/credits/pingus.credits", Pathname::SYSTEM_PATH);
+do Credits with
+    this.filename = &&_filename;
+end;
+#endif
+
 par do
     pause/if go_pause do
         loop do
