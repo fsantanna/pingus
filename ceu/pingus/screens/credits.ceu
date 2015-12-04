@@ -1,0 +1,195 @@
+#ifndef _CREDITS_CEU
+#define _CREDITS_CEU
+
+native do
+    ##include <fstream>
+    ##include <sstream>
+    ##include "pingus/stat_manager.hpp"
+end
+
+#include "../../engine/display/sprite.ceu"
+#include "../../engine/gui/surface_button.ceu"
+
+class Credits with
+    var _Pathname&& filename;
+do
+    finalize with
+        call {StatManager::instance()->set_bool}("credits-seen", true);
+    end
+
+    // read credit information from filename
+    {
+        static std::vector<std::string> credits;
+        static int end_offset = -static_cast<float>(Display::get_height())/2 - 50; // screen height + grace time
+
+        {
+            std::ifstream in(THIS(CEU_Credits)->filename->get_sys_path());
+            if (!in) {
+                log_error("couldn't open %1%", filename);
+
+                std::ostringstream out;
+                out << "couldn't open " << filename;
+                credits.push_back(out.str());
+            } else {
+                std::string line;
+                while(std::getline(in, line))
+                    credits.push_back(line);
+            }
+        }
+
+        for (std::vector<std::string>::iterator i = credits.begin(); i != credits.end(); ++i) {
+            switch ((*i)[0]) {
+                case '-':
+                    end_offset += static_cast<float>(Fonts::chalk_normal.get_height() + 5);
+                    break;
+                case '_':
+                    end_offset += static_cast<float>(Fonts::chalk_large.get_height() + 5);
+                    break;
+                case 'n':
+                    end_offset += 50;
+                    break;
+                default:
+                    log_error("Credits: Syntax error: Unknown format: '%1%'", (*i)[0]);
+                    break;
+            }
+        }
+        end_offset = -end_offset;
+    };
+
+    var float xc = {Display::get_width()}  / 2;
+    var float yc = {Display::get_height()} / 2;
+    // TODO: has to fill the screen
+    //var Sprite _ = Sprite.w_xy_name(false, &x,&y, "core/menu/wood");
+    var Sprite _ = Sprite.w_xy_name(false, &xc,&yc, "core/menu/blackboard");
+
+    var float y1 = yc - 20;
+    var Sprite _ = Sprite.w_xy_name(false, &xc,&y1, "core/misc/creditpingu");
+
+    var SurfaceButton ok with
+        this.x = {Display::get_width()/2}  + 260;
+        this.y = {Display::get_height()/2} + 170;
+        this.button         = "core/start/ok";
+        this.button_pressed = "core/start/ok_clicked";
+        this.button_over    = "core/start/ok_hover";
+    end;
+
+    var bool is_fast_scrolling = false;
+    var float offset     = {Display::get_height()} - 50;
+
+    par do
+        await ok.get_component().on_click;
+        call {Sound::PingusSound::play_sound}("yipee");
+        escape 0;
+    with
+        every ok.get_component().on_pointer_enter do
+            call {Sound::PingusSound::play_sound}("tick");
+        end
+    with
+        loop do
+            var _Input__Event&& e = await ON_INPUT_EVENT;
+            var _Input__ButtonEvent&& but = &&e:button;
+            if e:type != {Input::BUTTON_EVENT_TYPE}
+            or but:state != {Input::BUTTON_PRESSED}
+            then
+                continue;
+            end
+
+            if but:name == {Input::FAST_FORWARD_BUTTON} then
+                this.is_fast_scrolling = not is_fast_scrolling;
+            else/if but:name == {Input::ESCAPE_BUTTON} then
+                escape 0;
+            end
+        end
+    with
+        loop do
+            var float dt = await SCREENMANAGER_UPDATE;
+            if is_fast_scrolling then
+                offset = offset - 450*dt;
+            else
+                offset = offset -  35*dt;
+            end
+            if offset < _end_offset then
+                break;
+            end
+        end
+        await FOREVER;
+    with
+        var _SceneContext&? scene_context;
+        finalize
+            scene_context = &{new SceneContext}();
+        with
+            _delete(&&scene_context!);
+        end
+
+        every gc in SCREENMANAGER_DRAW do
+            scene_context!.clear();
+            scene_context!.set_cliprect(
+                _Rect(gc:get_width()/2 - 685/2, gc:get_height()/2 - 250,
+                      gc:get_width()/2 + 685/2, gc:get_height()/2 + 250));
+
+           var int yof = 0;
+            {
+                static std::vector<std::string>::iterator i;
+                i = credits.begin();
+            };
+            loop do
+                if _i == _credits.end() then
+                    break;
+                end
+
+                if (*_i)[0] == '-' then
+                    scene_context!.color().
+                        print_center({Fonts::chalk_normal},
+                                     _Vector2i(xc, (offset + yof)),
+                                     _i:substr(1));
+                    yof = yof + {Fonts::chalk_normal}.get_height() + 5;
+                else/if (*_i)[0] == '_' then
+                    scene_context!.color().
+                        print_center({Fonts::chalk_large},
+                                     _Vector2i(xc, (offset + yof)),
+                                     _i:substr(1));
+                    yof = yof + {Fonts::chalk_large}.get_height() + 5;
+                else/if (*_i)[0] == 'n' then
+                    yof = yof + 50;
+                else
+                    _log_error("Credits: Syntax error: Unknown format: '%1%'", (*_i)[0]);
+                end
+
+                {i++;};
+            end
+            gc:draw({new SceneContextDrawingRequest}(&&scene_context!,
+                                                     _Vector2i(0,0), 100)
+                        finalize with end
+            );
+
+        end
+    end
+end
+
+#if 0
+  {
+    // Paint the background wood panel
+    for(int y = 0; y < gc.get_height(); y += background.get_height())
+      for(int x = 0; x < gc.get_width(); x += background.get_width())
+        gc.draw(background, Vector2i(x, y));
+  }
+
+Credits::~Credits ()
+{
+  StatManager::instance()->set_bool("credits-seen", true);
+}
+
+void
+Credits::on_escape_press ()
+{
+  bool credits_seen = false;
+  StatManager::instance()->get_bool("credits-seen", credits_seen);
+  if (!credits_seen)
+  {
+    ScreenManager::instance ()->pop_screen ();
+  }
+  ScreenManager::instance ()->pop_screen ();
+}
+#endif
+
+#endif

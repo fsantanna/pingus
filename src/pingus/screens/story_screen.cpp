@@ -24,7 +24,7 @@
 #include "pingus/fonts.hpp"
 #include "pingus/gettext.h"
 #include "pingus/globals.hpp"
-#include "pingus/screens/credits.hpp"
+///#include "pingus/screens/credits.hpp"
 #include "util/utf8.hpp"
 
 class StoryScreenComponent : public GUI::Component
@@ -268,8 +268,11 @@ StoryScreenComponent::next_text()
     {
       if (m_credits)
       {
+assert(!"NOT PORTED");
+#if 0
         ScreenManager::instance()->replace_screen
           (std::make_shared<Credits>(Pathname("credits/pingus.credits", Pathname::DATA_PATH)));
+#endif
       }
       else
       {

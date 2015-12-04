@@ -179,6 +179,7 @@ input _PingusLevel&&       MAIN;
 
 event bool go_pause;
 
+#include "pingus/screens/credits.ceu"
 #include "pingus/screens/pingus_menu.ceu"
 #include "pingus/screens/option_menu.ceu"
 #include "pingus/screens/start_screen.ceu"
@@ -189,6 +190,7 @@ native/pre do
     ##include "pingus/result.hpp"
     static PingusLevel CEU_MAIN_LEVEL;
     static Result GAMESESSION_RESULT;
+    static Pathname filename("data/credits/pingus.credits", Pathname::SYSTEM_PATH);
 end
 var _PingusLevel&& plf = await MAIN;
 _CEU_MAIN_LEVEL = *plf;
@@ -197,13 +199,9 @@ finalize with
     {ScreenManager::instance()->pop_screen();};
 end;
 
-#if 0
-#include "pingus/screens/credits.ceu"
-static Pathname filename("data/credits/pingus.credits", Pathname::SYSTEM_PATH);
 do Credits with
     this.filename = &&_filename;
 end;
-#endif
 
 par do
     pause/if go_pause do
