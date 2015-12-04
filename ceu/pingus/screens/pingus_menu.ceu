@@ -26,31 +26,34 @@ do
 
     {Sound::PingusSound::play_music("pingus-1.it");};
 
+    var MenuButton b_story =
+        MenuButton.build(size.width/2-125, size.height/2-20, "Story", "");
+    var MenuButton b_editor =
+        MenuButton.build(size.width/2+125, size.height/2-20, "Editor", "");
+    var MenuButton b_options =
+        MenuButton.build(size.width/2-125, size.height/2+50, "Options", "");
+    var MenuButton b_levelsets =
+        MenuButton.build(size.width/2+125, size.height/2+50, "Levelsets", "");
+    var MenuButton b_exit =
+        MenuButton.build(size.width/2,     size.height/2+120, "Exit", "");
+
     par do
-        do MenuButton.build(size.width/2 - 125,
-                            size.height/2 - 20,
-                            "Story", "");
+        await b_story.ok_clicked;
         escape _PINGUSMENU_STORY;
     with
-        do MenuButton.build(size.width/2 + 125,
-                            size.height/2 - 20,
-                            "Editor", "");
+        await b_editor.ok_clicked;
         {Sound::PingusSound::stop_music();};
         escape _PINGUSMENU_EDITOR;
     with
-        do MenuButton.build(size.width/2 - 125,
-                            size.height/2 + 50,
-                            "Options", "");
-        escape _PINGUSMENU_OPTIONS;
+        loop do
+            await b_options.ok_clicked;
+            emit global:go_options;
+        end
     with
-        do MenuButton.build(size.width/2 + 125,
-                            size.height/2 + 50,
-                            "Levelsets", "");
+        await b_levelsets.ok_clicked;
         escape _PINGUSMENU_LEVELSETS;
     with
-        do MenuButton.build(size.width/2,
-                            size.height/2 + 120,
-                            "Exit", "");
+        await b_exit.ok_clicked;
         escape _PINGUSMENU_EXIT;
     with
         every gc in SCREENMANAGER_DRAW do

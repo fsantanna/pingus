@@ -148,6 +148,7 @@ interface IWorld with
 end
 
 interface Global with
+    event void go_options;
     event void go_pause_toggle;
     event bool go_forward;
     event void go_armageddon;
@@ -160,6 +161,7 @@ interface Global with
     var float gravity;
 end
 
+event void go_options;
 event void go_pause_toggle;
 event bool go_forward;
 event void go_armageddon;
@@ -248,17 +250,23 @@ void PingusMenu::do_start(const std::string &filename)
     end
 with
     loop do
-        var _u8&& keystate = _XXX_PURE(_SDL_GetKeyState(null));
-        var bool has_ctrl = keystate[_SDLK_LCTRL] or keystate[_SDLK_RCTRL];
-
-        var _SDL_KeyboardEvent&& key = await SDL_KEYDOWN;
-        if key:keysym.sym == _SDLK_F5
-        or key:keysym.sym == _SDLK_o  and has_ctrl
-        then
-            emit go_pause => true;
-            do OptionMenu;
-            emit go_pause => false;
+        par/or do
+            await global:go_options;
+        with
+            loop do
+                var _SDL_KeyboardEvent&& key = await SDL_KEYDOWN;
+                var _u8&& keystate = _XXX_PURE(_SDL_GetKeyState(null));
+                var bool has_ctrl = keystate[_SDLK_LCTRL] or keystate[_SDLK_RCTRL];
+                if key:keysym.sym == _SDLK_F5
+                or key:keysym.sym == _SDLK_o  and has_ctrl
+                then
+                    break;
+                end
+            end
         end
+        emit go_pause => true;
+        do OptionMenu;
+        emit go_pause => false;
     end
 end
 

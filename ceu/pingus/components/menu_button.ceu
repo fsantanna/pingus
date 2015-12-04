@@ -7,7 +7,7 @@
 class MenuButton with
     var float x, y;
     var char[] text, hint;
-    event bool ok_clicked;
+    event void ok_clicked;
 
     function (float x, float y, char&& text, char&& hint)=>MenuButton build;
 do
@@ -26,8 +26,10 @@ do
         this.rect = &rect;
     end;
 
-    par/or do
-        await component.on_click;
+    par do
+        every component.on_click do
+            emit this.ok_clicked;
+        end
     with
         loop do
             await component.on_pointer_enter;
@@ -46,8 +48,6 @@ do
                 finalize with end;
         end
     end
-
-    escape 0;
 end
 
 #endif
