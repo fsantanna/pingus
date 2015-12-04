@@ -20,7 +20,7 @@
 #include "engine/screen/screen_manager.hpp"
 #include "pingus/config_manager.hpp"
 #include "pingus/globals.hpp"
-#include "pingus/screens/addon_menu.hpp"
+///#include "pingus/screens/addon_menu.hpp"
 #include "util/log.hpp"
 
 GlobalEvent global_event;
@@ -76,7 +76,6 @@ GlobalEvent::on_button_press(const SDL_KeyboardEvent& event)
           ScreenManager::instance()->push_screen(std::make_shared<OptionMenu>());
       }
       break;
-#endif
 
     case SDLK_F6:
       if (globals::developer_mode)
@@ -85,6 +84,7 @@ GlobalEvent::on_button_press(const SDL_KeyboardEvent& event)
           ScreenManager::instance()->push_screen(std::make_shared<AddOnMenu>());
       }
       break;
+#endif
 
     case SDLK_F12:
       {

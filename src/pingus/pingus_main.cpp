@@ -65,7 +65,7 @@ extern "C" {
 #include "pingus/resource.hpp"
 #include "pingus/savegame_manager.hpp"
 ///#include "pingus/screens/credits.hpp"
-#include "pingus/screens/font_test_screen.hpp"
+///#include "pingus/screens/font_test_screen.hpp"
 ///#include "pingus/screens/start_screen.hpp"
 #include "pingus/screens/empty_session.hpp"
 ///#include "pingus/screens/story_screen.hpp"
@@ -574,8 +574,11 @@ assert(!"NOT PORTED");
     }
     else if (StringUtil::has_suffix(cmd_options.rest.get(), ".font"))
     {
+assert(!"NOT PORTED");
+#if 0
       Pathname filename(cmd_options.rest.get(), Pathname::SYSTEM_PATH);
       screen_manager.push_screen(std::make_shared<FontTestScreen>(filename));
+#endif
     }
     else if (StringUtil::has_suffix(cmd_options.rest.get(), ".credits"))
     {
