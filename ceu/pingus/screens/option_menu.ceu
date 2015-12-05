@@ -17,6 +17,7 @@ native do
 end
 
 #include "../../engine/gui/surface_button.ceu"
+#include "../components/wood.ceu"
 #include "../components/label.ceu"
 #include "../components/check_box.ceu"
 #include "../components/choice_box.ceu"
@@ -26,8 +27,8 @@ class OptionMenu with
 do
     var float x = {Display::get_width()}  / 2;
     var float y = {Display::get_height()} / 2;
-    // TODO: has to fill the screen
-    //var Sprite _ = Sprite.w_xy_name(false, &x,&y, "core/menu/wood");
+
+    var Wood _;
     var Sprite _ = Sprite.w_xy_name(false, &x,&y, "core/menu/blackboard");
 
     var int x_offset = ({Display::get_width()}  - 800) / 2;

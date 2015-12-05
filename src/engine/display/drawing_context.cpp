@@ -74,6 +74,26 @@ public:
 };
 
 #include "ceu_vars.h"
+class CEUSurfaceDrawingRequest : public DrawingRequest
+{
+private:
+  CEU_Surface* sfc;
+
+public:
+  CEUSurfaceDrawingRequest(CEU_Surface* sprite_, const Vector2i& pos_, float z_)
+    : DrawingRequest(pos_, z_),
+      sfc(sprite_)
+  {
+  }
+
+  virtual ~CEUSurfaceDrawingRequest() {}
+
+  void render(Framebuffer& fb, const Rect& rect) {
+    fb.draw_surface(
+        *sfc->framebuffer_surface.SOME.v,
+        Vector2i(rect.left+pos.x, rect.top+pos.y));
+  }
+};
 class CEUSpriteDrawingRequest : public DrawingRequest
 {
 private:
@@ -100,21 +120,6 @@ public:
                  pos.y + rect.top  - sprite->offset.y));
   }
 };
-
-#if 0
-  void render(Framebuffer& fb, const Rect& rect) {
-    sprite.render(pos.x + rect.left, pos.y + rect.top, fb);
-  }
-
-SpriteImpl::render(int x, int y, Framebuffer& fb)
-{
-  fb.draw_surface(framebuffer_surface,
-                  Rect(frame_pos + Vector2i(frame_size.width  * (frame%array.width),
-                                            frame_size.height * (frame/array.width)),
-                       frame_size),
-                  Vector2i(x - offset.x, y - offset.y));
-}
-#endif
 
 class FillScreenDrawingRequest : public DrawingRequest
 {
@@ -288,6 +293,11 @@ DrawingContext::draw(DrawingContext& dc, float z)
   draw(new DrawingContextDrawingRequest(dc, z));
 }
 
+void
+DrawingContext::draw(CEU_Surface* sfc, const Vector2i& pos, float z)
+{
+  draw(new CEUSurfaceDrawingRequest(sfc, pos + translate_stack.back(), z));
+}
 void
 DrawingContext::draw(CEU_Sprite* sprite, const Vector2i& pos, float z)
 {

@@ -26,6 +26,7 @@
 class Framebuffer;
 class Font;
 class Sprite;
+struct CEU_Surface;
 struct CEU_Sprite;
 
 /** The DrawingContext collects all DrawingRequests and allows you to
@@ -71,6 +72,7 @@ public:
   void draw(const Sprite& sprite, const Vector3f& pos);
 
 ///
+  void draw(CEU_Surface* sfc, const Vector2i& pos, float z = 0);
   void draw(CEU_Sprite* sprite, const Vector2i& pos, float z = 0);
 
   /** Fills the screen with a given color, this is different from

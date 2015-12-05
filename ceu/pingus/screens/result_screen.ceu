@@ -7,6 +7,7 @@ end
 
 #include "../../engine/display/sprite.ceu"
 #include "../../engine/gui/surface_button.ceu"
+#include "../components/wood.ceu"
 
 class ResultScreen with
     var _Result&& result;
@@ -63,9 +64,7 @@ do
     var float x = {Display::get_width()}  / 2;
     var float y = {Display::get_height()} / 2;
 
-    // TODO: has to fill the screen
-    //var Sprite _ = Sprite.w_xy_name(false, &x,&y, "core/menu/wood");
-
+    var Wood _;
     var Sprite _ = Sprite.w_xy_name(false, &x,&y, "core/menu/blackboard");
 
     var SurfaceButton ok with

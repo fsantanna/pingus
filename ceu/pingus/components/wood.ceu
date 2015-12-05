@@ -1,0 +1,30 @@
+#ifndef _WOOD_CEU
+#define _WOOD_CEU
+
+#include "../../engine/display/surface.ceu"
+
+class Wood with
+do
+    var Surface sfc = Surface.build("core/menu/wood");
+
+    every gc in SCREENMANAGER_DRAW do
+        var int y = 0;
+        loop do
+            if y >= gc:get_height() then
+                break;
+            end
+            var int x = 0;
+            loop do
+                if x >= gc:get_width() then
+                    break;
+                end
+                gc:draw(&&sfc, _Vector2i(x, y))
+                    finalize with end;
+                x = x + sfc.get_width();
+            end
+            y = y + sfc.get_height();
+        end
+    end
+end
+
+#endif
