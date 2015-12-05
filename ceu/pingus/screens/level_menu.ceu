@@ -26,6 +26,7 @@ do
             try {
                 std::shared_ptr<Levelset> levelset = Levelset::from_file(*i);
                 current_levelset = levelset;
+                break;
                 if (!levelset->get_developer_only() || globals::developer_mode) {
                     levelsets.push_back(levelset.get());
                 }
@@ -44,14 +45,75 @@ do
     await FOREVER;
 end
 
+class Level with
+    var int   i;
+    var int&  cur;
+    var Rect  rect;
+    function (int i, int& cur, Rect rect)=>Level build;
+do
+    function (int i, int& cur, Rect rect)=>Level build do
+        this.i    = i;
+        this.cur  = &cur;
+        this.rect = rect;
+    end
+
+    var RectComponent component with
+        this.rect = &outer.rect;
+    end;
+    var float x = rect.left;
+    var float y = rect.top;
+
+    // draw icon
+    pool Sprite[1] ss;
+    if (not _current_levelset:get_level(i):accessible) then
+        spawn Sprite.w_xy_name(false, &x,&y, "core/menu/locked_small")
+        in ss;
+    else/if _current_levelset:get_level(i):finished then
+        spawn Sprite.w_xy_name(false, &x,&y, "core/menu/checkbox_marked_small")
+        in ss;
+    else
+        spawn Sprite.w_xy_name(false, &x,&y, "core/menu/checkbox_small")
+        in ss;
+    end
+
+    par do
+        // draw background highlight mark
+        loop do
+            await component.on_pointer_enter;
+            this.cur = this.i;
+            var Sprite _ = Sprite.w_xy_name(false, &x, &y, "core/menu/marker2");
+            await component.on_pointer_leave;
+        end
+    with
+        every gc in SCREENMANAGER_DRAW do
+            // draw levelname
+            if {globals::developer_mode} then
+                gc:print_left({Fonts::chalk_normal},
+                              _Vector2i(x + 40, y+4),
+                              _current_levelset:get_level(i):plf.get_resname());
+            else
+                gc:print_left({Fonts::chalk_normal},
+                              _Vector2i(x + 40, y+4), 
+                              __(_current_levelset:get_level(i):plf.get_levelname()));
+            end
+        end
+    end
+end
+
 class LevelSelector with
 do
-    var Rect rect = Rect(100, 100, 100, 100);
-    var int y = 100;
+    var int item_height = 32;
+    var int current_level = 1;
+
+    var Rect rect = Rect(100, 100, 100, item_height);
+    loop i in _current_levelset:get_level_count() do
+        spawn Level.build(i, &current_level, rect);
+        rect.top = rect.top + item_height;
+    end
 
     every gc in SCREENMANAGER_DRAW do
         gc:print_left({Fonts::chalk_normal},
-                      _Vector2i(rect.left + 105, 15 + y),
+                      _Vector2i(0 + 105, 15 + 0),
                       __(_current_levelset:get_title()));
     end
 end
