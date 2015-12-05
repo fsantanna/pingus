@@ -16,42 +16,14 @@ native do
     static std::shared_ptr<Levelset> current_levelset;
 end
 
-class LevelsetSelector with
+#if 0
+class Levelset with
+    var int     i;
+    var int&    cur;
+    var Rect    rect;
+    function (int i, int& cur, Rect rect)=>Levelset build;
 do
-    {
-        static Levelsets levelsets;
-        static auto directory = Pathname("levelsets", Pathname::DATA_PATH).opendir("*.levelset");
-        directory = Pathname("levelsets", Pathname::DATA_PATH).opendir("*.levelset");
-        for(auto i = directory.begin(); i != directory.end(); ++i) {
-            try {
-                std::shared_ptr<Levelset> levelset = Levelset::from_file(*i);
-                current_levelset = levelset;
-                break;
-                if (!levelset->get_developer_only() || globals::developer_mode) {
-                    levelsets.push_back(levelset.get());
-                }
-            } catch(const std::exception& err) {
-                log_error("%1%", err.what());
-            }
-        }
-        if (globals::developer_mode) {
-            levelsets.push_back(Levelset::from_directory(_("Under Construction"),
-                                                   _("Untested, unpolished and broken levels"),
-                                                   "levelsets/underconstruction",
-                                                   Pathname("levels", Pathname::DATA_PATH)).release());
-        }
-        std::sort(levelsets.begin(), levelsets.end(), LevelsetPrioritySorter());
-    };
-    await FOREVER;
-end
-
-class Level with
-    var int   i;
-    var int&  cur;
-    var Rect  rect;
-    function (int i, int& cur, Rect rect)=>Level build;
-do
-    function (int i, int& cur, Rect rect)=>Level build do
+    function (int i, int& cur, Rect rect)=>Levelset build do
         this.i    = i;
         this.cur  = &cur;
         this.rect = rect;
@@ -63,26 +35,27 @@ do
     var float x = rect.left;
     var float y = rect.top;
 
-    // draw icon
-    pool Sprite[1] ss;
-    if (not _current_levelset:get_level(i):accessible) then
-        spawn Sprite.w_xy_name(false, &x,&y, "core/menu/locked_small")
-        in ss;
-    else/if _current_levelset:get_level(i):finished then
-        spawn Sprite.w_xy_name(false, &x,&y, "core/menu/checkbox_marked_small")
-        in ss;
-    else
-        spawn Sprite.w_xy_name(false, &x,&y, "core/menu/checkbox_small")
-        in ss;
-    end
-
-    par do
-        // draw background highlight mark
-        loop do
-            await component.on_pointer_enter;
-            this.cur = this.i;
-            var Sprite _ = Sprite.w_xy_name(false, &x, &y, "core/menu/marker2");
-            await component.on_pointer_leave;
+    par/or do
+        watching component.on_click do
+            // draw background highlight mark
+            loop do
+                await component.on_pointer_enter;
+                this.cur = this.i;
+                var Sprite _ = Sprite.w_xy_name(false, &x, &y, "core/menu/marker");
+                await component.on_pointer_leave;
+            end
+        end
+    with
+        // draw icon
+        if (not _current_levelset:get_level(i):accessible) then
+            var Sprite _ = Sprite.w_xy_name(false, &x,&y,
+                                "core/menu/locked_small");
+        else/if _current_levelset:get_level(i):finished then
+            var Sprite _ = Sprite.w_xy_name(false, &x,&y,
+                                "core/menu/checkbox_marked_small");
+        else
+            var Sprite _ = Sprite.w_xy_name(false, &x,&y,
+                                "core/menu/checkbox_small");
         end
     with
         every gc in SCREENMANAGER_DRAW do
@@ -98,6 +71,107 @@ do
             end
         end
     end
+
+    _printf("OKOK %d\n", this.i);
+end
+
+#endif
+class LevelsetSelector with
+do
+    {
+        static Levelsets levelsets;
+        static auto directory = Pathname("levelsets", Pathname::DATA_PATH).opendir("*.levelset");
+        directory = Pathname("levelsets", Pathname::DATA_PATH).opendir("*.levelset");
+        for(auto i = directory.begin(); i != directory.end(); ++i) {
+            try {
+                std::shared_ptr<Levelset> levelset = Levelset::from_file(*i);
+                current_levelset = levelset;
+                if (!levelset->get_developer_only() || globals::developer_mode) {
+                    levelsets.push_back(levelset.get());
+                }
+            } catch(const std::exception& err) {
+                log_error("%1%", err.what());
+            }
+        }
+        if (globals::developer_mode) {
+            levelsets.push_back(Levelset::from_directory(_("Under Construction"),
+                                                   _("Untested, unpolished and broken levels"),
+                                                   "levelsets/underconstruction",
+                                                   Pathname("levels", Pathname::DATA_PATH)).release());
+        }
+        std::sort(levelsets.begin(), levelsets.end(), LevelsetPrioritySorter());
+    };
+
+#if 0
+    var int item_height = 95;
+    var int current_level = 1;
+
+    var Rect rect = Rect(100, 100, 100, item_height);
+    loop i in _current_levelset:get_level_count() do
+        spawn Level.build(i, &current_level, rect);
+        rect.top = rect.top + item_height;
+    end
+#endif
+
+end
+
+class Level with
+    var int     i;
+    var int&    cur;
+    var Rect    rect;
+    function (int i, int& cur, Rect rect)=>Level build;
+do
+    function (int i, int& cur, Rect rect)=>Level build do
+        this.i    = i;
+        this.cur  = &cur;
+        this.rect = rect;
+    end
+
+    var RectComponent component with
+        this.rect = &outer.rect;
+    end;
+    var float x = rect.left;
+    var float y = rect.top;
+
+    par/or do
+        if _current_levelset:get_level(i):accessible then
+            watching component.on_click do
+                // draw background highlight mark
+                loop do
+                    await component.on_pointer_enter;
+                    this.cur = this.i;
+                    var Sprite _ = Sprite.w_xy_name(false, &x, &y, "core/menu/marker2");
+                    await component.on_pointer_leave;
+                end
+            end
+        else
+            await FOREVER;
+        end
+    with
+        // draw icon
+        if (not _current_levelset:get_level(i):accessible) then
+            do Sprite.w_xy_name(false, &x,&y, "core/menu/locked_small");
+        else/if _current_levelset:get_level(i):finished then
+            do Sprite.w_xy_name(false, &x,&y, "core/menu/checkbox_marked_small");
+        else
+            do Sprite.w_xy_name(false, &x,&y, "core/menu/checkbox_small");
+        end
+    with
+        every gc in SCREENMANAGER_DRAW do
+            // draw levelname
+            if {globals::developer_mode} then
+                gc:print_left({Fonts::chalk_normal},
+                              _Vector2i(x + 40, y+4),
+                              _current_levelset:get_level(i):plf.get_resname());
+            else
+                gc:print_left({Fonts::chalk_normal},
+                              _Vector2i(x + 40, y+4), 
+                              __(_current_levelset:get_level(i):plf.get_levelname()));
+            end
+        end
+    end
+
+    _printf("OKOK %d\n", this.i);
 end
 
 class LevelSelector with
@@ -127,7 +201,7 @@ do
     var Sprite _ = Sprite.w_xy_name(false, &xc,&yc, "core/menu/blackboard");
 
     var LevelsetSelector _;
-    var LevelSelector _;
+    //var LevelSelector _;
 
     var SurfaceButton cancel with
         this.x = xc - 300;
