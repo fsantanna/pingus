@@ -5,6 +5,57 @@
 #include "../../engine/gui/surface_button.ceu"
 #include "../components/wood.ceu"
 
+native do
+    ##include "pingus/levelset.hpp"
+    typedef std::vector<Levelset*> Levelsets;
+    struct LevelsetPrioritySorter {
+        bool operator()(Levelset* lhs, Levelset* rhs) const {
+            return lhs->get_priority() > rhs->get_priority();
+        }
+    };
+    static std::shared_ptr<Levelset> current_levelset;
+end
+
+class LevelsetSelector with
+do
+    {
+        static Levelsets levelsets;
+        static auto directory = Pathname("levelsets", Pathname::DATA_PATH).opendir("*.levelset");
+        directory = Pathname("levelsets", Pathname::DATA_PATH).opendir("*.levelset");
+        for(auto i = directory.begin(); i != directory.end(); ++i) {
+            try {
+                std::shared_ptr<Levelset> levelset = Levelset::from_file(*i);
+                current_levelset = levelset;
+                if (!levelset->get_developer_only() || globals::developer_mode) {
+                    levelsets.push_back(levelset.get());
+                }
+            } catch(const std::exception& err) {
+                log_error("%1%", err.what());
+            }
+        }
+        if (globals::developer_mode) {
+            levelsets.push_back(Levelset::from_directory(_("Under Construction"),
+                                                   _("Untested, unpolished and broken levels"),
+                                                   "levelsets/underconstruction",
+                                                   Pathname("levels", Pathname::DATA_PATH)).release());
+        }
+        std::sort(levelsets.begin(), levelsets.end(), LevelsetPrioritySorter());
+    };
+    await FOREVER;
+end
+
+class LevelSelector with
+do
+    var Rect rect = Rect(100, 100, 100, 100);
+    var int y = 100;
+
+    every gc in SCREENMANAGER_DRAW do
+        gc:print_left({Fonts::chalk_normal},
+                      _Vector2i(rect.left + 105, 15 + y),
+                      __(_current_levelset:get_title()));
+    end
+end
+
 class LevelMenu with
 do
     var float xc = {Display::get_width()}  / 2;
@@ -12,6 +63,9 @@ do
 
     var Wood _;
     var Sprite _ = Sprite.w_xy_name(false, &xc,&yc, "core/menu/blackboard");
+
+    var LevelsetSelector _;
+    var LevelSelector _;
 
     var SurfaceButton cancel with
         this.x = xc - 300;
@@ -72,9 +126,6 @@ do
             if but:name == {Input::PAUSE_BUTTON} then
                 escape 0;
             end
-        end
-    with
-        every gc in SCREENMANAGER_DRAW do
         end
     end
 end
