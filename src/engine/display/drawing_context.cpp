@@ -90,7 +90,7 @@ public:
 
   void render(Framebuffer& fb, const Rect& rect) {
     fb.draw_surface(
-        *sprite->framebuffer_surface.SOME.v,
+        *sprite->sfc.framebuffer_surface.SOME.v,
         Rect(
             Vector2i(sprite->frame_pos.x,sprite->frame_pos.y) +
                 Vector2i(sprite->frame_size.width  * (sprite->frame%sprite->array.width),

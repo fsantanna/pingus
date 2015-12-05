@@ -1,0 +1,66 @@
+#ifndef _SURFACE_CEU
+#define _SURFACE_CEU
+
+native/pre do
+    ##include "engine/display/display.hpp"
+    ##include "engine/display/framebuffer.hpp"
+    ##include "engine/display/sdl_framebuffer_surface_impl.hpp"
+    ##include "engine/display/sprite_description.hpp"
+    ##define loop_ loop
+    extern FramebufferSurface* load_framebuffer_sdl_surface(const Pathname& filename, ResourceModifier::Enum modifier);
+end
+native @plain _FramebufferSurface;
+
+class Surface with
+    function (void)=>int get_width;
+    function (void)=>int get_height;
+
+    // constructor
+    var _Surface&&              surface = null;
+    var _SpriteDescription&&    desc    = null;
+    var _ResourceModifier__Enum mod     = {ResourceModifier::ROT0};
+    var char&&                  name    = null;
+
+    function (@hold char&& name)=>Surface build;
+do
+    function (@hold char&& name)=>Surface build do
+        this.name := name;
+    end
+
+    var _FramebufferSurface&? framebuffer_surface;
+    //do
+        if surface != null then
+            finalize
+                framebuffer_surface =
+                    &{new FramebufferSurface}(
+                        {new SDLFramebufferSurfaceImpl}(surface:get_surface()));
+            with
+                //_delete(&&framebuffer_surface!);
+            end
+        else
+            if name != null then
+                desc = _Resource__load_sprite_desc(name);
+            end
+            _assert(desc != null);
+            finalize
+                framebuffer_surface =
+                    &_load_framebuffer_sdl_surface(desc:filename, mod);
+            with
+                //_delete(&&framebuffer_surface!);
+            end
+        end
+    //end
+
+    await FOREVER;
+
+    /* PUBLIC */
+
+    function (void)=>int get_width do
+        return framebuffer_surface!.get_width();
+    end
+    function (void)=>int get_height do
+        return framebuffer_surface!.get_height();
+    end
+end
+
+#endif

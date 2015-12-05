@@ -9,8 +9,9 @@ native/pre do
     ##define loop_ loop
     extern FramebufferSurface* load_framebuffer_sdl_surface(const Pathname& filename, ResourceModifier::Enum modifier);
 end
-native @plain _SpriteCeu;
 native @plain _FramebufferSurface;
+
+#include "surface.ceu"
 
 class Sprite with
     function (void)=>int get_current_frame;
@@ -49,55 +50,41 @@ do
         this.name     := name;
     end
 
-    var _FramebufferSurface&? framebuffer_surface;
-    //do
-        if surface != null then
-            finalize
-                framebuffer_surface =
-                    &{new FramebufferSurface}(
-                        {new SDLFramebufferSurfaceImpl}(surface:get_surface()));
-            with
-                //_delete(&&framebuffer_surface!);
-            end
+    var Surface sfc with
+        this.surface = surface;
+        this.desc    = outer.desc;
+        this.mod     = outer.mod;
+        this.name    = name;
+    end;
 
-            this.frame_pos   = Vector2i(0, 0);
-            this.offset      = Vector2i(0, 0);
-            this.array       = Size(surface:get_width(), surface:get_height());
-            this.frame_delay = 0;
-            this.frame_size  = this.array;
+    if surface != null then
+        this.frame_pos   = Vector2i(0, 0);
+        this.offset      = Vector2i(0, 0);
+        this.array       = Size(sfc.get_width(), sfc.get_height());
+        this.frame_delay = 0;
+        this.frame_size  = this.array;
+    else
+        this.frame_pos   = Vector2i(sfc.desc:frame_pos.x, sfc.desc:frame_pos.y);
+        this.array       = Size(sfc.desc:array.width, sfc.desc:array.height);
+        this.frame_delay = sfc.desc:speed;
+        this.is_loop     = sfc.desc:loop_;
+
+        if sfc.desc:frame_size.width  == -1 then
+            this.frame_size.width  = sfc.get_width()/array.width;
+            this.frame_size.height = sfc.get_height()/array.height;
         else
-            if name != null then
-                desc = _Resource__load_sprite_desc(name);
-            end
-            _assert(desc != null);
-            finalize
-                framebuffer_surface =
-                    &_load_framebuffer_sdl_surface(desc:filename, mod);
-            with
-                //_delete(&&framebuffer_surface!);
-            end
-
-            this.frame_pos   = Vector2i(desc:frame_pos.x, desc:frame_pos.y);
-            this.array       = Size(desc:array.width, desc:array.height);
-            this.frame_delay = desc:speed;
-            this.is_loop     = desc:loop_;
-
-            if desc:frame_size.width  == -1 then
-                this.frame_size.width  = framebuffer_surface!.get_width()/array.width;
-                this.frame_size.height = framebuffer_surface!.get_height()/array.height;
-            else
-                this.frame_size.width  = desc:frame_size.width;
-                this.frame_size.height = desc:frame_size.height;
-            end
-
-            {
-                Vector2i vec = calc_origin(THIS(CEU_Sprite)->desc->origin,
-                                           Size(THIS(CEU_Sprite)->frame_size.width,
-                                                THIS(CEU_Sprite)->frame_size.height))
-                                - THIS(CEU_Sprite)->desc->offset;
-            };
-            this.offset = Vector2i(_vec.x, _vec.y);
+            this.frame_size.width  = sfc.desc:frame_size.width;
+            this.frame_size.height = sfc.desc:frame_size.height;
         end
+
+        {
+            Vector2i vec = calc_origin(THIS(CEU_Sprite)->sfc.desc->origin,
+                                       Size(THIS(CEU_Sprite)->frame_size.width,
+                                            THIS(CEU_Sprite)->frame_size.height))
+                            - THIS(CEU_Sprite)->sfc.desc->offset;
+        };
+        this.offset = Vector2i(_vec.x, _vec.y);
+    end
     //end
 
     var int total_time = this.frame_delay *
