@@ -14,30 +14,58 @@ native do
     };
 end
 
-class PingusMenu with
+class PingusMenuBackground with
 do
-    var Size size = Size({Display::get_width()}, {Display::get_height()});
-
     var float x1=0, y1=0;
     var float x2=0, y2=150;
     var float x3=0, y3=200;
     var float x4=0, y4=429;
     var float x5=0, y5=500;
-    var Sprite s1 = Sprite.w_xy_name(false, &x1,&y1, "core/menu/layer1");
-    var Sprite s2 = Sprite.w_xy_name(false, &x2,&y2, "core/menu/layer2");
-    var Sprite s3 = Sprite.w_xy_name(false, &x3,&y3, "core/menu/layer3");
-    var Sprite s4 = Sprite.w_xy_name(false, &x4,&y4, "core/menu/layer4");
-    var Sprite s5 = Sprite.w_xy_name(false, &x5,&y5, "core/menu/layer5");
-    spawn do
+    var Surface s1 = Surface.build("core/menu/layer1");
+    var Surface s2 = Surface.build("core/menu/layer2");
+    var Surface s3 = Surface.build("core/menu/layer3");
+    var Surface s4 = Surface.build("core/menu/layer4");
+    var Surface s5 = Surface.build("core/menu/layer5");
+
+    par do
         every dt in SCREENMANAGER_UPDATE do
-            s1.x = {Math::mod}(s1.x+ 12*dt, {Display::get_width()});
-            s2.x = {Math::mod}(s2.x+ 25*dt, {Display::get_width()});
-            s3.x = {Math::mod}(s3.x+ 50*dt, {Display::get_width()});
-            s4.x = {Math::mod}(s4.x+100*dt, {Display::get_width()});
-            s5.x = {Math::mod}(s5.x+200*dt, {Display::get_width()});
+            x1 = {Math::mod}(x1+ 12*dt, {Display::get_width()});
+            x2 = {Math::mod}(x2+ 25*dt, {Display::get_width()});
+            x3 = {Math::mod}(x3+ 50*dt, {Display::get_width()});
+            x4 = {Math::mod}(x4+100*dt, {Display::get_width()});
+            x5 = {Math::mod}(x5+200*dt, {Display::get_width()});
+        end
+    with
+        every gc in SCREENMANAGER_DRAW do
+            gc:draw(&&s1, _Vector2i(x1, y1))
+                finalize with end;
+            gc:draw(&&s1, _Vector2i(x1-gc:get_width(), y1))
+                finalize with end;
+            gc:draw(&&s2, _Vector2i(x2, y2))
+                finalize with end;
+            gc:draw(&&s2, _Vector2i(x2-gc:get_width(), y2))
+                finalize with end;
+            gc:draw(&&s3, _Vector2i(x3, y3))
+                finalize with end;
+            gc:draw(&&s3, _Vector2i(x3-gc:get_width(), y3))
+                finalize with end;
+            gc:draw(&&s4, _Vector2i(x4, y4))
+                finalize with end;
+            gc:draw(&&s4, _Vector2i(x4-gc:get_width(), y4))
+                finalize with end;
+            gc:draw(&&s5, _Vector2i(x5, y5))
+                finalize with end;
+            gc:draw(&&s5, _Vector2i(x5-gc:get_width(), y5))
+                finalize with end;
         end
     end
+end
 
+class PingusMenu with
+do
+    var PingusMenuBackground _;
+
+    var Size size = Size({Display::get_width()}, {Display::get_height()});
     var float x = size.width  / 2;
     var float y = size.height / 2;
     var Sprite logo = Sprite.w_xy_name(false, &x,&y, "core/misc/logo");
