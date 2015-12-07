@@ -17,19 +17,27 @@ native do
     static Levelsets levelsets;
 end
 
+#define LEVEL_ITEMS_PER_PAGE 10
+#define LEVELSET_ITEMS_PER_PAGE 4
+
+#define LEVEL_ITEM_HEIGHT 32
+#define LEVELSET_ITEM_HEIGHT 95
+
 ////////////////////////////////////////////////////////////////////////////////
 
 class LevelUI with
-    var   int height;
-    var   int max;
-    var   int cur = 0;
+    var   int items_total;
+    var   int items_per_page;
+    var   int item_height;
+    var   int item_at_top = 0;
     event int ok;
     event int go;
-    function (int height, int max)=>LevelUI build;
+    function (int total, int per, int height)=>LevelUI build;
 do
-    function (int height, int max)=>LevelUI build do
-        this.height = height;
-        this.max    = max;
+    function (int total, int per, int height)=>LevelUI build do
+        this.items_total    = total;
+        this.items_per_page = per;
+        this.item_height    = height;
     end
 
     var float xc = {Display::get_width()}  / 2;
@@ -87,16 +95,16 @@ do
     with
         par do
             every prv.get_component().on_click do
-                if this.cur > 0 then
-                    this.cur = cur - 1;
-                    emit this.go => height;
+                if this.item_at_top > 0 then
+                    this.item_at_top = item_at_top - 1;
+                    emit this.go => this.item_height;
                 end
             end
         with
             every nxt.get_component().on_click do
-                if this.cur < this.max-4 then    // 4 items per view
-                    this.cur = cur + 1;
-                    emit this.go => -height;
+                if this.item_at_top < this.items_total-this.items_per_page then
+                    this.item_at_top = item_at_top + 1;
+                    emit this.go => -this.item_height;
                 end
             end
         end
@@ -182,10 +190,12 @@ do
         end
     with
         loop do
-            if this.i>=ui.cur and this.i<ui.cur+4 then
-                emit pse => true;
-            else
+            if this.i>=ui.item_at_top and
+               this.i<ui.item_at_top+LEVEL_ITEMS_PER_PAGE
+            then
                 emit pse => false;
+            else
+                emit pse => true;
             end
             var int v = await ui.go;
             rect.top = rect.top + v;
@@ -247,7 +257,9 @@ do
         end
     with
         loop do
-            if this.i>=ui.cur and this.i<ui.cur+4 then
+            if this.i>=ui.item_at_top and
+               this.i<ui.item_at_top+LEVELSET_ITEMS_PER_PAGE
+            then
                 emit pse => false;
             else
                 emit pse => true;
@@ -263,14 +275,16 @@ end
 
 class LevelSelector with
 do
-    var int height = 32;
-    var LevelUI ui = LevelUI.build(height, _current_levelset:get_level_count());
+    //_current_levelset:refresh();
+
+    var LevelUI ui = LevelUI.build(_current_levelset:get_level_count(),
+                                   LEVEL_ITEMS_PER_PAGE, LEVEL_ITEM_HEIGHT);
 
     pool Level[] levels;
-    var Rect rect = Rect(100, 100, 100, height);
+    var Rect rect = Rect(50, 112, 680-90, LEVEL_ITEM_HEIGHT);
     loop i in _current_levelset:get_level_count() do
         spawn Level.build(&ui, i, rect) in levels;
-        rect.top = rect.top + height;
+        rect.top = rect.top + LEVEL_ITEM_HEIGHT;
     end
 
     par/or do
@@ -295,7 +309,7 @@ do
         for(auto i = directory.begin(); i != directory.end(); ++i) {
             try {
                 std::shared_ptr<Levelset> levelset = Levelset::from_file(*i);
-                current_levelset = levelset;
+                //current_levelset = levelset;
                 if (!levelset->get_developer_only() || globals::developer_mode) {
                     levelsets.push_back(levelset);
                 }
@@ -326,18 +340,19 @@ do
         end
     with
         pause/if pse do
-            var int height = 95;
-            var LevelUI ui = LevelUI.build(height, _levelsets.size());
+            var LevelUI ui = LevelUI.build(_levelsets.size(),
+                                           LEVELSET_ITEMS_PER_PAGE, LEVELSET_ITEM_HEIGHT);
 
             pool Levelset[] sets;
-            var Rect rect = Rect(50, 112, 680-90, height);
+            var Rect rect = Rect(50, 112, 680-90, LEVELSET_ITEM_HEIGHT);
             loop i in _levelsets.size() do
                 spawn Levelset.build(&ui, i, rect) in sets;
-                rect.top = rect.top + height;
+                rect.top = rect.top + LEVELSET_ITEM_HEIGHT;
             end
 
-            par/or do
+            par do
                 await ui;
+                escape 0;
             with
                 every v in ui.ok do
                     emit ok => v;
@@ -352,7 +367,5 @@ do
         end
     end
 end
-
-////////////////////////////////////////////////////////////////////////////////
 
 #endif
