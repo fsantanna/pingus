@@ -7,16 +7,16 @@
 
 native do
     ##include "pingus/levelset.hpp"
-    typedef std::vector<Levelset*> Levelsets;
+    typedef std::vector<std::shared_ptr<Levelset>> Levelsets;
     struct LevelsetPrioritySorter {
-        bool operator()(Levelset* lhs, Levelset* rhs) const {
+        bool operator()(std::shared_ptr<Levelset> lhs, std::shared_ptr<Levelset> rhs) const {
             return lhs->get_priority() > rhs->get_priority();
         }
     };
     static std::shared_ptr<Levelset> current_levelset;
+    static Levelsets levelsets;
 end
 
-#if 0
 class Levelset with
     var int     i;
     var int&    cur;
@@ -46,40 +46,22 @@ do
             end
         end
     with
-        // draw icon
-        if (not _current_levelset:get_level(i):accessible) then
-            var Sprite _ = Sprite.w_xy_name(false, &x,&y,
-                                "core/menu/locked_small");
-        else/if _current_levelset:get_level(i):finished then
-            var Sprite _ = Sprite.w_xy_name(false, &x,&y,
-                                "core/menu/checkbox_marked_small");
-        else
-            var Sprite _ = Sprite.w_xy_name(false, &x,&y,
-                                "core/menu/checkbox_small");
-        end
-    with
         every gc in SCREENMANAGER_DRAW do
-            // draw levelname
-            if {globals::developer_mode} then
-                gc:print_left({Fonts::chalk_normal},
-                              _Vector2i(x + 40, y+4),
-                              _current_levelset:get_level(i):plf.get_resname());
-            else
-                gc:print_left({Fonts::chalk_normal},
-                              _Vector2i(x + 40, y+4), 
-                              __(_current_levelset:get_level(i):plf.get_levelname()));
-            end
+            gc:print_left({Fonts::chalk_normal},
+                          _Vector2i(rect.left + 105, 15 + rect.top),
+                          __(_levelsets[i]:get_title()));
+            gc:print_left({Fonts::chalk_small},
+                          _Vector2i(rect.left + 105, 40 + rect.top),
+                          __(_levelsets[i]:get_description()));
         end
     end
 
-    _printf("OKOK %d\n", this.i);
+    _printf("SET %d\n", this.i);
 end
 
-#endif
 class LevelsetSelector with
 do
     {
-        static Levelsets levelsets;
         static auto directory = Pathname("levelsets", Pathname::DATA_PATH).opendir("*.levelset");
         directory = Pathname("levelsets", Pathname::DATA_PATH).opendir("*.levelset");
         for(auto i = directory.begin(); i != directory.end(); ++i) {
@@ -87,32 +69,37 @@ do
                 std::shared_ptr<Levelset> levelset = Levelset::from_file(*i);
                 current_levelset = levelset;
                 if (!levelset->get_developer_only() || globals::developer_mode) {
-                    levelsets.push_back(levelset.get());
+                    levelsets.push_back(levelset);
                 }
             } catch(const std::exception& err) {
                 log_error("%1%", err.what());
             }
         }
+#if 0
         if (globals::developer_mode) {
             levelsets.push_back(Levelset::from_directory(_("Under Construction"),
                                                    _("Untested, unpolished and broken levels"),
                                                    "levelsets/underconstruction",
                                                    Pathname("levels", Pathname::DATA_PATH)).release());
         }
+#endif
         std::sort(levelsets.begin(), levelsets.end(), LevelsetPrioritySorter());
     };
 
-#if 0
     var int item_height = 95;
-    var int current_level = 1;
+    var int current_set = 1;
 
-    var Rect rect = Rect(100, 100, 100, item_height);
-    loop i in _current_levelset:get_level_count() do
-        spawn Level.build(i, &current_level, rect);
+    var Rect rect = Rect(50, 112, 680-90, item_height);
+    loop i in _levelsets.size() do
+        spawn Levelset.build(i, &current_set, rect);
         rect.top = rect.top + item_height;
     end
-#endif
 
+    every gc in SCREENMANAGER_DRAW do
+        gc:print_center({Fonts::chalk_large},
+                        _Vector2i(rect.width/2, 10),
+                        __("Levelsets"));
+    end
 end
 
 class Level with
@@ -171,7 +158,7 @@ do
         end
     end
 
-    _printf("OKOK %d\n", this.i);
+    _printf("LEVEL %d\n", this.i);
 end
 
 class LevelSelector with
@@ -205,7 +192,7 @@ do
 
     var SurfaceButton cancel with
         this.x = xc - 300;
-        this.y = yc + 144;
+        this.y = yc + 200;
         this.button         = "core/start/back";
         this.button_pressed = "core/start/back_clicked";
         this.button_over    = "core/start/back_hover";
@@ -213,7 +200,7 @@ do
 
     var SurfaceButton prv with
         this.x = xc + 280;
-        this.y = yc - 150;
+        this.y = yc - 48 - 12;
         this.button         = "core/menu/arrow_up";
         this.button_pressed = "core/menu/arrow_up_pressed";
         this.button_over    = "core/menu/arrow_up_hover";
@@ -221,7 +208,7 @@ do
 
     var SurfaceButton nxt with
         this.x = xc + 280;
-        this.y = yc +  70;
+        this.y = yc +  12;
         this.button         = "core/menu/arrow_down";
         this.button_pressed = "core/menu/arrow_down_pressed";
         this.button_over    = "core/menu/arrow_down_hover";
