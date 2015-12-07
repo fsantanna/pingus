@@ -203,7 +203,7 @@ finalize with
     {ScreenManager::instance()->pop_screen();};
 end;
 
-do LevelMenu;
+do LevelsetSelector;
 
 do StoryScreen with
     this.reader = &&_reader_story;
