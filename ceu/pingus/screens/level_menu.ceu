@@ -20,9 +20,18 @@ end
 ////////////////////////////////////////////////////////////////////////////////
 
 class LevelUI with
+    var   int height;
+    var   int max;
+    var   int cur = 0;
     event int ok;
     event int go;
+    function (int height, int max)=>LevelUI build;
 do
+    function (int height, int max)=>LevelUI build do
+        this.height = height;
+        this.max    = max;
+    end
+
     var float xc = {Display::get_width()}  / 2;
     var float yc = {Display::get_height()} / 2;
 
@@ -36,6 +45,13 @@ do
         this.button_pressed = "core/start/back_clicked";
         this.button_over    = "core/start/back_hover";
     end;
+    spawn do
+        every gc in SCREENMANAGER_DRAW do
+            gc:print_center({Fonts::chalk_normal},
+                            _Vector2i(cancel.x + 55, cancel.y),
+                            __("Back"));
+        end
+    end
 
     var SurfaceButton prv with
         this.x = xc + 280;
@@ -65,16 +81,24 @@ do
             call {Sound::PingusSound::play_sound}("tick");
         end
     with
-        every prv.get_component().on_click do
-            emit this.go => -1;
-        end
-    with
         every nxt.get_component().on_pointer_enter do
             call {Sound::PingusSound::play_sound}("tick");
         end
     with
-        every nxt.get_component().on_click do
-            emit this.go => 1;
+        par do
+            every prv.get_component().on_click do
+                if this.cur > 0 then
+                    this.cur = cur - 1;
+                    emit this.go => height;
+                end
+            end
+        with
+            every nxt.get_component().on_click do
+                if this.cur < this.max-4 then    // 4 items per view
+                    this.cur = cur + 1;
+                    emit this.go => -height;
+                end
+            end
         end
     with
         loop do
@@ -112,40 +136,56 @@ do
     var float x = rect.left;
     var float y = rect.top;
 
+    event bool pse;
     par do
-        if _current_levelset:get_level(i):accessible then
-            watching component.on_click do
-                // draw background highlight mark
-                loop do
-                    await component.on_pointer_enter;
-                    var Sprite _ = Sprite.w_xy_name(false, &x, &y, "core/menu/marker2");
-                    await component.on_pointer_leave;
+        pause/if pse do
+            par do
+                if _current_levelset:get_level(i):accessible then
+                    watching component.on_click do
+                        // draw background highlight mark
+                        loop do
+                            await component.on_pointer_enter;
+                            var Sprite _ = Sprite.w_xy_name(false, &x, &y, "core/menu/marker2");
+                            await component.on_pointer_leave;
+                        end
+                    end
+                    emit this.ui.ok => this.i;
+                end
+                await FOREVER;
+            with
+                // draw icon
+                if (not _current_levelset:get_level(i):accessible) then
+                    do Sprite.w_xy_name(false, &x,&y, "core/menu/locked_small");
+                else/if _current_levelset:get_level(i):finished then
+                    do Sprite.w_xy_name(false, &x,&y, "core/menu/checkbox_marked_small");
+                else
+                    do Sprite.w_xy_name(false, &x,&y, "core/menu/checkbox_small");
+                end
+            with
+                every gc in SCREENMANAGER_DRAW do
+                    // draw levelname
+                    if {globals::developer_mode} then
+                        gc:print_left({Fonts::chalk_normal},
+                                      _Vector2i(x + 40, y+4),
+                                      _current_levelset:get_level(i):plf.get_resname());
+                    else
+                        gc:print_left({Fonts::chalk_normal},
+                                      _Vector2i(x + 40, y+4), 
+                                      __(_current_levelset:get_level(i):plf.get_levelname()));
+                    end
                 end
             end
-            emit this.ui.ok => this.i;
-        end
-        await FOREVER;
-    with
-        // draw icon
-        if (not _current_levelset:get_level(i):accessible) then
-            do Sprite.w_xy_name(false, &x,&y, "core/menu/locked_small");
-        else/if _current_levelset:get_level(i):finished then
-            do Sprite.w_xy_name(false, &x,&y, "core/menu/checkbox_marked_small");
-        else
-            do Sprite.w_xy_name(false, &x,&y, "core/menu/checkbox_small");
         end
     with
-        every gc in SCREENMANAGER_DRAW do
-            // draw levelname
-            if {globals::developer_mode} then
-                gc:print_left({Fonts::chalk_normal},
-                              _Vector2i(x + 40, y+4),
-                              _current_levelset:get_level(i):plf.get_resname());
+        loop do
+            if this.i>=ui.cur and this.i<ui.cur+4 then
+                emit pse => true;
             else
-                gc:print_left({Fonts::chalk_normal},
-                              _Vector2i(x + 40, y+4), 
-                              __(_current_levelset:get_level(i):plf.get_levelname()));
+                emit pse => false;
             end
+            var int v = await ui.go;
+            rect.top = rect.top + v;
+            y = y + v;
         end
     end
 end
@@ -170,31 +210,47 @@ do
     var float x = rect.left;
     var float y = rect.top;
 
+    event bool pse;
     par do
-        watching component.on_click do
-            // draw background highlight mark
-            loop do
-                await component.on_pointer_enter;
-                var Sprite _ = Sprite.w_xy_name(false, &x, &y, "core/menu/marker");
-                await component.on_pointer_leave;
+        pause/if pse do
+            par do
+                watching component.on_click do
+                    // draw background highlight mark
+                    loop do
+                        await component.on_pointer_enter;
+                        var Sprite _ = Sprite.w_xy_name(false, &x, &y, "core/menu/marker");
+                        await component.on_pointer_leave;
+                    end
+                end
+                emit this.ui.ok => this.i;
+                await FOREVER;
+            with
+                every gc in SCREENMANAGER_DRAW do
+                    gc:print_left({Fonts::chalk_normal},
+                                  _Vector2i(rect.left + 105, 15 + rect.top),
+                                  __(_levelsets[i]:get_title()));
+                    gc:print_left({Fonts::chalk_small},
+                                  _Vector2i(rect.left + 105, 40 + rect.top),
+                                  __(_levelsets[i]:get_description()));
+                    gc:print_right({Fonts::chalk_normal},
+                                   _Vector2i(rect.left+rect.width, 15 + rect.top),
+                                   {(boost::format("%1% %2%%%") % _("Solved:") % levelsets[THIS(CEU_Levelset)->i]->get_completion()).str()});
+                    gc:print_right({Fonts::chalk_small},
+                                   _Vector2i(rect.left+rect.width, 40 + rect.top),
+                                   {(boost::format("%1% %2%") % levelsets[THIS(CEU_Levelset)->i]->get_level_count() % _("levels")).str()});
+                end
             end
         end
-        emit this.ui.ok => this.i;
-        await FOREVER;
     with
-        every gc in SCREENMANAGER_DRAW do
-            gc:print_left({Fonts::chalk_normal},
-                          _Vector2i(rect.left + 105, 15 + rect.top),
-                          __(_levelsets[i]:get_title()));
-            gc:print_left({Fonts::chalk_small},
-                          _Vector2i(rect.left + 105, 40 + rect.top),
-                          __(_levelsets[i]:get_description()));
-            gc:print_right({Fonts::chalk_normal},
-                           _Vector2i(rect.left+rect.width, 15 + rect.top),
-                           {(boost::format("%1% %2%%%") % _("Solved:") % levelsets[THIS(CEU_Levelset)->i]->get_completion()).str()});
-            gc:print_right({Fonts::chalk_small},
-                           _Vector2i(rect.left+rect.width, 40 + rect.top),
-                           {(boost::format("%1% %2%") % levelsets[THIS(CEU_Levelset)->i]->get_level_count() % _("levels")).str()});
+        loop do
+            if this.i>=ui.cur and this.i<ui.cur+4 then
+                emit pse => false;
+            else
+                emit pse => true;
+            end
+            var int v = await ui.go;
+            rect.top = rect.top + v;
+            y = y + v;
         end
     end
 end
@@ -203,14 +259,14 @@ end
 
 class LevelSelector with
 do
-    var LevelUI ui;
+    var int height = 32;
+    var LevelUI ui = LevelUI.build(height, _current_levelset:get_level_count());
 
     pool Level[] levels;
-    var int item_height = 32;
-    var Rect rect = Rect(100, 100, 100, item_height);
+    var Rect rect = Rect(100, 100, 100, height);
     loop i in _current_levelset:get_level_count() do
         spawn Level.build(&ui, i, rect) in levels;
-        rect.top = rect.top + item_height;
+        rect.top = rect.top + height;
     end
 
     par/or do
@@ -254,26 +310,43 @@ do
         std::sort(levelsets.begin(), levelsets.end(), LevelsetPrioritySorter());
     };
 
-    var LevelUI ui;
-
-    pool Levelset[] sets;
-    var int item_height = 95;
-    var Rect rect = Rect(50, 112, 680-90, item_height);
-    loop i in _levelsets.size() do
-        spawn Levelset.build(&ui, i, rect) in sets;
-        rect.top = rect.top + item_height;
-    end
-
-    par/or do
-        await ui;
+    event int ok;
+    event bool pse;
+    par do
+        loop do
+            var int v = await ok;
+            _current_levelset = _levelsets[v];
+_printf("PAUSE\n");
+            emit pse=>true;
+            do LevelSelector;
+_printf("RESUME\n");
+            emit pse=>false;
+        end
     with
-        var int v = await ui.ok;
-        _printf("LEVELSET = %d\n", v);
-    with
-        every gc in SCREENMANAGER_DRAW do
-            gc:print_center({Fonts::chalk_large},
-                            _Vector2i(680/2, 10),
-                            __("Levelsets"));
+        pause/if pse do
+            var int height = 95;
+            var LevelUI ui = LevelUI.build(height, _levelsets.size());
+
+            pool Levelset[] sets;
+            var Rect rect = Rect(50, 112, 680-90, height);
+            loop i in _levelsets.size() do
+                spawn Levelset.build(&ui, i, rect) in sets;
+                rect.top = rect.top + height;
+            end
+
+            par/or do
+                await ui;
+            with
+                every v in ui.ok do
+                    emit ok => v;
+                end
+            with
+                every gc in SCREENMANAGER_DRAW do
+                    gc:print_center({Fonts::chalk_large},
+                                    _Vector2i(680/2, 10),
+                                    __("Levelsets"));
+                end
+            end
         end
     end
 end

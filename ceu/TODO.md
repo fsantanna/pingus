@@ -18,6 +18,8 @@
     - wall-clock time
         - story chars
         - credits up
+    - pause
+        - alternative is again hierarchies which enable/disable forwarding
     = WHY
         - state machines
         - C libraries
