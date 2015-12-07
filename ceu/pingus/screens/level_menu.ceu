@@ -141,7 +141,11 @@ do
         pause/if pse do
             par do
                 if _current_levelset:get_level(i):accessible then
-                    watching component.on_click do
+                    par do
+                        every component.on_click do
+                            emit this.ui.ok => this.i;
+                        end
+                    with
                         // draw background highlight mark
                         loop do
                             await component.on_pointer_enter;
@@ -149,9 +153,9 @@ do
                             await component.on_pointer_leave;
                         end
                     end
-                    emit this.ui.ok => this.i;
+                else
+                    await FOREVER;
                 end
-                await FOREVER;
             with
                 // draw icon
                 if (not _current_levelset:get_level(i):accessible) then
@@ -214,16 +218,16 @@ do
     par do
         pause/if pse do
             par do
-                watching component.on_click do
-                    // draw background highlight mark
-                    loop do
-                        await component.on_pointer_enter;
-                        var Sprite _ = Sprite.w_xy_name(false, &x, &y, "core/menu/marker");
-                        await component.on_pointer_leave;
-                    end
+                every component.on_click do
+                    emit this.ui.ok => this.i;
                 end
-                emit this.ui.ok => this.i;
-                await FOREVER;
+            with
+                // draw background highlight mark
+                loop do
+                    await component.on_pointer_enter;
+                    var Sprite _ = Sprite.w_xy_name(false, &x, &y, "core/menu/marker");
+                    await component.on_pointer_leave;
+                end
             with
                 every gc in SCREENMANAGER_DRAW do
                     gc:print_left({Fonts::chalk_normal},
@@ -316,10 +320,8 @@ do
         loop do
             var int v = await ok;
             _current_levelset = _levelsets[v];
-_printf("PAUSE\n");
             emit pse=>true;
             do LevelSelector;
-_printf("RESUME\n");
             emit pse=>false;
         end
     with
