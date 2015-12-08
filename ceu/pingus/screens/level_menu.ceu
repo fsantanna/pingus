@@ -107,6 +107,21 @@ do
                     emit this.go => -this.item_height;
                 end
             end
+        with
+            every v in ON_INPUT_EVENT do
+                if v:type != {Input::BUTTON_EVENT_TYPE} then
+                    continue;
+                end
+                var _Input__ButtonEvent&& but = &&v:button;
+                if but:state != {Input::BUTTON_PRESSED} then
+                    continue;
+                end
+                if but:name == {Input::ACTION_DOWN_BUTTON} then
+                    emit nxt.get_component().on_click;
+                else/if but:name == {Input::ACTION_UP_BUTTON} then
+                    emit prv.get_component().on_click;
+                end
+            end
         end
     with
         loop do
@@ -144,17 +159,6 @@ do
     var float x = rect.left;
     var float y = rect.top;
 
-    var float yy  = 15;
-    var float xx1 = 0;
-    var Sprite s1 = Sprite.w_xy_name(false, &xx1, &yy,
-                        (char&&)_XXX_PURE(_current_levelset:get_image().c_str()));
-    xx1 = rect.width/2 - s1.get_width()/2 - 275;
-
-    var float xx2 = 0;
-    var Sprite s2 = Sprite.w_xy_name(false, &xx2, &yy,
-                        (char&&)_XXX_PURE(_current_levelset:get_image().c_str()));
-    xx2 = rect.width/2 - s2.get_width()/2 + 275;
-
     event bool pse;
     par do
         pause/if pse do
@@ -168,7 +172,8 @@ do
                         // draw background highlight mark
                         loop do
                             await component.on_pointer_enter;
-                            var Sprite _ = Sprite.w_xy_name(false, &x, &y, "core/menu/marker2");
+                            var float xx = 60 + 20;
+                            var Sprite _ = Sprite.w_xy_name(false, &xx, &y, "core/menu/marker2");
                             await component.on_pointer_leave;
                         end
                     end
@@ -246,7 +251,9 @@ do
                 // draw background highlight mark
                 loop do
                     await component.on_pointer_enter;
-                    var Sprite _ = Sprite.w_xy_name(false, &x, &y, "core/menu/marker");
+                    var float xx = 60+15;
+                    var float yy = y - 5;
+                    var Sprite _ = Sprite.w_xy_name(false, &xx, &yy, "core/menu/marker");
                     await component.on_pointer_leave;
                 end
             with
@@ -294,8 +301,19 @@ do
     var LevelUI ui = LevelUI.build(_current_levelset:get_level_count(),
                                    LEVEL_ITEMS_PER_PAGE, LEVEL_ITEM_HEIGHT);
 
+    var float yy  = 15;
+    var float xx1 = 0;
+    var Sprite s1 = Sprite.w_xy_name(false, &xx1, &yy,
+                        (char&&)_XXX_PURE(_current_levelset:get_image().c_str()));
+    xx1 = 60 + 680/2 - s1.get_width()/2 - 275;
+
+    var float xx2 = 0;
+    var Sprite s2 = Sprite.w_xy_name(false, &xx2, &yy,
+                        (char&&)_XXX_PURE(_current_levelset:get_image().c_str()));
+    xx2 = 60 + 680/2 - s2.get_width()/2 + 275;
+
     pool Level[] levels;
-    var Rect rect = Rect(50, 112, 680-90, LEVEL_ITEM_HEIGHT);
+    var Rect rect = Rect(60+50, 50+112, 680-90, LEVEL_ITEM_HEIGHT);
     loop i in _current_levelset:get_level_count() do
         spawn Level.build(&ui, i, rect) in levels;
         rect.top = rect.top + LEVEL_ITEM_HEIGHT;
@@ -309,7 +327,7 @@ do
     with
         every gc in SCREENMANAGER_DRAW do
             gc:print_left({Fonts::chalk_large},
-                          _Vector2i(0 + 105, 15 + 0),
+                          _Vector2i(60+680/2, 50+10),
                           __(_current_levelset:get_title()));
         end
     end
@@ -358,7 +376,7 @@ do
                                            LEVELSET_ITEMS_PER_PAGE, LEVELSET_ITEM_HEIGHT);
 
             pool Levelset[] sets;
-            var Rect rect = Rect(50, 112, 680-90, LEVELSET_ITEM_HEIGHT);
+            var Rect rect = Rect(60+30, 50+70, 680-90, LEVELSET_ITEM_HEIGHT);
             loop i in _levelsets.size() do
                 spawn Levelset.build(&ui, i, rect) in sets;
                 rect.top = rect.top + LEVELSET_ITEM_HEIGHT;
@@ -374,7 +392,7 @@ do
             with
                 every gc in SCREENMANAGER_DRAW do
                     gc:print_center({Fonts::chalk_large},
-                                    _Vector2i(680/2, 10),
+                                    _Vector2i(60+680/2, 50+10),
                                     __("Levelsets"));
                 end
             end
