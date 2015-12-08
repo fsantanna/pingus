@@ -9,7 +9,6 @@ native do
         PINGUSMENU_STORY,
         PINGUSMENU_EDITOR,
         PINGUSMENU_LEVELSETS,
-        PINGUSMENU_OPTIONS,
         PINGUSMENU_EXIT
     };
 end
@@ -95,7 +94,7 @@ do
     with
         loop do
             await b_options.ok_clicked;
-            emit global:go_options;
+            emit global:go_options;     // this will pause me
         end
     with
         await b_levelsets.ok_clicked;

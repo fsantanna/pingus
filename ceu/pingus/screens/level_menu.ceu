@@ -77,13 +77,15 @@ do
         this.button_over    = "core/menu/arrow_down_hover";
     end;
 
+    // terminate on ESCAPE or cancel click
+
     par do
         every cancel.get_component().on_pointer_enter do
             call {Sound::PingusSound::play_sound}("tick");
         end
     with
         await cancel.get_component().on_click;
-        escape 0;
+        escape -1;
     with
         every prv.get_component().on_pointer_enter do
             call {Sound::PingusSound::play_sound}("tick");
@@ -132,8 +134,8 @@ do
             then
                 continue;
             end
-            if but:name == {Input::PAUSE_BUTTON} then
-                escape 0;
+            if but:name == {Input::ESCAPE_BUTTON} then
+                escape -1;
             end
         end
     end
@@ -297,7 +299,6 @@ end
 class LevelSelector with
 do
     //_current_levelset:refresh();
-
     var LevelUI ui = LevelUI.build(_current_levelset:get_level_count(),
                                    LEVEL_ITEMS_PER_PAGE, LEVEL_ITEM_HEIGHT);
 
@@ -319,11 +320,12 @@ do
         rect.top = rect.top + LEVEL_ITEM_HEIGHT;
     end
 
-    par/or do
-        await ui;
+    par do
+        var int v = await ui;
+        escape v;   // always -1
     with
         var int v = await ui.ok;
-        _printf("LEVEL = %d\n", v);
+        escape v;   // always >= 0
     with
         every gc in SCREENMANAGER_DRAW do
             gc:print_left({Fonts::chalk_large},
@@ -338,6 +340,7 @@ do
     {
         static auto directory = Pathname("levelsets", Pathname::DATA_PATH).opendir("*.levelset");
         directory = Pathname("levelsets", Pathname::DATA_PATH).opendir("*.levelset");
+        levelsets.clear();
         for(auto i = directory.begin(); i != directory.end(); ++i) {
             try {
                 std::shared_ptr<Levelset> levelset = Levelset::from_file(*i);
@@ -360,40 +363,61 @@ do
         std::sort(levelsets.begin(), levelsets.end(), LevelsetPrioritySorter());
     };
 
-    event int ok;
-    event bool pse;
+    var LevelUI ui = LevelUI.build(_levelsets.size(),
+                                   LEVELSET_ITEMS_PER_PAGE, LEVELSET_ITEM_HEIGHT);
+
+    pool Levelset[] sets;
+    var Rect rect = Rect(60+30, 50+70, 680-90, LEVELSET_ITEM_HEIGHT-1);
+    loop i in _levelsets.size() do
+        spawn Levelset.build(&ui, i, rect) in sets;
+        rect.top = rect.top + LEVELSET_ITEM_HEIGHT;
+    end
+
     par do
-        loop do
-            var int v = await ok;
-            _current_levelset = _levelsets[v];
-            emit pse=>true;
-            do LevelSelector;
-            emit pse=>false;
-        end
+        var int v = await ui;
+        escape v;   // always -1
     with
-        pause/if pse do
-            var LevelUI ui = LevelUI.build(_levelsets.size(),
-                                           LEVELSET_ITEMS_PER_PAGE, LEVELSET_ITEM_HEIGHT);
+        var int v = await ui.ok;
+        escape v;   // always >= 0
+    with
+        every gc in SCREENMANAGER_DRAW do
+            gc:print_center({Fonts::chalk_large},
+                            _Vector2i(60+680/2, 50+10),
+                            __("Levelsets"));
+        end
+    end
+end
 
-            pool Levelset[] sets;
-            var Rect rect = Rect(60+30, 50+70, 680-90, LEVELSET_ITEM_HEIGHT-1);
-            loop i in _levelsets.size() do
-                spawn Levelset.build(&ui, i, rect) in sets;
-                rect.top = rect.top + LEVELSET_ITEM_HEIGHT;
+////////////////////////////////////////////////////////////////////////////////
+
+class LevelMenu with
+do
+    loop do
+        var int v = do LevelsetSelector;
+        if v == -1 then
+            break;
+        end
+        _current_levelset = _levelsets[v];
+        loop do
+            var int v = do LevelSelector;
+            if v == -1 then
+                break;
             end
-
-            par do
-                await ui;
-                escape 0;
-            with
-                every v in ui.ok do
-                    emit ok => v;
-                end
-            with
-                every gc in SCREENMANAGER_DRAW do
-                    gc:print_center({Fonts::chalk_large},
-                                    _Vector2i(60+680/2, 50+10),
-                                    __("Levelsets"));
+            var bool go = do StartScreen with
+                            this.plf_ = _XXX_PURE(&&_current_levelset:get_level(v):plf);
+                          end;
+            if not go then
+                continue;
+            end
+            loop do
+                do GameSession with
+                    this.plf_ = _XXX_PURE(&&_current_levelset:get_level(v):plf);
+                end;
+                var bool retry = do ResultScreen with
+                                    this.result = &&_GAMESESSION_RESULT;
+                                 end;
+                if not retry then
+                    break;
                 end
             end
         end

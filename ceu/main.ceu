@@ -183,10 +183,10 @@ event bool go_pause;
 #include "pingus/screens/story_screen.ceu"
 #include "pingus/screens/pingus_menu.ceu"
 #include "pingus/screens/option_menu.ceu"
-#include "pingus/screens/level_menu.ceu"
 #include "pingus/screens/start_screen.ceu"
 #include "pingus/screens/result_screen.ceu"
 #include "pingus/screens/game_session.ceu"
+#include "pingus/screens/level_menu.ceu"
 
 native/pre do
     ##include "pingus/result.hpp"
@@ -203,40 +203,27 @@ finalize with
     {ScreenManager::instance()->pop_screen();};
 end;
 
-do LevelsetSelector;
-
-do StoryScreen with
+var StoryScreen s with
     this.reader = &&_reader_story;
 end;
-
-do Credits with
+kill s;
+var Credits c with
     this.filename = &&_filename_credits;
 end;
+kill c;
 
 par do
     pause/if go_pause do
         loop do
             var int opt = do PingusMenu;
-            if opt == _PINGUSMENU_EXIT then
-                escape 0;
+            if opt == _PINGUSMENU_STORY then
+                _assert(not "NOT PORTED");
+            else/if opt == _PINGUSMENU_EDITOR then
+                _assert(not "NOT PORTED");
             else/if opt == _PINGUSMENU_LEVELSETS then
-                var bool go = do StartScreen with
-                                this.plf_ = &&_CEU_MAIN_LEVEL;
-                              end;
-                if go then
-                    loop do
-                        do GameSession with
-                            this.plf_ = &&_CEU_MAIN_LEVEL;
-                        end;
-
-                        var bool retry = do ResultScreen with
-                                            this.result = &&_GAMESESSION_RESULT;
-                                         end;
-                        if not retry then
-                            break;
-                        end
-                    end
-                end
+                do LevelMenu;
+            else/if opt == _PINGUSMENU_EXIT then
+                escape 0;
             else
                 //do_start("worldmaps/tutorial.worldmap");
 #if 0
@@ -260,7 +247,7 @@ void PingusMenu::do_start(const std::string &filename)
 #endif
 
                 //ScreenManager::instance()->push_screen(std::make_shared<LevelMenu>());
-                _assert(not "NOT PORTED");
+                _assert(not "bug found");
             end
         end
     end
