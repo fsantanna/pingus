@@ -268,10 +268,10 @@ do
                                   _Vector2i(rect.left + 105, 40 + rect.top),
                                   __(_levelsets[i]:get_description()));
                     gc:print_right({Fonts::chalk_normal},
-                                   _Vector2i(rect.left+rect.width, 15 + rect.top),
+                                   _Vector2i(60+rect.width, 15 + rect.top),
                                    {(boost::format("%1% %2%%%") % _("Solved:") % levelsets[THIS(CEU_Levelset)->i]->get_completion()).str()});
                     gc:print_right({Fonts::chalk_small},
-                                   _Vector2i(rect.left+rect.width, 40 + rect.top),
+                                   _Vector2i(60+rect.width, 40 + rect.top),
                                    {(boost::format("%1% %2%") % levelsets[THIS(CEU_Levelset)->i]->get_level_count() % _("levels")).str()});
                 end
             end
@@ -301,7 +301,7 @@ do
     var LevelUI ui = LevelUI.build(_current_levelset:get_level_count(),
                                    LEVEL_ITEMS_PER_PAGE, LEVEL_ITEM_HEIGHT);
 
-    var float yy  = 15;
+    var float yy  = 50+15;
     var float xx1 = 0;
     var Sprite s1 = Sprite.w_xy_name(false, &xx1, &yy,
                         (char&&)_XXX_PURE(_current_levelset:get_image().c_str()));
@@ -313,7 +313,7 @@ do
     xx2 = 60 + 680/2 - s2.get_width()/2 + 275;
 
     pool Level[] levels;
-    var Rect rect = Rect(60+50, 50+112, 680-90, LEVEL_ITEM_HEIGHT);
+    var Rect rect = Rect(60+50, 50+112, 680-90, LEVEL_ITEM_HEIGHT-1);
     loop i in _current_levelset:get_level_count() do
         spawn Level.build(&ui, i, rect) in levels;
         rect.top = rect.top + LEVEL_ITEM_HEIGHT;
@@ -327,7 +327,7 @@ do
     with
         every gc in SCREENMANAGER_DRAW do
             gc:print_left({Fonts::chalk_large},
-                          _Vector2i(60+680/2, 50+10),
+                          _Vector2i(680/2, 50+10),
                           __(_current_levelset:get_title()));
         end
     end
@@ -376,7 +376,7 @@ do
                                            LEVELSET_ITEMS_PER_PAGE, LEVELSET_ITEM_HEIGHT);
 
             pool Levelset[] sets;
-            var Rect rect = Rect(60+30, 50+70, 680-90, LEVELSET_ITEM_HEIGHT);
+            var Rect rect = Rect(60+30, 50+70, 680-90, LEVELSET_ITEM_HEIGHT-1);
             loop i in _levelsets.size() do
                 spawn Levelset.build(&ui, i, rect) in sets;
                 rect.top = rect.top + LEVELSET_ITEM_HEIGHT;
