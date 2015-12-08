@@ -80,7 +80,7 @@ do
             end
 
         // the last mine action before switching to another action
-        else/if this.pingu.direction == {Direction::LEFT} then
+        else/if this.pingu.direction == _LEFT then
             global:world!:remove(
                     &&_miner_radius_left,
                     this.pingu.get_xi() - (_miner_radius_left.get_width()/2)

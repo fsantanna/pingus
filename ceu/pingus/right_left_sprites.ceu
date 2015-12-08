@@ -27,7 +27,7 @@ do
                 spawn Sprite in this.sprites with
                     this.x = &_XXX_NOHOLD(&&outer.pingu.pos_x);
                     this.y = &_XXX_NOHOLD(&&outer.pingu.pos_y);
-                    if outer.pingu.direction == {Direction::LEFT} then
+                    if outer.pingu.direction == _LEFT then
                         this.name  = _XXX_PURE(&&outer.left);
                     else
                         this.name  = _XXX_PURE(&&outer.right);
