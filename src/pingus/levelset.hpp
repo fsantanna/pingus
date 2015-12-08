@@ -44,7 +44,8 @@ private:
   std::string m_description;
   bool m_developer_only;
   float m_priority;
-  Sprite m_sprite;
+  //Sprite m_sprite;
+  std::string m_image;
   int  m_completion;
   std::vector<Level*> m_levels;
 
@@ -70,7 +71,8 @@ public:
   float  get_priority() const;
   std::string get_title() const;
   std::string get_description() const;
-  Sprite get_image() const;
+  //Sprite get_image() const;
+  std::string get_image() const;
 
   Level* get_level(int num) const;
   int get_level_count() const;

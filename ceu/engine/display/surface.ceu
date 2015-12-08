@@ -41,6 +41,9 @@ do
             if name != null then
                 desc = _Resource__load_sprite_desc(name);
             end
+            if desc == null then
+                desc = _Resource__load_sprite_desc("core/misc/404");
+            end
             _assert(desc != null);
             finalize
                 framebuffer_surface =

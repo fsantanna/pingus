@@ -130,7 +130,8 @@ Levelset::Levelset() :
   m_description(),
   m_developer_only(false),
   m_priority(0),
-  m_sprite(),
+  //m_sprite(),
+  m_image(),
   m_completion(0),
   m_levels()
 {
@@ -159,7 +160,8 @@ Levelset::set_description(const std::string& description)
 void
 Levelset::set_image(const std::string& image)
 {
-  m_sprite = Sprite(image);
+  //m_sprite = Sprite(image);
+  m_image = image;
 }
 
 void
@@ -228,10 +230,12 @@ Levelset::get_completion()  const
   return m_completion;
 }
 
-Sprite
+//Sprite
+std::string
 Levelset::get_image() const
 {
-  return m_sprite;
+  return m_image;
+  //return m_sprite;
 }
 
 bool

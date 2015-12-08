@@ -144,6 +144,17 @@ do
     var float x = rect.left;
     var float y = rect.top;
 
+    var float yy  = 15;
+    var float xx1 = 0;
+    var Sprite s1 = Sprite.w_xy_name(false, &xx1, &yy,
+                        (char&&)_XXX_PURE(_current_levelset:get_image().c_str()));
+    xx1 = rect.width/2 - s1.get_width()/2 - 275;
+
+    var float xx2 = 0;
+    var Sprite s2 = Sprite.w_xy_name(false, &xx2, &yy,
+                        (char&&)_XXX_PURE(_current_levelset:get_image().c_str()));
+    xx2 = rect.width/2 - s2.get_width()/2 + 275;
+
     event bool pse;
     par do
         pause/if pse do
@@ -239,6 +250,9 @@ do
                     await component.on_pointer_leave;
                 end
             with
+                var float xx = x+10;
+                var Sprite _ = Sprite.w_xy_name(false, &xx, &y,
+                                    (char&&)_XXX_PURE(_levelsets[i]:get_image().c_str()));
                 every gc in SCREENMANAGER_DRAW do
                     gc:print_left({Fonts::chalk_normal},
                                   _Vector2i(rect.left + 105, 15 + rect.top),
@@ -294,7 +308,7 @@ do
         _printf("LEVEL = %d\n", v);
     with
         every gc in SCREENMANAGER_DRAW do
-            gc:print_left({Fonts::chalk_normal},
+            gc:print_left({Fonts::chalk_large},
                           _Vector2i(0 + 105, 15 + 0),
                           __(_current_levelset:get_title()));
         end
