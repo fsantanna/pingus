@@ -10,17 +10,10 @@ end
 #include "../components/wood.ceu"
 
 class StartScreen with
-    var _PingusLevel&& plf_;
+    var _PingusLevel& plf;
 do
-    var _PingusLevel&? plf;
-    finalize
-        this.plf = &_XXX_NOHOLD(this.plf_);
-    with
-        // TODO
-    end
-
     var char[] description = [] .. (char&&)
-        {StringFormat::break_line}(__(plf!.get_description()),
+        {StringFormat::break_line}(__(plf.get_description()),
                                    800-200,
                                    {Fonts::chalk_normal}).c_str();
 
@@ -93,7 +86,7 @@ do
             gc:print_center({Fonts::chalk_large},
                             _Vector2i(gc:get_width() /2,
                                       gc:get_height()/2 - 230),
-                            __(plf!.get_levelname()));
+                            __(plf.get_levelname()));
 
             gc:print_left({Fonts::chalk_normal},
                             _Vector2i(gc:get_width() /2 - 300,
@@ -107,27 +100,27 @@ do
             gc:print_left({Fonts::chalk_normal}, _Vector2i(left_x, y),
                           __("Number of Pingus: "));
             gc:print_right({Fonts::chalk_normal}, _Vector2i(right_x, y),
-                           {StringUtil::to_string}(plf!.get_number_of_pingus()));
+                           {StringUtil::to_string}(plf.get_number_of_pingus()));
 
             y = y+30;
             gc:print_left({Fonts::chalk_normal}, _Vector2i(left_x, y),
                          __("Number to Save: "));
             gc:print_right({Fonts::chalk_normal}, _Vector2i(right_x, y),
-                           {StringUtil::to_string}(plf!.get_number_to_save()));
+                           {StringUtil::to_string}(plf.get_number_to_save()));
 
             y = y+30;
             gc:print_left({Fonts::chalk_normal}, _Vector2i(left_x, y),
                           __("Time: "));
             gc:print_right({Fonts::chalk_normal}, _Vector2i(right_x, y),
-                           {GameTime::ticks_to_realtime_string}(plf!.get_time()));
+                           {GameTime::ticks_to_realtime_string}(plf.get_time()));
 
             gc:print_center({Fonts::chalk_small},
                             _Vector2i(gc:get_width()/2, gc:get_height()/2 + 215),
-                            __("Author: ") + plf!.get_author());
+                            __("Author: ") + plf.get_author());
 
             if {globals::developer_mode} then
                 gc:print_center({Fonts::chalk_small}, _Vector2i(gc:get_width()/2,
-                                gc:get_height()-50), plf!.get_resname());
+                                gc:get_height()-50), plf.get_resname());
             end
         end
     end

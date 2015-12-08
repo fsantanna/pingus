@@ -16,6 +16,7 @@ native do
 
     ##include "external/logmich/include/logmich/log.hpp"
     ##include "pingus/resource.hpp"
+    ##include "pingus/plf_res_mgr.hpp"
 
     ##define XXX_PURE(x) x
     ##define XXX_NOHOLD(x) x
@@ -28,7 +29,7 @@ native @plain _std__string, _Vector3f, _Vector2i, _Color, _Rect, _Size;
 native @plain _Sprite, _Surface, _SpriteDescription;
 native @plain _Input__Event, _Input__ButtonEvent;
 native @plain _ResourceModifier__Enum;
-native @plain _PingusLevel;
+native @plain _PingusLevel, _Result;
 native @pure   _XXX_PURE(), _XXX_PTR2REF();
 native @nohold _XXX_NOHOLD();
 native @nohold _delete(), _sscanf(), _log_error();
@@ -175,7 +176,7 @@ var float gravity = 0.2;
 
 input _SDL_KeyboardEvent&& SDL_KEYDOWN;
 input _SDL_KeyboardEvent&& SDL_KEYUP;
-input _PingusLevel&&       MAIN;
+input _CommandLineOptions&& MAIN;
 
 event bool go_pause;
 
@@ -186,68 +187,102 @@ event bool go_pause;
 #include "pingus/screens/start_screen.ceu"
 #include "pingus/screens/result_screen.ceu"
 #include "pingus/screens/game_session.ceu"
+
+class Start_Game_Result_Loop with
+    var _PingusLevel& plf;
+    var _Result& result;
+do
+    var bool go = do StartScreen with
+                    this.plf = &outer.plf;
+                  end;
+    if go then
+        loop do
+            do GameSession with
+                this.plf = &outer.plf;
+            end;
+            var bool retry = do ResultScreen with
+                                this.result = &outer.result;
+                             end;
+            if not retry then
+                break;
+            end
+        end
+    end
+end
+
 #include "pingus/screens/level_menu.ceu"
 
 native/pre do
     ##include "pingus/result.hpp"
-    static PingusLevel CEU_MAIN_LEVEL;
-    static Result GAMESESSION_RESULT;
-    static Pathname filename_credits("data/credits/pingus.credits", Pathname::SYSTEM_PATH);
-    static FileReader reader_story = FileReader::parse(Pathname("data/stories/tutorial_intro.story",
-                                                       Pathname::SYSTEM_PATH));
+    static PingusLevel plf;
+    static Result result;
+    static Pathname filename;
+    static FileReader reader;
+    static CommandLineOptions cmd;
 end
-var _PingusLevel&& plf = await MAIN;
-_CEU_MAIN_LEVEL = *plf;
+
+var _CommandLineOptions&& cmd = await MAIN;
+_cmd = *cmd;
 
 finalize with
     {ScreenManager::instance()->pop_screen();};
 end;
 
-var StoryScreen s with
-    this.reader = &&_reader_story;
-end;
-kill s;
-var Credits c with
-    this.filename = &&_filename_credits;
-end;
-kill c;
-
-par do
+par/or do
     pause/if go_pause do
-        loop do
-            var int opt = do PingusMenu;
-            if opt == _PINGUSMENU_STORY then
+        if _cmd.rest.is_set() then
+            if {StringUtil::has_suffix(cmd.rest.get(), ".pingus-demo")} then
+// DEMO
                 _assert(not "NOT PORTED");
-            else/if opt == _PINGUSMENU_EDITOR then
+            else/if {StringUtil::has_suffix(cmd.rest.get(), ".font")} then
+// FONT
                 _assert(not "NOT PORTED");
-            else/if opt == _PINGUSMENU_LEVELSETS then
-                do LevelMenu;
-            else/if opt == _PINGUSMENU_EXIT then
-                escape 0;
+            else/if {StringUtil::has_suffix(cmd.rest.get(), ".credits")} then
+// CREDITS
+                _filename = _Pathname(_cmd.rest.get(), {Pathname::SYSTEM_PATH});
+                do Credits with
+                    this.filename = &&_filename;
+                end;
+            else/if {StringUtil::has_suffix(cmd.rest.get(), ".worldmap")} then
+// WORLDMAP
+                _assert(not "NOT PORTED");
+            else/if {StringUtil::has_suffix(cmd.rest.get(), ".story")} then
+// STORY
+                finalize
+                    _reader = {FileReader::parse}(_Pathname(_cmd.rest.get(), {Pathname::SYSTEM_PATH}));
+                with end
+                do StoryScreen with
+                    this.reader = &&_reader;
+                end;
+            else/if {StringUtil::has_suffix(cmd.rest.get(), ".levelset")} then
+// LEVELSET
+                _assert(not "NOT PORTED");
             else
-                //do_start("worldmaps/tutorial.worldmap");
-#if 0
-void PingusMenu::do_start(const std::string &filename)
-{ // Start the story or worldmap mode
-  Sound::PingusSound::play_sound ("letsgo");
-
-  std::shared_ptr<WorldmapNS::WorldmapScreen> worldmap_screen = std::make_shared<WorldmapNS::WorldmapScreen>();
-  worldmap_screen->load(Pathname(filename, Pathname::DATA_PATH));
-  ScreenManager::instance()->push_screen(worldmap_screen);
-
-  bool story_seen = false;
-  StatManager::instance()->get_bool("tutorial-startstory-seen", story_seen); // FIXME: Hardcoding tutorial is evil
-  if (!story_seen)
-  {
-    FileReader reader = FileReader::parse(Pathname("stories/tutorial_intro.story", Pathname::DATA_PATH));
-    ScreenManager::instance()->push_screen(std::make_shared<StoryScreen>(reader));
-    StatManager::instance()->set_bool("tutorial-startstory-seen", true);
-  }
-}
-#endif
-
-                //ScreenManager::instance()->push_screen(std::make_shared<LevelMenu>());
-                _assert(not "bug found");
+// LEVEL
+                finalize
+                    _plf = {PLFResMgr::load_plf_from_filename}(
+                            _Pathname(_cmd.rest.get(), {Pathname::SYSTEM_PATH}));
+                with end
+                do Start_Game_Result_Loop with
+                    this.plf    = &_XXX_PURE(&&_plf);
+                    this.result = &_XXX_PURE(&&_result);
+                end;
+            end
+        else
+// MENU
+            loop do
+                var int opt = do PingusMenu;
+                if opt == _PINGUSMENU_STORY then
+                    _assert(not "NOT PORTED");
+                else/if opt == _PINGUSMENU_EDITOR then
+                    _assert(not "NOT PORTED");
+                else/if opt == _PINGUSMENU_LEVELSETS then
+                    do LevelMenu;
+                else/if opt == _PINGUSMENU_EXIT then
+                    escape 0;
+                else
+                    _assert(not "bug found");
+                end
             end
         end
     end
@@ -272,6 +307,8 @@ with
         emit go_pause => false;
     end
 end
+
+escape 0;
 
 #if 0
 every 1s do

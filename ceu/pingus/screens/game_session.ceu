@@ -15,41 +15,34 @@ end
 #include "../world.ceu"
 
 class GameSession with
-    var _PingusLevel&& plf_;
+    var _PingusLevel& plf;
 do
     var bool is_paused         = false;
     var bool is_fast_forwarded = false;
     var bool do_single_step    = false;
 
-    var _PingusLevel&? plf;
-    finalize
-        this.plf = &_XXX_NOHOLD(this.plf_);
-    with
-        // TODO
-    end
+    _GLOBAL_ACTIONHOLDER = _XXX_PURE({new ActionHolder}(this.plf));
 
-    _GLOBAL_ACTIONHOLDER = _XXX_PURE({new ActionHolder}(this.plf!));
-
-    _GAMESESSION_RESULT.plf = _XXX_PURE(this.plf!);
+    _result.plf = _XXX_PURE(this.plf);
 
     /// TODO: from "on_startup", called on creation and when popped back
     if {globals::developer_mode} then
-        _log_info("Starting Music: %1%", this.plf!.get_music());
+        _log_info("Starting Music: %1%", this.plf.get_music());
     end
-    if this.plf!.get_music()=="none"
-    or this.plf!.get_music().empty()
+    if this.plf.get_music()=="none"
+    or this.plf.get_music().empty()
     then
         {Sound::PingusSound::stop_music();};
     else
-        call {Sound::PingusSound::play_music}(this.plf!.get_music());
+        call {Sound::PingusSound::play_music}(this.plf.get_music());
     end
 
     var PingusCounter counter = PingusCounter(0,0,0,0,
-                                    this.plf!.get_number_of_pingus(),
-                                    this.plf!.get_number_to_save());
+                                    this.plf.get_number_of_pingus(),
+                                    this.plf.get_number_to_save());
 
     var World world with
-        this.plf = &plf!;
+        this.plf = &plf;
         this.counter = &counter;
     end;
 
@@ -138,19 +131,19 @@ do
         end
     end
 
-    _GAMESESSION_RESULT.saved     = counter.number_of_exited;
-    _GAMESESSION_RESULT.killed    = counter.number_of_killed;
-    _GAMESESSION_RESULT.total     = (int)_GAMESESSION_RESULT.plf.get_number_of_pingus();
-    _GAMESESSION_RESULT.needed    = (int)_GAMESESSION_RESULT.plf.get_number_to_save();
-    _GAMESESSION_RESULT.max_time  = (int)_GAMESESSION_RESULT.plf.get_time();
-    _GAMESESSION_RESULT.used_time = world.game_time;
+    _result.saved     = counter.number_of_exited;
+    _result.killed    = counter.number_of_killed;
+    _result.total     = (int)_result.plf.get_number_of_pingus();
+    _result.needed    = (int)_result.plf.get_number_to_save();
+    _result.max_time  = (int)_result.plf.get_time();
+    _result.used_time = world.game_time;
 
     { // Write the savegame
-        Savegame savegame(GAMESESSION_RESULT.plf.get_resname(),
-                        (GAMESESSION_RESULT.saved >= GAMESESSION_RESULT.needed) ? Savegame::FINISHED : 
+        Savegame savegame(result.plf.get_resname(),
+                        (result.saved >= result.needed) ?  Savegame::FINISHED : 
                         Savegame::ACCESSIBLE,
-                        GAMESESSION_RESULT.used_time,
-                        GAMESESSION_RESULT.saved);
+                        result.used_time,
+                        result.saved);
         SavegameManager::instance()->store(savegame);
     };
 end

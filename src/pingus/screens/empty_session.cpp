@@ -1,7 +1,7 @@
 #include "pingus/screens/empty_session.hpp"
 #include "ceu_vars.h"
 
-EmptySession::EmptySession(const PingusLevel& arg_plf, bool arg_show_result_screen) { }
+EmptySession::EmptySession(void) { }
 
 /// TODO: move to proper place!
 #include "engine/display/sdl_framebuffer_surface_impl.hpp"

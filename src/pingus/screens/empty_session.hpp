@@ -8,7 +8,7 @@
 class EmptySession : public GUIScreen
 {
 public:
-  EmptySession(const PingusLevel& arg_plf, bool arg_show_result_screen);
+  EmptySession(void);
   ~EmptySession () {}
   void draw_background (DrawingContext& gc) { }
   void process_scroll_event (const Input::ScrollEvent& ev) { }

@@ -562,77 +562,11 @@ PingusMain::start_game ()
 
     screen_manager.push_screen(editor);
   }
-  else if (cmd_options.rest.is_set())
-  { // just start the map that was passed on the command line
-    if (StringUtil::has_suffix(cmd_options.rest.get(), ".pingus-demo"))
-    { // Demo file
-assert(!"NOT PORTED");
-#if 0
-      screen_manager.push_screen
-        (std::make_shared<DemoSession>(Pathname(cmd_options.rest.get(), Pathname::SYSTEM_PATH)));
-#endif
-    }
-    else if (StringUtil::has_suffix(cmd_options.rest.get(), ".font"))
-    {
-assert(!"NOT PORTED");
-#if 0
-      Pathname filename(cmd_options.rest.get(), Pathname::SYSTEM_PATH);
-      screen_manager.push_screen(std::make_shared<FontTestScreen>(filename));
-#endif
-    }
-    else if (StringUtil::has_suffix(cmd_options.rest.get(), ".credits"))
-    {
-assert(!"NOT PORTED");
-#if 0
-      Pathname filename(cmd_options.rest.get(), Pathname::SYSTEM_PATH);
-      screen_manager.push_screen(std::make_shared<Credits>(filename));
-#endif
-    }
-    else if (StringUtil::has_suffix(cmd_options.rest.get(), ".worldmap"))
-    {
-      Pathname filename(cmd_options.rest.get(), Pathname::SYSTEM_PATH);
-
-      std::shared_ptr<WorldmapNS::WorldmapScreen> worldmap_screen = std::make_shared<WorldmapNS::WorldmapScreen>();
-      worldmap_screen->load(filename);
-      ScreenManager::instance()->push_screen(worldmap_screen);
-    }
-    else if (StringUtil::has_suffix(cmd_options.rest.get(), ".story"))
-    {
-assert(!"NOT PORTED");
-#if 0
-      screen_manager.push_screen(std::make_shared<StoryScreen>(FileReader::parse(Pathname(cmd_options.rest.get(),
-                                                                                          Pathname::SYSTEM_PATH))));
-#endif
-    }
-    else if (StringUtil::has_suffix(cmd_options.rest.get(), ".levelset"))
-    {
-assert(!"NOT PORTED");
-#if 0
-      std::shared_ptr<LevelMenu> lvlm = std::make_shared<LevelMenu>();
-      std::unique_ptr<Levelset> levelset = Levelset::from_file(Pathname(cmd_options.rest.get(), Pathname::SYSTEM_PATH));
-      lvlm->set_levelset(levelset.release());
-      screen_manager.push_screen(lvlm);
-#endif
-    }
-    else
-    { // Level file
-      PingusLevel plf = PLFResMgr::load_plf_from_filename(Pathname(cmd_options.rest.get(), Pathname::SYSTEM_PATH));
-      screen_manager.push_screen(std::make_shared<EmptySession>(plf,true));
-      PingusLevel* p = &plf;
-      ceu_sys_go(&CEU_APP, CEU_IN_MAIN, &p);
-#if 0
-      screen_manager.push_screen
-        (std::make_shared<StartScreen>(PLFResMgr::load_plf_from_filename(Pathname(cmd_options.rest.get(),
-                                                                                  Pathname::SYSTEM_PATH))));
-#endif
-    }
-  }
-  else // start a normal game
+  else
   {
-assert(!"NOT PORTED");
-    log_info("starting normal game");
-    ///screen_manager.push_screen(std::make_shared<PingusMenu>());
-    log_info("done: starting normal game");
+    CommandLineOptions* p = &cmd_options;
+    screen_manager.push_screen(std::make_shared<EmptySession>());
+    ceu_sys_go(&CEU_APP, CEU_IN_MAIN, &p);
   }
 
   screen_manager.display();

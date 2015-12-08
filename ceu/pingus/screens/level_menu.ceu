@@ -403,23 +403,10 @@ do
             if v == -1 then
                 break;
             end
-            var bool go = do StartScreen with
-                            this.plf_ = _XXX_PURE(&&_current_levelset:get_level(v):plf);
-                          end;
-            if not go then
-                continue;
-            end
-            loop do
-                do GameSession with
-                    this.plf_ = _XXX_PURE(&&_current_levelset:get_level(v):plf);
-                end;
-                var bool retry = do ResultScreen with
-                                    this.result = &&_GAMESESSION_RESULT;
-                                 end;
-                if not retry then
-                    break;
-                end
-            end
+            do Start_Game_Result_Loop with
+                this.plf    = &_XXX_PURE(&&_current_levelset:get_level(v):plf);
+                this.result = &_XXX_PURE(&&_result);
+            end;
         end
     end
 end
