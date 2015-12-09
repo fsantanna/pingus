@@ -13,7 +13,12 @@ class RectComponent with
     event void      on_click;
 
     function (int x, int y)=>bool is_at;
+    function (Rect& rect)=>RectComponent build;
 do
+    function (Rect& rect)=>RectComponent build do
+        this.rect = &rect;
+    end
+
     par do
         loop do
             var int x, y;

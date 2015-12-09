@@ -4,39 +4,24 @@
 #include "../../engine/gui/rect_component.ceu"
 
 class ArmageddonButton with
-    var int x;
-    var int y;
-    event void ok;
-    function (int x, int y)=>ArmageddonButton build;
+    var Rect& rect;
+    function (Rect& rect)=>ArmageddonButton build;
 do
-    function (int x, int y)=>ArmageddonButton build do
-        this.x = x;
-        this.y = y;
+    function (Rect& rect)=>ArmageddonButton build do
+        this.rect = &rect;
     end
 
-    var Rect rect = Rect(this.x,this.y, 38,60);
-    var RectComponent component with
-        this.rect  = &rect;
-        //this.state = &global:world!:get_state();
-    end;
+    this.rect.width  = 38;
+    this.rect.height = 60;
+    var RectComponent component = RectComponent.build(&this.rect);
 
-    var float xf = this.x;
-    var float yf = this.y;
     do
-        var Sprite _ with
-            this.is_world = false;
-            this.x    = &xf;
-            this.y    = &yf;
-            this.name = "core/buttons/hbuttonbgb";
-        end;
-        var Sprite sprite with
-            this.is_world = false;
-            this.x    = &xf;
-            this.y    = &yf;
-            this.name = "core/buttons/armageddon_anim";
-        end;
-        sprite.frame_delay = 0;
-        sprite.set_frame(7);
+        var SpriteR _ = SpriteR.build_name(&outer.rect,
+                                           "core/buttons/hbuttonbgb");
+        var SpriteR s = SpriteR.build_name(&outer.rect,
+                                           "core/buttons/armageddon_anim");
+        s.frame_delay = 0;
+        s.set_frame(7);
 
         loop do
             await component.on_primary_button_pressed;
@@ -48,18 +33,10 @@ do
     end
 
     do
-        var Sprite _ with
-            this.is_world = false;
-            this.x    = &xf;
-            this.y    = &yf;
-            this.name = "core/buttons/hbuttonbg";
-        end;
-        var Sprite _ with
-            this.is_world = false;
-            this.x    = &xf;
-            this.y    = &yf;
-            this.name = "core/buttons/armageddon_anim";
-        end;
+        var SpriteR _ = SpriteR.build_name(&outer.rect,
+                                           "core/buttons/hbuttonbgb");
+        var SpriteR _ = SpriteR.build_name(&outer.rect,
+                                           "core/buttons/armageddon_anim");
         emit global:go_armageddon;
         await FOREVER;
     end

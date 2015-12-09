@@ -28,6 +28,7 @@ class Font;
 class Sprite;
 struct CEU_Surface;
 struct CEU_Sprite;
+struct CEU_SpriteR;
 
 /** The DrawingContext collects all DrawingRequests and allows you to
     flush them all down to the graphics card in one run, this has the
@@ -74,6 +75,7 @@ public:
 ///
   void draw(CEU_Surface* sfc, const Vector2i& pos, float z = 0);
   void draw(CEU_Sprite* sprite, const Vector2i& pos, float z = 0);
+  void draw(CEU_SpriteR* sprite, const Vector2i& pos, float z = 0);
 
   /** Fills the screen with a given color, this is different from
       clear() in that it doesn't remove other DrawingRequest from the

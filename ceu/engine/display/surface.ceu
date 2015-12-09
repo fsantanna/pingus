@@ -30,6 +30,7 @@ do
     var _FramebufferSurface&? framebuffer_surface;
     //do
         if surface != null then
+_assert(not "ERR");
             finalize
                 framebuffer_surface =
                     &{new FramebufferSurface}(

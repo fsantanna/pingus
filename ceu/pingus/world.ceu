@@ -127,9 +127,11 @@ do
     var TimeDisplay      _ = TimeDisplay.build(plf.get_time(), &game_time);
     var CPingusCounter   _ = CPingusCounter.build(&counter);
 
+
     var int dwidth  = {Display::get_width()};
     var int dheight = {Display::get_height()};
-    var ArmageddonButton _ = ArmageddonButton.build(dwidth-40*1, dheight-62);
+    var Rect r = Rect(dwidth-40*1, dheight-62, 0,0);
+    var ArmageddonButton _ = ArmageddonButton.build(&r);
     var ForwardButton    _ = ForwardButton.build   (dwidth-40*2, dheight-62);
     var PauseButton      _ = PauseButton.build     (dwidth-40*3, dheight-62);
     var ButtonPanel button_panel;
