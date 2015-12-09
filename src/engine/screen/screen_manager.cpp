@@ -23,7 +23,7 @@
 #include "engine/display/framebuffer.hpp"
 #include "engine/input/manager.hpp"
 #include "engine/screen/screen.hpp"
-#include "pingus/fps_counter.hpp"
+///#include "pingus/fps_counter.hpp"
 #include "pingus/fonts.hpp"
 #include "pingus/globals.hpp"
 
@@ -143,7 +143,7 @@ ScreenManager::ScreenManager(Input::Manager& arg_input_manager,
   input_manager(arg_input_manager),
   input_controller(arg_input_controller),
   display_gc(new DrawingContext()),
-  fps_counter(),
+  ///fps_counter(),
   cursor(),
   screens(),
   mouse_pos(),
@@ -154,7 +154,7 @@ ScreenManager::ScreenManager(Input::Manager& arg_input_manager,
   instance_ = this;
 
   cursor = Sprite("core/cursors/animcross");
-  fps_counter = std::unique_ptr<FPSCounter>(new FPSCounter());
+  ///fps_counter = std::unique_ptr<FPSCounter>(new FPSCounter());
 }
 
 ScreenManager::~ScreenManager()
@@ -249,7 +249,7 @@ ScreenManager::display()
       if (cur >= FRAMES_LAST_t+5000) {
         FRAMES_LAST_t = cur;
         int diff = FRAMES_N - FRAMES_LAST_n;
-        printf("[5s] %6d FPS=%3d\n", diff, diff/5);
+        ///printf("[5s] %6d FPS=%3d\n", diff, diff/5);
         FRAMES_LAST_n = FRAMES_N;
       }
     }
@@ -305,9 +305,10 @@ ScreenManager::update(float delta, const std::vector<Input::Event>& events)
     cursor.render(mouse_pos.x, mouse_pos.y, *Display::get_framebuffer());
 
   // Draw FPS Counter
+  ceu_sys_go(&CEU_APP, CEU_IN_FPS_DRAW, &display_gc);
   if (globals::print_fps)
   {
-    fps_counter->draw();
+    ///fps_counter->draw();
     if (globals::developer_mode)
     {
       Fonts::pingus_small.render(origin_center, Display::get_width()/2, 60,

@@ -1,0 +1,46 @@
+#ifndef _FPS_COUNTER_CEU
+#define _FPS_COUNTER_CEU
+
+native/pre do
+    ##include <SDL.h>
+    ##include <string>
+    ##include <sstream>
+    static std::string fps_string;
+end
+
+class FPSCounter with
+do
+    var int count = 0;
+    par do
+        loop do
+            watching 1s do
+                every SCREENMANAGER_UPDATE do
+                    count = count + 1;
+                end
+            end
+            {
+                {
+                    std::ostringstream str;
+                    str << THIS(CEU_FPSCounter)->count << " fps";
+                    fps_string = str.str();
+                }
+            };
+            count = 0;
+        end
+    with
+        loop do
+            var _DrawingContext&& gc = await SCREENMANAGER_DRAW;
+            if {globals::print_fps} then
+                gc:print_center({Fonts::pingus_small},
+                                _Vector2i({Display::get_width()}/2, 35),
+                                _fps_string);
+                gc = await SCREENMANAGER_DRAW;
+                gc:print_center({Fonts::pingus_small},
+                                _Vector2i({Display::get_width()}/2, 35),
+                                { "+ " + fps_string + " +"});
+            end
+        end
+    end
+end
+
+#endif

@@ -49,6 +49,7 @@ input (int,int) ON_SECONDARY_BUTTON_PRESSED;
 input (int,int) ON_SECONDARY_BUTTON_RELEASED;
 input float ON_ACTION_AXIS_MOVE;
 input _DrawingContext&& SCREENMANAGER_DRAW;
+input _DrawingContext&& FPS_DRAW;
 input float SCREENMANAGER_UPDATE;
 input void WORLD_UPDATE;
 
@@ -180,6 +181,7 @@ input _CommandLineOptions&& MAIN;
 
 event bool go_pause;
 
+#include "pingus/fps_counter.ceu"
 #include "pingus/screens/credits.ceu"
 #include "pingus/screens/story_screen.ceu"
 #include "pingus/screens/pingus_menu.ceu"
@@ -306,6 +308,8 @@ with
         do OptionMenu;
         emit go_pause => false;
     end
+with
+    do FPSCounter;  // never terminates
 end
 
 escape 0;

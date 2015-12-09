@@ -30,7 +30,7 @@ struct Event;
 class Controller;
 }
 
-class FPSCounter;
+///class FPSCounter;
 class Size;
 class DrawingContext;
 class Screen;
@@ -48,7 +48,7 @@ private:
 
   std::unique_ptr<DrawingContext> display_gc;
 
-  std::unique_ptr<FPSCounter> fps_counter;
+  ///std::unique_ptr<FPSCounter> fps_counter;
   Sprite cursor;
 
   /** Screen stack (first is the screen, second is delete_screen,

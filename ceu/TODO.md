@@ -18,6 +18,7 @@
     - wall-clock time
         - story chars
         - credits up
+        - fps
     - pause
         - alternative is again hierarchies which enable/disable forwarding
     = WHY
