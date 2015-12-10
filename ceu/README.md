@@ -12,8 +12,8 @@ from C++ to the programming language
 Céu [1](http://ceu-lang.org/)
     [2](https://github.com/fsantanna/ceu).
 
-<img src="pingus-1.png"/>
-<img src="pingus-2.png"/>
+<img src="pingus-1.png" width="300"/>
+<img src="pingus-2.png" width="300"/>
 
 # Why?
 
@@ -59,50 +59,52 @@ In order of importance, these are the motivations to port Pingus to Céu:
 
 ## Warming Up!
 
+<img src="double-click-opt.gif" align="right" valign="top"/>
+
 Let's consider the case of handling double clicks.
 
 In Pingus, double clicking the *Armageddon* button in under 1 second literally 
 all pingus, as illustrated in the figure in the right.
 
-<img src="double-click-opt.gif" align="right" valign="top"/>
-
 The code in C++ uses the class `ArmageddonButton` which extends `RectComponent` 
 with custom rendering and event-handling methods.
 Below, we show only the parts related to detect a double click on the button:
 
-    ArmageddonButton::ArmageddonButton(Server* s, int x, int y) :
-        RectComponent(Rect(Vector2i(x, y), Size(38, 60))),
-        pressed(false);
-        <...>
-    {
-        <...>
-    }
+```
+ArmageddonButton::ArmageddonButton(Server* s, int x, int y) :
+    RectComponent(Rect(Vector2i(x, y), Size(38, 60))),
+    pressed(false);
+    <...>
+{
+    <...>
+}
 
-    void ArmageddonButton::draw (DrawingContext& gc) {
-        <...>
-    }
+void ArmageddonButton::draw (DrawingContext& gc) {
+    <...>
+}
 
-    void ArmageddonButton::update (float delta) {
-        <...>
-        if (pressed) {
-            press_time += delta;
-            if (press_time > 1.0f) {
-                press_time = 0;
-                pressed = false;
-            }
-        } else {
-            pressed = false;
+void ArmageddonButton::update (float delta) {
+    <...>
+    if (pressed) {
+        press_time += delta;
+        if (press_time > 1.0f) {
             press_time = 0;
+            pressed = false;
         }
+    } else {
+        pressed = false;
+        press_time = 0;
     }
+}
 
-    void ArmageddonButton::on_primary_button_click (int x, int y) {
-        if (pressed) {
-            server->send_armageddon_event();
-        } else {
-            pressed = true;
-        }
+void ArmageddonButton::on_primary_button_click (int x, int y) {
+    if (pressed) {
+        server->send_armageddon_event();
+    } else {
+        pressed = true;
     }
+}
+```
 
 The class uses the variable `pressed` (ln. X) to remember the first click (ln. 
 X).
