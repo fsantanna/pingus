@@ -12,8 +12,8 @@ from C++ to the programming language
 Céu <a href="http://ceu-lang.org/">1</a>
     <a href="https://github.com/fsantanna/ceu">2</a>.</p>
 
-<p><img src="pingus-1.png"/>
-<img src="pingus-2.png"/></p>
+<p><img src="pingus-1.png" width="300"/>
+<img src="pingus-2.png" width="300"/></p>
 
 <h1>Why?</h1>
 
@@ -61,51 +61,52 @@ code size, and execution time (e.g., FPS rate)?</li>
 
 <h2>Warming Up!</h2>
 
+<p><img src="double-click-opt.gif" align="right" valign="top"/></p>
+
 <p>Let&#39;s consider the case of handling double clicks.</p>
 
 <p>In Pingus, double clicking the <em>Armageddon</em> button in under 1 second literally 
 all pingus, as illustrated in the figure in the right.</p>
 
-<p><img src="double-click-opt.gif" align="right" valign="top"/></p>
-
 <p>The code in C++ uses the class <code>ArmageddonButton</code> which extends <code>RectComponent</code> 
 with custom rendering and event-handling methods.
 Below, we show only the parts related to detect a double click on the button:</p>
 
-<pre><code>ArmageddonButton::ArmageddonButton(Server* s, int x, int y) :
+<p>```
+ArmageddonButton::ArmageddonButton(Server* s, int x, int y) :
     RectComponent(Rect(Vector2i(x, y), Size(38, 60))),
     pressed(false);
     &lt;...&gt;
 {
     &lt;...&gt;
-}
+}</p>
 
-void ArmageddonButton::draw (DrawingContext&amp; gc) {
+<p>void ArmageddonButton::draw (DrawingContext&amp; gc) {
     &lt;...&gt;
-}
+}</p>
 
-void ArmageddonButton::update (float delta) {
+<p>void ArmageddonButton::update (float delta) {
     &lt;...&gt;
     if (pressed) {
-        press_time += delta;
-        if (press_time &gt; 1.0f) {
-            press_time = 0;
+        press<em>time += delta;
+        if (press</em>time &gt; 1.0f) {
+            press<em>time = 0;
             pressed = false;
         }
     } else {
         pressed = false;
-        press_time = 0;
+        press</em>time = 0;
     }
-}
+}</p>
 
-void ArmageddonButton::on_primary_button_click (int x, int y) {
+<p>void ArmageddonButton::on<em>primary</em>button<em>click (int x, int y) {
     if (pressed) {
-        server-&gt;send_armageddon_event();
+        server-&gt;send</em>armageddon_event();
     } else {
         pressed = true;
     }
 }
-</code></pre>
+```</p>
 
 <p>The class uses the variable <code>pressed</code> (ln. X) to remember the first click (ln. 
 X).

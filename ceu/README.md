@@ -70,7 +70,7 @@ The code in C++ uses the class `ArmageddonButton` which extends `RectComponent`
 with custom rendering and event-handling methods.
 Below, we show only the parts related to detect a double click on the button:
 
-```
+```C++
 ArmageddonButton::ArmageddonButton(Server* s, int x, int y) :
     RectComponent(Rect(Vector2i(x, y), Size(38, 60))),
     pressed(false);
