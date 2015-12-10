@@ -1,37 +1,3 @@
-- DOC: two main points:
-    = Accidental complexity
-    - state machines vs await
-    - class hierarchies/dispatching vs await
-    - CPS vs return continue
-        - screen trasnitions
-        - story screen advancing
-        - story screen -> credits screen
-        - worse w/o closures
-    - signaling/f pointer vs events
-        - option save on click
-        - global events double direction
-            - key/mouse-but events
-                - sendo que but tem que ficar highlight ou nao
-        - verificar caso do option_menu
-            - configuracao pode ser alterada por fora?
-        - worse w/o closures
-    - wall-clock time
-        - story chars
-        - credits up
-        - fps
-    - pause
-        - alternative is again hierarchies which enable/disable forwarding
-    = WHY
-        - state machines
-        - C libraries
-        - static memory
-        - control safety
-    = WHY NOT
-        - functional, immutability
-        - type safety
-        - generic code
-        - tooling
-    = BOUNS: Lua
 - BUG: a cada reinicio, o dobro de pingus sao criados
 - BUG: is_world=false in sprite.ceu
 - BUG: cliques nos pingus
@@ -63,17 +29,11 @@
 - testar previous action: Climber->Jumper->direction-change/Blocker->Faller->Blocker
 - SDL_DT p/ pingus/actions/sprites
 
-- GOALS: stress-test the language
-    - robustness
-        - silly bugs (untested stuff)
-    - programability
-        - everyday stuff
-            - maths, vectors
-    - performance
-        - FPS, RAM, ROM
-    - false positives (too much?)
-        - tight loops
-    - C tricks: {}, _XXX, etc
+= GIFs
+- key-mon
+- silentcast
+- convert double-click.gif -fuzz 10% -layers Optimize double-click-opt.gif
+
 
 # PORTING
 
