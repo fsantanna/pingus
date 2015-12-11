@@ -6,14 +6,14 @@
 <h1>What?</h1>
 
 <p>This report documents the process of porting the video game
-Pingus <a href="http://pingus.seul.org/">1</a>
-       <a href="https://github.com/Pingus/pingus">2</a>
+Pingus (<a href="http://pingus.seul.org/">1</a>
+        <a href="https://github.com/Pingus/pingus">2</a>)
 from C++ to the programming language
-Céu <a href="http://ceu-lang.org/">1</a>
-    <a href="https://github.com/fsantanna/ceu">2</a>.</p>
+Céu (<a href="http://ceu-lang.org/">1</a>
+     <a href="https://github.com/fsantanna/ceu">2</a>).</p>
 
-<p><img src="pingus-1.png" width="300"/>
-<img src="pingus-2.png" width="300"/></p>
+<p><img src="pingus-1.png" width="50%"/>
+<img src="pingus-2.png" width="50%"/></p>
 
 <h1>Why?</h1>
 
@@ -68,11 +68,11 @@ code size, and execution time (e.g., FPS rate)?</li>
 <p>In Pingus, double clicking the <em>Armageddon</em> button in under 1 second literally 
 all pingus, as illustrated in the figure in the right.</p>
 
-<p>The code in C++ uses the class <code>ArmageddonButton</code> which extends <code>RectComponent</code> 
-with custom rendering and event-handling methods.
+<p>The code in C++ (<a href="https://github.com/fsantanna/pingus/blob/master/src/pingus/components/action_button.cpp">1</a>) uses the class <code>ArmageddonButton</code> which 
+extends <code>RectComponent</code> with custom rendering and event-handling methods.
 Below, we show only the parts related to detect a double click on the button:</p>
 
-<p>```
+<p>```C++
 ArmageddonButton::ArmageddonButton(Server* s, int x, int y) :
     RectComponent(Rect(Vector2i(x, y), Size(38, 60))),
     pressed(false);
@@ -119,7 +119,8 @@ For instance, the distance between the declaration (ln. X) and the last access
 (ln. X) is over X lines, making the understanding and maintenance of the 
 pattern more difficult.</p>
 
-<p>The code in Céu defines the class <code>ArmageddonButton</code> as follows:</p>
+<p>The code in Céu (<a href="ceu-armageddon">1</a>) defines the class <code>ArmageddonButton</code> as 
+follows:</p>
 
 <pre><code>class ArmageddonButton with
     var Rect&amp; rect;
@@ -228,8 +229,36 @@ State machines is a form of expressing XXX through data</p>
 <ul>
 <li>control
 = Accidental complexity</li>
-<li>not pure functions</li>
+<li><p>not pure functions</p></li>
+<li><p>end of document</p>
+
+<ul>
+<li>GC, why gcc doesn&#39;t solve: lapsed listeners
+
+<ul>
+<li>static mem, orgs, aliases, lexical scope</li>
+</ul></li>
+<li>GC also doesn&#39;t solve resources:
+Garbage collecting resources (file handles, etc):</li>
+</ul></li>
 </ul>
+
+<p>This is a very different question, because resource freeing has observable consequences beyond performance and memory consumption -- unlike garbage collection, which is justified by the realization that if you don&#39;t have any pointers to a value in memory, then it can simply dissapear (or not) without observable consequences.</p>
+
+<p>For example, if you have a file handle open for writing, then other applications can&#39;t open that file. You want such resource usage to be clear and deterministic, so that files don&#39;t just remain open for a random duration depending on the garbage collector&#39;s internals.</p>
+
+<p>In general, I would not advocate garbage collection of OS resources or any other thing requiring explicit cleanup. For example, I think that Java/C# finalizers are a misguided idea, because they have observable, nondeterministic consequences. That is exactly the sort of feature a high-level, secure language should avoid. The bizarre finalization state diagrams for those languages should be enough to indicate that something is wrong here!</p>
+
+<p>For resource freeing, constructs which guarantee that every resource is freed look promising (think of wrapping a file handle in an abstraction like a Haskell State monad). Or just plain old handles with explicit closing (and thus the risk of not closing a handle, closing it when it&#39;s not open, etc).</p>
+
+<p>Garbage collection without type information?</p>
+
+<p>C++ garbage collection would greatly benefit if it was assisted by the compiler. During a scan, only pointers to objects need to be scanned. Unfortunately, it is not possible without assistance from the compiler. That is the reason third-party solutions are not good enough for performance-intensive applications.</p>
+
+<p>Memory management and resource management is not the same. Resources other than memory are usually few in a program and not interconnected. A program may have files, sockets, windows and other types of handles, but usually these handles are &#39;dead ends&#39;, i.e. they do not contain references to other handles. Memory, on the other hand, is a totally different beast: a block of memory usually contains references to other blocks of memory. So the idea of finalizers is a bad one, since resources other than memory should be freed by RAII techniques (for deterministic resource management), but memory should be handled by garbage collector.</p>
+
+<p>I will say it again, because no one seemed to notice it: could it be that there exists a &quot;calculus&quot; for resource management?
+By Achilleas Margaritis at Fri, 2006-02-03 11:46 | login or register to post comment</p>
 
 <h2>Idioms</h2>
 

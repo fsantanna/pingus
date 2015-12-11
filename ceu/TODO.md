@@ -30,7 +30,7 @@
 - SDL_DT p/ pingus/actions/sprites
 
 = GIFs
-- key-mon
+- key-mon --nometa --nomouse --noshift --noalt --noctrl
 - silentcast
 - convert double-click.gif -fuzz 10% -layers Optimize double-click-opt.gif
 

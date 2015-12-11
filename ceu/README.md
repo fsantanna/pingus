@@ -12,8 +12,8 @@ from C++ to the programming language
 Céu ([1](http://ceu-lang.org/)
      [2](https://github.com/fsantanna/ceu)).
 
-<img src="pingus-1.png" width="50%"/>
-<img src="pingus-2.png" width="50%"/>
+<img src="pingus-1.png" width="45%"/>
+<img src="pingus-2.png" width="45%"/>
 
 # Why?
 
@@ -162,7 +162,7 @@ In this report, we describe 6 recurrent patterns found in Pingus and discuss
 examples with corresponding implementations in C++ and Céu.
 In order of recurrence:
 
-1. Finite State Machines
+1. **Finite State Machines**
     State machines describe the behavior of games through transitions between 
     states according to event occurrences.
     The double click behavior above is an example of a state machine:
@@ -170,15 +170,15 @@ In order of recurrence:
     clicked or not, according to the occurences of `on_primary_button_click`
     and `update` after 1 second, respectively.
 
-2. Dispatching Hierarchies
-    Some entities in games act as containers for child entities.
+2. **Dispatching Hierarchies**
+    Entities in games may act as containers for child entities.
     In Pingus, the *Main Menu* in the figure above is represented as a 
     container class with five buttons as children.
     When a button click occurs, it is first dispatched to the container class,
-    which may take an action before deciding to forward (or not ) the event to
-    its children.
+    which may take an action before deciding to forward the event (or not) to 
+    the buttons.
 
-3. Continuation Passing
+3. **Continuation Passing**
     The completion of an activity in a game has a continuation, i.e., something 
     that should execute next.
     If the execution flow is dynamic, the program has to tell the activity 
@@ -187,24 +187,24 @@ In order of recurrence:
     return to the main menu, depending on how it was invoked from the command
     line.
 
-4. Signaling
+4. **Signaling Mechanisms**
+    Entities that need to communicate need some signaling mechanism, specially 
+    if there is no hierarchy relation between them.
+    As illustrated in the figure in the right, the clicking the checkbox 
+    toggles the *Mouse Grab* flag.
+    However, at any point in the game (even outside the *Option Menu*), 
+    pressing *Ctrl-G* also toggles the same flag, which should adjust the
+    checkbox accordingly.
 
-    - signaling/f pointer vs events
-        - option save on click
-        - global events double direction
-            - key/mouse-but events
-                - sendo que but tem que ficar highlight ou nao
-        - verificar caso do option_menu
-            - configuracao pode ser alterada por fora?
-        - worse w/o closures
+5. **Wall-Clock Timers**
+    Wall-clock timers measure the passage of time from the real world (e.g., 10 
+    seconds) and can handle periodic sampling and timeout watchdogs.
+    The double click behavior above uses a timeout of 1 second to restart.
 
-5. Timers
-    - wall-clock time
-        - story chars
-        - credits up
-        - fps
+6. **Pausing**
+    Games typically provides means to pause, preventing parts of the game to 
+    progress.
 
-6. Pausing
     - pause
         - alternative is again hierarchies which enable/disable forwarding
 
@@ -306,7 +306,7 @@ Map the whole behavior into a single number is a problem.
         - worse w/o closures
     Typically, screen transitions are not static
 
-### Signaling
+### Signaling Between Entities
 
     - signaling/f pointer vs events
         - option save on click
@@ -317,11 +317,20 @@ Map the whole behavior into a single number is a problem.
             - configuracao pode ser alterada por fora?
         - worse w/o closures
 
-### Wall-Clock Time
+### Wall-Clock Timers
     - wall-clock time
         - story chars
         - credits up
         - fps
+Activities that involve reactions to \emph{wall-clock time}%
+\footnote{
+By wall-clock time we mean the passage of time from the real world, measured in 
+hours, minutes, etc.
+}
+appear in typical patterns of embedded development, such as timeout watchdogs 
+and sensor samplings.
+However, support for wall-clock time is somewhat low-level in existing 
+languages, usually through timer callbacks or ``sleep'' blocking calls.
 
 ### Pausing
     - pause
