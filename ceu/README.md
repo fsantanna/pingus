@@ -6,14 +6,14 @@
 # What?
 
 This report documents the process of porting the video game
-Pingus [1](http://pingus.seul.org/)
-       [2](https://github.com/Pingus/pingus)
+Pingus ([1](http://pingus.seul.org/)
+        [2](https://github.com/Pingus/pingus))
 from C++ to the programming language
-Céu [1](http://ceu-lang.org/)
-    [2](https://github.com/fsantanna/ceu).
+Céu ([1](http://ceu-lang.org/)
+     [2](https://github.com/fsantanna/ceu)).
 
-<img src="pingus-1.png" width="300"/>
-<img src="pingus-2.png" width="300"/>
+<img src="pingus-1.png" width="50%"/>
+<img src="pingus-2.png" width="50%"/>
 
 # Why?
 
@@ -66,8 +66,8 @@ Let's consider the case of handling double clicks.
 In Pingus, double clicking the *Armageddon* button in under 1 second literally 
 all pingus, as illustrated in the figure in the right.
 
-The code in C++ uses the class `ArmageddonButton` which extends `RectComponent` 
-with custom rendering and event-handling methods.
+The code in C++ ([1][cpp-armageddon]) uses the class `ArmageddonButton` which 
+extends `RectComponent` with custom rendering and event-handling methods.
 Below, we show only the parts related to detect a double click on the button:
 
 ```C++
@@ -115,9 +115,10 @@ Even though the variable `pressed` is private, unrelated methods, such as
 Also, the accesses are spread across the class definition in multiple methods.
 For instance, the distance between the declaration (ln. X) and the last access 
 (ln. X) is over X lines, making the understanding and maintenance of the 
-pattern more difficult.
+behavior more difficult.
 
-The code in Céu defines the class `ArmageddonButton` as follows:
+The code in Céu ([1][ceu-armageddon]) defines the class `ArmageddonButton` as 
+follows:
 
     class ArmageddonButton with
         var Rect& rect;
@@ -138,7 +139,7 @@ The code in Céu defines the class `ArmageddonButton` as follows:
     end
 
 Besides methods (not used above), classes in Céu can have an execution body 
-that reacts events.
+that reacts to events.
 The double click detection is a `loop` (ln. X-Y) that awaits the first click 
 (ln. X) and then, watching 1 second (ln. X-Y), awaits the second click.
 If the second click occurs within 1 second, we `break` the (ln. X) and signal 
@@ -146,31 +147,45 @@ the double click to the application.
 Otherwise, the `watching` block as a whole aborts and restarts the loop, 
 falling back to the first click await.
 The double click detection in Céu doesn't require an extra state variable and 
-is self-contained in the `loop` (ln. X-Y), describing the pattern with 
+is self-contained in the `loop` (ln. X-Y), describing the behavior with 
 appropriate control-flow mechanisms (e.g., `await` and `watching`).
 
-We believe that some difficulties in implementing control patterns in games is 
-not inherent to the domain, but are the result of accidental complexity due to 
-the use of bad (or the lack of) programming models to handle events 
-concurrently.
+[cpp-armageddon]: https://github.com/fsantanna/pingus/blob/master/src/pingus/components/action_button.cpp
+[ceu-armageddon]: https://github.com/fsantanna/pingus/blob/ceu/ceu/pingus/components/action_button.ceu
+
+We believe that some difficulties in implementing control behaviors in games is 
+not inherent to this domain, but are the result of accidental complexity due to 
+the use of bad (or the lack of) concurrency models to handle events 
+appropriately.
 
 In this report, we describe 6 recurrent patterns found in Pingus and discuss 
-the differences in their implementations in C++ and Céu:
+examples with corresponding implementations in C++ and Céu.
+In order of recurrence:
 
-1. State Machines
-    State machines is a form of expressing XXX through data
-    - state machines vs await
+1. Finite State Machines
+    State machines describe the behavior of games through transitions between 
+    states according to event occurrences.
+    The double click behavior above is an example of a state machine:
+    the `clicked` state variable encodes whether the button is considered to be 
+    clicked or not, according to the occurences of `on_primary_button_click`
+    and `update` after 1 second, respectively.
 
 2. Dispatching Hierarchies
-    - class hierarchies/dispatching vs await
-    - lexical scope
+    Some entities in games act as containers for child entities.
+    In Pingus, the *Main Menu* in the figure above is represented as a 
+    container class with five buttons as children.
+    When a button click occurs, it is first dispatched to the container class,
+    which may take an action before deciding to forward (or not ) the event to
+    its children.
 
 3. Continuation Passing
-    - CPS vs return continue
-        - screen trasnitions
-        - story screen advancing
-        - story screen -> credits screen
-        - worse w/o closures
+    The completion of an activity in a game has a continuation, i.e., something 
+    that should execute next.
+    If the execution flow is dynamic, the program has to tell the activity 
+    where to go when it completes.
+    In Pingus, when the player terminates a level, the game may terminate or
+    return to the main menu, depending on how it was invoked from the command
+    line.
 
 4. Signaling
 
@@ -193,23 +208,94 @@ the differences in their implementations in C++ and Céu:
     - pause
         - alternative is again hierarchies which enable/disable forwarding
 
+All related to event handling and control flow:
+
+<!--
+TODO:
+    - ver os patterns do GPP
+        - nao cubro algum que ocorre no pingus?
+        - cubro algum com nome diferente?
+        - cubro algum que o GPP nao cobre?
+-->
+
 ## The Synchronous Concurrency Model
 
 ## Céu
 
+<!--
 - control
     = Accidental complexity
 - not pure functions
 
+- end of document
+    - GC, why gcc doesn't solve: lapsed listeners
+        - static mem, orgs, aliases, lexical scope
+    - GC also doesn't solve resources:
+Garbage collecting resources (file handles, etc):
+
+This is a very different question, because resource freeing has observable 
+consequences beyond performance and memory consumption - unlike garbage 
+collection, which is justified by the realization that if you don't have any 
+pointers to a value in memory, then it can simply dissapear (or not) without 
+observable consequences.
+
+For example, if you have a file handle open for writing, then other applications can't open that file. You want such resource usage to be clear and deterministic, so that files don't just remain open for a random duration depending on the garbage collector's internals.
+
+In general, I would not advocate garbage collection of OS resources or any other thing requiring explicit cleanup. For example, I think that Java/C# finalizers are a misguided idea, because they have observable, nondeterministic consequences. That is exactly the sort of feature a high-level, secure language should avoid. The bizarre finalization state diagrams for those languages should be enough to indicate that something is wrong here!
+
+For resource freeing, constructs which guarantee that every resource is freed look promising (think of wrapping a file handle in an abstraction like a Haskell State monad). Or just plain old handles with explicit closing (and thus the risk of not closing a handle, closing it when it's not open, etc).
+
+Garbage collection without type information?
+
+C++ garbage collection would greatly benefit if it was assisted by the compiler. During a scan, only pointers to objects need to be scanned. Unfortunately, it is not possible without assistance from the compiler. That is the reason third-party solutions are not good enough for performance-intensive applications.
+
+Memory management and resource management is not the same. Resources other than memory are usually few in a program and not interconnected. A program may have files, sockets, windows and other types of handles, but usually these handles are 'dead ends', i.e. they do not contain references to other handles. Memory, on the other hand, is a totally different beast: a block of memory usually contains references to other blocks of memory. So the idea of finalizers is a bad one, since resources other than memory should be freed by RAII techniques (for deterministic resource management), but memory should be handled by garbage collector.
+
+I will say it again, because no one seemed to notice it: could it be that there exists a "calculus" for resource management?
+By Achilleas Margaritis at Fri, 2006-02-03 11:46 | login or register to post comment
+
+-->
+
 ## Idioms
 
+<!--
 ### State Machines
 
+    At any time, the program can only be in a single state, which globally and 
+    univocally represents the current XXX.
+    This unique and global view of the program state as a single value has 
+maintenance scalability problems (AKA the *state explosion phenomena*).
     - state machines vs await
+    The more XXX, the more states to track, state explosion.
+    The machine transits from state to state
+
+, as we encode the fact
+
+ It can change from one state to another when initiated by a triggering event 
+or condition; this is called a transition.
+    - state machines vs await
+
+Map the whole behavior into a single number is a problem.
+    - hierarchical machines can help, but still has this mapping property
+        - locally unscallabe
+        - still a data sultion to a control problem
+        - explicit state machines vs implicit
+        - incremental implementation requires global changes
+            - in ceu, its just compositions
 
 ### Hierarchies
 
     - class hierarchies/dispatching vs await
+    - difficult to track origin
+        - has to traverse the whole hierarchy
+    - used in pause
+    - not class hier
+    - flat dispatching (diagrama mostrando os dois)
+
+ (e.g., a key press or expiring timer)
+    - class hierarchies/dispatching vs await
+    - lexical scope
+    - visitor pattern
 
 ### Continuations
 
@@ -218,6 +304,7 @@ the differences in their implementations in C++ and Céu:
         - story screen advancing
         - story screen -> credits screen
         - worse w/o closures
+    Typically, screen transitions are not static
 
 ### Signaling
 
@@ -254,6 +341,7 @@ the differences in their implementations in C++ and Céu:
         - generic code
         - tooling
     = BOUNS: Lua
+-->
 
 ## The Code Base
 
@@ -298,6 +386,7 @@ SLOC	Directory	SLOC-by-Language (Sorted)
 109     resource        cpp=109
 47      system          cpp=47
 
+<!--
 Most of
 
  `engine/`, a level `editor/`
@@ -343,11 +432,13 @@ More concretely
 - testar climber, wall-mode-activation
 - testar previous action: Climber->Jumper->direction-change/Blocker->Faller->Blocker
 - SDL_DT p/ pingus/actions/sprites
+-->
 
 # Who?
 
 # When?
 
+<!--
 # PORTING
 
 ```
@@ -452,3 +543,5 @@ if (x) {
 }
 ==>
 { tp C; }
+
+-->
