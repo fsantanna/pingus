@@ -154,9 +154,8 @@ appropriate control-flow mechanisms (e.g., `await` and `watching`).
 [ceu-armageddon]: https://github.com/fsantanna/pingus/blob/ceu/ceu/pingus/components/action_button.ceu
 
 We believe that some difficulties in implementing control behaviors in games is 
-not inherent to this domain, but are the result of accidental complexity due to 
-the use of bad (or the lack of) concurrency models to handle events 
-appropriately.
+not inherent to this domain, but the result of accidental complexity due to the 
+use of bad (or the lack of) concurrency models to handle events appropriately.
 
 In this report, we describe 6 recurrent patterns found in Pingus and discuss 
 examples with corresponding implementations in C++ and Céu.
@@ -202,13 +201,9 @@ In order of recurrence:
     The double click behavior above uses a timeout of 1 second to restart.
 
 6. **Pausing**
-    Games typically provides means to pause, preventing parts of the game to 
-    progress.
-
-    - pause
-        - alternative is again hierarchies which enable/disable forwarding
-
-All related to event handling and control flow:
+    Games typically provides means to temporalily suspend the execution.
+    In Pingus, the player can press a button in the screen to toggle between 
+    pause and resume.
 
 <!--
 TODO:
@@ -219,6 +214,41 @@ TODO:
 -->
 
 ## The Synchronous Concurrency Model
+
+```
+    initialize state;
+    while (true) do
+        read inputs;
+        update state;
+        write outputs;
+    end
+```
+
+The game loop:
+`ScreenManager::display`
+https://github.com/fsantanna/pingus/blob/master/src/engine/screen/screen_manager.cpp#L164
+
+```
+void ScreenManager::display() {
+    Uint32 old = SDL_GetTicks();
+
+    while (!screens.empty()) {
+        // READ INPUTS
+        Uint32 now = SDL_GetTicks();
+        Uint32 delta = now - old;
+        old = now;
+        <read-other-inputs>
+
+        // UPDATE STATE
+        screens.back()->update(delta);
+        <update-other-inputs>
+
+        // WRITE OUTPUTS
+        screens.back()->draw(<...>);
+        Display::flip_display();
+    }
+}
+```
 
 ## Céu
 
@@ -259,6 +289,9 @@ By Achilleas Margaritis at Fri, 2006-02-03 11:46 | login or register to post com
 ## Idioms
 
 <!--
+All patterns relate to event handling and control flow in games, and we argue 
+how Céu offers more appropriate abstractions than existing languages.
+
 ### State Machines
 
     At any time, the program can only be in a single state, which globally and 
@@ -296,6 +329,8 @@ Map the whole behavior into a single number is a problem.
     - class hierarchies/dispatching vs await
     - lexical scope
     - visitor pattern
+
+    - new /delete
 
 ### Continuations
 
@@ -335,6 +370,7 @@ languages, usually through timer callbacks or ``sleep'' blocking calls.
 ### Pausing
     - pause
         - alternative is again hierarchies which enable/disable forwarding
+    - problem with timer callbacks
 
 # Evaluation
 

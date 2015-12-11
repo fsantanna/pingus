@@ -182,6 +182,7 @@ input _CommandLineOptions&& MAIN;
 event bool go_pause;
 
 #include "pingus/fps_counter.ceu"
+#include "pingus/worldmap/worldmap.ceu"
 #include "pingus/screens/credits.ceu"
 #include "pingus/screens/story_screen.ceu"
 #include "pingus/screens/pingus_menu.ceu"
@@ -233,6 +234,7 @@ end;
 par/or do
     pause/if go_pause do
         if _cmd.rest.is_set() then
+            _filename = _Pathname(_cmd.rest.get(), {Pathname::SYSTEM_PATH});
             if {StringUtil::has_suffix(cmd.rest.get(), ".pingus-demo")} then
 // DEMO
                 _assert(not "NOT PORTED");
@@ -241,13 +243,14 @@ par/or do
                 _assert(not "NOT PORTED");
             else/if {StringUtil::has_suffix(cmd.rest.get(), ".credits")} then
 // CREDITS
-                _filename = _Pathname(_cmd.rest.get(), {Pathname::SYSTEM_PATH});
                 do Credits with
                     this.filename = &&_filename;
                 end;
             else/if {StringUtil::has_suffix(cmd.rest.get(), ".worldmap")} then
 // WORLDMAP
-                _assert(not "NOT PORTED");
+                do WorldMap with
+                    this.filename = &&_filename;
+                end;
             else/if {StringUtil::has_suffix(cmd.rest.get(), ".story")} then
 // STORY
                 finalize

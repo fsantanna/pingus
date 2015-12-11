@@ -1,0 +1,47 @@
+#ifndef WORLDMAP_CEU
+#define WORLDMAP_CEU
+
+native/pre do
+    ##include "pingus/worldmap/pingus_worldmap.hpp"
+end
+
+#include "../../engine/gui/surface_button.ceu"
+
+class WorldMap with
+    var _Pathname&& filename;
+do
+    var _PingusWorldmap&? worldmap;
+    finalize
+        worldmap = &{new PingusWorldmap}(_XXX_PURE(*filename));
+    with
+        _delete(&&worldmap!);
+    end
+
+    {Sound::PingusSound::stop_music();};
+    call {Sound::PingusSound::play_music}(worldmap!.get_music());
+
+    var SurfaceButton close with
+        this.x = 0;
+        this.y = {Display::get_height() - 37};
+        this.button         = "core/worldmap/leave_button_normal";
+        this.button_pressed = "core/worldmap/leave_button_pressed";
+        this.button_over    = "core/worldmap/leave_button_hover";
+    end;
+
+    par do
+        every close.get_component().on_pointer_enter do
+            call {Sound::PingusSound::play_sound}("tick");
+        end
+    with
+        await close.get_component().on_click;
+        escape -1;
+    with
+        every gc in SCREENMANAGER_DRAW do
+            gc:print_center({Fonts::chalk_small},
+                            _Vector2i(44, {Display::get_height()} - 25),
+                            __("Leave?"));
+        end
+    end
+end
+
+#endif
