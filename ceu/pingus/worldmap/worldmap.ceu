@@ -3,9 +3,51 @@
 
 native/pre do
     ##include "pingus/worldmap/pingus_worldmap.hpp"
+    ##include "pingus/res_descriptor.hpp"
+    ##include "engine/display/sprite_description.hpp"
+end
+
+native do
+    static std::vector<FileReader> object_reader;
+    std::vector<FileReader>::const_iterator i;
+    static ResDescriptor desc;
+    static SpriteDescription* spr;
+    static Vector3f      pos;
+    static bool          auto_uncover;
 end
 
 #include "../../engine/gui/surface_button.ceu"
+
+class SpriteDrawable with
+    var int x, y, z;
+    var bool auto_uncover;
+    var _SpriteDescription&& desc;;
+do
+    var Surface sfc with
+        this.desc = desc;
+    end;
+
+    every gc in SCREENMANAGER_DRAW do
+        if this.auto_uncover then
+            { static Vector3f pos; };
+            _pos = _XXX_PURE(_Vector3f(100,100,0));
+            // Pingu is not over the surface
+            if (not (_pos.x>this.x and _pos.x<(this.x + sfc.get_width()) and
+                     _pos.y>this.y and _pos.y<(this.y + sfc.get_height())))
+            then
+                gc:draw(&&sfc, _Vector2i(this.x,this.y))
+                    finalize with end;
+            else/if _pos.z > this.z+1000 then
+                // FIXME: Hack for the 0.6.0 release/tutorial world remove // later
+                gc:draw(&&sfc, _Vector2i(this.x,this.y))
+                    finalize with end;
+            end
+        else
+            gc:draw(&&sfc, _Vector2i(this.x,this.y))
+                finalize with end;
+        end
+    end
+end
 
 class WorldMap with
     var _Pathname&& filename;
@@ -19,6 +61,40 @@ do
 
     {Sound::PingusSound::stop_music();};
     call {Sound::PingusSound::play_music}(worldmap!.get_music());
+
+    pool SpriteDrawable[] sprites;
+
+    _object_reader = _XXX_PURE(worldmap!.get_objects());
+    _i = _XXX_PURE(_object_reader.begin());
+    loop do
+        if _i == _object_reader.end() then
+            break;
+        end
+        var bool ok = true;
+        if _i:get_name() == "surface" then
+            {
+                i->read_desc  ("surface", desc);
+                i->read_vector("position", pos);
+                i->read_bool  ("auto-uncover", auto_uncover);
+                spr = Resource::load_sprite_desc(desc.res_name);
+            };
+            //_assert(not _auto_uncover);
+            spawn SpriteDrawable in sprites with
+                this.desc = _spr;
+                this.x = _pos.x;
+                this.y = _pos.y;
+                this.z = _pos.z;
+                this.auto_uncover = _auto_uncover;
+            end;
+        else
+            _log_error("can't create %1%", _i:get_name());
+            ok = false;
+        end
+        if not ok then
+            _log_info("Worldmap::parse_objects: Parse Error");
+        end
+        _i = _i + 1;
+    end
 
     var SurfaceButton close with
         this.x = 0;
@@ -35,6 +111,19 @@ do
     with
         await close.get_component().on_click;
         escape -1;
+    with
+        loop do
+            var _Input__Event&& e = await ON_INPUT_EVENT;
+            var _Input__ButtonEvent&& but = &&e:button;
+            if e:type != {Input::BUTTON_EVENT_TYPE}
+            or but:state != {Input::BUTTON_PRESSED}
+            then
+                continue;
+            end
+            if but:name == {Input::ESCAPE_BUTTON} then
+                escape -1;
+            end
+        end
     with
         every gc in SCREENMANAGER_DRAW do
             gc:print_center({Fonts::chalk_small},
