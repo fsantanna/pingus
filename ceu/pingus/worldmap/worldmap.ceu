@@ -8,6 +8,7 @@ native/pre do
 end
 
 native do
+    static std::shared_ptr<WorldmapNS::WorldmapScreen> worldmap_screen;
     static std::vector<FileReader> object_reader;
     std::vector<FileReader>::const_iterator i;
     static ResDescriptor desc;
@@ -17,6 +18,7 @@ native do
 end
 
 #include "../../engine/gui/surface_button.ceu"
+#include "pingus.ceu"
 
 class SpriteDrawable with
     var int x, y, z;
@@ -52,6 +54,14 @@ end
 class WorldMap with
     var _Pathname&& filename;
 do
+{
+    worldmap_screen = std::make_shared<WorldmapNS::WorldmapScreen>();
+    worldmap_screen->load(*THIS(CEU_WorldMap)->filename);
+    ScreenManager::instance()->push_screen(worldmap_screen);
+};
+    var Pingus pingus;
+    await FOREVER;
+#if 0
     var _PingusWorldmap&? worldmap;
     finalize
         worldmap = &{new PingusWorldmap}(_XXX_PURE(*filename));
@@ -131,6 +141,7 @@ do
                             __("Leave?"));
         end
     end
+#endif
 end
 
 #endif

@@ -1,0 +1,16 @@
+#ifndef _PINGUS_CEU
+#define _PINGUS_CEU
+
+#include "../../engine/display/sprite.ceu"
+
+class Pingus with
+do
+    var Rect rect = Rect(100,100,0,0);
+    var float x = 100;
+    var float y = 100;
+    var Sprite s1 = Sprite.w_xy_name(false, &x,&y,
+                        "core/worldmap/pingus_standing");
+    await FOREVER;
+end
+
+#endif

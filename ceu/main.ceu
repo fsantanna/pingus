@@ -17,6 +17,7 @@ native do
     ##include "external/logmich/include/logmich/log.hpp"
     ##include "pingus/resource.hpp"
     ##include "pingus/plf_res_mgr.hpp"
+    ##include "pingus/worldmap/worldmap_screen.hpp"
 
     ##define XXX_PURE(x) x
     ##define XXX_NOHOLD(x) x
@@ -251,6 +252,7 @@ par/or do
                 do WorldMap with
                     this.filename = &&_filename;
                 end;
+await FOREVER;
             else/if {StringUtil::has_suffix(cmd.rest.get(), ".story")} then
 // STORY
                 finalize
