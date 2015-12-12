@@ -43,7 +43,7 @@ class Pingus;
     events (successfull level completions, etc.). */
 class Worldmap
 {
-private:
+public:
   PingusWorldmap worldmap;
 
   typedef std::vector<Drawable*>   ObjectLst;
@@ -102,7 +102,7 @@ public:
   int get_height() const;
 
   PingusWorldmap get_worldmap() const { return worldmap; }
-private:
+public:
   /** Unlock nodes according to the finished ones */
   void update_locked_nodes();
 
@@ -110,12 +110,12 @@ private:
       or use the "default-node" option from the XML file */
   void set_starting_node();
 
-private:
+public:
   static Worldmap* current_;
 public:
   static Worldmap* current() { return current_; }
 
-private:
+public:
   Worldmap(const Worldmap&);
   Worldmap & operator=(const Worldmap&);
 };

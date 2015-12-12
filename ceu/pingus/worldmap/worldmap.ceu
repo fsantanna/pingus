@@ -3,12 +3,15 @@
 
 native/pre do
     ##include "pingus/worldmap/pingus_worldmap.hpp"
+    ##include "pingus/worldmap/worldmap.hpp"
     ##include "pingus/res_descriptor.hpp"
     ##include "engine/display/sprite_description.hpp"
+    ##include "pingus/worldmap/level_dot.hpp"
+    ##include "pingus/worldmap/pingus.hpp"
 end
 
 native do
-    static std::shared_ptr<WorldmapNS::WorldmapScreen> worldmap_screen;
+    static std::shared_ptr<WorldmapNS::WorldmapScreen> screen;
     static std::vector<FileReader> object_reader;
     std::vector<FileReader>::const_iterator i;
     static ResDescriptor desc;
@@ -55,12 +58,59 @@ class WorldMap with
     var _Pathname&& filename;
 do
 {
-    worldmap_screen = std::make_shared<WorldmapNS::WorldmapScreen>();
-    worldmap_screen->load(*THIS(CEU_WorldMap)->filename);
-    ScreenManager::instance()->push_screen(worldmap_screen);
+    screen = std::make_shared<WorldmapNS::WorldmapScreen>();
+    screen->load(*THIS(CEU_WorldMap)->filename);
+    ScreenManager::instance()->push_screen(screen);
 };
+    _screen:worldmap:gc_state.set_limit(
+        _Rect(_Vector2i(0, 0),
+        _Size(_screen:worldmap:worldmap.get_width(), _screen:worldmap:worldmap.get_height())));
+
     var Pingus pingus;
-    await FOREVER;
+
+        loop do
+            var int x, y;
+            (x,y) = await ON_PRIMARY_BUTTON_PRESSED;
+            var float xx, yy;
+            var float xx = _screen:worldmap:gc_state.screen2world(_Vector2i(x,y)).x;
+            var float yy = _screen:worldmap:gc_state.screen2world(_Vector2i(x,y)).y;
+_printf("CEU-0 (%d,%d) => (%f,%f)\n", x, y, xx, yy);
+
+            { WorldmapNS::Dot* dot; };
+            _dot = _XXX_PURE(_screen:worldmap:path_graph:get_dot(xx, yy));
+            if _dot != null then
+                if {globals::developer_mode} then
+                    _log_info("Worldmap: Clicked on: %1%", _dot:get_name());
+                end
+
+                if (_screen:worldmap:path_graph:lookup_node
+                        (_dot:get_name()) == _screen:worldmap:pingus:get_node()) 
+                    then
+                    if {globals::developer_mode} then
+                        _log_info("Worldmap: Pingu is on node, issue on_click()");
+                    end
+                    _dot:on_click();
+_printf("ALREADY THERE\n");
+                else
+                    if _dot:accessible() then
+_printf("GO\n");
+                        if not _screen:worldmap:pingus:walk_to_node
+                                (_screen:worldmap:path_graph:lookup_node(_dot:get_name()))
+                        then
+                            if {globals::developer_mode} then
+                                _log_info("Worldmap: NO PATH TO NODE FOUND!");
+                            end
+                        else
+                            {StatManager::instance()->set_string
+                                (screen->worldmap->worldmap.get_short_name() + "-current-node", dot->get_name());};
+                        end
+                    else
+                        call {Sound::PingusSound::play_sound}("chink");
+                    end
+                end
+            end
+        end
+
 #if 0
     var _PingusWorldmap&? worldmap;
     finalize

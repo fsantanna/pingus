@@ -40,7 +40,7 @@ class WorldmapComponent;
     accessible in the Worldmap Screen */
 class WorldmapScreen : public GUIScreen
 {
-private:
+public:
   bool is_init;
   bool exit_worldmap;
 
@@ -84,7 +84,7 @@ public:
   void show_end_story();
 
   void resize(const Size& size);
-private:
+public:
   /** Startup Hook of the Screen */
   void on_startup ();
 
