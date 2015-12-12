@@ -2,15 +2,32 @@
 #define _PINGUS_CEU
 
 #include "../../engine/display/sprite.ceu"
+#include "../right_left_sprites.ceu"
 
 class Pingus with
+    interface IPositionDirection;
+    var s8    direction = _NONE;
+    var float pos_x = 200;
+    var float pos_y = 200;
 do
-    var Rect rect = Rect(100,100,0,0);
-    var float x = 100;
-    var float y = 100;
-    var Sprite s1 = Sprite.w_xy_name(false, &x,&y,
-                        "core/worldmap/pingus_standing");
-    await FOREVER;
+    var char[] left  = [].."core/worldmap/pingus/left";
+    var char[] right = [].."core/worldmap/pingus/right";
+    var RightLeftSprites _ with
+        this.none   = [].."core/worldmap/pingus_standing";
+        this.left   = &left;
+        this.right  = &right;
+        this.parent = &outer;
+        this.is_world = false;
+    end;
+
+    loop do
+        await 1s;
+        this.direction = _NONE;
+        await 1s;
+        this.direction = _LEFT;
+        await 1s;
+        this.direction = _RIGHT;
+    end
 end
 
 #endif
