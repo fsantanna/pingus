@@ -86,6 +86,11 @@ data Vector3f with
     var float z;
 end
 
+interface IPositionDirection with
+    var  s8    direction;
+    var  float pos_x, pos_y;
+end
+
 interface IPingu with
     pool IPingu[]& pingus;
 

@@ -40,9 +40,9 @@ do
                                   .. (char&&)this.pingu.get_owner_str().c_str()
                                   .. "/bridger/right";
             var RightLeftSprites builds with
-                this.pingu = &outer.pingu;
-                this.left  = &left;
-                this.right = &right;
+                this.parent = &outer.pingu;
+                this.left   = &left;
+                this.right  = &right;
             end;
 
             await WORLD_UPDATE
@@ -70,9 +70,9 @@ do
                                   ..  (char&&)this.pingu.get_owner_str().c_str()
                                   .. "/bridger_walk/right";
             do RightLeftSprites with
-                this.pingu = &outer.pingu;
-                this.left  = &left;
-                this.right = &right;
+                this.parent = &outer.pingu;
+                this.left   = &left;
+                this.right  = &right;
             end;
 
             // FIXME: Dangerous! might not be fixed timing

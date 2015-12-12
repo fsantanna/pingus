@@ -6,18 +6,20 @@
 // TODO: get by ref
 
 class RightLeftSprites with
-    var IPingu& pingu;
+    var IPositionDirection& parent;
     var char[]& left;
     var char[]& right;
+    var char[] none;
+    var bool is_world = true;
     pool Sprite[1] sprites;
     function (void)=>Sprite&& get;
 do
     event void e_change;
     par do
-        var int dir = this.pingu.direction;
-        every WORLD_UPDATE do
-            if this.pingu.direction != dir then
-                dir = this.pingu.direction;
+        var int dir = this.parent.direction;
+        every SCREENMANAGER_UPDATE do
+            if this.parent.direction != dir then
+                dir = this.parent.direction;
                 emit e_change;
             end
         end
@@ -25,12 +27,15 @@ do
         loop do
             var Sprite&&? sprite =
                 spawn Sprite in this.sprites with
-                    this.x = &_XXX_NOHOLD(&&outer.pingu.pos_x);
-                    this.y = &_XXX_NOHOLD(&&outer.pingu.pos_y);
-                    if outer.pingu.direction == _LEFT then
-                        this.name  = _XXX_PURE(&&outer.left);
+                    this.is_world = outer.is_world;
+                    this.x = &_XXX_NOHOLD(&&outer.parent.pos_x);
+                    this.y = &_XXX_NOHOLD(&&outer.parent.pos_y);
+                    if outer.parent.direction == _NONE then
+                        this.name = _XXX_PURE(&&outer.none);
+                    else/if outer.parent.direction == _LEFT then
+                        this.name = _XXX_PURE(&&outer.left);
                     else
-                        this.name  = _XXX_PURE(&&outer.right);
+                        this.name = _XXX_PURE(&&outer.right);
                     end;
                 end;
             par/or do

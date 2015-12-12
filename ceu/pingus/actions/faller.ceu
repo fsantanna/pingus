@@ -96,9 +96,9 @@ await WORLD_UPDATE;
                                   ..  (char&&)this.pingu.get_owner_str().c_str()
                                   .. "/faller/right";
             var RightLeftSprites _ with
-                this.pingu = &pingu;
-                this.left  = &left;
-                this.right = &right;
+                this.parent = &pingu;
+                this.left   = &left;
+                this.right  = &right;
             end;
             await WORLD_UPDATE until this.is_tumbling();
         end
@@ -110,9 +110,9 @@ await WORLD_UPDATE;
                                   ..  (char&&)this.pingu.get_owner_str().c_str()
                                   .. "/tumbler/right";
             do RightLeftSprites with
-                this.pingu = &pingu;
-                this.left  = &left;
-                this.right = &right;
+                this.parent = &pingu;
+                this.left   = &left;
+                this.right  = &right;
             end;
             _assert(0);     // sprite has loop
         end

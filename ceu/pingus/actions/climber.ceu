@@ -13,9 +13,9 @@ do
                           .. (char&&)this.pingu.get_owner_str().c_str()
                           .. "/climber/right";
     var RightLeftSprites _ with
-        this.pingu = &outer.pingu;
-        this.left  = &left;
-        this.right = &right;
+        this.parent = &outer.pingu;
+        this.left   = &left;
+        this.right  = &right;
     end;
 
     loop do
