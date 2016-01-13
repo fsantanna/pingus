@@ -123,6 +123,8 @@ do
         this.pingus  = &pingus;
         this.counter = &outer.counter;
     end;
+    pool PinguParticle[] pingu_particles;
+    pool SmokeParticle[] smoke_particles;
 
     var TimeDisplay      _ = TimeDisplay.build(plf.get_time(), &game_time);
     var CPingusCounter   _ = CPingusCounter.build(&counter);
@@ -166,7 +168,7 @@ do
     with
         every (x_,y_) in global:go_create_pingu_particles do
             loop i in 50 do
-                spawn PinguParticle with
+                spawn PinguParticle in pingu_particles with
                     this.x = x_;
                     this.y = y_;
                 end;
@@ -174,7 +176,7 @@ do
         end
     with
         every (x_,y_,vel_x_,vel_y_) in global:go_create_smoke_particles do
-            spawn SmokeParticle with
+            spawn SmokeParticle in smoke_particles with
                 this.x     = x_;
                 this.y     = y_;
                 this.vel_x = vel_x_;
