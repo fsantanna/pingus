@@ -148,7 +148,7 @@ do
         };
         var char&& str = _XXX_PURE((char&&) _ostr.str().c_str());
         var ChoiceItem&&? it = spawn ChoiceItem.build(right, str) in its1;
-        vec1 = vec1..[it];
+        vec1 = []..vec1..[it];
 
         if _fullscreen == *_it1 then
             current1 = (_it1 - _resolutions.begin());
@@ -187,9 +187,9 @@ do
     end
     var ChoiceItem&&?[] vec2;
     var ChoiceItem it21 = ChoiceItem.build(right, "sdl");
-    vec2 = vec2 .. [ &&it21 ];
+    vec2 = [] .. vec2 .. [ &&it21 ];
     var ChoiceItem it22 = ChoiceItem.build(right, "delta");
-    vec2 = vec2 .. [ &&it22 ];
+    vec2 = [] .. vec2 .. [ &&it22 ];
 #ifdef HAVE_OPENGL
     var ChoiceItem it23 = ChoiceItem.build(right, "opengl");
     vec2 = vec2 .. [ &&it23 ];
@@ -235,7 +235,7 @@ do
         _m_language_map[_XXX_PURE(str)] = *_it2;
 
         var ChoiceItem&&? it = spawn ChoiceItem.build(right, str) in its2;
-        vec3 = vec3..[it];
+        vec3 = []..vec3..[it];
 
         if _dictionary_manager.get_language() == *_it2 then
             current3 = (_it2 - _langs.begin());
