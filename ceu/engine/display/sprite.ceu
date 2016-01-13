@@ -77,10 +77,10 @@ _assert(not "ERR");
         end
 
         {
-            Vector2i vec = calc_origin(THIS(CEU_Sprite)->sfc.desc->origin,
-                                       Size(THIS(CEU_Sprite)->frame_size.width,
-                                            THIS(CEU_Sprite)->frame_size.height))
-                            - THIS(CEU_Sprite)->sfc.desc->offset;
+            Vector2i vec = calc_origin(THIS(CEU_SpriteR)->sfc.desc->origin,
+                                       Size(THIS(CEU_SpriteR)->frame_size.width,
+                                            THIS(CEU_SpriteR)->frame_size.height))
+                            - THIS(CEU_SpriteR)->sfc.desc->offset;
         };
         this.offset = Vector2i(_vec.x, _vec.y);
     end

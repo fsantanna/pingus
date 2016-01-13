@@ -13,7 +13,7 @@ do
 
     this.rect.width  = 38;
     this.rect.height = 60;
-    var RectComponent component = RectComponent.build(&this.rect);
+    var RectComponent component = RectComponent.build(&outer.rect);
 
     do
         var SpriteR _ = SpriteR.build_name(&outer.rect,
