@@ -76,7 +76,6 @@ do
             var float xx, yy;
             var float xx = _screen:worldmap:gc_state.screen2world(_Vector2i(x,y)).x;
             var float yy = _screen:worldmap:gc_state.screen2world(_Vector2i(x,y)).y;
-_printf("CEU-0 (%d,%d) => (%f,%f)\n", x, y, xx, yy);
 
             { WorldmapNS::Dot* dot; };
             _dot = _XXX_PURE(_screen:worldmap:path_graph:get_dot(xx, yy));
@@ -92,12 +91,11 @@ _printf("CEU-0 (%d,%d) => (%f,%f)\n", x, y, xx, yy);
                         _log_info("Worldmap: Pingu is on node, issue on_click()");
                     end
                     _dot:on_click();
-_printf("ALREADY THERE\n");
                 else
                     if _dot:accessible() then
-_printf("GO\n");
                         emit pingus.go =>
                             _screen:worldmap:path_graph:lookup_node(_dot:get_name());
+/*
                         if not _screen:worldmap:pingus:walk_to_node
                                 (_screen:worldmap:path_graph:lookup_node(_dot:get_name()))
                         then
@@ -108,6 +106,7 @@ _printf("GO\n");
                             {StatManager::instance()->set_string
                                 (screen->worldmap->worldmap.get_short_name() + "-current-node", dot->get_name());};
                         end
+*/
                     else
                         call {Sound::PingusSound::play_sound}("chink");
                     end

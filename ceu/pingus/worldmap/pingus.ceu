@@ -6,12 +6,59 @@
 
 native @plain _WorldmapNS__NodeId;
 native/pre do
-    ##define WorldmapNS__NodeId WorldmapNS::NodeId
-    ##define WorldmapNS__PathGraph WorldmapNS::PathGraph
+    ##define WorldmapNS__NodeId           WorldmapNS::NodeId
+    ##define WorldmapNS__PathGraph        WorldmapNS::PathGraph
+    ##define WorldmapNS__Path             WorldmapNS::Path
     ##define WorldmapNS__PathfinderResult WorldmapNS::PathfinderResult
     ##include "pingus/worldmap/worldmap.hpp"
+    ##include "pingus/worldmap/path.hpp"
     ##include "pingus/worldmap/path_graph.hpp"
     ##include "pingus/worldmap/pathfinder.hpp"
+end
+
+class MovePath with
+    var _WorldmapNS__PathGraph& path;
+    var _WorldmapNS__NodeId src, dst;
+    var s8&    direction;
+    var float& pos_x;
+    var float& pos_y;
+do
+    {
+        static WorldmapNS::Path edge_path;
+    };
+    var float velocity = 70;
+    var float edge_path_position = 0;
+    _edge_path.clear();
+    var _WorldmapNS__Path&& partial_path =
+        _XXX_PURE(this.path.graph.resolve_edge(this.src,this.dst).data);
+    _edge_path.push_back(this.path.graph.resolve_node(this.src).data:get_pos());
+    // Why do we need to reverse this?!
+    _edge_path.reverse_insert(*partial_path)
+        finalize with nothing; end;
+    _edge_path.push_back(this.path.graph.resolve_node(this.dst).data:get_pos());
+    loop do
+        var float dt = await SCREENMANAGER_UPDATE;
+        // Update the edge_path_position
+        edge_path_position = edge_path_position + velocity * dt;
+
+        if edge_path_position > _edge_path.length() then
+            break; // target reached
+        end
+
+        // Recalc pingu position on the screen
+        var float prv_x = this.pos_x;
+        var float prv_y = this.pos_y;
+        this.pos_x = _edge_path.at(edge_path_position).x-250;
+        this.pos_y = _edge_path.at(edge_path_position).y-500;
+
+        var float dir = ({Math::atan2}(prv_x-this.pos_x, -(prv_y-this.pos_y))
+                            / {Math::pi}*180) + 180;
+        if dir>=0 and dir<180 then
+            this.direction = _RIGHT;
+        else
+            this.direction = _LEFT;
+        end
+    end
 end
 
 class Pingus with
@@ -42,6 +89,12 @@ do
         this.is_world = false;
     end;
 
+spawn do
+    every 1s do
+        //_printf("CEU-POS %f %f\n", pos_x, pos_y);
+    end
+end
+
     par do
         loop do
             var _WorldmapNS__NodeId target = await go;
@@ -63,23 +116,24 @@ do
                         var _WorldmapNS__NodeId dst = _node_path.back();
                         if src? then
                             _printf("[%d]: %d => %d\n", i, src!, dst);
+                            do MovePath with
+                                this.path      = &path_!;
+                                this.pos_x     = &outer.pos_x;
+                                this.pos_y     = &outer.pos_y;
+                                this.direction = &outer.direction;
+                                this.src       = src!;
+                                this.dst       = dst;
+                            end;
                         end
                         _node_path.pop_back();
                         src = dst;
                     end
+                    this.direction = _NONE;
                     await FOREVER;
                 end
             end
         end
     with
-        loop do
-            await 1s;
-            this.direction = _NONE;
-            await 1s;
-            this.direction = _LEFT;
-            await 1s;
-            this.direction = _RIGHT;
-        end
     end
 end
 
