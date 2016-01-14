@@ -97,12 +97,17 @@ _assert(not "ERR");
         /* UPDATE */
         loop do
             loop do
-                await WORLD_UPDATE;
+                var float dt;
+                if this.is_world then
+                    await WORLD_UPDATE;
+                    dt = 0.033;   // TODO
+                else
+                    dt = await SCREENMANAGER_UPDATE;
+                end
                 if this.frame_delay == 0 then
                     await FOREVER;
                 end
 
-                var float dt = 0.033;   // TODO
                 tick_count = tick_count + (int)(dt * 1000);
 
                 if tick_count >= total_time then
@@ -234,12 +239,17 @@ do
         /* UPDATE */
         loop do
             loop do
-                await WORLD_UPDATE;
+                var float dt;
+                if this.is_world then
+                    await WORLD_UPDATE;
+                    dt = 0.033;   // TODO
+                else
+                    dt = await SCREENMANAGER_UPDATE;
+                end
                 if this.frame_delay == 0 then
                     await FOREVER;
                 end
 
-                var float dt = 0.033;   // TODO
                 tick_count = tick_count + (int)(dt * 1000);
 
                 if tick_count >= total_time then
