@@ -64,8 +64,10 @@ end
 class Pingus with
     interface IPositionDirection;
     var s8    direction = _NONE;
-    var float pos_x = 200;
-    var float pos_y = 200;
+    var float pos_x;
+    var float pos_y;
+    var _WorldmapNS__NodeId current_node;
+
 
     event _WorldmapNS__NodeId go;
 
@@ -76,8 +78,6 @@ do
         path_ = &_XXX_NOHOLD(this.path);
     with
     end
-
-    var _WorldmapNS__NodeId current_node = 0; // TODO: _NoNode;
 
     var char[] left  = [].."core/worldmap/pingus/left";
     var char[] right = [].."core/worldmap/pingus/right";
@@ -105,12 +105,12 @@ end
                         static WorldmapNS::PathfinderResult res;
                         static std::vector<WorldmapNS::NodeId> node_path;
                     };
-                    _res = _XXX_PURE(this.path_!.get_path(current_node, target));
+                    _res = _XXX_PURE(this.path_!.get_path(this.current_node, target));
                     _node_path = _res.path;
                     var _WorldmapNS__NodeId? src;
                     loop i do
                         if _node_path.empty() then
-                            current_node = src!;
+                            this.current_node = src!;
                             break;
                         end
                         var _WorldmapNS__NodeId dst = _node_path.back();

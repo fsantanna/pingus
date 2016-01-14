@@ -66,8 +66,28 @@ do
         _Rect(_Vector2i(0, 0),
         _Size(_screen:worldmap:worldmap.get_width(), _screen:worldmap:worldmap.get_height())));
 
+    // Determine starting node
+    // See if the user has played this map before.
+    // If not, use the <default-node> tag from the XML file.
+    var _WorldmapNS__NodeId id =
+        _screen:worldmap:path_graph:lookup_node(_screen:worldmap:worldmap.get_default_node());
+    {
+        static std::string node_name;
+        static Vector3f pos;
+    };
+    if {StatManager::instance()->get_string(screen->worldmap->worldmap.get_short_name() + "-current-node",
+                                            node_name)}
+    then
+        // Just in case that level doesn't exist, look it up.
+        id = _screen:worldmap:path_graph:lookup_node(_node_name);
+    end
+    _pos = _XXX_PURE(_screen:worldmap:path_graph:get_dot(id):get_pos());
+
     var Pingus pingus with
         this.path = _XXX_PURE(_screen:worldmap:path_graph.get());
+        this.current_node = id;
+        this.pos_x = _pos.x+50;
+        this.pos_y = _pos.y+50;
     end;
 
         loop do
