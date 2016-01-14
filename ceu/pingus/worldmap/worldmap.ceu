@@ -57,16 +57,18 @@ end
 class WorldMap with
     var _Pathname&& filename;
 do
-{
-    screen = std::make_shared<WorldmapNS::WorldmapScreen>();
-    screen->load(*THIS(CEU_WorldMap)->filename);
-    ScreenManager::instance()->push_screen(screen);
-};
+    {
+        screen = std::make_shared<WorldmapNS::WorldmapScreen>();
+        screen->load(*THIS(CEU_WorldMap)->filename);
+        ScreenManager::instance()->push_screen(screen);
+    };
     _screen:worldmap:gc_state.set_limit(
         _Rect(_Vector2i(0, 0),
         _Size(_screen:worldmap:worldmap.get_width(), _screen:worldmap:worldmap.get_height())));
 
-    var Pingus pingus;
+    var Pingus pingus with
+        this.path = _XXX_PURE(_screen:worldmap:path_graph.get());
+    end;
 
         loop do
             var int x, y;
@@ -94,6 +96,8 @@ _printf("ALREADY THERE\n");
                 else
                     if _dot:accessible() then
 _printf("GO\n");
+                        emit pingus.go =>
+                            _screen:worldmap:path_graph:lookup_node(_dot:get_name());
                         if not _screen:worldmap:pingus:walk_to_node
                                 (_screen:worldmap:path_graph:lookup_node(_dot:get_name()))
                         then
