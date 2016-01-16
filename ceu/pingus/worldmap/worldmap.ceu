@@ -2,6 +2,7 @@
 #define WORLDMAP_CEU
 
 native/pre do
+    ##define WorldmapNS__Dot WorldmapNS::Dot
     ##include "pingus/worldmap/pingus_worldmap.hpp"
     ##include "pingus/worldmap/worldmap.hpp"
     ##include "pingus/res_descriptor.hpp"
@@ -82,18 +83,63 @@ do
         id = _screen:worldmap:path_graph:lookup_node(_node_name);
     end
     _pos = _XXX_PURE(_screen:worldmap:path_graph:get_dot(id):get_pos());
+//_printf("CEU %f,%f\n", _pos.x, _pos.y);
+
+    var float pos_x = _pos.x;// + 50;
+    var float pos_y = _pos.y;// + 50;
+
+    var Pingus&&? pingus_ptr;
+    spawn do
+        every gc in SCREENMANAGER_DRAW do
+            var int x = 0;
+            do
+                var int min, max;
+                var int width  = _screen:worldmap:worldmap.get_width();
+                if width >= gc:get_width() then
+                    min = gc:get_width()/2;
+                    max = width - gc:get_width()/2;
+                else
+                    min = width - gc:get_width()/2;
+                    max = gc:get_width()/2;
+                end
+                x = {Math::clamp}(min, (int)pingus_ptr!:pos_x, max);
+            end
+
+            var int y = 0;
+            do
+                var int min, max;
+                var int height = _screen:worldmap:worldmap.get_height();
+                if height >= gc:get_height() then
+                    min = gc:get_height()/2;
+                    max = height - gc:get_height()/2;
+                else
+                    min = height - gc:get_height()/2;
+                    max = gc:get_height()/2;
+                end
+                y = {Math::clamp}(min, (int)pingus_ptr!:pos_y, max);
+            end
+
+//_printf("CEU gc=%p xy=(%d,%d)\n", gc, x, y);
+#if 1
+            _screen:worldmap:gc_state.set_size(gc:get_width(), gc:get_height());
+            _screen:worldmap:gc_state.set_pos(_Vector2i(x, y));
+            _screen:worldmap:gc_state.push(*gc);
+#endif
+        end
+    end
 
     var Pingus pingus with
         this.path = _XXX_PURE(_screen:worldmap:path_graph.get());
         this.current_node = id;
-        this.pos_x = _pos.x+50;
-        this.pos_y = _pos.y+50;
+        this.pos_x = pos_x;
+        this.pos_y = pos_y;
     end;
+    pingus_ptr = &&pingus;
 
+    par do
         loop do
             var int x, y;
             (x,y) = await ON_PRIMARY_BUTTON_PRESSED;
-            var float xx, yy;
             var float xx = _screen:worldmap:gc_state.screen2world(_Vector2i(x,y)).x;
             var float yy = _screen:worldmap:gc_state.screen2world(_Vector2i(x,y)).y;
 
@@ -133,88 +179,24 @@ do
                 end
             end
         end
-
-#if 0
-    var _PingusWorldmap&? worldmap;
-    finalize
-        worldmap = &{new PingusWorldmap}(_XXX_PURE(*filename));
-    with
-        _delete(&&worldmap!);
-    end
-
-    {Sound::PingusSound::stop_music();};
-    call {Sound::PingusSound::play_music}(worldmap!.get_music());
-
-    pool SpriteDrawable[] sprites;
-
-    _object_reader = _XXX_PURE(worldmap!.get_objects());
-    _i = _XXX_PURE(_object_reader.begin());
-    loop do
-        if _i == _object_reader.end() then
-            break;
-        end
-        var bool ok = true;
-        if _i:get_name() == "surface" then
-            {
-                i->read_desc  ("surface", desc);
-                i->read_vector("position", pos);
-                i->read_bool  ("auto-uncover", auto_uncover);
-                spr = Resource::load_sprite_desc(desc.res_name);
-            };
-            //_assert(not _auto_uncover);
-            spawn SpriteDrawable in sprites with
-                this.desc = _spr;
-                this.x = _pos.x;
-                this.y = _pos.y;
-                this.z = _pos.z;
-                this.auto_uncover = _auto_uncover;
-            end;
-        else
-            _log_error("can't create %1%", _i:get_name());
-            ok = false;
-        end
-        if not ok then
-            _log_info("Worldmap::parse_objects: Parse Error");
-        end
-        _i = _i + 1;
-    end
-
-    var SurfaceButton close with
-        this.x = 0;
-        this.y = {Display::get_height() - 37};
-        this.button         = "core/worldmap/leave_button_normal";
-        this.button_pressed = "core/worldmap/leave_button_pressed";
-        this.button_over    = "core/worldmap/leave_button_hover";
-    end;
-
-    par do
-        every close.get_component().on_pointer_enter do
-            call {Sound::PingusSound::play_sound}("tick");
-        end
-    with
-        await close.get_component().on_click;
-        escape -1;
-    with
-        loop do
-            var _Input__Event&& e = await ON_INPUT_EVENT;
-            var _Input__ButtonEvent&& but = &&e:button;
-            if e:type != {Input::BUTTON_EVENT_TYPE}
-            or but:state != {Input::BUTTON_PRESSED}
-            then
-                continue;
-            end
-            if but:name == {Input::ESCAPE_BUTTON} then
-                escape -1;
-            end
-        end
     with
         every gc in SCREENMANAGER_DRAW do
-            gc:print_center({Fonts::chalk_small},
-                            _Vector2i(44, {Display::get_height()} - 25),
-                            __("Leave?"));
+            {
+                static Vector2f mpos;
+            };
+            _mpos = _XXX_PURE(_screen:worldmap:gc_state.screen2world(
+                        _Vector2i(_screen:worldmap:mouse_x,
+                                  _screen:worldmap:mouse_y)));
+            var _WorldmapNS__Dot&& dot =
+                _XXX_PURE(_screen:worldmap:path_graph:get_dot(_mpos.x, _mpos.y));
+            if dot != null then
+                dot:draw_hover(*gc);
+            end
+#if 1
+            _screen:worldmap:gc_state.pop(*gc);
+#endif
         end
     end
-#endif
 end
 
 #endif

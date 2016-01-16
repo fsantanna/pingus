@@ -48,8 +48,9 @@ do
         // Recalc pingu position on the screen
         var float prv_x = this.pos_x;
         var float prv_y = this.pos_y;
-        this.pos_x = _edge_path.at(edge_path_position).x-250;
-        this.pos_y = _edge_path.at(edge_path_position).y-500;
+        this.pos_x = _edge_path.at(edge_path_position).x;//-250;
+        this.pos_y = _edge_path.at(edge_path_position).y;//-500;
+//_printf("CEU xy=(%f,%f)\n", this.pos_x, this.pos_y);
 
         var float dir = ({Math::atan2}(prv_x-this.pos_x, -(prv_y-this.pos_y))
                             / {Math::pi}*180) + 180;
@@ -62,12 +63,11 @@ do
 end
 
 class Pingus with
-    interface IPositionDirection;
-    var s8    direction = _NONE;
-    var float pos_x;
-    var float pos_y;
+    interface  IPositionDirection;
     var _WorldmapNS__NodeId current_node;
-
+    var s8     direction = _NONE;
+    var float  pos_x;
+    var float  pos_y;
 
     event _WorldmapNS__NodeId go;
 

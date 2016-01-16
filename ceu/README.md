@@ -338,6 +338,7 @@ Map the whole behavior into a single number is a problem.
         - screen trasnitions
         - story screen advancing
         - story screen -> credits screen
+        - WM pingu path traversal
         - worse w/o closures
     Typically, screen transitions are not static
 

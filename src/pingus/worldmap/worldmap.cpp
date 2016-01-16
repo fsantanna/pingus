@@ -124,6 +124,7 @@ Worldmap::draw(DrawingContext& gc)
 
   gc_state.push(gc);
 
+//printf("CPP gc=%p xy=(%d,%d)\n", &gc, pingu_pos.x,pingu_pos.y);
   for (DrawableLst::iterator i = drawables.begin (); i != drawables.end (); ++i)
     (*i)->draw(gc);
 
