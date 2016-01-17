@@ -143,38 +143,24 @@ _printf("============== %d -> %d\n", this.current_node, target);
                     this.current_node = dst!;
                     cur_position = cur_length - cur_position;
                 else
-                    _assert(0);
+                    // Pingu between two nodes
+                    {
+                        static WorldmapNS::PathfinderResult node_path1;
+                        static WorldmapNS::PathfinderResult node_path2;
+                    };
+                    _node_path1 = _XXX_PURE(this.path_!.get_path(src!, target));
+                    _node_path2 = _XXX_PURE(this.path_!.get_path(dst!, target));
+                    if (_node_path1.cost+cur_position <
+                        _node_path2.cost+(cur_length-cur_position))
+                    then
+                        _node_path = _node_path1.path;
+                        this.current_node = dst!;
+                        cur_position = cur_length - cur_position;
+                        _node_path.insert(_node_path.begin(), dst!);
+                    else
+                        _node_path = _node_path2.path;
+                    end
                 end
-#if 0
-loop do
-                    target = await go until target!=dst!;
-    if target == src! then
-        var _WorldmapNS__NodeId tmp = src!;
-        src = dst!;
-        dst = tmp;
-        _edge_path.reverse();
-        cur_position = _edge_path.length() - cur_position;
-    else
-        break;
-    end
-end
-                with
-                // Pingu between two nodes
-                {
-                    static WorldmapNS::PathfinderResult node_path1;
-                    static WorldmapNS::PathfinderResult node_path2;
-                };
-                _node_path1 = _XXX_PURE(this.path_!.get_path(src!, target));
-                _node_path2 = _XXX_PURE(this.path_!.get_path(dst!, target));
-                if (_node_path1.cost+cur_position <
-                    _node_path2.cost+(cur_length-cur_position))
-                then
-                    _node_path = _node_path1.path;
-                else
-                    _node_path = _node_path2.path;
-                end
-_printf("---------------\n");
-#endif
             end
         end
     with
