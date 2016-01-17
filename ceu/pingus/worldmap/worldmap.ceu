@@ -130,7 +130,7 @@ do
 
     var Pingus pingus with
         this.path = _XXX_PURE(_screen:worldmap:path_graph.get());
-        this.current_node = id;
+        this.node  = id;
         this.pos_x = pos_x;
         this.pos_y = pos_y;
     end;
@@ -150,9 +150,8 @@ do
                     _log_info("Worldmap: Clicked on: %1%", _dot:get_name());
                 end
 
-                if (_screen:worldmap:path_graph:lookup_node
-                        (_dot:get_name()) == _screen:worldmap:pingus:get_node()) 
-                    then
+_printf("DOT=%d  PGU=%d\n", _screen:worldmap:path_graph:lookup_node(_dot:get_name()), pingus.node);
+                if (_screen:worldmap:path_graph:lookup_node(_dot:get_name()) == pingus.node) then
                     if {globals::developer_mode} then
                         _log_info("Worldmap: Pingu is on node, issue on_click()");
                     end

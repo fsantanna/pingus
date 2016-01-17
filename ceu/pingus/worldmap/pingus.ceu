@@ -7,6 +7,7 @@
 native @plain _WorldmapNS__NodeId;
 native/pre do
     ##define WorldmapNS__NodeId           WorldmapNS::NodeId
+    ##define WorldmapNS__NoNode           WorldmapNS::NoNode
     ##define WorldmapNS__PathGraph        WorldmapNS::PathGraph
     ##define WorldmapNS__Path             WorldmapNS::Path
     ##define WorldmapNS__PathfinderResult WorldmapNS::PathfinderResult
@@ -51,7 +52,7 @@ end
 
 class Pingus with
     interface  IPositionDirection;
-    var _WorldmapNS__NodeId current_node;
+    var _WorldmapNS__NodeId node;
     var s8     direction = _NONE;
     var float  pos_x;
     var float  pos_y;
@@ -87,14 +88,14 @@ end
             var _WorldmapNS__NodeId target = await go;
             var float cur_position = 0;
             var int   cur_length   = 0;
-
+            var _WorldmapNS__NodeId cur_node = this.node;
             loop do
-_printf("============== %d -> %d\n", this.current_node, target);
+_printf("============== %d -> %d\n", cur_node, target);
                 {
                     static WorldmapNS::PathfinderResult res;
                     static std::vector<WorldmapNS::NodeId> node_path;
                 };
-                _res = _XXX_PURE(this.path_!.get_path(this.current_node, target));
+                _res = _XXX_PURE(this.path_!.get_path(cur_node, target));
                 _node_path = _res.path;
 
                 _assert(not _node_path.empty());
@@ -106,6 +107,13 @@ _printf("============== %d -> %d\n", this.current_node, target);
                 _node_path.pop_back();
 
                 watching target in go do
+                    var Rect r = Rect(
+                        path_!.get_dot(target):get_pos().x,
+                        path_!.get_dot(target):get_pos().y,
+                        0, 0
+                        // TODO + Vector3f(0, 0, 10));
+                    );
+                    var SpriteR _ = SpriteR.build_name(&r, "core/worldmap/arrow");
                     loop i do
                         _printf("> [%d]: %d => %d\n", i, src, dst);
                         _edge_path.clear();
@@ -117,6 +125,7 @@ _printf("============== %d -> %d\n", this.current_node, target);
                             finalize with nothing; end;
                         _edge_path.push_back(path_!.graph.resolve_node(dst).data:get_pos());
                         cur_length = _edge_path.length();
+                        this.node = _WorldmapNS__NoNode;
                         do MovePath with
                             this.direction = &outer.direction;
                             this.pos_x     = &outer.pos_x;
@@ -125,7 +134,8 @@ _printf("============== %d -> %d\n", this.current_node, target);
                         end;
                         cur_position = 0;
                         _printf("< [%d]: %d => %d\n", i, src, dst);
-                        this.current_node = dst;
+                        cur_node = dst;
+                        this.node = dst;
 
                         if _node_path.empty() then
                             break;
@@ -144,7 +154,7 @@ _printf("============== %d -> %d\n", this.current_node, target);
                 if target == dst then
                     // nothing to do
                 else/if target == src then
-                    this.current_node = dst;
+                    cur_node = dst;
                     cur_position = cur_length - cur_position;
                 else
                     // Pingu between two nodes
@@ -158,7 +168,7 @@ _printf("============== %d -> %d\n", this.current_node, target);
                         _node_path2.cost+(cur_length-cur_position))
                     then
                         _node_path = _node_path1.path;
-                        this.current_node = dst;
+                        cur_node = dst;
                         cur_position = cur_length - cur_position;
                         _node_path.insert(_node_path.begin(), dst);
                     else

@@ -92,7 +92,7 @@ void
 LevelDot::on_click()
 {
   //log_info("Starting level: " << levelname);
-//assert(!"NOT PORTED");
+assert(!"NOT PORTED");
 #if 0
   ScreenManager::instance()->push_screen(std::make_shared<StartScreen>(plf));
 #endif

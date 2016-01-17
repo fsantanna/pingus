@@ -194,7 +194,7 @@ Worldmap::on_primary_button_press(int x, int y)
     {
       if (globals::developer_mode)
         log_info("Worldmap: Pingu is on node, issue on_click()");
-      dot->on_click();
+      //dot->on_click();
     }
     else
     {
