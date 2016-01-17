@@ -97,39 +97,43 @@ _printf("============== %d -> %d\n", this.current_node, target);
                 _res = _XXX_PURE(this.path_!.get_path(this.current_node, target));
                 _node_path = _res.path;
 
-                var _WorldmapNS__NodeId? src, dst;
+                _assert(not _node_path.empty());
+                var _WorldmapNS__NodeId src = _node_path.back();
+                _node_path.pop_back();
 
-// TODO: this.current_node = nil
+                _assert(not _node_path.empty());
+                var _WorldmapNS__NodeId dst = _node_path.back();
+                _node_path.pop_back();
 
                 watching target in go do
                     loop i do
+                        _printf("> [%d]: %d => %d\n", i, src, dst);
+                        _edge_path.clear();
+                        var _WorldmapNS__Path&& partial_path =
+                            _XXX_PURE(path_!.graph.resolve_edge(src,dst).data);
+                        _edge_path.push_back(path_!.graph.resolve_node(src).data:get_pos());
+                        // Why do we need to reverse this?!
+                        _edge_path.reverse_insert(*partial_path)
+                            finalize with nothing; end;
+                        _edge_path.push_back(path_!.graph.resolve_node(dst).data:get_pos());
+                        cur_length = _edge_path.length();
+                        do MovePath with
+                            this.direction = &outer.direction;
+                            this.pos_x     = &outer.pos_x;
+                            this.pos_y     = &outer.pos_y;
+                            this.cur       = &cur_position;
+                        end;
+                        cur_position = 0;
+                        _printf("< [%d]: %d => %d\n", i, src, dst);
+                        this.current_node = dst;
+
                         if _node_path.empty() then
                             break;
+                        else
+                            src = dst;
+                            dst = _node_path.back();
+                            _node_path.pop_back();
                         end
-                        dst = _node_path.back();
-                        if src? then
-                            _printf("> [%d]: %d => %d\n", i, src!, dst!);
-                            _edge_path.clear();
-                            var _WorldmapNS__Path&& partial_path =
-                                _XXX_PURE(path_!.graph.resolve_edge(src!,dst!).data);
-                            _edge_path.push_back(path_!.graph.resolve_node(src!).data:get_pos());
-                            // Why do we need to reverse this?!
-                            _edge_path.reverse_insert(*partial_path)
-                                finalize with nothing; end;
-                            _edge_path.push_back(path_!.graph.resolve_node(dst!).data:get_pos());
-                            cur_length = _edge_path.length();
-                            do MovePath with
-                                this.direction = &outer.direction;
-                                this.pos_x     = &outer.pos_x;
-                                this.pos_y     = &outer.pos_y;
-                                this.cur       = &cur_position;
-                            end;
-                            cur_position = 0;
-                            _printf("< [%d]: %d => %d\n", i, src!, dst!);
-                        end
-                        _node_path.pop_back();
-                        src = dst;
-                        this.current_node = src!;
                     end
                     this.direction = _NONE;
                     break; // moved and finished normally
@@ -137,10 +141,10 @@ _printf("============== %d -> %d\n", this.current_node, target);
 
                 // awoke from "go" during traversal
 
-                if target == dst! then
+                if target == dst then
                     // nothing to do
-                else/if target == src! then
-                    this.current_node = dst!;
+                else/if target == src then
+                    this.current_node = dst;
                     cur_position = cur_length - cur_position;
                 else
                     // Pingu between two nodes
@@ -148,15 +152,15 @@ _printf("============== %d -> %d\n", this.current_node, target);
                         static WorldmapNS::PathfinderResult node_path1;
                         static WorldmapNS::PathfinderResult node_path2;
                     };
-                    _node_path1 = _XXX_PURE(this.path_!.get_path(src!, target));
-                    _node_path2 = _XXX_PURE(this.path_!.get_path(dst!, target));
+                    _node_path1 = _XXX_PURE(this.path_!.get_path(src, target));
+                    _node_path2 = _XXX_PURE(this.path_!.get_path(dst, target));
                     if (_node_path1.cost+cur_position <
                         _node_path2.cost+(cur_length-cur_position))
                     then
                         _node_path = _node_path1.path;
-                        this.current_node = dst!;
+                        this.current_node = dst;
                         cur_position = cur_length - cur_position;
-                        _node_path.insert(_node_path.begin(), dst!);
+                        _node_path.insert(_node_path.begin(), dst);
                     else
                         _node_path = _node_path2.path;
                     end
