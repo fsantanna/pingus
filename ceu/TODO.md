@@ -1,3 +1,4 @@
+- BUG: seta do worldmap aparece por baixo do pingus
 - BUG: explosao do pingu nao esta centralizada nele
 - BUG: a cada reinicio, o dobro de pingus sao criados
 - BUG: is_world=false in sprite.ceu
