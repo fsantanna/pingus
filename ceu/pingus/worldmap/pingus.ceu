@@ -4,9 +4,7 @@
 #include "../../engine/display/sprite.ceu"
 #include "../right_left_sprites.ceu"
 
-native @plain _WorldmapNS__NodeId;
 native/pre do
-    ##define WorldmapNS__NodeId           WorldmapNS::NodeId
     ##define WorldmapNS__NoNode           WorldmapNS::NoNode
     ##define WorldmapNS__PathGraph        WorldmapNS::PathGraph
     ##define WorldmapNS__Path             WorldmapNS::Path
@@ -57,7 +55,8 @@ class Pingus with
     var float  pos_x;
     var float  pos_y;
 
-    event _WorldmapNS__NodeId go;
+    event _WorldmapNS__NodeId go_walking;
+    event _WorldmapNS__NodeId go_directly;
 
     var _WorldmapNS__PathGraph&& path;
 do
@@ -79,100 +78,103 @@ do
 
 spawn do
     every 1s do
-        //_printf("CEU-POS %f %f\n", pos_x, pos_y);
     end
 end
 
     par do
         loop do
-            var _WorldmapNS__NodeId target = await go;
-            var float cur_position = 0;
-            var int   cur_length   = 0;
-            var _WorldmapNS__NodeId cur_node = this.node;
-            loop do
-_printf("============== %d -> %d\n", cur_node, target);
-                {
-                    static WorldmapNS::PathfinderResult res;
-                    static std::vector<WorldmapNS::NodeId> node_path;
-                };
-                _res = _XXX_PURE(this.path_!.get_path(cur_node, target));
-                _node_path = _res.path;
-
-                _assert(not _node_path.empty());
-                var _WorldmapNS__NodeId src = _node_path.back();
-                _node_path.pop_back();
-
-                _assert(not _node_path.empty());
-                var _WorldmapNS__NodeId dst = _node_path.back();
-                _node_path.pop_back();
-
-                watching target in go do
-                    var Rect r = Rect(
-                        path_!.get_dot(target):get_pos().x,
-                        path_!.get_dot(target):get_pos().y,
-                        0, 0
-                        // TODO + Vector3f(0, 0, 10));
-                    );
-                    var SpriteR _ = SpriteR.build_name(&r, "core/worldmap/arrow");
-                    loop i do
-                        _printf("> [%d]: %d => %d\n", i, src, dst);
-                        _edge_path.clear();
-                        var _WorldmapNS__Path&& partial_path =
-                            _XXX_PURE(path_!.graph.resolve_edge(src,dst).data);
-                        _edge_path.push_back(path_!.graph.resolve_node(src).data:get_pos());
-                        // Why do we need to reverse this?!
-                        _edge_path.reverse_insert(*partial_path)
-                            finalize with nothing; end;
-                        _edge_path.push_back(path_!.graph.resolve_node(dst).data:get_pos());
-                        cur_length = _edge_path.length();
-                        this.node = _WorldmapNS__NoNode;
-                        do MovePath with
-                            this.direction = &outer.direction;
-                            this.pos_x     = &outer.pos_x;
-                            this.pos_y     = &outer.pos_y;
-                            this.cur       = &cur_position;
-                        end;
-                        cur_position = 0;
-                        _printf("< [%d]: %d => %d\n", i, src, dst);
-                        cur_node = dst;
-                        this.node = dst;
-
-                        if _node_path.empty() then
-                            break;
-                        else
-                            src = dst;
-                            dst = _node_path.back();
-                            _node_path.pop_back();
-                        end
-                    end
-                    this.direction = _NONE;
-                    break; // moved and finished normally
-                end
-
-                // awoke from "go" during traversal
-
-                if target == dst then
-                    // nothing to do
-                else/if target == src then
-                    cur_node = dst;
-                    cur_position = cur_length - cur_position;
-                else
-                    // Pingu between two nodes
+            par/or do
+                var _WorldmapNS__NodeId target = await go_directly;
+                this.pos_x = this.path_!.get_dot(target):get_pos().x;
+                this.pos_y = this.path_!.get_dot(target):get_pos().y;
+                this.node = target;
+            with
+                var _WorldmapNS__NodeId target = await go_walking;
+                var float cur_position = 0;
+                var int   cur_length   = 0;
+                var _WorldmapNS__NodeId cur_node = this.node;
+                loop do
                     {
-                        static WorldmapNS::PathfinderResult node_path1;
-                        static WorldmapNS::PathfinderResult node_path2;
+                        static WorldmapNS::PathfinderResult res;
+                        static std::vector<WorldmapNS::NodeId> node_path;
                     };
-                    _node_path1 = _XXX_PURE(this.path_!.get_path(src, target));
-                    _node_path2 = _XXX_PURE(this.path_!.get_path(dst, target));
-                    if (_node_path1.cost+cur_position <
-                        _node_path2.cost+(cur_length-cur_position))
-                    then
-                        _node_path = _node_path1.path;
+                    _res = _XXX_PURE(this.path_!.get_path(cur_node, target));
+                    _node_path = _res.path;
+
+                    _assert(not _node_path.empty());
+                    var _WorldmapNS__NodeId src = _node_path.back();
+                    _node_path.pop_back();
+
+                    _assert(not _node_path.empty());
+                    var _WorldmapNS__NodeId dst = _node_path.back();
+                    _node_path.pop_back();
+
+                    watching target in go_walking do
+                        var Rect r = Rect(
+                            path_!.get_dot(target):get_pos().x,
+                            path_!.get_dot(target):get_pos().y,
+                            0, 0
+                            // TODO + Vector3f(0, 0, 10));
+                        );
+                        var SpriteR _ = SpriteR.build_name(&r, "core/worldmap/arrow");
+                        loop i do
+                            _edge_path.clear();
+                            var _WorldmapNS__Path&& partial_path =
+                                _XXX_PURE(path_!.graph.resolve_edge(src,dst).data);
+                            _edge_path.push_back(path_!.graph.resolve_node(src).data:get_pos());
+                            // Why do we need to reverse this?!
+                            _edge_path.reverse_insert(*partial_path)
+                                finalize with nothing; end;
+                            _edge_path.push_back(path_!.graph.resolve_node(dst).data:get_pos());
+                            cur_length = _edge_path.length();
+                            this.node = _WorldmapNS__NoNode;
+                            do MovePath with
+                                this.direction = &outer.direction;
+                                this.pos_x     = &outer.pos_x;
+                                this.pos_y     = &outer.pos_y;
+                                this.cur       = &cur_position;
+                            end;
+                            cur_position = 0;
+                            cur_node = dst;
+                            this.node = dst;
+
+                            if _node_path.empty() then
+                                break;
+                            else
+                                src = dst;
+                                dst = _node_path.back();
+                                _node_path.pop_back();
+                            end
+                        end
+                        this.direction = _NONE;
+                        break; // moved and finished normally
+                    end
+
+                    // awoke from "go_walking" during traversal
+
+                    if target == dst then
+                        // nothing to do
+                    else/if target == src then
                         cur_node = dst;
                         cur_position = cur_length - cur_position;
-                        _node_path.insert(_node_path.begin(), dst);
                     else
-                        _node_path = _node_path2.path;
+                        // Pingu between two nodes
+                        {
+                            static WorldmapNS::PathfinderResult node_path1;
+                            static WorldmapNS::PathfinderResult node_path2;
+                        };
+                        _node_path1 = _XXX_PURE(this.path_!.get_path(src, target));
+                        _node_path2 = _XXX_PURE(this.path_!.get_path(dst, target));
+                        if (_node_path1.cost+cur_position <
+                            _node_path2.cost+(cur_length-cur_position))
+                        then
+                            _node_path = _node_path1.path;
+                            cur_node = dst;
+                            cur_position = cur_length - cur_position;
+                            _node_path.insert(_node_path.begin(), dst);
+                        else
+                            _node_path = _node_path2.path;
+                        end
                     end
                 end
             end

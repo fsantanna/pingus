@@ -1,7 +1,9 @@
 #ifndef WORLDMAP_CEU
 #define WORLDMAP_CEU
 
+native @plain _WorldmapNS__NodeId;
 native/pre do
+    ##define WorldmapNS__NodeId WorldmapNS::NodeId
     ##define WorldmapNS__Dot WorldmapNS::Dot
     ##include "pingus/worldmap/pingus_worldmap.hpp"
     ##include "pingus/worldmap/worldmap.hpp"
@@ -68,6 +70,8 @@ do
         _Rect(_Vector2i(0, 0),
         _Size(_screen:worldmap:worldmap.get_width(), _screen:worldmap:worldmap.get_height())));
 
+    {Sound::PingusSound::play_music(screen->worldmap->worldmap.get_music());};
+
     var Pingus&&? pingus_ptr;
     spawn do
         every gc in SCREENMANAGER_DRAW do
@@ -99,7 +103,6 @@ do
                 y = {Math::clamp}(min, (int)pingus_ptr!:pos_y, max);
             end
 
-//_printf("CEU gc=%p xy=(%d,%d)\n", gc, x, y);
             _screen:worldmap:gc_state.set_size(gc:get_width(), gc:get_height());
             _screen:worldmap:gc_state.set_pos(_Vector2i(x, y));
             _screen:worldmap:gc_state.push(*gc);
@@ -122,7 +125,6 @@ do
         id = _screen:worldmap:path_graph:lookup_node(_node_name);
     end
     _pos = _XXX_PURE(_screen:worldmap:path_graph:get_dot(id):get_pos());
-//_printf("CEU %f,%f\n", _pos.x, _pos.y);
 
     var float pos_x = _pos.x;// + 50;
     var float pos_y = _pos.y;// + 50;
@@ -136,9 +138,22 @@ do
     pingus_ptr = &&pingus;
 
     par do
-        loop do
-            var int x, y;
-            (x,y) = await ON_PRIMARY_BUTTON_PRESSED;
+        every (x,y) in ON_SECONDARY_BUTTON_PRESSED do
+            if {globals::developer_mode} then
+                var float xx = _screen:worldmap:gc_state.screen2world(_Vector2i(x,y)).x;
+                var float yy = _screen:worldmap:gc_state.screen2world(_Vector2i(x,y)).y;
+                var _WorldmapNS__Dot&& dot = _XXX_PURE(_screen:worldmap:path_graph:get_dot(xx, yy));
+                if dot != null then
+                    // FIXME: Dot NodeID missmatch...
+                    var _WorldmapNS__NodeId id =
+                        _screen:worldmap:path_graph:get_id(dot)
+                            finalize with end;
+                    emit pingus.go_directly => id;
+                end
+            end
+        end
+    with
+        every (x,y) in ON_PRIMARY_BUTTON_PRESSED do
             var float xx = _screen:worldmap:gc_state.screen2world(_Vector2i(x,y)).x;
             var float yy = _screen:worldmap:gc_state.screen2world(_Vector2i(x,y)).y;
 
@@ -160,23 +175,21 @@ do
                 }
             };
 
-            { WorldmapNS::Dot* dot; };
-            _dot = _XXX_PURE(_screen:worldmap:path_graph:get_dot(xx, yy));
-            if _dot != null then
+            var _WorldmapNS__Dot&& dot = _XXX_PURE(_screen:worldmap:path_graph:get_dot(xx, yy));
+            if dot != null then
                 if {globals::developer_mode} then
-                    _log_info("Worldmap: Clicked on: %1%", _dot:get_name());
+                    _log_info("Worldmap: Clicked on: %1%", dot:get_name());
                 end
 
-_printf("DOT=%d  PGU=%d\n", _screen:worldmap:path_graph:lookup_node(_dot:get_name()), pingus.node);
-                if (_screen:worldmap:path_graph:lookup_node(_dot:get_name()) == pingus.node) then
+                if (_screen:worldmap:path_graph:lookup_node(dot:get_name()) == pingus.node) then
                     if {globals::developer_mode} then
                         _log_info("Worldmap: Pingu is on node, issue on_click()");
                     end
-                    _dot:on_click();
+                    dot:on_click();
                 else
-                    if _dot:accessible() then
-                        emit pingus.go =>
-                            _screen:worldmap:path_graph:lookup_node(_dot:get_name());
+                    if dot:accessible() then
+                        emit pingus.go_walking =>
+                            _screen:worldmap:path_graph:lookup_node(dot:get_name());
 /*
 TODO
                             {StatManager::instance()->set_string
