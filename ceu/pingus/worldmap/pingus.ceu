@@ -76,11 +76,6 @@ do
         this.is_world = false;
     end;
 
-spawn do
-    every 1s do
-    end
-end
-
     par do
         loop do
             par/or do
@@ -88,6 +83,7 @@ end
                 this.pos_x = this.path_!.get_dot(target):get_pos().x;
                 this.pos_y = this.path_!.get_dot(target):get_pos().y;
                 this.node = target;
+                this.direction = _NONE;
             with
                 var _WorldmapNS__NodeId target = await go_walking;
                 var float cur_position = 0;
