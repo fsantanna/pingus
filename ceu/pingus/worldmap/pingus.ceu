@@ -17,10 +17,9 @@ native/pre do
 end
 
 class MovePath with
-    var s8&    direction;
-    var float& pos_x;
-    var float& pos_y;
-    var float& cur;
+    var s8&       direction;
+    var Vector3f& pos;
+    var float&    cur;
 do
     var float velocity = 70;
     loop do
@@ -33,12 +32,12 @@ do
         end
 
         // Recalc pingu position on the screen
-        var float prv_x = this.pos_x;
-        var float prv_y = this.pos_y;
-        this.pos_x = _edge_path.at(cur).x;
-        this.pos_y = _edge_path.at(cur).y;
+        var float prv_x = this.pos.x;
+        var float prv_y = this.pos.y;
+        this.pos.x = _edge_path.at(cur).x;
+        this.pos.y = _edge_path.at(cur).y;
 
-        var float dir = ({Math::atan2}(prv_x-this.pos_x, -(prv_y-this.pos_y))
+        var float dir = ({Math::atan2}(prv_x-this.pos.x, -(prv_y-this.pos.y))
                             / {Math::pi}*180) + 180;
         if dir>=0 and dir<180 then
             this.direction = _RIGHT;
@@ -51,9 +50,11 @@ end
 class Pingus with
     interface  IPositionDirection;
     var _WorldmapNS__NodeId node;
-    var s8     direction = _NONE;
-    var float  pos_x;
-    var float  pos_y;
+
+    var s8        direction = _NONE;
+    var float     pos_x = 0;
+    var float     pos_y = 0;
+    var Vector3f& pos;
 
     event _WorldmapNS__NodeId go_walking;
     event _WorldmapNS__NodeId go_directly;
@@ -77,11 +78,16 @@ do
     end;
 
     par do
+        every SCREENMANAGER_UPDATE do
+            this.pos_x = this.pos.x;
+            this.pos_y = this.pos.y;
+        end
+    with
         loop do
             par/or do
                 var _WorldmapNS__NodeId target = await go_directly;
-                this.pos_x = this.path_!.get_dot(target):get_pos().x;
-                this.pos_y = this.path_!.get_dot(target):get_pos().y;
+                this.pos.x = this.path_!.get_dot(target):get_pos().x;
+                this.pos.y = this.path_!.get_dot(target):get_pos().y;
                 this.node = target;
                 this.direction = _NONE;
             with
@@ -126,8 +132,7 @@ do
                             this.node = _WorldmapNS__NoNode;
                             do MovePath with
                                 this.direction = &outer.direction;
-                                this.pos_x     = &outer.pos_x;
-                                this.pos_y     = &outer.pos_y;
+                                this.pos       = &outer.pos;
                                 this.cur       = &cur_position;
                             end;
                             cur_position = 0;
@@ -175,7 +180,6 @@ do
                 end
             end
         end
-    with
     end
 end
 
