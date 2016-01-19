@@ -25,6 +25,7 @@ native do
 end
 
 #include "../../engine/gui/surface_button.ceu"
+#include "dots.ceu"
 #include "pingus.ceu"
 
 class SpriteDrawable with
@@ -139,21 +140,49 @@ do
         pool SpriteDrawable[] draws;
         {
             static const std::vector<FileReader>& object_reader = screen->worldmap->worldmap.get_objects();
-            static std::vector<FileReader>::const_iterator i;
+            static std::vector<FileReader>::const_iterator i1;
         };
-        _i = _XXX_PURE(_object_reader.begin());
+        _i1 = _XXX_PURE(_object_reader.begin());
         loop do
-            if _i == _object_reader.end() then
+            if _i1 == _object_reader.end() then
                 break;
             end
             //log_info("Worldmap::parse_objects: Parse Error");
-            { const FileReader& file_reader = *i; };
+            { const FileReader& file_reader = *i1; };
             var _FileReader&& reader = (_FileReader&&)&&_file_reader;
             spawn SpriteDrawable in draws with
                 this.reader = reader;
                 this.pos    = &pos;
             end;
-            {i++;};
+            {i1++;};
+        end
+
+        // Create graph
+        pool IDot[] dots;
+        {
+            static const std::vector<FileReader>& childs =
+                screen->worldmap->worldmap.get_graph().read_section("nodes").get_sections();
+            static std::vector<FileReader>::const_iterator i2;
+        };
+        _i2 = _XXX_PURE(_childs.begin());
+        loop do
+            if _i2 == _childs.end() then
+                break;
+            end
+            { const FileReader& file_reader = *i2; };
+            var _FileReader&& reader = (_FileReader&&)&&_file_reader;
+            if reader:get_name() == "storydot" then
+_printf("STORY\n");
+            else/if reader:get_name() == "leveldot" then
+_printf("LEVEL\n");
+                spawn LevelDot in dots with
+                    this.reader = reader;
+                    this.pos    = &pos;
+                end;
+            else
+                _assert(not "DotFactory: unknown tag: ");// <<  reader.get_name());
+            end
+            {i2++;};
         end
 
         var Pingus pingus with

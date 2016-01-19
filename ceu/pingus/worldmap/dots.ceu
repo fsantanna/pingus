@@ -1,0 +1,29 @@
+#ifndef _DOTS_CEU
+#define _DOTS_CEU
+
+interface IDot with
+    var _FileReader&& reader;
+    var Vector3f&     pos;
+end
+
+class LevelDot with
+    interface IDot;
+do
+    {
+        static FileReader  reader;
+        static Vector3f    pos;
+        static std::string name;
+    };
+    _reader = _XXX_PURE(reader:read_section("dot"));
+    _reader.read_vector("position", _pos);
+    _reader.read_string("name",     _name);
+    _assert(not _name.empty());
+
+    var Rect r = Rect(_pos.x,_pos.y, 0, 0);
+    var char[] name = [] .. (char&&)_name.c_str();
+
+    var SpriteR _ = SpriteR.build_name(&r, "core/worldmap/dot_green");
+    await FOREVER;
+end
+
+#endif
