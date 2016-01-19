@@ -6,6 +6,34 @@ interface IDot with
     var Vector3f&     pos;
 end
 
+class StoryDot with
+    interface IDot;
+do
+    {
+        static FileReader  reader;
+        static Vector3f    pos;
+        static std::string name;
+    };
+    _reader = _XXX_PURE(this.reader:read_section("dot"));
+    _reader.read_vector("position", _pos);
+    _reader.read_string("name",     _name);
+    _assert(not _name.empty());
+
+    {
+        static std::string m_name;
+        static std::string m_story;
+        static bool        m_credits;
+        static PingusLevel plf;
+    };
+    this.reader:read_string("name",    _m_name);
+    this.reader:read_string("story",   _m_story);
+    this.reader:read_bool  ("credits", _m_credits);
+
+    var Rect r = Rect(_pos.x,_pos.y, 0, 0);
+    var SpriteR _ = SpriteR.build_name(&r, "core/worldmap/story_dot");
+    await FOREVER;
+end
+
 class LevelDot with
     interface IDot;
 do
@@ -14,16 +42,36 @@ do
         static Vector3f    pos;
         static std::string name;
     };
-    _reader = _XXX_PURE(reader:read_section("dot"));
+    _reader = _XXX_PURE(this.reader:read_section("dot"));
     _reader.read_vector("position", _pos);
     _reader.read_string("name",     _name);
     _assert(not _name.empty());
 
-    var Rect r = Rect(_pos.x,_pos.y, 0, 0);
-    var char[] name = [] .. (char&&)_name.c_str();
+    {
+        static std::string resname;
+        static PingusLevel plf;
+    };
+    this.reader:read_string("levelname", _resname);
+    { plf = PLFResMgr::load_plf(resname); };
 
-    var SpriteR _ = SpriteR.build_name(&r, "core/worldmap/dot_green");
-    await FOREVER;
+    var Rect r = Rect(_pos.x,_pos.y, 0, 0);
+
+    var _Savegame&& savegame = _XXX_PURE({SavegameManager::instance()}:get(_plf.get_resname()));
+    if savegame != null and
+        (  savegame:get_status() == {Savegame::FINISHED}
+        or savegame:get_status() == {Savegame::ACCESSIBLE} )
+    then
+        if savegame:get_status() == {Savegame::FINISHED} then
+            var SpriteR _ = SpriteR.build_name(&r, "core/worldmap/dot_green");
+            await FOREVER;
+        else
+            var SpriteR _ = SpriteR.build_name(&r, "core/worldmap/dot_red");
+            await FOREVER;
+        end
+    else
+        var SpriteR _ = SpriteR.build_name(&r, "core/worldmap/dot_invalid");
+        await FOREVER;
+    end
 end
 
 #endif

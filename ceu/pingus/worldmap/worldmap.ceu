@@ -172,9 +172,11 @@ do
             { const FileReader& file_reader = *i2; };
             var _FileReader&& reader = (_FileReader&&)&&_file_reader;
             if reader:get_name() == "storydot" then
-_printf("STORY\n");
+                spawn StoryDot in dots with
+                    this.reader = reader;
+                    this.pos    = &pos;
+                end;
             else/if reader:get_name() == "leveldot" then
-_printf("LEVEL\n");
                 spawn LevelDot in dots with
                     this.reader = reader;
                     this.pos    = &pos;
