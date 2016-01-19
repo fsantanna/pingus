@@ -6,6 +6,26 @@ interface IDot with
     var Vector3f&     pos;
 end
 
+class MouseHover with
+    var Rect& rect;
+    event bool pse;
+do
+    var bool is_on = false;
+    every (x,y) in ON_POINTER_MOVE do
+        var Vector3f pos =
+            Vector3f(_screen:worldmap:gc_state.screen2world(_Vector2i(x,y)).x,
+                     _screen:worldmap:gc_state.screen2world(_Vector2i(x,y)).y,
+                     0);
+        var float xx = pos.x - this.rect.left;
+        var float yy = pos.y - this.rect.top;
+        var bool v = {Math::sqrt}(xx*xx + yy*yy) < 30;
+        if v != is_on then
+            is_on = v;
+            emit this.pse => not v;
+        end
+    end
+end
+
 class StoryDot with
     interface IDot;
 do
@@ -31,7 +51,15 @@ do
 
     var Rect r = Rect(_pos.x,_pos.y, 0, 0);
     var SpriteR _ = SpriteR.build_name(&r, "core/worldmap/story_dot");
-    await FOREVER;
+
+    var MouseHover h with
+        this.rect = &r;
+    end;
+    var bool v = await h.pse until v==false;
+    pause/if h.pse do
+        var SpriteR _ = SpriteR.build_name(&r, "core/worldmap/story_dot_highlight");
+        await FOREVER;
+    end
 end
 
 class LevelDot with
@@ -55,6 +83,9 @@ do
     { plf = PLFResMgr::load_plf(resname); };
 
     var Rect r = Rect(_pos.x,_pos.y, 0, 0);
+    var MouseHover h with
+        this.rect = &r;
+    end;
 
     var _Savegame&& savegame = _XXX_PURE({SavegameManager::instance()}:get(_plf.get_resname()));
     if savegame != null and
@@ -63,9 +94,18 @@ do
     then
         if savegame:get_status() == {Savegame::FINISHED} then
             var SpriteR _ = SpriteR.build_name(&r, "core/worldmap/dot_green");
-            await FOREVER;
+            var bool v = await h.pse until v==false;
+            pause/if h.pse do
+                var SpriteR _ = SpriteR.build_name(&r, "core/worldmap/dot_green_hl");
+                await FOREVER;
+            end
         else
             var SpriteR _ = SpriteR.build_name(&r, "core/worldmap/dot_red");
+            var bool v = await h.pse until v==false;
+            pause/if h.pse do
+                var SpriteR _ = SpriteR.build_name(&r, "core/worldmap/dot_red_hl");
+                await FOREVER;
+            end
             await FOREVER;
         end
     else
