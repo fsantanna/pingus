@@ -101,7 +101,7 @@ do
 
         every gc in SCREENMANAGER_DRAW do
             gc:print_center({Fonts::pingus_small},
-                  _Vector2i(pos.x, pos.y-44),
+                  _Vector2i(rect.left, rect.top-44),
                   __(&&m_name),
                   10000);
         end
@@ -111,7 +111,7 @@ end
 class LevelDot with
     interface IDot;
     var int id     = _WorldmapNS__NoNode;
-    var int status = {Savegame::ACCESSIBLE};
+    var int status = {Savegame::NONE};
 do
     {
         static FileReader  reader;
