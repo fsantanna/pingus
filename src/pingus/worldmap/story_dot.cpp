@@ -36,20 +36,23 @@ StoryDot::StoryDot(const FileReader& reader) :
   m_story(),
   m_credits(false)
 {
+#if 0
   reader.read_string("name", m_name);
   reader.read_string("story", m_story);
   reader.read_bool("credits", m_credits);
+#endif
 }
 
-void
-StoryDot::draw(DrawingContext& gc)
-{
+void StoryDot::draw(DrawingContext& gc) {
+#if 0
   gc.draw (m_story_dot, pos);
+#endif
 }
 
 void
 StoryDot::draw_hover(DrawingContext& gc)
 {
+#if 0
   gc.draw (m_story_dot_highlight, pos);
 
   gc.print_center(Fonts::pingus_small,
@@ -57,12 +60,10 @@ StoryDot::draw_hover(DrawingContext& gc)
                            static_cast<int>(pos.y) - 44),
                   _(m_name),
                   10000);
+#endif
 }
 
-void
-StoryDot::update(float delta)
-{
-}
+void StoryDot::update(float delta) { }
 
 void
 StoryDot::on_click()

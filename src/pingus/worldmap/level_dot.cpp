@@ -39,13 +39,13 @@ LevelDot::LevelDot(const FileReader& reader) :
 {
   std::string resname;
   reader.read_string("levelname", resname);
-
   plf = PLFResMgr::load_plf(resname);
 }
 
 void
 LevelDot::draw(DrawingContext& gc)
 {
+#if 0
   Vector2i mpos
     = gc.screen_to_world(Vector2i(Input::Controller::current()->get_pointer(Input::STANDARD_POINTER)->get_pos()));
 
@@ -81,16 +81,12 @@ LevelDot::draw(DrawingContext& gc)
   {
     gc.draw (inaccessible_dot_sur, pos);
   }
+#endif
 }
 
-void
-LevelDot::update(float delta)
-{
-}
+void LevelDot::update(float delta) { }
 
-void
-LevelDot::on_click()
-{
+void LevelDot::on_click() {
   //log_info("Starting level: " << levelname);
 assert(!"NOT PORTED");
 #if 0
@@ -111,10 +107,12 @@ LevelDot::finished()
 bool
 LevelDot::accessible()
 {
+#if 0
   Savegame* savegame = SavegameManager::instance()->get(plf.get_resname());
   if (savegame && savegame->get_status() != Savegame::NONE)
     return true;
   else
+#endif
     return false;
 }
 
