@@ -248,7 +248,11 @@ do
                     if {globals::developer_mode} then
                         _log_info("Worldmap: Pingu is on node, issue on_click()");
                     end
-                    escape is_story;
+                    if is_story then
+                        escape _WORLDMAP_RETURN_STORY;
+                    else
+                        escape _WORLDMAP_RETURN_LEVEL;
+                    end
                 else
                     if status == {Savegame::NONE} then
                         call {Sound::PingusSound::play_sound}("chink");

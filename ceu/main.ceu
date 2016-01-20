@@ -191,7 +191,7 @@ input _CommandLineOptions&& MAIN;
 event bool go_pause;
 
 #include "pingus/fps_counter.ceu"
-#include "pingus/worldmap/worldmap.ceu"
+#include "pingus/worldmap/worldmap_screen.ceu"
 #include "pingus/screens/credits.ceu"
 #include "pingus/screens/story_screen.ceu"
 #include "pingus/screens/pingus_menu.ceu"
@@ -258,18 +258,18 @@ par/or do
             else/if {StringUtil::has_suffix(cmd.rest.get(), ".worldmap")} then
 // WORLDMAP
                 loop do
-                    var bool is_story =
-                        do WorldMap with
+                    var int ret =
+                        do WorldmapScreen with
                             this.filename = &&_filename;
                         end;
-                    if is_story then
+                    if ret == _WORLDMAP_RETURN_STORY then
                         finalize
                             _reader = {FileReader::parse}(_Pathname(&&global:worldmap_return_filename, {Pathname::DATA_PATH}));
                         with end
                         do StoryScreen with
                             this.reader = &&_reader;
                         end;
-                    else
+                    else/if ret == _WORLDMAP_RETURN_LEVEL then
                         finalize
                             _plf = {PLFResMgr::load_plf}({std::string}(&&worldmap_return_filename)
                                     finalize with end);
@@ -278,6 +278,9 @@ par/or do
                             this.plf    = &_XXX_PURE(&&_plf);
                             this.result = &_XXX_PURE(&&_result);
                         end;
+                    else
+                        _assert(ret == _WORLDMAP_RETURN_EXIT);
+                        escape 0;
                     end
                 end
             else/if {StringUtil::has_suffix(cmd.rest.get(), ".story")} then
