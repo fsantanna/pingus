@@ -59,7 +59,7 @@ Pingus::draw (DrawingContext& gc)
     gc.draw(arrow, path->get_dot(final_target_node)->get_pos() + Vector3f(0, 0, 10));
   }
 
-/*
+#if 0
   if (!is_walking())
   {
     gc.draw(sprite_standing, pos);
@@ -74,7 +74,7 @@ Pingus::draw (DrawingContext& gc)
     else
       gc.draw(sprite[Direction::LEFT], pos + Vector3f(0, 0, 10));
   }
-*/
+#endif
 }
 
 void
@@ -104,13 +104,9 @@ Pingus::update_walk (float delta)
     {
       current_node = target_node;
       final_target_node = NoNode;
-printf("end...\n");
-//for(;;);
     }
     else // edge is traveled, now go to the next node
     {
-printf("next...\n");
-//for(;;);
       update_edge_path();
     }
   }
@@ -118,7 +114,6 @@ printf("next...\n");
   // Recalc pingu position on the screen
   last_pos = pos;
   pos = calc_pos ();
-//printf("CPP xy=(%f,%f)\n", pos.x, pos.y);
 }
 
 float
@@ -135,8 +130,6 @@ Pingus::walk_to_node (NodeId target)
 
   if (current_node == target)
   {
-printf("there...\n");
-//for(;;);
     return true;
   }
   else if (current_node != NoNode) // pingu stands still
@@ -145,14 +138,11 @@ printf("there...\n");
 
     if (res.path.empty())
     {
-printf("nopath...\n");
-//for(;;);
       // No path could be found
       return false;
     }
     else
     {
-printf("ok...\n");
       node_path = res.path;
 
       // Simulate that we just reached current_node, then update the edge_path
@@ -166,8 +156,6 @@ printf("ok...\n");
   }
   else // pingu between two nodes
   {
-printf("transit...\n");
-//for(;;);
     if (target_node == target)
     {
       node_path.clear();
@@ -243,7 +231,6 @@ void
 Pingus::set_position (NodeId node)
 {
   pos = path->get_dot(node)->get_pos();
-printf("CPP %f,%f\n", pos.x, pos.y);
   current_node = node;
 }
 
@@ -258,7 +245,6 @@ Pingus::update_edge_path()
   edge_path_position = 0.0f;
   edge_path.clear();
 
-printf("CPP from:%d to:%d\n", source_node, target_node);
   Path* partial_path = path->graph.resolve_edge(source_node, target_node).data;
 
   edge_path.push_back(path->graph.resolve_node(source_node).data->get_pos());

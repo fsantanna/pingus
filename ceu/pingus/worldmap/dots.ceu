@@ -85,18 +85,26 @@ do
     this.reader:read_string("name",    _m_name);
     this.reader:read_string("story",   _m_story);
     this.reader:read_bool  ("credits", _m_credits);
+    var char[] m_name = [] .. (char&&)_m_name.c_str();
 
-    var Rect r = Rect(_pos.x,_pos.y, 0, 0);
-    var SpriteR _ = SpriteR.build_name(&r, "core/worldmap/story_dot");
+    var Rect rect = Rect(_pos.x,_pos.y, 0, 0);
+    var SpriteR _ = SpriteR.build_name(&rect, "core/worldmap/story_dot");
 
     var Mouse mouse with
-        this.rect = &r;
+        this.rect = &rect;
         this.dot  = &outer;
     end;
+
     var bool v = await mouse.ok_out until v==false;
     pause/if mouse.ok_out do
-        var SpriteR _ = SpriteR.build_name(&r, "core/worldmap/story_dot_highlight");
-        await FOREVER;
+        var SpriteR _ = SpriteR.build_name(&rect, "core/worldmap/story_dot_highlight");
+
+        every gc in SCREENMANAGER_DRAW do
+            gc:print_center({Fonts::pingus_small},
+                  _Vector2i(pos.x, pos.y-44),
+                  __(&&m_name),
+                  10000);
+        end
     end
 end
 
@@ -125,9 +133,12 @@ do
     this.reader:read_string("levelname", _resname);
     { plf = PLFResMgr::load_plf(resname); };
 
+    var char[] res_name = [] .. (char&&)_resname.c_str();
+    var char[] lvl_name = [] .. (char&&)_plf.get_levelname().c_str();
+
     var _Savegame&? savegame;
     finalize
-        savegame = &_XXX_NOHOLD({SavegameManager::instance()}:get(_plf.get_resname()));
+        savegame = &_XXX_NOHOLD({SavegameManager::instance()}:get(_resname));
     with
         nothing;
     end
@@ -135,34 +146,59 @@ do
         this.status = savegame!.get_status();
     end
 
-    var Rect r = Rect(_pos.x,_pos.y, 0, 0);
+    var Rect rect = Rect(_pos.x,_pos.y, 0, 0);
     var Mouse mouse with
-        this.rect = &r;
+        this.rect = &rect;
         this.dot  = &outer;
     end;
 
-    if this.status == {Savegame::FINISHED}
-    or this.status == {Savegame::ACCESSIBLE}
-    then
-        if this.status == {Savegame::FINISHED} then
-            var SpriteR _ = SpriteR.build_name(&r, "core/worldmap/dot_green");
-            var bool v = await mouse.ok_out until v==false;
-            pause/if mouse.ok_out do
-                var SpriteR _ = SpriteR.build_name(&r, "core/worldmap/dot_green_hl");
+    par do
+        if this.status == {Savegame::FINISHED}
+        or this.status == {Savegame::ACCESSIBLE}
+        then
+            if this.status == {Savegame::FINISHED} then
+                var SpriteR _ = SpriteR.build_name(&rect, "core/worldmap/dot_green");
+                var bool v = await mouse.ok_out until v==false;
+                pause/if mouse.ok_out do
+                    var SpriteR _ = SpriteR.build_name(&rect, "core/worldmap/dot_green_hl");
+                    await FOREVER;
+                end
+            else
+                var SpriteR _ = SpriteR.build_name(&rect, "core/worldmap/dot_red");
+                var bool v = await mouse.ok_out until v==false;
+                pause/if mouse.ok_out do
+                    var SpriteR _ = SpriteR.build_name(&rect, "core/worldmap/dot_red_hl");
+                    await FOREVER;
+                end
                 await FOREVER;
             end
         else
-            var SpriteR _ = SpriteR.build_name(&r, "core/worldmap/dot_red");
-            var bool v = await mouse.ok_out until v==false;
-            pause/if mouse.ok_out do
-                var SpriteR _ = SpriteR.build_name(&r, "core/worldmap/dot_red_hl");
-                await FOREVER;
-            end
+            var SpriteR _ = SpriteR.build_name(&rect, "core/worldmap/dot_invalid");
             await FOREVER;
         end
-    else
-        var SpriteR _ = SpriteR.build_name(&r, "core/worldmap/dot_invalid");
-        await FOREVER;
+    with
+        var bool v = await mouse.ok_out until v==false;
+        pause/if mouse.ok_out do
+            every gc in SCREENMANAGER_DRAW do
+                if this.status == {Savegame::NONE} then
+                    gc:print_center({Fonts::pingus_small},
+                        _Vector2i(rect.left, rect.top-44),
+                        __("???"),
+                        10000);
+                else
+                    gc:print_center({Fonts::pingus_small},
+                        _Vector2i(rect.left, rect.top-44),
+                        __(&&lvl_name),
+                        10000);
+                end
+                if {globals::developer_mode} then
+                    gc:print_center({Fonts::pingus_small},
+                        _Vector2i(rect.left, rect.top-70),
+                        __(&&res_name),
+                        10000);
+                end
+            end
+        end
     end
 end
 

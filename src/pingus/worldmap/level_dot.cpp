@@ -121,6 +121,7 @@ LevelDot::accessible()
 void
 LevelDot::draw_hover(DrawingContext& gc)
 {
+#if 0
   if (accessible())
   {
     gc.print_center(Fonts::pingus_small,
@@ -145,6 +146,7 @@ LevelDot::draw_hover(DrawingContext& gc)
                     get_plf().get_resname(),
                     10000);
   }
+#endif
 }
 
 void

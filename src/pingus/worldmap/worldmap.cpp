@@ -50,6 +50,7 @@ Worldmap::Worldmap(const Pathname& filename) :
   worldmap = PingusWorldmap(filename);
 
   // Create all objects
+#if 0
   const std::vector<FileReader>& object_reader = worldmap.get_objects();
   for(std::vector<FileReader>::const_iterator i = object_reader.begin(); i != object_reader.end(); ++i)
   {
@@ -64,6 +65,7 @@ Worldmap::Worldmap(const Pathname& filename) :
       log_info("Worldmap::parse_objects: Parse Error");
     }
   }
+#endif
 
   FileReader path_graph_reader = worldmap.get_graph();
   path_graph.reset(new PathGraph(this, path_graph_reader));
@@ -80,15 +82,18 @@ Worldmap::Worldmap(const Pathname& filename) :
 
 Worldmap::~Worldmap()
 {
+#if 0
   for (auto i = drawables.begin (); i != drawables.end (); ++i)
   {
     delete (*i);
   }
+#endif
 }
 
 void
 Worldmap::draw(DrawingContext& gc)
 {
+#if 0
   Vector2i pingu_pos(static_cast<int>(pingus->get_pos().x),
                      static_cast<int>(pingus->get_pos().y));
   int min, max;
@@ -134,40 +139,50 @@ Worldmap::draw(DrawingContext& gc)
     dot->draw_hover(gc);
 
   gc_state.pop(gc);
+#endif
 }
 
 void
 Worldmap::update(float delta)
 {
+#if 0
   for (DrawableLst::iterator i = drawables.begin (); i != drawables.end (); ++i)
   {
     (*i)->update (delta);
   }
+#endif
 }
 
 void
 Worldmap::on_startup()
 {
+#if 0
   Sound::PingusSound::play_music(worldmap.get_music());
+#endif
   update_locked_nodes();
 }
 
 void
 Worldmap::add_drawable(Drawable* drawable)
 {
+#if 0
   drawables.push_back(drawable);
+#endif
 }
 
 void
 Worldmap::on_pointer_move(int x, int y)
 {
+#if 0
   mouse_x = x;
   mouse_y = y;
+#endif
 }
 
 void
 Worldmap::on_primary_button_press(int x, int y)
 {
+#if 0
   Vector2f click_pos = gc_state.screen2world(Vector2i(x, y));
 
   if (globals::developer_mode)
@@ -216,11 +231,13 @@ Worldmap::on_primary_button_press(int x, int y)
       }
     }
   }
+#endif
 }
 
 void
 Worldmap::on_secondary_button_press(int x, int y)
 {
+#if 0
   if (globals::developer_mode)
   {
     Vector3f click_pos = gc_state.screen2world(Vector2i(x, y));
@@ -232,6 +249,7 @@ Worldmap::on_secondary_button_press(int x, int y)
       pingus->set_position(id);
     }
   }
+#endif
 }
 
 void
