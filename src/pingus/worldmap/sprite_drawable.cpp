@@ -17,7 +17,7 @@
 #include "pingus/worldmap/sprite_drawable.hpp"
 
 #include "pingus/res_descriptor.hpp"
-#include "pingus/worldmap/pingus.hpp"
+//#include "pingus/worldmap/pingus.hpp"
 #include "pingus/worldmap/worldmap.hpp"
 
 namespace WorldmapNS {
@@ -47,6 +47,7 @@ SpriteDrawable::update(float delta)
 void
 SpriteDrawable::draw(DrawingContext& gc)
 {
+#if 0
   if (surface)
   {
     if (auto_uncover)
@@ -68,6 +69,7 @@ SpriteDrawable::draw(DrawingContext& gc)
       gc.draw(surface, pos);
     }
   }
+#endif
 }
 
 } // namespace WorldmapNS

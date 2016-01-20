@@ -52,7 +52,7 @@ public:
   NodeId default_node;
   NodeId final_node;
 
-  Pingus* pingus;
+  //Pingus* pingus;
 
   GraphicContextState gc_state;
 
@@ -76,7 +76,7 @@ public:
   Worldmap(const Pathname& filename);
   ~Worldmap();
 
-  Pingus* get_pingus() { return pingus; }
+  //Pingus* get_pingus() { return pingus; }
 
   void on_startup();
 

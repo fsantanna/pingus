@@ -23,7 +23,7 @@
 #include "pingus/fonts.hpp"
 #include "pingus/gettext.h"
 ///#include "pingus/screens/story_screen.hpp"
-#include "pingus/worldmap/pingus.hpp"
+//#include "pingus/worldmap/pingus.hpp"
 #include "pingus/worldmap/worldmap.hpp"
 #include "pingus/worldmap/worldmap_component.hpp"
 
