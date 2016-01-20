@@ -33,7 +33,7 @@ native @plain _ResourceModifier__Enum;
 native @plain _PingusLevel, _Result;
 native @pure   _XXX_PURE(), _XXX_PTR2REF();
 native @nohold _XXX_NOHOLD();
-native @nohold _delete(), _sscanf(), _log_error();
+native @nohold _delete(), _sscanf(), _log_error(), _log_info();
 
 #define AWAIT_UNTIL_MYSELF(TP,EVT)             \
     do                                         \

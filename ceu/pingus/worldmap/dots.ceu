@@ -1,33 +1,67 @@
 #ifndef _DOTS_CEU
 #define _DOTS_CEU
 
-interface IDot with
-    var _FileReader&& reader;
-    var Vector3f&     pos;
+class DotE with
+    event (int,int,int) ok_clicked;
+do
+    await FOREVER;
 end
 
-class MouseHover with
+interface IDot with
+    var _FileReader&& reader;
+    var int           id;
+    var char[]        name;
+    var Vector3f&     pos;
+    var int           status;
+    var DotE&         e;
+end
+
+class Mouse with
     var Rect& rect;
-    event bool pse;
+    var IDot& dot;
+    event bool ok_out;
 do
-    var bool is_on = false;
-    every (x,y) in ON_POINTER_MOVE do
-        var Vector3f pos =
-            Vector3f(_screen:worldmap:gc_state.screen2world(_Vector2i(x,y)).x,
-                     _screen:worldmap:gc_state.screen2world(_Vector2i(x,y)).y,
-                     0);
-        var float xx = pos.x - this.rect.left;
-        var float yy = pos.y - this.rect.top;
-        var bool v = {Math::sqrt}(xx*xx + yy*yy) < 30;
-        if v != is_on then
-            is_on = v;
-            emit this.pse => not v;
+    function (int x, int y)=>bool is_inside do
+        var float xx = _screen:worldmap:gc_state.screen2world(_Vector2i(x,y)).x;
+        var float yy = _screen:worldmap:gc_state.screen2world(_Vector2i(x,y)).y;
+        var float xxx = xx - this.rect.left;
+        var float yyy = yy - this.rect.top;
+        return {Math::sqrt}(xxx*xxx + yyy*yyy) < 30;
+    end
+
+    par do
+        var bool is_on = false;
+        every (x,y) in ON_POINTER_MOVE do
+            var bool v = is_inside(x,y);
+            if v != is_on then
+                is_on = v;
+                emit this.ok_out => not v;
+            end
+        end
+    with
+        every (x,y) in ON_PRIMARY_BUTTON_PRESSED do
+            if is_inside(x,y) then
+                if {globals::developer_mode} then
+                    _log_info("Worldmap: Clicked on: %1%", (char&&)&&dot.name);
+                end
+                emit this.dot.e.ok_clicked => (1,this.dot.id,this.dot.status);
+            end
+        end
+    with
+        every (x,y) in ON_SECONDARY_BUTTON_PRESSED do
+            if {globals::developer_mode} then
+                if is_inside(x,y) then
+                    emit this.dot.e.ok_clicked => (2,this.dot.id,this.dot.status);
+                end
+            end
         end
     end
 end
 
 class StoryDot with
     interface IDot;
+    var int id     = _WorldmapNS__NoNode;
+    var int status = {Savegame::ACCESSIBLE};
 do
     {
         static FileReader  reader;
@@ -38,6 +72,9 @@ do
     _reader.read_vector("position", _pos);
     _reader.read_string("name",     _name);
     _assert(not _name.empty());
+
+    this.id   = _screen:worldmap:path_graph:lookup_node(_name);
+    this.name = [] .. (char&&)_name.c_str();
 
     {
         static std::string m_name;
@@ -52,11 +89,12 @@ do
     var Rect r = Rect(_pos.x,_pos.y, 0, 0);
     var SpriteR _ = SpriteR.build_name(&r, "core/worldmap/story_dot");
 
-    var MouseHover h with
+    var Mouse mouse with
         this.rect = &r;
+        this.dot  = &outer;
     end;
-    var bool v = await h.pse until v==false;
-    pause/if h.pse do
+    var bool v = await mouse.ok_out until v==false;
+    pause/if mouse.ok_out do
         var SpriteR _ = SpriteR.build_name(&r, "core/worldmap/story_dot_highlight");
         await FOREVER;
     end
@@ -64,6 +102,8 @@ end
 
 class LevelDot with
     interface IDot;
+    var int id     = _WorldmapNS__NoNode;
+    var int status = {Savegame::ACCESSIBLE};
 do
     {
         static FileReader  reader;
@@ -75,6 +115,9 @@ do
     _reader.read_string("name",     _name);
     _assert(not _name.empty());
 
+    this.id   = _screen:worldmap:path_graph:lookup_node(_name);
+    this.name = [] .. (char&&)_name.c_str();
+
     {
         static std::string resname;
         static PingusLevel plf;
@@ -82,27 +125,36 @@ do
     this.reader:read_string("levelname", _resname);
     { plf = PLFResMgr::load_plf(resname); };
 
+    var _Savegame&? savegame;
+    finalize
+        savegame = &_XXX_NOHOLD({SavegameManager::instance()}:get(_plf.get_resname()));
+    with
+        nothing;
+    end
+    if savegame? then
+        this.status = savegame!.get_status();
+    end
+
     var Rect r = Rect(_pos.x,_pos.y, 0, 0);
-    var MouseHover h with
+    var Mouse mouse with
         this.rect = &r;
+        this.dot  = &outer;
     end;
 
-    var _Savegame&& savegame = _XXX_PURE({SavegameManager::instance()}:get(_plf.get_resname()));
-    if savegame != null and
-        (  savegame:get_status() == {Savegame::FINISHED}
-        or savegame:get_status() == {Savegame::ACCESSIBLE} )
+    if this.status == {Savegame::FINISHED}
+    or this.status == {Savegame::ACCESSIBLE}
     then
-        if savegame:get_status() == {Savegame::FINISHED} then
+        if this.status == {Savegame::FINISHED} then
             var SpriteR _ = SpriteR.build_name(&r, "core/worldmap/dot_green");
-            var bool v = await h.pse until v==false;
-            pause/if h.pse do
+            var bool v = await mouse.ok_out until v==false;
+            pause/if mouse.ok_out do
                 var SpriteR _ = SpriteR.build_name(&r, "core/worldmap/dot_green_hl");
                 await FOREVER;
             end
         else
             var SpriteR _ = SpriteR.build_name(&r, "core/worldmap/dot_red");
-            var bool v = await h.pse until v==false;
-            pause/if h.pse do
+            var bool v = await mouse.ok_out until v==false;
+            pause/if mouse.ok_out do
                 var SpriteR _ = SpriteR.build_name(&r, "core/worldmap/dot_red_hl");
                 await FOREVER;
             end

@@ -158,6 +158,7 @@ do
         end
 
         // Create graph
+        var DotE dot;
         pool IDot[] dots;
         {
             static const std::vector<FileReader>& childs =
@@ -175,11 +176,13 @@ do
                 spawn StoryDot in dots with
                     this.reader = reader;
                     this.pos    = &pos;
+                    this.e      = &dot;
                 end;
             else/if reader:get_name() == "leveldot" then
                 spawn LevelDot in dots with
                     this.reader = reader;
                     this.pos    = &pos;
+                    this.e      = &dot;
                 end;
             else
                 _assert(not "DotFactory: unknown tag: ");// <<  reader.get_name());
@@ -193,93 +196,55 @@ do
             this.pos  = &pos;
         end;
 
-        par do
-            every (x,y) in ON_SECONDARY_BUTTON_PRESSED do
-                if {globals::developer_mode} then
-                    var float xx = _screen:worldmap:gc_state.screen2world(_Vector2i(x,y)).x;
-                    var float yy = _screen:worldmap:gc_state.screen2world(_Vector2i(x,y)).y;
-                    var _WorldmapNS__Dot&& dot = _XXX_PURE(_screen:worldmap:path_graph:get_dot(xx, yy));
-                    if dot != null then
-                        // FIXME: Dot NodeID missmatch...
-                        var _WorldmapNS__NodeId id =
-                            _screen:worldmap:path_graph:get_id(dot)
-                                finalize with end;
-                        emit pingus.go_directly => id;
-                    end
-                end
-            end
-        with
-            every (x,y) in ON_PRIMARY_BUTTON_PRESSED do
-                var float xx = _screen:worldmap:gc_state.screen2world(_Vector2i(x,y)).x;
-                var float yy = _screen:worldmap:gc_state.screen2world(_Vector2i(x,y)).y;
-
-                { static Vector2f click_pos; };
-                _click_pos = _XXX_PURE(_Vector2i(xx,yy));
-                {
-                    if (globals::developer_mode)
-                    {
-                        SExprFileWriter writer(std::cout);
-                        writer.begin_section("leveldot");
-                        writer.write_string("levelname", "");
-                        writer.begin_section("dot");
-                        writer.write_string("name", "leveldot_X");
-                        writer.write_vector("position", click_pos);
-                        writer.end_section();
-                        writer.end_section();
-                        std::cout << std::endl;
-                        std::cout << std::endl;
-                    }
-                };
-
-                var _WorldmapNS__Dot&& dot = _XXX_PURE(_screen:worldmap:path_graph:get_dot(xx, yy));
-                if dot != null then
+        every (but,id_,status) in dot.ok_clicked do
+            if but == 1 then
+                if id_ == pingus.node then
                     if {globals::developer_mode} then
-                        _log_info("Worldmap: Clicked on: %1%", dot:get_name());
+                        _log_info("Worldmap: Pingu is on node, issue on_click()");
                     end
-
-                    if (_screen:worldmap:path_graph:lookup_node(dot:get_name()) == pingus.node) then
-                        if {globals::developer_mode} then
-                            _log_info("Worldmap: Pingu is on node, issue on_click()");
-                        end
-                        dot:on_click();
+                    // TODO: dot:on_click();
+                else
+                    if status == {Savegame::NONE} then
+                        call {Sound::PingusSound::play_sound}("chink");
                     else
-                        if dot:accessible() then
-                            emit pingus.go_walking =>
-                                _screen:worldmap:path_graph:lookup_node(dot:get_name());
+                        emit pingus.go_walking => id_;
 /*
 TODO
-                                {StatManager::instance()->set_string
-                                    (screen->worldmap->worldmap.get_short_name() + "-current-node", dot->get_name());};
+                            {StatManager::instance()->set_string
+                                (screen->worldmap->worldmap.get_short_name() + "-current-node", dot->get_name());};
 */
-                        else
-                            call {Sound::PingusSound::play_sound}("chink");
-                        end
                     end
                 end
+            else
+                _assert(but == 2);
+                emit pingus.go_directly => id_;
             end
         end
     with
-        var int mouse_x = 0;
-        var int mouse_y = 0;
-        par do
-            every (x,y) in ON_POINTER_MOVE do
-                mouse_x = x;
-                mouse_y = y;
-            end
-        with
-            every gc in SCREENMANAGER_DRAW do
+        every (x,y) in ON_PRIMARY_BUTTON_PRESSED do
+            var float xx = _screen:worldmap:gc_state.screen2world(_Vector2i(x,y)).x;
+            var float yy = _screen:worldmap:gc_state.screen2world(_Vector2i(x,y)).y;
+            { static Vector2f click_pos; };
+            _click_pos = _XXX_PURE(_Vector2i(xx,yy));
+            {
+                if (globals::developer_mode)
                 {
-                    static Vector2f mpos;
-                };
-                _mpos = _XXX_PURE(_screen:worldmap:gc_state.screen2world(
-                            _Vector2i(mouse_x,mouse_y)));
-                var _WorldmapNS__Dot&& dot =
-                    _XXX_PURE(_screen:worldmap:path_graph:get_dot(_mpos.x, _mpos.y));
-                if dot != null then
-                    dot:draw_hover(*gc);
-                end
-                _screen:worldmap:gc_state.pop(*gc);
-            end
+                    SExprFileWriter writer(std::cout);
+                    writer.begin_section("leveldot");
+                    writer.write_string("levelname", "");
+                    writer.begin_section("dot");
+                    writer.write_string("name", "leveldot_X");
+                    writer.write_vector("position", click_pos);
+                    writer.end_section();
+                    writer.end_section();
+                    std::cout << std::endl;
+                    std::cout << std::endl;
+                }
+            };
+        end
+    with
+        every gc in SCREENMANAGER_DRAW do
+            _screen:worldmap:gc_state.pop(*gc);
         end
     end
 end
