@@ -86,6 +86,8 @@ do
     this.reader:read_string("name",    _m_name);
     this.reader:read_string("story",   _m_story);
     this.reader:read_bool  ("credits", _m_credits);
+
+    var char[] m_name = [] .. (char&&)_m_name.c_str();
     this.filename = [] .. (char&&)_m_story.c_str();
 
     var Rect rect = Rect(_pos.x,_pos.y, 0, 0);
@@ -103,7 +105,7 @@ do
         every gc in SCREENMANAGER_DRAW do
             gc:print_center({Fonts::pingus_small},
                   _Vector2i(rect.left, rect.top-44),
-                  __(&&this.filename),
+                  __(&&m_name),
                   10000);
         end
     end
