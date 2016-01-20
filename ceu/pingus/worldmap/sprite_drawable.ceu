@@ -1,0 +1,45 @@
+#ifndef _SPRITEDRAWABLE_CEU
+#define _SPRITEDRAWABLE_CEU
+
+class SpriteDrawable with
+    var _FileReader&& reader;
+    var Vector3f&     pos;
+do
+    {
+        static ResDescriptor desc;
+        static Vector3f      pos;
+        static bool          auto_uncover;
+    };
+    reader:read_desc  ("surface", _desc);
+    reader:read_vector("position", _pos);
+    reader:read_bool  ("auto-uncover", _auto_uncover);
+
+    var bool auto_uncover = false;
+    var Vector3f pos_ini = Vector3f(_pos.x,_pos.y,_pos.z);
+
+    var _SpriteDescription&& desc = _XXX_PURE({Resource::load_sprite_desc}(_desc.res_name));
+    var Surface sfc with
+        this.desc = desc;
+    end;
+
+    every gc in SCREENMANAGER_DRAW do
+        if this.auto_uncover then
+            // Pingu is not over the surface
+            if (not (this.pos.x>pos_ini.x and this.pos.x<(pos_ini.x + sfc.get_width()) and
+                     this.pos.y>pos_ini.y and this.pos.y<(pos_ini.y + sfc.get_height())))
+            then
+                gc:draw(&&sfc, _Vector2i(pos_ini.x,pos_ini.y))
+                    finalize with end;
+            else/if this.pos.z > pos_ini.z+1000 then
+                // FIXME: Hack for the 0.6.0 release/tutorial world remove // later
+                gc:draw(&&sfc, _Vector2i(pos_ini.x,pos_ini.y))
+                    finalize with end;
+            end
+        else
+            gc:draw(&&sfc, _Vector2i(pos_ini.x,pos_ini.y))
+                finalize with end;
+        end
+    end
+end
+
+#endif

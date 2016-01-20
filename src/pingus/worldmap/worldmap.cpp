@@ -22,9 +22,8 @@
 #include "pingus/gettext.h"
 #include "pingus/globals.hpp"
 #include "pingus/stat_manager.hpp"
-#include "pingus/worldmap/drawable_factory.hpp"
+//#include "pingus/worldmap/drawable_factory.hpp"
 #include "pingus/worldmap/level_dot.hpp"
-//#include "pingus/worldmap/pingus.hpp"
 #include "util/log.hpp"
 #include "util/sexpr_file_writer.hpp"
 #include "util/pathname.hpp"
@@ -69,29 +68,10 @@ void Worldmap::add_drawable(Drawable* drawable) { }
 void Worldmap::on_pointer_move(int x, int y) { }
 void Worldmap::on_primary_button_press(int x, int y) { }
 void Worldmap::on_secondary_button_press(int x, int y) { }
+void Worldmap::enter_level() { }
 
 void Worldmap::on_startup() {
   update_locked_nodes();
-}
-
-void Worldmap::enter_level() {
-#if 0
-  NodeId node = get_pingus()->get_node();
-
-  if (node != NoNode)
-  {
-    Dot* dot = path_graph->get_dot(node);
-    if (dot)
-    {
-      dot->on_click();
-    }
-  }
-  else
-  {
-    if (globals::developer_mode)
-      log_info("Worldmap: Pingus not on level");
-  }
-#endif
 }
 
 struct unlock_nodes
