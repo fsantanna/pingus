@@ -167,6 +167,8 @@ interface Global with
 
     var IWorld&&? world;
     var float gravity;
+
+    var char[] worldmap_return_filename;
 end
 
 event void go_options;
@@ -177,6 +179,7 @@ event int  ok_pingu;
 event (float,float,s8,int)      go_create_pingu;
 event (float,float)             go_create_pingu_particles;
 event (float,float,float,float) go_create_smoke_particles;
+var char[] worldmap_return_filename;
 
 var IWorld&&? world;
 var float gravity = 0.2;
@@ -254,10 +257,29 @@ par/or do
                 end;
             else/if {StringUtil::has_suffix(cmd.rest.get(), ".worldmap")} then
 // WORLDMAP
-                do WorldMap with
-                    this.filename = &&_filename;
-                end;
-await FOREVER;
+                loop do
+                    var bool is_story =
+                        do WorldMap with
+                            this.filename = &&_filename;
+                        end;
+                    if is_story then
+                        finalize
+                            _reader = {FileReader::parse}(_Pathname(&&global:worldmap_return_filename, {Pathname::DATA_PATH}));
+                        with end
+                        do StoryScreen with
+                            this.reader = &&_reader;
+                        end;
+                    else
+                        finalize
+                            _plf = {PLFResMgr::load_plf}({std::string}(&&worldmap_return_filename)
+                                    finalize with end);
+                        with end
+                        do Start_Game_Result_Loop with
+                            this.plf    = &_XXX_PURE(&&_plf);
+                            this.result = &_XXX_PURE(&&_result);
+                        end;
+                    end
+                end
             else/if {StringUtil::has_suffix(cmd.rest.get(), ".story")} then
 // STORY
                 finalize

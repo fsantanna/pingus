@@ -2,7 +2,7 @@
 #define _DOTS_CEU
 
 class DotE with
-    event (int,int,int) ok_clicked;
+    event (int,int,bool,int) ok_clicked;
 do
     await FOREVER;
 end
@@ -10,9 +10,10 @@ end
 interface IDot with
     var _FileReader&& reader;
     var int           id;
-    var char[]        name;
+    var char[]        filename;
     var Vector3f&     pos;
     var int           status;
+    var bool          is_story;
     var DotE&         e;
 end
 
@@ -42,16 +43,17 @@ do
         every (x,y) in ON_PRIMARY_BUTTON_PRESSED do
             if is_inside(x,y) then
                 if {globals::developer_mode} then
-                    _log_info("Worldmap: Clicked on: %1%", (char&&)&&dot.name);
+                    _log_info("Worldmap: Clicked on: %1%", (char&&)&&dot.filename);
                 end
-                emit this.dot.e.ok_clicked => (1,this.dot.id,this.dot.status);
+                global:worldmap_return_filename = [] .. dot.filename;
+                emit this.dot.e.ok_clicked => (1,this.dot.id,this.dot.is_story,this.dot.status);
             end
         end
     with
         every (x,y) in ON_SECONDARY_BUTTON_PRESSED do
             if {globals::developer_mode} then
                 if is_inside(x,y) then
-                    emit this.dot.e.ok_clicked => (2,this.dot.id,this.dot.status);
+                    emit this.dot.e.ok_clicked => (2,this.dot.id,this.dot.is_story,this.dot.status);
                 end
             end
         end
@@ -73,8 +75,7 @@ do
     _reader.read_string("name",     _name);
     _assert(not _name.empty());
 
-    this.id   = _screen:worldmap:path_graph:lookup_node(_name);
-    this.name = [] .. (char&&)_name.c_str();
+    this.id = _screen:worldmap:path_graph:lookup_node(_name);
 
     {
         static std::string m_name;
@@ -85,7 +86,7 @@ do
     this.reader:read_string("name",    _m_name);
     this.reader:read_string("story",   _m_story);
     this.reader:read_bool  ("credits", _m_credits);
-    var char[] m_name = [] .. (char&&)_m_name.c_str();
+    this.filename = [] .. (char&&)_m_story.c_str();
 
     var Rect rect = Rect(_pos.x,_pos.y, 0, 0);
     var SpriteR _ = SpriteR.build_name(&rect, "core/worldmap/story_dot");
@@ -102,7 +103,7 @@ do
         every gc in SCREENMANAGER_DRAW do
             gc:print_center({Fonts::pingus_small},
                   _Vector2i(rect.left, rect.top-44),
-                  __(&&m_name),
+                  __(&&this.filename),
                   10000);
         end
     end
@@ -124,7 +125,6 @@ do
     _assert(not _name.empty());
 
     this.id   = _screen:worldmap:path_graph:lookup_node(_name);
-    this.name = [] .. (char&&)_name.c_str();
 
     {
         static std::string resname;
@@ -135,6 +135,8 @@ do
 
     var char[] res_name = [] .. (char&&)_resname.c_str();
     var char[] lvl_name = [] .. (char&&)_plf.get_levelname().c_str();
+
+    this.filename = [] .. res_name;
 
     var _Savegame&? savegame;
     finalize

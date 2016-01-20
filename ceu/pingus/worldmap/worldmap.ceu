@@ -177,12 +177,14 @@ do
                     this.reader = reader;
                     this.pos    = &pos;
                     this.e      = &dot;
+                    this.is_story = true;
                 end;
             else/if reader:get_name() == "leveldot" then
                 spawn LevelDot in dots with
                     this.reader = reader;
                     this.pos    = &pos;
                     this.e      = &dot;
+                    this.is_story = false;
                 end;
             else
                 _assert(not "DotFactory: unknown tag: ");// <<  reader.get_name());
@@ -196,23 +198,26 @@ do
             this.pos  = &pos;
         end;
 
-        every (but,id_,status) in dot.ok_clicked do
+        //every (but,id_,status) in dot.ok_clicked do
+        loop do
+            var int but,id_,status;
+            var bool is_story;
+            (but,id_,is_story,status) = await dot.ok_clicked;
             if but == 1 then
                 if id_ == pingus.node then
                     if {globals::developer_mode} then
                         _log_info("Worldmap: Pingu is on node, issue on_click()");
                     end
-                    // TODO: dot:on_click();
+                    escape is_story;
                 else
                     if status == {Savegame::NONE} then
                         call {Sound::PingusSound::play_sound}("chink");
                     else
+                        call {StatManager::instance()}:set_string(
+                            {screen->worldmap->worldmap.get_short_name() + "-current-node"},
+                            _screen:worldmap:path_graph:lookup_node(id_)
+                        );
                         emit pingus.go_walking => id_;
-/*
-TODO
-                            {StatManager::instance()->set_string
-                                (screen->worldmap->worldmap.get_short_name() + "-current-node", dot->get_name());};
-*/
                     end
                 end
             else
