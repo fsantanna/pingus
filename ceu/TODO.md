@@ -1,3 +1,5 @@
+- TODO: fast_forward p/ WM
+- TODO: draw border p/ WM
 - BUG: seta do worldmap aparece por baixo do pingus
 - BUG: explosao do pingu nao esta centralizada nele
 - BUG: a cada reinicio, o dobro de pingus sao criados

@@ -50,7 +50,7 @@ public:
 
   GUI::SurfaceButton* close_button;
   GUI::SurfaceButton* credits_button;
-  WorldmapComponent* m_worldmap_component;
+  //WorldmapComponent* m_worldmap_component;
 
 public:
   WorldmapScreen ();

@@ -25,7 +25,7 @@
 ///#include "pingus/screens/story_screen.hpp"
 //#include "pingus/worldmap/pingus.hpp"
 //#include "pingus/worldmap/worldmap.hpp"
-#include "pingus/worldmap/worldmap_component.hpp"
+//#include "pingus/worldmap/worldmap_component.hpp"
 
 namespace WorldmapNS {
 
@@ -125,13 +125,13 @@ WorldmapScreen::WorldmapScreen() :
   //worldmap(),
   //new_worldmap(),
   close_button(),
-  credits_button(),
-  m_worldmap_component()
+  credits_button()
+  //m_worldmap_component()
 {
   // FIXME: a bit ugly because of the proteced member, but should work
   // FIXME: well enough. GUIScreen could also use multi-inheritage,
   // FIXME: but that could lead to member function name conflicts
-  gui_manager->add(m_worldmap_component = new WorldmapComponent(this));
+  //gui_manager->add(m_worldmap_component = new WorldmapComponent(this));
   gui_manager->add(close_button = new WorldmapScreenCloseButton(this));
 }
 
@@ -227,13 +227,13 @@ WorldmapScreen::resize(const Size& size_)
 void
 WorldmapScreen::on_fast_forward_press()
 {
-  m_worldmap_component->on_fast_forward_press();
+  //m_worldmap_component->on_fast_forward_press();
 }
 
 void
 WorldmapScreen::on_fast_forward_release()
 {
-  m_worldmap_component->on_fast_forward_release();
+  //m_worldmap_component->on_fast_forward_release();
 }
 
 } // namespace WorldmapNS

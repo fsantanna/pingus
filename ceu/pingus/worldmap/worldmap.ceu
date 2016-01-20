@@ -178,9 +178,10 @@ do
         // Create all objects
         pool SpriteDrawable[] draws;
         {
-            static const std::vector<FileReader>& object_reader = worldmap.get_objects();
+            static std::vector<FileReader> object_reader;
             static std::vector<FileReader>::const_iterator i1;
         };
+        _object_reader = _XXX_PURE(_worldmap.get_objects());
         _i1 = _XXX_PURE(_object_reader.begin());
         loop do
             if _i1 == _object_reader.end() then

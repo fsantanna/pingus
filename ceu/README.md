@@ -211,6 +211,14 @@ TODO:
         - nao cubro algum que ocorre no pingus?
         - cubro algum com nome diferente?
         - cubro algum que o GPP nao cobre?
+
+TODO:
+    - only control flow advances
+        - no type inference
+        - no GC
+        - no functional compositions
+        - no data abstraction
+        - no rearrange of overall arch
 -->
 
 ## The Synchronous Concurrency Model
