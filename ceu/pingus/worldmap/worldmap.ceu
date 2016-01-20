@@ -6,7 +6,7 @@ native/pre do
     ##define WorldmapNS__NodeId WorldmapNS::NodeId
     ##define WorldmapNS__Dot WorldmapNS::Dot
     ##include "pingus/worldmap/pingus_worldmap.hpp"
-    ##include "pingus/worldmap/worldmap.hpp"
+    ##include "pingus/worldmap/path_graph.hpp"
     ##include "pingus/res_descriptor.hpp"
     ##include "engine/display/sprite_description.hpp"
     ##include "pingus/worldmap/level_dot.hpp"
@@ -21,12 +21,51 @@ native do
     static SpriteDescription* spr;
     static Vector3f      pos;
     static bool          auto_uncover;
+
+    static PingusWorldmap worldmap;
+    static FileReader path_graph_reader;
+    static std::unique_ptr<WorldmapNS::PathGraph> path_graph;
+    static GraphicContextState gc_state;
+
+struct unlock_nodes
+{
+  WorldmapNS::PathGraph* path_graph;
+
+  unlock_nodes(WorldmapNS::PathGraph* g) :
+    path_graph(g)
+  {
+  }
+
+  void operator()(WorldmapNS::Node<WorldmapNS::Dot*>& node)
+  {
+    if (node.data->finished())
+    {
+      //log_info("Unlocking neightbours of: " << node.data);
+      for (std::vector<WorldmapNS::EdgeId>::iterator i = node.next.begin(); i != node.next.end(); ++i)
+      {
+        WorldmapNS::Edge<WorldmapNS::Path*>& edge = path_graph->graph.resolve_edge(*i);
+
+        // FIXME: This should be identical to node.data->unlock(), but not sure
+        path_graph->graph.resolve_node(edge.source).data->unlock();
+        path_graph->graph.resolve_node(edge.destination).data->unlock();
+      }
+    }
+  }
+};
+
 end
 
 #include "../../engine/gui/surface_button.ceu"
 #include "dots.ceu"
 #include "pingus.ceu"
 #include "sprite_drawable.ceu"
+
+#if 0
+bool Worldmap::is_final_map() {
+  return false;
+  // TODO: return pingus->get_node() == final_node;
+}
+#endif
 
 class WorldMap with
     var _Pathname&& filename;
@@ -36,36 +75,77 @@ do
         screen->load(*THIS(CEU_WorldMap)->filename);
         ScreenManager::instance()->push_screen(screen);
     };
-    _screen:worldmap:gc_state.set_limit(
-        _Rect(_Vector2i(0, 0),
-        _Size(_screen:worldmap:worldmap.get_width(), _screen:worldmap:worldmap.get_height())));
 
-    {Sound::PingusSound::play_music(screen->worldmap->worldmap.get_music());};
+    _worldmap = _XXX_PURE(_PingusWorldmap(*filename)
+                            finalize with end);
+    _screen:width  = (int)_worldmap.get_width();
+    _screen:height = (int)_worldmap.get_height();
+    _path_graph_reader = _XXX_PURE(_worldmap.get_graph());
+    _path_graph.reset({new WorldmapNS::PathGraph}(_path_graph_reader));
+
+    //void Worldmap::update_locked_nodes()
+    // FIXME: This shouldn't be a polling function
+    _path_graph:graph.for_each_node(_unlock_nodes(_path_graph.get()));
+#if 0
+  bool credits_unlocked = false;
+  StatManager::instance()->get_bool(worldmap.get_short_name() + "-endstory-seen", credits_unlocked);
+
+  if (!credits_unlocked)
+  {
+    // See if the last level is finished
+    Dot* dot = path_graph->get_dot(final_node);
+    if (dot)
+    {
+      if (dot->finished())
+      {
+        ScreenManager::instance()->push_screen(new StoryScreen(worldmap.get_end_story()));
+      }
+    }
+    else
+    {
+      log_info("Error: Worldmap: Last level missing");
+    }
+  }
+#endif
+
+    _gc_state.set_limit(
+        _Rect(_Vector2i(0, 0),
+        _Size(_worldmap.get_width(), _worldmap.get_height())));
+
+    {Sound::PingusSound::play_music(worldmap.get_music());};
 
     // Determine starting node
     // See if the user has played this map before.
     // If not, use the <default-node> tag from the XML file.
     var Vector3f pos = Vector3f(0,0,0);
     var _WorldmapNS__NodeId id =
-        _screen:worldmap:path_graph:lookup_node(_screen:worldmap:worldmap.get_default_node());
+        _path_graph:lookup_node(_worldmap.get_default_node());
     {
         static std::string node_name;
     };
-    if {StatManager::instance()->get_string(screen->worldmap->worldmap.get_short_name() + "-current-node",
+    if {StatManager::instance()->get_string(worldmap.get_short_name() + "-current-node",
                                             node_name)}
     then
         // Just in case that level doesn't exist, look it up.
-        id = _screen:worldmap:path_graph:lookup_node(_node_name);
+        id = _path_graph:lookup_node(_node_name);
     end
-    pos.x = _screen:worldmap:path_graph:get_dot(id):get_pos().x;
-    pos.y = _screen:worldmap:path_graph:get_dot(id):get_pos().y;
+    pos.x = _path_graph:get_dot(id):get_pos().x;
+    pos.y = _path_graph:get_dot(id):get_pos().y;
+
+// TODO
+#if 0
+  LevelDot* leveldot = dynamic_cast<LevelDot*>(path_graph->get_dot(id));
+  if (leveldot) {
+    leveldot->unlock();
+  }
+#endif
 
     par do
         every gc in SCREENMANAGER_DRAW do
             var int x = 0;
             do
                 var int min, max;
-                var int width  = _screen:worldmap:worldmap.get_width();
+                var int width  = _worldmap.get_width();
                 if width >= gc:get_width() then
                     min = gc:get_width()/2;
                     max = width - gc:get_width()/2;
@@ -79,7 +159,7 @@ do
             var int y = 0;
             do
                 var int min, max;
-                var int height = _screen:worldmap:worldmap.get_height();
+                var int height = _worldmap.get_height();
                 if height >= gc:get_height() then
                     min = gc:get_height()/2;
                     max = height - gc:get_height()/2;
@@ -90,15 +170,15 @@ do
                 y = {Math::clamp}(min, (int)pos.y, max);
             end
 
-            _screen:worldmap:gc_state.set_size(gc:get_width(), gc:get_height());
-            _screen:worldmap:gc_state.set_pos(_Vector2i(x, y));
-            _screen:worldmap:gc_state.push(*gc);
+            _gc_state.set_size(gc:get_width(), gc:get_height());
+            _gc_state.set_pos(_Vector2i(x, y));
+            _gc_state.push(*gc);
         end
     with
         // Create all objects
         pool SpriteDrawable[] draws;
         {
-            static const std::vector<FileReader>& object_reader = screen->worldmap->worldmap.get_objects();
+            static const std::vector<FileReader>& object_reader = worldmap.get_objects();
             static std::vector<FileReader>::const_iterator i1;
         };
         _i1 = _XXX_PURE(_object_reader.begin());
@@ -121,7 +201,7 @@ do
         pool IDot[] dots;
         {
             static const std::vector<FileReader>& childs =
-                screen->worldmap->worldmap.get_graph().read_section("nodes").get_sections();
+                worldmap.get_graph().read_section("nodes").get_sections();
             static std::vector<FileReader>::const_iterator i2;
         };
         _i2 = _XXX_PURE(_childs.begin());
@@ -152,7 +232,7 @@ do
         end
 
         var Pingus pingus with
-            this.path = _XXX_PURE(_screen:worldmap:path_graph.get());
+            this.path = _XXX_PURE(_path_graph.get());
             this.node = id;
             this.pos  = &pos;
         end;
@@ -173,8 +253,8 @@ do
                         call {Sound::PingusSound::play_sound}("chink");
                     else
                         call {StatManager::instance()}:set_string(
-                            {screen->worldmap->worldmap.get_short_name() + "-current-node"},
-                            _screen:worldmap:path_graph:lookup_node(id_)
+                            {worldmap.get_short_name() + "-current-node"},
+                            _path_graph:lookup_node(id_)
                         );
                         emit pingus.go_walking => id_;
                     end
@@ -186,8 +266,8 @@ do
         end
     with
         every (x,y) in ON_PRIMARY_BUTTON_PRESSED do
-            var float xx = _screen:worldmap:gc_state.screen2world(_Vector2i(x,y)).x;
-            var float yy = _screen:worldmap:gc_state.screen2world(_Vector2i(x,y)).y;
+            var float xx = _gc_state.screen2world(_Vector2i(x,y)).x;
+            var float yy = _gc_state.screen2world(_Vector2i(x,y)).y;
             { static Vector2f click_pos; };
             _click_pos = _XXX_PURE(_Vector2i(xx,yy));
             {
@@ -208,7 +288,7 @@ do
         end
     with
         every gc in SCREENMANAGER_DRAW do
-            _screen:worldmap:gc_state.pop(*gc);
+            _gc_state.pop(*gc);
         end
     end
 end

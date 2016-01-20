@@ -41,11 +41,12 @@ class WorldmapComponent;
 class WorldmapScreen : public GUIScreen
 {
 public:
+  int width, height;
   bool is_init;
   bool exit_worldmap;
 
-  std::unique_ptr<Worldmap> worldmap;
-  std::unique_ptr<Worldmap> new_worldmap;
+  //std::unique_ptr<Worldmap> worldmap;
+  //std::unique_ptr<Worldmap> new_worldmap;
 
   GUI::SurfaceButton* close_button;
   GUI::SurfaceButton* credits_button;
@@ -76,7 +77,7 @@ public:
   void on_escape_press ();
   /** @}*/
 
-  Worldmap* get_worldmap() { return worldmap.get(); }
+  //Worldmap* get_worldmap() { return worldmap.get(); }
 
   Rect get_trans_rect() const;
 

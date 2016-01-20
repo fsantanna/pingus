@@ -23,8 +23,8 @@ class Mouse with
     event bool ok_out;
 do
     function (int x, int y)=>bool is_inside do
-        var float xx = _screen:worldmap:gc_state.screen2world(_Vector2i(x,y)).x;
-        var float yy = _screen:worldmap:gc_state.screen2world(_Vector2i(x,y)).y;
+        var float xx = _gc_state.screen2world(_Vector2i(x,y)).x;
+        var float yy = _gc_state.screen2world(_Vector2i(x,y)).y;
         var float xxx = xx - this.rect.left;
         var float yyy = yy - this.rect.top;
         return {Math::sqrt}(xxx*xxx + yyy*yyy) < 30;
@@ -75,7 +75,7 @@ do
     _reader.read_string("name",     _name);
     _assert(not _name.empty());
 
-    this.id = _screen:worldmap:path_graph:lookup_node(_name);
+    this.id = _path_graph:lookup_node(_name);
 
     {
         static std::string m_name;
@@ -126,7 +126,7 @@ do
     _reader.read_string("name",     _name);
     _assert(not _name.empty());
 
-    this.id   = _screen:worldmap:path_graph:lookup_node(_name);
+    this.id = _path_graph:lookup_node(_name);
 
     {
         static std::string resname;

@@ -24,7 +24,7 @@
 #include "pingus/gettext.h"
 ///#include "pingus/screens/story_screen.hpp"
 //#include "pingus/worldmap/pingus.hpp"
-#include "pingus/worldmap/worldmap.hpp"
+//#include "pingus/worldmap/worldmap.hpp"
 #include "pingus/worldmap/worldmap_component.hpp"
 
 namespace WorldmapNS {
@@ -122,8 +122,8 @@ WorldmapScreenCloseButton::on_click()
 WorldmapScreen::WorldmapScreen() :
   is_init(false),
   exit_worldmap(false),
-  worldmap(),
-  new_worldmap(),
+  //worldmap(),
+  //new_worldmap(),
   close_button(),
   credits_button(),
   m_worldmap_component()
@@ -142,7 +142,7 @@ WorldmapScreen::~WorldmapScreen ()
 void
 WorldmapScreen::load(const Pathname& filename)
 {
-  worldmap = std::unique_ptr<Worldmap>(new Worldmap(filename));
+  //worldmap = std::unique_ptr<Worldmap>(new Worldmap(filename));
 
   bool credits_unlocked = false;
   //StatManager::instance()->get_bool(worldmap->get_short_name() + "-endstory-seen", credits_unlocked);
@@ -158,8 +158,8 @@ WorldmapScreen::on_startup ()
   exit_worldmap = false;
   Sound::PingusSound::stop_music();
 
-  if (worldmap.get())
-    worldmap->on_startup ();
+  //if (worldmap.get())
+    //worldmap->on_startup ();
 }
 
 void
@@ -179,9 +179,9 @@ WorldmapScreen::update (float delta)
     ScreenManager::instance ()->pop_screen();
 
   // Check if new worldmap is set and if so, change it
-  if (new_worldmap.get())
+  //if (new_worldmap.get())
   {
-    worldmap = std::move(new_worldmap);
+    //worldmap = std::move(new_worldmap);
   }
 }
 
@@ -193,10 +193,10 @@ WorldmapScreen::draw_foreground(DrawingContext& gc)
 Rect
 WorldmapScreen::get_trans_rect() const
 {
-  return Rect(Vector2i(Math::max((Display::get_width()  - worldmap->get_width())/2,  0),
-                       Math::max((Display::get_height() - worldmap->get_height())/2, 0)),
-              Size(Math::min(Display::get_width(),  worldmap->get_width()),
-                   Math::min(Display::get_height(), worldmap->get_height())));
+  return Rect(Vector2i(Math::max((Display::get_width()  - this->width)/2,  0),
+                       Math::max((Display::get_height() - this->height)/2, 0)),
+              Size(Math::min(Display::get_width(),  this->width),
+                   Math::min(Display::get_height(), this->height)));
 }
 
 void

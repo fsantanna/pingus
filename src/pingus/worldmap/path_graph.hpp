@@ -35,7 +35,7 @@ class Worldmap;
 class PathGraph
 {
 private:
-  Worldmap* worldmap;
+  //Worldmap* worldmap;
 
 public:
   // FIXME: Memory leak? Where do we free stuff data inside the graph?
@@ -58,7 +58,8 @@ public:
   /** @param worldmap is a pointer to the worldmap that holds this
       PathGraph, it is used so that the PathGraph can insert its
       drawables into the world */
-  PathGraph(Worldmap* worldmap, const FileReader& reader);
+  //PathGraph(Worldmap* worldmap, const FileReader& reader);
+  PathGraph(const FileReader& reader);
 
   ~PathGraph();
 

@@ -20,14 +20,14 @@
 #include "pingus/worldmap/dot.hpp"
 #include "pingus/worldmap/dot_factory.hpp"
 #include "pingus/worldmap/path_drawable.hpp"
-#include "pingus/worldmap/worldmap.hpp"
+//#include "pingus/worldmap/worldmap.hpp"
 #include "util/log.hpp"
 #include "util/raise_exception.hpp"
 
 namespace WorldmapNS {
 
-PathGraph::PathGraph(Worldmap* arg_worldmap, const FileReader& reader) :
-  worldmap(arg_worldmap),
+PathGraph::PathGraph(const FileReader& reader) :
+  //worldmap(arg_worldmap),
   graph(),
   dots(),
   pathfinder_cache(),
@@ -71,8 +71,8 @@ PathGraph::parse_nodes(const FileReader& reader)
       node_lookup[dot->get_name()] = id;
 
       // add the dot to the list of drawables
-      if (worldmap)
-        worldmap->add_drawable(dot);
+      //if (worldmap)
+        //worldmap->add_drawable(dot);
 
       // FIXME: should be use this for freeing the stuff?
       dots.push_back(dot);
@@ -128,8 +128,8 @@ PathGraph::parse_edges(const FileReader& reader)
       // FIXME: merge this together with the Pingus::distance() stuff in a seperate Path class
       float cost = full_path.length();
 
-      if (worldmap && globals::developer_mode)
-        worldmap->add_drawable(new PathDrawable(full_path));
+      //if (worldmap && globals::developer_mode)
+        //worldmap->add_drawable(new PathDrawable(full_path));
 
       // FIXME: No error checking,
       EdgeId id1 = graph.add_edge(path, // FIXME: Memory leak!
