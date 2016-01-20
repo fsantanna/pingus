@@ -42,61 +42,13 @@ LevelDot::LevelDot(const FileReader& reader) :
   plf = PLFResMgr::load_plf(resname);
 }
 
-void
-LevelDot::draw(DrawingContext& gc)
-{
-#if 0
-  Vector2i mpos
-    = gc.screen_to_world(Vector2i(Input::Controller::current()->get_pointer(Input::STANDARD_POINTER)->get_pos()));
-
-  float x = static_cast<float>(mpos.x) - pos.x;
-  float y = static_cast<float>(mpos.y) - pos.y;
-
-  bool highlight = false;
-
-  if (Math::sqrt(x*x + y*y) < 30.0f)
-    highlight = true;
-
-  Savegame* savegame = SavegameManager::instance()->get(plf.get_resname());
-  if (savegame
-      && (savegame->get_status() == Savegame::FINISHED
-          || savegame->get_status() == Savegame::ACCESSIBLE))
-  {
-    if (savegame->get_status() == Savegame::FINISHED)
-      if (highlight)
-      {
-        gc.draw (highlight_green_dot_sur, pos);
-      }
-      else
-      {
-        gc.draw (green_dot_sur, pos);
-      }
-    else
-      if (highlight)
-        gc.draw (highlight_red_dot_sur, pos);
-      else
-        gc.draw (red_dot_sur, pos);
-  }
-  else
-  {
-    gc.draw (inaccessible_dot_sur, pos);
-  }
-#endif
-}
-
+void LevelDot::draw(DrawingContext& gc) { }
 void LevelDot::update(float delta) { }
+void LevelDot::on_click() { }
+void LevelDot::draw_hover(DrawingContext& gc) { }
+bool LevelDot::accessible() { return false; }
 
-void LevelDot::on_click() {
-  //log_info("Starting level: " << levelname);
-assert(!"NOT PORTED");
-#if 0
-  ScreenManager::instance()->push_screen(std::make_shared<StartScreen>(plf));
-#endif
-}
-
-bool
-LevelDot::finished()
-{
+bool LevelDot::finished() {
   Savegame* savegame = SavegameManager::instance()->get(plf.get_resname());
   if (savegame && savegame->get_status() == Savegame::FINISHED)
     return true;
@@ -104,52 +56,7 @@ LevelDot::finished()
     return false;
 }
 
-bool
-LevelDot::accessible()
-{
-#if 0
-  Savegame* savegame = SavegameManager::instance()->get(plf.get_resname());
-  if (savegame && savegame->get_status() != Savegame::NONE)
-    return true;
-  else
-#endif
-    return false;
-}
-
-void
-LevelDot::draw_hover(DrawingContext& gc)
-{
-#if 0
-  if (accessible())
-  {
-    gc.print_center(Fonts::pingus_small,
-                    Vector2i(static_cast<int>(pos.x),
-                             static_cast<int>(pos.y) - 44),
-                    _(get_plf().get_levelname()),
-                    10000);
-  }
-  else
-  {
-    gc.print_center(Fonts::pingus_small,
-                    Vector2i(static_cast<int>(pos.x),
-                             static_cast<int>(pos.y) - 44),
-                    _("???"),
-                    10000);
-  }
-
-  if (globals::developer_mode)
-  {
-    gc.print_center(Fonts::pingus_small,
-                    Vector2i(static_cast<int>(pos.x), static_cast<int>(pos.y) - 70),
-                    get_plf().get_resname(),
-                    10000);
-  }
-#endif
-}
-
-void
-LevelDot::unlock()
-{
+void LevelDot::unlock() {
   Savegame* savegame = SavegameManager::instance()->get(plf.get_resname());
   if (savegame == 0 || savegame->get_status() == Savegame::NONE)
   {

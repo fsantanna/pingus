@@ -29,58 +29,14 @@
 namespace WorldmapNS {
 
 StoryDot::StoryDot(const FileReader& reader) :
-  Dot(reader.read_section("dot")),
-  m_story_dot_highlight("core/worldmap/story_dot_highlight"),
-  m_story_dot("core/worldmap/story_dot"),
-  m_name(),
-  m_story(),
-  m_credits(false)
+  Dot(reader.read_section("dot"))
 {
-#if 0
-  reader.read_string("name", m_name);
-  reader.read_string("story", m_story);
-  reader.read_bool("credits", m_credits);
-#endif
 }
 
-void StoryDot::draw(DrawingContext& gc) {
-#if 0
-  gc.draw (m_story_dot, pos);
-#endif
-}
-
-void
-StoryDot::draw_hover(DrawingContext& gc)
-{
-#if 0
-  gc.draw (m_story_dot_highlight, pos);
-
-  gc.print_center(Fonts::pingus_small,
-                  Vector2i(static_cast<int>(pos.x),
-                           static_cast<int>(pos.y) - 44),
-                  _(m_name),
-                  10000);
-#endif
-}
-
+void StoryDot::draw(DrawingContext& gc) { }
+void StoryDot::draw_hover(DrawingContext& gc) { }
 void StoryDot::update(float delta) { }
-
-void
-StoryDot::on_click()
-{
-  try
-  {
-    FileReader reader = FileReader::parse(Pathname(m_story, Pathname::DATA_PATH));
-assert(!"NOT PORTED");
-#if 0
-    ScreenManager::instance()->push_screen(std::make_shared<StoryScreen>(reader, m_credits));
-#endif
-  }
-  catch(const std::exception& err)
-  {
-    log_error("%1%", err.what());
-  }
-}
+void StoryDot::on_click() { }
 
 } // namespace WorldmapNS
 

@@ -28,14 +28,6 @@ namespace WorldmapNS {
 
 class StoryDot : public Dot
 {
-private:
-  Sprite m_story_dot_highlight;
-  Sprite m_story_dot;
-
-  std::string m_name;
-  std::string m_story;
-  bool m_credits;
-
 public:
   StoryDot(const FileReader& reader);
 
