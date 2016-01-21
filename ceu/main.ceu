@@ -17,7 +17,6 @@ native do
     ##include "external/logmich/include/logmich/log.hpp"
     ##include "pingus/resource.hpp"
     ##include "pingus/plf_res_mgr.hpp"
-    ##include "pingus/worldmap/worldmap_screen.hpp"
 
     ##define XXX_PURE(x) x
     ##define XXX_NOHOLD(x) x
@@ -262,6 +261,7 @@ par/or do
                         do WorldmapScreen with
                             this.filename = &&_filename;
                         end;
+_printf("RET = %d\n", ret);
                     if ret == _WORLDMAP_RETURN_STORY then
                         finalize
                             _reader = {FileReader::parse}(_Pathname(&&global:worldmap_return_filename, {Pathname::DATA_PATH}));

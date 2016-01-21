@@ -14,7 +14,6 @@ native/pre do
 end
 
 native do
-    static std::shared_ptr<WorldmapNS::WorldmapScreen> screen;
     static std::vector<FileReader> object_reader;
     std::vector<FileReader>::const_iterator i;
     static ResDescriptor desc;
@@ -70,16 +69,8 @@ bool Worldmap::is_final_map() {
 class WorldMap with
     var _Pathname&& filename;
 do
-    {
-        screen = std::make_shared<WorldmapNS::WorldmapScreen>();
-        screen->load(*THIS(CEU_WorldMap)->filename);
-        ScreenManager::instance()->push_screen(screen);
-    };
-
     _worldmap = _XXX_PURE(_PingusWorldmap(*filename)
                             finalize with end);
-    _screen:width  = (int)_worldmap.get_width();
-    _screen:height = (int)_worldmap.get_height();
     _path_graph_reader = _XXX_PURE(_worldmap.get_graph());
     _path_graph.reset({new WorldmapNS::PathGraph}(_path_graph_reader));
 

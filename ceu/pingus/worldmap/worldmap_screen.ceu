@@ -43,6 +43,28 @@ do
             end;
         escape ret;
     with
+        var SurfaceButton close with
+            this.x = 0;
+            this.y = {Display::get_height()} -37;
+            this.button         = "core/worldmap/leave_button_normal";
+            this.button_pressed = "core/worldmap/leave_button_pressed";
+            this.button_over    = "core/worldmap/leave_button_hover";
+        end;
+        par do
+            every gc in SCREENMANAGER_DRAW do
+                gc:print_center({Fonts::chalk_small},
+                                _Vector2i(44, {Display::get_height()}-25),
+                                __("Leave?"));
+            end
+        with
+            every close.get_component().on_pointer_enter do
+                call {Sound::PingusSound::play_sound}("tick");
+            end
+        with
+            await close.get_component().on_click;
+            escape false;
+        end
+    with
         loop do
             var _Input__Event&& e = await ON_INPUT_EVENT;
             var _Input__ButtonEvent&& but = &&e:button;
