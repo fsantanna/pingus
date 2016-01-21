@@ -1,3 +1,4 @@
+- TODO: draw path WM
 - TODO: fast_forward p/ WM
 - TODO: draw border p/ WM
 - BUG: seta do worldmap aparece por baixo do pingus

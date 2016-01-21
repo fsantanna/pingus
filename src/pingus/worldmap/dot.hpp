@@ -18,31 +18,27 @@
 #define HEADER_PINGUS_PINGUS_WORLDMAP_DOT_HPP
 
 #include "math/vector3f.hpp"
-#include "pingus/worldmap/drawable.hpp"
+#include "util/file_reader.hpp"
 
 namespace WorldmapNS {
 
 /** A Dot is a node between all the pathes on the worldmap, there are
     LevelDots TubeDots and other availabe. */
-class Dot : public Drawable
+class Dot
 {
 protected:
   Vector3f pos;
+  std::string name;
 
 public:
   Dot(const FileReader& reader);
 
-  /** Draw stuff that should be displayed if the mouse is over the dot */
-  virtual void draw_hover(DrawingContext& gc) =0;
-
   Vector3f get_pos() { return pos; }
+  std::string get_name() { return name; }
 
-  virtual void on_click() =0;
-
-  virtual bool finished() =0;
-  virtual bool accessible() =0;
-  /** makes the node accessible */
-  virtual void unlock() =0;
+  bool finished() {return false;}
+  bool accessible() {return false;}
+  void unlock() {}
 private:
   Dot (const Dot&);
   Dot& operator= (const Dot&);

@@ -9,7 +9,7 @@ native/pre do
     ##include "pingus/worldmap/path_graph.hpp"
     ##include "pingus/res_descriptor.hpp"
     ##include "engine/display/sprite_description.hpp"
-    ##include "pingus/worldmap/level_dot.hpp"
+    ##include "pingus/worldmap/dot.hpp"
     ##include "util/sexpr_file_writer.hpp"
 end
 
@@ -76,7 +76,7 @@ do
 
     //void Worldmap::update_locked_nodes()
     // FIXME: This shouldn't be a polling function
-    _path_graph:graph.for_each_node(_unlock_nodes(_path_graph.get()));
+    //_path_graph:graph.for_each_node(_unlock_nodes(_path_graph.get()));
 #if 0
   bool credits_unlocked = false;
   StatManager::instance()->get_bool(worldmap.get_short_name() + "-endstory-seen", credits_unlocked);
@@ -284,6 +284,20 @@ do
         end
     with
         every gc in SCREENMANAGER_DRAW do
+#if 0
+// TODO
+            { Path::iterator prev ; };
+            _prev = _path_graph:begin();
+
+  for(Path::iterator next = prev + 1; next != path.end(); ++next)
+  {
+    gc.draw_line(Vector2i(static_cast<int>(prev->x), static_cast<int>(prev->y)),
+                 Vector2i(static_cast<int>(next->x), static_cast<int>(next->y)),
+                 Color(255, 255, 255));
+    prev = next;
+  }
+}
+#endif
             _gc_state.pop(*gc);
         end
     end
