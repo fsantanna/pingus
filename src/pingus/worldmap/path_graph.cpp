@@ -69,10 +69,6 @@ PathGraph::parse_nodes(const FileReader& reader)
       //log_info("Adding to lookup table: " << dot->get_name());
       node_lookup[dot->get_name()] = id;
 
-      // add the dot to the list of drawables
-      //if (worldmap)
-        //worldmap->add_drawable(dot);
-
       // FIXME: should be use this for freeing the stuff?
       dots.push_back(dot);
     }
@@ -127,6 +123,7 @@ PathGraph::parse_edges(const FileReader& reader)
       // FIXME: merge this together with the Pingus::distance() stuff in a seperate Path class
       float cost = full_path.length();
 
+printf(">>> %s %s\n", source.c_str(), destination.c_str());
       //if (worldmap && globals::developer_mode)
         //worldmap->add_drawable(new PathDrawable(full_path));
 
