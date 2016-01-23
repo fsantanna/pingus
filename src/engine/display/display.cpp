@@ -69,8 +69,8 @@ Display::resize(const Size& size_)
   // This call  also shouldn't be part of ScreenManager, but Framebuffer/Display internal
   Display::set_video_mode(size, is_fullscreen(), true);
 
-  if (ScreenManager::instance())
-    ScreenManager::instance()->resize(size);
+  //if (ScreenManager::instance())
+    //ScreenManager::instance()->resize(size);
 }
 
 bool
@@ -140,7 +140,7 @@ Display::set_video_mode(const Size& size, bool fullscreen, bool resizable)
 
   if (ScreenManager::instance())
   {
-    ScreenManager::instance()->resize(s_framebuffer->get_size());
+    //ScreenManager::instance()->resize(s_framebuffer->get_size());
   }
 }
 

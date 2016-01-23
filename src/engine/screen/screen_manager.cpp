@@ -323,24 +323,14 @@ ScreenManager::update(float delta, const std::vector<Input::Event>& events)
   Display::flip_display();
 }
 
-ScreenPtr ScreenManager::get_current_screen() {
-  return NULL;
-}
-
 ScreenManager* ScreenManager::instance() {
   return instance_;
 }
 
-void ScreenManager::push_screen(ScreenPtr screen) { }
-void ScreenManager::pop_screen() { }
-void ScreenManager::pop_all_screens() { }
-void ScreenManager::replace_screen(ScreenPtr screen) { } void 
-ScreenManager::resize(const Size& size) { }
-
+#if 0
 void
 ScreenManager::fade_over(ScreenPtr old_screen, ScreenPtr new_screen)
 {
-#if 0
   if (!old_screen.get() || !new_screen.get())
     return;
 
@@ -374,8 +364,8 @@ ScreenManager::fade_over(ScreenPtr old_screen, ScreenPtr new_screen)
   }
 
   input_manager.refresh();
-#endif
 }
+#endif
 
 void
 ScreenManager::show_software_cursor(bool visible)

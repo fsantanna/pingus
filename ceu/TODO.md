@@ -1,3 +1,5 @@
+- TODO: fade effects
+- TODO: resize
 - TODO: stress test pathfinder
 - TODO: fast_forward p/ WM
 - TODO: draw border p/ WM

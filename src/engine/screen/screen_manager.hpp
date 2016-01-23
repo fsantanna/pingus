@@ -69,29 +69,10 @@ public:
   ~ScreenManager();
 
   void resize(const Size& size);
-
-  /** Start the screen manager and let it take control, this will
-      not return until the somebody signals a quit() */
   void display();
 
   void update(float delta, const std::vector<Input::Event>& events);
-
-  /** Replace the current screen */
-  void replace_screen(ScreenPtr screen);
-
-  /** Add a screen on top of another screen */
-  void push_screen(ScreenPtr screen);
-
-  /** Remove the current screen and fall back to the last one */
-  void pop_screen();
-
-  /** Remove all screens */
-  void pop_all_screens();
-
   void show_software_cursor(bool v);
-
-  /** @return a pointer to the current Screen */
-  ScreenPtr get_current_screen();
 
 private:
   /** FadeOver test*/
