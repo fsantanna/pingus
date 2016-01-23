@@ -46,7 +46,8 @@ do
         end;
 
         loop do
-            var float dt = await SCREENMANAGER_UPDATE;
+            var int v    = await SDL_DT;
+            var float dt = ((float)v)/1000;
             update_count = update_count + dt;
             if update_count > smallmap_update_time then
                 break;

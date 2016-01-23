@@ -103,7 +103,8 @@ do
         end
     with
         loop do
-            var float dt = await SCREENMANAGER_UPDATE;
+            var int v    = await SDL_DT;
+            var float dt = ((float)v)/1000;
             if is_fast_scrolling then
                 offset = offset - 450*dt;
             else

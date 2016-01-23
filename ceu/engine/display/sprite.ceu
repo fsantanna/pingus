@@ -102,7 +102,8 @@ _assert(not "ERR");
                     await WORLD_UPDATE;
                     dt = 0.033;   // TODO
                 else
-                    dt = await SCREENMANAGER_UPDATE;
+                    var int v = await SDL_DT;
+                    dt = ((float)v)/1000;
                 end
                 if this.frame_delay == 0 then
                     await FOREVER;
@@ -244,7 +245,8 @@ do
                     await WORLD_UPDATE;
                     dt = 0.033;   // TODO
                 else
-                    dt = await SCREENMANAGER_UPDATE;
+                    var int v = await SDL_DT;
+                    dt = ((float)v)/1000;
                 end
                 if this.frame_delay == 0 then
                     await FOREVER;

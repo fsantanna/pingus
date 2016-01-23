@@ -14,7 +14,7 @@ do
     par do
         loop do
             watching 1s do
-                every SCREENMANAGER_UPDATE do
+                every SDL_DT do
                     count = count + 1;
                 end
             end

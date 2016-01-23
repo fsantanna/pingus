@@ -125,7 +125,6 @@ ScreenManager::display()
       //update(previous_frame_time, events);
 ////
 {
-  ceu_sys_go(&CEU_APP, CEU_IN_SCREENMANAGER_UPDATE, &previous_frame_time);
   ceu_sys_go(&CEU_APP, CEU_IN__ASYNC, NULL);    /// TODO: remove
   ceu_sys_go(&CEU_APP, CEU_IN_SCREENMANAGER_DRAW, &display_gc);
 

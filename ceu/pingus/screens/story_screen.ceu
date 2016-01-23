@@ -65,7 +65,8 @@ do
                 var float time = 0;
                 watching next_text do
                     loop do
-                        var float dt = await SCREENMANAGER_UPDATE;
+                        var int v    = await SDL_DT;
+                        var float dt = ((float)v)/1000;
                         time = time + dt;
                         var int cur = 20*time;
                         var int max = {UTF8::length}(_page.text);

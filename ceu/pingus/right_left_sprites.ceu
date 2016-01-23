@@ -17,7 +17,7 @@ do
     event void e_change;
     par do
         var int dir = this.parent.direction;
-        every SCREENMANAGER_UPDATE do
+        every SDL_DT do
             if this.parent.direction != dir then
                 dir = this.parent.direction;
                 emit e_change;

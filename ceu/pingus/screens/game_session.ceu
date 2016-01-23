@@ -50,7 +50,8 @@ do
         await world;
     with
         var int world_delay = 0; // the world is initially on time
-        every dt in SCREENMANAGER_UPDATE do
+        every v in SDL_DT do
+            var float dt = ((float)v)/1000;
 
             // how much time we have to account for while doing world updates
             var int time_passed = dt*1000 + world_delay;
