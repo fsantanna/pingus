@@ -238,6 +238,10 @@ SDLDriver::update(float delta)
         {
           i->binding->set_delta(Vector2f(event.motion.xrel, event.motion.yrel));
         }
+{
+        void* p = &event;
+        ceu_sys_go(&CEU_APP, CEU_IN_SDL_MOUSEMOTION, &p);
+}
         break;
 
       case SDL_MOUSEBUTTONDOWN:
@@ -253,6 +257,15 @@ SDLDriver::update(float delta)
               (*i).binding->set_state(BUTTON_RELEASED);
           }
         }
+{
+        void* p = &event;
+        if (event.button.state == SDL_PRESSED) {
+          ceu_sys_go(&CEU_APP, CEU_IN_SDL_MOUSEBUTTONDOWN, &p);
+        } else {
+          ceu_sys_go(&CEU_APP, CEU_IN_SDL_MOUSEBUTTONUP, &p);
+        }
+}
+
         break;
 
       case SDL_VIDEORESIZE:

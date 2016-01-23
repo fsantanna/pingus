@@ -56,14 +56,7 @@ do
         escape 1;
     with
         loop do
-            var _Input__Event&& e = await ON_INPUT_EVENT;
-            var _Input__ButtonEvent&& but = &&e:button;
-            if e:type != {Input::BUTTON_EVENT_TYPE}
-            or but:state != {Input::BUTTON_PRESSED}
-            then
-                continue;
-            end
-
+            var _Input__ButtonEvent&& but = await ON_BUTTON_PRESSED;
             if but:name == {Input::PAUSE_BUTTON} then
                 escape true;
             else/if but:name == {Input::FAST_FORWARD_BUTTON} then

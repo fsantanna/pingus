@@ -110,14 +110,7 @@ do
                 end
             end
         with
-            every v in ON_INPUT_EVENT do
-                if v:type != {Input::BUTTON_EVENT_TYPE} then
-                    continue;
-                end
-                var _Input__ButtonEvent&& but = &&v:button;
-                if but:state != {Input::BUTTON_PRESSED} then
-                    continue;
-                end
+            every but in ON_BUTTON_PRESSED do
                 if but:name == {Input::ACTION_DOWN_BUTTON} then
                     emit nxt.get_component().on_click;
                 else/if but:name == {Input::ACTION_UP_BUTTON} then
@@ -127,13 +120,7 @@ do
         end
     with
         loop do
-            var _Input__Event&& e = await ON_INPUT_EVENT;
-            var _Input__ButtonEvent&& but = &&e:button;
-            if e:type != {Input::BUTTON_EVENT_TYPE}
-            or but:state != {Input::BUTTON_PRESSED}
-            then
-                continue;
-            end
+            var _Input__ButtonEvent&& but = await ON_BUTTON_PRESSED;
             if but:name == {Input::ESCAPE_BUTTON} then
                 escape -1;
             end

@@ -42,17 +42,15 @@ native @nohold _delete(), _sscanf(), _log_error(), _log_info(), __();
 
 input int SDL_DT;
 input void SDL_QUIT;
-input _SDL_KeyboardEvent&& SDL_KEYDOWN;
-input _SDL_KeyboardEvent&& SDL_KEYUP;
 input _CommandLineOptions&& MAIN;
 
-input _Input__Event&& ON_INPUT_EVENT;
 input (int,int) ON_POINTER_MOVE;
+input _Input__ButtonEvent&& ON_BUTTON_PRESSED;
+input _Input__ButtonEvent&& ON_BUTTON_RELEASED;
 input (int,int) ON_PRIMARY_BUTTON_PRESSED;
 input (int,int) ON_PRIMARY_BUTTON_RELEASED;
 input (int,int) ON_SECONDARY_BUTTON_PRESSED;
 input (int,int) ON_SECONDARY_BUTTON_RELEASED;
-input float ON_ACTION_AXIS_MOVE;
 input _DrawingContext&& SCREENMANAGER_DRAW;
 input void WORLD_UPDATE;
 
@@ -188,6 +186,7 @@ var float gravity = 0.2;
 
 event bool go_pause;
 
+#include "engine/input/sdl_driver.ceu"
 #include "pingus/fps_counter.ceu"
 #include "pingus/worldmap/worldmap_screen.ceu"
 #include "pingus/screens/credits.ceu"
@@ -230,6 +229,8 @@ native/pre do
     static FileReader reader;
     static CommandLineOptions cmd;
 end
+
+var SDL_Driver _;
 
 var _CommandLineOptions&& cmd = await MAIN;
 _cmd = *cmd;

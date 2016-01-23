@@ -90,32 +90,26 @@ do
             world_delay = time_passed - (world_updates*update_time);
         end
     with
-        every e in ON_INPUT_EVENT do
-            if e:type != {Input::BUTTON_EVENT_TYPE} then
-                continue;
-            end
-
-            var _Input__ButtonEvent&& but = &&e:button;
-            if but:state == {Input::BUTTON_PRESSED} then
-                if but:name == {Input::PAUSE_BUTTON} then
+        every but in ON_BUTTON_PRESSED do
+            if but:name == {Input::PAUSE_BUTTON} then
+                emit global:go_pause_toggle;
+            else/if but:name == {Input::SINGLE_STEP_BUTTON} then
+                if not is_paused then
                     emit global:go_pause_toggle;
-                else/if but:name == {Input::SINGLE_STEP_BUTTON} then
-                    if not is_paused then
-                        emit global:go_pause_toggle;
-                    end
-                    do_single_step = true;
-                else/if but:name == {Input::FAST_FORWARD_BUTTON} then
-                    emit global:go_forward => true;
-                else/if but:name == {Input::ARMAGEDDON_BUTTON} then
-                    emit global:go_armageddon;
-                else/if but:name == {Input::ESCAPE_BUTTON} then
-                    kill world;  // aborts everything
                 end
-            else
-                _assert(but:state == {Input::BUTTON_RELEASED});
-                if but:name == {Input::FAST_FORWARD_BUTTON} then
-                    emit global:go_forward => false;
-                end
+                do_single_step = true;
+            else/if but:name == {Input::FAST_FORWARD_BUTTON} then
+                emit global:go_forward => true;
+            else/if but:name == {Input::ARMAGEDDON_BUTTON} then
+                emit global:go_armageddon;
+            else/if but:name == {Input::ESCAPE_BUTTON} then
+                kill world;  // aborts everything
+            end
+        end
+    with
+        every but in ON_BUTTON_RELEASED do
+            if but:name == {Input::FAST_FORWARD_BUTTON} then
+                emit global:go_forward => false;
             end
         end
     with

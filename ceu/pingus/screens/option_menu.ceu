@@ -320,16 +320,9 @@ do
         await close.get_component().on_click;
         call {Sound::PingusSound::play_sound}("yipee");
     with
-        loop do
-            var _Input__Event&& e = await ON_INPUT_EVENT;
-            var _Input__ButtonEvent&& but = &&e:button;
-            if  e:type    == {Input::BUTTON_EVENT_TYPE}
-            and but:state == {Input::BUTTON_PRESSED}
-            and but:name  == {Input::ESCAPE_BUTTON}
-            then
-                break;
-            end
-        end
+        var _Input__ButtonEvent&& but =
+            await ON_BUTTON_PRESSED
+            until but:name  == {Input::ESCAPE_BUTTON};
     with
         every gc in SCREENMANAGER_DRAW do
             gc:print_center({Fonts::chalk_large},

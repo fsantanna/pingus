@@ -66,12 +66,8 @@ do
         end
     with
         loop do
-            var _Input__Event&& e = await ON_INPUT_EVENT;
-            var _Input__ButtonEvent&& but = &&e:button;
-            if  e:type    == {Input::BUTTON_EVENT_TYPE}
-            and but:state == {Input::BUTTON_PRESSED}
-            and but:name  == {Input::ESCAPE_BUTTON}
-            then
+            var _Input__ButtonEvent&& but = await ON_BUTTON_PRESSED;
+            if but:name  == {Input::ESCAPE_BUTTON} then
                 escape _WORLDMAP_RETURN_EXIT;
             end
         end

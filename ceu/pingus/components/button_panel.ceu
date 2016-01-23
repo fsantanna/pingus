@@ -10,15 +10,7 @@ class ActionButtonE with
     var int n = 0;
     var int max;
 do
-    every v in ON_INPUT_EVENT do
-        if v:type != {Input::BUTTON_EVENT_TYPE} then
-            continue;
-        end
-        var _Input__ButtonEvent&& but = &&v:button;
-        if but:state != {Input::BUTTON_PRESSED} then
-            continue;
-        end
-
+    every but in ON_BUTTON_PRESSED do
         var int inc = 0;
         if but:name >= {Input::ACTION_1_BUTTON} and
            but:name <= {Input::ACTION_10_BUTTON}

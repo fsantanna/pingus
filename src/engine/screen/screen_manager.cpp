@@ -29,8 +29,6 @@
 
 #include "ceu_vars.h"
 
-using namespace Input;
-
 FramebufferSurface* load_framebuffer_sdl_surface(const Pathname& filename, ResourceModifier::Enum modifier)
 {
   // FIXME: Implement proper cache

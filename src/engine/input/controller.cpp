@@ -228,79 +228,11 @@ Controller::add_button(int id, ControllerButton* button)
   buttons[id] = button;
 }
 
-void
-Controller::add_axis_event(int id, float pos)
-{
-  Event event = makeAxisEvent(static_cast<EventName>(id), pos);
-
-  // AxisEvents can be ignored in the GUI, they are handled elsewhere
-  log_debug("GUIManager: AxisEvent: %1%", event.axis.dir);
-
-  Event* p_event = &event;
-  ceu_sys_go(&CEU_APP, CEU_IN_ON_INPUT_EVENT, &p_event);
-}
-
-void
-Controller::add_button_event(int id, ButtonState state)
-{
-  Event event = makeButtonEvent(static_cast<EventName>(id), state);
-
-  if (event.button.name == PRIMARY_BUTTON)
-  {
-    if (event.button.state == Input::BUTTON_PRESSED) {
-      tceu__int__int p = { mouse_pos.x, mouse_pos.y };
-      ceu_sys_go(&CEU_APP, CEU_IN_ON_PRIMARY_BUTTON_PRESSED, &p);
-    } else if (event.button.state == Input::BUTTON_RELEASED) {
-      tceu__int__int p = { mouse_pos.x, mouse_pos.y };
-      ceu_sys_go(&CEU_APP, CEU_IN_ON_PRIMARY_BUTTON_RELEASED, &p);
-    }
-  }
-  else if (event.button.name == SECONDARY_BUTTON)
-  {
-    if (event.button.state == Input::BUTTON_PRESSED) {
-      tceu__int__int p = { mouse_pos.x, mouse_pos.y };
-      ceu_sys_go(&CEU_APP, CEU_IN_ON_SECONDARY_BUTTON_PRESSED, &p);
-    } else if (event.button.state == Input::BUTTON_RELEASED) {
-      tceu__int__int p = { mouse_pos.x, mouse_pos.y };
-      ceu_sys_go(&CEU_APP, CEU_IN_ON_SECONDARY_BUTTON_RELEASED, &p);
-    }
-  }
-
-  Event* p_event = &event;
-  ceu_sys_go(&CEU_APP, CEU_IN_ON_INPUT_EVENT, &p_event);
-}
-
-void
-Controller::add_pointer_event(int id, float x, float y)
-{
-  Event event = makePointerEvent(static_cast<EventName>(id), x, y);
-
-  mouse_pos.x = int(event.pointer.x);
-  mouse_pos.y = int(event.pointer.y);
-  tceu__int__int p = { mouse_pos.x, mouse_pos.y };
-  ceu_sys_go(&CEU_APP, CEU_IN_ON_POINTER_MOVE, &p);
-
-  Event* p_event = &event;
-  ceu_sys_go(&CEU_APP, CEU_IN_ON_INPUT_EVENT, &p_event);
-}
-
-void
-Controller::add_scroller_event(int id, float xrel, float yrel)
-{
-  Event event = makeScrollerEvent(static_cast<EventName>(id), xrel, yrel);
-
-  Event* p_event = &event;
-  ceu_sys_go(&CEU_APP, CEU_IN_ON_INPUT_EVENT, &p_event);
-}
-
-void
-Controller::add_keyboard_event(const SDL_KeyboardEvent& ev)
-{
-  Event event = makeKeyboardEvent(ev);
-
-  Event* p_event = &event;
-  ceu_sys_go(&CEU_APP, CEU_IN_ON_INPUT_EVENT, &p_event);
-}
+void Controller::add_axis_event(int id, float pos) { }
+void Controller::add_button_event(int id, ButtonState state) { }
+void Controller::add_pointer_event(int id, float x, float y) { }
+void Controller::add_scroller_event(int id, float xrel, float yrel) { }
+void Controller::add_keyboard_event(const SDL_KeyboardEvent& ev) { }
 
 }
 

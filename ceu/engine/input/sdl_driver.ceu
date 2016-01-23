@@ -1,0 +1,86 @@
+#ifndef _SDL_DRIVER
+#define _SDL_DRIVER
+
+input _SDL_MouseButtonEvent&& SDL_MOUSEBUTTONDOWN;
+input _SDL_MouseButtonEvent&& SDL_MOUSEBUTTONUP;
+input _SDL_MouseMotionEvent&& SDL_MOUSEMOTION;
+input _SDL_KeyboardEvent&& SDL_KEYDOWN;
+input _SDL_KeyboardEvent&& SDL_KEYUP;
+
+native @plain _SDL_MouseButtonEvent, _SDL_MouseMotionEvent, _SDL_KeyboardEvent;
+
+class SDL_Driver with
+do
+    par do
+        every e in SDL_MOUSEBUTTONDOWN do
+            var _SDL_MouseButtonEvent but = *e;
+            async (but) do
+                if but.button == _SDL_BUTTON_LEFT then
+                    emit ON_PRIMARY_BUTTON_PRESSED => (but.x, but.y);
+                else
+                    emit ON_SECONDARY_BUTTON_PRESSED => (but.x, but.y);
+                end
+            end
+        end
+    with
+        every e in SDL_MOUSEBUTTONUP do
+            var _SDL_MouseButtonEvent but = *e;
+            async (but) do
+                if but.button == _SDL_BUTTON_LEFT then
+                    emit ON_PRIMARY_BUTTON_RELEASED => (but.x, but.y);
+                else
+                    emit ON_SECONDARY_BUTTON_RELEASED => (but.x, but.y);
+                end
+            end
+        end
+    with
+        every e in SDL_MOUSEMOTION do
+            var _SDL_MouseMotionEvent mot = *e;
+            async (mot) do
+                emit ON_POINTER_MOVE => (mot.x, mot.y);
+            end
+        end
+    with
+        loop do
+            var _SDL_KeyboardEvent&&? e;
+            var bool is_down =
+                par do
+                    e = await SDL_KEYDOWN;
+                    escape true;
+                with
+                    e = await SDL_KEYUP;
+                    escape false;
+                end;
+            var _SDL_KeyboardEvent key = *e!;
+            async (is_down,key) do
+                var bool ok = true;
+// TODO: problem of initialization
+{
+                Input__ButtonEvent but;
+};
+                if key.keysym.sym == _SDLK_p then
+                    _but.name = _XXX_PURE({Input::PAUSE_BUTTON});
+                else/if key.keysym.sym == _SDLK_f then
+                    _but.name = _XXX_PURE({Input::FAST_FORWARD_BUTTON});
+                else/if key.keysym.sym == _SDLK_s then
+                    _but.name = _XXX_PURE({Input::SINGLE_STEP_BUTTON});
+                else/if key.keysym.sym == _SDLK_a then
+                    _but.name = _XXX_PURE({Input::ARMAGEDDON_BUTTON});
+                else/if key.keysym.sym == _SDLK_ESCAPE then
+                    _but.name = _XXX_PURE({Input::ESCAPE_BUTTON});
+                else
+                    ok = false;
+                end
+                if ok then
+                    if is_down then
+                        emit ON_BUTTON_PRESSED => &&_but;
+                    else
+                        emit ON_BUTTON_RELEASED => &&_but;
+                    end
+                end
+            end
+        end
+    end
+end
+
+#endif

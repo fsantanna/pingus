@@ -1,3 +1,4 @@
+- TODO: configuration of input events
 - TODO: cursor
 - TODO: fade effects
 - TODO: resize
