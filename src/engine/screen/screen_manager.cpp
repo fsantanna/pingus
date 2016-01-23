@@ -246,7 +246,6 @@ ScreenManager::update(float delta, const std::vector<Input::Event>& events)
     cursor.render(mouse_pos.x, mouse_pos.y, *Display::get_framebuffer());
 
   // Draw FPS Counter
-  ceu_sys_go(&CEU_APP, CEU_IN_FPS_DRAW, &display_gc);
   if (globals::print_fps)
   {
     ///fps_counter->draw();
