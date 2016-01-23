@@ -50,11 +50,7 @@ private:
   std::vector<ControllerScroller*> scrollers;
   std::vector<ControllerKeyboard*> keyboards;
 
-  std::vector<Event> events;
-
 public:
-  void clear_events();
-  void poll_events(std::vector<Event>& events);
 
   Controller(const ControllerDescription& desc);
   ~Controller();

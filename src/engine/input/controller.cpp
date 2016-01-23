@@ -34,8 +34,7 @@ Controller::Controller(const ControllerDescription& desc) :
   axes(),
   pointers(),
   scrollers(),
-  keyboards(),
-  events()
+  keyboards()
 {
   current_ = this;
 
@@ -303,12 +302,6 @@ Controller::add_keyboard_event(const SDL_KeyboardEvent& ev)
   ceu_sys_go(&CEU_APP, CEU_IN_ON_INPUT_EVENT, &p_event);
 }
 
-void Controller::clear_events() {
-  events.clear();
 }
-
-void Controller::poll_events(std::vector<Event>& out_events) { }
-
-} // namespace Input
 
 /* EOF */

@@ -84,13 +84,10 @@ ScreenManager::display()
 
   Uint32 last_ticks = SDL_GetTicks();
   float previous_frame_time;
-  std::vector<Input::Event> events;
 
   while (CEU_APP.isAlive)
   {
     Uint32 dt;
-
-    events.clear();
 
     // Get time and update Input::Events
     {
@@ -102,7 +99,6 @@ ScreenManager::display()
 
       // Update InputManager and get Events
       input_manager.update(previous_frame_time);
-      input_controller->poll_events(events);
     }
 
     {
@@ -122,7 +118,6 @@ ScreenManager::display()
     }
     else
     {
-      //update(previous_frame_time, events);
 ////
 {
   ceu_sys_go(&CEU_APP, CEU_IN__ASYNC, NULL);    /// TODO: remove
