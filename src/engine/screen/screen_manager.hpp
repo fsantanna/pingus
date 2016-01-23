@@ -41,36 +41,19 @@ class ScreenManager
 {
 private:
   static ScreenManager* instance_;
-
-private:
   Input::Manager& input_manager;
   Input::ControllerPtr input_controller;
-
   std::unique_ptr<DrawingContext> display_gc;
-
-  /** Screen stack (first is the screen, second is delete_screen,
-      which tells if the screen should be deleted onces it got poped
-      or replaced) */
-
 
 public:
   ScreenManager(Input::Manager& input_manager,
                 Input::ControllerPtr arg_input_controller);
   ~ScreenManager();
-
   void resize(const Size& size);
   void display();
-
   void update(float delta, const std::vector<Input::Event>& events);
-
-private:
-  /** FadeOver test*/
-  void fade_over(ScreenPtr old_screen, ScreenPtr new_screen);
-
-public:
   static ScreenManager* instance();
 
-private:
   ScreenManager (const ScreenManager&);
   ScreenManager& operator= (const ScreenManager&);
 };
