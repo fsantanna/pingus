@@ -137,22 +137,6 @@ ScreenManager::display()
   if (globals::software_cursor)
     cursor.render(mouse_pos.x, mouse_pos.y, *Display::get_framebuffer());
 
-  // Draw FPS Counter
-  if (globals::print_fps)
-  {
-    ///fps_counter->draw();
-    if (globals::developer_mode)
-    {
-      Fonts::pingus_small.render(origin_center, Display::get_width()/2, 60,
-                                 "Developer Mode", *Display::get_framebuffer());
-    }
-  }
-  else if (globals::developer_mode)
-  {
-    Fonts::pingus_small.render(origin_center, Display::get_width()/2, 35,
-                               "Developer Mode", *Display::get_framebuffer());
-  }
-
   Display::flip_display();
 }
 ////

@@ -362,7 +362,20 @@ with
         emit go_pause => false;
     end
 with
-    do FPSCounter;  // never terminates
+    var FPSCounter _;
+    every gc in SCREENMANAGER_DRAW do
+        if {globals::developer_mode} then
+            if {globals::print_fps} then
+                gc:print_center({Fonts::pingus_small},
+                                _Vector2i({Display::get_width()}/2, 60),
+                                "Developer Mode");
+            else
+                gc:print_center({Fonts::pingus_small},
+                                _Vector2i({Display::get_width()}/2, 35),
+                                "Developer Mode");
+            end
+        end
+    end
 end
 
 escape 0;
