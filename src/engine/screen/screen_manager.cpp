@@ -22,7 +22,7 @@
 #include "engine/display/drawing_context.hpp"
 #include "engine/display/framebuffer.hpp"
 #include "engine/input/manager.hpp"
-#include "engine/screen/screen.hpp"
+///#include "engine/screen/screen.hpp"
 ///#include "pingus/fps_counter.hpp"
 #include "pingus/fonts.hpp"
 #include "pingus/globals.hpp"
@@ -323,63 +323,24 @@ ScreenManager::update(float delta, const std::vector<Input::Event>& events)
   Display::flip_display();
 }
 
-ScreenPtr
-ScreenManager::get_current_screen()
-{
-  if (screens.empty())
-    return ScreenPtr();
-  else
-    return screens.back();
+ScreenPtr ScreenManager::get_current_screen() {
+  return NULL;
 }
 
-ScreenManager*
-ScreenManager::instance()
-{
+ScreenManager* ScreenManager::instance() {
   return instance_;
 }
 
-void
-ScreenManager::push_screen(ScreenPtr screen)
-{
-  screens.push_back(screen);
-  screen->on_startup();
-}
-
-void
-ScreenManager::pop_screen()
-{
-  screens.pop_back();
-
-  if (!screens.empty())
-  {
-    if (screens.back()->get_size() != Display::get_size())
-      screens.back()->resize(Display::get_size());
-    screens.back()->on_startup();
-  }
-}
-
-void
-ScreenManager::pop_all_screens()
-{
-  screens.clear();
-}
-
-void
-ScreenManager::replace_screen(ScreenPtr screen)
-{
-  screens.back() = screen;
-
-  if (screens.back()->get_size() != Display::get_size())
-  {
-    screens.back()->resize(Display::get_size());
-  }
-
-  screens.back()->on_startup();
-}
+void ScreenManager::push_screen(ScreenPtr screen) { }
+void ScreenManager::pop_screen() { }
+void ScreenManager::pop_all_screens() { }
+void ScreenManager::replace_screen(ScreenPtr screen) { } void 
+ScreenManager::resize(const Size& size) { }
 
 void
 ScreenManager::fade_over(ScreenPtr old_screen, ScreenPtr new_screen)
 {
+#if 0
   if (!old_screen.get() || !new_screen.get())
     return;
 
@@ -413,15 +374,7 @@ ScreenManager::fade_over(ScreenPtr old_screen, ScreenPtr new_screen)
   }
 
   input_manager.refresh();
-}
-
-void
-ScreenManager::resize(const Size& size)
-{
-  display_gc->set_rect(Rect(Vector2i(0, 0), size));
-
-  // The other screens will get resized when they become the current screen
-  get_current_screen()->resize(size);
+#endif
 }
 
 void

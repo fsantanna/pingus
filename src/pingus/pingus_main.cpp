@@ -19,8 +19,8 @@
 #include <iostream>
 #include <signal.h>
 
-#include "editor/editor_level.hpp"
-#include "editor/editor_screen.hpp"
+//#include "editor/editor_level.hpp"
+//#include "editor/editor_screen.hpp"
 #include "engine/input/manager.hpp"
 #include "engine/system/sdl_system.hpp"
 #include "pingus/config_manager.hpp"
