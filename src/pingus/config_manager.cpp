@@ -245,7 +245,7 @@ ConfigManager::set_software_cursor(bool v)
 
   if (v != get_software_cursor())
   {
-    ScreenManager::instance()->show_software_cursor(v);
+    //ScreenManager::instance()->show_software_cursor(v);
     on_software_cursor_change(v);
   }
 

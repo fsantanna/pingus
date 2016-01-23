@@ -24,7 +24,6 @@
 #include "engine/input/manager.hpp"
 #include "engine/input/event.hpp"
 ///#include "engine/screen/screen.hpp"
-///#include "pingus/fps_counter.hpp"
 #include "pingus/fonts.hpp"
 #include "pingus/globals.hpp"
 
@@ -59,29 +58,19 @@ ScreenManager::ScreenManager(Input::Manager& arg_input_manager,
                              Input::ControllerPtr arg_input_controller) :
   input_manager(arg_input_manager),
   input_controller(arg_input_controller),
-  display_gc(new DrawingContext()),
-  ///fps_counter(),
-  cursor(),
-  screens(),
-  mouse_pos()
+  display_gc(new DrawingContext())
 {
   assert(instance_ == 0);
   instance_ = this;
-
-  cursor = Sprite("core/cursors/animcross");
-  ///fps_counter = std::unique_ptr<FPSCounter>(new FPSCounter());
 }
 
-ScreenManager::~ScreenManager()
-{
+ScreenManager::~ScreenManager() {
   instance_ = 0;
 }
 
 void
 ScreenManager::display()
 {
-  show_software_cursor(globals::software_cursor);
-
   Uint32 last_ticks = SDL_GetTicks();
   float previous_frame_time;
 
@@ -107,9 +96,6 @@ ScreenManager::display()
       ceu_out_go(&CEU_APP, CEU_IN_SDL_DT,  &dt);
     }
 
-    if (globals::software_cursor)
-      cursor.update(previous_frame_time);
-
     // previous frame took more than one second
     if (previous_frame_time > 1.0)
     {
@@ -127,10 +113,6 @@ ScreenManager::display()
   display_gc->render(*Display::get_framebuffer(), Rect(Vector2i(0,0), Size(Display::get_width(),
                                                                            Display::get_height())));
   display_gc->clear();
-
-  // Draw the mouse pointer
-  if (globals::software_cursor)
-    cursor.render(mouse_pos.x, mouse_pos.y, *Display::get_framebuffer());
 
   Display::flip_display();
 }
@@ -151,61 +133,6 @@ ScreenManager::display()
 
 ScreenManager* ScreenManager::instance() {
   return instance_;
-}
-
-#if 0
-void
-ScreenManager::fade_over(ScreenPtr old_screen, ScreenPtr new_screen)
-{
-  if (!old_screen.get() || !new_screen.get())
-    return;
-
-  Uint32 last_ticks = SDL_GetTicks();
-  float progress = 0.0f;
-  Framebuffer& fb = *Display::get_framebuffer();
-  while (progress <= 1.0f)
-  {
-    int border_x = static_cast<int>(static_cast<float>(Display::get_width()/2)  * (1.0f - progress));
-    int border_y = static_cast<int>(static_cast<float>(Display::get_height()/2) * (1.0f - progress));
-
-    old_screen->draw(*display_gc);
-    display_gc->render(fb, Rect(Vector2i(0,0), Size(Display::get_width(),
-                                                    Display::get_height())));
-    display_gc->clear();
-
-    fb.push_cliprect(Rect(Vector2i(0 + border_x, 0 + border_y),
-                          Size(Display::get_width()  - 2*border_x,
-                               Display::get_height() - 2*border_y)));
-
-    new_screen->draw(*display_gc);
-    display_gc->render(*Display::get_framebuffer(), Rect(Vector2i(0,0), Size(Display::get_width(),
-                                                                            Display::get_height())));
-    display_gc->clear();
-
-    fb.pop_cliprect();
-    fb.flip();
-    display_gc->clear();
-
-    progress = static_cast<float>(SDL_GetTicks() - last_ticks)/1000.0f * 2.0f;
-  }
-
-  input_manager.refresh();
-}
-#endif
-
-void
-ScreenManager::show_software_cursor(bool visible)
-{
-  globals::software_cursor = visible;
-
-  if (globals::software_cursor)
-  {
-    SDL_ShowCursor(SDL_DISABLE);
-  }
-  else
-  {
-    SDL_ShowCursor(SDL_ENABLE);
-  }
 }
 
 /* EOF */

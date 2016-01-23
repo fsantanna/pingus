@@ -48,15 +48,10 @@ private:
 
   std::unique_ptr<DrawingContext> display_gc;
 
-  ///std::unique_ptr<FPSCounter> fps_counter;
-  Sprite cursor;
-
   /** Screen stack (first is the screen, second is delete_screen,
       which tells if the screen should be deleted onces it got poped
       or replaced) */
-  std::vector<ScreenPtr> screens;
 
-  Vector2i mouse_pos;
 
 public:
   ScreenManager(Input::Manager& input_manager,
@@ -67,7 +62,6 @@ public:
   void display();
 
   void update(float delta, const std::vector<Input::Event>& events);
-  void show_software_cursor(bool v);
 
 private:
   /** FadeOver test*/

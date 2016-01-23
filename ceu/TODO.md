@@ -1,3 +1,4 @@
+- TODO: cursor
 - TODO: fade effects
 - TODO: resize
 - TODO: stress test pathfinder

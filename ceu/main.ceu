@@ -362,6 +362,27 @@ with
         emit go_pause => false;
     end
 with
+#if 0
+    var Sprite _ = Sprite.build(CURSOR);
+  cursor = Sprite("core/cursors/animcross");
+    if (globals::software_cursor)
+      cursor.update(previous_frame_time);
+
+  // Draw the mouse pointer
+  if (globals::software_cursor)
+    cursor.render(mouse_pos.x, mouse_pos.y, *Display::get_framebuffer());
+
+  show_software_cursor(globals::software_cursor);
+void ScreenManager::show_software_cursor(bool visible) {
+  globals::software_cursor = visible;
+  if (globals::software_cursor) {
+    SDL_ShowCursor(SDL_DISABLE);
+  } else {
+    SDL_ShowCursor(SDL_ENABLE);
+  }
+}
+#endif
+
     var FPSCounter _;
     every gc in SCREENMANAGER_DRAW do
         if {globals::developer_mode} then
