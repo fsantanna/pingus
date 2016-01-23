@@ -41,6 +41,7 @@ native @nohold _delete(), _sscanf(), _log_error(), _log_info(), __();
     end
 
 input int SDL_DT;
+input void SDL_QUIT;
 input _Input__Event&& ON_INPUT_EVENT;
 input (int,int) ON_POINTER_MOVE;
 input (int,int) ON_PRIMARY_BUTTON_PRESSED;
@@ -236,6 +237,8 @@ var _CommandLineOptions&& cmd = await MAIN;
 _cmd = *cmd;
 
 par/or do
+    await SDL_QUIT;
+with
     pause/if go_pause do
         if _cmd.rest.is_set() then
             _filename = _Pathname(_cmd.rest.get(), {Pathname::SYSTEM_PATH});
