@@ -5,7 +5,7 @@
 #include "../../engine/gui/surface_button.ceu"
 #include "../components/wood.ceu"
 
-native do
+native/pre do
     ##include "pingus/levelset.hpp"
     typedef std::vector<std::shared_ptr<Levelset>> Levelsets;
     struct LevelsetPrioritySorter {
@@ -144,15 +144,17 @@ end
 ////////////////////////////////////////////////////////////////////////////////
 
 class Level with
+    var _Levelset& levelset;
     var LevelUI& ui;
     var int      i;
     var Rect     rect;
-    function (LevelUI& ui, int i, Rect rect)=>Level build;
+    function (_Levelset& levelset, LevelUI& ui, int i, Rect rect)=>Level build;
 do
-    function (LevelUI& ui, int i, Rect rect)=>Level build do
-        this.ui   = &ui;
-        this.i    = i;
-        this.rect = rect;
+    function (_Levelset& levelset, LevelUI& ui, int i, Rect rect)=>Level build do
+        this.levelset = &levelset;
+        this.ui       = &ui;
+        this.i        = i;
+        this.rect     = rect;
     end
 
     var RectComponent component with
@@ -165,7 +167,7 @@ do
     par do
         pause/if pse do
             par do
-                if _current_levelset:get_level(i):accessible then
+                if this.levelset.get_level(i):accessible then
                     par do
                         every component.on_click do
                             emit this.ui.ok => this.i;
@@ -184,9 +186,9 @@ do
                 end
             with
                 // draw icon
-                if (not _current_levelset:get_level(i):accessible) then
+                if (not this.levelset.get_level(i):accessible) then
                     do Sprite.w_xy_name(false, &x,&y, "core/menu/locked_small");
-                else/if _current_levelset:get_level(i):finished then
+                else/if this.levelset.get_level(i):finished then
                     do Sprite.w_xy_name(false, &x,&y, "core/menu/checkbox_marked_small");
                 else
                     do Sprite.w_xy_name(false, &x,&y, "core/menu/checkbox_small");
@@ -197,11 +199,11 @@ do
                     if {globals::developer_mode} then
                         gc:print_left({Fonts::chalk_normal},
                                       _Vector2i(x + 40, y+4),
-                                      _current_levelset:get_level(i):plf.get_resname());
+                                      this.levelset.get_level(i):plf.get_resname());
                     else
                         gc:print_left({Fonts::chalk_normal},
                                       _Vector2i(x + 40, y+4), 
-                                      __(_current_levelset:get_level(i):plf.get_levelname()));
+                                      __(this.levelset.get_level(i):plf.get_levelname()));
                     end
                 end
             end
@@ -297,26 +299,31 @@ end
 ////////////////////////////////////////////////////////////////////////////////
 
 class LevelSelector with
+    var _Levelset& levelset;
 do
-    //_current_levelset:refresh();
-    var LevelUI ui = LevelUI.build(_current_levelset:get_level_count(),
+    var char[] title = [] .. (char&&)this.levelset.get_title().c_str();
+    var char[] image = [] .. (char&&)this.levelset.get_image().c_str();
+    var int count = this.levelset.get_level_count();
+
+    //this.levelset.refresh();
+    var LevelUI ui = LevelUI.build(outer.levelset.get_level_count(),
                                    LEVEL_ITEMS_PER_PAGE, LEVEL_ITEM_HEIGHT);
 
     var float yy  = 50+15;
     var float xx1 = 0;
     var Sprite s1 = Sprite.w_xy_name(false, &xx1, &yy,
-                        (char&&)_XXX_PURE(_current_levelset:get_image().c_str()));
+                        (char&&)_XXX_PURE(outer.levelset.get_image().c_str()));
     xx1 = 60 + 680/2 - s1.get_width()/2 - 275;
 
     var float xx2 = 0;
     var Sprite s2 = Sprite.w_xy_name(false, &xx2, &yy,
-                        (char&&)_XXX_PURE(_current_levelset:get_image().c_str()));
+                        (char&&)_XXX_PURE(outer.levelset.get_image().c_str()));
     xx2 = 60 + 680/2 - s2.get_width()/2 + 275;
 
     pool Level[] levels;
     var Rect rect = Rect(60+50, 50+112, 680-90, LEVEL_ITEM_HEIGHT-1);
-    loop i in _current_levelset:get_level_count() do
-        spawn Level.build(&ui, i, rect) in levels;
+    loop i in this.levelset.get_level_count() do
+        spawn Level.build(&outer.levelset, &ui, i, rect) in levels;
         rect.top = rect.top + LEVEL_ITEM_HEIGHT;
     end
 
@@ -330,7 +337,7 @@ do
         every gc in SCREENMANAGER_DRAW do
             gc:print_left({Fonts::chalk_large},
                           _Vector2i(680/2, 50+10),
-                          __(_current_levelset:get_title()));
+                          __(this.levelset.get_title()));
         end
     end
 end
@@ -397,14 +404,22 @@ do
         if v == -1 then
             break;
         end
+        var _Levelset&? levelset;
+        finalize
+            levelset = &_XXX_NOHOLD(_levelsets[v].get());
+        with
+            // TODO
+        end
         _current_levelset = _levelsets[v];
         loop do
-            var int v = do LevelSelector;
+            var int v = do LevelSelector with
+                            this.levelset = &levelset!;
+                        end;
             if v == -1 then
                 break;
             end
             do Start_Game_Result_Loop with
-                this.plf    = &_XXX_PURE(&&_current_levelset:get_level(v):plf);
+                this.plf    = &_XXX_PURE(&&levelset!.get_level(v):plf);
                 this.result = &_XXX_PURE(&&_result);
             end;
         end

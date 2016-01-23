@@ -29,7 +29,7 @@ native @plain _std__string, _Vector3f, _Vector2i, _Color, _Rect, _Size;
 native @plain _Sprite, _Surface, _SpriteDescription;
 native @plain _Input__Event, _Input__ButtonEvent;
 native @plain _ResourceModifier__Enum;
-native @plain _PingusLevel, _Result;
+native @plain _PingusLevel, _Result, _Levelset;
 native @pure   _XXX_PURE(), _XXX_PTR2REF();
 native @nohold _XXX_NOHOLD();
 native @nohold _delete(), _sscanf(), _log_error(), _log_info(), __();
@@ -261,7 +261,6 @@ par/or do
                         do WorldmapScreen with
                             this.filename = &&_filename;
                         end;
-_printf("RET = %d\n", ret);
                     if ret == _WORLDMAP_RETURN_STORY then
                         finalize
                             _reader = {FileReader::parse}(_Pathname(&&global:worldmap_return_filename, {Pathname::DATA_PATH}));
@@ -293,7 +292,28 @@ _printf("RET = %d\n", ret);
                 end;
             else/if {StringUtil::has_suffix(cmd.rest.get(), ".levelset")} then
 // LEVELSET
-                _assert(not "NOT PORTED");
+                {
+                    static std::shared_ptr<Levelset> levelset;
+                    levelset = Levelset::from_file(Pathname(cmd.rest.get(), Pathname::SYSTEM_PATH));
+                };
+                var _Levelset&? levelset;
+                finalize
+                    levelset = &_XXX_NOHOLD(_levelset.get());
+                with
+                    // TODO
+                end
+                loop do
+                    var int v = do LevelSelector with
+                                    this.levelset = &levelset!;
+                                end;
+                    if v == -1 then
+                        break;
+                    end
+                    do Start_Game_Result_Loop with
+                        this.plf    = &_XXX_PURE(&&levelset!.get_level(v):plf);
+                        this.result = &_XXX_PURE(&&_result);
+                    end;
+                end
             else
 // LEVEL
                 finalize
