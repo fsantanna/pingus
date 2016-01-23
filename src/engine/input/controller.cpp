@@ -17,6 +17,8 @@
 #include "engine/input/control.hpp"
 #include "engine/input/controller_description.hpp"
 
+#include "ceu_vars.h"
+
 namespace Input {
 
 Controller* Controller::current_ = 0;
@@ -266,8 +268,84 @@ Controller::clear_events()
 void
 Controller::poll_events(std::vector<Event>& out_events)
 {
-  for(std::vector<Event>::iterator i = events.begin(); i != events.end(); ++i)
-    out_events.push_back(*i);
+  for(std::vector<Event>::iterator i = events.begin(); i != events.end(); ++i) {
+    //out_events.push_back(*i);
+    if (i->type == Input::POINTER_EVENT_TYPE && i->pointer.name == 
+      Input::STANDARD_POINTER) {
+      mouse_pos = Vector2i(static_cast<int>(i->pointer.x),
+                           static_cast<int>(i->pointer.y));
+    }
+
+////
+      const Input::Event& event = *i;
+      switch (event.type)
+      {
+        case Input::POINTER_EVENT_TYPE:
+          mouse_pos.x = int(event.pointer.x);
+          mouse_pos.y = int(event.pointer.y);
+          //on_pointer_move(mouse_pos.x, mouse_pos.y);
+          {
+            tceu__int__int p = { mouse_pos.x, mouse_pos.y };
+            ceu_sys_go(&CEU_APP, CEU_IN_ON_POINTER_MOVE, &p);
+          }
+          break;
+
+        case Input::BUTTON_EVENT_TYPE:
+          if (event.button.name == PRIMARY_BUTTON)
+          {
+            if (event.button.state == Input::BUTTON_PRESSED) {
+              //on_primary_button_press(mouse_pos.x, mouse_pos.y);
+              tceu__int__int p = { mouse_pos.x, mouse_pos.y };
+              ceu_sys_go(&CEU_APP, CEU_IN_ON_PRIMARY_BUTTON_PRESSED, &p);
+            } else if (event.button.state == Input::BUTTON_RELEASED) {
+              //on_primary_button_release(mouse_pos.x, mouse_pos.y);
+              tceu__int__int p = { mouse_pos.x, mouse_pos.y };
+              ceu_sys_go(&CEU_APP, CEU_IN_ON_PRIMARY_BUTTON_RELEASED, &p);
+            }
+          }
+          else if (event.button.name == SECONDARY_BUTTON)
+          {
+            if (event.button.state == Input::BUTTON_PRESSED) {
+              //on_secondary_button_press(mouse_pos.x, mouse_pos.y);
+              tceu__int__int p = { mouse_pos.x, mouse_pos.y };
+              ceu_sys_go(&CEU_APP, CEU_IN_ON_SECONDARY_BUTTON_PRESSED, &p);
+            } else if (event.button.state == Input::BUTTON_RELEASED) {
+              //on_secondary_button_release(mouse_pos.x, mouse_pos.y);
+              tceu__int__int p = { mouse_pos.x, mouse_pos.y };
+              ceu_sys_go(&CEU_APP, CEU_IN_ON_SECONDARY_BUTTON_RELEASED, &p);
+            }
+          }
+          break;
+
+        case Input::AXIS_EVENT_TYPE:
+          // AxisEvents can be ignored in the GUI, they are handled elsewhere
+          log_debug("GUIManager: AxisEvent: %1%", event.axis.dir);
+
+          break;
+
+        case Input::KEYBOARD_EVENT_TYPE:
+          if (event.keyboard.state)
+          {
+            //on_key_pressed(event.keyboard);
+          }
+          else
+          {
+            //FIXME: implement this on_key_release(event.keyboard);
+          }
+          break;
+
+        case Input::SCROLLER_EVENT_TYPE:
+          //on_scroller_move(event.scroll.x_delta, event.scroll.y_delta);
+          break;
+
+        default:
+          log_warn("unhandled event type %1%", event.type);
+          break;
+      }
+      Input::Event* p_event = (Input::Event*) &event;
+      ceu_sys_go(&CEU_APP, CEU_IN_ON_INPUT_EVENT, &p_event);
+////
+  }
 
   events.clear();
 }

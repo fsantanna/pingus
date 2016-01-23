@@ -122,117 +122,10 @@ ScreenManager::display()
     }
     else
     {
-      update(previous_frame_time, events);
-
-      // cap the framerate at the desired value
-      // figure out how long this frame took
-      float current_frame_time = float(SDL_GetTicks() - last_ticks) / 1000.0f;
-      // idly delay if this frame didn't last long enough to
-      // achieve <desired_fps> frames per second
-      if (current_frame_time < 1.0f / globals::desired_fps) {
-        Uint32 sleep_time = static_cast<Uint32>(1000 *((1.0f / globals::desired_fps) - current_frame_time));
-        //SDL_Delay(sleep_time);
-      }
-    }
-
-    {
-      static int FRAMES_N      = 0;
-      static int FRAMES_LAST_t = 0;
-      static int FRAMES_LAST_n = 0;
-      int cur = SDL_GetTicks();
-      FRAMES_N++;
-      if (cur >= FRAMES_LAST_t+5000) {
-        FRAMES_LAST_t = cur;
-        int diff = FRAMES_N - FRAMES_LAST_n;
-        ///printf("[5s] %6d FPS=%3d\n", diff, diff/5);
-        FRAMES_LAST_n = FRAMES_N;
-      }
-    }
-  }
-}
-
-void
-ScreenManager::update(float delta, const std::vector<Input::Event>& events)
+      //update(previous_frame_time, events);
+////
 {
-  for(std::vector<Input::Event>::const_iterator i = events.begin(); i != events.end(); ++i)
-  {
-    if (i->type == Input::POINTER_EVENT_TYPE && i->pointer.name == Input::STANDARD_POINTER) {
-      mouse_pos = Vector2i(static_cast<int>(i->pointer.x),
-                           static_cast<int>(i->pointer.y));
-    }
-
-////
-      const Input::Event& event = *i;
-      switch (event.type)
-      {
-        case Input::POINTER_EVENT_TYPE:
-          mouse_pos.x = int(event.pointer.x);
-          mouse_pos.y = int(event.pointer.y);
-          //on_pointer_move(mouse_pos.x, mouse_pos.y);
-          {
-            tceu__int__int p = { mouse_pos.x, mouse_pos.y };
-            ceu_sys_go(&CEU_APP, CEU_IN_ON_POINTER_MOVE, &p);
-          }
-          break;
-
-        case Input::BUTTON_EVENT_TYPE:
-          if (event.button.name == PRIMARY_BUTTON)
-          {
-            if (event.button.state == Input::BUTTON_PRESSED) {
-              //on_primary_button_press(mouse_pos.x, mouse_pos.y);
-              tceu__int__int p = { mouse_pos.x, mouse_pos.y };
-              ceu_sys_go(&CEU_APP, CEU_IN_ON_PRIMARY_BUTTON_PRESSED, &p);
-            } else if (event.button.state == Input::BUTTON_RELEASED) {
-              //on_primary_button_release(mouse_pos.x, mouse_pos.y);
-              tceu__int__int p = { mouse_pos.x, mouse_pos.y };
-              ceu_sys_go(&CEU_APP, CEU_IN_ON_PRIMARY_BUTTON_RELEASED, &p);
-            }
-          }
-          else if (event.button.name == SECONDARY_BUTTON)
-          {
-            if (event.button.state == Input::BUTTON_PRESSED) {
-              //on_secondary_button_press(mouse_pos.x, mouse_pos.y);
-              tceu__int__int p = { mouse_pos.x, mouse_pos.y };
-              ceu_sys_go(&CEU_APP, CEU_IN_ON_SECONDARY_BUTTON_PRESSED, &p);
-            } else if (event.button.state == Input::BUTTON_RELEASED) {
-              //on_secondary_button_release(mouse_pos.x, mouse_pos.y);
-              tceu__int__int p = { mouse_pos.x, mouse_pos.y };
-              ceu_sys_go(&CEU_APP, CEU_IN_ON_SECONDARY_BUTTON_RELEASED, &p);
-            }
-          }
-          break;
-
-        case Input::AXIS_EVENT_TYPE:
-          // AxisEvents can be ignored in the GUI, they are handled elsewhere
-          log_debug("GUIManager: AxisEvent: %1%", event.axis.dir);
-
-          break;
-
-        case Input::KEYBOARD_EVENT_TYPE:
-          if (event.keyboard.state)
-          {
-            //on_key_pressed(event.keyboard);
-          }
-          else
-          {
-            //FIXME: implement this on_key_release(event.keyboard);
-          }
-          break;
-
-        case Input::SCROLLER_EVENT_TYPE:
-          //on_scroller_move(event.scroll.x_delta, event.scroll.y_delta);
-          break;
-
-        default:
-          log_warn("unhandled event type %1%", event.type);
-          break;
-      }
-      Input::Event* p_event = (Input::Event*) &event;
-      ceu_sys_go(&CEU_APP, CEU_IN_ON_INPUT_EVENT, &p_event);
-////
-  }
-
-  ceu_sys_go(&CEU_APP, CEU_IN_SCREENMANAGER_UPDATE, &delta);
+  ceu_sys_go(&CEU_APP, CEU_IN_SCREENMANAGER_UPDATE, &previous_frame_time);
   ceu_sys_go(&CEU_APP, CEU_IN__ASYNC, NULL);    /// TODO: remove
   ceu_sys_go(&CEU_APP, CEU_IN_SCREENMANAGER_DRAW, &display_gc);
 
@@ -262,6 +155,34 @@ ScreenManager::update(float delta, const std::vector<Input::Event>& events)
   }
 
   Display::flip_display();
+}
+////
+
+      // cap the framerate at the desired value
+      // figure out how long this frame took
+      float current_frame_time = float(SDL_GetTicks() - last_ticks) / 1000.0f;
+      // idly delay if this frame didn't last long enough to
+      // achieve <desired_fps> frames per second
+      if (current_frame_time < 1.0f / globals::desired_fps) {
+        Uint32 sleep_time = static_cast<Uint32>(1000 *((1.0f / globals::desired_fps) - current_frame_time));
+        //SDL_Delay(sleep_time);
+      }
+    }
+
+    {
+      static int FRAMES_N      = 0;
+      static int FRAMES_LAST_t = 0;
+      static int FRAMES_LAST_n = 0;
+      int cur = SDL_GetTicks();
+      FRAMES_N++;
+      if (cur >= FRAMES_LAST_t+5000) {
+        FRAMES_LAST_t = cur;
+        int diff = FRAMES_N - FRAMES_LAST_n;
+        ///printf("[5s] %6d FPS=%3d\n", diff, diff/5);
+        FRAMES_LAST_n = FRAMES_N;
+      }
+    }
+  }
 }
 
 ScreenManager* ScreenManager::instance() {

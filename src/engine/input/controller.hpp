@@ -20,6 +20,7 @@
 #include <memory>
 
 #include "engine/input/event.hpp"
+#include "math/vector2i.hpp"
 
 namespace Input {
 
@@ -41,6 +42,7 @@ public:
   static Controller* current();
 
 private:
+  Vector2i mouse_pos;
   // State Stuff
   std::vector<ControllerButton*>   buttons;
   std::vector<ControllerAxis*>     axes;
