@@ -58,9 +58,6 @@ private:
 
   Vector2i mouse_pos;
 
-  bool record_input;
-  bool playback_input;
-
 public:
   ScreenManager(Input::Manager& input_manager,
                 Input::ControllerPtr arg_input_controller);

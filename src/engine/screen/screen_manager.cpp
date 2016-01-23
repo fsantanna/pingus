@@ -53,113 +53,6 @@ FramebufferSurface* load_framebuffer_sdl_surface(const Pathname& filename, Resou
   }
 }
 
-template<class C>
-void write(std::ostream& out, const C& value)
-{
-  out.write(reinterpret_cast<const char*>(&value), sizeof(value));
-}
-
-template<class C>
-void read(std::istream& out, C& value)
-{
-  out.read(reinterpret_cast<char*>(&value), sizeof(value));
-}
-
-void write_events(std::ostream& out, const std::vector<Input::Event>& events)
-{
-  write(out, events.size());
-  for(std::vector<Input::Event>::const_iterator i = events.begin();
-      i != events.end();
-      ++i)
-  {
-    write(out, *i);
-  }
-}
-
-void read_events(std::istream& out, std::vector<Input::Event>& events)
-{
-  std::vector<Input::Event>::size_type len;
-  read(out, len);
-  for(std::vector<Input::Event>::size_type i = 0; i < len; ++i)
-  {
-    Input::Event event;
-    read(out, event);
-    events.push_back(event);
-  }
-}
-
-void read_event(std::istream& out, Input::Event& event)
-{
-  read(out, event.type);
-  switch(event.type)
-  {
-    case Input::BUTTON_EVENT_TYPE:
-      read(out, event.button.name);
-      read(out, event.button.state);
-      break;
-
-    case Input::POINTER_EVENT_TYPE:
-      read(out, event.pointer.name);
-      read(out, event.pointer.x);
-      read(out, event.pointer.y);
-      break;
-
-    case Input::AXIS_EVENT_TYPE:
-      read(out, event.axis.name);
-      read(out, event.axis.dir);
-      break;
-
-    case Input::SCROLLER_EVENT_TYPE:
-      read(out, event.scroll.name);
-      read(out, event.scroll.x_delta);
-      read(out, event.scroll.y_delta);
-      break;
-
-    case Input::KEYBOARD_EVENT_TYPE:
-      read(out, event.keyboard);
-      break;
-
-    default:
-      assert(!"Unknown Event type");
-  }
-}
-
-void write_event(std::ostream& out, const Input::Event& event)
-{
-  write(out, event.type);
-  switch(event.type)
-  {
-    case Input::BUTTON_EVENT_TYPE:
-      write(out, event.button.name);
-      write(out, event.button.state);
-      break;
-
-    case Input::POINTER_EVENT_TYPE:
-      write(out, event.pointer.name);
-      write(out, event.pointer.x);
-      write(out, event.pointer.y);
-      break;
-
-    case Input::AXIS_EVENT_TYPE:
-      write(out, event.axis.name);
-      write(out, event.axis.dir);
-      break;
-
-    case Input::SCROLLER_EVENT_TYPE:
-      write(out, event.scroll.name);
-      write(out, event.scroll.x_delta);
-      write(out, event.scroll.y_delta);
-      break;
-
-    case Input::KEYBOARD_EVENT_TYPE:
-      write(out, event.keyboard);
-      break;
-
-    default:
-      assert(!"Unknown Event type");
-  }
-}
-
 ScreenManager* ScreenManager::instance_ = 0;
 
 ScreenManager::ScreenManager(Input::Manager& arg_input_manager,
@@ -170,9 +63,7 @@ ScreenManager::ScreenManager(Input::Manager& arg_input_manager,
   ///fps_counter(),
   cursor(),
   screens(),
-  mouse_pos(),
-  record_input(false),
-  playback_input(false)
+  mouse_pos()
 {
   assert(instance_ == 0);
   instance_ = this;
@@ -202,20 +93,6 @@ ScreenManager::display()
     events.clear();
 
     // Get time and update Input::Events
-    if (playback_input)
-    {
-      // Get Time
-      read(std::cin, previous_frame_time);
-
-      // Update InputManager so that SDL_QUIT and stuff can be
-      // handled, even if the basic events are taken from record
-      input_manager.update(previous_frame_time);
-      input_controller->clear_events();
-      read_events(std::cin, events);
-
-      dt = previous_frame_time*1000;
-    }
-    else
     {
       // Get Time
       Uint32 ticks = SDL_GetTicks();
@@ -232,12 +109,6 @@ ScreenManager::display()
       s32 dt_us = 1000*dt;
       ceu_out_go(&CEU_APP, CEU_IN__WCLOCK, &dt_us);
       ceu_out_go(&CEU_APP, CEU_IN_SDL_DT,  &dt);
-    }
-
-    if (record_input)
-    {
-      write(std::cerr, previous_frame_time);
-      write_events(std::cerr, events);
     }
 
     if (globals::software_cursor)

@@ -3,6 +3,7 @@
 - TODO: stress test pathfinder
 - TODO: fast_forward p/ WM
 - TODO: draw border p/ WM
+- TODO: read/write inputs (screen_manager)
 - TODO: WM: cavernas nao somem e reaparecem qd o pingus passa por elas
 - BUG: seta do worldmap aparece por baixo do pingus
 - BUG: explosao do pingu nao esta centralizada nele
