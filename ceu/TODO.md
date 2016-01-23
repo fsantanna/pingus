@@ -1,3 +1,4 @@
+- TODO: stress test pathfinder
 - TODO: fast_forward p/ WM
 - TODO: draw border p/ WM
 - TODO: WM: cavernas nao somem e reaparecem qd o pingus passa por elas

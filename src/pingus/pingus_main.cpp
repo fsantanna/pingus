@@ -60,11 +60,6 @@ extern "C" {
 #include "engine/sound/sound.hpp"
 #include "pingus/resource.hpp"
 #include "pingus/savegame_manager.hpp"
-///#include "pingus/screens/credits.hpp"
-///#include "pingus/screens/font_test_screen.hpp"
-///#include "pingus/screens/start_screen.hpp"
-#include "pingus/screens/empty_session.hpp"
-///#include "pingus/screens/story_screen.hpp"
 #include "pingus/stat_manager.hpp"
 
 #include "ceu_vars.h"
@@ -551,17 +546,19 @@ PingusMain::start_game ()
 
   if (cmd_options.editor.is_set() && cmd_options.editor.get())
   { // Editor
+    assert(!"NOT PORTED");
+#if 0
     std::shared_ptr<Editor::EditorScreen> editor = std::make_shared<Editor::EditorScreen>();
     // optionally load a map in the editor if it was given
     if (cmd_options.rest.is_set())
       editor->load(Pathname(cmd_options.rest.get(), Pathname::SYSTEM_PATH));
-
     screen_manager.push_screen(editor);
+#endif
   }
   else
   {
     CommandLineOptions* p = &cmd_options;
-    screen_manager.push_screen(std::make_shared<EmptySession>());
+    //screen_manager.push_screen(std::make_shared<EmptySession>());
     ceu_sys_go(&CEU_APP, CEU_IN_MAIN, &p);
   }
 

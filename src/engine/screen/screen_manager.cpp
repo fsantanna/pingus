@@ -29,6 +29,27 @@
 
 #include "ceu_vars.h"
 
+FramebufferSurface* load_framebuffer_sdl_surface(const Pathname& filename, ResourceModifier::Enum modifier)
+{
+  // FIXME: Implement proper cache
+  try
+  {
+    Surface surface(filename);
+    if (modifier != ResourceModifier::ROT0)
+    {
+      surface = surface.mod(modifier);
+    }
+    return new FramebufferSurface(new SDLFramebufferSurfaceImpl(surface.get_surface()));
+  }
+  catch(const std::exception& err)
+  {
+    // return a dummy surface for cases where the image file can't be found
+    log_error("%1%", err.what());
+    Surface surface(Pathname("images/core/misc/404.png", Pathname::DATA_PATH));
+    return new FramebufferSurface(new SDLFramebufferSurfaceImpl(surface.get_surface()));
+  }
+}
+
 template<class C>
 void write(std::ostream& out, const C& value)
 {
@@ -140,6 +161,7 @@ ScreenManager* ScreenManager::instance_ = 0;
 
 ScreenManager::ScreenManager(Input::Manager& arg_input_manager,
                              Input::ControllerPtr arg_input_controller) :
+  gui_manager(new GUI::GUIManager()),
   input_manager(arg_input_manager),
   input_controller(arg_input_controller),
   display_gc(new DrawingContext()),
@@ -171,7 +193,7 @@ ScreenManager::display()
   float previous_frame_time;
   std::vector<Input::Event> events;
 
-  while (!screens.empty())
+  while (CEU_APP.isAlive)
   {
     Uint32 dt;
 
@@ -259,40 +281,17 @@ ScreenManager::display()
 void
 ScreenManager::update(float delta, const std::vector<Input::Event>& events)
 {
-  ScreenPtr last_screen = get_current_screen();
-
-  // Will be triggered when pop_all_screens() is called by pressing window close button
-  if (!last_screen)
-    return;
-
   for(std::vector<Input::Event>::const_iterator i = events.begin(); i != events.end(); ++i)
   {
     if (i->type == Input::POINTER_EVENT_TYPE && i->pointer.name == Input::STANDARD_POINTER)
       mouse_pos = Vector2i(static_cast<int>(i->pointer.x),
                            static_cast<int>(i->pointer.y));
-
-    last_screen->update(*i);
-
-    if (last_screen != get_current_screen())
-    {
-      fade_over(last_screen, get_current_screen());
-      return;
-    }
+    gui_manager->update(*i);
   }
 
-  last_screen->update(delta);
+  gui_manager->update(delta);
   ceu_sys_go(&CEU_APP, CEU_IN_SCREENMANAGER_UPDATE, &delta);
   ceu_sys_go(&CEU_APP, CEU_IN__ASYNC, NULL);    /// TODO: remove
-
-  if (last_screen != get_current_screen())
-  {
-    fade_over(last_screen, get_current_screen());
-    return;
-  }
-
-  // Draw screen to DrawingContext
-  get_current_screen()->draw(*display_gc);
-
   ceu_sys_go(&CEU_APP, CEU_IN_SCREENMANAGER_DRAW, &display_gc);
 
   // Render the DrawingContext to the screen

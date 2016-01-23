@@ -235,10 +235,6 @@ end
 var _CommandLineOptions&& cmd = await MAIN;
 _cmd = *cmd;
 
-finalize with
-    {ScreenManager::instance()->pop_screen();};
-end;
-
 par/or do
     pause/if go_pause do
         if _cmd.rest.is_set() then
@@ -344,6 +340,7 @@ par/or do
         end
     end
 with
+// OPTIONS
     loop do
         par/or do
             await global:go_options;
