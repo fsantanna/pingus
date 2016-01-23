@@ -22,12 +22,15 @@
 #include "engine/display/drawing_context.hpp"
 #include "engine/display/framebuffer.hpp"
 #include "engine/input/manager.hpp"
+#include "engine/input/event.hpp"
 ///#include "engine/screen/screen.hpp"
 ///#include "pingus/fps_counter.hpp"
 #include "pingus/fonts.hpp"
 #include "pingus/globals.hpp"
 
 #include "ceu_vars.h"
+
+using namespace Input;
 
 FramebufferSurface* load_framebuffer_sdl_surface(const Pathname& filename, ResourceModifier::Enum modifier)
 {
@@ -161,7 +164,6 @@ ScreenManager* ScreenManager::instance_ = 0;
 
 ScreenManager::ScreenManager(Input::Manager& arg_input_manager,
                              Input::ControllerPtr arg_input_controller) :
-  gui_manager(new GUI::GUIManager()),
   input_manager(arg_input_manager),
   input_controller(arg_input_controller),
   display_gc(new DrawingContext()),
@@ -283,13 +285,82 @@ ScreenManager::update(float delta, const std::vector<Input::Event>& events)
 {
   for(std::vector<Input::Event>::const_iterator i = events.begin(); i != events.end(); ++i)
   {
-    if (i->type == Input::POINTER_EVENT_TYPE && i->pointer.name == Input::STANDARD_POINTER)
+    if (i->type == Input::POINTER_EVENT_TYPE && i->pointer.name == Input::STANDARD_POINTER) {
       mouse_pos = Vector2i(static_cast<int>(i->pointer.x),
                            static_cast<int>(i->pointer.y));
-    gui_manager->update(*i);
+    }
+
+////
+      const Input::Event& event = *i;
+      switch (event.type)
+      {
+        case Input::POINTER_EVENT_TYPE:
+          mouse_pos.x = int(event.pointer.x);
+          mouse_pos.y = int(event.pointer.y);
+          //on_pointer_move(mouse_pos.x, mouse_pos.y);
+          {
+            tceu__int__int p = { mouse_pos.x, mouse_pos.y };
+            ceu_sys_go(&CEU_APP, CEU_IN_ON_POINTER_MOVE, &p);
+          }
+          break;
+
+        case Input::BUTTON_EVENT_TYPE:
+          if (event.button.name == PRIMARY_BUTTON)
+          {
+            if (event.button.state == Input::BUTTON_PRESSED) {
+              //on_primary_button_press(mouse_pos.x, mouse_pos.y);
+              tceu__int__int p = { mouse_pos.x, mouse_pos.y };
+              ceu_sys_go(&CEU_APP, CEU_IN_ON_PRIMARY_BUTTON_PRESSED, &p);
+            } else if (event.button.state == Input::BUTTON_RELEASED) {
+              //on_primary_button_release(mouse_pos.x, mouse_pos.y);
+              tceu__int__int p = { mouse_pos.x, mouse_pos.y };
+              ceu_sys_go(&CEU_APP, CEU_IN_ON_PRIMARY_BUTTON_RELEASED, &p);
+            }
+          }
+          else if (event.button.name == SECONDARY_BUTTON)
+          {
+            if (event.button.state == Input::BUTTON_PRESSED) {
+              //on_secondary_button_press(mouse_pos.x, mouse_pos.y);
+              tceu__int__int p = { mouse_pos.x, mouse_pos.y };
+              ceu_sys_go(&CEU_APP, CEU_IN_ON_SECONDARY_BUTTON_PRESSED, &p);
+            } else if (event.button.state == Input::BUTTON_RELEASED) {
+              //on_secondary_button_release(mouse_pos.x, mouse_pos.y);
+              tceu__int__int p = { mouse_pos.x, mouse_pos.y };
+              ceu_sys_go(&CEU_APP, CEU_IN_ON_SECONDARY_BUTTON_RELEASED, &p);
+            }
+          }
+          break;
+
+        case Input::AXIS_EVENT_TYPE:
+          // AxisEvents can be ignored in the GUI, they are handled elsewhere
+          log_debug("GUIManager: AxisEvent: %1%", event.axis.dir);
+
+          break;
+
+        case Input::KEYBOARD_EVENT_TYPE:
+          if (event.keyboard.state)
+          {
+            //on_key_pressed(event.keyboard);
+          }
+          else
+          {
+            //FIXME: implement this on_key_release(event.keyboard);
+          }
+          break;
+
+        case Input::SCROLLER_EVENT_TYPE:
+          //on_scroller_move(event.scroll.x_delta, event.scroll.y_delta);
+          break;
+
+        default:
+          log_warn("unhandled event type %1%", event.type);
+          break;
+      }
+      Input::Event* p_event = (Input::Event*) &event;
+      ceu_sys_go(&CEU_APP, CEU_IN_ON_INPUT_EVENT, &p_event);
+////
   }
 
-  gui_manager->update(delta);
   ceu_sys_go(&CEU_APP, CEU_IN_SCREENMANAGER_UPDATE, &delta);
   ceu_sys_go(&CEU_APP, CEU_IN__ASYNC, NULL);    /// TODO: remove
   ceu_sys_go(&CEU_APP, CEU_IN_SCREENMANAGER_DRAW, &display_gc);

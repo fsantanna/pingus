@@ -23,7 +23,6 @@
 #include "engine/input/controller.hpp"
 #include "engine/display/sprite.hpp"
 #include "math/vector2f.hpp"
-#include "engine/gui/gui_manager.hpp"
 
 namespace Input {
 class Manager;
@@ -42,7 +41,6 @@ class ScreenManager
 {
 private:
   static ScreenManager* instance_;
-  std::unique_ptr<GUI::GUIManager> gui_manager;
 
 private:
   Input::Manager& input_manager;
