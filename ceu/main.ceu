@@ -41,6 +41,7 @@ native @nohold _delete(), _sscanf(), _log_error(), _log_info(), __();
                        until ptr == &&this.me; \
     end
 
+input void SDL_REDRAW;
 input int SDL_DT;
 input void SDL_QUIT;
 input _CommandLineOptions&& MAIN;
@@ -386,18 +387,28 @@ void ScreenManager::show_software_cursor(bool visible) {
 #endif
 
     var FPSCounter _;
-    every gc in SCREENMANAGER_DRAW do
+    every SDL_REDRAW do
         if {globals::developer_mode} then
+            var int height;
             if {globals::print_fps} then
-                gc:print_center({Fonts::pingus_small},
-                                _Vector2i({Display::get_width()}/2, 60),
-                                "Developer Mode");
+                height = 60;
             else
-                gc:print_center({Fonts::pingus_small},
-                                _Vector2i({Display::get_width()}/2, 35),
-                                "Developer Mode");
+                height = 35;
             end
+            call {Fonts::pingus_small}.render(
+                _origin_top_center,
+                {Display::get_width()}/2, height,
+                "Developer Mode",
+                *{Display::s_framebuffer}
+            );
         end
+    end
+with
+    every SDL_REDRAW do
+        call {Display::s_framebuffer}:draw_rect(
+            _Rect(100,100,200,200),
+            _Color(255,255,255,255)
+        );
     end
 end
 
