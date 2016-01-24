@@ -20,7 +20,6 @@
 #include <memory>
 #include <vector>
 
-#include "engine/input/controller.hpp"
 #include "engine/display/sprite.hpp"
 #include "math/vector2f.hpp"
 
@@ -41,13 +40,10 @@ class ScreenManager
 {
 private:
   static ScreenManager* instance_;
-  Input::Manager& input_manager;
-  Input::ControllerPtr input_controller;
   std::unique_ptr<DrawingContext> display_gc;
 
 public:
-  ScreenManager(Input::Manager& input_manager,
-                Input::ControllerPtr arg_input_controller);
+  ScreenManager();
   ~ScreenManager();
   void resize(const Size& size);
   void display();

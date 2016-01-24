@@ -18,16 +18,16 @@
 
 #include <iostream>
 
+#include "engine/input/event.hpp"
 #include "engine/display/display.hpp"
 #include "engine/display/drawing_context.hpp"
 #include "engine/display/framebuffer.hpp"
-#include "engine/input/manager.hpp"
-#include "engine/input/event.hpp"
-///#include "engine/screen/screen.hpp"
 #include "pingus/fonts.hpp"
 #include "pingus/globals.hpp"
 
 #include "ceu_vars.h"
+
+extern void SDLDriver_update (float delta);
 
 FramebufferSurface* load_framebuffer_sdl_surface(const Pathname& filename, ResourceModifier::Enum modifier)
 {
@@ -52,10 +52,7 @@ FramebufferSurface* load_framebuffer_sdl_surface(const Pathname& filename, Resou
 
 ScreenManager* ScreenManager::instance_ = 0;
 
-ScreenManager::ScreenManager(Input::Manager& arg_input_manager,
-                             Input::ControllerPtr arg_input_controller) :
-  input_manager(arg_input_manager),
-  input_controller(arg_input_controller),
+ScreenManager::ScreenManager():
   display_gc(new DrawingContext())
 {
   assert(instance_ == 0);
@@ -83,9 +80,7 @@ ScreenManager::display()
       previous_frame_time  = float(ticks - last_ticks)/1000.0f;
       dt = ticks - last_ticks;
       last_ticks = ticks;
-
-      // Update InputManager and get Events
-      input_manager.update(previous_frame_time);
+      SDLDriver_update(previous_frame_time);
     }
 
     {

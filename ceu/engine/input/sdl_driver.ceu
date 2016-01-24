@@ -9,6 +9,57 @@ input _SDL_KeyboardEvent&& SDL_KEYUP;
 
 native @plain _SDL_MouseButtonEvent, _SDL_MouseMotionEvent, _SDL_KeyboardEvent;
 
+native do
+
+void SDLDriver_update (float delta) {
+  SDL_Event event;
+  while (SDL_PollEvent(&event))
+  {
+    void* p = &event;
+    switch(event.type)
+    {
+      case SDL_QUIT:
+        ceu_sys_go(&CEU_APP, CEU_IN_SDL_QUIT, NULL);
+        break;
+
+      case SDL_MOUSEMOTION:
+        ceu_sys_go(&CEU_APP, CEU_IN_SDL_MOUSEMOTION, &p);
+        break;
+      case SDL_MOUSEBUTTONDOWN:
+        ceu_sys_go(&CEU_APP, CEU_IN_SDL_MOUSEBUTTONDOWN, &p);
+        break;
+      case SDL_MOUSEBUTTONUP:
+        ceu_sys_go(&CEU_APP, CEU_IN_SDL_MOUSEBUTTONUP, &p);
+        break;
+
+      case SDL_VIDEORESIZE:
+        //Display::resize(Size(event.resize.w, event.resize.h));
+        break;
+
+      case SDL_KEYDOWN:
+        //global_event.on_button_press(event.key);
+        ceu_sys_go(&CEU_APP, CEU_IN_SDL_KEYDOWN, &p);
+        break;
+      case SDL_KEYUP:
+        //global_event.on_button_release(event.key);
+        ceu_sys_go(&CEU_APP, CEU_IN_SDL_KEYUP, &p);
+        break;
+
+      case SDL_JOYAXISMOTION:
+      case SDL_JOYBUTTONDOWN:
+      case SDL_JOYBUTTONUP:
+        // TODO
+        break;
+
+      default:
+        // FIXME: Do something with other events
+        break;
+    }
+  }
+}
+end
+
+
 class SDL_Driver with
 do
     par do

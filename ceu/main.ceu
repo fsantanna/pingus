@@ -1,6 +1,7 @@
 #include "c.ceu"
 
 native/pre do
+    ##include "engine/input/event.hpp"
     ##define private public
     ##define protected public
 

@@ -1,4 +1,4 @@
-- TODO: configuration of input events
+- TODO: configuration of input events, input controller cmd-line opt
 - TODO: cursor
 - TODO: fade effects
 - TODO: resize

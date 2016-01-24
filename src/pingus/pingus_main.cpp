@@ -19,9 +19,6 @@
 #include <iostream>
 #include <signal.h>
 
-//#include "editor/editor_level.hpp"
-//#include "editor/editor_screen.hpp"
-#include "engine/input/manager.hpp"
 #include "engine/system/sdl_system.hpp"
 #include "pingus/config_manager.hpp"
 #include "util/log.hpp"
@@ -528,21 +525,17 @@ PingusMain::print_greeting_message()
 void
 PingusMain::start_game ()
 {
-  Input::Manager input_manager;
-  Input::ControllerPtr input_controller;
-
-  if (!cmd_options.controller.is_set())
-  {
+#if 0
+  if (!cmd_options.controller.is_set()) {
     input_controller = input_manager.create_controller(Pathname("controller/default.scm",
                                                                 Pathname::DATA_PATH));
-  }
-  else
-  {
+  } else {
     input_controller = input_manager.create_controller(Pathname(cmd_options.controller.get(),
                                                                 Pathname::SYSTEM_PATH));
   }
+#endif
 
-  ScreenManager  screen_manager(input_manager, input_controller);
+  ScreenManager screen_manager;
 
   if (cmd_options.editor.is_set() && cmd_options.editor.get())
   { // Editor
