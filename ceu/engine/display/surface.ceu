@@ -21,6 +21,7 @@ class Surface with
     var char&&                  name    = null;
 
     function (@hold char&& name)=>Surface build;
+    function (void)=>_FramebufferSurface& get_framebuffer_surface;
 do
     function (@hold char&& name)=>Surface build do
         this.name := name;
@@ -62,6 +63,9 @@ do
     end
     function (void)=>int get_height do
         return framebuffer_surface!.get_height();
+    end
+    function (void)=>_FramebufferSurface& get_framebuffer_surface do
+        return &framebuffer_surface!;
     end
 end
 

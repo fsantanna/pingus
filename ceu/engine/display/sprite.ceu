@@ -128,9 +128,17 @@ _assert(not "ERR");
         end
     with
         /* DRAW */
-        every gc in SCREENMANAGER_DRAW do
-            gc:draw(&&this, _Vector2i(this.rect.left,this.rect.top))
-                finalize with nothing; end;
+        every REDRAW do
+            call {Display::s_framebuffer}:draw_surface(
+                this.sfc.get_framebuffer_surface(),
+                _Rect(
+                    _Vector2i(this.frame_pos.x,this.frame_pos.y) +
+                        _Vector2i(this.frame_size.width  * (this.frame%this.array.width),
+                                  this.frame_size.height * (this.frame/this.array.width)),
+                    _Size(this.frame_size.width,this.frame_size.height)),
+                _Vector2i(this.rect.left - this.offset.x,
+                          this.rect.top  - this.offset.y)
+            );
         end
     end
 
