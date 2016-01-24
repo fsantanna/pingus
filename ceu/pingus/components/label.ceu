@@ -11,11 +11,14 @@ do
         this.rect  = rect;
     end
 
-    every gc in SCREENMANAGER_DRAW do
-        gc:print_left({Fonts::chalk_normal},
-                      _Vector2i(this.rect.left, this.rect.top),
-                      &&this.label)
-            finalize with nothing; end;
+    every REDRAW do
+        call {Fonts::chalk_normal}.render(
+            _origin_top_left,
+            this.rect.left,
+            this.rect.top,
+            &&this.label,
+            *{Display::s_framebuffer}
+        ) finalize with end;
     end
 end
 

@@ -16,16 +16,13 @@ do
         this.rect = &outer.rect;
     end;
 
-    var float x = rect.left;
-    var float y = rect.top;
-
     loop do
         if this.is_on then
-            var Sprite _ = Sprite.w_xy_name(false, &x,&y, "core/menu/checkbox_marked_small");
+            var SpriteR _ = SpriteR.build_name(&rect, "core/menu/checkbox_marked_small");
             await component.on_primary_button_pressed;
             is_on = false;
         else
-            var Sprite _ = Sprite.w_xy_name(false, &x,&y, "core/menu/checkbox_small");
+            var SpriteR _ = SpriteR.build_name(&rect, "core/menu/checkbox_small");
             await component.on_primary_button_pressed;
             is_on = true;
         end

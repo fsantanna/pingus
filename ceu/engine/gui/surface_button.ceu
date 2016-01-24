@@ -17,8 +17,8 @@ do
     var char[] b_pressed = []..button_pressed;
     var char[] b_over    = []..button_over;
 
-    var Sprite sprite = Sprite.w_xy_name(false, &x,&y, _XXX_PURE(&&b));
-    var Rect rect = Rect(x, y, sprite.get_width(), sprite.get_height());
+    var Rect rect = Rect(x, y, 0, 0);
+    var SpriteR sprite = SpriteR.build_name(&rect, _XXX_PURE(&&b));
     var RectComponent component with
         this.rect = &rect;
     end;
@@ -26,16 +26,16 @@ do
 
     loop do
         do
-            var Sprite _ = Sprite.w_xy_name(false, &x,&y, _XXX_PURE(&&b));
+            var SpriteR _ = SpriteR.build_name(&rect, _XXX_PURE(&&b));
             await component.on_pointer_enter;
         end
         watching component.on_pointer_leave do
             loop do
                 do
-                    var Sprite _ = Sprite.w_xy_name(false, &x,&y, _XXX_PURE(&&b_over));
+                    var SpriteR _ = SpriteR.build_name(&rect, _XXX_PURE(&&b_over));
                     await component.on_primary_button_pressed;
                 end
-                var Sprite _ = Sprite.w_xy_name(false, &x,&y, _XXX_PURE(&&b_pressed));
+                var SpriteR _ = SpriteR.build_name(&rect, _XXX_PURE(&&b_pressed));
                 await ON_PRIMARY_BUTTON_RELEASED;
             end
         end

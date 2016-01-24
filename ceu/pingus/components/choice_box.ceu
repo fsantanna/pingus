@@ -14,11 +14,14 @@ do
 
     par do
         pause/if this.go_pause do
-            every gc in SCREENMANAGER_DRAW do
-                gc:print_center({Fonts::chalk_normal},
-                                _Vector2i(rect.left + rect.width/2, rect.top),
-                                &&this.value)
-                    finalize with end;
+            every REDRAW do
+                call {Fonts::chalk_normal}.render(
+                    _origin_top_center,
+                    rect.left + rect.width/2,
+                    rect.top,
+                    &&this.value,
+                    *{Display::s_framebuffer}
+                ) finalize with end;
             end
         end
     with
@@ -66,18 +69,27 @@ do
             end
         end
     with
-        every gc in SCREENMANAGER_DRAW do
+        every REDRAW do
             if {globals::developer_mode} then
-                gc:draw_rect(_Rect(rect.left,rect.width,rect.width,rect.height),
-                             _Color(0, 255, 255));
+                call {Display::s_framebuffer}:draw_rect(
+                    _Rect(rect.left,rect.width,rect.width,rect.height),
+                    _Color(0, 255, 255)
+                );
             end
-
-            gc:print_left({Fonts::chalk_normal},
-                          _Vector2i(rect.left, rect.top),
-                          "<");
-            gc:print_right({Fonts::chalk_normal},
-                           _Vector2i(rect.left+rect.width, rect.top),
-                           ">");
+            call {Fonts::chalk_normal}.render(
+                _origin_top_left,
+                rect.left,
+                rect.top,
+                "<",
+                *{Display::s_framebuffer}
+            );
+            call {Fonts::chalk_normal}.render(
+                _origin_top_right,
+                rect.left+rect.width,
+                rect.top,
+                ">",
+                *{Display::s_framebuffer}
+            );
         end
     end
 end
