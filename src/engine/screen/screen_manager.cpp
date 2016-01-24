@@ -99,15 +99,16 @@ ScreenManager::display()
     {
 ////
 {
-  ceu_sys_go(&CEU_APP, CEU_IN__ASYNC, NULL);    /// TODO: remove
   ceu_sys_go(&CEU_APP, CEU_IN_SCREENMANAGER_DRAW, &display_gc);
 
   // Render the DrawingContext to the screen
   display_gc->render(*Display::get_framebuffer(), Rect(Vector2i(0,0), Size(Display::get_width(),
                                                                            Display::get_height())));
-  display_gc->clear();
   ceu_sys_go(&CEU_APP, CEU_IN_SDL_REDRAW, NULL);
+  ceu_sys_go(&CEU_APP, CEU_IN__ASYNC, NULL);    /// TODO: remove
+  ceu_sys_go(&CEU_APP, CEU_IN__ASYNC, NULL);    /// TODO: remove
 
+  display_gc->clear();
   Display::flip_display();
 }
 ////

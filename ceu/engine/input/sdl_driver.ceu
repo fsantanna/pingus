@@ -75,7 +75,7 @@ do
     with
         every SDL_REDRAW do
             async do
-                emit QUIT;
+                emit REDRAW;
             end
         end
     with
