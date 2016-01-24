@@ -71,7 +71,7 @@ do
 
             watching ON_SECONDARY_BUTTON_RELEASED do
                 par do
-                    every SDL_DT do
+                    every DELTA do
                         // FIXME: This should be delta dependant
                         if {globals::drag_drop_scrolling} then
                             global:world!:get_state().set_pos(
@@ -125,7 +125,7 @@ do
             // having current_pingu&&? is not enough because it can die and 
             // clear the variable
 
-        every SDL_DT do
+        every DELTA do
             var Position pos = Position(
                                 global:world!:get_state().screen2world(POS2VEC(this.mouse_pos)).x,
                                 global:world!:get_state().screen2world(POS2VEC(this.mouse_pos)).y
@@ -158,7 +158,7 @@ do
             end
         end
     with
-        every v in SDL_DT do
+        every v in DELTA do
             var float dt = ((float)v)/1000;
             if ({globals::auto_scrolling} and
                 ({Display::is_fullscreen()} or 

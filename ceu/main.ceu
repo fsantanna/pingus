@@ -41,9 +41,9 @@ native @nohold _delete(), _sscanf(), _log_error(), _log_info(), __();
                        until ptr == &&this.me; \
     end
 
-input void SDL_REDRAW;
-input int SDL_DT;
-input void SDL_QUIT;
+input void QUIT;
+input void REDRAW;
+input int  DELTA;
 input _CommandLineOptions&& MAIN;
 
 input (int,int) ON_POINTER_MOVE;
@@ -238,7 +238,7 @@ var _CommandLineOptions&& cmd = await MAIN;
 _cmd = *cmd;
 
 par/or do
-    await SDL_QUIT;
+    await QUIT;
 with
     pause/if go_pause do
         if _cmd.rest.is_set() then
@@ -387,7 +387,7 @@ void ScreenManager::show_software_cursor(bool visible) {
 #endif
 
     var FPSCounter _;
-    every SDL_REDRAW do
+    every REDRAW do
         if {globals::developer_mode} then
             var int height;
             if {globals::print_fps} then
@@ -404,7 +404,7 @@ void ScreenManager::show_software_cursor(bool visible) {
         end
     end
 with
-    every SDL_REDRAW do
+    every REDRAW do
         call {Display::s_framebuffer}:draw_rect(
             _Rect(100,100,200,200),
             _Color(255,255,255,255)

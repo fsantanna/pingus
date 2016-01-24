@@ -1,6 +1,10 @@
 #ifndef _SDL_DRIVER
 #define _SDL_DRIVER
 
+input void SDL_QUIT;
+input void SDL_REDRAW;
+input int  SDL_DT;
+
 input _SDL_MouseButtonEvent&& SDL_MOUSEBUTTONDOWN;
 input _SDL_MouseButtonEvent&& SDL_MOUSEBUTTONUP;
 input _SDL_MouseMotionEvent&& SDL_MOUSEMOTION;
@@ -63,6 +67,24 @@ end
 class SDL_Driver with
 do
     par do
+        every SDL_QUIT do
+            async do
+                emit QUIT;
+            end
+        end
+    with
+        every SDL_REDRAW do
+            async do
+                emit QUIT;
+            end
+        end
+    with
+        every dt in SDL_DT do
+            async (dt) do
+                emit DELTA => dt;
+            end
+        end
+    with
         every e in SDL_MOUSEBUTTONDOWN do
             var _SDL_MouseButtonEvent but = *e;
             async (but) do

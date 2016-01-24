@@ -102,7 +102,7 @@ _assert(not "ERR");
                     await WORLD_UPDATE;
                     dt = 0.033;   // TODO
                 else
-                    var int v = await SDL_DT;
+                    var int v = await DELTA;
                     dt = ((float)v)/1000;
                 end
                 if this.frame_delay == 0 then
@@ -245,7 +245,7 @@ do
                     await WORLD_UPDATE;
                     dt = 0.033;   // TODO
                 else
-                    var int v = await SDL_DT;
+                    var int v = await DELTA;
                     dt = ((float)v)/1000;
                 end
                 if this.frame_delay == 0 then

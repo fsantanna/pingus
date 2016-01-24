@@ -96,7 +96,7 @@ do
         end
     with
         loop do
-            var int v    = await SDL_DT;
+            var int v    = await DELTA;
             var float dt = ((float)v)/1000;
             if is_fast_scrolling then
                 offset = offset - 450*dt;

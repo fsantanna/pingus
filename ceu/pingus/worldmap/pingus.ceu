@@ -23,7 +23,7 @@ class MovePath with
 do
     var float velocity = 70;
     loop do
-        var int v    = await SDL_DT;
+        var int v    = await DELTA;
         var float dt = ((float)v)/1000;
         // Update the edge_path_position
         cur = cur + velocity * dt;
@@ -79,7 +79,7 @@ do
     end;
 
     par do
-        every SDL_DT do
+        every DELTA do
             this.pos_x = this.pos.x;
             this.pos_y = this.pos.y;
         end

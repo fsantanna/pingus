@@ -46,7 +46,7 @@ do
         end;
 
         loop do
-            var int v    = await SDL_DT;
+            var int v    = await DELTA;
             var float dt = ((float)v)/1000;
             update_count = update_count + dt;
             if update_count > smallmap_update_time then

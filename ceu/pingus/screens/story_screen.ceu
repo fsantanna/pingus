@@ -65,7 +65,7 @@ do
                 var float time = 0;
                 watching next_text do
                     loop do
-                        var int v    = await SDL_DT;
+                        var int v    = await DELTA;
                         var float dt = ((float)v)/1000;
                         time = time + dt;
                         var int cur = 20*time;

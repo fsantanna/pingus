@@ -15,7 +15,7 @@ do
     end
 
     loop do
-        await SDL_DT;
+        await DELTA;
         if counter.number_of_allowed==counter.number_of_released and counter.number_of_alive==0 then
             //goal = GT_NO_PINGUS_IN_WORLD;
             break;
@@ -30,7 +30,7 @@ do
         end
     end
     var int exit_time = game_time + 125;
-    await SDL_DT until exit_time < game_time;
+    await DELTA until exit_time < game_time;
 end
 
 #endif

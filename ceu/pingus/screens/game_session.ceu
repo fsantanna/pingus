@@ -50,7 +50,7 @@ do
         await world;
     with
         var int world_delay = 0; // the world is initially on time
-        every v in SDL_DT do
+        every v in DELTA do
             var float dt = ((float)v)/1000;
 
             // how much time we have to account for while doing world updates

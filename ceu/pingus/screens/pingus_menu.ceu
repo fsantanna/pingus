@@ -27,7 +27,7 @@ do
     var Surface s5 = Surface.build("core/menu/layer5");
 
     par do
-        every v in SDL_DT do
+        every v in DELTA do
             var float dt = ((float)v)/1000;
             x1 = {Math::mod}(x1+ 12*dt, {Display::get_width()});
             x2 = {Math::mod}(x2+ 25*dt, {Display::get_width()});
