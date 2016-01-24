@@ -7,19 +7,21 @@ class Wood with
 do
     var Surface sfc = Surface.build("core/menu/wood");
 
-    every gc in SCREENMANAGER_DRAW do
+    every REDRAW do
         var int y = 0;
         loop do
-            if y >= gc:get_height() then
+            if y >= {Display::get_height()} then
                 break;
             end
             var int x = 0;
             loop do
-                if x >= gc:get_width() then
+                if x >= {Display::get_width()} then
                     break;
                 end
-                gc:draw(&&sfc, _Vector2i(x, y))
-                    finalize with end;
+                call {Display::s_framebuffer}:draw_surface(
+                    this.sfc.get_framebuffer_surface(),
+                    _Vector2i(x, y)
+                );
                 x = x + sfc.get_width();
             end
             y = y + sfc.get_height();
