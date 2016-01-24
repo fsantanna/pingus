@@ -25,23 +25,26 @@ end
 
 class OptionMenu with
 do
-    var float x = {Display::get_width()}  / 2;
-    var float y = {Display::get_height()} / 2;
+    var Rect rect = Rect(
+        {Display::get_width()}  / 2,
+        {Display::get_height()} / 2,
+        0, 0
+    );
 
     var Wood _;
-    var Sprite _ = Sprite.w_xy_name(false, &x,&y, "core/menu/blackboard");
+    var SpriteR _ = SpriteR.build_name(&rect, "core/menu/blackboard");
 
     var int x_offset = ({Display::get_width()}  - 800) / 2;
     var int y_offset = ({Display::get_height()} - 600) / 2;
 
     var int yy = 140 + y_offset;
-    var Rect rect = Rect(80+x_offset, yy, 320, 32);
+    var Rect r0 = Rect(80+x_offset, yy, 320, 32);
 
     // LEFT OPTIONS //
 
     // Fullscreen
-    var Rect r11 = Rect(rect.left,   rect.top, 32,32);
-    var Rect r12 = Rect(rect.left+40,rect.top, 32,32);
+    var Rect r11 = Rect(r0.left,   r0.top, 32,32);
+    var Rect r12 = Rect(r0.left+40,r0.top, 32,32);
     var CheckBox b1 = CheckBox.build(r11, _config_manager.get_fullscreen());
     var Label _ = Label.build("Fullscreen", r12);
     spawn do
@@ -50,11 +53,11 @@ do
         end
     end
 
-    rect.top = rect.top + 32;
+    r0.top = r0.top + 32;
 
     // Mouse Grab
-    var Rect r21 = Rect(rect.left,   rect.top, 32,32);
-    var Rect r22 = Rect(rect.left+40,rect.top, 32,32);
+    var Rect r21 = Rect(r0.left,   r0.top, 32,32);
+    var Rect r22 = Rect(r0.left+40,r0.top, 32,32);
     var CheckBox b2 = CheckBox.build(r21, _config_manager.get_mouse_grab());
     var Label _ = Label.build("Mouse Grab", r22);
     spawn do
@@ -63,12 +66,12 @@ do
         end
     end
 
-    rect.top = rect.top + 32;
-    rect.top = rect.top + 32;
+    r0.top = r0.top + 32;
+    r0.top = r0.top + 32;
 
     // Software Cursor
-    var Rect r31 = Rect(rect.left,   rect.top, 32,32);
-    var Rect r32 = Rect(rect.left+40,rect.top, 32,32);
+    var Rect r31 = Rect(r0.left,   r0.top, 32,32);
+    var Rect r32 = Rect(r0.left+40,r0.top, 32,32);
     var CheckBox b3 = CheckBox.build(r31, _config_manager.get_software_cursor());
     var Label _ = Label.build("Software Cursor", r32);
     spawn do
@@ -77,11 +80,11 @@ do
         end
     end
 
-    rect.top = rect.top + 32;
+    r0.top = r0.top + 32;
 
     // Auto Scrolling
-    var Rect r41 = Rect(rect.left,   rect.top, 32,32);
-    var Rect r42 = Rect(rect.left+40,rect.top, 32,32);
+    var Rect r41 = Rect(r0.left,   r0.top, 32,32);
+    var Rect r42 = Rect(r0.left+40,r0.top, 32,32);
     var CheckBox b4 = CheckBox.build(r41, _config_manager.get_auto_scrolling());
     var Label _ = Label.build("Autoscrolling", r42);
     spawn do
@@ -90,11 +93,11 @@ do
         end
     end
 
-    rect.top = rect.top + 32;
+    r0.top = r0.top + 32;
 
     // Drag & Drop Scrolling
-    var Rect r51 = Rect(rect.left,   rect.top, 32,32);
-    var Rect r52 = Rect(rect.left+40,rect.top, 32,32);
+    var Rect r51 = Rect(r0.left,   r0.top, 32,32);
+    var Rect r52 = Rect(r0.left+40,r0.top, 32,32);
     var CheckBox b5 = CheckBox.build(r51, _config_manager.get_drag_drop_scrolling());
     var Label _ = Label.build("Drag&Drop Scrolling", r52);
     spawn do
@@ -103,12 +106,12 @@ do
         end
     end
 
-    rect.top = rect.top + 32;
-    rect.top = rect.top + 32;
+    r0.top = r0.top + 32;
+    r0.top = r0.top + 32;
 
     // Print FPS
-    var Rect r61 = Rect(rect.left,   rect.top, 32,32);
-    var Rect r62 = Rect(rect.left+40,rect.top, 32,32);
+    var Rect r61 = Rect(r0.left,   r0.top, 32,32);
+    var Rect r62 = Rect(r0.left+40,r0.top, 32,32);
     var CheckBox b6 = CheckBox.build(r61, _config_manager.get_print_fps());
     var Label _ = Label.build("Print FPS", r62);
     spawn do
@@ -119,10 +122,10 @@ do
 
     // RIGHT OPTIONS //
 
-    var Rect left  = Rect(rect.left+320,         yy,
-                          rect.width-180,        rect.height);
-    var Rect right = Rect(rect.left+320+140,     yy,
-                          rect.width-left.width, rect.height);
+    var Rect left  = Rect(r0.left+320,         yy,
+                          r0.width-180,        r0.height);
+    var Rect right = Rect(r0.left+320+140,     yy,
+                          r0.width-left.width, r0.height);
 
     // Resolution
     var Label _ = Label.build("Resolution", left);
@@ -324,21 +327,30 @@ do
             await ON_BUTTON_PRESSED
             until but:name  == {Input::ESCAPE_BUTTON};
     with
-        every gc in SCREENMANAGER_DRAW do
-            gc:print_center({Fonts::chalk_large},
-                            _Vector2i(gc:get_width()/2,
-                                      gc:get_height()/2 - 240),
-                            __("Option Menu"));
+        every REDRAW do
+            call {Fonts::chalk_large}.render(
+                _origin_top_center,
+                {Display::get_width()}/2,
+                {Display::get_height()}/2 - 240,
+                __("Option Menu"),
+                *{Display::s_framebuffer}
+            );
 
-            gc:print_center({Fonts::chalk_normal},
-                            _Vector2i(gc:get_width()/2 + 245 + 30,
-                                      gc:get_height()/2 + 150 - 20),
-                            __("Close"));
+            call {Fonts::chalk_normal}.render(
+                _origin_top_center,
+                {Display::get_width()}/2  + 245 + 30,
+                {Display::get_height()}/2 + 150 - 20,
+                __("Close"),
+                *{Display::s_framebuffer}
+            );
 
-            gc:print_left({Fonts::chalk_normal},
-                          _Vector2i(gc:get_width()/2 - 320,
-                                    gc:get_height()/2 + 200),
-                          __("Some options require a restart of the game to take effect."));
+            call {Fonts::chalk_normal}.render(
+                _origin_top_left,
+                {Display::get_width()}/2  - 320,
+                {Display::get_height()}/2 + 200,
+                __("Some options require a restart of the game to take effect."),
+                *{Display::s_framebuffer}
+            );
         end
     end
 
