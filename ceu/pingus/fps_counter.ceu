@@ -28,15 +28,21 @@ do
         end
     with
         loop do
-            var _DrawingContext&& gc = await SCREENMANAGER_DRAW;
+            await REDRAW;
             if {globals::print_fps} then
-                gc:print_center({Fonts::pingus_small},
-                                _Vector2i({Display::get_width()}/2, 35),
-                                _fps_string);
-                gc = await SCREENMANAGER_DRAW;
-                gc:print_center({Fonts::pingus_small},
-                                _Vector2i({Display::get_width()}/2, 35),
-                                { "+ " + fps_string + " +"});
+                call {Fonts::pingus_small}.render(
+                    _origin_top_center,
+                    {Display::get_width()}/2, 35,
+                    _fps_string,
+                    *{Display::s_framebuffer}
+                );
+                await REDRAW;
+                call {Fonts::pingus_small}.render(
+                    _origin_top_center,
+                    {Display::get_width()}/2, 35,
+                    { "+ " + fps_string + " +"},
+                    *{Display::s_framebuffer}
+                );
             end
         end
     end
