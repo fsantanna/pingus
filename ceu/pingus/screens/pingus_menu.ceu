@@ -36,7 +36,7 @@ do
             x5 = {Math::mod}(x5+200*dt, {Display::get_width()});
         end
     with
-        every gc in SCREENMANAGER_DRAW do
+        every REDRAW do
             call {Display::s_framebuffer}:draw_surface(
                 s1.get_framebuffer_surface(),
                 _Vector2i(x1, y1)

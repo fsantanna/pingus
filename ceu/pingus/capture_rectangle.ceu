@@ -117,20 +117,25 @@ do
             end
         end
     with
-        every sc in SCREENMANAGER_DRAW do
+        every REDRAW do
             if not this.playfield.current_pingu? then
                 continue;
             end
             var IPingu&& pingu = this.playfield.current_pingu!;
 
             if ({ActionName::CATCHABLE}[pingu:current_action]) then
-                global:world!:get_scene_context().color().print_center(
-                            {Fonts::courier_small},
-                            _Vector2i((int)(pingu:get_center_pos().x),
-                                      (int)(pingu:get_center_pos().y - 46)),
-                            &&action_str,
-                            1000)
-                    finalize with nothing; end; // print_center() is @nohold
+                var int xx = global:world!:get_state().get_pos().x -
+                             global:world!:get_state().get_width()/2;
+                var int yy = global:world!:get_state().get_pos().y -
+                             global:world!:get_state().get_height()/2;
+
+                call {Fonts::courier_small}.render(
+                    _origin_top_center,
+                    -xx + pingu:get_center_pos().x,
+                    -yy + pingu:get_center_pos().y - 46,
+                    &&action_str,
+                    *{Display::s_framebuffer}
+                ) finalize with nothing; end;
             end
         end
     end

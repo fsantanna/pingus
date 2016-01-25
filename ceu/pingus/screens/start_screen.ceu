@@ -69,54 +69,90 @@ do
             end
         end
     with
-        every gc in SCREENMANAGER_DRAW do
-            var int left_x  = gc:get_width()/2 - 150;
-            var int right_x = gc:get_width()/2 + 150;
-            var int y = gc:get_height()/2 + 40;
+        every REDRAW do
+            var int left_x  = {Display::get_width()}/2 - 150;
+            var int right_x = {Display::get_width()}/2 + 150;
+            var int y = {Display::get_height()}/2 + 40;
 
             // cancel button
-            gc:print_center({Fonts::chalk_normal},
-                            _Vector2i(cancel.x+55, cancel.y),
-                            __("Back"));
+            call {Fonts::chalk_normal}.render(
+                _origin_top_center,
+                cancel.x+55, cancel.y,
+                __("Back"),
+                *{Display::s_framebuffer}
+            );
 
-            gc:print_center({Fonts::chalk_large},
-                            _Vector2i(gc:get_width() /2,
-                                      gc:get_height()/2 - 230),
-                            __(plf.get_levelname()));
-
-            gc:print_left({Fonts::chalk_normal},
-                            _Vector2i(gc:get_width() /2 - 300,
-                                      gc:get_height()/2 - 170),
-                            &&description)
-                finalize with nothing; end;
+            call {Fonts::chalk_large}.render(
+                _origin_top_center,
+                {Display::get_width()}/2, {Display::get_height()}/2-230,
+                __(plf.get_levelname()),
+                *{Display::s_framebuffer}
+            );
+            call {Fonts::chalk_normal}.render(
+                _origin_top_left,
+                {Display::get_width()}/2-300, {Display::get_height()}/2-170,
+                &&description,
+                *{Display::s_framebuffer}
+            ) finalize with nothing; end;
 
             y = y+32;
             y = y+45;
 
-            gc:print_left({Fonts::chalk_normal}, _Vector2i(left_x, y),
-                          __("Number of Pingus: "));
-            gc:print_right({Fonts::chalk_normal}, _Vector2i(right_x, y),
-                           {StringUtil::to_string}(plf.get_number_of_pingus()));
+            call {Fonts::chalk_normal}.render(
+                _origin_top_left,
+                left_x, y,
+                __("Number of Pingus: "),
+                *{Display::s_framebuffer}
+            );
+            call {Fonts::chalk_normal}.render(
+                _origin_top_right,
+                right_x, y,
+                {StringUtil::to_string}(plf.get_number_of_pingus()),
+                *{Display::s_framebuffer}
+            );
 
             y = y+30;
-            gc:print_left({Fonts::chalk_normal}, _Vector2i(left_x, y),
-                         __("Number to Save: "));
-            gc:print_right({Fonts::chalk_normal}, _Vector2i(right_x, y),
-                           {StringUtil::to_string}(plf.get_number_to_save()));
+            call {Fonts::chalk_normal}.render(
+                _origin_top_left,
+                left_x, y,
+                __("Number to Save: "),
+                *{Display::s_framebuffer}
+            );
+            call {Fonts::chalk_normal}.render(
+                _origin_top_right,
+                right_x, y,
+                {StringUtil::to_string}(plf.get_number_to_save()),
+                *{Display::s_framebuffer}
+            );
 
             y = y+30;
-            gc:print_left({Fonts::chalk_normal}, _Vector2i(left_x, y),
-                          __("Time: "));
-            gc:print_right({Fonts::chalk_normal}, _Vector2i(right_x, y),
-                           {GameTime::ticks_to_realtime_string}(plf.get_time()));
+            call {Fonts::chalk_normal}.render(
+                _origin_top_left,
+                left_x, y,
+                __("Time: "),
+                *{Display::s_framebuffer}
+            );
+            call {Fonts::chalk_normal}.render(
+                _origin_top_right,
+                right_x, y,
+                {GameTime::ticks_to_realtime_string}(plf.get_time()),
+                *{Display::s_framebuffer}
+            );
 
-            gc:print_center({Fonts::chalk_small},
-                            _Vector2i(gc:get_width()/2, gc:get_height()/2 + 215),
-                            __("Author: ") + plf.get_author());
+            call {Fonts::chalk_small}.render(
+                _origin_top_center,
+                {Display::get_width()}/2, {Display::get_height()}/2 + 215,
+                __("Author: ") + plf.get_author(),
+                *{Display::s_framebuffer}
+            );
 
             if {globals::developer_mode} then
-                gc:print_center({Fonts::chalk_small}, _Vector2i(gc:get_width()/2,
-                                gc:get_height()-50), plf.get_resname());
+                call {Fonts::chalk_small}.render(
+                    _origin_top_center,
+                    {Display::get_width()}/2, {Display::get_height()}/2-50,
+                    plf.get_resname(),
+                    *{Display::s_framebuffer}
+                );
             end
         end
     end
