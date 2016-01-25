@@ -39,10 +39,16 @@ class SpriteR with
     var char&&                  name    = null;
 
     function (Rect& rect, @hold char&& name)=>SpriteR build_name;
+    function (Rect& rect, @hold char&& name)=>SpriteR build_nameX;
 do
     function (Rect& rect, @hold char&& name)=>SpriteR build_name do
         this.rect = &rect;
         this.name := name;
+    end
+    function (Rect& rect, @hold char&& name)=>SpriteR build_nameX do
+        this.rect = &rect;
+        this.name := name;
+        this.is_world = false;
     end
 
     var Surface sfc with

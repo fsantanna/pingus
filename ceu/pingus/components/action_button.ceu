@@ -16,10 +16,8 @@ do
     var RectComponent component = RectComponent.build(&outer.rect);
 
     do
-        var SpriteR _ = SpriteR.build_name(&outer.rect,
-                                           "core/buttons/hbuttonbgb");
-        var SpriteR s = SpriteR.build_name(&outer.rect,
-                                           "core/buttons/armageddon_anim");
+        var SpriteR _ = SpriteR.build_nameX(&outer.rect, "core/buttons/hbuttonbgb");
+        var SpriteR s = SpriteR.build_nameX(&outer.rect, "core/buttons/armageddon_anim");
         s.frame_delay = 0;
         s.set_frame(7);
 
@@ -33,10 +31,8 @@ do
     end
 
     do
-        var SpriteR _ = SpriteR.build_name(&outer.rect,
-                                           "core/buttons/hbuttonbgb");
-        var SpriteR _ = SpriteR.build_name(&outer.rect,
-                                           "core/buttons/armageddon_anim");
+        var SpriteR _ = SpriteR.build_nameX(&outer.rect, "core/buttons/hbuttonbgb");
+        var SpriteR _ = SpriteR.build_nameX(&outer.rect, "core/buttons/armageddon_anim");
         emit global:go_armageddon;
         await FOREVER;
     end
@@ -52,33 +48,22 @@ do
         this.y = y;
     end
 
-    var Rect rect = Rect(this.x,this.y, 38,60);
+    var Rect r1 = Rect(this.x,this.y, 38,60);
     var RectComponent component with
-        this.rect  = &rect;
+        this.rect  = &r1;
         //this.state = &global:world!:get_state();
     end;
 
-    var float xf = this.x;
-    var float yf = this.y;
     spawn do
+        var Rect r2 = Rect(this.x, this.y, 0, 0);
         loop do
             do
-                var Sprite _ with
-                    this.is_world = false;
-                    this.x    = &xf;
-                    this.y    = &yf;
-                    this.name = "core/buttons/hbuttonbgb";
-                end;
+                var SpriteR _ = SpriteR.build_nameX(&r2, "core/buttons/hbuttonbgb");
                 await component.on_primary_button_pressed;
             end
             emit global:go_forward => true;
             do
-                var Sprite _ with
-                    this.is_world = false;
-                    this.x    = &xf;
-                    this.y    = &yf;
-                    this.name = "core/buttons/hbuttonbg";
-                end;
+                var SpriteR _ = SpriteR.build_nameX(&r2, "core/buttons/hbuttonbg");
                 par/or do
                     await ON_PRIMARY_BUTTON_RELEASED;
                 with
@@ -90,12 +75,8 @@ do
         end
     end
 
-    var Sprite _ with
-        this.is_world = false;
-        this.x    = &xf;
-        this.y    = &yf;
-        this.name = "core/buttons/fast_forward";
-    end;
+    var Rect r3 = Rect(this.x,this.y, 0,0);
+    var SpriteR _ = SpriteR.build_nameX(&r3, "core/buttons/fast_forward");
     await FOREVER;
 end
 
@@ -109,26 +90,20 @@ do
         this.y = y;
     end
 
-    var Rect rect = Rect(this.x,this.y, 38,60);
+    var Rect r1 = Rect(this.x,this.y, 38,60);
     var RectComponent component with
-        this.rect  = &rect;
+        this.rect  = &r1;
         //this.state = &global:world!:get_state();
     end;
 
-    var float xf = this.x;
-    var float yf = this.y;
     spawn do
+        var Rect r2 = Rect(this.x, this.y, 0, 0);
         loop do
             var bool from_out = true;
             par/or do
                 await global:go_pause_toggle until from_out;
             with
-                var Sprite _ with
-                    this.is_world = false;
-                    this.x    = &xf;
-                    this.y    = &yf;
-                    this.name = "core/buttons/hbuttonbgb";
-                end;
+                var SpriteR _ = SpriteR.build_nameX(&r2, "core/buttons/hbuttonbgb");
                 await component.on_primary_button_pressed;
                 from_out = false;
                 emit global:go_pause_toggle;
@@ -138,12 +113,7 @@ do
             par/or do
                 await global:go_pause_toggle until from_out;
             with
-                var Sprite _ with
-                    this.is_world = false;
-                    this.x    = &xf;
-                    this.y    = &yf;
-                    this.name = "core/buttons/hbuttonbg";
-                end;
+                var SpriteR _ = SpriteR.build_nameX(&r2, "core/buttons/hbuttonbg");
                 await component.on_primary_button_pressed;
                 from_out = false;
                 emit global:go_pause_toggle;
@@ -151,12 +121,8 @@ do
         end
     end
 
-    var Sprite _ with
-        this.is_world = false;
-        this.x    = &xf;
-        this.y    = &yf;
-        this.name = "core/buttons/pause";
-    end;
+    var Rect r3 = Rect(this.x, this.y, 0, 0);
+    var SpriteR _ = SpriteR.build_nameX(&r3, "core/buttons/pause");
     await FOREVER;
 end
 

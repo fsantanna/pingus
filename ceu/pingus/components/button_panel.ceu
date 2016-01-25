@@ -52,15 +52,13 @@ do
         ..  (char&&)({ActionName::to_string}(this.id_me).c_str())
         .. "/right";
 
-    var float xf  = this.x;
-    var float yf  = this.y;
-    var float xf2 = this.x + 20;
-    var float yf2 = this.y + 31;    /// TODO
-
     par do
+        var Rect r1 = Rect(this.x,this.y, 0,0);
+        var Rect r2 = Rect(this.x+20,this.y+31, 0,0);   // TODO
+
         if n == 0 then
-            var Sprite _ = Sprite.w_xy_name(false, &xf,&yf, "core/buttons/buttonbackgroundhl");
-            var Sprite sprite = Sprite.w_xy_name(false, &xf2,&yf2, _XXX_PURE(&&name));
+            var SpriteR _ = SpriteR.build_nameX(&r1, "core/buttons/buttonbackgroundhl");
+            var SpriteR sprite = SpriteR.build_nameX(&r2, _XXX_PURE(&&name));
             sprite.is_loop = true;
             this.id_out = this.id_me;
             await out.e;
@@ -68,8 +66,8 @@ do
 
         loop do
             do
-                var Sprite _ = Sprite.w_xy_name(false, &xf,&yf, "core/buttons/buttonbackground");
-                var Sprite sprite = Sprite.w_xy_name(false, &xf2,&yf2, _XXX_PURE(&&name));
+                var SpriteR _ = SpriteR.build_nameX(&r1, "core/buttons/buttonbackground");
+                var SpriteR sprite = SpriteR.build_nameX(&r2, _XXX_PURE(&&name));
                 sprite.frame_delay = 0;
 
                 par/or do
@@ -82,14 +80,14 @@ do
                 emit out.e => this.n;
             end
             do
-                var Sprite _ = Sprite.w_xy_name(false, &xf,&yf, "core/buttons/buttonbackgroundhl");
-                var Sprite sprite = Sprite.w_xy_name(false, &xf2,&yf2, _XXX_PURE(&&name));
+                var SpriteR _ = SpriteR.build_nameX(&r1, "core/buttons/buttonbackgroundhl");
+                var SpriteR sprite = SpriteR.build_nameX(&r2, _XXX_PURE(&&name));
                 sprite.is_loop = true;
                 await out.e;
             end
         end
     with
-        every gc in SCREENMANAGER_DRAW do
+        every REDRAW do
             if {globals::developer_mode} then
 #if 0
                 {
@@ -102,10 +100,11 @@ do
                 gc:print_left(Fonts::pingus_small, Vector2i(rect.left + 46, rect.top + 5 + 38*static_cast<int>(i)), out.str());
 #endif
             else
-                gc:print_center(
-                    {Fonts::pingus_small},
-                    _Vector2i(this.x+46, this.y+5),
-                    {StringUtil::to_string}(_GLOBAL_ACTIONHOLDER:get_available(this.id_me))
+                call {Fonts::pingus_small}.render(
+                    _origin_top_center,
+                    this.x+46, this.y+5,
+                    {StringUtil::to_string}(_GLOBAL_ACTIONHOLDER:get_available(this.id_me)),
+                    *{Display::s_framebuffer}
                 );
             end
         end
@@ -113,11 +112,12 @@ do
         loop do
             await component.on_pointer_enter;
             watching component.on_pointer_leave do
-                every gc in SCREENMANAGER_DRAW do
-                    gc:print_left(
-                        {Fonts::pingus_small},
-                        _Vector2i(this.x+65, this.y+5),
-                        {ActionName::to_screenname}(this.id_me)
+                every REDRAW do
+                    call {Fonts::pingus_small}.render(
+                        _origin_top_left,
+                        this.x+65, this.y+5,
+                        {ActionName::to_screenname}(this.id_me),
+                        *{Display::s_framebuffer}
                     );
                 end
             end
