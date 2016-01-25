@@ -15,12 +15,9 @@ do
     this.pos = Vector3f(_p.x,_p.y,_p.z);
 
     loop do
+        var Rect r = Rect(pos.x,pos.y, 0,0);
         do
-            var Sprite sprite with
-                this.x = &pos.x;
-                this.y = &pos.y;
-                this.name = "traps/laser_exit";
-            end;
+            var SpriteR sprite = SpriteR.build_name(&r, "traps/laser_exit");
             sprite.frame_delay = 0;
 
             var IPingu&& pingu = do
@@ -41,11 +38,7 @@ do
             emit pingu:go_action => {ActionName::LASERKILL};
         end
 
-        do Sprite with
-            this.x = &pos.x;
-            this.y = &pos.y;
-            this.name = "traps/laser_exit";
-        end;
+        do SpriteR.build_name(&r, "traps/laser_exit");
    end
 
     /* PUBLIC */

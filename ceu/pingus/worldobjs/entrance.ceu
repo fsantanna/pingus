@@ -49,12 +49,12 @@ do
             log_error("unknown direction: '%1%'", direction_str);
     };
 
-    var Sprite _ with
-        this.x = &pos.x;
-        this.y = &pos.y;
+    var Rect r = Rect(pos.x,pos.y, 0,0);
+    var SpriteR _ with
+        this.rect = &r;
         this.name = "core/misc/smallmap_entrance";
         this.is_world = false;
-        this.rect = &outer.smallmap.rect;
+        this.small_map = &outer.smallmap.rect;
     end;
 
     var int last_release = 150 - release_rate;

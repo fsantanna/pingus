@@ -32,17 +32,16 @@ do
             call/rec this.update_surface();
         end
 
-        var float x=0, y=0;
-        var Sprite _ with
-            this.x = &x;
-            this.y = &y;
+        var Rect r = Rect(0,0,0,0);
+        var SpriteR _ with
+            this.rect = &r;
 
             { static Surface SMALLMAP_IMAGE_sfc; };
             _SMALLMAP_IMAGE_sfc = _XXX_PURE(canvas!.clone());
             this.surface = &&_SMALLMAP_IMAGE_sfc;
 
             this.is_world = false;
-            this.rect = &outer.rect;
+            this.small_map = &outer.rect;
         end;
 
         loop do

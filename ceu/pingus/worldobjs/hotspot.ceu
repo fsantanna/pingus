@@ -22,9 +22,9 @@ do
     /* Background image */
     // FIXME: would be nice to allow surface manipulation with
     // animated sprites, but it's not that easy to do
-    var Sprite _ with
-        this.x = &pos.x;
-        this.y = &pos.y;
+    var Rect r = Rect(pos.x,pos.y, 0,0);
+    var SpriteR _ with
+        this.rect = &r;
 
         { static ResDescriptor desc; };
         outer.reader:read_desc("surface", _desc);

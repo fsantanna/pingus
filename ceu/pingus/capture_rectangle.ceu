@@ -15,22 +15,22 @@ do
         this.playfield = &playfield;
     end
 
-    pool Sprite[1] good_or_bad;
-    pool Sprite[1] left_or_right;
+    pool SpriteR[1] good_or_bad;
+    pool SpriteR[1] left_or_right;
 
     var char[] action_str;
 
-    var Vector3f pos_gb = Vector3f(0,0,1000);
-    var Vector3f pos_lr = Vector3f(0,0,1000);
+    var Rect rect_gb = Rect(0,0,0,0);
+    var Rect rect_lr = Rect(0,0,0,0);
 
     par do
         every WORLD_UPDATE do
             if this.playfield.current_pingu? then
                 var IPingu&& pingu = this.playfield.current_pingu!;
-                pos_gb.x = pingu:get_center_pos().x;
-                pos_gb.y = pingu:get_center_pos().y;
-                pos_lr.x = pingu:get_center_pos().x;
-                pos_lr.y = pingu:get_center_pos().y + 2;
+                rect_gb.left = pingu:get_center_pos().x;
+                rect_gb.top  = pingu:get_center_pos().y;
+                rect_lr.left = pingu:get_center_pos().x;
+                rect_lr.top  = pingu:get_center_pos().y + 2;
 
                 // RESET STRING
                 do
@@ -59,8 +59,8 @@ do
             end
         end
     with
-        var Sprite&&? sprite_gb;
-        var Sprite&&? sprite_lr;
+        var SpriteR&&? sprite_gb;
+        var SpriteR&&? sprite_lr;
         every this.playfield.ok_pingu do
 
             if sprite_gb? then
@@ -92,9 +92,8 @@ do
                 var bool is_left = pingu:direction == _LEFT;
 
                 sprite_gb =
-                    spawn Sprite in good_or_bad with
-                        this.x = &pos_gb.x;
-                        this.y = &pos_gb.y;
+                    spawn SpriteR in good_or_bad with
+                        this.rect = &rect_gb;
 
                         if {ActionName::CHANGE_ALLOWED}[action]
                                                        [(int)playfield.action_next]
@@ -106,9 +105,8 @@ do
                     end;
 
                 sprite_lr =
-                    spawn Sprite in left_or_right with
-                        this.x = &pos_lr.x;
-                        this.y = &pos_lr.y;
+                    spawn SpriteR in left_or_right with
+                        this.rect = &rect_lr;
 
                         if is_left then
                             this.name = "game/cursors/arrow_left";

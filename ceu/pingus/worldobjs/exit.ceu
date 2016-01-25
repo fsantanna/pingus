@@ -25,9 +25,9 @@ do
         owner_id = 0;
     end
 
-    var Sprite sprite with
-        this.x = &pos.x;
-        this.y = &pos.y;
+    var Rect r1 = Rect(pos.x,pos.y, 0,0);
+    var SpriteR sprite with
+        this.rect = &r1;
 
         { static ResDescriptor desc; };         // TODO: repeated below
         outer.reader:read_desc("surface", _desc);
@@ -36,12 +36,8 @@ do
 
     var char[] name = [] .. "core/misc/flag" ..
                         (char&&){StringUtil::to_string}(owner_id).c_str();
-    var float x = pos.x + 40;
-    var Sprite _ with
-        this.x = &x;
-        this.y = &pos.y;
-        this.name = _XXX_PURE(&&name);
-    end;
+    var Rect r2 = Rect(pos.x+40,pos.y, 0,0);
+    var SpriteR _ = SpriteR.build_name(&r2, _XXX_PURE(&&name));
 
     do
         { static ResDescriptor desc; };         // TODO: repeated above
@@ -52,12 +48,12 @@ do
             (int)(this.pos.y) - this.sprite.get_height());
     end
 
-    var Sprite _ with
-        this.x = &pos.x;
-        this.y = &pos.y;
+    var Rect r3 = Rect(pos.x,pos.y, 0,0);
+    var SpriteR _ with
+        this.rect = &r3;
         this.name = "core/misc/smallmap_exit";
         this.is_world = false;
-        this.rect = &outer.smallmap.rect;
+        this.small_map = &outer.smallmap.rect;
     end;
 
     every WORLD_UPDATE do

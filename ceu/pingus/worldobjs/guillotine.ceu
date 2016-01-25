@@ -16,13 +16,10 @@ do
     this.reader:read_vector("position", _p);
     this.pos = Vector3f(_p.x,_p.y,_p.z);
 
+    var Rect r = Rect(pos.x,pos.y, 0,0);
     loop do
         var IPingu&& pingu = do
-            var Sprite _ with
-                this.x = &pos.x;
-                this.y = &pos.y;
-                this.name = "traps/guillotineidle";
-            end;
+            var SpriteR _ = SpriteR.build_name(&r, "traps/guillotineidle");
 
             loop do
                 await WORLD_UPDATE;
@@ -42,9 +39,8 @@ do
         emit pingu:go_action => {ActionName::DEAD};
 
         do
-            var Sprite sprite with
-                this.x = &_XXX_NOHOLD(&&pos.x);
-                this.y = &_XXX_NOHOLD(&&pos.y);
+            var SpriteR sprite with
+                this.rect = &r;
                 if dir == _LEFT then
                     this.name = "traps/guillotinekill/left";
                 else

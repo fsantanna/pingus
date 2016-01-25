@@ -23,13 +23,10 @@ do
                           {Groundtype::GP_SOLID});
     end
 
+    var Rect r = Rect(pos.x,pos.y, 0,0);
     loop do
         var int ok = do
-            var Sprite sprite with
-                this.x = &pos.x;
-                this.y = &pos.y;
-                this.name = "traps/smasher";
-            end;
+            var SpriteR sprite = SpriteR.build_name(&r, "traps/smasher");
             _assert(sprite.get_frame_count() == 6);
             sprite.frame_delay = 0;
 
@@ -55,11 +52,7 @@ do
         end;
 
         do
-            var Sprite sprite with
-                this.x = &pos.x;
-                this.y = &pos.y;
-                this.name = "traps/smasher";
-            end;
+            var SpriteR sprite = SpriteR.build_name(&r, "traps/smasher");
 
             loop i in 6 do
                 await WORLD_UPDATE;

@@ -22,7 +22,8 @@ class SpriteR with
 
     var bool is_world = true;
 
-    var Rect& rect;
+    var Rect&  rect;
+    var Rect&? small_map;   // TODO
 
     var Vector2i offset      = Vector2i(0, 0);
     var Vector2i frame_pos   = Vector2i(0, 0);
@@ -62,7 +63,6 @@ do
     this.rect.height = sfc.get_height();
 
     if surface != null then
-_assert(not "ERR");
         this.frame_pos   = Vector2i(0, 0);
         this.offset      = Vector2i(0, 0);
         this.array       = Size(sfc.get_width(), sfc.get_height());
@@ -142,6 +142,20 @@ _assert(not "ERR");
                 yy = global:world!:get_state().get_pos().y -
                      global:world!:get_state().get_height()/2;
             end
+
+            var float x, y;
+            if this.small_map? then
+                x = (float)(this.small_map!.left) +
+                        (this.rect.left * (float)(this.small_map!.width) /
+                            (float)global:world!:get_width());
+                y = (float)(this.small_map!.top) +
+                        (this.rect.top * (float)(this.small_map!.height) /
+                            (float)global:world!:get_height());
+            else
+                x = this.rect.left;
+                y = this.rect.top;
+            end
+
             call {Display::s_framebuffer}:draw_surface(
                 this.sfc.get_framebuffer_surface(),
                 _Rect(
@@ -149,8 +163,8 @@ _assert(not "ERR");
                         _Vector2i(this.frame_size.width  * (this.frame%this.array.width),
                                   this.frame_size.height * (this.frame/this.array.width)),
                     _Size(this.frame_size.width,this.frame_size.height)),
-                _Vector2i(-xx + this.rect.left - this.offset.x,
-                          -yy + this.rect.top  - this.offset.y)
+                _Vector2i(-xx + x - this.offset.x,
+                          -yy + y - this.offset.y)
             );
         end
     end
