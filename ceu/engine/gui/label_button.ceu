@@ -24,7 +24,7 @@ do
         this.rect = &rect;
     end;
 
-    every gc in SCREENMANAGER_DRAW do
+    every REDRAW do
         call {Fonts::chalk_small}.render(
             _origin_top_left,
             x, y,
