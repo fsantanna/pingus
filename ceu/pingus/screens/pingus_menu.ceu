@@ -37,26 +37,46 @@ do
         end
     with
         every gc in SCREENMANAGER_DRAW do
-            gc:draw(&&s1, _Vector2i(x1, y1))
-                finalize with end;
-            gc:draw(&&s1, _Vector2i(x1-gc:get_width(), y1))
-                finalize with end;
-            gc:draw(&&s2, _Vector2i(x2, y2))
-                finalize with end;
-            gc:draw(&&s2, _Vector2i(x2-gc:get_width(), y2))
-                finalize with end;
-            gc:draw(&&s3, _Vector2i(x3, y3))
-                finalize with end;
-            gc:draw(&&s3, _Vector2i(x3-gc:get_width(), y3))
-                finalize with end;
-            gc:draw(&&s4, _Vector2i(x4, y4))
-                finalize with end;
-            gc:draw(&&s4, _Vector2i(x4-gc:get_width(), y4))
-                finalize with end;
-            gc:draw(&&s5, _Vector2i(x5, y5))
-                finalize with end;
-            gc:draw(&&s5, _Vector2i(x5-gc:get_width(), y5))
-                finalize with end;
+            call {Display::s_framebuffer}:draw_surface(
+                s1.get_framebuffer_surface(),
+                _Vector2i(x1, y1)
+            );
+            call {Display::s_framebuffer}:draw_surface(
+                s1.get_framebuffer_surface(),
+                _Vector2i(x1-{Display::get_width()}, y1)
+            );
+            call {Display::s_framebuffer}:draw_surface(
+                s2.get_framebuffer_surface(),
+                _Vector2i(x2, y2)
+            );
+            call {Display::s_framebuffer}:draw_surface(
+                s2.get_framebuffer_surface(),
+                _Vector2i(x2-{Display::get_width()}, y2)
+            );
+            call {Display::s_framebuffer}:draw_surface(
+                s3.get_framebuffer_surface(),
+                _Vector2i(x3, y3)
+            );
+            call {Display::s_framebuffer}:draw_surface(
+                s3.get_framebuffer_surface(),
+                _Vector2i(x3-{Display::get_width()}, y3)
+            );
+            call {Display::s_framebuffer}:draw_surface(
+                s4.get_framebuffer_surface(),
+                _Vector2i(x4, y4)
+            );
+            call {Display::s_framebuffer}:draw_surface(
+                s4.get_framebuffer_surface(),
+                _Vector2i(x4-{Display::get_width()}, y4)
+            );
+            call {Display::s_framebuffer}:draw_surface(
+                s5.get_framebuffer_surface(),
+                _Vector2i(x5, y5)
+            );
+            call {Display::s_framebuffer}:draw_surface(
+                s5.get_framebuffer_surface(),
+                _Vector2i(x5-{Display::get_width()}, y5)
+            );
         end
     end
 end
@@ -66,11 +86,10 @@ do
     var PingusMenuBackground _;
 
     var Size size = Size({Display::get_width()}, {Display::get_height()});
-    var float x = size.width  / 2;
-    var float y = size.height / 2;
-    var Sprite logo = Sprite.w_xy_name(false, &x,&y, "core/misc/logo");
-        x = x - logo.get_width()/2;
-        y = y - 280;
+    var Rect rect = Rect(size.width/2, size.height/2, 0, 0);
+    var SpriteR logo = SpriteR.build_name(&rect, "core/misc/logo");
+        rect.left = rect.left - logo.get_width()/2;
+        rect.top  = rect.top  - 280;
 
     {Sound::PingusSound::play_music("pingus-1.it");};
 
@@ -104,25 +123,35 @@ do
         await b_exit.ok_clicked;
         escape _PINGUSMENU_EXIT;
     with
-        every gc in SCREENMANAGER_DRAW do
-            gc:print_left({Fonts::pingus_small},
-                          _Vector2i(gc:get_width()/2 - 400 + 25, gc:get_height()-140),
-            {
+        every REDRAW do
+            call {Fonts::pingus_small}.render(
+                _origin_top_left,
+                {Display::get_width ()}/2 - 400 + 25,
+                {Display::get_height()}   - 140,
+                {
 "Pingus " VERSION " - Copyright (C) 1998-2011 Ingo Ruhnke <grumbel@gmail.com>\n"
 "See the file AUTHORS for a complete list of contributors.\n"
 "Pingus comes with ABSOLUTELY NO WARRANTY. This is free software, and you are\n"
-            "welcome to redistribute it under certain conditions; see the file COPYING for details.\n"
-            });
+"welcome to redistribute it under certain conditions; see the file COPYING for details.\n"
+                },
+                *{Display::s_framebuffer}
+            );
 
-            gc:draw_fillrect(_Rect(0,
-                                   {Display::get_height()} - 26,
-                                   {Display::get_width ()},
-                                   {Display::get_height()}),
-                             _Color(0, 0, 0, 255));
-            gc:print_center({Fonts::pingus_small},
-                             _Vector2i(gc:get_width() / 2,
-                                       gc:get_height() - {Fonts::pingus_small.get_height()} - 8),
-"..:: Ctrl-g: mouse grab   ::   F10: fps counter   ::   F11: fullscreen   ::   F12: screenshot ::..");
+            call {Display::s_framebuffer}:draw_rect(
+                _Rect(0,
+                      {Display::get_height()} - 26,
+                      {Display::get_width ()},
+                      {Display::get_height()}),
+                _Color(0, 0, 0, 255)
+            );
+
+            call {Fonts::pingus_small}.render(
+                _origin_top_center,
+                {Display::get_width ()}/2,
+                {Display::get_height()} - {Fonts::pingus_small.get_height()} - 8,
+"..:: Ctrl-g: mouse grab   ::   F10: fps counter   ::   F11: fullscreen   ::   F12: screenshot ::..",
+                *{Display::s_framebuffer}
+            );
         end
     end
 end

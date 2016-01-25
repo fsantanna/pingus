@@ -18,12 +18,13 @@ do
         this.hint = []..hint;   // TODO: not used anylonger?
     end
 
-    var Sprite bg = Sprite.w_xy_name(false, &x,&y, "core/menu/menuitem");
+    var Rect r1 = Rect(x, y, 0, 0);
+    var SpriteR bg = SpriteR.build_name(&r1, "core/menu/menuitem");
 
-    var Rect rect = Rect(x-bg.get_width()/2, y-bg.get_height()/2,
-                         bg.get_width(), bg.get_height());
+    var Rect r2 = Rect(x-bg.get_width()/2, y-bg.get_height()/2,
+                       bg.get_width(), bg.get_height());
     var RectComponent component with
-        this.rect = &rect;
+        this.rect = &r2;
     end;
 
     par do
@@ -35,17 +36,19 @@ do
             await component.on_pointer_enter;
             {Sound::PingusSound::play_sound ("tick");};
             do
-                var Sprite _ = Sprite.w_xy_name(false, &x,&y,
-                                    "core/menu/menuitem_highlight");
+                var SpriteR _ = SpriteR.build_name(&r1, "core/menu/menuitem_highlight");
                 await component.on_pointer_leave;
             end
         end
     with
-        every gc in SCREENMANAGER_DRAW do
-            gc:print_center({Fonts::chalk_large},
-                            _Vector2i(x, y-28),
-                            &&this.text)
-                finalize with end;
+        every REDRAW do
+            call {Fonts::chalk_large}.render(
+                _origin_top_center,
+                r1.left,
+                r1.top - 28,
+                &&this.text,
+                *{Display::s_framebuffer}
+            ) finalize with end;
         end
     end
 end
