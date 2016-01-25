@@ -33,15 +33,15 @@ do
             end
         end
     with
-        every gc in SCREENMANAGER_DRAW do
+        every REDRAW do
             var int of_x = this.playfield.get_pos().x;
             var int of_y = this.playfield.get_pos().y;
             {
                 Rect view_rect;
             };
 
-            if (global:world!:get_width() > gc:get_width()) then
-                var int rwidth = (int)(gc:get_width() * this.rect.width
+            if (global:world!:get_width() > {Display::get_width()}) then
+                var int rwidth = (int)({Display::get_width()} * this.rect.width
                                     / global:world!:get_width());
                 _view_rect.left = this.rect.left
                                 + (of_x * this.rect.width /
@@ -53,8 +53,8 @@ do
                 _view_rect.right = this.rect.left + this.rect.width;
             end
 
-            if (global:world!:get_height() > gc:get_height()) then
-                var int rheight = (int)(gc:get_height() * this.rect.height
+            if (global:world!:get_height() > {Display::get_height()}) then
+                var int rheight = (int)({Display::get_height()} * this.rect.height
                                     / global:world!:get_height());
                 _view_rect.top = this.rect.top
                                + (of_y * this.rect.height
@@ -65,7 +65,10 @@ do
                 _view_rect.bottom = this.rect.top + this.rect.height;
             end
 
-            gc:draw_rect(_view_rect, _Color(0, 255, 0));
+            call {Display::s_framebuffer}:draw_rect(
+                _view_rect,
+                _Color(255,255,0)
+            );
 
             // Draw Pingus
             loop pingu in this.pingus do
@@ -75,7 +78,10 @@ do
                 var int y = (int)((float)(this.rect.top)
                           + (pingu:get_y() * (float)(this.rect.height)
                             / (float)(global:world!:get_height())));
-                gc:draw_line(_Vector2i(x, y), _Vector2i(x, y-2), _Color(255, 255, 0));
+                call {Display::s_framebuffer}:draw_line(
+                    _Vector2i(x, y), _Vector2i(x, y-2),
+                    _Color(255,255,0)
+                );
             end
         end
     end
