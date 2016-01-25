@@ -11,16 +11,10 @@ do
 
     //var _Font font = {Fonts::pingus_small_fixnum};
 
-    var float xf = {Display::get_size}().width/2;
-    var float yf = 0;
-    var Sprite _ with
-        this.is_world = false;
-        this.x    = &xf;
-        this.y    = &yf;
-        this.name = "core/buttons/info";
-    end;
+    var Rect rect = Rect({Display::get_size}().width/2,0, 0,0);
+    var SpriteR _ = SpriteR.build_nameX(&rect, "core/buttons/info");
 
-    every gc in SCREENMANAGER_DRAW do
+    every REDRAW do
         var _char[128] str;
 
         _snprintf(&&str, 128,
@@ -32,9 +26,12 @@ do
            this.counter.number_to_save)
             finalize with nothing; end;
 
-        gc:print_center({Fonts::pingus_small_fixnum},
-            _Vector2i(gc:get_width()/2, -2), &&str)
-                finalize with nothing; end;
+        call {Fonts::pingus_small_fixnum}.render(
+            _origin_top_center,
+            {Display::get_size}().width/2, -2,
+            &&str,
+            *{Display::s_framebuffer}
+        ) finalize with nothing; end;
     end
 end
 

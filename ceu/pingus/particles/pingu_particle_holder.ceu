@@ -14,11 +14,8 @@ do
                                      {Math::frand}() * -9,
                                      0);
 
-    var Sprite _ with
-        this.x     = &outer.x;
-        this.y     = &outer.y;
-        this.name  = "particles/pingu_explo";
-    end;
+    var Rect r = Rect(x,y, 0,0);
+    var SpriteR _ = SpriteR.build_name(&r, "particles/pingu_explo");
 
     loop i in this.livetime do
         await WORLD_UPDATE;

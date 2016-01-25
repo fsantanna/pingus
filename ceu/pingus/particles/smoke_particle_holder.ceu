@@ -10,9 +10,9 @@ do
     var int livetime = (25 + _rand()%10);
     var Vector3f velocity = Vector3f(this.vel_x, this.vel_y, 0);
 
-    var Sprite _ with
-        this.x     = &outer.x;
-        this.y     = &outer.y;
+    var Rect r = Rect(x,y, 0,0);
+    var SpriteR _ with
+        this.rect = &r;
         if _rand()%2 then
             this.name  = "particles/smoke";
         else
