@@ -19,7 +19,7 @@ do
     end
 
     var Rect r1 = Rect(x, y, 0, 0);
-    var SpriteR bg = SpriteR.build_name(&r1, "core/menu/menuitem");
+    var Sprite bg = Sprite.build_name(&r1, "core/menu/menuitem");
 
     var Rect r2 = Rect(x-bg.get_width()/2, y-bg.get_height()/2,
                        bg.get_width(), bg.get_height());
@@ -36,7 +36,7 @@ do
             await component.on_pointer_enter;
             {Sound::PingusSound::play_sound ("tick");};
             do
-                var SpriteR _ = SpriteR.build_name(&r1, "core/menu/menuitem_highlight");
+                var Sprite _ = Sprite.build_name(&r1, "core/menu/menuitem_highlight");
                 await component.on_pointer_leave;
             end
         end

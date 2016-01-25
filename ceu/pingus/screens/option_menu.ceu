@@ -32,7 +32,7 @@ do
     );
 
     var Wood _;
-    var SpriteR _ = SpriteR.build_name(&rect, "core/menu/blackboard");
+    var Sprite _ = Sprite.build_name(&rect, "core/menu/blackboard");
 
     var int x_offset = ({Display::get_width()}  - 800) / 2;
     var int y_offset = ({Display::get_height()} - 600) / 2;

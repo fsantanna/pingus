@@ -68,7 +68,7 @@ do
     );
 
     var Wood _;
-    var SpriteR _ = SpriteR.build_name(&rect, "core/menu/blackboard");
+    var Sprite _ = Sprite.build_name(&rect, "core/menu/blackboard");
 
     var SurfaceButton ok with
         this.x = {Display::get_width()/2}  + 245;

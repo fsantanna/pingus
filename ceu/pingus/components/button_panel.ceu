@@ -57,8 +57,8 @@ do
         var Rect r2 = Rect(this.x+20,this.y+31, 0,0);   // TODO
 
         if n == 0 then
-            var SpriteR _ = SpriteR.build_nameX(&r1, "core/buttons/buttonbackgroundhl");
-            var SpriteR sprite = SpriteR.build_nameX(&r2, _XXX_PURE(&&name));
+            var Sprite _ = Sprite.build_nameX(&r1, "core/buttons/buttonbackgroundhl");
+            var Sprite sprite = Sprite.build_nameX(&r2, _XXX_PURE(&&name));
             sprite.is_loop = true;
             this.id_out = this.id_me;
             await out.e;
@@ -66,8 +66,8 @@ do
 
         loop do
             do
-                var SpriteR _ = SpriteR.build_nameX(&r1, "core/buttons/buttonbackground");
-                var SpriteR sprite = SpriteR.build_nameX(&r2, _XXX_PURE(&&name));
+                var Sprite _ = Sprite.build_nameX(&r1, "core/buttons/buttonbackground");
+                var Sprite sprite = Sprite.build_nameX(&r2, _XXX_PURE(&&name));
                 sprite.frame_delay = 0;
 
                 par/or do
@@ -80,8 +80,8 @@ do
                 emit out.e => this.n;
             end
             do
-                var SpriteR _ = SpriteR.build_nameX(&r1, "core/buttons/buttonbackgroundhl");
-                var SpriteR sprite = SpriteR.build_nameX(&r2, _XXX_PURE(&&name));
+                var Sprite _ = Sprite.build_nameX(&r1, "core/buttons/buttonbackgroundhl");
+                var Sprite sprite = Sprite.build_nameX(&r2, _XXX_PURE(&&name));
                 sprite.is_loop = true;
                 await out.e;
             end

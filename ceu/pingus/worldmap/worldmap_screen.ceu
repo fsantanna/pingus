@@ -51,10 +51,13 @@ do
             this.button_over    = "core/worldmap/leave_button_hover";
         end;
         par do
-            every gc in SCREENMANAGER_DRAW do
-                gc:print_center({Fonts::chalk_small},
-                                _Vector2i(44, {Display::get_height()}-25),
-                                __("Leave?"));
+            every REDRAW do
+                call {Fonts::chalk_small}.render(
+                    _origin_top_center,
+                    44, {Display::get_height()}-25,
+                    __("Leave?"),
+                    *{Display::s_framebuffer}
+                );
             end
         with
             every close.get_component().on_pointer_enter do

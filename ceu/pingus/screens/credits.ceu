@@ -61,10 +61,12 @@ do
     var float yc = {Display::get_height()} / 2;
 
     var Wood _;
-    var Sprite _ = Sprite.w_xy_name(false, &xc,&yc, "core/menu/blackboard");
 
-    var float y1 = yc - 20;
-    var Sprite _ = Sprite.w_xy_name(false, &xc,&y1, "core/misc/creditpingu");
+    var Rect r1 = Rect(xc, yc, 0, 0);
+    var Sprite _ = Sprite.build_name(&r1, "core/menu/blackboard");
+
+    var Rect r2 = Rect(xc, yc-20, 0, 0);
+    var Sprite _ = Sprite.build_name(&r2, "core/menu/creditpingu");
 
     var SurfaceButton ok with
         this.x = {Display::get_width()/2}  + 260;

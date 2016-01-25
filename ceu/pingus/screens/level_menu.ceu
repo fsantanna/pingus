@@ -46,7 +46,7 @@ do
     var Wood _;
 
     var Rect rect = Rect(xc, yc, 0, 0);
-    var SpriteR _ = SpriteR.build_name(&rect, "core/menu/blackboard");
+    var Sprite _ = Sprite.build_name(&rect, "core/menu/blackboard");
 
     var SurfaceButton cancel with
         this.x = xc - 300;
@@ -169,7 +169,7 @@ do
                         loop do
                             await component.on_pointer_enter;
                             var Rect r = Rect(60+20, y, 0, 0);
-                            var SpriteR _ = SpriteR.build_name(&r, "core/menu/marker2");
+                            var Sprite _ = Sprite.build_name(&r, "core/menu/marker2");
                             await component.on_pointer_leave;
                         end
                     end
@@ -180,13 +180,13 @@ do
                 // draw icon
                 if (not this.levelset.get_level(i):accessible) then
                     var Rect r = Rect(x, y, 0, 0);
-                    do SpriteR.build_name(&r, "core/menu/locked_small");
+                    do Sprite.build_name(&r, "core/menu/locked_small");
                 else/if this.levelset.get_level(i):finished then
                     var Rect r = Rect(x, y, 0, 0);
-                    do SpriteR.build_name(&r, "core/menu/checkbox_marked_small");
+                    do Sprite.build_name(&r, "core/menu/checkbox_marked_small");
                 else
                     var Rect r = Rect(x, y, 0, 0);
-                    do SpriteR.build_name(&r, "core/menu/checkbox_small");
+                    do Sprite.build_name(&r, "core/menu/checkbox_small");
                 end
             with
                 every REDRAW do
@@ -257,12 +257,12 @@ do
                 loop do
                     await component.on_pointer_enter;
                     var Rect r = Rect(60+15, y-5, 0, 0);
-                    var SpriteR _ = SpriteR.build_name(&r, "core/menu/marker");
+                    var Sprite _ = Sprite.build_name(&r, "core/menu/marker");
                     await component.on_pointer_leave;
                 end
             with
                 var Rect r = Rect(x+10, y, 0, 0);
-                var SpriteR _ = SpriteR.build_name(&r,
+                var Sprite _ = Sprite.build_name(&r,
                                     (char&&)_XXX_PURE(_levelsets[i]:get_image().c_str()));
                 every REDRAW do
                     call {Fonts::chalk_normal}.render(
@@ -327,12 +327,12 @@ do
     var float yy  = 50+15;
 
     var Rect    r1 = Rect(0, yy, 0, 0);
-    var SpriteR s1 = SpriteR.build_name(&r1,
+    var Sprite s1 = Sprite.build_name(&r1,
                         (char&&)_XXX_PURE(outer.levelset.get_image().c_str()));
         r1.left = 60 + 680/2 - s1.get_width()/2 - 275;
 
     var Rect    r2 = Rect(0, yy, 0, 0);
-    var SpriteR s2 = SpriteR.build_name(&r2,
+    var Sprite s2 = Sprite.build_name(&r2,
                         (char&&)_XXX_PURE(outer.levelset.get_image().c_str()));
         r2.left = 60 + 680/2 - s2.get_width()/2 + 275;
 

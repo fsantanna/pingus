@@ -15,7 +15,7 @@ do
                                      0);
 
     var Rect r = Rect(x,y, 0,0);
-    var SpriteR _ = SpriteR.build_name(&r, "particles/pingu_explo");
+    var Sprite _ = Sprite.build_name(&r, "particles/pingu_explo");
 
     loop i in this.livetime do
         await WORLD_UPDATE;

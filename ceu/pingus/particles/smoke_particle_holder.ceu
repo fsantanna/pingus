@@ -11,7 +11,7 @@ do
     var Vector3f velocity = Vector3f(this.vel_x, this.vel_y, 0);
 
     var Rect r = Rect(x,y, 0,0);
-    var SpriteR _ with
+    var Sprite _ with
         this.rect = &r;
         if _rand()%2 then
             this.name  = "particles/smoke";

@@ -12,7 +12,7 @@ do
     //var _Font font = {Fonts::pingus_small_fixnum};
 
     var Rect rect = Rect({Display::get_size}().width/2,0, 0,0);
-    var SpriteR _ = SpriteR.build_nameX(&rect, "core/buttons/info");
+    var Sprite _ = Sprite.build_nameX(&rect, "core/buttons/info");
 
     every REDRAW do
         var _char[128] str;

@@ -26,7 +26,7 @@ do
     end
 
     var Rect r1 = Rect(pos.x,pos.y, 0,0);
-    var SpriteR sprite with
+    var Sprite sprite with
         this.rect = &r1;
 
         { static ResDescriptor desc; };         // TODO: repeated below
@@ -37,7 +37,7 @@ do
     var char[] name = [] .. "core/misc/flag" ..
                         (char&&){StringUtil::to_string}(owner_id).c_str();
     var Rect r2 = Rect(pos.x+40,pos.y, 0,0);
-    var SpriteR _ = SpriteR.build_name(&r2, _XXX_PURE(&&name));
+    var Sprite _ = Sprite.build_name(&r2, _XXX_PURE(&&name));
 
     do
         { static ResDescriptor desc; };         // TODO: repeated above
@@ -49,7 +49,7 @@ do
     end
 
     var Rect r3 = Rect(pos.x,pos.y, 0,0);
-    var SpriteR _ with
+    var Sprite _ with
         this.rect = &r3;
         this.name = "core/misc/smallmap_exit";
         this.is_world = false;

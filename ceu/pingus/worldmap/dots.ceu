@@ -91,7 +91,7 @@ do
     this.filename = [] .. (char&&)_m_story.c_str();
 
     var Rect rect = Rect(_pos.x,_pos.y, 0, 0);
-    var SpriteR _ = SpriteR.build_name(&rect, "core/worldmap/story_dot");
+    var Sprite _ = Sprite.build_name(&rect, "core/worldmap/story_dot");
 
     var Mouse mouse with
         this.rect = &rect;
@@ -100,7 +100,7 @@ do
 
     var bool v = await mouse.ok_out until v==false;
     pause/if mouse.ok_out do
-        var SpriteR _ = SpriteR.build_name(&rect, "core/worldmap/story_dot_highlight");
+        var Sprite _ = Sprite.build_name(&rect, "core/worldmap/story_dot_highlight");
 
         every gc in SCREENMANAGER_DRAW do
             gc:print_center({Fonts::pingus_small},
@@ -161,23 +161,23 @@ do
         or this.status == {Savegame::ACCESSIBLE}
         then
             if this.status == {Savegame::FINISHED} then
-                var SpriteR _ = SpriteR.build_name(&rect, "core/worldmap/dot_green");
+                var Sprite _ = Sprite.build_name(&rect, "core/worldmap/dot_green");
                 var bool v = await mouse.ok_out until v==false;
                 pause/if mouse.ok_out do
-                    var SpriteR _ = SpriteR.build_name(&rect, "core/worldmap/dot_green_hl");
+                    var Sprite _ = Sprite.build_name(&rect, "core/worldmap/dot_green_hl");
                     await FOREVER;
                 end
             else
-                var SpriteR _ = SpriteR.build_name(&rect, "core/worldmap/dot_red");
+                var Sprite _ = Sprite.build_name(&rect, "core/worldmap/dot_red");
                 var bool v = await mouse.ok_out until v==false;
                 pause/if mouse.ok_out do
-                    var SpriteR _ = SpriteR.build_name(&rect, "core/worldmap/dot_red_hl");
+                    var Sprite _ = Sprite.build_name(&rect, "core/worldmap/dot_red_hl");
                     await FOREVER;
                 end
                 await FOREVER;
             end
         else
-            var SpriteR _ = SpriteR.build_name(&rect, "core/worldmap/dot_invalid");
+            var Sprite _ = Sprite.build_name(&rect, "core/worldmap/dot_invalid");
             await FOREVER;
         end
     with

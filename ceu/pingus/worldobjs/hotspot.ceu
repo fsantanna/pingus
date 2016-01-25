@@ -23,7 +23,7 @@ do
     // FIXME: would be nice to allow surface manipulation with
     // animated sprites, but it's not that easy to do
     var Rect r = Rect(pos.x,pos.y, 0,0);
-    var SpriteR _ with
+    var Sprite _ with
         this.rect = &r;
 
         { static ResDescriptor desc; };

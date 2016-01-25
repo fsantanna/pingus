@@ -19,7 +19,7 @@ do
     var Rect r = Rect(pos.x,pos.y, 0,0);
     loop do
         var IPingu&& pingu = do
-            var SpriteR _ = SpriteR.build_name(&r, "traps/guillotineidle");
+            var Sprite _ = Sprite.build_name(&r, "traps/guillotineidle");
 
             loop do
                 await WORLD_UPDATE;
@@ -39,7 +39,7 @@ do
         emit pingu:go_action => {ActionName::DEAD};
 
         do
-            var SpriteR sprite with
+            var Sprite sprite with
                 this.rect = &r;
                 if dir == _LEFT then
                     this.name = "traps/guillotinekill/left";

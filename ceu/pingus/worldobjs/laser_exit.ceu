@@ -17,7 +17,7 @@ do
     loop do
         var Rect r = Rect(pos.x,pos.y, 0,0);
         do
-            var SpriteR sprite = SpriteR.build_name(&r, "traps/laser_exit");
+            var Sprite sprite = Sprite.build_name(&r, "traps/laser_exit");
             sprite.frame_delay = 0;
 
             var IPingu&& pingu = do
@@ -38,7 +38,7 @@ do
             emit pingu:go_action => {ActionName::LASERKILL};
         end
 
-        do SpriteR.build_name(&r, "traps/laser_exit");
+        do Sprite.build_name(&r, "traps/laser_exit");
    end
 
     /* PUBLIC */

@@ -20,7 +20,7 @@ do
     var Wood _;
 
     var Rect r = Rect(xc,yc, 0,0);
-    var SpriteR _ = SpriteR.build_name(&r, "core/menu/blackboard");
+    var Sprite _ = Sprite.build_name(&r, "core/menu/blackboard");
 
     var SurfaceButton next with
         this.x = xc + 220 + 40;
@@ -62,7 +62,7 @@ do
             var char[] text;
             var char&& image = _XXX_PURE((char&&)_page.image.res_name.c_str());
             var Rect r = Rect(xc,yc-65, 0,0);
-            var SpriteR _ = SpriteR.build_name(&r, _XXX_PURE(image));
+            var Sprite _ = Sprite.build_name(&r, _XXX_PURE(image));
             par/or do
                 var float time = 0;
                 watching next_text do

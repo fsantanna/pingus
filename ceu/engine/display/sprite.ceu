@@ -13,7 +13,7 @@ native @plain _FramebufferSurface;
 
 #include "surface.ceu"
 
-class SpriteR with
+class Sprite with
     function (void)=>int get_current_frame;
     function (int)=>void set_frame;
     function (void)=>int get_frame_count;
@@ -39,14 +39,14 @@ class SpriteR with
     var _ResourceModifier__Enum mod     = {ResourceModifier::ROT0};
     var char&&                  name    = null;
 
-    function (Rect& rect, @hold char&& name)=>SpriteR build_name;
-    function (Rect& rect, @hold char&& name)=>SpriteR build_nameX;
+    function (Rect& rect, @hold char&& name)=>Sprite build_name;
+    function (Rect& rect, @hold char&& name)=>Sprite build_nameX;
 do
-    function (Rect& rect, @hold char&& name)=>SpriteR build_name do
+    function (Rect& rect, @hold char&& name)=>Sprite build_name do
         this.rect = &rect;
         this.name := name;
     end
-    function (Rect& rect, @hold char&& name)=>SpriteR build_nameX do
+    function (Rect& rect, @hold char&& name)=>Sprite build_nameX do
         this.rect = &rect;
         this.name := name;
         this.is_world = false;
@@ -83,10 +83,10 @@ do
         end
 
         {
-            Vector2i vec = calc_origin(THIS(CEU_SpriteR)->sfc.desc->origin,
-                                       Size(THIS(CEU_SpriteR)->frame_size.width,
-                                            THIS(CEU_SpriteR)->frame_size.height))
-                            - THIS(CEU_SpriteR)->sfc.desc->offset;
+            Vector2i vec = calc_origin(THIS(CEU_Sprite)->sfc.desc->origin,
+                                       Size(THIS(CEU_Sprite)->frame_size.width,
+                                            THIS(CEU_Sprite)->frame_size.height))
+                            - THIS(CEU_Sprite)->sfc.desc->offset;
         };
         this.offset = Vector2i(_vec.x, _vec.y);
     end

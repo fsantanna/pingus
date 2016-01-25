@@ -87,7 +87,7 @@ do
 
     var Size size = Size({Display::get_width()}, {Display::get_height()});
     var Rect rect = Rect(size.width/2, size.height/2, 0, 0);
-    var SpriteR logo = SpriteR.build_name(&rect, "core/misc/logo");
+    var Sprite logo = Sprite.build_name(&rect, "core/misc/logo");
         rect.left = rect.left - logo.get_width()/2;
         rect.top  = rect.top  - 280;
 

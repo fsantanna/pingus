@@ -118,7 +118,7 @@ do
                             0, 0
                             // TODO + Vector3f(0, 0, 10));
                         );
-                        var SpriteR _ = SpriteR.build_name(&r, "core/worldmap/arrow");
+                        var Sprite _ = Sprite.build_name(&r, "core/worldmap/arrow");
                         loop i do
                             _edge_path.clear();
                             var _WorldmapNS__Path&& partial_path =

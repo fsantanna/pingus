@@ -17,11 +17,14 @@ do
                                    800-200,
                                    {Fonts::chalk_normal}).c_str();
 
-    var float x = {Display::get_width()}  / 2;
-    var float y = {Display::get_height()} / 2;
+    var Rect rect = Rect(
+        {Display::get_width()}  / 2,
+        {Display::get_height()} / 2,
+        0, 0
+    );
 
     var Wood _;
-    var Sprite _ = Sprite.w_xy_name(false, &x,&y, "core/menu/blackboard");
+    var Sprite _ = Sprite.build_name(&rect, "core/menu/blackboard");
 
     var SurfaceButton start with
         this.x = {Display::get_width()/2}  + 245;

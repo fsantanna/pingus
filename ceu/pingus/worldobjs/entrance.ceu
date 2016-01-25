@@ -50,7 +50,7 @@ do
     };
 
     var Rect r = Rect(pos.x,pos.y, 0,0);
-    var SpriteR _ with
+    var Sprite _ with
         this.rect = &r;
         this.name = "core/misc/smallmap_entrance";
         this.is_world = false;

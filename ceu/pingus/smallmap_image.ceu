@@ -33,7 +33,7 @@ do
         end
 
         var Rect r = Rect(0,0,0,0);
-        var SpriteR _ with
+        var Sprite _ with
             this.rect = &r;
 
             { static Surface SMALLMAP_IMAGE_sfc; };
