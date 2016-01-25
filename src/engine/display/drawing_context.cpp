@@ -94,32 +94,6 @@ public:
         Vector2i(rect.left+pos.x, rect.top+pos.y));
   }
 };
-class CEUSpriteDrawingRequest : public DrawingRequest
-{
-private:
-  CEU_Sprite* sprite;
-
-public:
-  CEUSpriteDrawingRequest(CEU_Sprite* sprite_, const Vector2i& pos_, float z_)
-    : DrawingRequest(pos_, z_),
-      sprite(sprite_)
-  {
-  }
-
-  virtual ~CEUSpriteDrawingRequest() {}
-
-  void render(Framebuffer& fb, const Rect& rect) {
-    fb.draw_surface(
-        *sprite->sfc.framebuffer_surface.SOME.v,
-        Rect(
-            Vector2i(sprite->frame_pos.x,sprite->frame_pos.y) +
-                Vector2i(sprite->frame_size.width  * (sprite->frame%sprite->array.width),
-                         sprite->frame_size.height * (sprite->frame/sprite->array.width)),
-            Size(sprite->frame_size.width,sprite->frame_size.height)),
-        Vector2i(pos.x + rect.left - sprite->offset.x,
-                 pos.y + rect.top  - sprite->offset.y));
-  }
-};
 class CEUSpriteRDrawingRequest : public DrawingRequest
 {
 private:
@@ -323,11 +297,6 @@ void
 DrawingContext::draw(CEU_Surface* sfc, const Vector2i& pos, float z)
 {
   draw(new CEUSurfaceDrawingRequest(sfc, pos + translate_stack.back(), z));
-}
-void
-DrawingContext::draw(CEU_Sprite* sprite, const Vector2i& pos, float z)
-{
-  draw(new CEUSpriteDrawingRequest(sprite, pos + translate_stack.back(), z));
 }
 void
 DrawingContext::draw(CEU_SpriteR* sprite, const Vector2i& pos, float z)
