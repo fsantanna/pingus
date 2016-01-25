@@ -17,7 +17,7 @@ do
         this.time_world = &time_world;
     end
 
-    every gc in SCREENMANAGER_DRAW do
+    every REDRAW do
         if (time_level>=0 or {globals::developer_mode}) then
             // get elapsed time from server
             var int time_world = this.time_world;
@@ -28,10 +28,12 @@ do
 
             var _std__string time_string =
                 {GameTime::ticks_to_realtime_string}(time_world);
-            gc:print_right({Fonts::pingus_small_fixnum},
-                           _Vector2i({Display::get_width()} - 30, 3),
-                           time_string,
-                           150);
+            call {Fonts::pingus_small_fixnum}.render(
+                _origin_top_right,
+                {Display::get_width()} - 30, 3,
+                time_string,
+                *{Display::s_framebuffer}
+            );
         end
     end
 end

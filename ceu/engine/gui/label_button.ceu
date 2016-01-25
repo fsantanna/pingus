@@ -25,8 +25,12 @@ do
     end;
 
     every gc in SCREENMANAGER_DRAW do
-        gc:print_left({Fonts::chalk_small}, _Vector2i(x, y), &&this.label)
-            finalize with end;
+        call {Fonts::chalk_small}.render(
+            _origin_top_left,
+            x, y,
+            &&this.label,
+            *{Display::s_framebuffer}
+        ) finalize with nothing; end;
     end
 
     function (void)=>RectComponent& get_component do
