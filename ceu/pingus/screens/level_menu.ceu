@@ -44,7 +44,9 @@ do
     var float yc = {Display::get_height()} / 2;
 
     var Wood _;
-    var Sprite _ = Sprite.w_xy_name(false, &xc,&yc, "core/menu/blackboard");
+
+    var Rect rect = Rect(xc, yc, 0, 0);
+    var SpriteR _ = SpriteR.build_name(&rect, "core/menu/blackboard");
 
     var SurfaceButton cancel with
         this.x = xc - 300;
@@ -54,10 +56,13 @@ do
         this.button_over    = "core/start/back_hover";
     end;
     spawn do
-        every gc in SCREENMANAGER_DRAW do
-            gc:print_center({Fonts::chalk_normal},
-                            _Vector2i(cancel.x + 55, cancel.y),
-                            __("Back"));
+        every REDRAW do
+            call {Fonts::chalk_normal}.render(
+                _origin_top_center,
+                cancel.x + 55, cancel.y,
+                __("Back"),
+                *{Display::s_framebuffer}
+            );
         end
     end
 
@@ -163,8 +168,8 @@ do
                         // draw background highlight mark
                         loop do
                             await component.on_pointer_enter;
-                            var float xx = 60 + 20;
-                            var Sprite _ = Sprite.w_xy_name(false, &xx, &y, "core/menu/marker2");
+                            var Rect r = Rect(60+20, y, 0, 0);
+                            var SpriteR _ = SpriteR.build_name(&r, "core/menu/marker2");
                             await component.on_pointer_leave;
                         end
                     end
@@ -174,23 +179,32 @@ do
             with
                 // draw icon
                 if (not this.levelset.get_level(i):accessible) then
-                    do Sprite.w_xy_name(false, &x,&y, "core/menu/locked_small");
+                    var Rect r = Rect(x, y, 0, 0);
+                    do SpriteR.build_name(&r, "core/menu/locked_small");
                 else/if this.levelset.get_level(i):finished then
-                    do Sprite.w_xy_name(false, &x,&y, "core/menu/checkbox_marked_small");
+                    var Rect r = Rect(x, y, 0, 0);
+                    do SpriteR.build_name(&r, "core/menu/checkbox_marked_small");
                 else
-                    do Sprite.w_xy_name(false, &x,&y, "core/menu/checkbox_small");
+                    var Rect r = Rect(x, y, 0, 0);
+                    do SpriteR.build_name(&r, "core/menu/checkbox_small");
                 end
             with
-                every gc in SCREENMANAGER_DRAW do
+                every REDRAW do
                     // draw levelname
                     if {globals::developer_mode} then
-                        gc:print_left({Fonts::chalk_normal},
-                                      _Vector2i(x + 40, y+4),
-                                      this.levelset.get_level(i):plf.get_resname());
+                        call {Fonts::chalk_normal}.render(
+                            _origin_top_left,
+                            x+40, y+4,
+                            __(this.levelset.get_level(i):plf.get_resname()),
+                            *{Display::s_framebuffer}
+                        );
                     else
-                        gc:print_left({Fonts::chalk_normal},
-                                      _Vector2i(x + 40, y+4), 
-                                      __(this.levelset.get_level(i):plf.get_levelname()));
+                        call {Fonts::chalk_normal}.render(
+                            _origin_top_left,
+                            x+40, y+4,
+                            __(this.levelset.get_level(i):plf.get_levelname()),
+                            *{Display::s_framebuffer}
+                        );
                     end
                 end
             end
@@ -242,28 +256,42 @@ do
                 // draw background highlight mark
                 loop do
                     await component.on_pointer_enter;
-                    var float xx = 60+15;
-                    var float yy = y - 5;
-                    var Sprite _ = Sprite.w_xy_name(false, &xx, &yy, "core/menu/marker");
+                    var Rect r = Rect(60+15, y-5, 0, 0);
+                    var SpriteR _ = SpriteR.build_name(&r, "core/menu/marker");
                     await component.on_pointer_leave;
                 end
             with
-                var float xx = x+10;
-                var Sprite _ = Sprite.w_xy_name(false, &xx, &y,
+                var Rect r = Rect(x+10, y, 0, 0);
+                var SpriteR _ = SpriteR.build_name(&r,
                                     (char&&)_XXX_PURE(_levelsets[i]:get_image().c_str()));
-                every gc in SCREENMANAGER_DRAW do
-                    gc:print_left({Fonts::chalk_normal},
-                                  _Vector2i(rect.left + 105, 15 + rect.top),
-                                  __(_levelsets[i]:get_title()));
-                    gc:print_left({Fonts::chalk_small},
-                                  _Vector2i(rect.left + 105, 40 + rect.top),
-                                  __(_levelsets[i]:get_description()));
-                    gc:print_right({Fonts::chalk_normal},
-                                   _Vector2i(60+rect.width, 15 + rect.top),
-                                   {(boost::format("%1% %2%%%") % _("Solved:") % levelsets[THIS(CEU_Levelset)->i]->get_completion()).str()});
-                    gc:print_right({Fonts::chalk_small},
-                                   _Vector2i(60+rect.width, 40 + rect.top),
-                                   {(boost::format("%1% %2%") % levelsets[THIS(CEU_Levelset)->i]->get_level_count() % _("levels")).str()});
+                every REDRAW do
+                    call {Fonts::chalk_normal}.render(
+                        _origin_top_left,
+                        rect.left+105, 15+rect.top,
+                        __(_levelsets[i]:get_title()),
+                        *{Display::s_framebuffer}
+                    );
+
+                    call {Fonts::chalk_normal}.render(
+                        _origin_top_left,
+                        rect.left+105, 40+rect.top,
+                        __(_levelsets[i]:get_description()),
+                        *{Display::s_framebuffer}
+                    );
+
+                    call {Fonts::chalk_normal}.render(
+                        _origin_top_right,
+                        60+rect.width, 15+rect.top,
+                        {(boost::format("%1% %2%%%") % _("Solved:") % levelsets[THIS(CEU_Levelset)->i]->get_completion()).str()},
+                        *{Display::s_framebuffer}
+                    );
+
+                    call {Fonts::chalk_normal}.render(
+                        _origin_top_right,
+                        60+rect.width, 40+rect.top,
+                        {(boost::format("%1% %2%") % levelsets[THIS(CEU_Levelset)->i]->get_level_count() % _("levels")).str()},
+                        *{Display::s_framebuffer}
+                    );
                 end
             end
         end
@@ -297,15 +325,16 @@ do
                                    LEVEL_ITEMS_PER_PAGE, LEVEL_ITEM_HEIGHT);
 
     var float yy  = 50+15;
-    var float xx1 = 0;
-    var Sprite s1 = Sprite.w_xy_name(false, &xx1, &yy,
-                        (char&&)_XXX_PURE(outer.levelset.get_image().c_str()));
-    xx1 = 60 + 680/2 - s1.get_width()/2 - 275;
 
-    var float xx2 = 0;
-    var Sprite s2 = Sprite.w_xy_name(false, &xx2, &yy,
+    var Rect    r1 = Rect(0, yy, 0, 0);
+    var SpriteR s1 = SpriteR.build_name(&r1,
                         (char&&)_XXX_PURE(outer.levelset.get_image().c_str()));
-    xx2 = 60 + 680/2 - s2.get_width()/2 + 275;
+        r1.left = 60 + 680/2 - s1.get_width()/2 - 275;
+
+    var Rect    r2 = Rect(0, yy, 0, 0);
+    var SpriteR s2 = SpriteR.build_name(&r2,
+                        (char&&)_XXX_PURE(outer.levelset.get_image().c_str()));
+        r2.left = 60 + 680/2 - s2.get_width()/2 + 275;
 
     pool Level[] levels;
     var Rect rect = Rect(60+50, 50+112, 680-90, LEVEL_ITEM_HEIGHT-1);
@@ -321,10 +350,13 @@ do
         var int v = await ui.ok;
         escape v;   // always >= 0
     with
-        every gc in SCREENMANAGER_DRAW do
-            gc:print_left({Fonts::chalk_large},
-                          _Vector2i(680/2, 50+10),
-                          __(this.levelset.get_title()));
+        every REDRAW do
+            call {Fonts::chalk_large}.render(
+                _origin_top_left,
+                680/2, 50+10,
+                __(this.levelset.get_title()),
+                *{Display::s_framebuffer}
+            );
         end
     end
 end
@@ -374,10 +406,13 @@ do
         var int v = await ui.ok;
         escape v;   // always >= 0
     with
-        every gc in SCREENMANAGER_DRAW do
-            gc:print_center({Fonts::chalk_large},
-                            _Vector2i(60+680/2, 50+10),
-                            __("Levelsets"));
+        every REDRAW do
+            call {Fonts::chalk_large}.render(
+                _origin_top_center,
+                60+680/2, 50+10,
+                __("Levelsets"),
+                *{Display::s_framebuffer}
+            );
         end
     end
 end
