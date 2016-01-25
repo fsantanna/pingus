@@ -18,7 +18,9 @@ do
     var float yc = {Display::get_height()} / 2;
 
     var Wood _;
-    var Sprite _ = Sprite.w_xy_name(false, &xc,&yc, "core/menu/blackboard");
+
+    var Rect r = Rect(xc,yc, 0,0);
+    var SpriteR _ = SpriteR.build_name(&r, "core/menu/blackboard");
 
     var SurfaceButton next with
         this.x = xc + 220 + 40;
@@ -59,8 +61,8 @@ do
             _page = _XXX_PURE(_pages.back());
             var char[] text;
             var char&& image = _XXX_PURE((char&&)_page.image.res_name.c_str());
-            var float y = yc - 65;
-            var Sprite _ = Sprite.w_xy_name(false, &xc,&y, _XXX_PURE(image));
+            var Rect r = Rect(xc,yc-65, 0,0);
+            var SpriteR _ = SpriteR.build_name(&r, _XXX_PURE(image));
             par/or do
                 var float time = 0;
                 watching next_text do
@@ -82,12 +84,14 @@ do
                 text = [] .. (char&&)_page.text.c_str();
                 await next_text;
             with
-                every gc in SCREENMANAGER_DRAW do
-                    gc:print_left({Fonts::chalk_normal},
-                                  _Vector2i(gc:get_width()/2  - 280,
-                                            gc:get_height()/2 + 35),
-                                  &&text)
-                        finalize with end;
+                every REDRAW do
+                    call {Fonts::chalk_normal}.render(
+                        _origin_top_left,
+                        {Display::get_width()} /2 - 280,
+                        {Display::get_height()}/2 + 35,
+                        &&text,
+                        *{Display::s_framebuffer}
+                    ) finalize with end;
                 end
             end
             _pages.pop_back();
@@ -120,11 +124,14 @@ do
             end
         end
     with
-        every gc in SCREENMANAGER_DRAW do
-            gc:print_center({Fonts::chalk_large},
-                  _Vector2i(gc:get_width()/2, gc:get_height()/2 - 200),
-                  &&title)
-                finalize with end;
+        every REDRAW do
+            call {Fonts::chalk_large}.render(
+                _origin_top_center,
+                {Display::get_width()} /2,
+                {Display::get_height()}/2 - 200,
+                &&title,
+                *{Display::s_framebuffer}
+            ) finalize with end;
         end
     end
 end
