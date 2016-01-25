@@ -10,11 +10,7 @@ do
     var char[] str = [] .. "pingus/player"
                         .. (char&&)this.pingu.get_owner_str().c_str()
                         .. "/digger/left";
-    var Sprite _ with
-        this.x    = &_XXX_NOHOLD(&&outer.pingu.pos_x);
-        this.y    = &_XXX_NOHOLD(&&outer.pingu.pos_y);
-        this.name = _XXX_PURE(&&str);
-    end;
+    var SpriteR _ = SpriteR.build_name(&outer.pingu.rect, _XXX_PURE(&&str));
 
     /* UPDATE */
     loop i do

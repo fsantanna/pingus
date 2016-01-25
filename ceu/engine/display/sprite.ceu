@@ -129,6 +129,13 @@ _assert(not "ERR");
     with
         /* DRAW */
         every REDRAW do
+            var int xx=0, yy=0;
+            if this.is_world and global:world? then
+                xx = global:world!:get_state().get_pos().x -
+                     global:world!:get_state().get_width()/2;
+                yy = global:world!:get_state().get_pos().y -
+                     global:world!:get_state().get_height()/2;
+            end
             call {Display::s_framebuffer}:draw_surface(
                 this.sfc.get_framebuffer_surface(),
                 _Rect(
@@ -136,8 +143,8 @@ _assert(not "ERR");
                         _Vector2i(this.frame_size.width  * (this.frame%this.array.width),
                                   this.frame_size.height * (this.frame/this.array.width)),
                     _Size(this.frame_size.width,this.frame_size.height)),
-                _Vector2i(this.rect.left - this.offset.x,
-                          this.rect.top  - this.offset.y)
+                _Vector2i(-xx + this.rect.left - this.offset.x,
+                          -yy + this.rect.top  - this.offset.y)
             );
         end
     end

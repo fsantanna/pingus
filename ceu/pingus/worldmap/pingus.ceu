@@ -53,8 +53,7 @@ class Pingus with
     var _WorldmapNS__NodeId node;
 
     var s8        direction = _NONE;
-    var float     pos_x = 0;
-    var float     pos_y = 0;
+    var Rect      rect = Rect(0,0,0,0);
     var Vector3f& pos;
 
     event _WorldmapNS__NodeId go_walking;
@@ -80,8 +79,8 @@ do
 
     par do
         every DELTA do
-            this.pos_x = this.pos.x;
-            this.pos_y = this.pos.y;
+            this.rect.left = this.pos.x;
+            this.rect.top = this.pos.y;
         end
     with
         loop do

@@ -14,12 +14,12 @@ do
                 id_total = id_total+1;
                 counter.number_of_released = counter.number_of_released + 1;
                 counter.number_of_alive    = counter.number_of_alive    + 1;
+                var Rect r = Rect(x_,y_,0,0);
                 spawn Pingu in this.pingus with
                     this.pingus    = &outer.pingus;
                     this.id        = id_total;
                     this.owner_id  = owner_id_;
-                    this.pos_x     = x_;
-                    this.pos_y     = y_;
+                    this.rect      = r;
                     this.direction = dir_;
                 end;
             end

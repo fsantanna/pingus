@@ -11,8 +11,8 @@ class RightLeftSprites with
     var char[]& right;
     var char[] none;
     var bool is_world = true;
-    pool Sprite[1] sprites;
-    function (void)=>Sprite&& get;
+    pool SpriteR[1] sprites;
+    function (void)=>SpriteR&& get;
 do
     event void e_change;
     par do
@@ -25,11 +25,10 @@ do
         end
     with
         loop do
-            var Sprite&&? sprite =
-                spawn Sprite in this.sprites with
+            var SpriteR&&? sprite =
+                spawn SpriteR in this.sprites with
                     this.is_world = outer.is_world;
-                    this.x = &_XXX_NOHOLD(&&outer.parent.pos_x);
-                    this.y = &_XXX_NOHOLD(&&outer.parent.pos_y);
+                    this.rect = &outer.parent.rect;
                     if outer.parent.direction == _NONE then
                         this.name = _XXX_PURE(&&outer.none);
                     else/if outer.parent.direction == _LEFT then
@@ -50,7 +49,7 @@ do
 
     /* PUBLIC */
 
-    function (void)=>Sprite&& get do
+    function (void)=>SpriteR&& get do
         loop s in this.sprites do
             return s;
         end

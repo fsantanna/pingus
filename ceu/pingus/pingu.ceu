@@ -198,28 +198,28 @@ do
     /* PUBLIC */
 
     function (void)=>float get_x do
-        return this.pos_x;
+        return this.rect.left;
     end
     function (void)=>float get_y do
-        return this.pos_y;
+        return this.rect.top;
     end
     function (void)=>int get_xi do
-        return (int)this.pos_x;
+        return (int)this.rect.left;
     end
     function (void)=>int get_yi do
-        return (int)this.pos_y;
+        return (int)this.rect.top;
     end
     function (void)=>Vector3f get_pos do
-        var Vector3f vec = Vector3f(this.pos_x, this.pos_y, 0);
+        var Vector3f vec = Vector3f(this.rect.left, this.rect.top, 0);
         return vec;
     end
 
     function (float x)=>void set_x do
-        this.pos_x = x;
+        this.rect.left = x;
     end
 
     function (float y)=>void set_y do
-        this.pos_y = y;
+        this.rect.top = y;
     end
     function (float x, float y)=>void set_pos do
         this.set_x(x);
@@ -227,7 +227,7 @@ do
     end
 
     function (void)=>Vector3f get_center_pos do
-        var Vector3f vec = Vector3f(this.pos_x, this.pos_y-16, 0);
+        var Vector3f vec = Vector3f(this.rect.left, this.rect.top-16, 0);
         return vec;
     end
 
@@ -259,8 +259,8 @@ do
 
     function (int x, int y)=>int rel_getpixel do
         return global:world!:get_colmap():getpixel(
-                (int)(this.pos_x + (float)(x * this.direction)),
-                (int)(this.pos_y - (float)(y)));
+                (int)(this.rect.left + (float)(x * this.direction)),
+                (int)(this.rect.top - (float)(y)));
     end
 
     function (int x, int y)=>bool head_collision_on_walk do
@@ -287,10 +287,10 @@ do
         _assert (x1 < x2);
         _assert (y1 < y2);
 
-        return (this.pos_x > x1 and
-                this.pos_x < x2 and
-                this.pos_y > y1 and
-                this.pos_y < y2);
+        return (this.rect.left > x1 and
+                this.rect.left < x2 and
+                this.rect.top > y1 and
+                this.rect.top < y2);
     end
 
     // Returns the distance between the Pingu and a given coordinate
@@ -343,7 +343,7 @@ do
       velocity += arg_v;
       // Moving the pingu on pixel up, so that the force can take effect
       // FIXME: this should be handled by a state-machine
-      --pos_y;
+      --rect.top;
     }
 #endif
 end

@@ -38,7 +38,7 @@ struct CEU_SpriteR;
     be usefull for post-processing effects and such. */
 class DrawingContext
 {
-private:
+public:
   typedef std::vector<DrawingRequest*> DrawingRequests;
   DrawingRequests drawingrequests;
 

@@ -66,10 +66,10 @@ data Position with
 end
 
 data Rect with
-    var int left;
-    var int top;
-    var int width;
-    var int height;
+    var float left;
+    var float top;
+    var float width;
+    var float height;
 end
 
 data Size with
@@ -89,14 +89,14 @@ data Vector3f with
 end
 
 interface IPositionDirection with
-    var  s8    direction;
-    var  float pos_x, pos_y;
+    var  s8   direction;
+    var  Rect rect;
 end
 
 interface IPingu with
     pool IPingu[]& pingus;
 
-    var  float              pos_x, pos_y;
+    var  Rect               rect;
     var   s8                direction;
     var   _ActionName__Enum current_action;
     var   _ActionName__Enum wall_action;
