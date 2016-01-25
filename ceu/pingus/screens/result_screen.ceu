@@ -61,11 +61,14 @@ do
         (char&&){StringUtil::to_string}((int)result.saved).c_str() .. ['/'] ..
         (char&&){StringUtil::to_string}((int)result.needed).c_str();
 
-    var float x = {Display::get_width()}  / 2;
-    var float y = {Display::get_height()} / 2;
+    var Rect rect = Rect(
+        {Display::get_width()}  / 2,
+        {Display::get_height()} / 2,
+        0, 0
+    );
 
     var Wood _;
-    var Sprite _ = Sprite.w_xy_name(false, &x,&y, "core/menu/blackboard");
+    var SpriteR _ = SpriteR.build_name(&rect, "core/menu/blackboard");
 
     var SurfaceButton ok with
         this.x = {Display::get_width()/2}  + 245;
@@ -134,60 +137,105 @@ do
             end
         end
     with
-        every gc in SCREENMANAGER_DRAW do
-            var int left_x  = gc:get_width()/2 - 150;
-            var int right_x = gc:get_width()/2 + 150;
-            var int y = gc:get_height()/2 + 40;
+        every REDRAW do
+            var int left_x  = {Display::get_width()}/2 - 150;
+            var int right_x = {Display::get_width()}/2 + 150;
+            var int y = {Display::get_height()}/2 + 40;
 
             if not has_succeeded then
                 // abort button
-                gc:print_center({Fonts::chalk_normal},
-                                _Vector2i(abort.x+55, abort.y-4),
-                                __("Give Up"));
-                gc:print_center({Fonts::chalk_normal},
-                                _Vector2i(retry.x+30, retry.y-24),
-                                __("Retry"));
+                call {Fonts::chalk_normal}.render(
+                    _origin_top_center,
+                    abort.x+55, abort.y-4,
+                    __("Give Up"),
+                    *{Display::s_framebuffer}
+                );
+                call {Fonts::chalk_normal}.render(
+                    _origin_top_center,
+                    retry.x+30, retry.y-24,
+                    __("Retry"),
+                    *{Display::s_framebuffer}
+                );
             end
 
-            gc:print_center({Fonts::chalk_large},
-                            _Vector2i(gc:get_width()/2, {Display::get_height()}/2 - 200),
-                            &&level_name)
-                finalize with nothing; end;
+            call {Fonts::chalk_large}.render(
+                _origin_top_center,
+                {Display::get_width()}/2, {Display::get_height()}/2-200,
+                &&level_name,
+                *{Display::s_framebuffer}
+            ) finalize with nothing; end;
 
             if has_succeeded then
-                gc:print_center({Fonts::chalk_large},
-                                _Vector2i(gc:get_width()/2, {Display::get_height()}/2 - 140),
-                                __("Success!"));
-                /*gc:print_center(Fonts::pingus_small, gc:get_width()/2, * gc:get_height()-30,
+                call {Fonts::chalk_large}.render(
+                    _origin_top_center,
+                    {Display::get_width()}/2, {Display::get_height()}/2-140,
+                    __("Success!"),
+                    *{Display::s_framebuffer}
+                );
+                /*gc:print_center(Fonts::pingus_small, gc:get_width()/2, * * * gc:get_height()-30,
                 "..:: Press Space to continue ::..");*/
             else
-                gc:print_center({Fonts::chalk_large},
-                                _Vector2i(gc:get_width()/2, {Display::get_height()}/2 - 140),
-                                __("Failure!"));
-                /*gc:print_center(Fonts::pingus_normal, gc:get_width()/2, * gc:get_height()-30,
+                call {Fonts::chalk_large}.render(
+                    _origin_top_center,
+                    {Display::get_width()}/2, {Display::get_height()}/2-140,
+                    __("Failure!"),
+                    *{Display::s_framebuffer}
+                );
+                /*gc:print_center(Fonts::pingus_normal, gc:get_width()/2, * * gc:get_height()-30,
                 "..:: Press Space to retry the level ::..");*/
             end
 
-            gc:print_center({Fonts::chalk_normal},
-                            _Vector2i(gc:get_width()/2, gc:get_height()/2 - 70),
-                            &&message)
-                finalize with nothing; end;
+            call {Fonts::chalk_normal}.render(
+                _origin_top_center,
+                {Display::get_width()}/2, {Display::get_height()}/2-70,
+                &&message,
+                *{Display::s_framebuffer}
+            ) finalize with nothing; end;
 
-            var int left_x  = gc:get_width()/2 - 100;
-            var int right_x = gc:get_width()/2 + 100;
+            var int left_x  = {Display::get_width()}/2 - 100;
+            var int right_x = {Display::get_width()}/2 + 100;
             var int y = {Display::get_height()}/2 + 10;
 
-            gc:print_left({Fonts::chalk_normal}, _Vector2i(left_x,  y), __("Saved: "));
-            gc:print_right({Fonts::chalk_normal},_Vector2i(right_x, y), &&saved_needed)
-                finalize with nothing; end;
+            call {Fonts::chalk_normal}.render(
+                _origin_top_left,
+                left_x, y,
+                __("Saved: "),
+                *{Display::s_framebuffer}
+            );
+            call {Fonts::chalk_normal}.render(
+                _origin_top_right,
+                right_x, y,
+                &&saved_needed,
+                *{Display::s_framebuffer}
+            ) finalize with nothing; end;
 
             y = y + 30;
-            gc:print_left({Fonts::chalk_normal}, _Vector2i(left_x,  y), __("Died: "));
-            gc:print_right({Fonts::chalk_normal},_Vector2i(right_x, y), {StringUtil::to_string}(n_killed));
+            call {Fonts::chalk_normal}.render(
+                _origin_top_left,
+                left_x, y,
+                __("Died: "),
+                *{Display::s_framebuffer}
+            );
+            call {Fonts::chalk_normal}.render(
+                _origin_top_right,
+                right_x, y,
+                {StringUtil::to_string}(n_killed),
+                *{Display::s_framebuffer}
+            );
 
             y = y + 30;
-            gc:print_left({Fonts::chalk_normal}, _Vector2i(left_x,  y), __("Time left: "));
-            gc:print_right({Fonts::chalk_normal},_Vector2i(right_x, y), _RESULT_SCREEN_time_str);
+            call {Fonts::chalk_normal}.render(
+                _origin_top_left,
+                left_x, y,
+                __("Time left: "),
+                *{Display::s_framebuffer}
+            );
+            call {Fonts::chalk_normal}.render(
+                _origin_top_right,
+                right_x, y,
+                _RESULT_SCREEN_time_str,
+                *{Display::s_framebuffer}
+            );
         end
     end
 end
