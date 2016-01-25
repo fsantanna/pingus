@@ -22,22 +22,32 @@ do
         this.desc = desc;
     end;
 
-    every gc in SCREENMANAGER_DRAW do
+    every REDRAW do
         if this.auto_uncover then
             // Pingu is not over the surface
             if (not (this.pos.x>pos_ini.x and this.pos.x<(pos_ini.x + sfc.get_width()) and
                      this.pos.y>pos_ini.y and this.pos.y<(pos_ini.y + sfc.get_height())))
             then
-                gc:draw(&&sfc, _Vector2i(pos_ini.x,pos_ini.y))
-                    finalize with end;
+                call {Display::s_framebuffer}:draw_surface(
+                    this.sfc.get_framebuffer_surface(),
+                    _Vector2i(global:offset.left + pos_ini.x,
+                              global:offset.top  + pos_ini.y)
+                );
             else/if this.pos.z > pos_ini.z+1000 then
                 // FIXME: Hack for the 0.6.0 release/tutorial world remove // later
-                gc:draw(&&sfc, _Vector2i(pos_ini.x,pos_ini.y))
-                    finalize with end;
+// TODO
+                call {Display::s_framebuffer}:draw_surface(
+                    this.sfc.get_framebuffer_surface(),
+                    _Vector2i(global:offset.left + pos_ini.x,
+                              global:offset.top  + pos_ini.y)
+                );
             end
         else
-            gc:draw(&&sfc, _Vector2i(pos_ini.x,pos_ini.y))
-                finalize with end;
+            call {Display::s_framebuffer}:draw_surface(
+                this.sfc.get_framebuffer_surface(),
+                _Vector2i(global:offset.left + pos_ini.x,
+                          global:offset.top  + pos_ini.y)
+            );
         end
     end
 end

@@ -20,7 +20,7 @@ class Sprite with
     function (void)=>int get_width;
     function (void)=>int get_height;
 
-    var bool is_world = true;
+    var bool is_world = true;   // TODO: rename to is_relative
 
     var Rect&  rect;
     var Rect&? small_map;   // TODO
@@ -136,11 +136,9 @@ do
         /* DRAW */
         every REDRAW do
             var int xx=0, yy=0;
-            if this.is_world and global:world? then
-                xx = global:world!:get_state().get_pos().x -
-                     global:world!:get_state().get_width()/2;
-                yy = global:world!:get_state().get_pos().y -
-                     global:world!:get_state().get_height()/2;
+            if this.is_world then
+                xx = global:offset.left;
+                yy = global:offset.top;
             end
 
             var float x, y;
@@ -163,8 +161,8 @@ do
                         _Vector2i(this.frame_size.width  * (this.frame%this.array.width),
                                   this.frame_size.height * (this.frame/this.array.width)),
                     _Size(this.frame_size.width,this.frame_size.height)),
-                _Vector2i(-xx + x - this.offset.x,
-                          -yy + y - this.offset.y)
+                _Vector2i(xx + x - this.offset.x,
+                          yy + y - this.offset.y)
             );
         end
     end

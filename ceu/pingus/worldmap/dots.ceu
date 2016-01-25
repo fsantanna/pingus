@@ -101,12 +101,13 @@ do
     var bool v = await mouse.ok_out until v==false;
     pause/if mouse.ok_out do
         var Sprite _ = Sprite.build_name(&rect, "core/worldmap/story_dot_highlight");
-
-        every gc in SCREENMANAGER_DRAW do
-            gc:print_center({Fonts::pingus_small},
-                  _Vector2i(rect.left, rect.top-44),
-                  __(&&m_name),
-                  10000);
+        every REDRAW do
+            call {Fonts::pingus_small}.render(
+                _origin_top_center,
+                rect.left, rect.top-44,
+                __(&&m_name),
+                *{Display::s_framebuffer}
+            );
         end
     end
 end
@@ -183,23 +184,29 @@ do
     with
         var bool v = await mouse.ok_out until v==false;
         pause/if mouse.ok_out do
-            every gc in SCREENMANAGER_DRAW do
+            every REDRAW do
                 if this.status == {Savegame::NONE} then
-                    gc:print_center({Fonts::pingus_small},
-                        _Vector2i(rect.left, rect.top-44),
+                    call {Fonts::pingus_small}.render(
+                        _origin_top_center,
+                        rect.left, rect.top-44,
                         __("???"),
-                        10000);
+                        *{Display::s_framebuffer}
+                    );
                 else
-                    gc:print_center({Fonts::pingus_small},
-                        _Vector2i(rect.left, rect.top-44),
+                    call {Fonts::pingus_small}.render(
+                        _origin_top_center,
+                        rect.left, rect.top-44,
                         __(&&lvl_name),
-                        10000);
+                        *{Display::s_framebuffer}
+                    );
                 end
                 if {globals::developer_mode} then
-                    gc:print_center({Fonts::pingus_small},
-                        _Vector2i(rect.left, rect.top-70),
+                    call {Fonts::pingus_small}.render(
+                        _origin_top_center,
+                        rect.left, rect.top-70,
                         __(&&res_name),
-                        10000);
+                        *{Display::s_framebuffer}
+                    );
                 end
             end
         end

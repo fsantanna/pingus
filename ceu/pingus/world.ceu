@@ -88,6 +88,13 @@ do
 
     spawn do
         par do
+            every REDRAW do
+                global:offset.left = -(state!.get_pos().x -
+                                       state!.get_width()/2);
+                global:offset.top  = -(state!.get_pos().y -
+                                       state!.get_height()/2);
+            end
+        with
             // Playfield
             every gc in SCREENMANAGER_DRAW do
                 this.scene_context!.clear();
@@ -216,6 +223,11 @@ do
                     -10000)
                 finalize with nothing; end
             );
+        end
+    with
+        every REDRAW do
+            global:offset.left = 0;
+            global:offset.top  = 0;
         end
     end
 
