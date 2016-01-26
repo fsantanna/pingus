@@ -18,7 +18,6 @@
 
 #include "engine/display/display.hpp"
 #include "engine/display/framebuffer.hpp"
-#include "engine/display/drawing_context.hpp"
 #include "pingus/collision_mask.hpp"
 
 CollisionMap::CollisionMap(int w, int h) :

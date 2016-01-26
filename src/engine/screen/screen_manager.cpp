@@ -20,7 +20,6 @@
 
 #include "engine/input/event.hpp"
 #include "engine/display/display.hpp"
-#include "engine/display/drawing_context.hpp"
 #include "engine/display/framebuffer.hpp"
 #include "pingus/fonts.hpp"
 #include "pingus/globals.hpp"

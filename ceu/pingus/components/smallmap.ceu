@@ -1,11 +1,6 @@
 #ifndef _SMALLMAP_CEU
 #define _SMALLMAP_CEU
 
-native/pre do
-    ##include "../src/engine/display/drawing_context.hpp"
-end
-native @plain _DrawingContext;
-
 class SmallMap with
     var  Rect&        rect;
     pool IPingu[]&    pingus;
