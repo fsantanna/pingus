@@ -157,6 +157,10 @@ interface IWorld with
     function (_CollisionMask&& mask,int x,int y)=>void remove;
 end
 
+interface IWorldMap with
+    function (void)=>Vector2i get_offset;
+end
+
 interface Global with
     event void go_options;
     event void go_pause_toggle;
@@ -167,6 +171,7 @@ interface Global with
     event (float,float)             go_create_pingu_particles;
     event (float,float,float,float) go_create_smoke_particles;
 
+    var IWorldMap&&? worldmap;
     var IWorld&&? world;
     var float gravity;
     var Rect offset;
@@ -184,6 +189,7 @@ event (float,float)             go_create_pingu_particles;
 event (float,float,float,float) go_create_smoke_particles;
 var char[] worldmap_return_filename;
 
+var IWorldMap&&? worldmap;
 var IWorld&&? world;
 var float gravity = 0.2;
 var Rect offset = Rect(0,0,0,0);

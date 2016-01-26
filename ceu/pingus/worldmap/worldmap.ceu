@@ -68,7 +68,10 @@ bool Worldmap::is_final_map() {
 
 class WorldMap with
     var _Pathname&& filename;
+    function (void)=>Vector2i get_offset;
 do
+    global:worldmap = &&this;
+
     _worldmap = _XXX_PURE(_PingusWorldmap(*filename)
                             finalize with end);
     _path_graph_reader = _XXX_PURE(_worldmap.get_graph());
@@ -122,6 +125,7 @@ do
     end
     pos.x = _path_graph:get_dot(id):get_pos().x;
     pos.y = _path_graph:get_dot(id):get_pos().y;
+_printf("POS=%f %f\n", pos.x, pos.y);
 
 // TODO
 #if 0
@@ -167,36 +171,9 @@ do
         end
     with
         every REDRAW do
-            var int x = 0;
-            do
-                var int min, max;
-                var int width  = _worldmap.get_width();
-                if width >= {Display::get_width()} then
-                    min = {Display::get_width()}/2;
-                    max = width - {Display::get_width()}/2;
-                else
-                    min = width - {Display::get_width()}/2;
-                    max = {Display::get_width()}/2;
-                end
-                x = {Math::clamp}(min, (int)pos.x, max);
-            end
-
-            var int y = 0;
-            do
-                var int min, max;
-                var int height = _worldmap.get_height();
-                if height >= {Display::get_height()} then
-                    min = {Display::get_height()}/2;
-                    max = height - {Display::get_height()}/2;
-                else
-                    min = height - {Display::get_height()}/2;
-                    max = {Display::get_height()}/2;
-                end
-                y = {Math::clamp}(min, (int)pos.y, max);
-            end
-
-            global:offset.left = -(x - {Display::get_width()}/2);
-            global:offset.top  = -(y - {Display::get_height()}/2);
+            var Vector2i off = this.get_offset();
+            global:offset.left = -off.x;
+            global:offset.top  = -off.y;
         end
     with
         // Create all objects
@@ -295,10 +272,10 @@ do
         end
     with
         every (x,y) in ON_PRIMARY_BUTTON_PRESSED do
-            var float xx = _gc_state.screen2world(_Vector2i(x,y)).x;
-            var float yy = _gc_state.screen2world(_Vector2i(x,y)).y;
+            var Vector2i off = this.get_offset();
+//_printf(">> xy=%d,%d, off=%d,%d\n", x,y, off.x,off.y);
             { static Vector2f click_pos; };
-            _click_pos = _XXX_PURE(_Vector2i(xx,yy));
+            _click_pos = _XXX_PURE(_Vector2i(x+off.x,y+off.y));
             {
                 if (globals::developer_mode)
                 {
@@ -347,6 +324,40 @@ do
             global:offset.left = 0;
             global:offset.top  = 0;
         end
+    end
+
+    function (void)=>Vector2i get_offset do
+        var int x = 0;
+        do
+            var int min, max;
+            var int width  = _worldmap.get_width();
+            if width >= {Display::get_width()} then
+                min = {Display::get_width()}/2;
+                max = width - {Display::get_width()}/2;
+            else
+                min = width - {Display::get_width()}/2;
+                max = {Display::get_width()}/2;
+            end
+            x = {Math::clamp}(min, (int)pos.x, max);
+        end
+
+        var int y = 0;
+        do
+            var int min, max;
+            var int height = _worldmap.get_height();
+            if height >= {Display::get_height()} then
+                min = {Display::get_height()}/2;
+                max = height - {Display::get_height()}/2;
+            else
+                min = height - {Display::get_height()}/2;
+                max = {Display::get_height()}/2;
+            end
+            y = {Math::clamp}(min, (int)pos.y, max);
+        end
+
+        var Vector2i ret = Vector2i(x - {Display::get_width()}/2,
+                                    y - {Display::get_height()}/2);
+        return ret;
     end
 end
 

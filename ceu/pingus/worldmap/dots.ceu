@@ -23,11 +23,10 @@ class Mouse with
     event bool ok_out;
 do
     function (int x, int y)=>bool is_inside do
-        var float xx = _gc_state.screen2world(_Vector2i(x,y)).x;
-        var float yy = _gc_state.screen2world(_Vector2i(x,y)).y;
-        var float xxx = xx - this.rect.left;
-        var float yyy = yy - this.rect.top;
-        return {Math::sqrt}(xxx*xxx + yyy*yyy) < 30;
+        var Vector2i off = global:worldmap!:get_offset();
+        var float dx = off.x + x - this.rect.left;
+        var float dy = off.y + y - this.rect.top;
+        return {Math::sqrt}(dx*dx + dy*dy) < 30;
     end
 
     par do
