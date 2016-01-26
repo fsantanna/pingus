@@ -83,8 +83,10 @@ ScreenManager::display()
 
     {
       s32 dt_us = 1000*dt;
-      ceu_out_go(&CEU_APP, CEU_IN__WCLOCK, &dt_us);
-      ceu_out_go(&CEU_APP, CEU_IN_SDL_DT,  &dt);
+      if (dt_us > 0) {
+        ceu_out_go(&CEU_APP, CEU_IN__WCLOCK, &dt_us);
+        ceu_out_go(&CEU_APP, CEU_IN_SDL_DT,  &dt);
+      }
     }
 
     // previous frame took more than one second
