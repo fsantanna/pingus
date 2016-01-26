@@ -54,7 +54,6 @@ input (int,int) ON_PRIMARY_BUTTON_PRESSED;
 input (int,int) ON_PRIMARY_BUTTON_RELEASED;
 input (int,int) ON_SECONDARY_BUTTON_PRESSED;
 input (int,int) ON_SECONDARY_BUTTON_RELEASED;
-input _DrawingContext&& SCREENMANAGER_DRAW;
 input void WORLD_UPDATE;
 
 data Color with

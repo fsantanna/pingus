@@ -40,7 +40,6 @@ class ScreenManager
 {
 private:
   static ScreenManager* instance_;
-  std::unique_ptr<DrawingContext> display_gc;
 
 public:
   ScreenManager();
