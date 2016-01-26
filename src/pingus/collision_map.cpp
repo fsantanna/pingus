@@ -16,8 +16,9 @@
 
 #include "pingus/collision_map.hpp"
 
+#include "engine/display/display.hpp"
+#include "engine/display/framebuffer.hpp"
 #include "engine/display/drawing_context.hpp"
-#include "engine/display/sprite.hpp"
 #include "pingus/collision_mask.hpp"
 
 CollisionMap::CollisionMap(int w, int h) :
@@ -205,10 +206,10 @@ CollisionMap::draw(DrawingContext& gc)
 
     canvas.unlock();
 
-    m_colmap_sprite = Sprite(canvas);
+    m_colmap_sprite = FramebufferSurface(Display::get_framebuffer()->create_surface(canvas));
   }
 
-  gc.draw(m_colmap_sprite, Vector2i(0, 0), 1000);
+  //gc.draw(m_colmap_sprite, Vector2i(0, 0), 1000);
 }
 
 unsigned

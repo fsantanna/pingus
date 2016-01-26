@@ -18,7 +18,6 @@
 
 #include "engine/display/font_description.hpp"
 #include "engine/display/sprite_description.hpp"
-#include "engine/display/sprite_description.hpp"
 #include "pingus/path_manager.hpp"
 #include "util/log.hpp"
 #include "util/pathname.hpp"
@@ -100,6 +99,7 @@ Resource::load_font(const std::string& res_name)
   return Font(desc);
 }
 
+#if 0
 Sprite
 Resource::load_thumb_sprite(const std::string& name)
 {
@@ -135,5 +135,6 @@ Resource::load_thumb_sprite(const std::string& name)
     }
   }
 }
+#endif
 
 /* EOF */

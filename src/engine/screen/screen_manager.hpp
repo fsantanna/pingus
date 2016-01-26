@@ -20,7 +20,6 @@
 #include <memory>
 #include <vector>
 
-#include "engine/display/sprite.hpp"
 #include "math/vector2f.hpp"
 
 namespace Input {

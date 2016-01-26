@@ -21,7 +21,6 @@
 #include "engine/display/display.hpp"
 #include "engine/display/font.hpp"
 #include "engine/display/framebuffer.hpp"
-#include "engine/display/sprite.hpp"
 #include "util/log.hpp"
 
 struct DrawingRequestsSorter
@@ -51,25 +50,6 @@ public:
 
   void render(Framebuffer& fb, const Rect& rect) {
     font.render(origin, static_cast<int>(pos.x + rect.left), static_cast<int>(pos.y + rect.top), text, fb);
-  }
-};
-
-class SpriteDrawingRequest : public DrawingRequest
-{
-private:
-  Sprite sprite;
-
-public:
-  SpriteDrawingRequest(const Sprite& sprite_, const Vector2i& pos_, float z_)
-    : DrawingRequest(pos_, z_),
-      sprite(sprite_)
-  {
-  }
-
-  virtual ~SpriteDrawingRequest() {}
-
-  void render(Framebuffer& fb, const Rect& rect) {
-    sprite.render(pos.x + rect.left, pos.y + rect.top, fb);
   }
 };
 
@@ -302,20 +282,6 @@ void
 DrawingContext::draw(CEU_Sprite* sprite, const Vector2i& pos, float z)
 {
   draw(new CEUSpriteDrawingRequest(sprite, pos + translate_stack.back(), z));
-}
-
-void
-DrawingContext::draw(const Sprite& sprite, const Vector2i& pos, float z)
-{
-  draw(new SpriteDrawingRequest(sprite, pos + translate_stack.back(), z));
-}
-
-void
-DrawingContext::draw(const Sprite& sprite, const Vector3f& pos)
-{
-  draw(new SpriteDrawingRequest(sprite, Vector2i(translate_stack.back().x + static_cast<int>(pos.x),
-                                                 translate_stack.back().y + static_cast<int>(pos.y)),
-                                pos.z));
 }
 
 void

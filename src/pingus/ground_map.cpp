@@ -20,7 +20,7 @@
 
 #include "engine/display/display.hpp"
 #include "engine/display/framebuffer.hpp"
-#include "engine/display/sprite_impl.hpp"
+//#include "engine/display/sprite_impl.hpp"
 #include "engine/display/scene_context.hpp"
 #include "pingus/collision_map.hpp"
 #include "util/log.hpp"

@@ -69,9 +69,6 @@ public:
       worth a try */
   void draw(DrawingContext& dc, float z = 0);
 
-  void draw(const Sprite& sprite, const Vector2i& pos, float z = 0);
-  void draw(const Sprite& sprite, const Vector3f& pos);
-
 ///
   void draw(CEU_Surface* sfc, const Vector2i& pos, float z = 0);
   void draw(CEU_Sprite* sprite, const Vector2i& pos, float z = 0);

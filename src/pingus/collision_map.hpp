@@ -19,8 +19,8 @@
 
 #include <memory>
 
-#include "engine/display/sprite.hpp"
 #include "pingus/groundtype.hpp"
+#include "engine/display/framebuffer_surface.hpp"
 
 class CollisionMask;
 
@@ -47,7 +47,7 @@ private:
   /** A array of uchar, each uchar represents a pixel on the map. */
   std::unique_ptr<uint8_t[]> colmap;
 
-  Sprite m_colmap_sprite;
+  FramebufferSurface m_colmap_sprite;
   unsigned int m_colmap_sprite_serial;
 
 public:
