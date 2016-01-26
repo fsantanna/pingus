@@ -137,8 +137,8 @@ do
         every REDRAW do
             var int xx=0, yy=0;
             if this.is_world then
-                xx = global:offset.left;
-                yy = global:offset.top;
+                xx = global:offset.x;
+                yy = global:offset.y;
             end
 
             var float x, y;

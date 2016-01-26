@@ -155,6 +155,8 @@ interface IWorld with
 
     function (_CollisionMask&& mask,int x,int y,_Groundtype__GPType type)=>void put;
     function (_CollisionMask&& mask,int x,int y)=>void remove;
+
+    function (void)=>Vector2i get_offset;
 end
 
 interface IWorldMap with
@@ -174,7 +176,7 @@ interface Global with
     var IWorldMap&&? worldmap;
     var IWorld&&? world;
     var float gravity;
-    var Rect offset;
+    var Vector2i offset;
 
     var char[] worldmap_return_filename;
 end
@@ -192,7 +194,7 @@ var char[] worldmap_return_filename;
 var IWorldMap&&? worldmap;
 var IWorld&&? world;
 var float gravity = 0.2;
-var Rect offset = Rect(0,0,0,0);
+var Vector2i offset = Vector2i(0,0);
 
 event bool go_pause;
 
