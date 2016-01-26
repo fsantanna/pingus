@@ -25,7 +25,7 @@ class Framebuffer;
 
 class SpriteImpl
 {
-private:
+public:
   friend class Sprite;
 
   Pathname filename;

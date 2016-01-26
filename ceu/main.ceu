@@ -251,13 +251,6 @@ _cmd = *cmd;
 par/or do
     await QUIT;
 with
-    every REDRAW do
-        call {Display::s_framebuffer}:fill_rect(
-            _Rect(0,0, {Display::get_width()},{Display::get_height()}),
-            _Color(0,0,0)
-        );
-    end
-with
     pause/if go_pause do
         if _cmd.rest.is_set() then
             _filename = _Pathname(_cmd.rest.get(), {Pathname::SYSTEM_PATH});

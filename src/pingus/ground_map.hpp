@@ -52,7 +52,7 @@ public:
   GroundMap(int width, int height);
   virtual ~GroundMap();
 
-  void draw(SceneContext& gc);
+  void draw(SceneContext& gc, Vector2i off);
 
   CollisionMap* get_colmap();
 

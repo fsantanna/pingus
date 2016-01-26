@@ -30,7 +30,7 @@ class Framebuffer;
 
 class Display
 {
-private:
+public:
   static std::unique_ptr<Framebuffer> s_framebuffer;
 
 public:

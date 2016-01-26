@@ -18,6 +18,9 @@
 
 #include <stdexcept>
 
+#include "engine/display/display.hpp"
+#include "engine/display/framebuffer.hpp"
+#include "engine/display/sprite_impl.hpp"
 #include "engine/display/scene_context.hpp"
 #include "pingus/collision_map.hpp"
 #include "util/log.hpp"
@@ -127,18 +130,16 @@ GroundMap::draw_colmap(SceneContext& gc)
 
 // Draws the map with a offset, needed for scrolling
 void
-GroundMap::draw(SceneContext& gc)
+GroundMap::draw(SceneContext& gc, Vector2i off)
 {
-  const Rect& display = gc.color().get_world_clip_rect();
-
   if (globals::draw_collision_map)
     draw_colmap(gc);
 
   // Trying to calc which parts of the tilemap needs to be drawn
-  int start_x = Math::max(0, display.left / globals::tile_size);
-  int start_y = Math::max(0, display.top  / globals::tile_size);
-  int tilemap_width  = display.get_width()  / globals::tile_size + 1;
-  int tilemap_height = display.get_height() / globals::tile_size + 1;
+  int start_x = Math::max(0, -off.x / globals::tile_size);
+  int start_y = Math::max(0, -off.y / globals::tile_size);
+  int tilemap_width  = Display::get_width()  / globals::tile_size + 1;
+  int tilemap_height = Display::get_height() / globals::tile_size + 1;
 
   // drawing the stuff
   for (int x = start_x; x <= (start_x + tilemap_width) && x < tile_width; ++x)
@@ -146,12 +147,17 @@ GroundMap::draw(SceneContext& gc)
     {
       if (get_tile(x, y)->get_sprite())
       {
-        gc.color().draw(get_tile(x, y)->get_sprite(),
-                        Vector2i(x * globals::tile_size, y * globals::tile_size));
+        Display::s_framebuffer->draw_surface(
+            get_tile(x, y)->get_sprite().impl->framebuffer_surface,
+            Vector2i(x * globals::tile_size+off.x, y * globals::tile_size+off.y)
+        );
+        //gc.color().draw(get_tile(x, y)->get_sprite(),
+                        //Vector2i(x * globals::tile_size, y * 
+                        //globals::tile_size));
       }
       else
       {
-        if (false)
+#if 0
         {
           gc.color().draw_fillrect(Rect(x * globals::tile_size,
                                         y * globals::tile_size,
@@ -159,6 +165,7 @@ GroundMap::draw(SceneContext& gc)
                                         y * globals::tile_size + globals::tile_size),
                                    Color(255, 0, 0, 75));
         }
+#endif
       }
     }
 }

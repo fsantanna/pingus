@@ -59,7 +59,7 @@ public:
   void finish();
   operator bool() const;
 
-private:
+public:
   std::shared_ptr<SpriteImpl> impl;
 };
 

@@ -92,25 +92,24 @@ do
                 global:offset = this.get_offset();
             end
         with
-            // Playfield
-            every gc in SCREENMANAGER_DRAW do
-                this.scene_context!.clear();
-                this.state!.push(this.scene_context!);
-            end
-        with
             every WORLD_UPDATE do
                 this.game_time = this.game_time + 1;
             end
         with
             // Playfield
-            every gc in SCREENMANAGER_DRAW do
-                this.get_scene_context().light().fill_screen(
+            every REDRAW do
+#if 0
+                call {Display::s_framebuffer}:fill_rect(
+                    _Rect(0,0, {Display::get_width()},{Display::get_height()}),
                     _Color(ambient_light.r,
                            ambient_light.g,
                            ambient_light.b,
-                           ambient_light.a));
-                this.gfx_map!.draw(this.get_scene_context());
-                //this.get_scene_context().color().draw(*gc, _Vector2i(0,0));
+                           ambient_light.a)
+                );
+#endif
+                var Vector2i off = global:world!:get_offset();
+                this.gfx_map!.draw(this.get_scene_context(),
+                                   _Vector2i(off.x,off.y));
             end
         end
     end
@@ -208,18 +207,6 @@ do
             if pingu? then
                 emit pingu!:go_action => {ActionName::BOMBER};
             end
-        end
-    with
-        // Playfield
-        every gc in SCREENMANAGER_DRAW do
-            this.state!.pop(this.scene_context!);
-            gc:draw(
-                {new SceneContextDrawingRequest}(
-                    &&this.scene_context!,
-                    _Vector2i(0,0),
-                    -10000)
-                finalize with nothing; end
-            );
         end
     with
         every REDRAW do
