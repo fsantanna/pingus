@@ -9,7 +9,6 @@ native/pre do
     ##define WorldmapNS__PathGraph        WorldmapNS::PathGraph
     ##define WorldmapNS__Path             WorldmapNS::Path
     ##define WorldmapNS__PathfinderResult WorldmapNS::PathfinderResult
-    //##include "pingus/worldmap/worldmap.hpp"
     ##include "pingus/worldmap/path.hpp"
     ##include "pingus/worldmap/path_graph.hpp"
     ##include "pingus/worldmap/pathfinder.hpp"
@@ -74,7 +73,6 @@ do
         this.left   = &left;
         this.right  = &right;
         this.parent = &outer;
-        this.is_world = false;
     end;
 
     par do

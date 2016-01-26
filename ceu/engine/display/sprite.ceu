@@ -105,7 +105,7 @@ do
         loop do
             loop do
                 var float dt;
-                if this.is_world then
+                if this.is_world and global:world? then
                     await WORLD_UPDATE;
                     dt = 0.033;   // TODO
                 else
