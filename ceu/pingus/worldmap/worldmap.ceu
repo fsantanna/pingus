@@ -136,42 +136,10 @@ _printf("POS=%f %f\n", pos.x, pos.y);
 #endif
 
     par do
-        every gc in SCREENMANAGER_DRAW do
-            var int x = 0;
-            do
-                var int min, max;
-                var int width  = _worldmap.get_width();
-                if width >= gc:get_width() then
-                    min = gc:get_width()/2;
-                    max = width - gc:get_width()/2;
-                else
-                    min = width - gc:get_width()/2;
-                    max = gc:get_width()/2;
-                end
-                x = {Math::clamp}(min, (int)pos.x, max);
-            end
-
-            var int y = 0;
-            do
-                var int min, max;
-                var int height = _worldmap.get_height();
-                if height >= gc:get_height() then
-                    min = gc:get_height()/2;
-                    max = height - gc:get_height()/2;
-                else
-                    min = height - gc:get_height()/2;
-                    max = gc:get_height()/2;
-                end
-                y = {Math::clamp}(min, (int)pos.y, max);
-            end
-
-            _gc_state.set_size(gc:get_width(), gc:get_height());
-            _gc_state.set_pos(_Vector2i(x, y));
-            _gc_state.push(*gc);
-        end
-    with
         every REDRAW do
+            var Vector2i off = this.get_offset();
             global:offset = this.get_offset();
+            _gc_state.set_pos(_Vector2i(-off.x, -off.y));
         end
     with
         // Create all objects
@@ -295,27 +263,29 @@ _printf("POS=%f %f\n", pos.x, pos.y);
             struct draw_edges
             {
                 WorldmapNS::PathGraph* graph;
-                DrawingContext*        gc;
+                Vector2i               off;
 
-                draw_edges (WorldmapNS::PathGraph* graph, DrawingContext* gc) :
-                    gc(gc), graph(graph)
+                draw_edges (WorldmapNS::PathGraph* graph, Vector2i off) :
+                    off(off), graph(graph)
                 {}
 
                 void operator()(WorldmapNS::Edge<WorldmapNS::Path*>& edge) {
                     WorldmapNS::Dot* src = graph->get_dot(edge.source);
                     WorldmapNS::Dot* dst = graph->get_dot(edge.destination);
-                    gc->draw_line(Vector2i(src->get_pos().x, src->get_pos().y),
-                                  Vector2i(dst->get_pos().x, dst->get_pos().y),
-                                  Color(255, 255, 255));
+                    Display::s_framebuffer->draw_line(
+                        Vector2i(src->get_pos().x, src->get_pos().y),
+                        Vector2i(dst->get_pos().x, dst->get_pos().y),
+                        Color(255, 255, 255)
+                    );
                 }
             };
         end
-        every gc in SCREENMANAGER_DRAW do
+        every REDRAW do
             if {globals::developer_mode} then
-                _path_graph:graph.for_each_edge(_draw_edges(_path_graph.get(),gc)
-                    finalize with end);
+                var Vector2i off = global:worldmap!:get_offset();
+                _path_graph:graph.for_each_edge(
+                    _draw_edges(_path_graph.get(), _Vector2i(off.x,off.y)));
             end
-            _gc_state.pop(*gc);
         end
     with
         every REDRAW do
