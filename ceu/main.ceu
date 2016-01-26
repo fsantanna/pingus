@@ -43,6 +43,7 @@ native @nohold _delete(), _sscanf(), _log_error(), _log_info(), __();
 
 input void QUIT;
 input void REDRAW;
+input void REDRAW0;
 input int  DELTA;
 input _CommandLineOptions&& MAIN;
 

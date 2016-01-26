@@ -76,63 +76,53 @@ do
     // animated sprites, but it's not that easy to do
     { static ResDescriptor desc; };
     this.reader:read_desc("surface", _desc);
-    var _Sprite&? bg_sprite_;
-    finalize
-        bg_sprite_ = &{new Sprite}(_desc);
-    with
-        //_delete(&&bg_sprite_!);
-    end
-    var _Sprite& bg_sprite = &bg_sprite_!;
+    var _SpriteDescription&& desc = _XXX_PURE({Resource::load_sprite_desc}(_desc.res_name));
+    var Surface bg_sfc with
+        this.desc = desc;
+    end;
 
     par do
         every WORLD_UPDATE do
             if {globals::static_graphics} then
                 continue;
             end
-            this.bg_sprite.update();
+            //this.bg_sprite.update();
 
             if (this.scroll_x) then
                 this.scroll_ox = this.scroll_ox + this.scroll_x;
-                if (this.scroll_ox > this.bg_sprite.get_width()) then
+                if (this.scroll_ox > bg_sfc.get_width()) then
                     this.scroll_ox = this.scroll_ox -
-                                            (float)(this.bg_sprite.get_width());
-                else/if (-this.scroll_ox > this.bg_sprite.get_width()) then
+                                            (float)(bg_sfc.get_width());
+                else/if (-this.scroll_ox > bg_sfc.get_width()) then
                     this.scroll_ox = this.scroll_ox +
-                                            (float)(this.bg_sprite.get_width());
+                                            (float)(bg_sfc.get_width());
                 end
             end
 
             if (this.scroll_y) then
                 this.scroll_oy = this.scroll_oy + this.scroll_y;
-                if (this.scroll_oy > this.bg_sprite.get_height()) then
+                if (this.scroll_oy > bg_sfc.get_height()) then
                     this.scroll_oy = this.scroll_oy -
-                                            (float)(this.bg_sprite.get_height());
-                else/if (-this.scroll_oy > this.bg_sprite.get_height()) then
+                                            (float)(bg_sfc.get_height());
+                else/if (-this.scroll_oy > bg_sfc.get_height()) then
                     this.scroll_oy = this.scroll_oy +
-                                            (float)(this.bg_sprite.get_height());
+                                            (float)(bg_sfc.get_height());
                 end
             end
         end
     with
-        every gc in SCREENMANAGER_DRAW do
-            var int offset_x=0;
-            var int offset_y=0;
-            do
-                var _Vector2i offset = 
-                 global:world!:get_scene_context().color().world_to_screen(_Vector2i(0,0));
-                 offset_x = offset.x - global:world!:get_scene_context().color().get_rect().left;
-                 offset_y = offset.y - global:world!:get_scene_context().color().get_rect().top;
-            end
+        every REDRAW0 do
+            var Vector2i off = global:world!:get_offset();
 
-            var int start_x = (int)(((float)(offset_x) * this.para_x) + this.scroll_ox);
-            var int start_y = (int)(((float)(offset_y) * this.para_y) + this.scroll_oy);
+            var int start_x = (-off.x * this.para_x) + this.scroll_ox;
+            var int start_y = (-off.y * this.para_y) + this.scroll_oy;
 
             if (start_x > 0) then
-                start_x = (start_x % this.bg_sprite.get_width()) - this.bg_sprite.get_width();
+                start_x = (start_x % bg_sfc.get_width()) - bg_sfc.get_width();
             end
 
             if (start_y > 0) then
-                start_y = (start_y % this.bg_sprite.get_height()) - this.bg_sprite.get_height();
+                start_y = (start_y % bg_sfc.get_height()) - bg_sfc.get_height();
             end
 
             var int y = start_y;
@@ -146,13 +136,13 @@ do
                     if x >= global:world!:get_width() then
                         break;
                     end
-                    global:world!:get_scene_context().color().draw(
-                                    this.bg_sprite,
-                                    _Vector2i(x-offset_x, y-offset_y),
-                                    this.pos.z);
-                    x = x + this.bg_sprite.get_width();
+                    call {Display::s_framebuffer}:draw_surface(
+                        bg_sfc.get_framebuffer_surface(),
+                        _Vector2i(x+off.x,y+off.y)
+                    );
+                    x = x + bg_sfc.get_width();
                 end
-                y = y + this.bg_sprite.get_height();
+                y = y + bg_sfc.get_height();
             end
         end
     end

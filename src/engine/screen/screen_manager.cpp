@@ -107,6 +107,7 @@ ScreenManager::display()
                                                                            Size(Display::get_width(),
                                                                            Display::get_height())));
 */
+  ceu_sys_go(&CEU_APP, CEU_IN_SDL_REDRAW0, NULL);
   ceu_sys_go(&CEU_APP, CEU_IN_SDL_REDRAW, NULL);
   display_gc->clear();
   Display::flip_display();
