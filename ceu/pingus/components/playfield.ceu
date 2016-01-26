@@ -225,7 +225,6 @@ do
 
     function (void)=>void update_layout do
         global:world!:get_state().set_size(this.rect.width, this.rect.height);
-        global:world!:get_scene_context().set_rect(_Rect(this.rect.left,this.rect.top,this.rect.width,this.rect.height));
     end
 end
 

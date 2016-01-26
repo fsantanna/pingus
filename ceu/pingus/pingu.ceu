@@ -2,7 +2,6 @@
 #define _PINGU_CEU
 
 native do
-    ##include "../src/engine/display/scene_context.hpp"
     ##include "pingus/collision_map.hpp"
     ##define GC_COLOR_DRAW(gc,x,y) gc->color().draw(x,y)
     enum Dir { LEFT = -1, NONE = 0, RIGHT = +1 };

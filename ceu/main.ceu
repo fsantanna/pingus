@@ -151,7 +151,6 @@ interface IWorld with
 
     function (void)=>_CollisionMap&&       get_colmap;
     function (void)=>_GraphicContextState& get_state;
-    function (void)=>_SceneContext&        get_scene_context;
 
     function (_CollisionMask&& mask,int x,int y,_Groundtype__GPType type)=>void put;
     function (_CollisionMask&& mask,int x,int y)=>void remove;

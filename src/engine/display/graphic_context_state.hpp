@@ -19,7 +19,6 @@
 
 #include <memory>
 
-//#include "engine/display/scene_context.hpp"
 #include "math/rect.hpp"
 
 class GraphicContextStateImpl;

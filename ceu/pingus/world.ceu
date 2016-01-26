@@ -74,15 +74,6 @@ do
     this.state_!.set_limit(_Rect(_Vector2i(0,0), _Size(width, height)));
     state = Rect(0,0, width,height);
 
-    var _SceneContext&? scene_context;
-    finalize
-        scene_context = &{new SceneContext}(
-            _Rect(_Vector2i(rect.left,rect.top), _Size(rect.width,rect.height))
-        );
-    with
-        _delete(&&scene_context!);
-    end
-
     var Color ambient_light = Color(this.plf.get_ambient_light().r,
                                     this.plf.get_ambient_light().g,
                                     this.plf.get_ambient_light().b,
@@ -231,9 +222,6 @@ do
     end
     function (void)=>_GraphicContextState& get_state do
         return &this.state_!;
-    end
-    function (void)=>_SceneContext& get_scene_context do
-        return &this.scene_context!;
     end
 
     function (_CollisionMask&& mask,int x,int y,_Groundtype__GPType type)=>void put do

@@ -14,9 +14,8 @@
 //  You should have received a copy of the GNU General Public License
 //  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#include "engine/display/graphic_context_state.hpp"
-
 #include "engine/display/display.hpp"
+#include "engine/display/graphic_context_state.hpp"
 
 class GraphicContextStateImpl
 {
@@ -77,38 +76,6 @@ GraphicContextState::set_size(int w, int h)
 {
   impl->rect = Rect(Vector2i(impl->rect.left, impl->rect.top), Size(w, h));
 }
-
-#if 0
-void
-GraphicContextState::push(DrawingContext& gc)
-{
-  gc.push_modelview();
-
-  gc.translate(impl->rect.left, impl->rect.top);
-  gc.translate(impl->offset.x,  impl->offset.y);
-}
-
-void
-GraphicContextState::push(SceneContext& gc)
-{
-  gc.push_modelview();
-
-  gc.translate(impl->rect.left, impl->rect.top);
-  gc.translate(impl->offset.x,  impl->offset.y);
-}
-
-void
-GraphicContextState::pop (SceneContext& gc)
-{
-  gc.pop_modelview();
-}
-
-void
-GraphicContextState::pop (DrawingContext& gc)
-{
-  gc.pop_modelview();
-}
-#endif
 
 Rect
 GraphicContextState::get_clip_rect()
