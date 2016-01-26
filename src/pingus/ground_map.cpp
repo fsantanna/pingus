@@ -27,8 +27,8 @@
 
 class MapTile
 {
-private:
-  Sprite   sprite;
+public:
+  FramebufferSurface sprite;
   Surface  surface;
   bool sprite_needs_update;
 
@@ -39,7 +39,7 @@ public:
   void remove(Surface, int x, int y, int real_x, int real_y, GroundMap*);
   void put(Surface, int x, int y);
 
-  const Sprite& get_sprite();
+  const FramebufferSurface& get_sprite();
 };
 
 MapTile::MapTile () :
@@ -74,13 +74,13 @@ MapTile::put(Surface src, int x, int y)
   sprite_needs_update = true;
 }
 
-const Sprite&
+const FramebufferSurface&
 MapTile::get_sprite()
 {
   if (sprite_needs_update)
   {
     sprite_needs_update = false;
-    return sprite = Sprite(surface);
+    return sprite = FramebufferSurface(Display::get_framebuffer()->create_surface(surface));
   }
   else
   {
@@ -148,7 +148,7 @@ GroundMap::draw(SceneContext& gc, Vector2i off)
       if (get_tile(x, y)->get_sprite())
       {
         Display::s_framebuffer->draw_surface(
-            get_tile(x, y)->get_sprite().impl->framebuffer_surface,
+            get_tile(x, y)->get_sprite(),
             Vector2i(x * globals::tile_size+off.x, y * globals::tile_size+off.y)
         );
         //gc.color().draw(get_tile(x, y)->get_sprite(),
