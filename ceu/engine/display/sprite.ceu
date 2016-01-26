@@ -41,6 +41,7 @@ class Sprite with
 
     function (Rect& rect, @hold char&& name)=>Sprite build_name;
     function (Rect& rect, @hold char&& name)=>Sprite build_nameX;
+    function (int x, int y)=>void draw;
 do
     function (Rect& rect, @hold char&& name)=>Sprite build_name do
         this.rect = &rect;
@@ -135,12 +136,6 @@ do
     with
         /* DRAW */
         every REDRAW do
-            var int xx=0, yy=0;
-            if this.is_world then
-                xx = global:offset.x;
-                yy = global:offset.y;
-            end
-
             var float x, y;
             if this.small_map? then
                 x = (float)(this.small_map!.left) +
@@ -154,16 +149,7 @@ do
                 y = this.rect.top;
             end
 
-            call {Display::s_framebuffer}:draw_surface(
-                this.sfc.get_framebuffer_surface(),
-                _Rect(
-                    _Vector2i(this.frame_pos.x,this.frame_pos.y) +
-                        _Vector2i(this.frame_size.width  * (this.frame%this.array.width),
-                                  this.frame_size.height * (this.frame/this.array.width)),
-                    _Size(this.frame_size.width,this.frame_size.height)),
-                _Vector2i(xx + x - this.offset.x,
-                          yy + y - this.offset.y)
-            );
+            this.draw(x, y);
         end
     end
 
@@ -185,6 +171,24 @@ do
     end
     function (void)=>int get_height do
         return this.frame_size.height;
+    end
+    function (int x, int y)=>void draw do
+        var int xx=0, yy=0;
+        if this.is_world then
+            xx = global:offset.x;
+            yy = global:offset.y;
+        end
+
+        call {Display::s_framebuffer}:draw_surface(
+            this.sfc.get_framebuffer_surface(),
+            _Rect(
+                _Vector2i(this.frame_pos.x,this.frame_pos.y) +
+                    _Vector2i(this.frame_size.width  * (this.frame%this.array.width),
+                              this.frame_size.height * (this.frame/this.array.width)),
+                _Size(this.frame_size.width,this.frame_size.height)),
+            _Vector2i(xx + x - this.offset.x,
+                      yy + y - this.offset.y)
+        );
     end
 end
 
