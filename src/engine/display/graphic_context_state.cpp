@@ -78,6 +78,7 @@ GraphicContextState::set_size(int w, int h)
   impl->rect = Rect(Vector2i(impl->rect.left, impl->rect.top), Size(w, h));
 }
 
+#if 0
 void
 GraphicContextState::push(DrawingContext& gc)
 {
@@ -107,6 +108,7 @@ GraphicContextState::pop (DrawingContext& gc)
 {
   gc.pop_modelview();
 }
+#endif
 
 Rect
 GraphicContextState::get_clip_rect()

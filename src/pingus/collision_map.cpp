@@ -151,7 +151,7 @@ CollisionMap::put(const CollisionMask& mask, int sur_x, int sur_y, Groundtype::G
 }
 
 void
-CollisionMap::draw(DrawingContext& gc)
+CollisionMap::draw(void)
 {
   if (serial != m_colmap_sprite_serial || !m_colmap_sprite)
   {

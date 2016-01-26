@@ -20,8 +20,6 @@
 
 #include "engine/display/display.hpp"
 #include "engine/display/framebuffer.hpp"
-//#include "engine/display/sprite_impl.hpp"
-#include "engine/display/scene_context.hpp"
 #include "pingus/collision_map.hpp"
 #include "util/log.hpp"
 
@@ -123,17 +121,17 @@ GroundMap::~GroundMap(void)
 }
 
 void
-GroundMap::draw_colmap(SceneContext& gc)
+GroundMap::draw_colmap(void)
 {
-  colmap->draw(gc.color());
+  colmap->draw();
 }
 
 // Draws the map with a offset, needed for scrolling
 void
-GroundMap::draw(SceneContext& gc, Vector2i off)
+GroundMap::draw(Vector2i off)
 {
   if (globals::draw_collision_map)
-    draw_colmap(gc);
+    draw_colmap();
 
   // Trying to calc which parts of the tilemap needs to be drawn
   int start_x = Math::max(0, -off.x / globals::tile_size);

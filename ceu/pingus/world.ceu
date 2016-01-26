@@ -42,6 +42,7 @@ class World with
     var _PingusLevel& plf;
     var PingusCounter& counter;
     var int game_time = 0;
+    var Rect state = Rect(0,0,0,0);
 do
     global:world = &&this;
 
@@ -62,15 +63,16 @@ do
         _delete(&&gfx_map!);
     end
 
-    var _GraphicContextState&? state;
+    var _GraphicContextState&? state_;
     finalize
-        state = &{new GraphicContextState}(
+        state_ = &{new GraphicContextState}(
                     {Math::min}({Display::get_width()},  width),
                     {Math::min}({Display::get_height()}, height));
     with
-        _delete(&&state!);
+        _delete(&&state_!);
     end
-    this.state!.set_limit(_Rect(_Vector2i(0,0), _Size(width, height)));
+    this.state_!.set_limit(_Rect(_Vector2i(0,0), _Size(width, height)));
+    state = Rect(0,0, width,height);
 
     var _SceneContext&? scene_context;
     finalize
@@ -108,8 +110,7 @@ do
                 );
 #endif
                 var Vector2i off = global:world!:get_offset();
-                this.gfx_map!.draw(this.get_scene_context(),
-                                   _Vector2i(off.x,off.y));
+                this.gfx_map!.draw(_Vector2i(off.x,off.y));
             end
         end
     end
@@ -164,7 +165,9 @@ do
         this.smallmap = &smallmap;
     end;
 
-    this.state!.set_pos(_Vector2i(objs.pos_start.x,objs.pos_start.y));
+    this.state_!.set_pos(_Vector2i(objs.pos_start.x,objs.pos_start.y));
+    state.left = objs.pos_start.x;
+    state.top  = objs.pos_start.y;
 
     par/or do
         await goal_manager;
@@ -227,7 +230,7 @@ do
         return _XXX_PURE(this.gfx_map!.get_colmap());
     end
     function (void)=>_GraphicContextState& get_state do
-        return &this.state!;
+        return &this.state_!;
     end
     function (void)=>_SceneContext& get_scene_context do
         return &this.scene_context!;
@@ -242,11 +245,21 @@ do
         this.gfx_map!.get_colmap():remove(*mask, x, y);
     end
 
+#if 0
     function (void)=>Vector2i get_offset do
         var Vector2i ret =
             Vector2i(
-                -(state!.get_pos().x - state!.get_width()/2),
-                -(state!.get_pos().y - state!.get_height()/2)
+                -(state.left - state.width/2),
+                -(state.top  - state.height/2)
+            );
+        return ret;
+    end
+#endif
+    function (void)=>Vector2i get_offset do
+        var Vector2i ret =
+            Vector2i(
+                -(state_!.get_pos().x - state_!.get_width()/2),
+                -(state_!.get_pos().y - state_!.get_height()/2)
             );
         return ret;
     end

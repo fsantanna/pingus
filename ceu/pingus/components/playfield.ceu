@@ -20,7 +20,6 @@ do
 
     var RectComponent component with
         this.rect  = &outer.rect;
-        //this.state = &global:world!:get_state();
     end;
 
     var Position mouse_pos = Position(0,0);
@@ -78,6 +77,10 @@ do
                                 _Vector2i(old_state_pos.x,old_state_pos.y)
                                     + (_Vector2i(scroll.x,scroll.y)
                                         - POS2VEC(this.mouse_pos)));
+                            global:world!:state.left =
+                                old_state_pos.x + scroll.x - mouse_pos.x;
+                            global:world!:state.top =
+                                old_state_pos.y + scroll.y - mouse_pos.y;
                         else
                             global:world!:get_state().set_pos(
                                 _Vector2i(global:world!:get_state().get_pos().x
@@ -88,6 +91,12 @@ do
                                               this.mouse_pos.y) * 0.2)
                                 )
                             );
+                            global:world!:state.left =
+                                global:world!:state.left -
+                                    ((float)(scroll.x - this.mouse_pos.x) * 0.2);
+                            global:world!:state.top =
+                                global:world!:state.top -
+                                    ((float)(scroll.y - this.mouse_pos.y) * 0.2);
                         end
                     end
                 with
@@ -177,14 +186,18 @@ do
 
                 if (this.mouse_pos.x < 10) then
                     global:world!:get_state().set_pos(global:world!:get_state().get_pos() - _Vector2i(scroll_speed, 0));
+                    global:world!:state.left = global:world!:state.left - scroll_speed;
                 else/if (this.mouse_pos.x > {Display::get_width()} - 10) then
                     global:world!:get_state().set_pos(global:world!:get_state().get_pos() + _Vector2i(scroll_speed, 0));
+                    global:world!:state.left = global:world!:state.left + scroll_speed;
                 end
 
                 if (this.mouse_pos.y < 10) then
                     global:world!:get_state().set_pos(global:world!:get_state().get_pos() - _Vector2i(0, scroll_speed));
+                    global:world!:state.top = global:world!:state.top - scroll_speed;
                 else/if (this.mouse_pos.y > {Display::get_height()} - 10) then
                     global:world!:get_state().set_pos(global:world!:get_state().get_pos() + _Vector2i(0, scroll_speed));
+                    global:world!:state.top = global:world!:state.top + scroll_speed;
                 end
             end
         end
@@ -200,10 +213,14 @@ do
 
     function (int x, int y)=>void set_viewpoint do
         global:world!:get_state().set_pos(_Vector2i(x, y));
+        global:world!:state.left = x;
+        global:world!:state.top  = y;
     end
 
     function (int x, int y)=>void scroll do
         global:world!:get_state().set_pos(global:world!:get_state().get_pos() + _Vector2i(x, y));
+        global:world!:state.left = global:world!:state.left + x;
+        global:world!:state.top  = global:world!:state.top  + y;
     end
 
     function (void)=>void update_layout do

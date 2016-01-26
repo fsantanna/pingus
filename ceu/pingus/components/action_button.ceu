@@ -51,7 +51,6 @@ do
     var Rect r1 = Rect(this.x,this.y, 38,60);
     var RectComponent component with
         this.rect  = &r1;
-        //this.state = &global:world!:get_state();
     end;
 
     spawn do
@@ -93,7 +92,6 @@ do
     var Rect r1 = Rect(this.x,this.y, 38,60);
     var RectComponent component with
         this.rect  = &r1;
-        //this.state = &global:world!:get_state();
     end;
 
     spawn do

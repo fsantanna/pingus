@@ -44,7 +44,6 @@ do
     var Rect rect = Rect(this.x,this.y, 60,38);
     var RectComponent component with
         this.rect  = &rect;
-        //this.state = &global:world!:get_state();
     end;
 
     var char[] name = []

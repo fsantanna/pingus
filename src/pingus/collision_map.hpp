@@ -86,7 +86,7 @@ public:
   void remove(int x, int y);
   void remove(const CollisionMask& mask, int x, int y);
 
-  void draw(DrawingContext& gc);
+  void draw(void);
 
 private:
   CollisionMap (const CollisionMap&);

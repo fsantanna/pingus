@@ -19,7 +19,8 @@
 
 #include <memory>
 
-#include "engine/display/scene_context.hpp"
+//#include "engine/display/scene_context.hpp"
+#include "math/rect.hpp"
 
 class GraphicContextStateImpl;
 
@@ -41,11 +42,13 @@ public:
 
   void set_size(int w, int h);
 
+#if 0
   void push(DrawingContext& gc);
   void pop (DrawingContext& gc);
 
   void push(SceneContext& gc);
   void pop (SceneContext& gc);
+#endif
 
   /** Return a rectangle in world coordinates that represents the area
       visible on the screen */

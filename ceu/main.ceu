@@ -156,6 +156,7 @@ interface IWorld with
     function (_CollisionMask&& mask,int x,int y,_Groundtype__GPType type)=>void put;
     function (_CollisionMask&& mask,int x,int y)=>void remove;
 
+    var Rect state;
     function (void)=>Vector2i get_offset;
 end
 
