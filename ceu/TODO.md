@@ -1,3 +1,5 @@
+- BUG: credits clip rect
+- BUG: playfield-lines, bg-non-repeat
 - TODO: configuration of input events, input controller cmd-line opt
 - TODO: cursor
 - TODO: fade effects

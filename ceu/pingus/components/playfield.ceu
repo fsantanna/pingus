@@ -91,31 +91,40 @@ do
                         end
                     end
                 with
-                    every gc in SCREENMANAGER_DRAW do
+                    every REDRAW do
                         if {globals::drag_drop_scrolling} then
                             continue;
                         end
-
-                        gc:draw_line(POS2VEC(this.mouse_pos),
-                                     _Vector2i(scroll.x,
-                                               scroll.y - 15),
-                                     _Color(0, 255, 0));
-                        gc:draw_line(POS2VEC(this.mouse_pos),
-                                     _Vector2i(scroll.x,
-                                               scroll.y + 15),
-                                     _Color(0, 0, 255));
-                        gc:draw_line(POS2VEC(this.mouse_pos),
-                                     _Vector2i(scroll.x + 15,
-                                               scroll.y),
-                                     _Color(0, 255, 255));
-                        gc:draw_line(POS2VEC(this.mouse_pos),
-                                     _Vector2i(scroll.x - 15,
-                                               scroll.y),
-                                     _Color(255, 255, 0));
-                        gc:draw_line(POS2VEC(this.mouse_pos),
-                                     _Vector2i(scroll.x,
-                                               scroll.y),
-                                     _Color(255, 0, 0));
+                        call {Display::s_framebuffer}:draw_line(
+                            _Vector2i(10,10),
+                            _Vector2i(300,300),
+                            _Color(0, 255, 0)
+                        );
+                        call {Display::s_framebuffer}:draw_line(
+                            POS2VEC(this.mouse_pos),
+                            _Vector2i(scroll.x, scroll.y-15),
+                            _Color(0, 255, 0)
+                        );
+                        call {Display::s_framebuffer}:draw_line(
+                            POS2VEC(this.mouse_pos),
+                            _Vector2i(scroll.x, scroll.y+15),
+                            _Color(0, 0, 255)
+                        );
+                        call {Display::s_framebuffer}:draw_line(
+                            POS2VEC(this.mouse_pos),
+                            _Vector2i(scroll.x+15, scroll.y),
+                            _Color(0, 255, 255)
+                        );
+                        call {Display::s_framebuffer}:draw_line(
+                            POS2VEC(this.mouse_pos),
+                            _Vector2i(scroll.x-15, scroll.y),
+                            _Color(255, 255, 0)
+                        );
+                        call {Display::s_framebuffer}:draw_line(
+                            POS2VEC(this.mouse_pos),
+                            _Vector2i(scroll.x, scroll.y),
+                            _Color(255, 0, 0)
+                        );
                     end
                 end
             end
