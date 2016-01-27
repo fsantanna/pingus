@@ -50,7 +50,11 @@ end
 
 class WorldObjFactory with
     var _PingusLevel& plf;  // TODO: private
+
+    pool IVisible[]& layer_bg_0;
+    pool IVisible[]& layer_bg_1;
     pool IPingu[]& pingus;
+
     var int& game_time;
     var SmallMap& smallmap;
     var Vector2i pos_start = Vector2i(0,0);
@@ -69,7 +73,25 @@ do
         var Vector3f pos_offset = Vector3f(_WORLDOBJ_FACTORY_VECTOR.at(i).second.x,
                                            _WORLDOBJ_FACTORY_VECTOR.at(i).second.y,
                                            _WORLDOBJ_FACTORY_VECTOR.at(i).second.z);
-        if id_ == "entrance" then
+        if id_ == "surface-background" then
+            spawn SurfaceBackground in this.layer_bg_0 with
+                this.reader = reader_;
+            end;
+        else/if id_ == "groundpiece" then
+            spawn Groundpiece with  // drawn in world.ceu
+                this.reader = reader_;
+            end;
+        else/if id_ == "liquid" then
+            spawn Liquid in this.layer_bg_1 with
+                this.reader = reader_;
+            end;
+        else/if id_ == "hotspot" then
+// TODO: entrance "+100"
+            spawn Hotspot in this.layer_bg_1 with
+                this.reader     = reader_;
+                this.pos_offset = pos_offset;
+            end;
+        else/if id_ == "entrance" then
             spawn Entrance in entrances with
                 this.reader     = reader_;
                 this.pos_offset = pos_offset;
@@ -82,27 +104,14 @@ do
                 this.reader   = reader_;
                 this.smallmap = &outer.smallmap;
             end;
-        else/if id_ == "groundpiece" then
-            spawn Groundpiece with
-                this.reader = reader_;
-            end;
         else/if id_ == "guillotine" then
             spawn Guillotine with
                 this.pingus = &outer.pingus;
                 this.reader = reader_;
             end;
-        else/if id_ == "hotspot" then
-            spawn Hotspot with
-                this.reader     = reader_;
-                this.pos_offset = pos_offset;
-            end;
         else/if id_ == "laser_exit" then
             spawn LaserExit with
                 this.pingus = &outer.pingus;
-                this.reader = reader_;
-            end;
-        else/if id_ == "liquid" then
-            spawn Liquid with
                 this.reader = reader_;
             end;
         else/if id_ == "smasher" then
@@ -113,10 +122,6 @@ do
         else/if id_ == "spike" then
             spawn Spike with
                 this.pingus = &outer.pingus;
-                this.reader = reader_;
-            end;
-        else/if id_ == "surface-background" then
-            spawn SurfaceBackground with
                 this.reader = reader_;
             end;
         end

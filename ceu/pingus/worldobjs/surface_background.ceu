@@ -111,7 +111,7 @@ do
             end
         end
     with
-        every REDRAW0 do
+        every REDRAW do
             var Vector2i off = global:world!:get_offset();
             var int start_x = (off.x * this.para_x) + this.scroll_ox;
             var int start_y = (off.y * this.para_y) + this.scroll_oy;

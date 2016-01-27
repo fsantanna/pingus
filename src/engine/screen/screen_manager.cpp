@@ -99,7 +99,6 @@ ScreenManager::display()
     {
 ////
 {
-  ceu_sys_go(&CEU_APP, CEU_IN_SDL_REDRAW0, NULL);
   ceu_sys_go(&CEU_APP, CEU_IN_SDL_REDRAW, NULL);
   Display::flip_display();
   ceu_sys_go(&CEU_APP, CEU_IN__ASYNC, NULL);    /// TODO: remove

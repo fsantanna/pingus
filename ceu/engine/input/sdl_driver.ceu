@@ -1,13 +1,12 @@
 #ifndef _SDL_DRIVER
 #define _SDL_DRIVER
 
-#define QUIT    SDL_QUIT
-#define REDRAW  SDL_REDRAW
-#define REDRAW0 SDL_REDRAW0
-#define DELTA   SDL_DT
+#define QUIT   SDL_QUIT
+#define REDRAW SDL_REDRAW
+#define DELTA  SDL_DT
 
 input void SDL_QUIT;
-input void SDL_REDRAW, SDL_REDRAW0;
+input void SDL_REDRAW;
 input int  SDL_DT;
 
 input _SDL_MouseButtonEvent&& SDL_MOUSEBUTTONDOWN;

@@ -35,6 +35,9 @@ native @plain _SmallMap, _SceneContext, _GroundMap;
 #include "worldobjs/spike.ceu"
 #include "worldobjs/surface_background.ceu"
 
+interface IVisible with
+    // just to declare pools
+end
 #include "worldobj_factory.ceu"
 
 class World with
@@ -74,11 +77,6 @@ do
     this.state_!.set_limit(_Rect(_Vector2i(0,0), _Size(width, height)));
     state = Rect(0,0, width,height);
 
-    var Color ambient_light = Color(this.plf.get_ambient_light().r,
-                                    this.plf.get_ambient_light().g,
-                                    this.plf.get_ambient_light().b,
-                                    this.plf.get_ambient_light().a);
-
     spawn do
         par do
             every REDRAW do
@@ -89,9 +87,11 @@ do
                 this.game_time = this.game_time + 1;
             end
         with
-            // Playfield
+            var Color ambient_light = Color(this.plf.get_ambient_light().r,
+                                            this.plf.get_ambient_light().g,
+                                            this.plf.get_ambient_light().b,
+                                            this.plf.get_ambient_light().a);
             every REDRAW do
-#if 0
                 call {Display::s_framebuffer}:fill_rect(
                     _Rect(0,0, {Display::get_width()},{Display::get_height()}),
                     _Color(ambient_light.r,
@@ -99,13 +99,18 @@ do
                            ambient_light.b,
                            ambient_light.a)
                 );
-#endif
-                var Vector2i off = global:world!:get_offset();
-                this.gfx_map!.draw(_Vector2i(-off.x,-off.y));
             end
         end
     end
 
+    pool IVisible[] layer_bg_0;     // background
+    spawn do
+        every REDRAW do             // groundpiece
+            var Vector2i off = global:world!:get_offset();
+            this.gfx_map!.draw(_Vector2i(-off.x,-off.y));
+        end
+    end
+    pool IVisible[] layer_bg_1;     // liquid, hotspot
     pool IPingu[] pingus;
 
     var GoalManager goal_manager with
@@ -123,7 +128,6 @@ do
 
     var TimeDisplay      _ = TimeDisplay.build(plf.get_time(), &game_time);
     var CPingusCounter   _ = CPingusCounter.build(&counter);
-
 
     var int dwidth  = {Display::get_width()};
     var int dheight = {Display::get_height()};
@@ -151,6 +155,9 @@ do
 
     var WorldObjFactory objs with
         this.plf = &plf;
+        this.layer_bg_0 = &layer_bg_0;
+        this.layer_bg_1 = &layer_bg_1;
+        this.layer_bg_2 = &layer_bg_2;
         this.pingus = &pingus;
         this.game_time = &game_time;
         this.smallmap = &smallmap;

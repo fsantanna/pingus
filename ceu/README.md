@@ -211,6 +211,8 @@ TODO:
         - nao cubro algum que ocorre no pingus?
         - cubro algum com nome diferente?
         - cubro algum que o GPP nao cobre?
+    - hierarchy
+        - exemplo de z-order lexico em vez de dinamico
 
 TODO:
     - only control flow advances
