@@ -101,7 +101,7 @@ do
                 );
 #endif
                 var Vector2i off = global:world!:get_offset();
-                this.gfx_map!.draw(_Vector2i(off.x,off.y));
+                this.gfx_map!.draw(_Vector2i(-off.x,-off.y));
             end
         end
     end
@@ -246,8 +246,8 @@ do
     function (void)=>Vector2i get_offset do
         var Vector2i ret =
             Vector2i(
-                -(state_!.get_pos().x - state_!.get_width()/2),
-                -(state_!.get_pos().y - state_!.get_height()/2)
+                (state_!.get_pos().x - state_!.get_width()/2),
+                (state_!.get_pos().y - state_!.get_height()/2)
             );
         return ret;
     end

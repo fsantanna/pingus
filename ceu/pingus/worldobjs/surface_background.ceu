@@ -113,9 +113,8 @@ do
     with
         every REDRAW0 do
             var Vector2i off = global:world!:get_offset();
-
-            var int start_x = (-off.x * this.para_x) + this.scroll_ox;
-            var int start_y = (-off.y * this.para_y) + this.scroll_oy;
+            var int start_x = (off.x * this.para_x) + this.scroll_ox;
+            var int start_y = (off.y * this.para_y) + this.scroll_oy;
 
             if (start_x > 0) then
                 start_x = (start_x % bg_sfc.get_width()) - bg_sfc.get_width();
@@ -138,7 +137,7 @@ do
                     end
                     call {Display::s_framebuffer}:draw_surface(
                         bg_sfc.get_framebuffer_surface(),
-                        _Vector2i(x+off.x,y+off.y)
+                        _Vector2i(x-off.x,y-off.y)
                     );
                     x = x + bg_sfc.get_width();
                 end

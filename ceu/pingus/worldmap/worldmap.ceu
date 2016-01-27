@@ -139,7 +139,7 @@ _printf("POS=%f %f\n", pos.x, pos.y);
         every REDRAW do
             var Vector2i off = this.get_offset();
             global:offset = this.get_offset();
-            _gc_state.set_pos(_Vector2i(-off.x, -off.y));
+            _gc_state.set_pos(_Vector2i(off.x, off.y));
         end
     with
         // Create all objects
@@ -241,7 +241,7 @@ _printf("POS=%f %f\n", pos.x, pos.y);
             var Vector2i off = this.get_offset();
 //_printf(">> xy=%d,%d, off=%d,%d\n", x,y, off.x,off.y);
             { static Vector2f click_pos; };
-            _click_pos = _XXX_PURE(_Vector2i(x-off.x,y-off.y));
+            _click_pos = _XXX_PURE(_Vector2i(off.x+x,off.y+y));
             {
                 if (globals::developer_mode)
                 {
@@ -273,8 +273,10 @@ _printf("POS=%f %f\n", pos.x, pos.y);
                     WorldmapNS::Dot* src = graph->get_dot(edge.source);
                     WorldmapNS::Dot* dst = graph->get_dot(edge.destination);
                     Display::s_framebuffer->draw_line(
-                        Vector2i(src->get_pos().x, src->get_pos().y),
-                        Vector2i(dst->get_pos().x, dst->get_pos().y),
+                        Vector2i(off.x+src->get_pos().x,
+                                 off.y+src->get_pos().y),
+                        Vector2i(off.x+dst->get_pos().x,
+                                 off.y+dst->get_pos().y),
                         Color(255, 255, 255)
                     );
                 }
@@ -322,8 +324,8 @@ _printf("POS=%f %f\n", pos.x, pos.y);
             y = {Math::clamp}(min, (int)pos.y, max);
         end
 
-        var Vector2i ret = Vector2i(- (x - {Display::get_width()}/2),
-                                    - (y - {Display::get_height()}/2));
+        var Vector2i ret = Vector2i(x - {Display::get_width()}/2,
+                                    y - {Display::get_height()}/2);
         return ret;
     end
 end
