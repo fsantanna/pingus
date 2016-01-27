@@ -1,11 +1,8 @@
 #ifndef _RECT_COMPONENT_CEU
 #define _RECT_COMPONENT_CEU
 
-native @plain _GraphicContextState;
-
 class RectComponent with
     var Rect& rect;
-    var _GraphicContextState&? state;
 
     event (int,int) on_primary_button_pressed;
     event void      on_pointer_enter;
@@ -45,11 +42,6 @@ do
     end
 
     function (int x, int y)=>bool is_at do
-        if this.state? then
-            x = this.state!.screen2world(_Vector2i(x,y)).x;
-            y = this.state!.screen2world(_Vector2i(x,y)).y;
-        end
-
         return rect.left<=x and x<=rect.left+rect.width
            and rect.top <=y and y<=rect.top+rect.height;
     end

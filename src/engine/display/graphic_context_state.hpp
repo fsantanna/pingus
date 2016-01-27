@@ -40,15 +40,6 @@ public:
   void set_unlimited();
 
   void set_size(int w, int h);
-
-#if 0
-  void push(DrawingContext& gc);
-  void pop (DrawingContext& gc);
-
-  void push(SceneContext& gc);
-  void pop (SceneContext& gc);
-#endif
-
   /** Return a rectangle in world coordinates that represents the area
       visible on the screen */
   Rect get_clip_rect();
