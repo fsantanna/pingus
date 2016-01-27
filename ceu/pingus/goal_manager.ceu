@@ -7,30 +7,31 @@ class GoalManager with
     var int& game_time;
 do
     var int time = this.plf.get_time();
-
     var bool in_armageddon = false;
-    spawn do
+
+    par/or do
         await global:go_armageddon;
         in_armageddon = true;
+        await FOREVER;
+    with
+        loop do
+            await DELTA;
+            if counter.number_of_allowed==counter.number_of_released and counter.number_of_alive==0 then
+                //goal = GT_NO_PINGUS_IN_WORLD;
+                break;
+            end
+            if counter.number_of_alive==0 and in_armageddon then
+                //goal = GT_ARMAGEDDON;
+                break;
+            end
+            if time!=-1 and time<=game_time then
+                //goal = GT_OUT_OF_TIME;
+                break;
+            end
+        end
+        var int exit_time = game_time + 125;
+        await DELTA until exit_time < game_time;
     end
-
-    loop do
-        await DELTA;
-        if counter.number_of_allowed==counter.number_of_released and counter.number_of_alive==0 then
-            //goal = GT_NO_PINGUS_IN_WORLD;
-            break;
-        end
-        if counter.number_of_alive==0 and in_armageddon then
-            //goal = GT_ARMAGEDDON;
-            break;
-        end
-        if time!=-1 and time<=game_time then
-            //goal = GT_OUT_OF_TIME;
-            break;
-        end
-    end
-    var int exit_time = game_time + 125;
-    await DELTA until exit_time < game_time;
 end
 
 #endif

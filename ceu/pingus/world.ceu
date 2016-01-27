@@ -113,12 +113,6 @@ do
     pool IVisible[] layer_bg_1;     // liquid, hotspot
     pool IPingu[] pingus;
 
-    var GoalManager goal_manager with
-        this.plf = &plf;
-        this.counter = &outer.counter;
-        this.game_time = &game_time;
-    end;
-
     var PinguHolder pingu_holder with
         this.pingus  = &pingus;
         this.counter = &outer.counter;
@@ -157,7 +151,6 @@ do
         this.plf = &plf;
         this.layer_bg_0 = &layer_bg_0;
         this.layer_bg_1 = &layer_bg_1;
-        this.layer_bg_2 = &layer_bg_2;
         this.pingus = &pingus;
         this.game_time = &game_time;
         this.smallmap = &smallmap;
@@ -168,7 +161,11 @@ do
     state.top  = objs.pos_start.y;
 
     par/or do
-        await goal_manager;
+        do GoalManager with
+            this.plf = &plf;
+            this.counter = &outer.counter;
+            this.game_time = &game_time;
+        end;
     with
         every (x_,y_) in global:go_create_pingu_particles do
             loop i in 50 do
@@ -189,7 +186,6 @@ do
         end
     with
         await global:go_armageddon;
-        ///_GLOBAL_SERVER:send_armageddon_event();
 
         {Sound::PingusSound::play_sound("goodidea");};
 
@@ -207,6 +203,8 @@ do
             end
             if pingu? then
                 emit pingu!:go_action => {ActionName::BOMBER};
+            else
+                await FOREVER;
             end
         end
     with
