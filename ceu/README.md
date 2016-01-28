@@ -3,45 +3,23 @@
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
 </head>
 
-# What?
-
-This report documents the process of porting the video game
-Pingus ([1](http://pingus.seul.org/)
-        [2](https://github.com/Pingus/pingus))
-from C++ to the programming language
-Céu ([1](http://ceu-lang.org/)
-     [2](https://github.com/fsantanna/ceu)).
-
-<img src="pingus-1.png" width="45%"/>
-<img src="pingus-2.png" width="45%"/>
-
-# Why?
-
-In order of importance, these are the motivations to port Pingus to Céu:
-
-1. Advocate the programming model of Céu in the context of video games.
-    Céu provides concurrent and deterministic abstractions for applications 
-    with a high degree of synchronization such as video games.
-2. Expose Céu to a real (somewhat big) code base that was neither specified nor 
-    implemented by the designers of language.
-    Céu is an academic "toy" language, in the sense that its main motivation is 
-    to propose new ideas to the community.
-    Even if video games match the purpose of Céu, a real-world project consits 
-    of a range of (sometimes conflicting) requirements, forcing us to transpose
-    the "academic fences" of papers which only explore and discuss idiomatic
-    code.
-3. Exercise the interface between Céu and C/C++.
-    Céu was designed to integrate seamlessly with C.
-    This allowed us to perform a *live porting*, i.e., we incrementally ported 
-    code from C++ to Céu without breaking the game for long.
-4. Stress-test the implementation of Céu.
-    Academic artifacts typically do not go beyond a working prototype.
-    We also want it to be a robust and practical language for everyday use.
-5. Evaluate the performance of Céu.
-    Having C++ as a reference, how does Céu compare in terms of memory usage, 
-    code size, and execution time (e.g., FPS rate)?
-
 <!--
+TODO:
+    - ver os patterns do GPP
+        - nao cubro algum que ocorre no pingus?
+        - cubro algum com nome diferente?
+        - cubro algum que o GPP nao cobre?
+    - hierarchy
+        - exemplo de z-order lexico em vez de dinamico
+
+TODO:
+    - only control flow advances
+        - no type inference
+        - no GC
+        - no functional compositions
+        - no data abstraction
+        - no rearrange of overall arch
+
 - GOALS: stress-test the language
     - robustness
         - silly bugs (untested stuff)
@@ -55,25 +33,47 @@ In order of importance, these are the motivations to port Pingus to Céu:
     - C tricks: {}, _XXX, etc
 -->
 
-# How?
+[What](#what-is-this-report-about?),
+[Why](#why-porting-pingus-to-Céu?),
+[How](#how),
+[Who](#who)
+?
+
+[TLDR!](#tldr!)
+
+# What is this report about?
+
+This report documents the process of porting the video game Pingus 
+[X][pingus-1] [X][pingus-2] from C++ to the programming language Céu
+[X][ceu-1] [X][ceu-2].
+
+<img src="pingus-1.png" width="45%"/>
+<img src="pingus-2.png" width="45%"/>
+
+[pingus-1]: http://pingus.seul.org/
+[pingus-2]: https://github.com/Pingus/pingus/
+[ceu-1]: http://ceu-lang.org/
+[ceu-2]: https://github.com/fsantanna/ceu/
 
 ## Warming Up!
 
 <img src="double-click-opt.gif" align="right" valign="top"/>
 
-Let's consider the case of handling double clicks.
+Let's consider the case of handling double clicks in the game.
 
-In Pingus, double clicking the *Armageddon* button in under 1 second literally 
-all pingus, as illustrated in the figure in the right.
+In Pingus, double clicking the *Armageddon* button literally destroys all 
+pingus, as illustrated in the figure in the right.
 
-The code in C++ ([1][cpp-armageddon]) uses the class `ArmageddonButton` which 
-extends `RectComponent` with custom rendering and event-handling methods.
-Below, we show only the parts related to detect a double click on the button:
+The code in C++ [X][cpp-armageddon] uses the class `ArmageddonButton` which 
+defines custom methods for rendering and handling events.
+Below, we only show the parts related to detect a double click on the button:
 
-```C++
+```
 ArmageddonButton::ArmageddonButton(Server* s, int x, int y) :
     RectComponent(Rect(Vector2i(x, y), Size(38, 60))),
-    pressed(false);
+    <...>
+    pressed(false);                         // line X1
+    press_time();                           // line X3
     <...>
 {
     <...>
@@ -85,11 +85,11 @@ void ArmageddonButton::draw (DrawingContext& gc) {
 
 void ArmageddonButton::update (float delta) {
     <...>
-    if (pressed) {
-        press_time += delta;
+    if (pressed) {                          // line X9
+        press_time += delta;                // line X4
         if (press_time > 1.0f) {
-            press_time = 0;
-            pressed = false;
+            pressed = false;                // line X5
+            press_time = 0;                 // line X6
         }
     } else {
         pressed = false;
@@ -98,67 +98,127 @@ void ArmageddonButton::update (float delta) {
 }
 
 void ArmageddonButton::on_primary_button_click (int x, int y) {
-    if (pressed) {
-        server->send_armageddon_event();
+    if (pressed) {                          // line X8
+        server->send_armageddon_event();    // line X7
     } else {
-        pressed = true;
+        pressed = true;                     // line X2
     }
 }
 ```
 
-The class uses the variable `pressed` (ln. X) to remember the first click (ln. 
-X).
-If another click doesn't occur within 1 second, the variable is reset (ln. X).
-Otherwise, the class signals the double click to the application (ln. X).
-Even though the variable `pressed` is private, unrelated methods, such as 
-`draw`, can potentially access it.
-Also, the accesses are spread across the class definition in multiple methods.
-For instance, the distance between the declaration (ln. X) and the last access 
-(ln. X) is over X lines, making the understanding and maintenance of the 
+The class defines the variable `pressed` (ln. X1) to remember the first click 
+(ln. X2), and the variable `press_time` (ln. X3) to count the time since the 
+first click (ln. X4).
+If another click occurs within 1 second, the class signals the double click to 
+the application (ln.  7).
+Otherwise, the `pressed` and `press_time` are reset (ln. X5).
+
+The methods `update` and `on_primary_button_click` are examples of
+*short-lived callbacks*.
+Callbacks are pieces of code that execute in reaction to external input events: 
+`on_primary_button_click` reacts to mouse clicks, while `update` continuously 
+reacts to the passage of time.
+Callbacks are short lived because they must execute as fast as possible to keep 
+the game responsive.
+Because callbacks are short lived, the way one affects another is by 
+manipulating member variables in the object.
+These *state variables* retain their values across multiple invocations:
+`on_primary_button_click` writes to `pressed` in the first click (ln. X2), and 
+checks its state in further clicks (ln. X8),
+In the meantime, `update` also checks `pressed` (ln. X9) and may change its 
+state (ln. X5).
+
+However, note how the accesses to these state variables are spread across the 
+class definition in multiple methods.
+For instance, the distance between the declaration of `pressed` (ln. X1) and 
+the last access to it (ln. X2) is over X lines (if we count the code hidden in 
+`<...>`).
+Arguably, this makes the understanding and maintenance of the double-click 
 behavior more difficult.
+Also, even though the state variables are private, unrelated methods, such as 
+`draw`, can potentially access it.
 
-The code in Céu ([1][ceu-armageddon]) defines the class `ArmageddonButton` as 
-follows:
+Céu provides structured constructs to deal with events, aiming to eradicate 
+explicit manipulation of state variables for control-flow purposes.
+The equivalent code in Céu [X][ceu-armageddon] defines the class 
+`ArmageddonButton` as follows:
 
-    class ArmageddonButton with
-        var Rect& rect;
-    do
-        this.rect.left = 38;
-        this.rect.top  = 60;
-        var RectComponent component = RectComponent.build(&this.rect);
-        <...>
-        loop do
-            await component.on_primary_button_click;
-            watching 1s do
-                await component.on_primary_button_click;
-                break;
-            end
-        end
-        <...>
-        emit global:go_armageddon;
-    end
+```
+class ArmageddonButton with
+    var Rect& rect;
+do
+    this.rect.left = 38;
+    this.rect.top  = 60;
+    var RectComponent component = RectComponent.build(&this.rect);
+    <...>
+    loop do                                             // line X1
+        await component.on_primary_button_click;        // line X3
+        watching 1s do                                  // line X4
+            await component.on_primary_button_click;    // line X6
+            break;                                      // line X7
+        end                                             // line X5
+    end                                                 // line X2
+    <...>
+    emit global:go_armageddon;                          // line X8
+end
+```
 
-Besides methods (not used above), classes in Céu can have an execution body 
-that reacts to events.
-The double click detection is a `loop` (ln. X-Y) that awaits the first click 
-(ln. X) and then, watching 1 second (ln. X-Y), awaits the second click.
-If the second click occurs within 1 second, we `break` the (ln. X) and signal 
-the double click to the application.
+The double click detection is a `loop` (ln. X1-X2) that awaits the first click 
+(ln. X3) and then, watching 1 second (ln. X4-X5), awaits the second click (ln 
+X6).
+If the second click occurs within 1 second, we `break` the loop (ln. X7) and 
+signal the double click to the application (ln X8).
 Otherwise, the `watching` block as a whole aborts and restarts the loop, 
 falling back to the first click await.
-The double click detection in Céu doesn't require an extra state variable and 
-is self-contained in the `loop` (ln. X-Y), describing the behavior with 
+Note that the double click detection in Céu doesn't require state variables and 
+is self-contained in the `loop` (ln. X1-X2), describing the behavior with 
 appropriate control-flow mechanisms (e.g., `await` and `watching`).
 
 [cpp-armageddon]: https://github.com/fsantanna/pingus/blob/master/src/pingus/components/action_button.cpp
 [ceu-armageddon]: https://github.com/fsantanna/pingus/blob/ceu/ceu/pingus/components/action_button.ceu
 
-We believe that some difficulties in implementing control behaviors in games is 
-not inherent to this domain, but the result of accidental complexity due to the 
-use of bad (or the lack of) concurrency models to handle events appropriately.
+# Why porting Pingus to Céu?
 
-In this report, we describe 6 recurrent patterns found in Pingus and discuss 
-examples with corresponding implementations in C++ and Céu.
+The main motivation to port Pingus from C++ to Céu is to promote its 
+programming model in the context of video games.
+Céu supports concurrent and deterministic abstractions to describe entities 
+with a high degree of real-time interactions, such as in video games (e.g., 
+characters, monsters, particles, etc.).
+
+We also have additional motivations for this work as follows:
+
+* Expose Céu to a real (and somewhat big) code base that was neither specified
+  nor implemented by the designers of language.
+  Céu is still primarily an academic "toy" language in the sense that it aims 
+  to propose new ideas rather than being a fully-fledged tool.
+  Even if video games match the purpose of Céu, real-world projects consist of 
+  a range of (sometimes conflicting) requirements, forcing us to transpose
+  the "academic fences" of papers (which usually only explore and discuss 
+  idiomatic code).
+* Exercise the interface between Céu and C/C++.
+  Céu is designed to integrate seamlessly with C.
+  This allowed us to perform a *live porting*, i.e., we incrementally ported 
+  code from C++ to Céu without breaking the game for long.
+* Stress-test the implementation of Céu.
+  Academic artifacts typically do not go beyond working prototypes.
+  We also want Céu to be a robust and practical language for everyday use.
+* Evaluate the performance of Céu.
+  Having C++ as a reference, how does Céu compare in terms of memory usage, 
+  code size, and execution time (e.g., FPS rate)?
+
+# How?
+
+We believe that most difficulties in implementing control behaviors in games is 
+not inherent to this domain, but the result of accidental complexity due to the 
+lack of structured abstractions and appropriate concurrency models to handle 
+event-based applications.
+
+identify
+
+## Control-Flow Patterns in Pingus
+
+In this report, we describe 6 recurrent control-flow patterns found in Pingus 
+and discuss examples with corresponding implementations in C++ and Céu.
 In order of recurrence:
 
 1. **Finite State Machines**
@@ -205,23 +265,37 @@ In order of recurrence:
     In Pingus, the player can press a button in the screen to toggle between 
     pause and resume.
 
-<!--
-TODO:
-    - ver os patterns do GPP
-        - nao cubro algum que ocorre no pingus?
-        - cubro algum com nome diferente?
-        - cubro algum que o GPP nao cobre?
-    - hierarchy
-        - exemplo de z-order lexico em vez de dinamico
+## The Game Loop
 
-TODO:
-    - only control flow advances
-        - no type inference
-        - no GC
-        - no functional compositions
-        - no data abstraction
-        - no rearrange of overall arch
--->
+The *game loop* determines the general structure of virtually all games 
+[X][gpp-gameloop] (Pingus is no different [X][pingus-gameloop]):
+
+```
+while (true)
+{
+    processInput();
+    update();
+    render();
+}
+```
+
+> A game loop runs continuously during gameplay.
+> Each turn of the loop, it processes user input without blocking, updates the 
+> game state, and renders the game.
+> It tracks the passage of time to control the rate of gameplay.
+
+The `update` function does the hard work, dealing with the state of all game 
+entities, and has to execute as fast as possible to keep real-time 
+responsiveness to input events.
+However, short-lived functions such as `update` do not retain local variables 
+and control-flow state across consecutive invocations.
+In this sense, they eliminate any vestige of structured programming, becoming 
+*our generation's goto* [X][goto].
+
+[gpp-gameloop]: http://gameprogrammingpatterns.com/game-loop.html
+[pingus-gameloop]: https://github.com/Pingus/pingus/blob/v0.7.6/src/engine/screen/screen_manager.cpp#L172
+[goto]: http://tirania.org/blog/archive/2013/Aug-15.html
+
 
 ## The Synchronous Concurrency Model
 
