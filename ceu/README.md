@@ -191,7 +191,7 @@ programming model in the context of video games.
 Céu supports concurrent and deterministic abstractions to specify entities with 
 a high degree of real-time interactions, such as in video game simulation.
 
-<img src="sweeney.png" width="45%"/>
+<img src="sweeney.png" align="right" valign="top"/>
 
 According to Tim Sweeney (of Unreal Engine fame), half of the development 
 complexity resides in the *game simulation* code ([X][sweeney]).
