@@ -33,6 +33,10 @@ TODO:
     - C tricks: {}, _XXX, etc
 
 - TODO: threads, lua
+
+- compare to actors
+    - parallel, synchronous-run-to-completion
+    - not a loop+queue
 -->
 
 * [What](#what-is-this-report-about),
@@ -68,9 +72,9 @@ Let's consider the case of handling double clicks in the game.
 In Pingus, double clicking the *Armageddon* button literally destroys all 
 pingus, as illustrated in the figure in the right.
 
-The code in C++ &#91;[X][cpp-armageddon]&#93; uses the class `ArmageddonButton` which 
-defines custom methods for rendering and handling events.
-Below, we only show the parts related to detect a double click on the button:
+The code in C++ &#91;[X][cpp-armageddon]&#93; uses the class `ArmageddonButton` 
+with methods for rendering and handling events.
+Here, we focus on the parts related to detecting the double click:
 
 ```
 ArmageddonButton::ArmageddonButton(Server* s, int x, int y) :
@@ -110,37 +114,38 @@ void ArmageddonButton::on_primary_button_click (int x, int y) {
 }
 ```
 
-The class defines the variable `pressed` (ln. X1) to remember the first click 
-(ln. X2), and the variable `press_time` (ln. X3) to count the time since the 
-first click (ln. X4).
+The class initializes the variable `pressed` to remember the first click (ln.  
+X1,X2), and the variable `press_time` to count the time since the first click 
+(ln. X3,X4).
 If another click occurs within 1 second, the class signals the double click to 
-the application (ln.  7).
-Otherwise, the `pressed` and `press_time` are reset (ln. X5).
+the application (ln. X7).
+Otherwise, the `pressed` and `press_time` state variables are reset (ln. 
+X5-X6).
 
 The methods `update` and `on_primary_button_click` are examples of
-*short-lived callbacks*.
-Callbacks are pieces of code that execute in reaction to external input events: 
-`on_primary_button_click` reacts to mouse clicks, while `update` continuously 
-reacts to the passage of time.
+*short-lived callbacks*, which are pieces of code that execute in reaction to 
+external input events.
+Here, `on_primary_button_click` reacts to mouse clicks, while `update` 
+continuously reacts to the passage of time.
 Callbacks are short lived because they must execute as fast as possible to keep 
-the game responsive.
-Because callbacks are short lived, the way one affects another is by 
+the game responsive in real time.
+Because callbacks are short lived, the only way one can affect another is by 
 manipulating member variables in the object.
-These *state variables* retain their values across multiple invocations:
+These *state variables* retain their values across multiple invocations, e.g.:
 `on_primary_button_click` writes to `pressed` in the first click (ln. X2), and 
 checks its state in further clicks (ln. X8),
-In the meantime, `update` also checks `pressed` (ln. X9) and may change its 
+In the meantime, `update` also checks for `pressed` (ln. X9) and may change its 
 state (ln. X5).
 
 However, note how the accesses to these state variables are spread across the 
 class definition in multiple methods.
-For instance, the distance between the declaration of `pressed` (ln. X1) and 
-the last access to it (ln. X2) is over X lines (if we count the code hidden in 
-`<...>`).
-Arguably, this makes the understanding and maintenance of the double-click 
-behavior more difficult.
-Also, even though the state variables are private, unrelated methods, such as 
-`draw`, can potentially access it.
+For instance, the distance between the initialization of `pressed` (ln. X1) and 
+the last access to it (ln. X2) is over 40 lines (in the original file 
+&#91;[X][cpp-armageddon-2]&#93).
+Arguably, this dispersion of code across methods makes the understanding and 
+maintenance of the double-click behavior more difficult.
+Also, even though the state variables are private, unrelated methods such as 
+`draw` can potentially access it.
 
 Céu provides structured constructs to deal with events, aiming to eradicate 
 explicit manipulation of state variables for control-flow purposes.
@@ -167,9 +172,13 @@ do
 end
 ```
 
-A class definition in Céu specifies an execution body that reacts to events.
-The body can use control-flow statements that keep the execution context across 
-event occurrences (i.e., across `await` statements).
+Instead of *objects*, classes in Céu specify the behavior of *organisms* with 
+an extra execution body that executes while the instances are alive.
+Unlike objects, an organism is an active entity and starts to execute its body 
+in a concurrent and deterministic manner with other alive organisms (and *not* 
+actually in parallel).
+An execution body can use control-flow statements that keep the execution 
+context across event occurrences (i.e., across `await` statements).
 
 The double click detection is a `loop` (ln. X1-X2) that awaits the first click 
 (ln. X3) and then, watching 1 second (ln. X4-X5), awaits the second click (ln 
@@ -177,12 +186,19 @@ X6).
 If the second click occurs within 1 second, we `break` the loop (ln. X7) and 
 signal the double click to the application (ln X8).
 Otherwise, the `watching` block as a whole aborts and restarts the loop, 
-falling back to the first click await.
-Note that the double click detection in Céu doesn't require state variables and 
-is self-contained in the `loop` (ln. X1-X2), describing the behavior with 
-appropriate control-flow mechanisms (e.g., `await` and `watching`).
+falling back to the first click `await` (ln X3).
+
+The double click detection in Céu doesn't require state variables and is 
+entirely self-contained in the `loop` (ln. X1-X2).
+Furthermore, these 7 lines don't do anything *besides* detecting the double 
+click, i.e., the actual effect happens outside the loop (ln. X8).
+
+As we argue throughout the document, appropriate control-flow mechanisms (e.g., 
+`await` and `watching`) helps on the structure and composition of code, leading 
+to considerable gains in productivity.
 
 [cpp-armageddon]: https://github.com/Pingus/pingus/blob/v0.7.6/src/pingus/components/action_button.cpp
+[cpp-armageddon-2]: https://github.com/Pingus/pingus/blob/v0.7.6/src/pingus/components/action_button.cpp#L33-#L90
 [ceu-armageddon]: https://github.com/fsantanna/pingus/blob/ceu/ceu/pingus/components/action_button.ceu
 
 # Why porting Pingus to Céu?
