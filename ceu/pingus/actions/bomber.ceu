@@ -6,31 +6,27 @@ native/pre do
     ##include "../src/pingus/pingu_enums.hpp"
 end
 
-#include "../right_left_sprites.ceu"
 #include "../movers/linear_mover.ceu"
 
 class Bomber with
     interface IPinguAction;
 do
-    var char[] left  = [] .. "pingus/player"
-                          .. (char&&)this.pingu.get_owner_str().c_str()
-                          .. "/bomber/left";
-    var char[] right = [] .. "pingus/player"
-                          .. (char&&)this.pingu.get_owner_str().c_str()
-                          .. "/bomber/right";
-    var RightLeftSprites sprites with
-        this.parent = &outer.pingu;
-        this.left   = &left;
-        this.right  = &right;
-    end;
+    var char[] bomber = [] .. "pingus/player"
+                           .. (char&&)this.pingu.get_owner_str().c_str()
+                           .. "/bomber/left";
+    var Sprite sprite = Sprite.build_name(&outer.pingu.rect, (char&&)&&bomber);
 
+    var char[] explo = [] .. "pingus/player"
+                          ..  (char&&)this.pingu.get_owner_str().c_str()
+                          .. "/explo";
     {
-        static Vector3f vec1;
+        ##include "../../../src/pingus/collision_mask.hpp"
+        static CollisionMask bomber_radius(
+                "other/bomber_radius_gfx",
+                "other/bomber_radius"
+        );
     };
-    _vec1.x = this.pingu.get_pos().x;
-    _vec1.y = this.pingu.get_pos().y;
 
-    //global:world!:play_sound("ohno", _vec1, 0.5);
     call {Sound::PingusSound::play_sound}("ohno", 0.5, 0.0);
 
     par do
@@ -40,51 +36,32 @@ do
         end;
     with
         /* UPDATE */
-        // while the Bomber hasn't 'exploded' yet
-        await WORLD_UPDATE
-        until sprites.get():get_current_frame() == 10;
 
-        // Throwing particles
-        {
-            static Vector3f vec2;
-        };
-        _vec2.x = this.pingu.get_pos().x;
-        _vec2.y = this.pingu.get_pos().y;
-
-        //global:world!:play_sound("plop", _vec2, 0.5);
+        // SOUND
+        await WORLD_UPDATE until sprite.get_current_frame() == 10;
         call {Sound::PingusSound::play_sound}("plop", 0.5, 0.0);
 
-        await WORLD_UPDATE
-        until sprites.get():get_current_frame() == 13;
+        // PARTICLES, TERRAIN, EXPLOSION
 
+        await WORLD_UPDATE until sprite.get_current_frame() == 13;
         emit global:go_create_pingu_particles => (this.pingu.get_x(),
                                                   this.pingu.get_y()-5);
 
-        {
-            ##include "../../../src/pingus/collision_mask.hpp"
-            static CollisionMask bomber_radius(
-                    "other/bomber_radius_gfx",
-                    "other/bomber_radius"
-            );
-        };
-
         global:world!:remove(
-                &&_bomber_radius,
-                (int) ((int)(this.pingu.get_x()) 
-                                - (_bomber_radius.get_width()/2)),
-                (int) ((int)(this.pingu.get_y()) -
-                                16 - (_bomber_radius.get_width()/2)));
+            &&_bomber_radius,
+            this.pingu.get_x() - _bomber_radius.get_width()/2,
+            this.pingu.get_y() - _bomber_radius.get_width()/2 - 16
+        );
 
         do
-            var char[] str = [] .. "pingus/player"
-                                ..  (char&&)this.pingu.get_owner_str().c_str()
-                                .. "/explo";
-            var Sprite _ = Sprite.build_name(&outer.pingu.rect, _XXX_PURE(&&str));
+            var Sprite s = Sprite.build_name(&outer.pingu.rect, (char&&)&&explo);
+            s.offset.x = 32;
+            s.offset.y = 48;
             await WORLD_UPDATE;
         end
 
-        // The pingu explode
-        await sprites;
+        // ANIMATION END
+        await sprite;
         escape {ActionName::DEAD};
     end
 end
