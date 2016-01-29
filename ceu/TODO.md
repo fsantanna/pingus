@@ -1,3 +1,4 @@
+- TODO: pause p/ world pause
 - BUG: worldmap edge lines on dev mode
 - BUG: credits clip rect
 - BUG: playfield-lines, bg-non-repeat

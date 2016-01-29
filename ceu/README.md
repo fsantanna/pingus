@@ -39,24 +39,28 @@ TODO:
     - not a loop+queue
 -->
 
-* [What](#what-is-this-report-about),
+* [What](#what-is-this-all-about),
   [Why](#why-porting-pingus-to-céu),
   [How](#how-to-port),
   [Who](#who)?
 * [Detailed Evaluation](#detailed-evaluation)
 <!--
 * [TLDR!](#tldr!)
+    - did you do a complete port?
+    - why is this cool?
+    - ok, but with which gains in productivity?
+    - what about CPU,ROM,RAM?
 -->
 
-# What is this report about?
+# What is this all about?
 
 This report documents the process of porting the video game Pingus
 &#91;[X][pingus-1],[X][pingus-2]&#93;
 from C++ to the programming language Céu
 &#91;[X][ceu-1],[X][ceu-2]&#93;.
 
-<img src="pingus-1.png" width="45%"/>
-<img src="pingus-2.png" width="45%"/>
+<img src="pingus-1.png" width="400" align="right" valign="top"/>
+<img src="pingus-2.png" width="400" align="right" valign="top"/>
 
 [pingus-1]: http://pingus.seul.org/
 [pingus-2]: https://github.com/Pingus/pingus/
@@ -69,16 +73,16 @@ from C++ to the programming language Céu
 
 Let's consider the case of handling double clicks in the game.
 
-In Pingus, double clicking the *Armageddon* button literally destroys all 
+In Pingus, double clicking the *Armageddon button* literally explodes all 
 pingus, as illustrated in the figure in the right.
 
-The code in C++ &#91;[X][cpp-armageddon]&#93; uses the class `ArmageddonButton` 
-with methods for rendering and handling events.
-Here, we focus on the parts related to detecting the double click:
+The code in C++ &#91;[X][cpp-armageddon]&#93; implements the class 
+`ArmageddonButton` with methods for rendering and handling events.
+Here, we focus on detecting the double click, hiding unrelated parts:
 
 ```
-ArmageddonButton::ArmageddonButton(Server* s, int x, int y) :
-    RectComponent(Rect(Vector2i(x, y), Size(38, 60))),
+ArmageddonButton::ArmageddonButton(<...>):
+    RectComponent(<...>),
     <...>
     pressed(false);                         // line X1
     press_time();                           // line X3
@@ -87,9 +91,9 @@ ArmageddonButton::ArmageddonButton(Server* s, int x, int y) :
     <...>
 }
 
-void ArmageddonButton::draw (DrawingContext& gc) {
+void ArmageddonButton::draw (<...>) {       // X10
     <...>
-}
+}                                           // X11
 
 void ArmageddonButton::update (float delta) {
     <...>
@@ -105,7 +109,7 @@ void ArmageddonButton::update (float delta) {
     }
 }
 
-void ArmageddonButton::on_primary_button_click (int x, int y) {
+void ArmageddonButton::on_primary_button_click (<...>) {
     if (pressed) {                          // line X8
         server->send_armageddon_event();    // line X7
     } else {
@@ -114,9 +118,10 @@ void ArmageddonButton::on_primary_button_click (int x, int y) {
 }
 ```
 
-The class initializes the variable `pressed` to remember the first click (ln.  
-X1,X2), and the variable `press_time` to count the time since the first click 
-(ln. X3,X4).
+The class first initializes the variable `pressed` to track the first click 
+(ln. X1,X2).
+It also initializes the variable `press_time` to count the time since the first 
+click (ln. X3,X4).
 If another click occurs within 1 second, the class signals the double click to 
 the application (ln. X7).
 Otherwise, the `pressed` and `press_time` state variables are reset (ln. 
@@ -128,24 +133,24 @@ external input events.
 Here, `on_primary_button_click` reacts to mouse clicks, while `update` 
 continuously reacts to the passage of time.
 Callbacks are short lived because they must execute as fast as possible to keep 
-the game responsive in real time.
-Because callbacks are short lived, the only way one can affect another is by 
-manipulating member variables in the object.
+the game with real-time responsiveness.
+Because callbacks are short lived, the only way they can affect each other is 
+by manipulating persisting member variables in the object.
 These *state variables* retain their values across multiple invocations, e.g.:
-`on_primary_button_click` writes to `pressed` in the first click (ln. X2), and 
-checks its state in further clicks (ln. X8),
-In the meantime, `update` also checks for `pressed` (ln. X9) and may change its 
-state (ln. X5).
+`on_primary_button_click` writes to `pressed` in the first click, and checks 
+its state in further clicks (ln. X2,X8),
+In the meantime, `update` also checks for `pressed` and may change its state 
+(ln. X9,X5).
 
 However, note how the accesses to these state variables are spread across the 
-class definition in multiple methods.
+entire class.
 For instance, the distance between the initialization of `pressed` (ln. X1) and 
-the last access to it (ln. X2) is over 40 lines (in the original file 
-&#91;[X][cpp-armageddon-2]&#93).
+the last access to it (ln. X2) is over 40 lines in the original file 
+&#91;[X][cpp-armageddon-2]&#93;.
 Arguably, this dispersion of code across methods makes the understanding and 
 maintenance of the double-click behavior more difficult.
 Also, even though the state variables are private, unrelated methods such as 
-`draw` can potentially access it.
+`draw` (ln. X10-X11) can potentially access it.
 
 Céu provides structured constructs to deal with events, aiming to eradicate 
 explicit manipulation of state variables for control-flow purposes.
@@ -154,11 +159,9 @@ The equivalent code in Céu &#91;[X][ceu-armageddon]&#93; defines the class
 
 ```
 class ArmageddonButton with
-    var Rect& rect;
-do
-    this.rect.left = 38;
-    this.rect.top  = 60;
-    var RectComponent component = RectComponent.build(&this.rect);
+    <...>
+do                                                      // X9
+    var RectComponent component = <...>;
     <...>
     loop do                                             // line X1
         await component.on_primary_button_click;        // line X3
@@ -169,13 +172,13 @@ do
     end                                                 // line X2
     <...>
     emit global:go_armageddon;                          // line X8
-end
+end                                                     // X10
 ```
 
-Instead of *objects*, classes in Céu specify the behavior of *organisms* with 
-an extra execution body that executes while the instances are alive.
+Instead of *objects*, classes in Céu specify *organisms* with a body 
+declaration (ln. X9-X10) which executes for each instance while alive.
 Unlike objects, an organism is an active entity and starts to execute its body 
-in a concurrent and deterministic manner with other alive organisms (and *not* 
+in a concurrent and deterministic manner with other alive organisms (but *not* 
 actually in parallel).
 An execution body can use control-flow statements that keep the execution 
 context across event occurrences (i.e., across `await` statements).
@@ -189,9 +192,9 @@ Otherwise, the `watching` block as a whole aborts and restarts the loop,
 falling back to the first click `await` (ln X3).
 
 The double click detection in Céu doesn't require state variables and is 
-entirely self-contained in the `loop` (ln. X1-X2).
-Furthermore, these 7 lines don't do anything *besides* detecting the double 
-click, i.e., the actual effect happens outside the loop (ln. X8).
+entirely self-contained in the `loop` body (ln. X1-X2).
+Furthermore, these 7 lines of code do nothing besides detecting a double click, 
+i.e., the actual effect happens outside the loop (ln. X8).
 
 As we argue throughout the document, appropriate control-flow mechanisms (e.g., 
 `await` and `watching`) helps on the structure and composition of code, leading 
@@ -210,13 +213,13 @@ a high degree of real-time interactions, such as in video game simulation.
 
 <img src="sweeney.png" width="350" align="right" valign="top"/>
 
-According to Tim Sweeney (of Unreal Engine fame), half of the development 
+According to Tim Sweeney (of Unreal Engine fame), about half of the development 
 complexity resides in the *game simulation* code &#91;[X][sweeney]&#93;.
 If we consider that *numeric computation* and *shading* do not vary from game 
-to game (i.e., they are part of the game engine), the tendency is to shift the 
+to game (i.e., they are part of a game engine), the tendency is to shift the 
 complexity even more towards game simulation.
-Furthermore, only 10% of the CPU budget goes to game simulation, opening a 
-considerable opportunity for gains in productivity.
+Furthermore, only 10% of the CPU budget goes to game simulation, opening an 
+opportunity for gains in productivity.
 
 [sweeney]: https://www.cs.princeton.edu/~dpw/popl/06/Tim-POPL.ppt
 
@@ -258,7 +261,7 @@ Claim: Transactions are the only plausible solution to concurrent mutable state
 -->
 
 Besides promoting the concurrency model of Céu, we enumerate additional 
-motivations for this work as follows:
+motivations for this report as follows:
 
 * Expose Céu to a real code base that was neither specified nor implemented by 
   the designers of language.
@@ -279,31 +282,33 @@ motivations for this work as follows:
   Academic artifacts typically do not go beyond working prototypes.
   We also want Céu to be a robust and practical language for everyday use.
 * Evaluate the performance of Céu.
-  Having C++ as a reference, how does Céu compare in terms of memory usage, 
+  Having C++ as a benchmark, how does Céu compare in terms of memory usage, 
   code size, and execution time (e.g., FPS rate)?
 
 # How to port?
 
-The general idea is to identify control-flow patterns that cross methods 
-invocations and rewrite them in Céu using appropriate structured constructs.
-Then, we redirect object instantiation and event dispatching to the class in 
-Céu and remove the class in C++ from the code base.
+The general idea is to identify control-flow patterns that encompass successive 
+reactions to events, which imply crossing multiple method invocations in C++.
+We then rewrite these patterns in a class in Céu, using appropriate structured 
+constructs, and redirect the instantiation and event dispatching to the new 
+class.
 The remaining classes in C++ should interoperate with the new classes in Céu 
 until we complete the porting process.
 
-Note that we didn't touch classes that don't deal with events as Céu is 
-actually less expressive than C++ for pure data manipulation.
-Hence, we take advantage of the integration between Céu and C/C++ to have 
-access to the existing code base and libraries.
+Note that we only touch classes that deal with events, as Céu is actually less 
+expressive than C++ for pure data manipulation.
+Hence, we rely on the integration between Céu and C/C++ and take advantage of 
+the existing code base and libraries.
 
-To identify the control-flow patterns, we inspect class definitions searching 
-for members with suspicious names (e.g.,
+To identify these control-flow patterns, we inspect the C++ class definitions 
+searching for members with suspicious names (e.g.,
 [`pressed`][state-pressed],
 [`particle_thrown`][state-particle-thrown],
 [`mode`][state-mode], or
 [`delay_count`][state-delay-count]&#93;.
 Good chances are that variables with identifiers resembling verbs, status, or 
-counters encode some form of control-flow progression explicitly.
+counters encode some form of control-flow progression that cross multiple 
+callback invocations.
 
 [state-pressed]: https://github.com/Pingus/pingus/blob/v0.7.6/src/pingus/components/action_button.hpp#L36
 [state-particle-thrown]: https://github.com/Pingus/pingus/blob/v0.7.6/src/pingus/actions/bomber.hpp#L31
@@ -315,66 +320,46 @@ not inherent to this domain, but the result of accidental complexity due to the
 lack of structured abstractions and appropriate concurrency models to handle 
 event-based applications.
 
-During the course of the porting process, following the concrete/class-by-class 
+During the course of the porting process, and following the class-by-class 
 identification described above, we could extract more abstract control patterns 
-that should apply to any game.
-Our hypothesis is that if another game manifests such patterns, it must use 
-some form of explicit state that is likely to be rewritten with appropriate 
-control constructs.
+that should apply to other games.
+Our hypothesis is that other games manifesting such patterns must use some form 
+of explicit state which are likely subject to the same porting process.
 
 ## Control-Flow Patterns in Pingus
 
-In this report, we describe 6 recurrent control-flow patterns found in Pingus 
-and discuss examples with corresponding implementations in C++ and Céu.
-In order of recurrence:
+We identified seven evident control-flow patterns in Pingus which we discuss 
+further with in-depth examples:
 
 1. **Finite State Machines**
-    State machines describe the behavior of games through transitions between 
-    states according to event occurrences.
-    The double click behavior above is an example of a state machine:
-    the `clicked` state variable encodes whether the button is considered to be 
-    clicked or not, according to the occurrence of `on_primary_button_click`
-    and `update` after 1 second, respectively.
+    State machines describe the behavior of game entities by mapping event 
+    occurrences to transitions between states triggering appropriate actions.
 
 2. **Dispatching Hierarchies**
-    Entities in games may act as containers for child entities.
-    In Pingus, the *Main Menu* in the figure above is represented as a 
-    container class with five buttons as children.
-    When a button click occurs, it is first dispatched to the container class,
-    which may take an action before deciding to forward the event (or not) to 
-    the buttons.
+    Some entities in games act as containers for other child entities,
+    resulting in hierarchies of event dispatching.
 
 3. **Continuation Passing**
-    The completion of an activity in a game has a continuation, i.e., something 
-    that should execute next.
-    If the execution flow is dynamic, the program has to tell the activity 
-    where to go when it completes.
-    In Pingus, when the player terminates a level, the game may terminate or
-    return to the main menu, depending on how it was invoked from the command
-    line.
+    The completion of long-lasting activity in a game may have a continuation, 
+    i.e., some action to execute next.
 
 4. **Signaling Mechanisms**
-    Entities that need to communicate need some signaling mechanism, specially 
-    if there is no hierarchy relation between them.
-    As illustrated in the figure in the right, the clicking the checkbox 
-    toggles the *Mouse Grab* flag.
-    However, at any point in the game (even outside the *Option Menu*), 
-    pressing *Ctrl-G* also toggles the same flag, which should adjust the
-    checkbox accordingly.
+    Entities often need to communicate explicitly through a signaling 
+    mechanism, especially if there is no hierarchy relationship between them.
 
 5. **Wall-Clock Timers**
-    Wall-clock timers measure the passage of time from the real world (e.g., 10 
-    seconds) and can handle periodic sampling and timeout watchdogs.
-    The double click behavior above uses a timeout of 1 second to restart.
+    Wall-clock timers measure the passage of time from the real world
+    (e.g., *10 seconds*) such as for periodic sampling and timeout watchdogs.
 
 6. **Pausing**
-    Games typically provides means to temporarily suspend the execution.
-    In Pingus, the player can press a button in the screen to toggle between 
-    pause and resume.
+    Pausing allows parts of the game to temporarily suspend execution or
+    reactions to incoming events.
 
-<!--
-TODO 7. **Resource Acquisition**
--->
+7. **Resource Acquisition and Release**
+    External resources, such as configuration files and saved games,
+    must be acquired and properly released.
+
+<!-- TODO: are these terms and explanations symmetric? -->
 
 # Who?
 
@@ -400,14 +385,66 @@ Alexander Tkachov
 
 Selected Code Snippets
 
+<!--
+2. **Dispatching Hierarchies**
+    Some entities in games act as containers for other child entities,
+    resulting in hierarchies of event dispatching.
+
+    In Pingus, the *Main Menu* in the figure above is represented as a 
+    container class with five buttons as children.
+    When a button click occurs, it is first dispatched to the container class,
+    which may take an action before deciding to forward the event (or not) to 
+    the buttons.
+
+3. **Continuation Passing**
+    The completion of long-lasting activity in a game may have a continuation, 
+    i.e., some action to execute next.
+
+    If the execution flow is dynamic, the program has to tell the activity 
+    where to go when it completes.
+    In Pingus, when the player terminates a level, the game may terminate or
+    return to the main menu, depending on how it was invoked from the command
+    line.
+
+4. **Signaling Mechanisms**
+    Entities often need to communicate explicitly through a signaling 
+    mechanism, especially if there is no hierarchy relationship between them.
+
+    As illustrated in the figure in the right, the clicking the checkbox 
+    toggles the *Mouse Grab* flag.
+    However, at any point in the game (even outside the *Option Menu*), 
+    pressing *Ctrl-G* also toggles the same flag, which should adjust the
+    checkbox accordingly.
+
+5. **Wall-Clock Timers**
+    Wall-clock timers measure the passage of time from the real world
+    (e.g., *10 seconds*) such as for periodic sampling and timeout watchdogs.
+
+    The double click behavior above uses a timeout of 1 second to restart.
+
+6. **Pausing**
+    Pausing allows parts of the game to temporarily suspend execution or
+    reactions to incoming events.
+
+    In Pingus, the player can press a button in the screen to toggle between 
+    pause and resume.
+
+7. **Resource Acquisition and Release**
+    External resources, such as configuration files and saved games,
+    must be acquired and properly released.
+
+    TODO
+-->
+
 ### Finite State Machines
 
-    State machines describe the behavior of games through transitions between 
-    states according to event occurrences.
-    The double click behavior above is an example of a state machine:
-    the `clicked` state variable encodes whether the button is considered to be 
-    clicked or not, according to the occurrence of `on_primary_button_click`
-    and `update` after 1 second, respectively.
+State machines describe the behavior of game entities by mapping event 
+occurrences to transitions between states triggering appropriate actions.
+
+The double click behavior above is an example of a state machine:
+the `clicked` state variable encodes whether the button is considered to be 
+clicked or not, according to the occurrence of `on_primary_button_click`
+and `update` after 1 second, respectively.
 
 #### The "Bomber" Pingu
 
@@ -418,7 +455,7 @@ its radius and throwing particles around.
 The clicked Pingu becomes an animation which, at some frames, changes to a new 
 state to perform some action:
 
-1. 1st frame: plays a "Oh no!" sound.
+1. 0th frame: plays a "Oh no!" sound.
 2. 10th frame: plays a "Plop!" sound.
 3. 13th frame: throws particles, destroys the terrain, shows an explosion sprite
 4. Game tick: hides the explosion sprite
@@ -440,7 +477,7 @@ Bomber::Bomber (Pingu* p) :
     gfx_exploded(false)         // tracks state 4   X2
 {
     <...>
-    // 1. 1st frame: plays a "Oh no!" sound.
+    // 1. 0th frame: plays a "Oh no!" sound.
     WorldObj::get_world()->play_sound("ohno", pingu->get_pos ());   // X3
 }
 
@@ -518,7 +555,7 @@ do
     par do
         <...>   // pingu movement
     with
-        // 1. 1st frame: plays a "Oh no!" sound.
+        // 1. 0th frame: plays a "Oh no!" sound.
         call {Sound::PingusSound::play_sound}("ohno", 0.5, 0.0);
 
         // 2. 10th frame: plays a "Plop!" sound.
@@ -586,8 +623,6 @@ Also, even though the state variables are private, unrelated methods, such as
 `draw`, can potentially access it.
 -->
 
--->
-
 [cpp-bomber]: https://github.com/Pingus/pingus/blob/v0.7.6/src/pingus/actions/bomber.cpp
 [ceu-bomber]: https://github.com/fsantanna/pingus/blob/ceu/ceu/pingus/actions/bomber.ceu
 
@@ -601,6 +636,7 @@ Also, even though the state variables are private, unrelated methods, such as
 
 ### CPU
 
+<!--
 ## The Game Loop
 
 The *game loop* determines the general structure of virtually all games 
@@ -672,7 +708,7 @@ void ScreenManager::display() {
 
 ## Céu
 
-<!--
+<!-
 - control
     = Accidental complexity
 - not pure functions
@@ -704,11 +740,11 @@ Memory management and resource management is not the same. Resources other than 
 I will say it again, because no one seemed to notice it: could it be that there exists a "calculus" for resource management?
 By Achilleas Margaritis at Fri, 2006-02-03 11:46 | login or register to post comment
 
--->
+->
 
 ## Idioms
 
-<!--
+<!-
 All patterns relate to event handling and control flow in games, and we argue 
 how Céu offers more appropriate abstractions than existing languages.
 
@@ -807,7 +843,7 @@ languages, usually through timer callbacks or ``sleep'' blocking calls.
         - generic code
         - tooling
     = BOUNS: Lua
--->
+->
 
 ## The Code Base
 
@@ -852,7 +888,7 @@ SLOC	Directory	SLOC-by-Language (Sorted)
 109     resource        cpp=109
 47      system          cpp=47
 
-<!--
+<!-
 Most of
 
  `engine/`, a level `editor/`
@@ -898,13 +934,10 @@ More concretely
 - testar climber, wall-mode-activation
 - testar previous action: Climber->Jumper->direction-change/Blocker->Faller->Blocker
 - SDL_DT p/ pingus/actions/sprites
--->
+->
 
-# Who?
 
-# When?
-
-<!--
+<!-
 # PORTING
 
 ```
