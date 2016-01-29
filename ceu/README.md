@@ -31,6 +31,8 @@ TODO:
     - false positives (too much?)
         - tight loops
     - C tricks: {}, _XXX, etc
+
+- TODO: threads, lua
 -->
 
 * [What](#what-is-this-report-about),
@@ -44,9 +46,9 @@ TODO:
 # What is this report about?
 
 This report documents the process of porting the video game Pingus
-([X][pingus-1] [X][pingus-2])
+([X][pingus-1],[X][pingus-2])
 from C++ to the programming language Céu
-([X][ceu-1] [X][ceu-2]).
+([X][ceu-1],[X][ceu-2]).
 
 <img src="pingus-1.png" width="45%"/>
 <img src="pingus-2.png" width="45%"/>
@@ -65,7 +67,7 @@ Let's consider the case of handling double clicks in the game.
 In Pingus, double clicking the *Armageddon* button literally destroys all 
 pingus, as illustrated in the figure in the right.
 
-The code in C++ [X][cpp-armageddon] uses the class `ArmageddonButton` which 
+The code in C++ ([X][cpp-armageddon]) uses the class `ArmageddonButton` which 
 defines custom methods for rendering and handling events.
 Below, we only show the parts related to detect a double click on the button:
 
@@ -141,7 +143,7 @@ Also, even though the state variables are private, unrelated methods, such as
 
 Céu provides structured constructs to deal with events, aiming to eradicate 
 explicit manipulation of state variables for control-flow purposes.
-The equivalent code in Céu [X][ceu-armageddon] defines the class 
+The equivalent code in Céu ([X][ceu-armageddon]) defines the class 
 `ArmageddonButton` as follows:
 
 ```
@@ -186,24 +188,76 @@ appropriate control-flow mechanisms (e.g., `await` and `watching`).
 
 The main motivation to port Pingus from C++ to Céu is to promote its 
 programming model in the context of video games.
-Céu supports concurrent and deterministic abstractions to describe entities 
-with a high degree of real-time interactions, such as in video games (e.g., 
-characters, monsters, particles, etc.).
+Céu supports concurrent and deterministic abstractions to specify entities with 
+a high degree of real-time interactions, such as in video game simulation.
 
-We also have additional motivations for this work as follows:
+<img src="sweeney.png" width="45%"/>
 
-* Expose Céu to a real (and somewhat big) code base that was neither specified
-  nor implemented by the designers of language.
-  Céu is still primarily an academic "toy" language in the sense that it aims 
-  to propose new ideas rather than being a fully-fledged tool.
-  Even if video games match the purpose of Céu, real-world projects consist of 
-  a range of (sometimes conflicting) requirements, forcing us to transpose
-  the "academic fences" of papers (which usually only explore and discuss 
-  idiomatic code).
+According to Tim Sweeney (of Unreal Engine fame), half of the development 
+complexity resides in the *game simulation* code ([X][sweeney]).
+If we consider that *numeric computation* and *shading* do not vary from game 
+to game (i.e., they are part of the game engine), the tendency is to shift the 
+complexity even more towards game simulation.
+Furthermore, only 10% of the CPU budget goes to game simulation, opening a 
+considerable opportunity for gains in productivity.
+
+[sweeney]: https://www.cs.princeton.edu/~dpw/popl/06/Tim-POPL.ppt
+
+<!--
+When updating 10,000 objects at 60 FPS, everything is performance-sensitive
+But:
+Productivity is just as important
+Will gladly sacrifice 10% of our performance
+for 10% higher productivity
+We never use assembly language
+
+Gameplay Simulation
+Gratuitous use of mutable state
+10,000’s of objects must be updated
+Typical object update touches 5-10 other objects
+
+This is the hardest problem…
+10,00’s of objects
+Each one contains mutable state
+Each one updated 30 times per second
+Each update touches 5-10 other objects
+ 
+Manual synchronization (shared state concurrency) is 
+hopelessly intractible here.
+ 
+Solutions?
+Rewrite as referentially-transparent functions?
+Message-passing concurrency?
+Continue using the sequential, single-threaded approach?
+
+Update all objects concurrently in arbitrary order, with each update wrapped in 
+an atomic {...} block.
+With 10,000’s of updates, and 5-10 objects touched per update, collisions will 
+be low.
+~2-4X STM performance overhead is acceptable:
+if it enables our state-intensive code to scale to many threads, it’s still a win
+
+Claim: Transactions are the only plausible solution to concurrent mutable state
+-->
+
+Besides promoting the concurrency model of Céu, we enumerate additional 
+motivations for this work as follows:
+
+* Expose Céu to a real code base that was neither specified nor implemented by 
+  the designers of language.
+  Even though video games match its domain, Céu is still primarily an academic 
+  "toy" language.
+  Also, a real-world project consists of a range of requirements, forcing us to 
+  transpose the "academic fences" of papers, which usually only explore
+  idiomatic code.
 * Exercise the interface between Céu and C/C++.
   Céu is designed to integrate seamlessly with C.
   This allowed us to perform a *live porting*, i.e., we incrementally ported 
   code from C++ to Céu without breaking the game for long.
+* Serve as a deep and comprehensive guide for developers interested in trying 
+  Céu.
+  We discuss a number of game behaviors with an in-depth comparison between the 
+  original code in C++ and the equivalent code ported to Céu.
 * Stress-test the implementation of Céu.
   Academic artifacts typically do not go beyond working prototypes.
   We also want Céu to be a robust and practical language for everyday use.
@@ -243,7 +297,6 @@ We believe that most difficulties in implementing control behavior in games is
 not inherent to this domain, but the result of accidental complexity due to the 
 lack of structured abstractions and appropriate concurrency models to handle 
 event-based applications.
-TODO: Tim Sweeney
 
 During the course of the porting process, following the concrete/class-by-class 
 identification described above, we could extract more abstract control patterns 
@@ -302,6 +355,10 @@ In order of recurrence:
     In Pingus, the player can press a button in the screen to toggle between 
     pause and resume.
 
+<!--
+TODO 7. **Resource Acquisition**
+-->
+
 # Who?
 
 Francisco Sant'Anna
@@ -337,7 +394,7 @@ Selected Code Snippets
 
 #### The "Bomber" Pingu
 
-<img src="../data/images/pingus/pplayer0/bomber.png" align="right" valign="top"/>
+<img src="../data/images/pingus/player0/bomber.png" align="right" valign="top"/>
 
 The *bomber* action explodes the clicked Pingu, destroying the terrain under 
 its radius and throwing particles around.
@@ -354,8 +411,8 @@ state to perform some action:
 
 [youtube-bomber]: https://youtu.be/QLXIT59il6o?t=306
 
-The code in C++ [X][cpp-bomber] defines the class `Bomber` which implements the 
-`draw` and `update` callback methods:
+The code in C++ ([X][cpp-bomber]) defines the class `Bomber` which implements 
+the `draw` and `update` callback methods:
 
 ```
 Bomber::Bomber (Pingu* p) :
@@ -372,8 +429,8 @@ Bomber::Bomber (Pingu* p) :
 
 void Bomber::update ()
 {
-    sprite.update ();           // X4
-    <...>   // pingu movement
+    sprite.update ();               // X4
+    <...>   // pingu movement       // X4.1
 
     // 2. 10th frame: plays a "Plop!" sound.
     if (sprite.get_current_frame()==10 && !sound_played) {              // X5
@@ -416,8 +473,8 @@ void Bomber::draw (SceneContext& gc) {
 
 The class defines one state variable for each action to perform (ln.  X1-X2).
 The "Oh no!" sound plays as soon as the object starts in *state-1* (ln. X3).
-The `update` callbacks update the animation sprite every frame (ln. X4), 
-regardless of the current state.
+The `update` callbacks update the animation sprite and moves the Pingu every 
+frame (ln.  X4-X4.1), regardless of the current state.
 When the animation reaches the 10th frame, it plays the "Plop!" if it hasn't 
 yet (ln. X5-X6), going to *state-2*.
 The `sound_played` state variable is required because the sprite frame doesn't 
@@ -478,12 +535,13 @@ end
 Contrasting the two implementation,
 we can highlight:
 
-All states implicitly encoded as a sequence of statements separated by `await` 
-statements.
-All states in the same contiguous block of code, vs three methods (constructor, 
-`update` and `draw`).
-Unrelated behaviors pingu movement running in parallel
-escape
+- All states implicitly encoded as a sequence of statements separated by 
+  `await` statements.
+- All states in the same contiguous block of code, vs three methods 
+  (constructor, `update` and `draw`).
+- Unrelated behaviors pingu movement running in parallel
+- escape/await-sprite (see signaling)
+- update/draw forwarded to nested objects (see hier)
 
 A class definition in Céu specifies an execution body that reacts to events.
 The body can use control-flow statements that keep the execution context across 
@@ -529,7 +587,7 @@ Also, even though the state variables are private, unrelated methods, such as
 ## The Game Loop
 
 The *game loop* determines the general structure of virtually all games 
-[X][gpp-gameloop] (Pingus is no different [X][pingus-gameloop]):
+([X][gpp-gameloop]) (Pingus is no different ([X][pingus-gameloop])):
 
 ```
 while (true)
@@ -551,7 +609,7 @@ responsiveness to input events.
 However, short-lived functions such as `update` do not retain local variables 
 and control-flow state across consecutive invocations.
 In this sense, they eliminate any vestige of structured programming, becoming 
-*our generation's goto* [X][goto].
+*our generation's goto* ([X][goto]).
 
 [gpp-gameloop]: http://gameprogrammingpatterns.com/game-loop.html
 [pingus-gameloop]: https://github.com/Pingus/pingus/blob/v0.7.6/src/engine/screen/screen_manager.cpp#L172
