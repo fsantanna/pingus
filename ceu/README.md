@@ -44,6 +44,7 @@ TODO:
   [How](#how-to-port),
   [Who](#who)?
 * [Detailed Evaluation](#detailed-evaluation)
+
 <!--
 * [TLDR!](#tldr!)
     - did you do a complete port?
@@ -60,6 +61,7 @@ from C++ to the programming language Céu
 &#91;[X][ceu-1],[X][ceu-2]&#93;.
 
 <img src="pingus-1.png" width="400" align="right" valign="top"/>
+
 <img src="pingus-2.png" width="400" align="right" valign="top"/>
 
 [pingus-1]: http://pingus.seul.org/
@@ -305,7 +307,7 @@ searching for members with suspicious names (e.g.,
 [`pressed`][state-pressed],
 [`particle_thrown`][state-particle-thrown],
 [`mode`][state-mode], or
-[`delay_count`][state-delay-count]&#93;.
+[`delay_count`][state-delay-count]).
 Good chances are that variables with identifiers resembling verbs, status, or 
 counters encode some form of control-flow progression that cross multiple 
 callback invocations.
@@ -446,20 +448,20 @@ the `clicked` state variable encodes whether the button is considered to be
 clicked or not, according to the occurrence of `on_primary_button_click`
 and `update` after 1 second, respectively.
 
-#### The "Bomber" Pingu
+#### The "Bomber" Action
 
 <img src="../data/images/pingus/player0/bomber.png" width="350" align="right" valign="top"/>
 
-The *bomber* action explodes the clicked Pingu, destroying the terrain under 
+The *bomber action* explodes the clicked pingu, destroying the terrain under 
 its radius and throwing particles around.
-The clicked Pingu becomes an animation which, at some frames, changes to a new 
+The clicked pingu becomes an animation which, at some frames, changes to a new 
 state to perform some action:
 
 1. 0th frame: plays a "Oh no!" sound.
 2. 10th frame: plays a "Plop!" sound.
 3. 13th frame: throws particles, destroys the terrain, shows an explosion sprite
 4. Game tick: hides the explosion sprite
-5. Last frame: kills the Pingu
+5. Last frame: kills the pingu
 
 *(Open [this video][youtube-bomber] to listen to the sound effects.)*
 
@@ -527,7 +529,7 @@ void Bomber::draw (SceneContext& gc) {
 
 The class defines one state variable for each action to perform (ln.  X1-X2).
 The "Oh no!" sound plays as soon as the object starts in *state-1* (ln. X3).
-The `update` callbacks update the animation sprite and moves the Pingu every 
+The `update` callbacks update the animation sprite and moves the pingu every 
 frame (ln.  X4-X4.1), regardless of the current state.
 When the animation reaches the 10th frame, it plays the "Plop!" if it hasn't 
 yet (ln. X5-X6), going to *state-2*.
@@ -536,7 +538,7 @@ necessarily advance on every `update` invocation.
 The same reasoning and technique applies to the *state-3* (ln. X7-X8 and 
 X9-X10).
 The explosion sprite appears in a single frame in *state-4* (ln. X11-X12).
-Finally, the Pingu dies after the animation frames terminate (ln. X13-X14).
+Finally, the pingu dies after the animation frames terminate (ln. X13-X14).
 
 Note that a single numeric state variable would suffice to track the states.
 However, the authors chose to encode each state in an independent boolean 
@@ -578,7 +580,7 @@ do
             await WORLD_UPDATE;
         end
 
-        // 5. Last frame: kills the Pingu
+        // 5. Last frame: kills the pingu
         await sprite;
         escape {ActionName::DEAD};
     end
