@@ -60,7 +60,7 @@ from C++ to the programming language Céu
 
 ## Warming Up!
 
-<img src="double-click-opt.gif" align="right" valign="top"/>
+<img src="double-click-opt.gif" width="300" align="right" valign="top"/>
 
 Let's consider the case of handling double clicks in the game.
 
@@ -191,7 +191,7 @@ programming model in the context of video games.
 Céu supports concurrent and deterministic abstractions to specify entities with 
 a high degree of real-time interactions, such as in video game simulation.
 
-<img src="sweeney.png" align="right" valign="top"/>
+<img src="sweeney.png" width="300" align="right" valign="top"/>
 
 According to Tim Sweeney (of Unreal Engine fame), half of the development 
 complexity resides in the *game simulation* code ([X][sweeney]).
@@ -394,7 +394,7 @@ Selected Code Snippets
 
 #### The "Bomber" Pingu
 
-<img src="../data/images/pingus/player0/bomber.png" align="right" valign="top"/>
+<img src="../data/images/pingus/player0/bomber.png" width="300" align="right" valign="top"/>
 
 The *bomber* action explodes the clicked Pingu, destroying the terrain under 
 its radius and throwing particles around.
