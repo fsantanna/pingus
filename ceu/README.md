@@ -33,19 +33,20 @@ TODO:
     - C tricks: {}, _XXX, etc
 -->
 
-[What](#what-is-this-report-about?),
-[Why](#why-porting-pingus-to-Céu?),
-[How](#how),
-[Who](#who)
-?
-
-[TLDR!](#tldr!)
+* [What](#what-is-this-report-about),
+  [Why](#why-porting-pingus-to-C%C3%A9u),
+  [How](#how-to-port),
+  [Who](#who)
+  ?
+* [Detailed Evaluation](#detailed-evaluation)
+* [TLDR!](#tldr!)
 
 # What is this report about?
 
-This report documents the process of porting the video game Pingus 
-[X][pingus-1] [X][pingus-2] from C++ to the programming language Céu
-[X][ceu-1] [X][ceu-2].
+This report documents the process of porting the video game Pingus
+([X][pingus-1] [X][pingus-2])
+from C++ to the programming language Céu
+([X][ceu-1] [X][ceu-2]).
 
 <img src="pingus-1.png" width="45%"/>
 <img src="pingus-2.png" width="45%"/>
@@ -163,6 +164,10 @@ do
 end
 ```
 
+A class definition in Céu specifies an execution body that reacts to events.
+The body can use control-flow statements that keep the execution context across 
+event occurrences (i.e., across `await` statements).
+
 The double click detection is a `loop` (ln. X1-X2) that awaits the first click 
 (ln. X3) and then, watching 1 second (ln. X4-X5), awaits the second click (ln 
 X6).
@@ -174,7 +179,7 @@ Note that the double click detection in Céu doesn't require state variables and
 is self-contained in the `loop` (ln. X1-X2), describing the behavior with 
 appropriate control-flow mechanisms (e.g., `await` and `watching`).
 
-[cpp-armageddon]: https://github.com/fsantanna/pingus/blob/master/src/pingus/components/action_button.cpp
+[cpp-armageddon]: https://github.com/Pingus/pingus/blob/v0.7.6/src/pingus/components/action_button.cpp
 [ceu-armageddon]: https://github.com/fsantanna/pingus/blob/ceu/ceu/pingus/components/action_button.ceu
 
 # Why porting Pingus to Céu?
@@ -206,14 +211,46 @@ We also have additional motivations for this work as follows:
   Having C++ as a reference, how does Céu compare in terms of memory usage, 
   code size, and execution time (e.g., FPS rate)?
 
-# How?
+# How to port?
 
-We believe that most difficulties in implementing control behaviors in games is 
+The general idea is to identify control-flow patterns that cross methods 
+invocations and rewrite them in Céu using appropriate structured constructs.
+Then, we redirect object instantiation and event dispatching to the class in 
+Céu and remove the class in C++ from the code base.
+The remaining classes in C++ should interoperate with the new classes in Céu 
+until we complete the porting process.
+
+Note that we didn't touch classes that don't deal with events as Céu is 
+actually less expressive than C++ for pure data manipulation.
+Hence, we take advantage of the integration between Céu and C/C++ to have 
+access to the existing code base and libraries.
+
+To identify the control-flow patterns, we inspect class definitions searching 
+for members with suspicious names such as
+[`pressed`][state-pressed],
+[`particle_thrown`][state-particle-thrown],
+[`mode`][state-mode], or
+[`delay_count`][state-delay-count].
+Good chances are that verbs, status, and counters encode some form of 
+control-flow progression explicitly.
+
+[state-pressed]: https://github.com/Pingus/pingus/blob/v0.7.6/src/pingus/components/action_button.hpp#L36
+[state-particle-thrown]: https://github.com/Pingus/pingus/blob/v0.7.6/src/pingus/actions/bomber.hpp#L31
+[state-mode]: https://github.com/Pingus/pingus/blob/v0.7.6/src/pingus/actions/bridger.hpp#L30
+[state-delay-count]: https://github.com/Pingus/pingus/blob/v0.7.6/src/pingus/actions/digger.hpp#L32
+
+We believe that most difficulties in implementing control behavior in games is 
 not inherent to this domain, but the result of accidental complexity due to the 
 lack of structured abstractions and appropriate concurrency models to handle 
 event-based applications.
+TODO: Tim Sweeney
 
-identify
+During the course of the porting process, following the concrete/class-by-class 
+identification described above, we could extract more abstract control patterns 
+that should apply to any game.
+Our hypothesis is that if another game manifests such patterns, it must use 
+some form of explicit state that is likely to be rewritten with appropriate 
+control constructs.
 
 ## Control-Flow Patterns in Pingus
 
@@ -226,7 +263,7 @@ In order of recurrence:
     states according to event occurrences.
     The double click behavior above is an example of a state machine:
     the `clicked` state variable encodes whether the button is considered to be 
-    clicked or not, according to the occurences of `on_primary_button_click`
+    clicked or not, according to the occurrence of `on_primary_button_click`
     and `update` after 1 second, respectively.
 
 2. **Dispatching Hierarchies**
@@ -261,9 +298,233 @@ In order of recurrence:
     The double click behavior above uses a timeout of 1 second to restart.
 
 6. **Pausing**
-    Games typically provides means to temporalily suspend the execution.
+    Games typically provides means to temporarily suspend the execution.
     In Pingus, the player can press a button in the screen to toggle between 
     pause and resume.
+
+# Who?
+
+Francisco Sant'Anna
+
+* http://www.ceu-lang.org/chico/
+* https://github.com/fsantanna/
+* [@fsantanna_puc](https://twitter.com/fsantanna_puc/)
+
+## Acknowledgments
+
+Leonardo Kaplan
+* https://github.com/leokaplan/
+
+Alexander Tkachov
+* https://github.com/Tkachov/
+
+-------------------------------------------------------------------------------
+
+# Detailed Evaluation
+
+## Qualitative Analysis
+
+Selected Code Snippets
+
+### Finite State Machines
+
+    State machines describe the behavior of games through transitions between 
+    states according to event occurrences.
+    The double click behavior above is an example of a state machine:
+    the `clicked` state variable encodes whether the button is considered to be 
+    clicked or not, according to the occurrence of `on_primary_button_click`
+    and `update` after 1 second, respectively.
+
+#### The "Bomber" Pingu
+
+<img src="../data/images/pingus/pplayer0/bomber.png" align="right" valign="top"/>
+
+The *bomber* action explodes the clicked Pingu, destroying the terrain under 
+its radius and throwing particles around.
+The clicked Pingu becomes an animation which, at some frames, changes to a new 
+state to perform some action:
+
+1. 1st frame: plays a "Oh no!" sound.
+2. 10th frame: plays a "Plop!" sound.
+3. 13th frame: throws particles, destroys the terrain, shows an explosion sprite
+4. Game tick: hides the explosion sprite
+5. Last frame: kills the Pingu
+
+(Open [this video][youtube-bomber] to listen the sounds.)
+
+[youtube-bomber]: https://youtu.be/QLXIT59il6o?t=306
+
+The code in C++ [X][cpp-bomber] defines the class `Bomber` which implements the 
+`draw` and `update` callback methods:
+
+```
+Bomber::Bomber (Pingu* p) :
+    <...>
+    sound_played(false),        // tracks state 2   X1
+    particle_thrown(false),     // tracks state 3
+    colmap_exploded(false),     // tracks state 3
+    gfx_exploded(false)         // tracks state 4   X2
+{
+    <...>
+    // 1. 1st frame: plays a "Oh no!" sound.
+    WorldObj::get_world()->play_sound("ohno", pingu->get_pos ());   // X3
+}
+
+void Bomber::update ()
+{
+    sprite.update ();           // X4
+    <...>   // pingu movement
+
+    // 2. 10th frame: plays a "Plop!" sound.
+    if (sprite.get_current_frame()==10 && !sound_played) {              // X5
+        sound_played = true;
+        WorldObj::get_world()->play_sound("plop", pingu->get_pos ());
+    }                                                                   // X6
+
+    // 3. 13th frame: throws particles, destroys the terrain, shows an explosion sprite
+    if (sprite.get_current_frame()==13 && !particle_thrown) {           // X7
+        particle_thrown = true;
+        WorldObj::get_world()->get_pingu_particle_holder()->add_particle(pingu->get_x(),
+                                                                         pingu->get_y()-5);
+    }
+    if (sprite.get_current_frame()==13 && !colmap_exploded) {
+        colmap_exploded = true;
+        WorldObj::get_world()->remove(
+            bomber_radius,
+            pingu->get_x() - bomber_radius.get_width()/2,
+            pingu->get_y() - bomber_radius.get_width()/2 - 16
+        );
+    }                                                                   // X8
+
+    // 5. Last frame: kills the Pingu
+    if (sprite.is_finished ()) {                                        // X13
+        pingu->set_status(Pingu::PS_DEAD);                              // X14
+    }
+}
+
+void Bomber::draw (SceneContext& gc) {
+    // 3. 13th frame: throws particles, destroys the terrain, shows an explosion sprite
+    // 4. Game tick: hides the explosion sprite
+    if (sprite.get_current_frame()==13 && !gfx_exploded) {              // X9
+        gfx_exploded = true;                                            // X10
+        gc.color().draw (explo_surf,                                        // X11
+                         Vector3f(pingu->get_x()-32, pingu->get_y()-48));   // X12
+    }
+    gc.color().draw(sprite, pingu->get_pos ());
+}
+```
+
+The class defines one state variable for each action to perform (ln.  X1-X2).
+The "Oh no!" sound plays as soon as the object starts in *state-1* (ln. X3).
+The `update` callbacks update the animation sprite every frame (ln. X4), 
+regardless of the current state.
+When the animation reaches the 10th frame, it plays the "Plop!" if it hasn't 
+yet (ln. X5-X6), going to *state-2*.
+The `sound_played` state variable is required because the sprite frame doesn't 
+necessarily advance on every `update` invocation.
+The same reasoning and technique applies to the *state-3* (ln. X7-X8 and 
+X9-X10).
+The explosion sprite appears in a single frame in *state-4* (ln. X11-X12).
+Finally, the Pingu dies after the animation frames terminate (ln. X13-X14).
+
+Note that a single numeric state variable would suffice to track the states.
+However, the authors chose to encode each state in an independent boolean 
+variable, probably to ease rearranging and experimenting with them during the 
+development.
+
+The implementation in Céu doesn't require explicit state variables and more 
+closely reflects the sequential state machine advancing along with the 
+animation frames:
+
+```
+class Bomber with
+    <...>
+do
+    <...>
+    par do
+        <...>   // pingu movement
+    with
+        // 1. 1st frame: plays a "Oh no!" sound.
+        call {Sound::PingusSound::play_sound}("ohno", 0.5, 0.0);
+
+        // 2. 10th frame: plays a "Plop!" sound.
+        await WORLD_UPDATE until sprite.get_current_frame() == 10;
+        call {Sound::PingusSound::play_sound}("plop", 0.5, 0.0);
+
+        // 3. 13th frame: throws particles, destroys the terrain, shows an explosion sprite
+        await WORLD_UPDATE until sprite.get_current_frame() == 13;
+        emit global:go_create_pingu_particles => (this.pingu.get_x(),
+                                                  this.pingu.get_y()-5);
+        global:world!:remove(
+            &&_bomber_radius,
+            this.pingu.get_x() - _bomber_radius.get_width()/2,
+            this.pingu.get_y() - _bomber_radius.get_width()/2 - 16
+        );
+        do
+            var Sprite s = Sprite.build_name(&outer.pingu.rect, (char&&)&&explo);
+            s.offset = Vector2i(32, 48);
+            // 4. Game tick: hides the explosion sprite
+            await WORLD_UPDATE;
+        end
+
+        // 5. Last frame: kills the Pingu
+        await sprite;
+        escape {ActionName::DEAD};
+    end
+end
+```
+
+<!--
+Contrasting the two implementation,
+we can highlight:
+
+All states implicitly encoded as a sequence of statements separated by `await` 
+statements.
+All states in the same contiguous block of code, vs three methods (constructor, 
+`update` and `draw`).
+Unrelated behaviors pingu movement running in parallel
+escape
+
+A class definition in Céu specifies an execution body that reacts to events.
+The body can use control-flow statements that keep the execution context across 
+event occurrences (i.e., across `await` statements).
+
+The double click detection is a `loop` (ln. X1-X2) that awaits the first click 
+(ln. X3) and then, watching 1 second (ln. X4-X5), awaits the second click (ln 
+X6).
+If the second click occurs within 1 second, we `break` the loop (ln. X7) and 
+signal the double click to the application (ln X8).
+Otherwise, the `watching` block as a whole aborts and restarts the loop, 
+falling back to the first click await.
+Note that the double click detection in Céu doesn't require state variables and 
+is self-contained in the `loop` (ln. X1-X2), describing the behavior with 
+appropriate control-flow mechanisms (e.g., `await` and `watching`).
+
+Similarly to the `Armageddon` class, the accesses to these state variables are 
+spread across the class definition in multiple methods.
+For instance, the distance between the declaration of `pressed` (ln. X1) and 
+the last access to it (ln. X2) is over X lines (if we count the code hidden in 
+`<...>`).
+Arguably, this makes the understanding and maintenance of the double-click 
+behavior more difficult.
+Also, even though the state variables are private, unrelated methods, such as 
+`draw`, can potentially access it.
+-->
+
+-->
+
+[cpp-bomber]: https://github.com/Pingus/pingus/blob/v0.7.6/src/pingus/actions/bomber.cpp
+[ceu-bomber]: https://github.com/fsantanna/pingus/blob/ceu/ceu/pingus/actions/bomber.ceu
+
+#### Sprite Animations
+
+## Quantitative Analysis
+
+### Code Size
+
+### Memory
+
+### CPU
 
 ## The Game Loop
 
