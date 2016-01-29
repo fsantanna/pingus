@@ -49,7 +49,7 @@ TODO:
 This report documents the process of porting the video game Pingus
 &#91;[X][pingus-1],[X][pingus-2]&#93;
 from C++ to the programming language Céu
-([X][ceu-1],[X][ceu-2]).
+&#91;[X][ceu-1],[X][ceu-2]&#93;.
 
 <img src="pingus-1.png" width="45%"/>
 <img src="pingus-2.png" width="45%"/>
@@ -68,7 +68,7 @@ Let's consider the case of handling double clicks in the game.
 In Pingus, double clicking the *Armageddon* button literally destroys all 
 pingus, as illustrated in the figure in the right.
 
-The code in C++ ([X][cpp-armageddon]) uses the class `ArmageddonButton` which 
+The code in C++ &#91;[X][cpp-armageddon]&#93; uses the class `ArmageddonButton` which 
 defines custom methods for rendering and handling events.
 Below, we only show the parts related to detect a double click on the button:
 
@@ -144,7 +144,7 @@ Also, even though the state variables are private, unrelated methods, such as
 
 Céu provides structured constructs to deal with events, aiming to eradicate 
 explicit manipulation of state variables for control-flow purposes.
-The equivalent code in Céu ([X][ceu-armageddon]) defines the class 
+The equivalent code in Céu &#91;[X][ceu-armageddon]&#93; defines the class 
 `ArmageddonButton` as follows:
 
 ```
@@ -195,7 +195,7 @@ a high degree of real-time interactions, such as in video game simulation.
 <img src="sweeney.png" width="350" align="right" valign="top"/>
 
 According to Tim Sweeney (of Unreal Engine fame), half of the development 
-complexity resides in the *game simulation* code ([X][sweeney]).
+complexity resides in the *game simulation* code &#91;[X][sweeney]&#93;.
 If we consider that *numeric computation* and *shading* do not vary from game 
 to game (i.e., they are part of the game engine), the tendency is to shift the 
 complexity even more towards game simulation.
@@ -285,7 +285,7 @@ for members with suspicious names (e.g.,
 [`pressed`][state-pressed],
 [`particle_thrown`][state-particle-thrown],
 [`mode`][state-mode], or
-[`delay_count`][state-delay-count]).
+[`delay_count`][state-delay-count]&#93;.
 Good chances are that variables with identifiers resembling verbs, status, or 
 counters encode some form of control-flow progression explicitly.
 
@@ -408,11 +408,11 @@ state to perform some action:
 4. Game tick: hides the explosion sprite
 5. Last frame: kills the Pingu
 
-(Open [this video][youtube-bomber] to listen the sounds.)
+*(Open [this video][youtube-bomber] to listen to the sound effects.)*
 
 [youtube-bomber]: https://youtu.be/QLXIT59il6o?t=306
 
-The code in C++ ([X][cpp-bomber]) defines the class `Bomber` which implements 
+The code in C++ &#91;[X][cpp-bomber]&#93; defines the class `Bomber` which implements 
 the `draw` and `update` callback methods:
 
 ```
@@ -588,7 +588,7 @@ Also, even though the state variables are private, unrelated methods, such as
 ## The Game Loop
 
 The *game loop* determines the general structure of virtually all games 
-([X][gpp-gameloop]) (Pingus is no different ([X][pingus-gameloop])):
+&#91;[X][gpp-gameloop]&#93; (Pingus is no different &#91;[X][pingus-gameloop]&#93;):
 
 ```
 while (true)
@@ -610,7 +610,7 @@ responsiveness to input events.
 However, short-lived functions such as `update` do not retain local variables 
 and control-flow state across consecutive invocations.
 In this sense, they eliminate any vestige of structured programming, becoming 
-*our generation's goto* ([X][goto]).
+*our generation's goto* &#91;[X][goto]&#93;.
 
 [gpp-gameloop]: http://gameprogrammingpatterns.com/game-loop.html
 [pingus-gameloop]: https://github.com/Pingus/pingus/blob/v0.7.6/src/engine/screen/screen_manager.cpp#L172
