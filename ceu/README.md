@@ -1,5 +1,5 @@
 <head>
-    <title>Francisco Sant'Anna</title>
+    <title>On Porting Pingus from C++ to Céu</title>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
 </head>
 
@@ -36,17 +36,18 @@ TODO:
 -->
 
 * [What](#what-is-this-report-about),
-  [Why](#why-porting-pingus-to-C%C3%A9u),
+  [Why](#why-porting-pingus-to-céu),
   [How](#how-to-port),
-  [Who](#who)
-  ?
+  [Who](#who)?
 * [Detailed Evaluation](#detailed-evaluation)
+<!--
 * [TLDR!](#tldr!)
+-->
 
 # What is this report about?
 
 This report documents the process of porting the video game Pingus
-([X][pingus-1],[X][pingus-2])
+&#91;[X][pingus-1],[X][pingus-2]&#93;
 from C++ to the programming language Céu
 ([X][ceu-1],[X][ceu-2]).
 
@@ -60,7 +61,7 @@ from C++ to the programming language Céu
 
 ## Warming Up!
 
-<img src="double-click-opt.gif" width="300" align="right" valign="top"/>
+<img src="double-click-opt.gif" width="350" align="right" valign="top"/>
 
 Let's consider the case of handling double clicks in the game.
 
@@ -191,7 +192,7 @@ programming model in the context of video games.
 Céu supports concurrent and deterministic abstractions to specify entities with 
 a high degree of real-time interactions, such as in video game simulation.
 
-<img src="sweeney.png" width="300" align="right" valign="top"/>
+<img src="sweeney.png" width="350" align="right" valign="top"/>
 
 According to Tim Sweeney (of Unreal Engine fame), half of the development 
 complexity resides in the *game simulation* code ([X][sweeney]).
@@ -280,13 +281,13 @@ Hence, we take advantage of the integration between Céu and C/C++ to have
 access to the existing code base and libraries.
 
 To identify the control-flow patterns, we inspect class definitions searching 
-for members with suspicious names such as
+for members with suspicious names (e.g.,
 [`pressed`][state-pressed],
 [`particle_thrown`][state-particle-thrown],
 [`mode`][state-mode], or
-[`delay_count`][state-delay-count].
-Good chances are that verbs, status, and counters encode some form of 
-control-flow progression explicitly.
+[`delay_count`][state-delay-count]).
+Good chances are that variables with identifiers resembling verbs, status, or 
+counters encode some form of control-flow progression explicitly.
 
 [state-pressed]: https://github.com/Pingus/pingus/blob/v0.7.6/src/pingus/components/action_button.hpp#L36
 [state-particle-thrown]: https://github.com/Pingus/pingus/blob/v0.7.6/src/pingus/actions/bomber.hpp#L31
@@ -394,7 +395,7 @@ Selected Code Snippets
 
 #### The "Bomber" Pingu
 
-<img src="../data/images/pingus/player0/bomber.png" width="300" align="right" valign="top"/>
+<img src="../data/images/pingus/player0/bomber.png" width="350" align="right" valign="top"/>
 
 The *bomber* action explodes the clicked Pingu, destroying the terrain under 
 its radius and throwing particles around.
