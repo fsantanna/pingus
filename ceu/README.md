@@ -59,13 +59,12 @@ TODO:
 # What is this all about?
 
 <img src="pingus-1.png" width="400" align="right" valign="top"/>
+<img src="pingus-2.png" width="400" align="right" valign="top"/>
 
 This report documents the process of porting the video game Pingus
 &#91;[X][pingus-1],[X][pingus-2]&#93;
 from C++ to the programming language Céu
 &#91;[X][ceu-1],[X][ceu-2]&#93;.
-
-<img src="pingus-2.png" width="400" align="right" valign="top"/>
 
 [pingus-1]: http://pingus.seul.org/
 [pingus-2]: https://github.com/Pingus/pingus/
@@ -454,7 +453,6 @@ state machine.
 #### The "Bomber" Action
 
 <img src="../data/images/pingus/player0/bomber.png" width="350" align="right" valign="top" border="1"/>
-
 <img src="bomber-opt.gif" width="350" align="right" valign="top"/>
 
 The *bomber action* explodes the clicked pingu, destroying the terrain under 
