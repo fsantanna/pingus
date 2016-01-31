@@ -4,6 +4,9 @@
 </head>
 
 <!--
+silentcast, transparent window interior, dont go under the default size
+convert output.gif -fuzz 10% -layers Optimize optimised.gif
+
 TODO:
     - ver os patterns do GPP
         - nao cubro algum que ocorre no pingus?
@@ -55,12 +58,12 @@ TODO:
 
 # What is this all about?
 
+<img src="pingus-1.png" width="400" align="right" valign="top"/>
+
 This report documents the process of porting the video game Pingus
 &#91;[X][pingus-1],[X][pingus-2]&#93;
 from C++ to the programming language Céu
 &#91;[X][ceu-1],[X][ceu-2]&#93;.
-
-<img src="pingus-1.png" width="400" align="right" valign="top"/>
 
 <img src="pingus-2.png" width="400" align="right" valign="top"/>
 
@@ -443,14 +446,16 @@ Selected Code Snippets
 State machines describe the behavior of game entities by mapping event 
 occurrences to transitions between states triggering appropriate actions.
 
-The double click behavior above is an example of a state machine:
-the `clicked` state variable encodes whether the button is considered to be 
-clicked or not, according to the occurrence of `on_primary_button_click`
-and `update` after 1 second, respectively.
+<!--
+The double click behavior for the *Armageddon button* is an example of a simple 
+state machine.
+-->
 
 #### The "Bomber" Action
 
-<img src="../data/images/pingus/player0/bomber.png" width="350" align="right" valign="top"/>
+<img src="../data/images/pingus/player0/bomber.png" width="350" align="right" valign="top" border="1"/>
+
+<img src="bomber-opt.gif" width="350" align="right" valign="top"/>
 
 The *bomber action* explodes the clicked pingu, destroying the terrain under 
 its radius and throwing particles around.
@@ -588,8 +593,8 @@ end
 ```
 
 <!--
-Contrasting the two implementation,
-we can highlight:
+Contrasting the two implementations, we can highlight the advantages of Céu as 
+follows:
 
 - All states implicitly encoded as a sequence of statements separated by 
   `await` statements.
