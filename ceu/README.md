@@ -59,7 +59,7 @@ TODO:
 # What is this all about?
 
 <img src="pingus-1.png" width="400" align="right" valign="top"/>
-
+<br/>
 <img src="pingus-2.png" width="400" align="right" valign="top"/>
 
 This report documents the process of porting the video game Pingus
@@ -454,7 +454,7 @@ state machine.
 #### The "Bomber" Action
 
 <img src="../data/images/pingus/player0/bomber.png" width="350" align="right" valign="top" border="1"/>
-
+<br/>
 <img src="bomber-opt.gif" width="350" align="right" valign="top"/>
 
 The *bomber action* explodes the clicked pingu, destroying the terrain under 
