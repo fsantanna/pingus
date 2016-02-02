@@ -64,9 +64,8 @@ This report documents the process of porting the video game Pingus
 from C++ to the programming language Céu
 &#91;[X][ceu-1],[X][ceu-2]&#93;.
 
-<img src="images/pingus-1.png" width="400" align="right" valign="top"/>
-<br/><br/>
-<img src="images/pingus-2.png" width="400" align="right" valign="top"/>
+<img src="images/pingus-1.png" width="400"/>
+<img src="images/pingus-2.png" width="400"/>
 
 [pingus-1]: http://pingus.seul.org/
 [pingus-2]: https://github.com/Pingus/pingus/
@@ -445,12 +444,11 @@ state machine.
 
 The *bomber action* explodes the clicked pingu, throwing particles around and 
 also destroying the terrain under its radius.
-A sequential state machine models an animation with actions associated to 
-specific frames, as illustrated in the figure in the right and as follows:
-
 <img src="images/bomber-opt.gif" width="350" align="right" valign="top"/>
 <br/><br/>
 <img src="images/state-anim/state-anim.gif" width="550" align="right" valign="top"/>
+A sequential state machine models an animation with actions associated to 
+specific frames, as illustrated in the figure in the right and as follows:
 
 1. 0th frame: plays a "Oh no!" sound.
 2. 10th frame: plays a "Bomb!" sound.
