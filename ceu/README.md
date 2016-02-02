@@ -6,6 +6,7 @@
 <!--
 silentcast, transparent window interior, dont go under the default size
 convert output.gif -fuzz 10% -layers Optimize optimised.gif
+convert -delay 20 -loop 0 *.jpg myimage.gif
 
 TODO:
     - ver os patterns do GPP
@@ -391,16 +392,6 @@ Alexander Tkachov
 Selected Code Snippets
 
 <!--
-2. **Dispatching Hierarchies**
-    Some entities in games act as containers for other child entities,
-    resulting in hierarchies of event dispatching.
-
-    In Pingus, the *Main Menu* in the figure above is represented as a 
-    container class with five buttons as children.
-    When a button click occurs, it is first dispatched to the container class,
-    which may take an action before deciding to forward the event (or not) to 
-    the buttons.
-
 3. **Continuation Passing**
     The completion of long-lasting activity in a game may have a continuation, 
     i.e., some action to execute next.
@@ -445,7 +436,6 @@ Selected Code Snippets
 
 State machines describe the behavior of game entities by mapping event 
 occurrences to transitions between states triggering appropriate actions.
-
 <!--
 The double click behavior for the *Armageddon button* is an example of a simple 
 state machine.
@@ -453,17 +443,17 @@ state machine.
 
 #### The "Bomber" Action
 
-<img src="../data/images/pingus/player0/bomber.png" width="350" align="right" valign="top" border="1"/>
-<br/>
 <img src="bomber-opt.gif" width="350" align="right" valign="top"/>
+<br/>
+<img src="state-anim/state-anim.gif" width="550" align="right" valign="top"/>
 
-The *bomber action* explodes the clicked pingu, destroying the terrain under 
-its radius and throwing particles around.
-The clicked pingu becomes an animation which, at some frames, changes to a new 
-state to perform some action:
+The *bomber action* explodes the clicked pingu, throwing particles around and 
+also destroying the terrain under its radius.
+A sequential state machine models an animation with actions associated to 
+specific frames, as illustrated in the figure in the right and as follows:
 
 1. 0th frame: plays a "Oh no!" sound.
-2. 10th frame: plays a "Plop!" sound.
+2. 10th frame: plays a "Bomb!" sound.
 3. 13th frame: throws particles, destroys the terrain, shows an explosion sprite
 4. Game tick: hides the explosion sprite
 5. Last frame: kills the pingu
@@ -493,7 +483,7 @@ void Bomber::update ()
     sprite.update ();               // X4
     <...>   // pingu movement       // X4.1
 
-    // 2. 10th frame: plays a "Plop!" sound.
+    // 2. 10th frame: plays a "Bomb!" sound.
     if (sprite.get_current_frame()==10 && !sound_played) {              // X5
         sound_played = true;
         WorldObj::get_world()->play_sound("plop", pingu->get_pos ());
@@ -507,16 +497,12 @@ void Bomber::update ()
     }
     if (sprite.get_current_frame()==13 && !colmap_exploded) {
         colmap_exploded = true;
-        WorldObj::get_world()->remove(
-            bomber_radius,
-            pingu->get_x() - bomber_radius.get_width()/2,
-            pingu->get_y() - bomber_radius.get_width()/2 - 16
-        );
+        WorldObj::get_world()->remove(bomber_radius, <...>);
     }                                                                   // X8
 
     // 5. Last frame: kills the Pingu
-    if (sprite.is_finished ()) {                                        // X13
-        pingu->set_status(Pingu::PS_DEAD);                              // X14
+    if (sprite.is_finished ()) {                                        // X12
+        pingu->set_status(Pingu::PS_DEAD);                              // X13
     }
 }
 
@@ -525,34 +511,35 @@ void Bomber::draw (SceneContext& gc) {
     // 4. Game tick: hides the explosion sprite
     if (sprite.get_current_frame()==13 && !gfx_exploded) {              // X9
         gfx_exploded = true;                                            // X10
-        gc.color().draw (explo_surf,                                        // X11
-                         Vector3f(pingu->get_x()-32, pingu->get_y()-48));   // X12
+        gc.color().draw (explo_surf, <...>);                            // X11
     }
     gc.color().draw(sprite, pingu->get_pos ());
 }
 ```
 
-The class defines one state variable for each action to perform (ln.  X1-X2).
+The class defines one state variable for each action to perform (ln. X1-X2).
 The "Oh no!" sound plays as soon as the object starts in *state-1* (ln. X3).
 The `update` callbacks update the animation sprite and moves the pingu every 
 frame (ln.  X4-X4.1), regardless of the current state.
-When the animation reaches the 10th frame, it plays the "Plop!" if it hasn't 
+When the animation reaches the 10th frame, it plays the "Bomb!" if it hasn't 
 yet (ln. X5-X6), going to *state-2*.
 The `sound_played` state variable is required because the sprite frame doesn't 
 necessarily advance on every `update` invocation.
 The same reasoning and technique applies to the *state-3* (ln. X7-X8 and 
 X9-X10).
-The explosion sprite appears in a single frame in *state-4* (ln. X11-X12).
-Finally, the pingu dies after the animation frames terminate (ln. X13-X14).
+The explosion sprite appears in a single frame in *state-4* (ln. X11).
+Finally, the pingu dies after the animation frames terminate (ln. X12-X13).
 
 Note that a single numeric state variable would suffice to track the states.
-However, the authors chose to encode each state in an independent boolean 
-variable, probably to ease rearranging and experimenting with them during the 
-development.
+Probably, the authors chose to encode each state in an independent boolean 
+variable to rearrange and experiment with them during the development.
+
+However, due to the short-lived nature of callbacks, state variables are 
+unavoidable, being part of the essence of object-oriented programming (methods 
++ mutable state).
 
 The implementation in Céu doesn't require explicit state variables and more 
-closely reflects the sequential state machine advancing along with the 
-animation frames:
+closely reflects in the source code the sequential state machine:
 
 ```
 class Bomber with
@@ -560,12 +547,12 @@ class Bomber with
 do
     <...>
     par do
-        <...>   // pingu movement
+        <...>   // pingu movement                                   // X1
     with
         // 1. 0th frame: plays a "Oh no!" sound.
         call {Sound::PingusSound::play_sound}("ohno", 0.5, 0.0);
 
-        // 2. 10th frame: plays a "Plop!" sound.
+        // 2. 10th frame: plays a "Bomb!" sound.
         await WORLD_UPDATE until sprite.get_current_frame() == 10;
         call {Sound::PingusSound::play_sound}("plop", 0.5, 0.0);
 
@@ -573,67 +560,518 @@ do
         await WORLD_UPDATE until sprite.get_current_frame() == 13;
         emit global:go_create_pingu_particles => (this.pingu.get_x(),
                                                   this.pingu.get_y()-5);
-        global:world!:remove(
-            &&_bomber_radius,
-            this.pingu.get_x() - _bomber_radius.get_width()/2,
-            this.pingu.get_y() - _bomber_radius.get_width()/2 - 16
-        );
-        do
-            var Sprite s = Sprite.build_name(&outer.pingu.rect, (char&&)&&explo);
-            s.offset = Vector2i(32, 48);
+        global:world!:remove(&&_bomber_radius, <...>);
+        do                                                          // X4
+            var Sprite s = Sprite.build_name(<...>, &&explo);
             // 4. Game tick: hides the explosion sprite
             await WORLD_UPDATE;
-        end
+        end                                                         // X5
 
         // 5. Last frame: kills the pingu
-        await sprite;
-        escape {ActionName::DEAD};
+        await sprite;                                               // X2
+        escape {ActionName::DEAD};                                  // X3
     end
 end
 ```
 
-<!--
-Contrasting the two implementations, we can highlight the advantages of Céu as 
-follows:
+Considering the implementation in Céu, we can highlight some benefits in 
+comparison to the implementation in C++:
 
-- All states implicitly encoded as a sequence of statements separated by 
-  `await` statements.
-- All states in the same contiguous block of code, vs three methods 
-  (constructor, `update` and `draw`).
-- Unrelated behaviors pingu movement running in parallel
-- escape/await-sprite (see signaling)
-- update/draw forwarded to nested objects (see hier)
-
-A class definition in Céu specifies an execution body that reacts to events.
-The body can use control-flow statements that keep the execution context across 
-event occurrences (i.e., across `await` statements).
-
-The double click detection is a `loop` (ln. X1-X2) that awaits the first click 
-(ln. X3) and then, watching 1 second (ln. X4-X5), awaits the second click (ln 
-X6).
-If the second click occurs within 1 second, we `break` the loop (ln. X7) and 
-signal the double click to the application (ln X8).
-Otherwise, the `watching` block as a whole aborts and restarts the loop, 
-falling back to the first click await.
-Note that the double click detection in Céu doesn't require state variables and 
-is self-contained in the `loop` (ln. X1-X2), describing the behavior with 
-appropriate control-flow mechanisms (e.g., `await` and `watching`).
-
-Similarly to the `Armageddon` class, the accesses to these state variables are 
-spread across the class definition in multiple methods.
-For instance, the distance between the declaration of `pressed` (ln. X1) and 
-the last access to it (ln. X2) is over X lines (if we count the code hidden in 
-`<...>`).
-Arguably, this makes the understanding and maintenance of the double-click 
-behavior more difficult.
-Also, even though the state variables are private, unrelated methods, such as 
-`draw`, can potentially access it.
--->
+- We encode all states implicitly, relying on the natural sequential flow of 
+  execution.
+- We handle all states (and only them) in the same contiguous block of code.
+- We isolate unrelated behaviors to the animation, such as the pingu movement 
+  (ln. X1), in a parallel line of execution.
+- We use a local and lexically-scoped organism
+  (to be discussed [X][hierarchical-dispatching])
+  for the temporary single-frame explosion (ln. X4-X5).
+- We use auxiliary signalling mechanisms
+  (to be discussed [X][signalling-mechanisms])
+  to await the termination of the animation (ln.  X2) and
+  to notify the application about our own termination.
 
 [cpp-bomber]: https://github.com/Pingus/pingus/blob/v0.7.6/src/pingus/actions/bomber.cpp
 [ceu-bomber]: https://github.com/fsantanna/pingus/blob/ceu/ceu/pingus/actions/bomber.ceu
 
+<!--
 #### Sprite Animations
+-->
+
+### Dispatching Hierarchies
+
+Some entities in games act as containers for other child entities,
+resulting in hierarchies of event dispatching.
+<!--
+    In Pingus, the *Main Menu* in the figure above is represented as a 
+    container class with five buttons as children.
+    When a button click occurs, it is first dispatched to the container class,
+    which may take an action before deciding to forward the event (or not) to 
+    the buttons.
+-->
+
+#### Bomber `draw` and `update` callbacks
+
+Let's dig into the `Bomber` animation in C++ &#91;[X][cpp-bomber]&#93;, 
+focusing on the `sprite` member, and the `update` and `draw` callback methods:
+
+```
+// bomber.hpp/cpp
+
+class Bomber : public PinguAction
+{
+    <...>
+    Sprite sprite;
+    void draw (SceneContext& gc);
+    void update();
+}
+
+Bomber::Bomber (<...>) : <...>
+{
+    sprite.load(<...>);                     // X1
+    <...>
+}
+
+void Bomber::update () {                    // X2
+    sprite.update ();
+}                                           // X3
+
+void Bomber::draw (SceneContext& gc) {      // X4
+    <...>
+    gc.color().draw(sprite, <...>);
+}                                           // X5
+```
+
+The class loads the `sprite` in the constructor (ln. X1) and continually 
+redirects `update` and `draw` to it (ln. X2-X3 and X4-X5).
+The `Sprite` class &#91;[X][cpp-sprite]&#93; knows how to update 
+&#91;[X][cpp-sprite-update]&#93; and render &#91;[X][cpp-sprite-render]&#93; 
+itself.
+
+However, we have to follow a long hierarchy of 8 dispatches to understand how 
+the `update` and `draw` callbacks flow from the original stimulus from the 
+environment down to the sprite:
+
+0. `ScreenManager::display` &#91;[X][cpp-screenmanager-1]&#93;
+        (the game loop)
+   calls
+   `this->update` &#91;[X][cpp-screenmanager-2]&#93;.
+
+1. `ScreenManager::update` &#91;[X][cpp-screenmanager-1]&#93;
+   calls
+   `last_screen->update` &#91;[X][cpp-screenmanager-2]&#93;
+        (for the active game screen).
+
+2. `GUIScreen::update` &#91;[X][cpp-guiscreen-1]&#93;
+        (the base class for all game screens)
+   calls
+   `gui_manager->update` &#91;[X][cpp-guiscreen-2]&#93;
+        (for the container holding all screen components).
+
+3. `GroupComponent::update` &#91;[X][cpp-groupcomponent-1]&#93;
+        (which `GUIManager::update` inherits)
+   calls
+   `child->update` &#91;[X][cpp-groupcomponent-2]&#93;
+        (for each sub-component in the screen).
+
+4. `World::update` &#91;[X][cpp-world-1]&#93;
+        (child of the `GameSession` screen)
+   calls
+   `obj->update` &#91;[X][cpp-world-2]&#93;
+        (for each object in the world)
+
+5. `PinguHolder::update` &#91;[X][cpp-pinguholder-1]&#93;
+        (child of `World`)
+   calls
+   `pingu->update` &#91;[X][cpp-pinguholder-2]&#93;
+        (for each pingu alive)
+
+6. `Pingu::update` &#91;[X][cpp-pingu-1]&#93;
+   calls
+   `action->update` &#91;[X][cpp-pingu-2]&#93;
+        (for the active pingu action).
+
+7. `Bomber::update` &#91;[X][cpp-bomber-1]&#93;
+   calls
+   `sprite.update` &#91;[X][cpp-bomber-2]&#93;
+
+8. `Sprite::update` &#91;[X][cpp-sprite-1]&#93;
+   finally updates the animation frames.
+
+[cpp-screenmanager-1]: https://github.com/Pingus/pingus/blob/v0.7.6/src/engine/screen/screen_manager.cpp#L164
+[cpp-screenmanager-2]: https://github.com/Pingus/pingus/blob/v0.7.6/src/engine/screen/screen_manager.cpp#L218
+[cpp-screenmanager-1]: https://github.com/Pingus/pingus/blob/v0.7.6/src/engine/screen/screen_manager.cpp#L235
+[cpp-screenmanager-2]: https://github.com/Pingus/pingus/blob/v0.7.6/src/engine/screen/screen_manager.cpp#L258
+[cpp-guiscreen-1]: https://github.com/Pingus/pingus/blob/v0.7.6/src/engine/screen/gui_screen.cpp#L44
+[cpp-guiscreen-2]: https://github.com/Pingus/pingus/blob/v0.7.6/src/engine/screen/gui_screen.cpp#L46
+[cpp-groupcomponent-1]: https://github.com/Pingus/pingus/blob/v0.7.6/src/engine/gui/group_component.cpp#L58
+[cpp-groupcomponent-2]: https://github.com/Pingus/pingus/blob/v0.7.6/src/engine/gui/group_component.cpp#L63
+[cpp-world-1]: https://github.com/Pingus/pingus/blob/v0.7.6/src/pingus/world.cpp#L146
+[cpp-world-2]: https://github.com/Pingus/pingus/blob/v0.7.6/src/pingus/world.cpp#L183
+[cpp-pinguholder-1]: https://github.com/Pingus/pingus/blob/v0.7.6/src/pingus/pingu_holder.cpp#L89
+[cpp-pinguholder-2]: https://github.com/Pingus/pingus/blob/v0.7.6/src/pingus/pingu_holder.cpp#L95
+[cpp-pingu-1]: https://github.com/Pingus/pingus/blob/v0.7.6/src/pingus/pingu.cpp#L311
+[cpp-pingu-2]: https://github.com/Pingus/pingus/blob/v0.7.6/src/pingus/pingu.cpp#L339
+[cpp-bomber-1]: https://github.com/Pingus/pingus/blob/v0.7.6/src/pingus/actions/bomber.cpp#L58
+[cpp-bomber-2]: https://github.com/Pingus/pingus/blob/v0.7.6/src/pingus/actions/bomber.cpp#L60
+[cpp-sprite-1]: https://github.com/Pingus/pingus/blob/v0.7.6/src/engine/display/sprite_impl.cpp#L112
+
+Pingus keeps track of a stack of screens (e.g., Menu, World Map, Game Play, 
+etc.) and only dispatches events to the one at the top.
+The game loop &#91;[X][pingus-gameloop]&#93; of Pingus resides in the 
+`ScreenManager` class, method `display` &#91;[X][cpp-screenmanager]&#93;:
+
+```
+// screen_manager.hpp/cpp
+
+class ScreenManager
+{
+    <...>
+    std::vector<std::shared_ptr<Screen> > screens;
+    void display();
+    void update(float delta, <...>);
+}
+
+void ScreenManager::display() {
+    Uint32 last_ticks = SDL_GetTicks();
+    float previous_frame_time;
+
+    while (!screens.empty()) {                  // X1
+        Uint32 ticks = SDL_GetTicks();                      // X3
+        previous_frame_time  = (ticks - last_ticks)/1000;
+        last_ticks = ticks;                                 // X4
+        <...>
+        update(previous_frame_time, <...>);
+    }                                           // X2
+}
+
+void ScreenManager::update(float delta, <...>) {
+    ScreenPtr last_screen = get_current_screen();
+    <...>
+    last_screen->update(delta);                 // X5
+    last_screen->draw(<...>);                   // X6
+    <...>
+}
+```
+
+Every iteration of the loop (ln. X1-X2) calculates the time elapsed between two 
+frames (ln. X3-X4) and dispatches `update` and `draw` to the active screen (ln.  
+X5-X6).
+
+The `Bomber` action occurs during game play, in the `GameSession` screen class 
+&#91;[X][cpp-gamesession]&#93;.
+All game screens extends `GUIScreen` &#91;[X][cpp-guiscreen]&#93;, which 
+contains a `gui_manager` holding all sub-components to `update` and `redraw`:
+
+```
+// gui_screen.hpp/cpp
+
+class GUIScreen : public Screen
+{
+    <...>
+    std::unique_ptr<GUI::GUIManager> gui_manager;
+    virtual void draw(DrawingContext& gc);
+    virtual void update (float);
+}
+
+void GUIScreen::draw(DrawingContext& gc)
+{
+    <...>
+    gui_manager->draw(gc);
+}
+
+void GUIScreen::update(float delta) {
+    gui_manager->update(delta);
+}
+```
+
+The `GUIManager` class &#91;[X][cpp-guimanager]&#93; extends `GroupComponent` 
+&#91;[X][cpp-groupcomponent]&#93;, which does the relevant work, holding all 
+sub-components and dispatching the `update` and `draw` methods to them:
+
+```
+// group_component.hpp/cpp
+
+class GroupComponent : public RectComponent
+{
+    std::vector<Component*> children;
+    <...>
+    void add(Component* comp);
+    void draw(DrawingContext& gc);
+    void update(float delta);
+}
+
+GroupComponent::GroupComponent(const Rect& rect_, bool clip_) :
+    <...>
+    children()
+{
+}
+
+GroupComponent::~GroupComponent() {
+    for(Components::iterator i = children.begin(); i != children.end(); ++i) {
+        delete *i;
+    }
+}
+
+void GroupComponent::add(Component* comp) {
+    <...>
+    children.push_back(comp);
+}
+
+void GroupComponent::draw (DrawingContext& parent_gc)
+{
+    for(Components::iterator i = children.begin(); i != children.end(); ++i) {
+        if ((*i)->is_visible())
+            (*i)->draw(drawing_context);
+    }
+    <...>
+}
+
+void GroupComponent::update (float delta) {
+    for(Components::iterator i = children.begin(); i != children.end(); ++i) {
+        if ((*i)->is_visible())
+            (*i)->update(delta);
+    }
+}
+```
+
+Among all `GameSession` sub-components &#91;[X][cpp-gamesession-subs]&#93;, the 
+`World` class is yet another container holding the actual concrete and 
+recognizable game entities, such as all pingus, terrains, and traps 
+&#91;[X][cpp-world-hpp]&#93;:
+
+```
+// world.hpp
+
+class World
+{
+    <...>
+    std::vector<WorldObj*> world_obj;       // X1
+    PinguHolder* pingus;                    // X2
+    void draw (SceneContext& gc);
+    void update ();
+}
+
+// world_obj.hpp
+
+class WorldObj
+{
+    <...>
+    virtual void draw(SceneContext& gc) = 0;
+    virtual void update ();
+}
+
+// pingu_holder.hpp
+
+class PinguHolder : public WorldObj
+{
+    <...>
+    std::list<Pingu*> pingus;
+    Pingu* create_pingu(const Vector3f& pos, int owner_id);
+    void draw (SceneContext& gc);
+    void update();
+}
+```
+
+The `World` holds all `WorldObj` instances into another container `world_obj` 
+(ln.  X1).
+In particular, `world_obj` holds all `pingus` (ln. X2) in a `PinguHolder` class 
+extending `WorldObj` as follows &#91;[X][cpp-world-cpp]&#93;:
+
+```
+// world.cpp
+
+World::World(const PingusLevel& plf) :
+    <...>
+    pingus(new PinguHolder(plf)),           // X3
+{
+    <...>
+    world_obj.push_back(pingus);            // X4
+}
+
+World::~World() {
+    for (WorldObjIter it = world_obj.begin(); it != world_obj.end(); ++it) {
+        delete *it;
+    }
+}
+
+void World::draw (SceneContext& gc)
+{
+    <...>
+    for(WorldObjIter obj = world_obj.begin(); obj != world_obj.end(); ++obj) {
+        (*obj)->draw(gc);
+    }
+}
+
+void World::update()
+{
+    <...>
+    for(WorldObjIter obj = world_obj.begin(); obj != world_obj.end(); ++obj) {
+        (*obj)->update();
+    }
+}
+```
+
+The `PinguHolder` class receives the `update` and `draw` calls from the `World` 
+and redirects them to each individual pingu &#91;[X][cpp-pinguholder]&#93;:
+
+```
+PinguHolder::PinguHolder(const PingusLevel& plf) :
+  <...>
+  pingus()
+{
+}
+
+PinguHolder::~PinguHolder() {
+    for(std::vector<Pingu*>::iterator i = pingus.begin(); i != pingus.end(); ++i) {
+        delete *i;
+    }
+}
+
+Pingu* PinguHolder::create_pingu (<...>) {
+    <...>
+    pingu = <...>;
+    pingus.push_back(pingu);
+    return pingu;
+}
+
+void PinguHolder::draw (SceneContext& gc) {
+    <...>
+    for(std::list<Pingu*>::iterator pingu=pingus.begin(); pingu!=pingus.end(); ++pingu) {
+        <...>
+        (*pingu)->draw(gc);
+    }
+}
+
+void PinguHolder::update() {
+    PinguIter pingu = pingus.begin();
+    while(pingu != pingus.end()) {
+        (*pingu)->update();
+        <...>
+        if ((*pingu)->get_status() == Pingu::PS_DEAD) {
+            pingu = pingus.erase(pingu);
+        }
+        <...>
+        ++pingu;
+    }
+}
+```
+
+Finally, the `Pingu` class &#91;[X][cpp-pingu]&#93; holds the current 
+`PinguAction` &#91;[X][cpp-pinguaction]&#93;, which `Bomber` extends, and 
+redirects `update` and `draw` invocations to it:
+
+```
+// pingu.hpp/cpp
+
+class Pingu
+{
+    <...>
+    std::shared_ptr<PinguAction> action;            // current action
+    void draw (SceneContext& gc);
+    void update();
+}
+
+Pingu::Pingu (int arg_id, const Vector3f& arg_pos, int owner) :
+    <...>
+    action()
+{
+    <...>
+    action = create_action(ActionName::FALLER);     // initial action
+}
+
+void Pingu::update() {
+    <...>
+    action->update();
+}
+
+void Pingu::draw(SceneContext& gc)
+{
+    <...>
+    action->draw(gc);
+}
+
+// pingu_action.hpp
+
+class PinguAction
+{
+    <...>
+    virtual void update () = 0;
+    virtual void draw (SceneContext& gc) =0;
+}
+```
+
+
+, andetc.
+
+, which is reached from `Playfield`, &#91;[X][cpp-gamesession-subs]&#93;
+
+to see which sub-components it holds
+
+The two containers, `GroupComponent` and `World` are the owners
+call `delete`
+    - group and world have no "remove" per item
+    - they are "static"
+    - world has sub containers,e.g., for pingus, that are dynamic,
+        with pre-item "remove"
+
+- tradeoff here is clear
+    - indirect reaction + dynamic scope
+    vs
+    - direct reaction + lexical scope
+
+class GameSession : public GUIScreen
+class GUIScreen : public Screen
+
+- class hier and dispatch hier
+
+- no lapsed listener
+- no dynamic allocation or GC
+- static reasoning
+- inheritance vs composition
+- no hier b/c orgs can react directly to the env
+    + lexical scope
+- animation w/ the dispatch path
+
+[cpp-sprite]: https://github.com/Pingus/pingus/blob/v0.7.6/src/engine/display/sprite_impl.cpp
+[cpp-sprite-update]: https://github.com/Pingus/pingus/blob/v0.7.6/src/engine/display/sprite_impl.cpp#L111
+[cpp-sprite-render]: https://github.com/Pingus/pingus/blob/v0.7.6/src/engine/display/sprite_impl.cpp#L139
+
+[cpp-screenmanager]: https://github.com/Pingus/pingus/blob/v0.7.6/src/engine/screen/screen_manager.cpp#L163
+[cpp-gamesession]: https://github.com/Pingus/pingus/blob/v0.7.6/src/pingus/screens/game_session.hpp
+[cpp-gamesession-subs]: https://github.com/Pingus/pingus/blob/v0.7.6/src/pingus/screens/game_session.cpp#L80
+[cpp-guiscreen]: https://github.com/Pingus/pingus/blob/v0.7.6/src/engine/screen/gui_screen.hpp
+
+[cpp-guimanager]: https://github.com/Pingus/pingus/blob/v0.7.6/src/engine/gui/gui_manager.hpp
+[cpp-groupcomponent]: https://github.com/Pingus/pingus/blob/v0.7.6/src/engine/gui/group_component.cpp
+<!--
+[cpp-rectcomponent]: https://github.com/Pingus/pingus/blob/v0.7.6/src/engine/gui/rect_component.hpp
+[cpp-component-hpp]: https://github.com/Pingus/pingus/blob/v0.7.6/src/engine/gui/component.hpp
+-->
+
+[cpp-world-hpp]: https://github.com/Pingus/pingus/blob/v0.7.6/src/pingus/world.hpp
+[cpp-world-cpp]: https://github.com/Pingus/pingus/blob/v0.7.6/src/pingus/world.cpp
+[cpp-pinguholder]: https://github.com/Pingus/pingus/blob/v0.7.6/src/pingus/pingu_holder.cpp
+
+[cpp-pingu]: https://github.com/Pingus/pingus/blob/v0.7.6/src/pingus/pingu.cpp
+[cpp-pinguaction]: https://github.com/Pingus/pingus/blob/v0.7.6/src/pingus/pingu_action.hpp
+
+<!--
+new Server
+https://github.com/Pingus/pingus/blob/v0.7.6/src/pingus/screens/game_session.cpp#L55
+
+new World
+https://github.com/Pingus/pingus/blob/v0.7.6/src/pingus/server.cpp#L77
+
+world->draw()
+https://github.com/Pingus/pingus/blob/v0.7.6/src/pingus/components/playfield.cpp#L66
+
+server->update()
+https://github.com/Pingus/pingus/blob/v0.7.6/src/pingus/screens/game_session.cpp#L159
+
+world->update()
+https://github.com/Pingus/pingus/blob/v0.7.6/src/pingus/server.cpp#L103
+-->
+
 
 ## Quantitative Analysis
 
