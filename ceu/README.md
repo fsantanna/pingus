@@ -343,7 +343,7 @@ further with in-depth examples:
 
 2. **Dispatching Hierarchies**
     Some entities in games act as containers for other child entities,
-    resulting in hierarchies of event dispatching.
+    resulting in dispatching hierarchies for event handling.
 
 3. **Continuation Passing**
     The completion of long-lasting activity in a game may have a continuation, 
@@ -462,6 +462,8 @@ specific frames, as illustrated in the figure in the right and as follows:
 
 [youtube-bomber]: https://youtu.be/QLXIT59il6o?t=306
 
+##### C++
+
 The code in C++ &#91;[X][cpp-bomber]&#93; defines the class `Bomber` which implements 
 the `draw` and `update` callback methods:
 
@@ -535,8 +537,10 @@ Probably, the authors chose to encode each state in an independent boolean
 variable to rearrange and experiment with them during the development.
 
 However, due to the short-lived nature of callbacks, state variables are 
-unavoidable, being part of the essence of object-oriented programming (methods 
-+ mutable state).
+unavoidable, being part of the essence of object-oriented programming
+(methods + mutable state).
+
+##### Céu
 
 The implementation in Céu doesn't require explicit state variables and more 
 closely reflects in the source code the sequential state machine:
@@ -600,7 +604,7 @@ comparison to the implementation in C++:
 ### Dispatching Hierarchies
 
 Some entities in games act as containers for other child entities,
-resulting in hierarchies of event dispatching.
+resulting in dispatching hierarchies for event handling.
 <!--
     In Pingus, the *Main Menu* in the figure above is represented as a 
     container class with five buttons as children.
@@ -610,6 +614,8 @@ resulting in hierarchies of event dispatching.
 -->
 
 #### Bomber `draw` and `update` callbacks
+
+##### C++
 
 Let's dig into the `Bomber` animation in C++ &#91;[X][cpp-bomber]&#93;, 
 focusing on the `sprite` member, and the `update` and `draw` callback methods:
@@ -690,6 +696,99 @@ environment down to the sprite:
 8. `Sprite::update` &#91;[X][cpp-sprite-1]&#93;
    finally updates the animation frames.
 
+Each dispatching level of indirection has a reason to exist:
+
+* In a single assignment to `last_screen`, we can easily redirect all 
+  dispatches to a new screen.
+* The `gui_manager` manages and dispatches events to all screen components with 
+  a common interface.
+* The `World` groups only the actual concrete and recognizable game entities 
+  loaded dynamically from an external level file (e.g., all pingus and traps).
+* As it is common to iterate only over the pingus (vs. all world objects), it 
+  is convenient to manage all pingus in a `PinguHolder`.
+* As pingus change between actions during lifetime, decoupling them from 
+  actions with a level of indirection is also convenient.
+* Sprites are reusable everywhere, so it is also convenient to decouple them
+  from actions.
+
+However, this dispatching architecture comes at a high price:
+
+* Reasoning about the dispatching rules requires inspecting dozen of files
+  (we omitted class hierarchies in the list above).
+* The dispatching path interleaves between classes specific to the game and
+  classes from the game engine (possibly third-party classes), making the
+  reasoning even harder.
+<!--* TODO: efficiency?-->
+* The hierarchy is mostly dynamic, specially for entities held in containers.
+
+Generic containers demand extra caution when they handle insertion and removal 
+of components dynamically (which is usually the case):
+
+1. Tracking what entities gets dispatched is difficult:
+   one has to "simulate" the program execution and track calls to `add` and
+   `remove`.
+
+<img src="images/game-session-arrows.png" width="300" align="right" valign="top"/>
+
+Furthermore, it is actually common to have children with a static lifespan 
+known at compile time.
+For instance, most entities in the `GameSession` coexists with it, i.e., they 
+are added in the constructor and are never removed explicitly
+&#91;[X][cpp-gamesession-containers]&#93;:
+
+```
+GameSession::GameSession(<...>) :
+    <...>
+{
+    <...>
+    button_panel = new ButtonPanel(<...>);
+    pcounter     = new PingusCounter(<...>);
+    small_map    = new SmallMap(<...>);
+    <...>
+    gui_manager->add(button_panel);
+    gui_manager->add(pcounter);
+    gui_manager->add(small_map);
+    <...>
+}
+```
+
+However, these "static" entities still behave dynamically because we rely on a 
+generic dynamic container for automatic dispatching.
+
+2. Calls to `add` must always have matching calls to `remove`.
+
+Missing calls to `remove` lead to memory and CPU leaks.
+
+As an example, pingus are dynamic entities created periodically and destroyed 
+under certain conditions (e.g. when going out of the screen
+&#91;[X][cpp-pingu-dead]&#93;).
+`PinguHolder::update` checks all pingus every frame, removing those with the 
+`Pingu::PS_DEAD` status (ln. X1-X2):
+
+```
+void PinguHolder::update() {
+    <...>
+    while(pingu != pingus.end()) {
+        (*pingu)->update();
+        if ((*pingu)->get_status() == Pingu::PS_DEAD) { // X1
+            pingu = pingus.erase(pingu);
+        }                                               // X2
+        <...>
+        ++pingu;
+    }
+}
+```
+
+Without the `erase` call, a dead pingu would keep consuming memory and CPU 
+time, i.e., it would remain in the `pingus` vector and being updated every 
+frame (ln.  X3).
+
+Note that this problem is not restricted to languages without garbage 
+collection and is known as the *lapsed listener* 
+&#91;[X][cpp-pingu-dead]&#93;).
+Typically, a container holds a strong reference to a child (sometimes the only 
+reference to it), and the collector cannot magically detect it as garbage.
+
 [cpp-screenmanager-1]: https://github.com/Pingus/pingus/blob/v0.7.6/src/engine/screen/screen_manager.cpp#L164
 [cpp-screenmanager-2]: https://github.com/Pingus/pingus/blob/v0.7.6/src/engine/screen/screen_manager.cpp#L218
 [cpp-screenmanager-1]: https://github.com/Pingus/pingus/blob/v0.7.6/src/engine/screen/screen_manager.cpp#L235
@@ -708,312 +807,18 @@ environment down to the sprite:
 [cpp-bomber-2]: https://github.com/Pingus/pingus/blob/v0.7.6/src/pingus/actions/bomber.cpp#L60
 [cpp-sprite-1]: https://github.com/Pingus/pingus/blob/v0.7.6/src/engine/display/sprite_impl.cpp#L112
 
-Pingus keeps track of a stack of screens (e.g., Menu, World Map, Game Play, 
-etc.) and only dispatches events to the one at the top.
-The game loop &#91;[X][pingus-gameloop]&#93; of Pingus resides in the 
-`ScreenManager` class, method `display` &#91;[X][cpp-screenmanager]&#93;:
+[cpp-gamesession-containers]: 
+https://github.com/Pingus/pingus/blob/v0.7.6/src/pingus/screens/game_session.cpp#L76
+[cpp-pingu-dead]: https://github.com/Pingus/pingus/blob/v0.7.6/src/pingus/pingu.cpp#L322
+[gpp-lapsed-listener]: http://gameprogrammingpatterns.com/observer.html#don't-worry,-i've-got-a-gc
 
-```
-// screen_manager.hpp/cpp
+##### Céu
 
-class ScreenManager
-{
-    <...>
-    std::vector<std::shared_ptr<Screen> > screens;
-    void display();
-    void update(float delta, <...>);
-}
-
-void ScreenManager::display() {
-    Uint32 last_ticks = SDL_GetTicks();
-    float previous_frame_time;
-
-    while (!screens.empty()) {                  // X1
-        Uint32 ticks = SDL_GetTicks();                      // X3
-        previous_frame_time  = (ticks - last_ticks)/1000;
-        last_ticks = ticks;                                 // X4
-        <...>
-        update(previous_frame_time, <...>);
-    }                                           // X2
-}
-
-void ScreenManager::update(float delta, <...>) {
-    ScreenPtr last_screen = get_current_screen();
-    <...>
-    last_screen->update(delta);                 // X5
-    last_screen->draw(<...>);                   // X6
-    <...>
-}
-```
-
-Every iteration of the loop (ln. X1-X2) calculates the time elapsed between two 
-frames (ln. X3-X4) and dispatches `update` and `draw` to the active screen (ln.  
-X5-X6).
-
-The `Bomber` action occurs during game play, in the `GameSession` screen class 
-&#91;[X][cpp-gamesession]&#93;.
-All game screens extends `GUIScreen` &#91;[X][cpp-guiscreen]&#93;, which 
-contains a `gui_manager` holding all sub-components to `update` and `redraw`:
-
-```
-// gui_screen.hpp/cpp
-
-class GUIScreen : public Screen
-{
-    <...>
-    std::unique_ptr<GUI::GUIManager> gui_manager;
-    virtual void draw(DrawingContext& gc);
-    virtual void update (float);
-}
-
-void GUIScreen::draw(DrawingContext& gc)
-{
-    <...>
-    gui_manager->draw(gc);
-}
-
-void GUIScreen::update(float delta) {
-    gui_manager->update(delta);
-}
-```
-
-The `GUIManager` class &#91;[X][cpp-guimanager]&#93; extends `GroupComponent` 
-&#91;[X][cpp-groupcomponent]&#93;, which does the relevant work, holding all 
-sub-components and dispatching the `update` and `draw` methods to them:
-
-```
-// group_component.hpp/cpp
-
-class GroupComponent : public RectComponent
-{
-    std::vector<Component*> children;
-    <...>
-    void add(Component* comp);
-    void draw(DrawingContext& gc);
-    void update(float delta);
-}
-
-GroupComponent::GroupComponent(const Rect& rect_, bool clip_) :
-    <...>
-    children()
-{
-}
-
-GroupComponent::~GroupComponent() {
-    for(Components::iterator i = children.begin(); i != children.end(); ++i) {
-        delete *i;
-    }
-}
-
-void GroupComponent::add(Component* comp) {
-    <...>
-    children.push_back(comp);
-}
-
-void GroupComponent::draw (DrawingContext& parent_gc)
-{
-    for(Components::iterator i = children.begin(); i != children.end(); ++i) {
-        if ((*i)->is_visible())
-            (*i)->draw(drawing_context);
-    }
-    <...>
-}
-
-void GroupComponent::update (float delta) {
-    for(Components::iterator i = children.begin(); i != children.end(); ++i) {
-        if ((*i)->is_visible())
-            (*i)->update(delta);
-    }
-}
-```
-
-Among all `GameSession` sub-components &#91;[X][cpp-gamesession-subs]&#93;, the 
-`World` class is yet another container holding the actual concrete and 
-recognizable game entities, such as all pingus, terrains, and traps 
-&#91;[X][cpp-world-hpp]&#93;:
-
-```
-// world.hpp
-
-class World
-{
-    <...>
-    std::vector<WorldObj*> world_obj;       // X1
-    PinguHolder* pingus;                    // X2
-    void draw (SceneContext& gc);
-    void update ();
-}
-
-// world_obj.hpp
-
-class WorldObj
-{
-    <...>
-    virtual void draw(SceneContext& gc) = 0;
-    virtual void update ();
-}
-
-// pingu_holder.hpp
-
-class PinguHolder : public WorldObj
-{
-    <...>
-    std::list<Pingu*> pingus;
-    Pingu* create_pingu(const Vector3f& pos, int owner_id);
-    void draw (SceneContext& gc);
-    void update();
-}
-```
-
-The `World` holds all `WorldObj` instances into another container `world_obj` 
-(ln.  X1).
-In particular, `world_obj` holds all `pingus` (ln. X2) in a `PinguHolder` class 
-extending `WorldObj` as follows &#91;[X][cpp-world-cpp]&#93;:
-
-```
-// world.cpp
-
-World::World(const PingusLevel& plf) :
-    <...>
-    pingus(new PinguHolder(plf)),           // X3
-{
-    <...>
-    world_obj.push_back(pingus);            // X4
-}
-
-World::~World() {
-    for (WorldObjIter it = world_obj.begin(); it != world_obj.end(); ++it) {
-        delete *it;
-    }
-}
-
-void World::draw (SceneContext& gc)
-{
-    <...>
-    for(WorldObjIter obj = world_obj.begin(); obj != world_obj.end(); ++obj) {
-        (*obj)->draw(gc);
-    }
-}
-
-void World::update()
-{
-    <...>
-    for(WorldObjIter obj = world_obj.begin(); obj != world_obj.end(); ++obj) {
-        (*obj)->update();
-    }
-}
-```
-
-The `PinguHolder` class receives the `update` and `draw` calls from the `World` 
-and redirects them to each individual pingu &#91;[X][cpp-pinguholder]&#93;:
-
-```
-PinguHolder::PinguHolder(const PingusLevel& plf) :
-  <...>
-  pingus()
-{
-}
-
-PinguHolder::~PinguHolder() {
-    for(std::vector<Pingu*>::iterator i = pingus.begin(); i != pingus.end(); ++i) {
-        delete *i;
-    }
-}
-
-Pingu* PinguHolder::create_pingu (<...>) {
-    <...>
-    pingu = <...>;
-    pingus.push_back(pingu);
-    return pingu;
-}
-
-void PinguHolder::draw (SceneContext& gc) {
-    <...>
-    for(std::list<Pingu*>::iterator pingu=pingus.begin(); pingu!=pingus.end(); ++pingu) {
-        <...>
-        (*pingu)->draw(gc);
-    }
-}
-
-void PinguHolder::update() {
-    PinguIter pingu = pingus.begin();
-    while(pingu != pingus.end()) {
-        (*pingu)->update();
-        <...>
-        if ((*pingu)->get_status() == Pingu::PS_DEAD) {
-            pingu = pingus.erase(pingu);
-        }
-        <...>
-        ++pingu;
-    }
-}
-```
-
-Finally, the `Pingu` class &#91;[X][cpp-pingu]&#93; holds the current 
-`PinguAction` &#91;[X][cpp-pinguaction]&#93;, which `Bomber` extends, and 
-redirects `update` and `draw` invocations to it:
-
-```
-// pingu.hpp/cpp
-
-class Pingu
-{
-    <...>
-    std::shared_ptr<PinguAction> action;            // current action
-    void draw (SceneContext& gc);
-    void update();
-}
-
-Pingu::Pingu (int arg_id, const Vector3f& arg_pos, int owner) :
-    <...>
-    action()
-{
-    <...>
-    action = create_action(ActionName::FALLER);     // initial action
-}
-
-void Pingu::update() {
-    <...>
-    action->update();
-}
-
-void Pingu::draw(SceneContext& gc)
-{
-    <...>
-    action->draw(gc);
-}
-
-// pingu_action.hpp
-
-class PinguAction
-{
-    <...>
-    virtual void update () = 0;
-    virtual void draw (SceneContext& gc) =0;
-}
-```
-
-
-, andetc.
-
-, which is reached from `Playfield`, &#91;[X][cpp-gamesession-subs]&#93;
-
-to see which sub-components it holds
-
-The two containers, `GroupComponent` and `World` are the owners
-call `delete`
-    - group and world have no "remove" per item
-    - they are "static"
-    - world has sub containers,e.g., for pingus, that are dynamic,
-        with pre-item "remove"
 
 - tradeoff here is clear
     - indirect reaction + dynamic scope
     vs
     - direct reaction + lexical scope
-
-class GameSession : public GUIScreen
-class GUIScreen : public Screen
 
 - class hier and dispatch hier
 
@@ -1024,47 +829,6 @@ class GUIScreen : public Screen
 - no hier b/c orgs can react directly to the env
     + lexical scope
 - animation w/ the dispatch path
-
-[cpp-sprite]: https://github.com/Pingus/pingus/blob/v0.7.6/src/engine/display/sprite_impl.cpp
-[cpp-sprite-update]: https://github.com/Pingus/pingus/blob/v0.7.6/src/engine/display/sprite_impl.cpp#L111
-[cpp-sprite-render]: https://github.com/Pingus/pingus/blob/v0.7.6/src/engine/display/sprite_impl.cpp#L139
-
-[cpp-screenmanager]: https://github.com/Pingus/pingus/blob/v0.7.6/src/engine/screen/screen_manager.cpp#L163
-[cpp-gamesession]: https://github.com/Pingus/pingus/blob/v0.7.6/src/pingus/screens/game_session.hpp
-[cpp-gamesession-subs]: https://github.com/Pingus/pingus/blob/v0.7.6/src/pingus/screens/game_session.cpp#L80
-[cpp-guiscreen]: https://github.com/Pingus/pingus/blob/v0.7.6/src/engine/screen/gui_screen.hpp
-
-[cpp-guimanager]: https://github.com/Pingus/pingus/blob/v0.7.6/src/engine/gui/gui_manager.hpp
-[cpp-groupcomponent]: https://github.com/Pingus/pingus/blob/v0.7.6/src/engine/gui/group_component.cpp
-<!--
-[cpp-rectcomponent]: https://github.com/Pingus/pingus/blob/v0.7.6/src/engine/gui/rect_component.hpp
-[cpp-component-hpp]: https://github.com/Pingus/pingus/blob/v0.7.6/src/engine/gui/component.hpp
--->
-
-[cpp-world-hpp]: https://github.com/Pingus/pingus/blob/v0.7.6/src/pingus/world.hpp
-[cpp-world-cpp]: https://github.com/Pingus/pingus/blob/v0.7.6/src/pingus/world.cpp
-[cpp-pinguholder]: https://github.com/Pingus/pingus/blob/v0.7.6/src/pingus/pingu_holder.cpp
-
-[cpp-pingu]: https://github.com/Pingus/pingus/blob/v0.7.6/src/pingus/pingu.cpp
-[cpp-pinguaction]: https://github.com/Pingus/pingus/blob/v0.7.6/src/pingus/pingu_action.hpp
-
-<!--
-new Server
-https://github.com/Pingus/pingus/blob/v0.7.6/src/pingus/screens/game_session.cpp#L55
-
-new World
-https://github.com/Pingus/pingus/blob/v0.7.6/src/pingus/server.cpp#L77
-
-world->draw()
-https://github.com/Pingus/pingus/blob/v0.7.6/src/pingus/components/playfield.cpp#L66
-
-server->update()
-https://github.com/Pingus/pingus/blob/v0.7.6/src/pingus/screens/game_session.cpp#L159
-
-world->update()
-https://github.com/Pingus/pingus/blob/v0.7.6/src/pingus/server.cpp#L103
--->
-
 
 ## Quantitative Analysis
 
