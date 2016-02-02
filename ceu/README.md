@@ -6,7 +6,7 @@
 <!--
 silentcast, transparent window interior, dont go under the default size
 convert output.gif -fuzz 10% -layers Optimize optimised.gif
-convert -delay 20 -loop 0 *.jpg myimage.gif
+convert -delay 200 -loop 0 *.png state-anim.gif
 
 TODO:
     - ver os patterns do GPP
@@ -59,9 +59,9 @@ TODO:
 
 # What is this all about?
 
-<img src="pingus-1.png" width="400" align="right" valign="top"/>
+<img src="images/pingus-1.png" width="400" align="right" valign="top"/>
 <br/>
-<img src="pingus-2.png" width="400" align="right" valign="top"/>
+<img src="images/pingus-2.png" width="400" align="right" valign="top"/>
 
 This report documents the process of porting the video game Pingus
 &#91;[X][pingus-1],[X][pingus-2]&#93;
@@ -75,7 +75,7 @@ from C++ to the programming language Céu
 
 ## Warming Up!
 
-<img src="double-click-opt.gif" width="350" align="right" valign="top"/>
+<img src="images/double-click-opt.gif" width="350" align="right" valign="top"/>
 
 Let's consider the case of handling double clicks in the game.
 
@@ -217,7 +217,7 @@ programming model in the context of video games.
 Céu supports concurrent and deterministic abstractions to specify entities with 
 a high degree of real-time interactions, such as in video game simulation.
 
-<img src="sweeney.png" width="350" align="right" valign="top"/>
+<img src="images/sweeney.png" width="350" align="right" valign="top"/>
 
 According to Tim Sweeney (of Unreal Engine fame), about half of the development 
 complexity resides in the *game simulation* code &#91;[X][sweeney]&#93;.
@@ -443,9 +443,9 @@ state machine.
 
 #### The "Bomber" Action
 
-<img src="bomber-opt.gif" width="350" align="right" valign="top"/>
+<img src="images/bomber-opt.gif" width="350" align="right" valign="top"/>
 <br/>
-<img src="state-anim/state-anim.gif" width="550" align="right" valign="top"/>
+<img src="images/state-anim/state-anim.gif" width="550" align="right" valign="top"/>
 
 The *bomber action* explodes the clicked pingu, throwing particles around and 
 also destroying the terrain under its radius.
@@ -654,46 +654,39 @@ environment down to the sprite:
 0. `ScreenManager::display` &#91;[X][cpp-screenmanager-1]&#93;
         (the game loop)
    calls
-   `this->update` &#91;[X][cpp-screenmanager-2]&#93;.
-
+   `this->update` &#91;[X][cpp-screenmanager-2]&#93;
+        (in the same class).
 1. `ScreenManager::update` &#91;[X][cpp-screenmanager-1]&#93;
    calls
    `last_screen->update` &#91;[X][cpp-screenmanager-2]&#93;
         (for the active game screen).
-
 2. `GUIScreen::update` &#91;[X][cpp-guiscreen-1]&#93;
         (the base class for all game screens)
    calls
    `gui_manager->update` &#91;[X][cpp-guiscreen-2]&#93;
         (for the container holding all screen components).
-
 3. `GroupComponent::update` &#91;[X][cpp-groupcomponent-1]&#93;
-        (which `GUIManager::update` inherits)
+        (for the `gui_manager`)
    calls
    `child->update` &#91;[X][cpp-groupcomponent-2]&#93;
         (for each sub-component in the screen).
-
 4. `World::update` &#91;[X][cpp-world-1]&#93;
         (child of the `GameSession` screen)
    calls
    `obj->update` &#91;[X][cpp-world-2]&#93;
-        (for each object in the world)
-
+        (for each object in the world).
 5. `PinguHolder::update` &#91;[X][cpp-pinguholder-1]&#93;
         (child of `World`)
    calls
    `pingu->update` &#91;[X][cpp-pinguholder-2]&#93;
-        (for each pingu alive)
-
+        (for each pingu alive).
 6. `Pingu::update` &#91;[X][cpp-pingu-1]&#93;
    calls
    `action->update` &#91;[X][cpp-pingu-2]&#93;
         (for the active pingu action).
-
 7. `Bomber::update` &#91;[X][cpp-bomber-1]&#93;
    calls
-   `sprite.update` &#91;[X][cpp-bomber-2]&#93;
-
+   `sprite.update` &#91;[X][cpp-bomber-2]&#93;.
 8. `Sprite::update` &#91;[X][cpp-sprite-1]&#93;
    finally updates the animation frames.
 
