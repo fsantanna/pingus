@@ -1,12 +1,16 @@
 <head>
     <title>
-Francisco Sant'Anna
+On Porting Pingus from C++ to Céu
 </title>
     
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
 </head>
 
 <!--
+silentcast, transparent window interior, dont go under the default size
+convert output.gif -fuzz 10% -layers Optimize optimised.gif
+convert -delay 200 -loop 0 *.png state-anim.gif
+
 TODO:
     - ver os patterns do GPP
         - nao cubro algum que ocorre no pingus?
@@ -34,20 +38,36 @@ TODO:
     - false positives (too much?)
         - tight loops
     - C tricks: {}, _XXX, etc
+
+- TODO: threads, lua
+
+- compare to actors
+    - parallel, synchronous-run-to-completion
+    - not a loop+queue
 -->
 
-<p><a href="#what-is-this-report-about?">What</a>, <a href="#why-porting-pingus-to-Céu?">Why</a>, <a href="#how">How</a>, <a href="#who">Who</a> ?</p>
-<p><a href="#tldr!">TLDR!</a></p>
-<h1 id="what-is-this-report-about">What is this report about?</h1>
-<p>This report documents the process of porting the video game Pingus <a href="http://pingus.seul.org/">X</a> <a href="https://github.com/Pingus/pingus/">X</a> from C++ to the programming language Céu <a href="http://ceu-lang.org/">X</a> <a href="https://github.com/fsantanna/ceu/">X</a>.</p>
-<p><img src="pingus-1.png" width="45%"/> <img src="pingus-2.png" width="45%"/></p>
+<ul>
+<li><a href="#what-is-this-all-about">What</a>, <a href="#why-porting-pingus-to-céu">Why</a>, <a href="#how-to-port">How</a>, <a href="#who">Who</a>?</li>
+<li><a href="#detailed-evaluation">Detailed Evaluation</a></li>
+</ul>
+<!--
+* [TLDR!](#tldr!)
+    - did you do a complete port?
+    - why is this cool?
+    - ok, but with which gains in productivity?
+    - what about CPU,ROM,RAM?
+-->
+
+<h1 id="what-is-this-all-about">What is this all about?</h1>
+<p>This report documents the process of porting the video game Pingus [<a href="http://pingus.seul.org/">X</a>,<a href="https://github.com/Pingus/pingus/">X</a>] from C++ to the programming language Céu [<a href="http://ceu-lang.org/">X</a>,<a href="https://github.com/fsantanna/ceu/">X</a>].</p>
+<p><img src="images/pingus-1.png" width="400"/> <img src="images/pingus-2.png" width="400"/></p>
 <h2 id="warming-up">Warming Up!</h2>
-<p><img src="double-click-opt.gif" align="right" valign="top"/></p>
+<p><img src="images/double-click-opt.gif" width="350" align="right" valign="top"/></p>
 <p>Let's consider the case of handling double clicks in the game.</p>
-<p>In Pingus, double clicking the <em>Armageddon</em> button literally destroys all pingus, as illustrated in the figure in the right.</p>
-<p>The code in C++ <a href="https://github.com/fsantanna/pingus/blob/master/src/pingus/components/action_button.cpp">X</a> uses the class <code>ArmageddonButton</code> which defines custom methods for rendering and handling events. Below, we only show the parts related to detect a double click on the button:</p>
-<pre><code>ArmageddonButton::ArmageddonButton(Server* s, int x, int y) :
-    RectComponent(Rect(Vector2i(x, y), Size(38, 60))),
+<p>In Pingus, double clicking the <em>Armageddon button</em> literally explodes all pingus, as illustrated in the figure in the right.</p>
+<p>The code in C++ [<a href="https://github.com/Pingus/pingus/blob/v0.7.6/src/pingus/components/action_button.cpp">X</a>] implements the class <code>ArmageddonButton</code> with methods for rendering and handling events. Here, we focus on detecting the double click, hiding unrelated parts:</p>
+<pre><code>ArmageddonButton::ArmageddonButton(&lt;...&gt;):
+    RectComponent(&lt;...&gt;),
     &lt;...&gt;
     pressed(false);                         // line X1
     press_time();                           // line X3
@@ -56,9 +76,9 @@ TODO:
     &lt;...&gt;
 }
 
-void ArmageddonButton::draw (DrawingContext&amp; gc) {
+void ArmageddonButton::draw (&lt;...&gt;) {       // X10
     &lt;...&gt;
-}
+}                                           // X11
 
 void ArmageddonButton::update (float delta) {
     &lt;...&gt;
@@ -74,23 +94,21 @@ void ArmageddonButton::update (float delta) {
     }
 }
 
-void ArmageddonButton::on_primary_button_click (int x, int y) {
+void ArmageddonButton::on_primary_button_click (&lt;...&gt;) {
     if (pressed) {                          // line X8
         server-&gt;send_armageddon_event();    // line X7
     } else {
         pressed = true;                     // line X2
     }
 }</code></pre>
-<p>The class defines the variable <code>pressed</code> (ln. X1) to remember the first click (ln. X2), and the variable <code>press_time</code> (ln. X3) to count the time since the first click (ln. X4). If another click occurs within 1 second, the class signals the double click to the application (ln. 7). Otherwise, the <code>pressed</code> and <code>press_time</code> are reset (ln. X5).</p>
-<p>The methods <code>update</code> and <code>on_primary_button_click</code> are examples of <em>short-lived callbacks</em>. Callbacks are pieces of code that execute in reaction to external input events: <code>on_primary_button_click</code> reacts to mouse clicks, while <code>update</code> continuously reacts to the passage of time. Callbacks are short lived because they must execute as fast as possible to keep the game responsive. Because callbacks are short lived, the way one affects another is by manipulating member variables in the object. These <em>state variables</em> retain their values across multiple invocations: <code>on_primary_button_click</code> writes to <code>pressed</code> in the first click (ln. X2), and checks its state in further clicks (ln. X8), In the meantime, <code>update</code> also checks <code>pressed</code> (ln. X9) and may change its state (ln. X5).</p>
-<p>However, note how the accesses to these state variables are spread across the class definition in multiple methods. For instance, the distance between the declaration of <code>pressed</code> (ln. X1) and the last access to it (ln. X2) is over X lines (if we count the code hidden in <code>&lt;...&gt;</code>). Arguably, this makes the understanding and maintenance of the double-click behavior more difficult. Also, even though the state variables are private, unrelated methods, such as <code>draw</code>, can potentially access it.</p>
-<p>Céu provides structured constructs to deal with events, aiming to eradicate explicit manipulation of state variables for control-flow purposes. The equivalent code in Céu <a href="https://github.com/fsantanna/pingus/blob/ceu/ceu/pingus/components/action_button.ceu">X</a> defines the class <code>ArmageddonButton</code> as follows:</p>
+<p>The class first initializes the variable <code>pressed</code> to track the first click (ln. X1,X2). It also initializes the variable <code>press_time</code> to count the time since the first click (ln. X3,X4). If another click occurs within 1 second, the class signals the double click to the application (ln. X7). Otherwise, the <code>pressed</code> and <code>press_time</code> state variables are reset (ln. X5-X6).</p>
+<p>The methods <code>update</code> and <code>on_primary_button_click</code> are examples of <em>short-lived callbacks</em>, which are pieces of code that execute in reaction to external input events. Here, <code>on_primary_button_click</code> reacts to mouse clicks, while <code>update</code> continuously reacts to the passage of time. Callbacks are short lived because they must execute as fast as possible to keep the game with real-time responsiveness. Because callbacks are short lived, the only way they can affect each other is by manipulating persisting member variables in the object. These <em>state variables</em> retain their values across multiple invocations, e.g.: <code>on_primary_button_click</code> writes to <code>pressed</code> in the first click, and checks its state in further clicks (ln. X2,X8), In the meantime, <code>update</code> also checks for <code>pressed</code> and may change its state (ln. X9,X5).</p>
+<p>However, note how the accesses to these state variables are spread across the entire class. For instance, the distance between the initialization of <code>pressed</code> (ln. X1) and the last access to it (ln. X2) is over 40 lines in the original file [<a href="https://github.com/Pingus/pingus/blob/v0.7.6/src/pingus/components/action_button.cpp#L33-#L90">X</a>]. Arguably, this dispersion of code across methods makes the understanding and maintenance of the double-click behavior more difficult. Also, even though the state variables are private, unrelated methods such as <code>draw</code> (ln. X10-X11) can potentially access it.</p>
+<p>Céu provides structured constructs to deal with events, aiming to eradicate explicit manipulation of state variables for control-flow purposes. The equivalent code in Céu [<a href="https://github.com/fsantanna/pingus/blob/ceu/ceu/pingus/components/action_button.ceu">X</a>] defines the class <code>ArmageddonButton</code> as follows:</p>
 <pre><code>class ArmageddonButton with
-    var Rect&amp; rect;
-do
-    this.rect.left = 38;
-    this.rect.top  = 60;
-    var RectComponent component = RectComponent.build(&amp;this.rect);
+    &lt;...&gt;
+do                                                      // X9
+    var RectComponent component = &lt;...&gt;;
     &lt;...&gt;
     loop do                                             // line X1
         await component.on_primary_button_click;        // line X3
@@ -101,51 +119,466 @@ do
     end                                                 // line X2
     &lt;...&gt;
     emit global:go_armageddon;                          // line X8
-end</code></pre>
-<p>The double click detection is a <code>loop</code> (ln. X1-X2) that awaits the first click (ln. X3) and then, watching 1 second (ln. X4-X5), awaits the second click (ln X6). If the second click occurs within 1 second, we <code>break</code> the loop (ln. X7) and signal the double click to the application (ln X8). Otherwise, the <code>watching</code> block as a whole aborts and restarts the loop, falling back to the first click await. Note that the double click detection in Céu doesn't require state variables and is self-contained in the <code>loop</code> (ln. X1-X2), describing the behavior with appropriate control-flow mechanisms (e.g., <code>await</code> and <code>watching</code>).</p>
+end                                                     // X10</code></pre>
+<p>Instead of <em>objects</em>, classes in Céu specify <em>organisms</em> with a body declaration (ln. X9-X10) which executes for each instance while alive. Unlike objects, an organism is an active entity and starts to execute its body in a concurrent and deterministic manner with other alive organisms (but <em>not</em> actually in parallel). An execution body can use control-flow statements that keep the execution context across event occurrences (i.e., across <code>await</code> statements).</p>
+<p>The double click detection is a <code>loop</code> (ln. X1-X2) that awaits the first click (ln. X3) and then, watching 1 second (ln. X4-X5), awaits the second click (ln X6). If the second click occurs within 1 second, we <code>break</code> the loop (ln. X7) and signal the double click to the application (ln X8). Otherwise, the <code>watching</code> block as a whole aborts and restarts the loop, falling back to the first click <code>await</code> (ln X3).</p>
+<p>The double click detection in Céu doesn't require state variables and is entirely self-contained in the <code>loop</code> body (ln. X1-X2). Furthermore, these 7 lines of code do nothing besides detecting a double click, i.e., the actual effect happens outside the loop (ln. X8).</p>
+<p>As we argue throughout the document, appropriate control-flow mechanisms (e.g., <code>await</code> and <code>watching</code>) helps on the structure and composition of code, leading to considerable gains in productivity.</p>
 <h1 id="why-porting-pingus-to-céu">Why porting Pingus to Céu?</h1>
-<p>The main motivation to port Pingus from C++ to Céu is to promote its programming model in the context of video games. Céu supports concurrent and deterministic abstractions to describe entities with a high degree of real-time interactions, such as in video games (e.g., characters, monsters, particles, etc.).</p>
-<p>We also have additional motivations for this work as follows:</p>
+<p>The main motivation to port Pingus from C++ to Céu is to promote its programming model in the context of video games. Céu supports concurrent and deterministic abstractions to specify entities with a high degree of real-time interactions, such as in video game simulation.</p>
+<p><img src="images/sweeney.png" width="350" align="right" valign="top"/></p>
+<p>According to Tim Sweeney (of Unreal Engine fame), about half of the development complexity resides in the <em>game simulation</em> code [<a href="https://www.cs.princeton.edu/~dpw/popl/06/Tim-POPL.ppt">X</a>]. If we consider that <em>numeric computation</em> and <em>shading</em> do not vary from game to game (i.e., they are part of a game engine), the tendency is to shift the complexity even more towards game simulation. Furthermore, only 10% of the CPU budget goes to game simulation, opening an opportunity for gains in productivity.</p>
+<!--
+When updating 10,000 objects at 60 FPS, everything is performance-sensitive
+But:
+Productivity is just as important
+Will gladly sacrifice 10% of our performance
+for 10% higher productivity
+We never use assembly language
+
+Gameplay Simulation
+Gratuitous use of mutable state
+10,000’s of objects must be updated
+Typical object update touches 5-10 other objects
+
+This is the hardest problem…
+10,00’s of objects
+Each one contains mutable state
+Each one updated 30 times per second
+Each update touches 5-10 other objects
+ 
+Manual synchronization (shared state concurrency) is 
+hopelessly intractible here.
+ 
+Solutions?
+Rewrite as referentially-transparent functions?
+Message-passing concurrency?
+Continue using the sequential, single-threaded approach?
+
+Update all objects concurrently in arbitrary order, with each update wrapped in 
+an atomic {...} block.
+With 10,000’s of updates, and 5-10 objects touched per update, collisions will 
+be low.
+~2-4X STM performance overhead is acceptable:
+if it enables our state-intensive code to scale to many threads, it’s still a win
+
+Claim: Transactions are the only plausible solution to concurrent mutable state
+-->
+
+<p>Besides promoting the concurrency model of Céu, we enumerate additional motivations for this report as follows:</p>
 <ul>
-<li>Expose Céu to a real (and somewhat big) code base that was neither specified nor implemented by the designers of language. Céu is still primarily an academic &quot;toy&quot; language in the sense that it aims to propose new ideas rather than being a fully-fledged tool. Even if video games match the purpose of Céu, real-world projects consist of a range of (sometimes conflicting) requirements, forcing us to transpose the &quot;academic fences&quot; of papers (which usually only explore and discuss idiomatic code).</li>
+<li>Expose Céu to a real code base that was neither specified nor implemented by the designers of language. Even though video games match its domain, Céu is still primarily an academic &quot;toy&quot; language. Also, a real-world project consists of a range of requirements, forcing us to transpose the &quot;academic fences&quot; of papers, which usually only explore idiomatic code.</li>
 <li>Exercise the interface between Céu and C/C++. Céu is designed to integrate seamlessly with C. This allowed us to perform a <em>live porting</em>, i.e., we incrementally ported code from C++ to Céu without breaking the game for long.</li>
+<li>Serve as a deep and comprehensive guide for developers interested in trying Céu. We discuss a number of game behaviors with an in-depth comparison between the original code in C++ and the equivalent code ported to Céu.</li>
 <li>Stress-test the implementation of Céu. Academic artifacts typically do not go beyond working prototypes. We also want Céu to be a robust and practical language for everyday use.</li>
-<li>Evaluate the performance of Céu. Having C++ as a reference, how does Céu compare in terms of memory usage, code size, and execution time (e.g., FPS rate)?</li>
+<li>Evaluate the performance of Céu. Having C++ as a benchmark, how does Céu compare in terms of memory usage, code size, and execution time (e.g., FPS rate)?</li>
 </ul>
-<h1 id="how">How?</h1>
-<p>We believe that most difficulties in implementing control behaviors in games is not inherent to this domain, but the result of accidental complexity due to the lack of structured abstractions and appropriate concurrency models to handle event-based applications.</p>
-<p>identify</p>
+<h1 id="how-to-port">How to port?</h1>
+<p>The general idea is to identify control-flow patterns that encompass successive reactions to events, which imply crossing multiple method invocations in C++. We then rewrite these patterns in a class in Céu, using appropriate structured constructs, and redirect the instantiation and event dispatching to the new class. The remaining classes in C++ should interoperate with the new classes in Céu until we complete the porting process.</p>
+<p>Note that we only touch classes that deal with events, as Céu is actually less expressive than C++ for pure data manipulation. Hence, we rely on the integration between Céu and C/C++ and take advantage of the existing code base and libraries.</p>
+<p>To identify these control-flow patterns, we inspect the C++ class definitions searching for members with suspicious names (e.g., <a href="https://github.com/Pingus/pingus/blob/v0.7.6/src/pingus/components/action_button.hpp#L36"><code>pressed</code></a>, <a href="https://github.com/Pingus/pingus/blob/v0.7.6/src/pingus/actions/bomber.hpp#L31"><code>particle_thrown</code></a>, <a href="https://github.com/Pingus/pingus/blob/v0.7.6/src/pingus/actions/bridger.hpp#L30"><code>mode</code></a>, or <a href="https://github.com/Pingus/pingus/blob/v0.7.6/src/pingus/actions/digger.hpp#L32"><code>delay_count</code></a>). Good chances are that variables with identifiers resembling verbs, status, or counters encode some form of control-flow progression that cross multiple callback invocations.</p>
+<p>We believe that most difficulties in implementing control behavior in games is not inherent to this domain, but the result of accidental complexity due to the lack of structured abstractions and appropriate concurrency models to handle event-based applications.</p>
+<p>During the course of the porting process, and following the class-by-class identification described above, we could extract more abstract control patterns that should apply to other games. Our hypothesis is that other games manifesting such patterns must use some form of explicit state which are likely subject to the same porting process.</p>
 <h2 id="control-flow-patterns-in-pingus">Control-Flow Patterns in Pingus</h2>
-<p>In this report, we describe 6 recurrent control-flow patterns found in Pingus and discuss examples with corresponding implementations in C++ and Céu. In order of recurrence:</p>
+<p>We identified seven evident control-flow patterns in Pingus which we discuss further with in-depth examples:</p>
 <ol style="list-style-type: decimal">
-<li><p><strong>Finite State Machines</strong> State machines describe the behavior of games through transitions between states according to event occurrences. The double click behavior above is an example of a state machine: the <code>clicked</code> state variable encodes whether the button is considered to be clicked or not, according to the occurences of <code>on_primary_button_click</code> and <code>update</code> after 1 second, respectively.</p></li>
-<li><p><strong>Dispatching Hierarchies</strong> Entities in games may act as containers for child entities. In Pingus, the <em>Main Menu</em> in the figure above is represented as a container class with five buttons as children. When a button click occurs, it is first dispatched to the container class, which may take an action before deciding to forward the event (or not) to the buttons.</p></li>
-<li><p><strong>Continuation Passing</strong> The completion of an activity in a game has a continuation, i.e., something that should execute next. If the execution flow is dynamic, the program has to tell the activity where to go when it completes. In Pingus, when the player terminates a level, the game may terminate or return to the main menu, depending on how it was invoked from the command line.</p></li>
-<li><p><strong>Signaling Mechanisms</strong> Entities that need to communicate need some signaling mechanism, specially if there is no hierarchy relation between them. As illustrated in the figure in the right, the clicking the checkbox toggles the <em>Mouse Grab</em> flag. However, at any point in the game (even outside the <em>Option Menu</em>), pressing <em>Ctrl-G</em> also toggles the same flag, which should adjust the checkbox accordingly.</p></li>
-<li><p><strong>Wall-Clock Timers</strong> Wall-clock timers measure the passage of time from the real world (e.g., 10 seconds) and can handle periodic sampling and timeout watchdogs. The double click behavior above uses a timeout of 1 second to restart.</p></li>
-<li><p><strong>Pausing</strong> Games typically provides means to temporalily suspend the execution. In Pingus, the player can press a button in the screen to toggle between pause and resume.</p></li>
+<li><p><strong>Finite State Machines</strong> State machines describe the behavior of game entities by mapping event occurrences to transitions between states triggering appropriate actions.</p></li>
+<li><p><strong>Dispatching Hierarchies</strong> Some entities in games act as containers for other child entities, resulting in dispatching hierarchies for event handling.</p></li>
+<li><p><strong>Continuation Passing</strong> The completion of long-lasting activity in a game may have a continuation, i.e., some action to execute next.</p></li>
+<li><p><strong>Signaling Mechanisms</strong> Entities often need to communicate explicitly through a signaling mechanism, especially if there is no hierarchy relationship between them.</p></li>
+<li><p><strong>Wall-Clock Timers</strong> Wall-clock timers measure the passage of time from the real world (e.g., <em>10 seconds</em>) such as for periodic sampling and timeout watchdogs.</p></li>
+<li><p><strong>Pausing</strong> Pausing allows parts of the game to temporarily suspend execution or reactions to incoming events.</p></li>
+<li><p><strong>Resource Acquisition and Release</strong> External resources, such as configuration files and saved games, must be acquired and properly released.</p></li>
 </ol>
-<h2 id="the-game-loop">The Game Loop</h2>
-<p>The <em>game loop</em> determines the general structure of virtually all games <a href="http://gameprogrammingpatterns.com/game-loop.html">X</a> (Pingus is no different <a href="https://github.com/Pingus/pingus/blob/v0.7.6/src/engine/screen/screen_manager.cpp#L172">X</a>):</p>
-<pre><code>while (true)
+<!-- TODO: are these terms and explanations symmetric? -->
+
+<h1 id="who">Who?</h1>
+<p>Francisco Sant'Anna</p>
+<ul>
+<li>http://www.ceu-lang.org/chico/</li>
+<li>https://github.com/fsantanna/</li>
+<li><span class="citation">[@fsantanna_puc]</span>(https://twitter.com/fsantanna_puc/)</li>
+</ul>
+<h2 id="acknowledgments">Acknowledgments</h2>
+<p>Leonardo Kaplan * https://github.com/leokaplan/</p>
+<p>Alexander Tkachov * https://github.com/Tkachov/</p>
+<hr />
+<h1 id="detailed-evaluation">Detailed Evaluation</h1>
+<h2 id="qualitative-analysis">Qualitative Analysis</h2>
+<p>Selected Code Snippets</p>
+<!--
+3. **Continuation Passing**
+    The completion of long-lasting activity in a game may have a continuation, 
+    i.e., some action to execute next.
+
+    If the execution flow is dynamic, the program has to tell the activity 
+    where to go when it completes.
+    In Pingus, when the player terminates a level, the game may terminate or
+    return to the main menu, depending on how it was invoked from the command
+    line.
+
+4. **Signaling Mechanisms**
+    Entities often need to communicate explicitly through a signaling 
+    mechanism, especially if there is no hierarchy relationship between them.
+
+    As illustrated in the figure in the right, the clicking the checkbox 
+    toggles the *Mouse Grab* flag.
+    However, at any point in the game (even outside the *Option Menu*), 
+    pressing *Ctrl-G* also toggles the same flag, which should adjust the
+    checkbox accordingly.
+
+5. **Wall-Clock Timers**
+    Wall-clock timers measure the passage of time from the real world
+    (e.g., *10 seconds*) such as for periodic sampling and timeout watchdogs.
+
+    The double click behavior above uses a timeout of 1 second to restart.
+
+6. **Pausing**
+    Pausing allows parts of the game to temporarily suspend execution or
+    reactions to incoming events.
+
+    In Pingus, the player can press a button in the screen to toggle between 
+    pause and resume.
+
+7. **Resource Acquisition and Release**
+    External resources, such as configuration files and saved games,
+    must be acquired and properly released.
+
+    TODO
+-->
+
+<h3 id="finite-state-machines">Finite State Machines</h3>
+<p>State machines describe the behavior of game entities by mapping event occurrences to transitions between states triggering appropriate actions. <!--
+The double click behavior for the *Armageddon button* is an example of a simple 
+state machine.
+--></p>
+<h4 id="the-bomber-action">The &quot;Bomber&quot; Action</h4>
+<p>The <em>bomber action</em> explodes the clicked pingu, throwing particles around and also destroying the terrain under its radius. <img src="images/bomber-opt.gif" width="350" align="right" valign="top"/> <br/><br/> <img src="images/state-anim/state-anim.gif" width="550" align="right" valign="top"/> A sequential state machine models an animation with actions associated to specific frames, as illustrated in the figure in the right and as follows:</p>
+<ol style="list-style-type: decimal">
+<li>0th frame: plays a &quot;Oh no!&quot; sound.</li>
+<li>10th frame: plays a &quot;Bomb!&quot; sound.</li>
+<li>13th frame: throws particles, destroys the terrain, shows an explosion sprite</li>
+<li>Game tick: hides the explosion sprite</li>
+<li>Last frame: kills the pingu</li>
+</ol>
+<p><em>(Open <a href="https://youtu.be/QLXIT59il6o?t=306">this video</a> to listen to the sound effects.)</em></p>
+<h5 id="c">C++</h5>
+<p>The code in C++ [<a href="https://github.com/Pingus/pingus/blob/v0.7.6/src/pingus/actions/bomber.cpp">X</a>] defines the class <code>Bomber</code> which implements the <code>draw</code> and <code>update</code> callback methods:</p>
+<pre><code>Bomber::Bomber (Pingu* p) :
+    &lt;...&gt;
+    sound_played(false),        // tracks state 2   X1
+    particle_thrown(false),     // tracks state 3
+    colmap_exploded(false),     // tracks state 3
+    gfx_exploded(false)         // tracks state 4   X2
+{
+    &lt;...&gt;
+    // 1. 0th frame: plays a &quot;Oh no!&quot; sound.
+    WorldObj::get_world()-&gt;play_sound(&quot;ohno&quot;, pingu-&gt;get_pos ());   // X3
+}
+
+void Bomber::update ()
+{
+    sprite.update ();               // X4
+    &lt;...&gt;   // pingu movement       // X4.1
+
+    // 2. 10th frame: plays a &quot;Bomb!&quot; sound.
+    if (sprite.get_current_frame()==10 &amp;&amp; !sound_played) {              // X5
+        sound_played = true;
+        WorldObj::get_world()-&gt;play_sound(&quot;plop&quot;, pingu-&gt;get_pos ());
+    }                                                                   // X6
+
+    // 3. 13th frame: throws particles, destroys the terrain, shows an explosion sprite
+    if (sprite.get_current_frame()==13 &amp;&amp; !particle_thrown) {           // X7
+        particle_thrown = true;
+        WorldObj::get_world()-&gt;get_pingu_particle_holder()-&gt;add_particle(pingu-&gt;get_x(),
+                                                                         pingu-&gt;get_y()-5);
+    }
+    if (sprite.get_current_frame()==13 &amp;&amp; !colmap_exploded) {
+        colmap_exploded = true;
+        WorldObj::get_world()-&gt;remove(bomber_radius, &lt;...&gt;);
+    }                                                                   // X8
+
+    // 5. Last frame: kills the Pingu
+    if (sprite.is_finished ()) {                                        // X12
+        pingu-&gt;set_status(Pingu::PS_DEAD);                              // X13
+    }
+}
+
+void Bomber::draw (SceneContext&amp; gc) {
+    // 3. 13th frame: throws particles, destroys the terrain, shows an explosion sprite
+    // 4. Game tick: hides the explosion sprite
+    if (sprite.get_current_frame()==13 &amp;&amp; !gfx_exploded) {              // X9
+        gfx_exploded = true;                                            // X10
+        gc.color().draw (explo_surf, &lt;...&gt;);                            // X11
+    }
+    gc.color().draw(sprite, pingu-&gt;get_pos ());
+}</code></pre>
+<p>The class defines one state variable for each action to perform (ln. X1-X2). The &quot;Oh no!&quot; sound plays as soon as the object starts in <em>state-1</em> (ln. X3). The <code>update</code> callbacks update the animation sprite and moves the pingu every frame (ln. X4-X4.1), regardless of the current state. When the animation reaches the 10th frame, it plays the &quot;Bomb!&quot; if it hasn't yet (ln. X5-X6), going to <em>state-2</em>. The <code>sound_played</code> state variable is required because the sprite frame doesn't necessarily advance on every <code>update</code> invocation. The same reasoning and technique applies to the <em>state-3</em> (ln. X7-X8 and X9-X10). The explosion sprite appears in a single frame in <em>state-4</em> (ln. X11). Finally, the pingu dies after the animation frames terminate (ln. X12-X13).</p>
+<p>Note that a single numeric state variable would suffice to track the states. Probably, the authors chose to encode each state in an independent boolean variable to rearrange and experiment with them during the development.</p>
+<p>However, due to the short-lived nature of callbacks, state variables are unavoidable, being part of the essence of object-oriented programming (methods + mutable state).</p>
+<h5 id="céu">Céu</h5>
+<p>The implementation in Céu doesn't require explicit state variables and more closely reflects in the source code the sequential state machine:</p>
+<p><a name="bomber"/></p>
+<pre><code>class Bomber with
+    &lt;...&gt;
+do
+    &lt;...&gt;
+    par do
+        &lt;...&gt;   // pingu movement                                   // X1
+    with
+        // 1. 0th frame: plays a &quot;Oh no!&quot; sound.
+        call {Sound::PingusSound::play_sound}(&quot;ohno&quot;, 0.5, 0.0);
+
+        // 2. 10th frame: plays a &quot;Bomb!&quot; sound.
+        await WORLD_UPDATE until sprite.get_current_frame() == 10;
+        call {Sound::PingusSound::play_sound}(&quot;plop&quot;, 0.5, 0.0);
+
+        // 3. 13th frame: throws particles, destroys the terrain, shows an explosion sprite
+        await WORLD_UPDATE until sprite.get_current_frame() == 13;
+        emit global:go_create_pingu_particles =&gt; (this.pingu.get_x(),
+                                                  this.pingu.get_y()-5);
+        global:world!:remove(&amp;&amp;_bomber_radius, &lt;...&gt;);
+        do                                                          // X4
+            var Sprite s = Sprite.build_name(&lt;...&gt;, &amp;&amp;explo);
+            // 4. Game tick: hides the explosion sprite
+            await WORLD_UPDATE;
+        end                                                         // X5
+
+        // 5. Last frame: kills the pingu
+        await sprite;                                               // X2
+        escape {ActionName::DEAD};                                  // X3
+    end
+end</code></pre>
+<p>Considering the implementation in Céu, we can highlight some benefits in comparison to the implementation in C++:</p>
+<ul>
+<li>We encode all states implicitly, relying on the natural sequential flow of execution.</li>
+<li>We handle all states (and only them) in the same contiguous block of code.</li>
+<li>We isolate unrelated behaviors to the animation, such as the pingu movement (ln. X1), in a parallel line of execution.</li>
+<li>We use a local and lexically-scoped organism (to be discussed [X][hierarchical-dispatching]) for the temporary single-frame explosion (ln. X4-X5).</li>
+<li>We use auxiliary signalling mechanisms (to be discussed [X][signalling-mechanisms]) to await the termination of the animation (ln. X2) and to notify the application about our own termination.</li>
+</ul>
+<!--
+#### Sprite Animations
+-->
+
+<h3 id="dispatching-hierarchies">Dispatching Hierarchies</h3>
+<p>Some entities in games act as containers for other child entities, resulting in dispatching hierarchies for event handling. <!--
+    In Pingus, the *Main Menu* in the figure above is represented as a 
+    container class with five buttons as children.
+    When a button click occurs, it is first dispatched to the container class,
+    which may take an action before deciding to forward the event (or not) to 
+    the buttons.
+--></p>
+<h4 id="bomber-draw-and-update-callbacks">Bomber <code>draw</code> and <code>update</code> callbacks</h4>
+<h5 id="c-1">C++</h5>
+<p>Let's dig into the <code>Bomber</code> animation in C++ [<a href="https://github.com/Pingus/pingus/blob/v0.7.6/src/pingus/actions/bomber.cpp">X</a>], focusing on the <code>sprite</code> member, and the <code>update</code> and <code>draw</code> callback methods:</p>
+<pre><code>// bomber.hpp/cpp
+
+class Bomber : public PinguAction
+{
+    &lt;...&gt;
+    Sprite sprite;
+    void draw (SceneContext&amp; gc);
+    void update();
+}
+
+Bomber::Bomber (&lt;...&gt;) : &lt;...&gt;
+{
+    sprite.load(&lt;...&gt;);                     // X1
+    &lt;...&gt;
+}
+
+void Bomber::update () {                    // X2
+    sprite.update ();
+}                                           // X3
+
+void Bomber::draw (SceneContext&amp; gc) {      // X4
+    &lt;...&gt;
+    gc.color().draw(sprite, &lt;...&gt;);
+}                                           // X5</code></pre>
+<p>The class loads the <code>sprite</code> in the constructor (ln. X1) and continually redirects <code>update</code> and <code>draw</code> to it (ln. X2-X3 and X4-X5). The <code>Sprite</code> class [[X][cpp-sprite]] knows how to update [[X][cpp-sprite-update]] and render [[X][cpp-sprite-render]] itself.</p>
+<p>However, we have to follow a long hierarchy of 8 dispatches to understand how the <code>update</code> and <code>draw</code> callbacks flow from the original stimulus from the environment down to the sprite:</p>
+<ol start="0" style="list-style-type: decimal">
+<li><code>ScreenManager::display</code> [<a href="https://github.com/Pingus/pingus/blob/v0.7.6/src/engine/screen/screen_manager.cpp#L164">X</a>] (the game loop) calls <code>this-&gt;update</code> [<a href="https://github.com/Pingus/pingus/blob/v0.7.6/src/engine/screen/screen_manager.cpp#L218">X</a>] (in the same class).</li>
+<li><code>ScreenManager::update</code> [<a href="https://github.com/Pingus/pingus/blob/v0.7.6/src/engine/screen/screen_manager.cpp#L235">X</a>] calls <code>last_screen-&gt;update</code> [<a href="https://github.com/Pingus/pingus/blob/v0.7.6/src/engine/screen/screen_manager.cpp#L258">X</a>] (for the active game screen).</li>
+<li><code>GUIScreen::update</code> [<a href="https://github.com/Pingus/pingus/blob/v0.7.6/src/engine/screen/gui_screen.cpp#L44">X</a>] (the base class for all game screens) calls <code>gui_manager-&gt;update</code> [<a href="https://github.com/Pingus/pingus/blob/v0.7.6/src/engine/screen/gui_screen.cpp#L46">X</a>] (for the container holding all screen components).</li>
+<li><code>GroupComponent::update</code> [<a href="https://github.com/Pingus/pingus/blob/v0.7.6/src/engine/gui/group_component.cpp#L58">X</a>] (for the <code>gui_manager</code>) calls <code>child-&gt;update</code> [<a href="https://github.com/Pingus/pingus/blob/v0.7.6/src/engine/gui/group_component.cpp#L63">X</a>] (for each sub-component in the screen).</li>
+<li><code>World::update</code> [<a href="https://github.com/Pingus/pingus/blob/v0.7.6/src/pingus/world.cpp#L146">X</a>] (child of the <code>GameSession</code> screen) calls <code>obj-&gt;update</code> [<a href="https://github.com/Pingus/pingus/blob/v0.7.6/src/pingus/world.cpp#L183">X</a>] (for each object in the world).</li>
+<li><code>PinguHolder::update</code> [<a href="https://github.com/Pingus/pingus/blob/v0.7.6/src/pingus/pingu_holder.cpp#L89">X</a>] (child of <code>World</code>) calls <code>pingu-&gt;update</code> [<a href="https://github.com/Pingus/pingus/blob/v0.7.6/src/pingus/pingu_holder.cpp#L95">X</a>] (for each pingu alive).</li>
+<li><code>Pingu::update</code> [<a href="https://github.com/Pingus/pingus/blob/v0.7.6/src/pingus/pingu.cpp#L311">X</a>] calls <code>action-&gt;update</code> [<a href="https://github.com/Pingus/pingus/blob/v0.7.6/src/pingus/pingu.cpp#L339">X</a>] (for the active pingu action).</li>
+<li><code>Bomber::update</code> [<a href="https://github.com/Pingus/pingus/blob/v0.7.6/src/pingus/actions/bomber.cpp#L58">X</a>] calls <code>sprite.update</code> [<a href="https://github.com/Pingus/pingus/blob/v0.7.6/src/pingus/actions/bomber.cpp#L60">X</a>].</li>
+<li><code>Sprite::update</code> [<a href="https://github.com/Pingus/pingus/blob/v0.7.6/src/engine/display/sprite_impl.cpp#L112">X</a>] finally updates the animation frames.</li>
+</ol>
+<p>Each dispatching level of indirection has a reason to exist:</p>
+<ul>
+<li>In a single assignment to <code>last_screen</code>, we can easily redirect all dispatches to a new screen.</li>
+<li>The <code>gui_manager</code> manages and dispatches events to all screen components with a common interface.</li>
+<li>The <code>World</code> groups only the actual concrete and recognizable game entities loaded dynamically from an external level file (e.g., all pingus and traps).</li>
+<li>As it is common to iterate only over the pingus (vs. all world objects), it is convenient to manage all pingus in a <code>PinguHolder</code>.</li>
+<li>As pingus change between actions during lifetime, decoupling them from actions with a level of indirection is also convenient.</li>
+<li>Sprites are reusable everywhere, so it is also convenient to decouple them from actions.</li>
+</ul>
+<p>However, this dispatching architecture comes at a high price:</p>
+<ul>
+<li>Reasoning about the dispatching rules requires inspecting dozen of files (we omitted class hierarchies in the list above).</li>
+<li>The dispatching path interleaves between classes specific to the game and classes from the game engine (possibly third-party classes), making the reasoning even harder.</li>
+<li>The hierarchy is mostly dynamic, specially for entities held in containers.</li>
+</ul>
+<!--* TODO: efficiency?-->
+
+<p>Generic containers demand extra caution when they handle insertion and removal of components dynamically (which is usually the case):</p>
+<ul>
+<li>Tracking what entities gets dispatched is difficult: one has to &quot;simulate&quot; the program execution and track calls to <code>add</code> and <code>remove</code>.</li>
+</ul>
+<p><img src="images/game-session-arrows.png" width="300" align="right" valign="top"/></p>
+<p>Furthermore, it is actually common to have children with a static lifespan known at compile time. For instance, most entities in the <code>GameSession</code> coexists with it, i.e., they are added in the constructor and are never removed explicitly [<a href="https://github.com/Pingus/pingus/blob/v0.7.6/src/pingus/screens/game_session.cpp#L76">X</a>]:</p>
+<pre><code>GameSession::GameSession(&lt;...&gt;) :
+    &lt;...&gt;
+{
+    &lt;...&gt;
+    button_panel = new ButtonPanel(&lt;...&gt;);      // always active...
+    pcounter     = new PingusCounter(&lt;...&gt;);
+    small_map    = new SmallMap(&lt;...&gt;);
+    &lt;...&gt;
+    gui_manager-&gt;add(button_panel);             // ...but added dynamically
+    gui_manager-&gt;add(pcounter);
+    gui_manager-&gt;add(small_map);
+    &lt;...&gt;
+}</code></pre>
+<ul>
+<li>Calls to <code>add</code> must always have matching calls to <code>remove</code>: missing calls to <code>remove</code> lead to memory and CPU leaks.</li>
+</ul>
+<p>As an example, pingus are dynamic entities created periodically and destroyed under certain conditions (e.g. when going out of the screen [<a href="https://github.com/Pingus/pingus/blob/v0.7.6/src/pingus/pingu.cpp#L322">X</a>]). <code>PinguHolder::update</code> checks all pingus every frame, removing those with the <code>Pingu::PS_DEAD</code> status (ln. X1-X2):</p>
+<p>TODO: falling image</p>
+<pre><code>void PinguHolder::update() {
+    &lt;...&gt;
+    while(pingu != pingus.end()) {
+        (*pingu)-&gt;update();
+        if ((*pingu)-&gt;get_status() == Pingu::PS_DEAD) { // X1
+            pingu = pingus.erase(pingu);
+        }                                               // X2
+        &lt;...&gt;
+        ++pingu;
+    }
+}</code></pre>
+<p>Without the <code>erase</code> call, a dead pingu would keep consuming memory and CPU time, i.e., it would remain in the <code>pingus</code> vector and be updated every frame (ln. X3).</p>
+<p>This problem is known as the <em>lapsed listener</em> [<a href="https://github.com/Pingus/pingus/blob/v0.7.6/src/pingus/pingu.cpp#L322">X</a>]) and is not restricted to languages without garbage collection. Typically, a container holds a strong reference to a child (sometimes the only reference to it), and a collector cannot magically detect it as garbage.</p>
+<h5 id="céu-1">Céu</h5>
+<p>As mentioned before, organisms in Céu are active entities and can react directly to the environment. For instance, the <code>Sprite</code> instance held by the <code>Bomber</code> [<a href="https://github.com/fsantanna/pingus/blob/ceu/ceu/pingus/actions/bomber.ceu#L17">X</a>] bypasses the program hierarchy and reacts directly to the external event <code>WORLD_UPDATE</code> [<a href="https://github.com/fsantanna/pingus/blob/ceu/ceu/engine/display/sprite.ceu#L109">X</a>].</p>
+<p>On the one hand, this radical decoupling between the program hierarchy and external reactions completely eliminates dispatch forwarding. For instance, we removed from the engine most of the boilerplate related to dispatching <code>draw</code>, <code>update</code>, and other callbacks ([X][TODO]). On the other hand, now that the organism itself decides whether or not to react to input, we need some other external mechanism to control its life cycle.</p>
+<p>For static organisms</p>
+<p><a href="#bomber">X</a></p>
+<pre><code>class Bomber with
+    &lt;...&gt;
+do
+    &lt;...&gt;
+        // 3. 13th frame: throws particles, destroys the terrain, shows an 
+        // explosion sprite
+        await WORLD_UPDATE until sprite.get_current_frame() == 13;
+        emit global:go_create_pingu_particles =&gt; (this.pingu.get_x(),
+                                                  this.pingu.get_y()-5);
+        global:world!:remove(&amp;&amp;_bomber_radius, &lt;...&gt;);
+        do                                                          // X4
+            var Sprite s = Sprite.build_name(&lt;...&gt;, &amp;&amp;explo);
+            // 4. Game tick: hides the explosion sprite
+            await WORLD_UPDATE;
+        end                                                         // X5
+
+        // 5. Last frame: kills the pingu
+        await sprite;                                               // X2
+        escape {ActionName::DEAD};                                  // X3</code></pre>
+<p>see pausing</p>
+<p>of organisms so that they do not &quot;over react&quot; to events.</p>
+<p>are active and reacting or passive</p>
+<p>[X][cpp-engine.</p>
+<p>hierarchies</p>
+<p>and the progr</p>
+<p>The problem is now how to control weather an organism should react or not to an event:</p>
+<p>eradicates dispatching hierarchy along with the XXX of reasoning</p>
+<ul>
+<li>static instances</li>
+</ul>
+<p>lexical scope: reproduce previous example:</p>
+<ul>
+<li>dynamic instances</li>
+</ul>
+<p>** containers = pools ** remove = death</p>
+<ul>
+<li>tracking: follow the source code ** execution order, redraw, sort</li>
+</ul>
+<p>composition over inheritance</p>
+<p>doesn't need</p>
+<ul>
+<li>tradeoff here is clear
+<ul>
+<li>indirect reaction + dynamic scope vs</li>
+<li>direct reaction + lexical scope</li>
+</ul></li>
+<li><p>class hier and dispatch hier</p></li>
+<li>no lapsed listener</li>
+<li>no dynamic allocation or GC</li>
+<li>static reasoning</li>
+<li>inheritance vs composition</li>
+<li>no hier b/c orgs can react directly to the env
+<ul>
+<li>lexical scope</li>
+</ul></li>
+<li><p>animation w/ the dispatch path</p></li>
+</ul>
+<h2 id="quantitative-analysis">Quantitative Analysis</h2>
+<h3 id="code-size">Code Size</h3>
+<h3 id="memory">Memory</h3>
+<h3 id="cpu">CPU</h3>
+<!--
+## The Game Loop
+
+The *game loop* determines the general structure of virtually all games 
+&#91;[X][gpp-gameloop]&#93; (Pingus is no different &#91;[X][pingus-gameloop]&#93;):
+
+```
+while (true)
 {
     processInput();
     update();
     render();
-}</code></pre>
-<blockquote>
-<p>A game loop runs continuously during gameplay. Each turn of the loop, it processes user input without blocking, updates the game state, and renders the game. It tracks the passage of time to control the rate of gameplay.</p>
-</blockquote>
-<p>The <code>update</code> function does the hard work, dealing with the state of all game entities, and has to execute as fast as possible to keep real-time responsiveness to input events. However, short-lived functions such as <code>update</code> do not retain local variables and control-flow state across consecutive invocations. In this sense, they eliminate any vestige of structured programming, becoming <em>our generation's goto</em> <a href="http://tirania.org/blog/archive/2013/Aug-15.html">X</a>.</p>
-<h2 id="the-synchronous-concurrency-model">The Synchronous Concurrency Model</h2>
-<pre><code>    initialize state;
+}
+```
+
+> A game loop runs continuously during gameplay.
+> Each turn of the loop, it processes user input without blocking, updates the 
+> game state, and renders the game.
+> It tracks the passage of time to control the rate of gameplay.
+
+The `update` function does the hard work, dealing with the state of all game 
+entities, and has to execute as fast as possible to keep real-time 
+responsiveness to input events.
+However, short-lived functions such as `update` do not retain local variables 
+and control-flow state across consecutive invocations.
+In this sense, they eliminate any vestige of structured programming, becoming 
+*our generation's goto* &#91;[X][goto]&#93;.
+
+[gpp-gameloop]: http://gameprogrammingpatterns.com/game-loop.html
+[pingus-gameloop]: https://github.com/Pingus/pingus/blob/v0.7.6/src/engine/screen/screen_manager.cpp#L172
+[goto]: http://tirania.org/blog/archive/2013/Aug-15.html
+
+
+## The Synchronous Concurrency Model
+
+```
+    initialize state;
     while (true) do
         read inputs;
         update state;
         write outputs;
-    end</code></pre>
-<p>The game loop: <code>ScreenManager::display</code> https://github.com/fsantanna/pingus/blob/master/src/engine/screen/screen_manager.cpp#L164</p>
-<pre><code>void ScreenManager::display() {
+    end
+```
+
+The game loop:
+`ScreenManager::display`
+https://github.com/fsantanna/pingus/blob/master/src/engine/screen/screen_manager.cpp#L164
+
+```
+void ScreenManager::display() {
     Uint32 old = SDL_GetTicks();
 
     while (!screens.empty()) {
@@ -153,19 +586,22 @@ end</code></pre>
         Uint32 now = SDL_GetTicks();
         Uint32 delta = now - old;
         old = now;
-        &lt;read-other-inputs&gt;
+        <read-other-inputs>
 
         // UPDATE STATE
-        screens.back()-&gt;update(delta);
-        &lt;update-other-inputs&gt;
+        screens.back()->update(delta);
+        <update-other-inputs>
 
         // WRITE OUTPUTS
-        screens.back()-&gt;draw(&lt;...&gt;);
+        screens.back()->draw(<...>);
         Display::flip_display();
     }
-}</code></pre>
-<h2 id="céu">Céu</h2>
-<!--
+}
+```
+
+## Céu
+
+<!-
 - control
     = Accidental complexity
 - not pure functions
@@ -197,10 +633,11 @@ Memory management and resource management is not the same. Resources other than 
 I will say it again, because no one seemed to notice it: could it be that there exists a "calculus" for resource management?
 By Achilleas Margaritis at Fri, 2006-02-03 11:46 | login or register to post comment
 
--->
+->
 
-<h2 id="idioms">Idioms</h2>
-<!--
+## Idioms
+
+<!-
 All patterns relate to event handling and control flow in games, and we argue 
 how Céu offers more appropriate abstractions than existing languages.
 
@@ -299,27 +736,52 @@ languages, usually through timer callbacks or ``sleep'' blocking calls.
         - generic code
         - tooling
     = BOUNS: Lua
--->
+->
 
-<h2 id="the-code-base">The Code Base</h2>
-<p>Pingus has a code base around 40k lines of code (LoC):</p>
-<pre><code>&gt; cd pingus/src/
-&gt; sloccount .
-...
+## The Code Base
+
+Pingus has a code base around 40k lines of code (LoC):
+
+    > cd pingus/src/
+    > sloccount .
+    ...
+    SLOC    Directory   SLOC-by-Language (Sorted)
+    18173   pingus          cpp=18173
+    10073   engine          cpp=10073
+    6532    editor          cpp=6532
+    2771    util            cpp=2771
+    1138    math            cpp=1138
+    679     lisp            cpp=679
+    365     win32           ansic=365
+    248     macosx          objc=248
+    7       top_dir         cpp=7
+
+The code base includes a game engine, utilities, level editor, platform stubs, 
+and the game logic.
+Most of the porting process centered around the `engine` and `pingus` 
+directory, as we did not port the level editor:
+
 SLOC    Directory   SLOC-by-Language (Sorted)
-18173   pingus          cpp=18173
-10073   engine          cpp=10073
-6532    editor          cpp=6532
-2771    util            cpp=2771
-1138    math            cpp=1138
-679     lisp            cpp=679
-365     win32           ansic=365
-248     macosx          objc=248
-7       top_dir         cpp=7</code></pre>
-<p>The code base includes a game engine, utilities, level editor, platform stubs, and the game logic. Most of the porting process centered around the <code>engine</code> and <code>pingus</code> directory, as we did not port the level editor:</p>
-<p>SLOC Directory SLOC-by-Language (Sorted) 6844 top_dir cpp=6844 3045 screens cpp=3045 2354 worldmap cpp=2354 2118 worldobjs cpp=2118 1838 actions cpp=1838 1338 components cpp=1338 531 particles cpp=531 64 colliders cpp=64 41 movers cpp=41</p>
-<p>SLOC Directory SLOC-by-Language (Sorted) 4666 display cpp=4666 3617 input cpp=3617 621 gui cpp=621 603 screen cpp=603 410 sound cpp=410 109 resource cpp=109 47 system cpp=47</p>
-<!--
+6844    top_dir         cpp=6844
+3045    screens         cpp=3045
+2354    worldmap        cpp=2354
+2118    worldobjs       cpp=2118
+1838    actions         cpp=1838
+1338    components      cpp=1338
+531     particles       cpp=531
+64      colliders       cpp=64
+41      movers          cpp=41
+
+SLOC    Directory   SLOC-by-Language (Sorted)
+4666    display         cpp=4666
+3617    input           cpp=3617
+621     gui             cpp=621
+603     screen          cpp=603
+410     sound           cpp=410
+109     resource        cpp=109
+47      system          cpp=47
+
+<!-
 Most of
 
  `engine/`, a level `editor/`
@@ -365,11 +827,10 @@ More concretely
 - testar climber, wall-mode-activation
 - testar previous action: Climber->Jumper->direction-change/Blocker->Faller->Blocker
 - SDL_DT p/ pingus/actions/sprites
--->
+->
 
-<h1 id="who">Who?</h1>
-<h1 id="when">When?</h1>
-<!--
+
+<!-
 # PORTING
 
 ```
