@@ -85,7 +85,7 @@ TODO:
 -->
 
 <h1 id="what-is-this-all-about">What is this all about?</h1>
-<p>This report documents the process of porting the video game Pingus <a href="http://pingus.seul.org/">X</a>,<a href="https://github.com/Pingus/pingus/">X</a> from C++ to the programming language Céu <a href="http://ceu-lang.org/">X</a>,<a href="https://github.com/fsantanna/ceu/">X</a>.</p>
+<p>This report documents the process of porting the video game Pingus [<a href="http://pingus.seul.org/"><img src="images/link_12.png" alt="X" /></a>,<a href="https://github.com/Pingus/pingus/"><img src="images/link_12.png" alt="X" /></a>] from C++ to the programming language Céu [<a href="http://ceu-lang.org/"><img src="images/link_12.png" alt="X" /></a>,<a href="https://github.com/fsantanna/ceu/"><img src="images/link_12.png" alt="X" /></a>].</p>
 <p><img src="images/pingus-1.png" width="400"/> <img src="images/pingus-2.png" width="400"/></p>
 <h2 id="warming-up">Warming Up!</h2>
 <p>Let's consider the case of handling double clicks in the game.</p>
@@ -93,7 +93,7 @@ TODO:
 <img src="images/double-click-opt.gif" width="350"/> <br>Figure X: Double click detection
 </div>
 <p>In Pingus, double clicking the <em>Armageddon button</em> literally explodes all pingus (Figure X).</p>
-<p>The code in C++ <a href="https://github.com/Pingus/pingus/blob/v0.7.6/src/pingus/components/action_button.cpp">X</a> implements the class <code>ArmageddonButton</code> with methods for rendering and handling events. Here, we focus on detecting the double click, hiding unrelated parts:</p>
+<p>The code in C++ [<a href="https://github.com/Pingus/pingus/blob/v0.7.6/src/pingus/components/action_button.cpp"><img src="images/link_12.png" alt="X" /></a>] implements the class <code>ArmageddonButton</code> with methods for rendering and handling events. Here, we focus on detecting the double click, hiding unrelated parts:</p>
 <pre><code>ArmageddonButton::ArmageddonButton(&lt;...&gt;):
     RectComponent(&lt;...&gt;),
     &lt;...&gt;
@@ -131,8 +131,8 @@ void ArmageddonButton::on_primary_button_click (&lt;...&gt;) {
 }</code></pre>
 <p>The class first initializes the variable <code>pressed</code> to track the first click (ln. X1,X2). It also initializes the variable <code>press_time</code> to count the time since the first click (ln. X3,X4). If another click occurs within 1 second, the class signals the double click to the application (ln. X7). Otherwise, the <code>pressed</code> and <code>press_time</code> state variables are reset (ln. X5-X6).</p>
 <p>The methods <code>update</code> and <code>on_primary_button_click</code> are examples of <em>short-lived callbacks</em>, which are pieces of code that execute in reaction to external input events. Here, <code>on_primary_button_click</code> reacts to mouse clicks, while <code>update</code> continuously reacts to the passage of time. Callbacks are short lived because they must execute as fast as possible to keep the game with real-time responsiveness. Because callbacks are short lived, the only way they can affect each other is by manipulating persisting member variables in the object. These <em>state variables</em> retain their values across multiple invocations, e.g.: <code>on_primary_button_click</code> writes to <code>pressed</code> in the first click, and checks its state in further clicks (ln. X2,X8), In the meantime, <code>update</code> also checks for <code>pressed</code> and may change its state (ln. X9,X5).</p>
-<p>However, note how the accesses to these state variables are spread across the entire class. For instance, the distance between the initialization of <code>pressed</code> (ln. X1) and the last access to it (ln. X2) is over 40 lines in the original file <a href="https://github.com/Pingus/pingus/blob/v0.7.6/src/pingus/components/action_button.cpp#L33-#L90">X</a>. Arguably, this dispersion of code across methods makes the understanding and maintenance of the double-click behavior more difficult. Also, even though the state variables are private, unrelated methods such as <code>draw</code> (ln. X10-X11) can potentially access it.</p>
-<p>Céu provides structured constructs to deal with events, aiming to eradicate explicit manipulation of state variables for control-flow purposes. The equivalent code in Céu <a href="https://github.com/fsantanna/pingus/blob/ceu/ceu/pingus/components/action_button.ceu">X</a> defines the class <code>ArmageddonButton</code> as follows:</p>
+<p>However, note how the accesses to these state variables are spread across the entire class. For instance, the distance between the initialization of <code>pressed</code> (ln. X1) and the last access to it (ln. X2) is over 40 lines in the original file [<a href="https://github.com/Pingus/pingus/blob/v0.7.6/src/pingus/components/action_button.cpp#L33-#L90"><img src="images/link_12.png" alt="X" /></a>]. Arguably, this dispersion of code across methods makes the understanding and maintenance of the double-click behavior more difficult. Also, even though the state variables are private, unrelated methods such as <code>draw</code> (ln. X10-X11) can potentially access it.</p>
+<p>Céu provides structured constructs to deal with events, aiming to eradicate explicit manipulation of state variables for control-flow purposes. The equivalent code in Céu [<a href="https://github.com/fsantanna/pingus/blob/ceu/ceu/pingus/components/action_button.ceu"><img src="images/link_12.png" alt="X" /></a>] defines the class <code>ArmageddonButton</code> as follows:</p>
 <pre><code>class ArmageddonButton with
     &lt;...&gt;
 do                                                      // X9
@@ -157,7 +157,7 @@ end                                                     // X10</code></pre>
 <div class="images">
 <img src="images/sweeney.png" width="350"/> <br>Figure X: Three &quot;kinds&quot; of code
 </div>
-<p>According to Tim Sweeney (of Unreal Engine fame), about half of the development complexity resides in the <em>game simulation</em> code <a href="https://www.cs.princeton.edu/~dpw/popl/06/Tim-POPL.ppt">X</a>. If we consider that <em>numeric computation</em> and <em>shading</em> do not vary from game to game (i.e., they are part of a game engine), the tendency is to shift the complexity even more towards game simulation. Furthermore, only 10% of the CPU budget goes to game simulation, opening an opportunity for gains in productivity.</p>
+<p>According to Tim Sweeney (of Unreal Engine fame), about half of the development complexity resides in the <em>game simulation</em> code [<a href="https://www.cs.princeton.edu/~dpw/popl/06/Tim-POPL.ppt"><img src="images/link_12.png" alt="X" /></a>]. If we consider that <em>numeric computation</em> and <em>shading</em> do not vary from game to game (i.e., they are part of a game engine), the tendency is to shift the complexity even more towards game simulation. Furthermore, only 10% of the CPU budget goes to game simulation, opening an opportunity for gains in productivity.</p>
 <!--
 When updating 10,000 objects at 60 FPS, everything is performance-sensitive
 But:
@@ -305,7 +305,7 @@ state machine.
 <div class="images">
 <img src="images/state-anim/state-anim.gif" width="550"/> <br>Figure X: State machine for the &quot;Bomber&quot; animation
 </div>
-<p>The code in C++ <a href="https://github.com/Pingus/pingus/blob/v0.7.6/src/pingus/actions/bomber.cpp">X</a> defines the class <code>Bomber</code> which implements the <code>draw</code> and <code>update</code> callback methods:</p>
+<p>The code in C++ [<a href="https://github.com/Pingus/pingus/blob/v0.7.6/src/pingus/actions/bomber.cpp"><img src="images/link_12.png" alt="X" /></a>] defines the class <code>Bomber</code> which implements the <code>draw</code> and <code>update</code> callback methods:</p>
 <pre><code>Bomber::Bomber (Pingu* p) :
     &lt;...&gt;
     sound_played(false),        // tracks state 2   X1
@@ -395,8 +395,8 @@ end</code></pre>
 <li>We encode all states implicitly, relying on the natural sequential flow of execution.</li>
 <li>We handle all states (and only them) in the same contiguous block of code.</li>
 <li>We isolate unrelated behaviors to the animation, such as the pingu movement (ln. X1), in a parallel line of execution.</li>
-<li>We use a local and lexically-scoped organism (to be discussed [X][hierarchical-dispatching]) for the temporary single-frame explosion (ln. X4-X5).</li>
-<li>We use auxiliary signalling mechanisms (to be discussed [X][signalling-mechanisms]) to await the termination of the animation (ln. X2) and to notify the application about our own termination.</li>
+<li>We use a local and lexically-scoped organism (to be discussed [[<img src="images/link_12.png" alt="X" />][hierarchical-dispatching]]) for the temporary single-frame explosion (ln. X4-X5).</li>
+<li>We use auxiliary signalling mechanisms (to be discussed [[<img src="images/link_12.png" alt="X" />][signalling-mechanisms]]) to await the termination of the animation (ln. X2) and to notify the application about our own termination.</li>
 </ul>
 <!--
 #### Sprite Animations
@@ -413,7 +413,7 @@ end</code></pre>
 <h4 id="bomber-draw-and-update-callbacks">Bomber <code>draw</code> and <code>update</code> callbacks</h4>
 <!-- CPP-BOMBER-SPRITE -->
 
-<p>Let's dig into the <code>Bomber</code> animation in C++ <a href="https://github.com/Pingus/pingus/blob/v0.7.6/src/pingus/actions/bomber.cpp">X</a>, focusing on the <code>sprite</code> member, and the <code>update</code> and <code>draw</code> callback methods:</p>
+<p>Let's dig into the <code>Bomber</code> animation in C++ [<a href="https://github.com/Pingus/pingus/blob/v0.7.6/src/pingus/actions/bomber.cpp"><img src="images/link_12.png" alt="X" /></a>], focusing on the <code>sprite</code> member, and the <code>update</code> and <code>draw</code> callback methods:</p>
 <pre><code>// bomber.hpp/cpp
 
 class Bomber : public PinguAction
@@ -438,18 +438,18 @@ void Bomber::draw (SceneContext&amp; gc) {      // X4
     &lt;...&gt;
     gc.color().draw(sprite, &lt;...&gt;);
 }                                           // X5</code></pre>
-<p>The class loads the <code>sprite</code> in the constructor (ln. X1) and continually redirects <code>update</code> and <code>draw</code> to it (ln. X2-X3 and X4-X5). The <code>Sprite</code> class knows how to update <a href="https://github.com/Pingus/pingus/blob/v0.7.6/src/engine/display/sprite_impl.cpp#L112">X</a> and render <a href="https://github.com/Pingus/pingus/blob/v0.7.6/src/engine/display/sprite_impl.cpp#L140">X</a> itself.</p>
+<p>The class loads the <code>sprite</code> in the constructor (ln. X1) and continually redirects <code>update</code> and <code>draw</code> to it (ln. X2-X3 and X4-X5). The <code>Sprite</code> class knows how to update [<a href="https://github.com/Pingus/pingus/blob/v0.7.6/src/engine/display/sprite_impl.cpp#L112"><img src="images/link_12.png" alt="X" /></a>] and render [<a href="https://github.com/Pingus/pingus/blob/v0.7.6/src/engine/display/sprite_impl.cpp#L140"><img src="images/link_12.png" alt="X" /></a>] itself.</p>
 <p>However, we have to follow a long hierarchy of 8 dispatches to understand how the <code>update</code> and <code>draw</code> callbacks flow from the original environment stimulus down to the sprite:</p>
 <ol start="0" style="list-style-type: decimal">
-<li><code>ScreenManager::display</code> <a href="https://github.com/Pingus/pingus/blob/v0.7.6/src/engine/screen/screen_manager.cpp#L164">X</a> (the game loop) calls <code>this-&gt;update</code> <a href="https://github.com/Pingus/pingus/blob/v0.7.6/src/engine/screen/screen_manager.cpp#L218">X</a> (in the same class).</li>
-<li><code>ScreenManager::update</code> <a href="https://github.com/Pingus/pingus/blob/v0.7.6/src/engine/screen/screen_manager.cpp#L235">X</a> calls <code>last_screen-&gt;update</code> <a href="https://github.com/Pingus/pingus/blob/v0.7.6/src/engine/screen/screen_manager.cpp#L258">X</a> (for the active game screen).</li>
-<li><code>GUIScreen::update</code> <a href="https://github.com/Pingus/pingus/blob/v0.7.6/src/engine/screen/gui_screen.cpp#L44">X</a> (the base class for all game screens) calls <code>gui_manager-&gt;update</code> <a href="https://github.com/Pingus/pingus/blob/v0.7.6/src/engine/screen/gui_screen.cpp#L46">X</a> (for the container holding all screen components).</li>
-<li><code>GroupComponent::update</code> <a href="https://github.com/Pingus/pingus/blob/v0.7.6/src/engine/gui/group_component.cpp#L58">X</a> (for the <code>gui_manager</code>) calls <code>child-&gt;update</code> <a href="https://github.com/Pingus/pingus/blob/v0.7.6/src/engine/gui/group_component.cpp#L63">X</a> (for each sub-component in the screen).</li>
-<li><code>World::update</code> <a href="https://github.com/Pingus/pingus/blob/v0.7.6/src/pingus/world.cpp#L146">X</a> (child of the <code>GameSession</code> screen) calls <code>obj-&gt;update</code> <a href="https://github.com/Pingus/pingus/blob/v0.7.6/src/pingus/world.cpp#L183">X</a> (for each object in the world).</li>
-<li><code>PinguHolder::update</code> <a href="https://github.com/Pingus/pingus/blob/v0.7.6/src/pingus/pingu_holder.cpp#L89">X</a> (child of <code>World</code>) calls <code>pingu-&gt;update</code> <a href="https://github.com/Pingus/pingus/blob/v0.7.6/src/pingus/pingu_holder.cpp#L95">X</a> (for each pingu alive).</li>
-<li><code>Pingu::update</code> <a href="https://github.com/Pingus/pingus/blob/v0.7.6/src/pingus/pingu.cpp#L311">X</a> calls <code>action-&gt;update</code> <a href="https://github.com/Pingus/pingus/blob/v0.7.6/src/pingus/pingu.cpp#L339">X</a> (for the active pingu action).</li>
-<li><code>Bomber::update</code> <a href="https://github.com/Pingus/pingus/blob/v0.7.6/src/pingus/actions/bomber.cpp#L58">X</a> calls <code>sprite.update</code> <a href="https://github.com/Pingus/pingus/blob/v0.7.6/src/pingus/actions/bomber.cpp#L60">X</a>.</li>
-<li><code>Sprite::update</code> <a href="https://github.com/Pingus/pingus/blob/v0.7.6/src/engine/display/sprite_impl.cpp#L112">X</a> finally updates the animation frames.</li>
+<li><code>ScreenManager::display</code> [<a href="https://github.com/Pingus/pingus/blob/v0.7.6/src/engine/screen/screen_manager.cpp#L164"><img src="images/link_12.png" alt="X" /></a>] (the game loop) calls <code>this-&gt;update</code> [<a href="https://github.com/Pingus/pingus/blob/v0.7.6/src/engine/screen/screen_manager.cpp#L218"><img src="images/link_12.png" alt="X" /></a>] (in the same class).</li>
+<li><code>ScreenManager::update</code> [<a href="https://github.com/Pingus/pingus/blob/v0.7.6/src/engine/screen/screen_manager.cpp#L235"><img src="images/link_12.png" alt="X" /></a>] calls <code>last_screen-&gt;update</code> [<a href="https://github.com/Pingus/pingus/blob/v0.7.6/src/engine/screen/screen_manager.cpp#L258"><img src="images/link_12.png" alt="X" /></a>] (for the active game screen).</li>
+<li><code>GUIScreen::update</code> [<a href="https://github.com/Pingus/pingus/blob/v0.7.6/src/engine/screen/gui_screen.cpp#L44"><img src="images/link_12.png" alt="X" /></a>] (the base class for all game screens) calls <code>gui_manager-&gt;update</code> [<a href="https://github.com/Pingus/pingus/blob/v0.7.6/src/engine/screen/gui_screen.cpp#L46"><img src="images/link_12.png" alt="X" /></a>] (for the container holding all screen components).</li>
+<li><code>GroupComponent::update</code> [<a href="https://github.com/Pingus/pingus/blob/v0.7.6/src/engine/gui/group_component.cpp#L58"><img src="images/link_12.png" alt="X" /></a>] (for the <code>gui_manager</code>) calls <code>child-&gt;update</code> [<a href="https://github.com/Pingus/pingus/blob/v0.7.6/src/engine/gui/group_component.cpp#L63"><img src="images/link_12.png" alt="X" /></a>] (for each sub-component in the screen).</li>
+<li><code>World::update</code> [<a href="https://github.com/Pingus/pingus/blob/v0.7.6/src/pingus/world.cpp#L146"><img src="images/link_12.png" alt="X" /></a>] (child of the <code>GameSession</code> screen) calls <code>obj-&gt;update</code> [<a href="https://github.com/Pingus/pingus/blob/v0.7.6/src/pingus/world.cpp#L183"><img src="images/link_12.png" alt="X" /></a>] (for each object in the world).</li>
+<li><code>PinguHolder::update</code> [<a href="https://github.com/Pingus/pingus/blob/v0.7.6/src/pingus/pingu_holder.cpp#L89"><img src="images/link_12.png" alt="X" /></a>] (child of <code>World</code>) calls <code>pingu-&gt;update</code> [<a href="https://github.com/Pingus/pingus/blob/v0.7.6/src/pingus/pingu_holder.cpp#L95"><img src="images/link_12.png" alt="X" /></a>] (for each pingu alive).</li>
+<li><code>Pingu::update</code> [<a href="https://github.com/Pingus/pingus/blob/v0.7.6/src/pingus/pingu.cpp#L311"><img src="images/link_12.png" alt="X" /></a>] calls <code>action-&gt;update</code> [<a href="https://github.com/Pingus/pingus/blob/v0.7.6/src/pingus/pingu.cpp#L339"><img src="images/link_12.png" alt="X" /></a>] (for the active pingu action).</li>
+<li><code>Bomber::update</code> [<a href="https://github.com/Pingus/pingus/blob/v0.7.6/src/pingus/actions/bomber.cpp#L58"><img src="images/link_12.png" alt="X" /></a>] calls <code>sprite.update</code> [<a href="https://github.com/Pingus/pingus/blob/v0.7.6/src/pingus/actions/bomber.cpp#L60"><img src="images/link_12.png" alt="X" /></a>.]</li>
+<li><code>Sprite::update</code> [<a href="https://github.com/Pingus/pingus/blob/v0.7.6/src/engine/display/sprite_impl.cpp#L112"><img src="images/link_12.png" alt="X" /></a>] finally updates the animation frames.</li>
 </ol>
 <p>Each dispatching level of indirection has a reason to exist:</p>
 <ul>
@@ -462,16 +462,16 @@ void Bomber::draw (SceneContext&amp; gc) {      // X4
 </ul>
 <!-- CEU-BOMBER-SPRITE -->
 
-<p>Now, consider the <code>Bomber</code> animation in Céu <a href="https://github.com/fsantanna/pingus/blob/ceu/ceu/pingus/actions/bomber.ceu">X</a>:</p>
+<p>Now, consider the <code>Bomber</code> animation in Céu [<a href="https://github.com/fsantanna/pingus/blob/ceu/ceu/pingus/actions/bomber.ceu"><img src="images/link_12.png" alt="X" /></a>]:</p>
 <pre><code>class Bomber with
     interface IPinguAction;
 do
     var Sprite sprite = Sprite.build_name(&lt;...&gt;);   // X1
     &lt;...&gt;
 end</code></pre>
-<p>As mentioned before, organisms in Céu are active entities and can react directly to the environment. As soon as we declare the <code>Sprite</code> organism (ln. X1), its execution body starts automatically, bypassing the program hierarchy and reacting directly to the external events <code>WORLD_UPDATE</code> <a href="https://github.com/fsantanna/pingus/blob/ceu/ceu/engine/display/sprite.ceu#L109">X</a> and <code>REDRAW</code> <a href="https://github.com/fsantanna/pingus/blob/ceu/ceu/engine/display/sprite.ceu#L138">X</a>.</p>
-<p>On the one hand, this radical decoupling between the program hierarchy and external reactions completely eliminates dispatch forwarding. For instance, we removed from the engine most of the boilerplate related to dispatching <code>draw</code>, <code>update</code>, and other callbacks ([X][TODO]). On the other hand, now that organisms themselves decide whether or not to react to external input, we rely on lexical scopes to control their life cycles.</p>
-<p>Just like standard local variables, we can delimit the scope of organisms through explicit blocks. As an example, the explosion sprite for the <code>Bomber</code> animation above <a href="#bomber">X</a> reacts exactly for one occurrence of <code>WORLD_UPDATE</code> (after the 13th animation frame):</p>
+<p>As mentioned before, organisms in Céu are active entities and can react directly to the environment. As soon as we declare the <code>Sprite</code> organism (ln. X1), its execution body starts automatically, bypassing the program hierarchy and reacting directly to the external events <code>WORLD_UPDATE</code> [<a href="https://github.com/fsantanna/pingus/blob/ceu/ceu/engine/display/sprite.ceu#L109"><img src="images/link_12.png" alt="X" /></a>] and <code>REDRAW</code> [<a href="https://github.com/fsantanna/pingus/blob/ceu/ceu/engine/display/sprite.ceu#L138"><img src="images/link_12.png" alt="X" /></a>].</p>
+<p>On the one hand, this radical decoupling between the program hierarchy and external reactions completely eliminates dispatch forwarding. For instance, we removed from the engine most of the boilerplate related to dispatching <code>draw</code>, <code>update</code>, and other callbacks ([[<img src="images/link_12.png" alt="X" />][TODO]]). On the other hand, now that organisms themselves decide whether or not to react to external input, we rely on lexical scopes to control their life cycles.</p>
+<p>Just like standard local variables, we can delimit the scope of organisms through explicit blocks. As an example, the explosion sprite for the <code>Bomber</code> animation above [<a href="#bomber"><img src="images/link_12.png" alt="X" /></a>] reacts exactly for one occurrence of <code>WORLD_UPDATE</code> (after the 13th animation frame):</p>
 <pre><code>class Bomber with
     &lt;...&gt;
 do
@@ -509,7 +509,7 @@ end</code></pre>
 <img src="images/game-session-arrows.png" width="300"/> <br>Figure X: Children with static lifespan.
 </div>
 
-<p>However, it is actually common to have children with a static lifespan, known at compile time. For instance, most entities in the <code>GameSession</code> coexists with it, i.e., they are added in the constructor and are never removed explicitly <a href="https://github.com/Pingus/pingus/blob/v0.7.6/src/pingus/screens/game_session.cpp#L76">X</a>:</p>
+<p>However, it is actually common to have children with a static lifespan, known at compile time. For instance, most entities in the <code>GameSession</code> coexists with it, i.e., they are added in the constructor and are never removed explicitly [<a href="https://github.com/Pingus/pingus/blob/v0.7.6/src/pingus/screens/game_session.cpp#L76"><img src="images/link_12.png" alt="X" /></a>]:</p>
 <pre><code>GameSession::GameSession(&lt;...&gt;) :
     &lt;...&gt;
 {
@@ -525,7 +525,7 @@ end</code></pre>
 }</code></pre>
 <!-- CEU-CONTAINER-STATIC -->
 
-<p>In Céu, entities that coexist with an enclosing class just need to be declared at the top-level block <a href="https://github.com/fsantanna/pingus/blob/ceu/ceu/pingus/world.ceu#L124">X</a>:</p>
+<p>In Céu, entities that coexist with an enclosing class just need to be declared at the top-level block [<a href="https://github.com/fsantanna/pingus/blob/ceu/ceu/pingus/world.ceu#L124"><img src="images/link_12.png" alt="X" /></a>]:</p>
 <pre><code>class World with
     &lt;...&gt;
 do
@@ -541,7 +541,7 @@ end</code></pre>
 <!-- CPP-CONTAINER-DYNAMIC -->
 
 <p>For entities with a dynamic lifespan, we need to <code>add</code> and <code>remove</code> them explicitly from the container.</p>
-<p>As an example, pingus are dynamic entities created periodically and destroyed under certain conditions (e.g. when going out of the screen <a href="https://github.com/Pingus/pingus/blob/v0.7.6/src/pingus/pingu.cpp#L322">X</a>):</p>
+<p>As an example, pingus are dynamic entities created periodically and destroyed under certain conditions (e.g. when going out of the screen [<a href="https://github.com/Pingus/pingus/blob/v0.7.6/src/pingus/pingu.cpp#L322"><img src="images/link_12.png" alt="X" /></a>]):</p>
 <p>TODO: falling image</p>
 <pre><code>Pingu* PinguHolder::create_pingu (&lt;...&gt;) {              // X1
     &lt;...&gt;
@@ -564,11 +564,11 @@ void PinguHolder::update() {                            // X4
     }
 }                                                       // X5</code></pre>
 <p><code>PinguHolder::create_pingu</code> (ln. X1-X2) creates a new <code>Pingu</code> periodically, adding it to the <code>pingus</code> container (ln. X3). <code>PinguHolder::update</code> (ln. X4-X5) checks all pingus every frame, removing those with the <code>Pingu::PS_DEAD</code> status (ln. X6-X7): Without the <code>erase</code> call, a dead pingu would keep consuming memory and CPU time, i.e., it would remain in the <code>pingus</code> vector and be updated every frame (ln. X8).</p>
-<p>This problem is known as the <em>lapsed listener</em> <a href="https://github.com/Pingus/pingus/blob/v0.7.6/src/pingus/pingu.cpp#L322">X</a>) and is not restricted to languages without garbage collection. Typically, a container holds a strong reference to a child (sometimes the only reference to it), and a collector cannot magically detect it as garbage.</p>
+<p>This problem is known as the <em>lapsed listener</em> [<a href="https://github.com/Pingus/pingus/blob/v0.7.6/src/pingus/pingu.cpp#L322"><img src="images/link_12.png" alt="X" /></a>] and is not restricted to languages without garbage collection. Typically, a container holds a strong reference to a child (sometimes the only reference to it), and a collector cannot magically detect it as garbage.</p>
 <!-- CEU-CONTAINER-DYNAMIC -->
 
 <p>In Céu, we rely on primitive <code>pool</code> containers of organisms, which are also subject to lexical scope, just like scalar organisms. The statement <code>spawn &lt;T&gt; in &lt;pool&gt;</code> creates an organism of type <code>&lt;T&gt;</code> dynamically, also specifying a <code>&lt;pool&gt;</code> to hold the new instance.</p>
-<p>The <code>PinguHolder</code> class in Céu spawns a new <code>Pingu</code> for every occurrence of the event <code>global:go_create_pingu</code> <a href="https://github.com/fsantanna/pingus/blob/ceu/ceu/pingus/pingu_holder.ceu#L12">X</a>:</p>
+<p>The <code>PinguHolder</code> class in Céu spawns a new <code>Pingu</code> for every occurrence of the event <code>global:go_create_pingu</code> [<a href="https://github.com/fsantanna/pingus/blob/ceu/ceu/pingus/pingu_holder.ceu#L12"><img src="images/link_12.png" alt="X" /></a>]:</p>
 <pre><code>class PinguHolder with
     &lt;...&gt;
 do                                      // X3
@@ -579,14 +579,14 @@ do                                      // X3
         spawn Pingu in this.pingus;     // X2
     end
 end                                     // X4</code></pre>
-<p>The class <code>PinguHolder</code> declares a pool of <code>IPingu</code> <a href="https://github.com/fsantanna/pingus/blob/ceu/ceu/main.ceu#L95">X</a> identified as <code>pingus</code> (ln. X1). We spawn instances of <code>Pingu</code> <a href="https://github.com/fsantanna/pingus/blob/ceu/ceu/pingus/pingu.ceu#L54">X</a> (which implements the <code>IPingu</code> interface) on the <code>pingus</code> pool (ln. X2).</p>
-<p>The scope of the <code>pingus</code> pool constrains the lifespan of all pingus dynamically created in reaction to <code>go_create_pingu</code>. Therefore, if the top-level block of <code>PinguHolder</code> goes out of scope (ln.<br />X3-X4), the execution of all pingus is aborted and they are automatically reclaimed from memory. The same happens if the block containing the instance of <code>PinguHolder</code> goes out of scope <a href="https://github.com/fsantanna/pingus/blob/ceu/ceu/pingus/world.ceu#L116">X</a> (and so on, up to the outermost block of the program <a href="https://github.com/fsantanna/pingus/blob/ceu/ceu/main.ceu#L249">X</a>).</p>
+<p>The class <code>PinguHolder</code> declares a pool of <code>IPingu</code> [<a href="https://github.com/fsantanna/pingus/blob/ceu/ceu/main.ceu#L95"><img src="images/link_12.png" alt="X" /></a>] identified as <code>pingus</code> (ln. X1). We spawn instances of <code>Pingu</code> [<a href="https://github.com/fsantanna/pingus/blob/ceu/ceu/pingus/pingu.ceu#L54"><img src="images/link_12.png" alt="X" /></a>] (which implements the <code>IPingu</code> interface) on the <code>pingus</code> pool (ln. X2).</p>
+<p>The scope of the <code>pingus</code> pool constrains the lifespan of all pingus dynamically created in reaction to <code>go_create_pingu</code>. Therefore, if the top-level block of <code>PinguHolder</code> goes out of scope (ln.<br />X3-X4), the execution of all pingus is aborted and they are automatically reclaimed from memory. The same happens if the block containing the instance of <code>PinguHolder</code> goes out of scope [<a href="https://github.com/fsantanna/pingus/blob/ceu/ceu/pingus/world.ceu#L116"><img src="images/link_12.png" alt="X" /></a>] (and so on, up to the outermost block of the program [<a href="https://github.com/fsantanna/pingus/blob/ceu/ceu/main.ceu#L249"><img src="images/link_12.png" alt="X" /></a>]).</p>
 <div class="images">
 <img src="images/pool.png" width="400"/> <br>Figure X: Lifespan of dynamic organisms
 </div>
 <p>Lexical scopes handle memory and dispatching automatically for static organisms and pools. However, the lifespan of a dynamic organism does not necessarily match the lifespan of its enclosing pool (Figure X). When the execution block of dynamic organism terminates, characterizing its <em>natural termination</em>, the organism is automatically removed its pool. Therefore, Again, no manual bookkeeping is required for .</p>
 <p>However, although the lifespan of a dynamic organism is restricted to the lifespan of its enclosing pool, . In other words, the lifespan of a dynamic organism is limited to its .</p>
-<p>Considering the case of removing a pingu from the game, in Céu we just need to terminate its execution block according to the XXX conditions <a href="https://github.com/fsantanna/pingus/blob/ceu/ceu/pingus/pingu.ceu#L83">X</a>:</p>
+<p>Considering the case of removing a pingu from the game, in Céu we just need to terminate its execution block according to the XXX conditions [<a href="https://github.com/fsantanna/pingus/blob/ceu/ceu/pingus/pingu.ceu#L83"><img src="images/link_12.png" alt="X" /></a>]:</p>
 <pre><code>class Pingu with
     &lt;...&gt;
 do
@@ -603,8 +603,8 @@ end</code></pre>
 <p>The <code>escape</code> statement (ln X1) aborts the execution block of the instance, removing it from its pool automatically. Hence, a dynamic organism that terminates naturally leaves no traces in the program. The language ensures, at compile time, that there are no possible dangling pointers to organisms (TODO: not discussed here).</p>
 <!--
 Céu distinguishes between *aliases* and *pointers*.
-Aliases are similar to C++ references [X][cpp-reference], while pointers are 
-the same as in C and C++.
+Aliases are similar to C++ references [[![X]][cpp-reference]], while pointers 
+are the same as in C and C++.
 Aliases respect static scoping rules and can only be bound to variables defined 
 on enclosing (wider) scopes.
 For this reason, aliases are more restricted but safer than pointers.
@@ -644,7 +644,7 @@ end
 ```
 -->
 
-<p>[X][see pausing] [X][cpp-engine]: removed files</p>
+<p>[[<img src="images/link_12.png" alt="X" />][see pausing]][[<img src="images/link_12.png" alt="X" />][cpp-engine]]: removed files</p>
 <p>** remove = death</p>
 <ul>
 <li>tracking: follow the source code ** execution order, redraw, sort</li>
@@ -676,7 +676,7 @@ end
 ## The Game Loop
 
 The *game loop* determines the general structure of virtually all games 
-[X][gpp-gameloop] (Pingus is no different [X][pingus-gameloop]):
+[[![X]][gpp-gameloop]] (Pingus is no different [[![X]][pingus-gameloop]]):
 
 ```
 while (true)
@@ -698,7 +698,7 @@ responsiveness to input events.
 However, short-lived functions such as `update` do not retain local variables 
 and control-flow state across consecutive invocations.
 In this sense, they eliminate any vestige of structured programming, becoming 
-*our generation's goto* [X][goto].
+*our generation's goto* [[![X]][goto]].
 
 [gpp-gameloop]: http://gameprogrammingpatterns.com/game-loop.html
 [pingus-gameloop]: https://github.com/Pingus/pingus/blob/v0.7.6/src/engine/screen/screen_manager.cpp#L172

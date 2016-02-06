@@ -68,6 +68,8 @@ TODO:
     - not a loop+queue
 -->
 
+[X]: images/link_12.png
+
 # On Porting Pingus from C++ to Céu
 
 * [What](#what-is-this-all-about),
@@ -87,9 +89,10 @@ TODO:
 # What is this all about?
 
 This report documents the process of porting the video game Pingus
-[X][pingus-1],[X][pingus-2]
+[[![X]][pingus-1],[![X]][pingus-2]]
 from C++ to the programming language Céu
-[X][ceu-1],[X][ceu-2].
+[[![X]][ceu-1],[![X]][ceu-2]].
+
 
 <img src="images/pingus-1.png" width="400"/>
 <img src="images/pingus-2.png" width="400"/>
@@ -111,7 +114,7 @@ Let's consider the case of handling double clicks in the game.
 In Pingus, double clicking the *Armageddon button* literally explodes all 
 pingus (Figure X).
 
-The code in C++ [X][cpp-armageddon] implements the class 
+The code in C++ [[![X]][cpp-armageddon]] implements the class 
 `ArmageddonButton` with methods for rendering and handling events.
 Here, we focus on detecting the double click, hiding unrelated parts:
 
@@ -181,7 +184,7 @@ However, note how the accesses to these state variables are spread across the
 entire class.
 For instance, the distance between the initialization of `pressed` (ln. X1) and 
 the last access to it (ln. X2) is over 40 lines in the original file 
-[X][cpp-armageddon-2].
+[[![X]][cpp-armageddon-2]].
 Arguably, this dispersion of code across methods makes the understanding and 
 maintenance of the double-click behavior more difficult.
 Also, even though the state variables are private, unrelated methods such as 
@@ -189,7 +192,7 @@ Also, even though the state variables are private, unrelated methods such as
 
 Céu provides structured constructs to deal with events, aiming to eradicate 
 explicit manipulation of state variables for control-flow purposes.
-The equivalent code in Céu [X][ceu-armageddon] defines the class 
+The equivalent code in Céu [[![X]][ceu-armageddon]] defines the class 
 `ArmageddonButton` as follows:
 
 ```
@@ -252,7 +255,7 @@ a high degree of real-time interactions, such as in video game simulation.
 </div>
 
 According to Tim Sweeney (of Unreal Engine fame), about half of the development 
-complexity resides in the *game simulation* code [X][sweeney].
+complexity resides in the *game simulation* code [[![X]][sweeney]].
 If we consider that *numeric computation* and *shading* do not vary from game 
 to game (i.e., they are part of a game engine), the tendency is to shift the 
 complexity even more towards game simulation.
@@ -503,8 +506,8 @@ specific frames (Figure X) as follows:
 
 [youtube-bomber]: https://youtu.be/QLXIT59il6o?t=306
 
-The code in C++ [X][cpp-bomber] defines the class `Bomber` which implements the 
-`draw` and `update` callback methods:
+The code in C++ [[![X]][cpp-bomber]] defines the class `Bomber` which 
+implements the `draw` and `update` callback methods:
 
 ```
 Bomber::Bomber (Pingu* p) :
@@ -626,10 +629,10 @@ comparison to the implementation in C++:
 - We isolate unrelated behaviors to the animation, such as the pingu movement 
   (ln. X1), in a parallel line of execution.
 - We use a local and lexically-scoped organism
-  (to be discussed [X][hierarchical-dispatching])
+  (to be discussed [[![X]][hierarchical-dispatching]])
   for the temporary single-frame explosion (ln. X4-X5).
 - We use auxiliary signalling mechanisms
-  (to be discussed [X][signalling-mechanisms])
+  (to be discussed [[![X]][signalling-mechanisms]])
   to await the termination of the animation (ln.  X2) and
   to notify the application about our own termination.
 
@@ -656,8 +659,8 @@ resulting in dispatching hierarchies for event handling.
 
 <!-- CPP-BOMBER-SPRITE -->
 
-Let's dig into the `Bomber` animation in C++ [X][cpp-bomber], 
-focusing on the `sprite` member, and the `update` and `draw` callback methods:
+Let's dig into the `Bomber` animation in C++ [[![X]][cpp-bomber]], focusing on 
+the `sprite` member, and the `update` and `draw` callback methods:
 
 ```
 // bomber.hpp/cpp
@@ -688,8 +691,8 @@ void Bomber::draw (SceneContext& gc) {      // X4
 
 The class loads the `sprite` in the constructor (ln. X1) and continually 
 redirects `update` and `draw` to it (ln. X2-X3 and X4-X5).
-The `Sprite` class knows how to update [X][cpp-sprite-update] and render 
-[X][cpp-sprite-render] itself.
+The `Sprite` class knows how to update [[![X]][cpp-sprite-update]] and render 
+[[![X]][cpp-sprite-render]] itself.
 
 [cpp-sprite-update]: https://github.com/Pingus/pingus/blob/v0.7.6/src/engine/display/sprite_impl.cpp#L112
 [cpp-sprite-render]: https://github.com/Pingus/pingus/blob/v0.7.6/src/engine/display/sprite_impl.cpp#L140
@@ -698,43 +701,43 @@ However, we have to follow a long hierarchy of 8 dispatches to understand how
 the `update` and `draw` callbacks flow from the original environment stimulus 
 down to the sprite:
 
-0. `ScreenManager::display` [X][cpp-screenmanager-11]
+0. `ScreenManager::display` [[![X]][cpp-screenmanager-11]]
         (the game loop)
    calls
-   `this->update` [X][cpp-screenmanager-12]
+   `this->update` [[![X]][cpp-screenmanager-12]]
         (in the same class).
-1. `ScreenManager::update` [X][cpp-screenmanager-21]
+1. `ScreenManager::update` [[![X]][cpp-screenmanager-21]]
    calls
-   `last_screen->update` [X][cpp-screenmanager-22]
+   `last_screen->update` [[![X]][cpp-screenmanager-22]]
         (for the active game screen).
-2. `GUIScreen::update` [X][cpp-guiscreen-1]
+2. `GUIScreen::update` [[![X]][cpp-guiscreen-1]]
         (the base class for all game screens)
    calls
-   `gui_manager->update` [X][cpp-guiscreen-2]
+   `gui_manager->update` [[![X]][cpp-guiscreen-2]]
         (for the container holding all screen components).
-3. `GroupComponent::update` [X][cpp-groupcomponent-1]
+3. `GroupComponent::update` [[![X]][cpp-groupcomponent-1]]
         (for the `gui_manager`)
    calls
-   `child->update` [X][cpp-groupcomponent-2]
+   `child->update` [[![X]][cpp-groupcomponent-2]]
         (for each sub-component in the screen).
-4. `World::update` [X][cpp-world-1]
+4. `World::update` [[![X]][cpp-world-1]]
         (child of the `GameSession` screen)
    calls
-   `obj->update` [X][cpp-world-2]
+   `obj->update` [[![X]][cpp-world-2]]
         (for each object in the world).
-5. `PinguHolder::update` [X][cpp-pinguholder-1]
+5. `PinguHolder::update` [[![X]][cpp-pinguholder-1]]
         (child of `World`)
    calls
-   `pingu->update` [X][cpp-pinguholder-2]
+   `pingu->update` [[![X]][cpp-pinguholder-2]]
         (for each pingu alive).
-6. `Pingu::update` [X][cpp-pingu-1]
+6. `Pingu::update` [[![X]][cpp-pingu-1]]
    calls
-   `action->update` [X][cpp-pingu-2]
+   `action->update` [[![X]][cpp-pingu-2]]
         (for the active pingu action).
-7. `Bomber::update` [X][cpp-bomber-1]
+7. `Bomber::update` [[![X]][cpp-bomber-1]]
    calls
-   `sprite.update` [X][cpp-bomber-2].
-8. `Sprite::update` [X][cpp-sprite-1]
+   `sprite.update` [[![X]][cpp-bomber-2].]
+8. `Sprite::update` [[![X]][cpp-sprite-1]]
    finally updates the animation frames.
 
 Each dispatching level of indirection has a reason to exist:
@@ -772,7 +775,7 @@ Each dispatching level of indirection has a reason to exist:
 
 <!-- CEU-BOMBER-SPRITE -->
 
-Now, consider the `Bomber` animation in Céu [X][ceu-bomber]:
+Now, consider the `Bomber` animation in Céu [[![X]][ceu-bomber]]:
 
 ```
 class Bomber with
@@ -787,21 +790,21 @@ As mentioned before, organisms in Céu are active entities and can react
 directly to the environment.
 As soon as we declare the `Sprite` organism (ln. X1), its execution body starts 
 automatically, bypassing the program hierarchy and reacting directly to the 
-external events `WORLD_UPDATE` [X][ceu-sprite-update] and `REDRAW` 
-[X][ceu-sprite-redraw].
+external events `WORLD_UPDATE` [[![X]][ceu-sprite-update]] and `REDRAW` 
+[[![X]][ceu-sprite-redraw]].
 
 On the one hand, this radical decoupling between the program hierarchy and 
 external reactions completely eliminates dispatch forwarding.
 For instance, we removed from the engine most of the boilerplate related to 
-dispatching `draw`, `update`, and other callbacks ([X][TODO]).
+dispatching `draw`, `update`, and other callbacks ([[![X]][TODO]]).
 On the other hand, now that organisms themselves decide whether or not to react 
 to external input, we rely on lexical scopes to control their life cycles.
 
 Just like standard local variables, we can delimit the scope of organisms 
 through explicit blocks.
 As an example, the explosion sprite for the `Bomber` animation above 
-[X](#bomber) reacts exactly for one occurrence of `WORLD_UPDATE` (after the 
-13th animation frame):
+[[![X]](#bomber)] reacts exactly for one occurrence of `WORLD_UPDATE` (after 
+the 13th animation frame):
 
 ```
 class Bomber with
@@ -862,7 +865,7 @@ However, it is actually common to have children with a static lifespan, known
 at compile time.
 For instance, most entities in the `GameSession` coexists with it, i.e., they 
 are added in the constructor and are never removed explicitly
-[X][cpp-gamesession-containers]:
+[[![X]][cpp-gamesession-containers]]:
 
 ```
 GameSession::GameSession(<...>) :
@@ -883,7 +886,7 @@ GameSession::GameSession(<...>) :
 <!-- CEU-CONTAINER-STATIC -->
 
 In Céu, entities that coexist with an enclosing class just need to be declared 
-at the top-level block [X][ceu-world-top]:
+at the top-level block [[![X]][ceu-world-top]]:
 
 ```
 class World with
@@ -910,7 +913,7 @@ explicitly from the container.
 
 As an example, pingus are dynamic entities created periodically and destroyed 
 under certain conditions (e.g. when going out of the screen
-[X][cpp-pingu-dead]):
+[[![X]][cpp-pingu-dead]]):
 
 TODO: falling image
 
@@ -945,8 +948,8 @@ Without the `erase` call, a dead pingu would keep consuming memory and CPU
 time, i.e., it would remain in the `pingus` vector and be updated every frame 
 (ln. X8).
 
-This problem is known as the *lapsed listener* [X][cpp-pingu-dead]) 
-and is not restricted to languages without garbage collection.
+This problem is known as the *lapsed listener* [[![X]][cpp-pingu-dead]] and is 
+not restricted to languages without garbage collection.
 Typically, a container holds a strong reference to a child (sometimes the only 
 reference to it), and a collector cannot magically detect it as garbage.
 
@@ -958,7 +961,7 @@ The statement `spawn <T> in <pool>` creates an organism of type `<T>`
 dynamically, also specifying a `<pool>` to hold the new instance.
 
 The `PinguHolder` class in Céu spawns a new `Pingu` for every occurrence of the 
-event `global:go_create_pingu` [X][ceu-pinguholder-every]:
+event `global:go_create_pingu` [[![X]][ceu-pinguholder-every]]:
 
 ```
 class PinguHolder with
@@ -973,10 +976,10 @@ do                                      // X3
 end                                     // X4
 ```
 
-The class `PinguHolder` declares a pool of `IPingu` [X][ceu-ipingu] identified 
-as `pingus` (ln. X1).
-We spawn instances of `Pingu` [X][ceu-pingu] (which implements the `IPingu` 
-interface) on the `pingus` pool (ln. X2).
+The class `PinguHolder` declares a pool of `IPingu` [[![X]][ceu-ipingu]] 
+identified as `pingus` (ln. X1).
+We spawn instances of `Pingu` [[![X]][ceu-pingu]] (which implements the 
+`IPingu` interface) on the `pingus` pool (ln. X2).
 
 The scope of the `pingus` pool constrains the lifespan of all pingus 
 dynamically created in reaction to `go_create_pingu`.
@@ -984,8 +987,8 @@ Therefore, if the top-level block of `PinguHolder` goes out of scope (ln.
 X3-X4), the execution of all pingus is aborted and they are automatically 
 reclaimed from memory.
 The same happens if the block containing the instance of `PinguHolder` goes out 
-of scope [X][ceu-world-pinguholder] (and so on, up to the outermost block of 
-the program [X][ceu-main-outermost]).
+of scope [[![X]][ceu-world-pinguholder]] (and so on, up to the outermost block 
+of the program [[![X]][ceu-main-outermost]]).
 
 <div class="images">
 <img src="images/pool.png" width="400"/>
@@ -1006,7 +1009,7 @@ In other words, the lifespan of a dynamic organism is limited to its .
 
 Considering the case of removing a pingu from the game, in Céu we just need to 
 terminate its execution block according to the XXX conditions 
-[X][ceu-pingu-dead]:
+[[![X]][ceu-pingu-dead]]:
 
 ```
 class Pingu with
@@ -1033,8 +1036,8 @@ pointers to organisms (TODO: not discussed here).
 
 <!--
 Céu distinguishes between *aliases* and *pointers*.
-Aliases are similar to C++ references [X][cpp-reference], while pointers are 
-the same as in C and C++.
+Aliases are similar to C++ references [[![X]][cpp-reference]], while pointers 
+are the same as in C and C++.
 Aliases respect static scoping rules and can only be bound to variables defined 
 on enclosing (wider) scopes.
 For this reason, aliases are more restricted but safer than pointers.
@@ -1091,8 +1094,8 @@ end
 
 [ceu-main-outermost]: https://github.com/fsantanna/pingus/blob/ceu/ceu/main.ceu#L249
 
-[X][see pausing]
-[X][cpp-engine]: removed files
+[[![X]][see pausing]]
+[[![X]][cpp-engine]]: removed files
 
 ** remove = death
 
@@ -1131,7 +1134,7 @@ doesn't need
 ## The Game Loop
 
 The *game loop* determines the general structure of virtually all games 
-[X][gpp-gameloop] (Pingus is no different [X][pingus-gameloop]):
+[[![X]][gpp-gameloop]] (Pingus is no different [[![X]][pingus-gameloop]]):
 
 ```
 while (true)
@@ -1153,7 +1156,7 @@ responsiveness to input events.
 However, short-lived functions such as `update` do not retain local variables 
 and control-flow state across consecutive invocations.
 In this sense, they eliminate any vestige of structured programming, becoming 
-*our generation's goto* [X][goto].
+*our generation's goto* [[![X]][goto]].
 
 [gpp-gameloop]: http://gameprogrammingpatterns.com/game-loop.html
 [pingus-gameloop]: https://github.com/Pingus/pingus/blob/v0.7.6/src/engine/screen/screen_manager.cpp#L172
