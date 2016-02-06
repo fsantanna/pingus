@@ -5,6 +5,17 @@ On Porting Pingus from C++ to Céu
     
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
 <style>
+        body {
+            width:950px;
+            margin:0 auto;
+        }
+        pre {
+            padding: 10px 10px 10px 10px;
+            background-color: #E5E4E2;
+        }
+        code {
+            background-color: #E5E4E2;
+        }
         div.images {
             float: right;
 /*
@@ -60,6 +71,7 @@ TODO:
     - not a loop+queue
 -->
 
+<h1 id="on-porting-pingus-from-c-to-céu">On Porting Pingus from C++ to Céu</h1>
 <ul>
 <li><a href="#what-is-this-all-about">What</a>, <a href="#why-porting-pingus-to-céu">Why</a>, <a href="#how-to-port">How</a>, <a href="#who">Who</a>?</li>
 <li><a href="#detailed-evaluation">Detailed Evaluation</a></li>
@@ -213,13 +225,19 @@ Claim: Transactions are the only plausible solution to concurrent mutable state
 <h1 id="who">Who?</h1>
 <p>Francisco Sant'Anna</p>
 <ul>
-<li>http://www.ceu-lang.org/chico/</li>
-<li>https://github.com/fsantanna/</li>
-<li><span class="citation">[@fsantanna_puc]</span>(https://twitter.com/fsantanna_puc/)</li>
+<li><a href="http://www.ceu-lang.org/chico/">http://www.ceu-lang.org/chico/</a></li>
+<li><a href="https://github.com/fsantanna/">https://github.com/fsantanna/</a></li>
+<li><a href="https://twitter.com/fsantanna_puc/">@fsantanna_puc</a></li>
 </ul>
 <h2 id="acknowledgments">Acknowledgments</h2>
-<p>Leonardo Kaplan * https://github.com/leokaplan/</p>
-<p>Alexander Tkachov * https://github.com/Tkachov/</p>
+<p>Leonardo Kaplan</p>
+<ul>
+<li><a href="https://github.com/leokaplan/">https://github.com/leokaplan/</a></li>
+</ul>
+<p>Alexander Tkachov</p>
+<ul>
+<li><a href="https://github.com/Tkachov/">https://github.com/Tkachov/</a></li>
+</ul>
 <hr />
 <h1 id="detailed-evaluation">Detailed Evaluation</h1>
 <h2 id="qualitative-analysis">Qualitative Analysis</h2>

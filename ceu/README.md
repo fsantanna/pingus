@@ -2,6 +2,17 @@
     <title>On Porting Pingus from C++ to Céu</title>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
     <style>
+        body {
+            width:950px;
+            margin:0 auto;
+        }
+        pre {
+            padding: 10px 10px 10px 10px;
+            background-color: #E5E4E2;
+        }
+        code {
+            background-color: #E5E4E2;
+        }
         div.images {
             float: right;
 /*
@@ -56,6 +67,8 @@ TODO:
     - parallel, synchronous-run-to-completion
     - not a loop+queue
 -->
+
+# On Porting Pingus from C++ to Céu
 
 * [What](#what-is-this-all-about),
   [Why](#why-porting-pingus-to-céu),
@@ -390,17 +403,19 @@ further with in-depth examples:
 
 Francisco Sant'Anna
 
-* http://www.ceu-lang.org/chico/
-* https://github.com/fsantanna/
-* [@fsantanna_puc](https://twitter.com/fsantanna_puc/)
+* <http://www.ceu-lang.org/chico/>
+* <https://github.com/fsantanna/>
+* [&#64;fsantanna_puc](https://twitter.com/fsantanna_puc/)
 
 ## Acknowledgments
 
 Leonardo Kaplan
-* https://github.com/leokaplan/
+
+* <https://github.com/leokaplan/>
 
 Alexander Tkachov
-* https://github.com/Tkachov/
+
+* <https://github.com/Tkachov/>
 
 -------------------------------------------------------------------------------
 
