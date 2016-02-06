@@ -616,7 +616,7 @@ resulting in dispatching hierarchies for event handling.
 
 #### Bomber `draw` and `update` callbacks
 
-##### C++
+<!-- CPP-BOMBER-SPRITE -->
 
 Let's dig into the `Bomber` animation in C++ [X][cpp-bomber], 
 focusing on the `sprite` member, and the `update` and `draw` callback methods:
@@ -714,84 +714,6 @@ Each dispatching level of indirection has a reason to exist:
 * Sprites are reusable everywhere, so it is also convenient to decouple them
   from actions.
 
-However, this dispatching architecture comes at a high price:
-
-* Reasoning about the dispatching rules requires inspecting dozen of files
-  (we omitted class hierarchies in the list above).
-* The dispatching path interleaves between classes specific to the game and
-  classes from the game engine (possibly third-party classes), making the
-  reasoning even harder.
-* The hierarchy is mostly dynamic, specially for entities held in containers.
-
-<!--* TODO: efficiency?-->
-
-Generic containers demand extra caution when they handle insertion and removal 
-of components dynamically (which is usually the case):
-
-* Tracking what entities gets dispatched is difficult:
-  one has to "simulate" the program execution and track calls to `add` and
-  `remove`.
-
-<img src="images/game-session-arrows.png" width="300" align="right" valign="top"/>
-
-<a name="gamesession"/>
-
-Furthermore, it is actually common to have children with a static lifespan 
-known at compile time.
-For instance, most entities in the `GameSession` coexists with it, i.e., they 
-are added in the constructor and are never removed explicitly
-[X][cpp-gamesession-containers]:
-
-```
-GameSession::GameSession(<...>) :
-    <...>
-{
-    <...>
-    button_panel = new ButtonPanel(<...>);      // always active...
-    pcounter     = new PingusCounter(<...>);
-    small_map    = new SmallMap(<...>);
-    <...>
-    gui_manager->add(button_panel);             // ...but added dynamically
-    gui_manager->add(pcounter);
-    gui_manager->add(small_map);
-    <...>
-}
-```
-
-* Calls to `add` must always have matching calls to `remove`:
-  missing calls to `remove` lead to memory and CPU leaks.
-
-As an example, pingus are dynamic entities created periodically and destroyed 
-under certain conditions (e.g. when going out of the screen
-[X][cpp-pingu-dead]).
-`PinguHolder::update` checks all pingus every frame, removing those with the 
-`Pingu::PS_DEAD` status (ln. X1-X2):
-
-TODO: falling image
-
-```
-void PinguHolder::update() {
-    <...>
-    while(pingu != pingus.end()) {
-        (*pingu)->update();
-        if ((*pingu)->get_status() == Pingu::PS_DEAD) { // X1
-            pingu = pingus.erase(pingu);
-        }                                               // X2
-        <...>
-        ++pingu;
-    }
-}
-```
-
-Without the `erase` call, a dead pingu would keep consuming memory and CPU 
-time, i.e., it would remain in the `pingus` vector and be updated every frame 
-(ln. X3).
-
-This problem is known as the *lapsed listener* [X][cpp-pingu-dead]) 
-and is not restricted to languages without garbage collection.
-Typically, a container holds a strong reference to a child (sometimes the only 
-reference to it), and a collector cannot magically detect it as garbage.
-
 [cpp-screenmanager-11]: https://github.com/Pingus/pingus/blob/v0.7.6/src/engine/screen/screen_manager.cpp#L164
 [cpp-screenmanager-12]: https://github.com/Pingus/pingus/blob/v0.7.6/src/engine/screen/screen_manager.cpp#L218
 [cpp-screenmanager-21]: https://github.com/Pingus/pingus/blob/v0.7.6/src/engine/screen/screen_manager.cpp#L235
@@ -810,30 +732,35 @@ reference to it), and a collector cannot magically detect it as garbage.
 [cpp-bomber-2]: https://github.com/Pingus/pingus/blob/v0.7.6/src/pingus/actions/bomber.cpp#L60
 [cpp-sprite-1]: https://github.com/Pingus/pingus/blob/v0.7.6/src/engine/display/sprite_impl.cpp#L112
 
-[cpp-gamesession-containers]: https://github.com/Pingus/pingus/blob/v0.7.6/src/pingus/screens/game_session.cpp#L76
-[cpp-pingu-dead]: https://github.com/Pingus/pingus/blob/v0.7.6/src/pingus/pingu.cpp#L322
-[gpp-lapsed-listener]: http://gameprogrammingpatterns.com/observer.html#don't-worry,-i've-got-a-gc
+<!-- CEU-BOMBER-SPRITE -->
 
-##### Céu
+Now, consider the `Bomber` animation in Céu [X][ceu-bomber]:
+
+```
+class Bomber with
+    interface IPinguAction;
+do
+    var Sprite sprite = Sprite.build_name(<...>);   // X1
+    <...>
+end
+```
 
 As mentioned before, organisms in Céu are active entities and can react 
 directly to the environment.
-For instance, the `Sprite` instance held by the `Bomber`
-[X][ceu-bomber-sprite]
-bypasses the program hierarchy and reacts directly to the external event 
-`WORLD_UPDATE` [X][ceu-sprite-update].
+As soon as we declare the `Sprite` organism (ln. X1), its execution body starts 
+automatically, bypassing the program hierarchy and reacting directly to the 
+external events `WORLD_UPDATE` [X][ceu-sprite-update] and `REDRAW` 
+[X][ceu-sprite-redraw].
 
 On the one hand, this radical decoupling between the program hierarchy and 
 external reactions completely eliminates dispatch forwarding.
 For instance, we removed from the engine most of the boilerplate related to 
 dispatching `draw`, `update`, and other callbacks ([X][TODO]).
 On the other hand, now that organisms themselves decide whether or not to react 
-to external input, we need some other mechanism to control their life cycles.
+to external input, we rely on lexical scopes to control their life cycles.
 
-For static organisms with predefined lifespans, we rely on lexical scopes.
 Just like standard local variables, we can delimit the scope of organisms 
 through explicit blocks.
-
 As an example, the explosion sprite for the `Bomber` animation above 
 [X](#bomber) reacts exactly for one occurrence of `WORLD_UPDATE` (after the 
 13th animation frame):
@@ -854,70 +781,213 @@ do
 end
 ```
 
-As soon as we declare the `Sprite` organism (ln. X1), its execution body 
-automatically starts to react to incoming events (e.g., `REDRAW` 
-[X][ceu-sprite-redraw]).
-However, we enclose the declaration with an explicit block (ln. X2-X3) that 
-restricts its lifespan to a single occurrence of `WORLD_UPDATE` (ln.  X4).
+We enclose the declaration with an explicit block (ln. X2-X3) that restricts 
+its lifespan to a single occurrence of `WORLD_UPDATE` (ln.  X4).
 When the block terminates, the organism goes out of scope and its execution 
 body aborts automatically.
-Note that we never manipulate references to the `Sprite`, which is declared 
-anonymous with the placeholder `_`.
+Note here that we never manipulate references to the `Sprite`, which is 
+declared anonymous with the placeholder `_`.
 
-Contrasting with the `GameSession` example in C++ above [X](#gamesession), 
-entities that coexist with an enclosing class just need to be declared at the
-top-level block [X][ceu-world-top]:
+<!-- CEU-vs-CPP-BOMBER-SPRITE -->
+
+Overall, passive objects impose a dispatching architecture that comes at a high 
+price:
+
+* Reasoning about the dispatching rules requires inspecting dozen of files
+  (we omitted class hierarchies in the list above).
+* The dispatching path interleaves between classes specific to the game and
+  classes from the game engine (possibly third-party classes), making the
+  reasoning even harder.
+* The hierarchy is mostly dynamic, specially for entities held in containers.
+
+<!--* TODO: efficiency?-->
+
+<!-- CPP-CONTAINER -->
+
+Containers, in particular, demand extra caution when they handle insertion and 
+removal of components dynamically (which is usually the case):
+
+* Tracking what entities gets dispatched is difficult:
+  one has to "simulate" the program execution and track calls to `add` and
+  `remove`.
+* Calls to `add` must always have matching calls to `remove`:
+  missing calls to `remove` lead to memory and CPU leaks.
+
+<!-- CPP-CONTAINER-STATIC -->
+
+<img src="images/game-session-arrows.png" width="300" align="right" valign="top"/>
+
+However, it is actually common to have children with a static lifespan, known 
+at compile time.
+For instance, most entities in the `GameSession` coexists with it, i.e., they 
+are added in the constructor and are never removed explicitly
+[X][cpp-gamesession-containers]:
+
+```
+GameSession::GameSession(<...>) :
+    <...>
+{
+    <...>
+    button_panel = new ButtonPanel(<...>);      // always active...
+    pcounter     = new PingusCounter(<...>);
+    small_map    = new SmallMap(<...>);
+    <...>
+    gui_manager->add(button_panel);             // ...but added dynamically
+    gui_manager->add(pcounter);                 //    to the dispatching
+    gui_manager->add(small_map);                //    hierarchy
+    <...>
+}
+```
+
+<!-- CEU-CONTAINER-STATIC -->
+
+In Céu, entities that coexist with an enclosing class just need to be declared 
+at the top-level block [X][ceu-world-top]:
 
 ```
 class World with
     <...>
 do
     <...>
-    var CPingusCounter pcounter = <...>;    // coexists with World
-    var ButtonPanel button_panel;
-    var SmallMap smallmap with
+    var CPingusCounter pcounter = <...>;        // always active and
+    var ButtonPanel button_panel;               // reacting directly without
+    var SmallMap smallmap with                  // a dispatching hierarchy
         <...>
     end;
     <...>
 end
 ```
 
-Again, we never manipulate references to deal with containers or allocation and 
-deallocation.
+Again, here we never manipulate references to deal with containers, or 
+allocation and deallocation.
 Also, all memory required for static instances is known at compile time.
 
-[ceu-bomber-sprite]: https://github.com/fsantanna/pingus/blob/ceu/ceu/pingus/actions/bomber.ceu#L17
-[ceu-sprite-update]: https://github.com/fsantanna/pingus/blob/ceu/ceu/engine/display/sprite.ceu#L109
+<!-- CPP-CONTAINER-DYNAMIC -->
 
-[ceu-sprite-redraw]: https://github.com/fsantanna/pingus/blob/ceu/ceu/engine/display/sprite.ceu#L138
-[ceu-world-top]: https://github.com/fsantanna/pingus/blob/ceu/ceu/pingus/world.ceu#L124
+For entities with a dynamic lifespan, we need to `add` and `remove` them 
+explicitly from the container.
 
-For dynamic organisms, we rely on explicit `pool` containers, which are also 
-subject to lexical scope.
+As an example, pingus are dynamic entities created periodically and destroyed 
+under certain conditions (e.g. when going out of the screen
+[X][cpp-pingu-dead]):
+
+TODO: falling image
+
+```
+Pingu* PinguHolder::create_pingu (<...>) {              // X1
+    <...>
+    Pingu* pingu = new Pingu (<...>);
+    <...>
+    pingus.push_back(pingu);                            // X3
+    <...>
+    return pingu;
+}                                                       // X2
+
+void PinguHolder::update() {                            // X4
+    <...>
+    while(pingu != pingus.end()) {
+        (*pingu)->update();                             // X8
+        if ((*pingu)->get_status() == Pingu::PS_DEAD) { // X6
+            pingu = pingus.erase(pingu);
+        }                                               // X7
+        <...>
+        ++pingu;
+    }
+}                                                       // X5
+```
+
+`PinguHolder::create_pingu` (ln. X1-X2) creates a new `Pingu` periodically, 
+adding it to the `pingus` container (ln. X3).
+`PinguHolder::update` (ln. X4-X5) checks all pingus every frame, removing those 
+with the `Pingu::PS_DEAD` status (ln. X6-X7):
+Without the `erase` call, a dead pingu would keep consuming memory and CPU 
+time, i.e., it would remain in the `pingus` vector and be updated every frame 
+(ln. X8).
+
+This problem is known as the *lapsed listener* [X][cpp-pingu-dead]) 
+and is not restricted to languages without garbage collection.
+Typically, a container holds a strong reference to a child (sometimes the only 
+reference to it), and a collector cannot magically detect it as garbage.
+
+<!-- CEU-CONTAINER-DYNAMIC -->
+
+In Céu, we rely on primitive `pool` containers of organisms, which are also 
+subject to lexical scope, just like scalar organisms.
 The statement `spawn <T> in <pool>` creates an organism of type `<T>` 
 dynamically, also specifying a `<pool>` to hold the new instance.
 
-As an example, the `PinguHolder` class in Céu spawns a new `Pingu` for every 
-occurrence of the event `global:go_create_pingu` [X][ceu-pinguholder-every]:
+The `PinguHolder` class in Céu spawns a new `Pingu` for every occurrence of the 
+event `global:go_create_pingu` [X][ceu-pinguholder-every]:
 
 ```
 class PinguHolder with
-    pool IPingu[]& pingus;              // X1
     <...>
-do
+do                                      // X3
+    pool IPingu[] pingus;               // X1
     <...>
     every (<...>) in global:go_create_pingu do
         <...>
         spawn Pingu in this.pingus;     // X2
     end
-end
+end                                     // X4
 ```
 
-The class `PinguHolder` expects an *alias* to a pool of `IPingu` 
-[X][ceu-ipingu] identified as `pingus` in the interface (ln. X1).
+The class `PinguHolder` declares a pool of `IPingu` [X][ceu-ipingu] identified 
+as `pingus` (ln. X1).
 We spawn instances of `Pingu` [X][ceu-pingu] (which implements the `IPingu` 
 interface) on the `pingus` pool (ln. X2).
 
+The scope of the `pingus` pool constrains the lifespan of all pingus 
+dynamically created in reaction to `go_create_pingu`.
+Therefore, if the top-level block of `PinguHolder` goes out of scope (ln.  
+X3-X4), the execution of all pingus is aborted and they are automatically 
+reclaimed from memory.
+The same happens if the block containing the instance of `PinguHolder` goes out 
+of scope [X][ceu-world-pinguholder] (and so on, up to the outermost block of 
+the program [X][ceu-main-outermost]).
+
+<img src="images/pool.png" width="350" align="right" valign="top"/>
+
+Lexical scopes handle memory and dispatching automatically for static organisms 
+and pools.
+However, the lifespan of a dynamic organism does not necessarily match the 
+lifespan of its enclosing pool, as illustrated in the figure in the right.
+When the execution block of dynamic organism terminates, characterizing its 
+*natural termination*, the organism is automatically removed its pool.
+Therefore, Again, no manual bookkeeping is required for .
+
+However, although the lifespan of a dynamic organism is restricted to the 
+lifespan of its enclosing pool, .
+In other words, the lifespan of a dynamic organism is limited to its .
+
+Considering the case of removing a pingu from the game, in Céu we just need to 
+terminate its execution block according to the XXX conditions 
+[X][ceu-pingu-dead]:
+
+```
+class Pingu with
+    <...>
+do
+    <...>
+    loop do
+        await WORLD_UPDATE;
+        if this.rel_getpixel(0,-1) == {Groundtype::GP_OUTOFSCREEN} then
+            <...>
+            escape _PS_DEAD;        // X1
+        end
+        <...>
+    end
+end
+```
+
+The `escape` statement (ln X1) aborts the execution block of the instance, 
+removing it from its pool automatically.
+Hence, a dynamic organism that terminates naturally leaves no traces in the 
+program.
+The language ensures, at compile time, that there are no possible dangling 
+pointers to organisms (TODO: not discussed here).
+
+<!--
 Céu distinguishes between *aliases* and *pointers*.
 Aliases are similar to C++ references [X][cpp-reference], while pointers are 
 the same as in C and C++.
@@ -927,9 +997,12 @@ For this reason, aliases are more restricted but safer than pointers.
 Given that the control-flow statements of Céu cross event occurrences, scopes 
 tend to last long and aliases are used extensively in programs.
 
-To complete the previous example, the class `World` defines the actual pool of 
-`IPingu` (ln. X1) and passes it by reference to the anonymous `PinguHolder` 
-(ln. X2-X3):
+Note that we can safely pass the `pingus` and the anonymous `PinguHolder` 
+because they are in the same scope.
+[cpp-reference]: https://en.wikipedia.org/wiki/Reference_%28C%2B%2B%29
+
+To complete the previous example, the class `World` also declares a 
+`PinguHolder`:
 
 ```
 class World with
@@ -943,44 +1016,40 @@ do                                  // X4
     end;                            // X3
     <...>
 end                                 // X5
+class World with
+    <...>
+do
+    <...>
+    var CPingusCounter pcounter = <...>;        // always active and
+    var ButtonPanel button_panel;               // reacting directly without
+    var SmallMap smallmap with                  // a dispatching hierarchy
+        <...>
+    end;
+    <...>
+end
 ```
+-->
 
-Note that we can safely pass the `pingus` and the anonymous `PinguHolder` 
-because they are in the same scope.
+[cpp-gamesession-containers]: https://github.com/Pingus/pingus/blob/v0.7.6/src/pingus/screens/game_session.cpp#L76
+[cpp-pingu-dead]: https://github.com/Pingus/pingus/blob/v0.7.6/src/pingus/pingu.cpp#L322
+[gpp-lapsed-listener]: http://gameprogrammingpatterns.com/observer.html#don't-worry,-i've-got-a-gc
 
-The scope of the `pingus` pool constrains the lifespan of all pingus 
-dynamically created inside `PinguHolder`.
-Therefore, if the outermost block of `World` goes out of scope (ln. X4-X5), the 
-execution of all pingus is aborted and they are automatically reclaimed from 
-memory.
-The same happens if the block containing the instance of `World` goes out of 
-scope [X][ceu-gamesession-world] and so on, up to the outermost scope of the 
-program [X][ceu-main-outermost].
-
- or the block in which an
+[ceu-sprite-update]: https://github.com/fsantanna/pingus/blob/ceu/ceu/engine/display/sprite.ceu#L109
+[ceu-sprite-redraw]: https://github.com/fsantanna/pingus/blob/ceu/ceu/engine/display/sprite.ceu#L138
+[ceu-world-top]: https://github.com/fsantanna/pingus/blob/ceu/ceu/pingus/world.ceu#L124
 
 [ceu-pinguholder-every]: https://github.com/fsantanna/pingus/blob/ceu/ceu/pingus/pingu_holder.ceu#L12
 [ceu-pingu]: https://github.com/fsantanna/pingus/blob/ceu/ceu/pingus/pingu.ceu#L54
 [ceu-ipingu]: https://github.com/fsantanna/pingus/blob/ceu/ceu/main.ceu#L95
 [ceu-world-pingus]: https://github.com/fsantanna/pingus/blob/ceu/ceu/pingus/world.ceu#L114
-[ceu-gamesession-world]: https://github.com/fsantanna/pingus/blob/ceu/ceu/pingus/screens/game_session.ceu#L44
+[ceu-world-pinguholder]: https://github.com/fsantanna/pingus/blob/ceu/ceu/pingus/world.ceu#L116
+[ceu-pingu-dead]: https://github.com/fsantanna/pingus/blob/ceu/ceu/pingus/pingu.ceu#L83
+
 [ceu-main-outermost]: https://github.com/fsantanna/pingus/blob/ceu/ceu/main.ceu#L249
-
-[cpp-reference]: https://en.wikipedia.org/wiki/Reference_%28C%2B%2B%29
-
- (`&&`) from alia
 
 [X][see pausing]
 [X][cpp-engine]: removed files
 
-eradicates dispatching hierarchy
-along with the XXX of reasoning
-
-* static instances
-
-* dynamic instances
-
-** containers = pools
 ** remove = death
 
 * tracking: follow the source code
