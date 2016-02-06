@@ -1,6 +1,20 @@
 <head>
     <title>On Porting Pingus from C++ to Céu</title>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+    <style>
+<!--
+        div.images {
+            float: right;
+/*
+            width: 120px;
+            margin: 0 0 15px 20px;
+            padding: 15px;
+            border: 1px solid black;
+*/
+            text-align: center;
+        }
+-->
+    </style>
 </head>
 <body>
 
@@ -78,18 +92,10 @@ from C++ to the programming language Céu
 
 Let's consider the case of handling double clicks in the game.
 
-<span>
-<div>
-<p style="float:right; text-align:center;">
-<div style="float:right; text-align:center;">
-<span style="float:right; text-align:center;">
+<div class="images">
 <img src="images/double-click-opt.gif" width="350"/>
 <br>Figure X: Double click detection
-</span>
 </div>
-</p>
-</div>
-</span>
 
 In Pingus, double clicking the *Armageddon button* literally explodes all 
 pingus (Figure X).
@@ -229,18 +235,6 @@ programming model in the context of video games.
 Céu supports concurrent and deterministic abstractions to specify entities with 
 a high degree of real-time interactions, such as in video game simulation.
 
-    <style>
-        div.images {
-            float: right;
-/*
-            width: 120px;
-            margin: 0 0 15px 20px;
-            padding: 15px;
-            border: 1px solid black;
-*/
-            text-align: center;
-        }
-    </style>
 <div class="images">
 <img src="images/sweeney.png" width="350"/>
 <br>Figure X: Three "kinds" of code

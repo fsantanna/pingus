@@ -4,6 +4,20 @@ On Porting Pingus from C++ to Céu
 </title>
     
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+<style>
+<!--
+        div.images {
+            float: right;
+/*
+            width: 120px;
+            margin: 0 0 15px 20px;
+            padding: 15px;
+            border: 1px solid black;
+*/
+            text-align: center;
+        }
+-->
+    </style>
 </head>
 <body>
 
@@ -65,15 +79,9 @@ TODO:
 <p><img src="images/pingus-1.png" width="400"/> <img src="images/pingus-2.png" width="400"/></p>
 <h2 id="warming-up">Warming Up!</h2>
 <p>Let's consider the case of handling double clicks in the game.</p>
-<span>
-<div>
-<p style="float:right; text-align:center;">
-<div style="float:right; text-align:center;">
-<span style="float:right; text-align:center;"> <img src="images/double-click-opt.gif" width="350"/> <br>Figure X: Double click detection </span>
+<div class="images">
+<img src="images/double-click-opt.gif" width="350"/> <br>Figure X: Double click detection
 </div>
-</p>
-</div>
-<p></span></p>
 <p>In Pingus, double clicking the <em>Armageddon button</em> literally explodes all pingus (Figure X).</p>
 <p>The code in C++ <a href="https://github.com/Pingus/pingus/blob/v0.7.6/src/pingus/components/action_button.cpp">X</a> implements the class <code>ArmageddonButton</code> with methods for rendering and handling events. Here, we focus on detecting the double click, hiding unrelated parts:</p>
 <pre><code>ArmageddonButton::ArmageddonButton(&lt;...&gt;):
@@ -136,15 +144,9 @@ end                                                     // X10</code></pre>
 <p>As we argue throughout the document, appropriate control-flow mechanisms (e.g., <code>await</code> and <code>watching</code>) helps on the structure and composition of code, leading to considerable gains in productivity.</p>
 <h1 id="why-porting-pingus-to-céu">Why porting Pingus to Céu?</h1>
 <p>The main motivation to port Pingus from C++ to Céu is to promote its programming model in the context of video games. Céu supports concurrent and deterministic abstractions to specify entities with a high degree of real-time interactions, such as in video game simulation.</p>
-<pre><code>&lt;style&gt;
-    div.images {
-        float: right;</code></pre>
-/<em> width: 120px; margin: 0 0 15px 20px; padding: 15px; border: 1px solid black; </em>/ text-align: center; }
-</style>
 <div class="images">
 <img src="images/sweeney.png" width="350"/> <br>Figure X: Three &quot;kinds&quot; of code
 </div>
-
 <p>According to Tim Sweeney (of Unreal Engine fame), about half of the development complexity resides in the <em>game simulation</em> code <a href="https://www.cs.princeton.edu/~dpw/popl/06/Tim-POPL.ppt">X</a>. If we consider that <em>numeric computation</em> and <em>shading</em> do not vary from game to game (i.e., they are part of a game engine), the tendency is to shift the complexity even more towards game simulation. Furthermore, only 10% of the CPU budget goes to game simulation, opening an opportunity for gains in productivity.</p>
 <!--
 When updating 10,000 objects at 60 FPS, everything is performance-sensitive
