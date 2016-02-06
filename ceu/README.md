@@ -461,10 +461,8 @@ specific frames, as illustrated in the figure in the right and as follows:
 
 [youtube-bomber]: https://youtu.be/QLXIT59il6o?t=306
 
-##### C++
-
-The code in C++ [X][cpp-bomber] defines the class `Bomber` which implements 
-the `draw` and `update` callback methods:
+The code in C++ [X][cpp-bomber] defines the class `Bomber` which implements the 
+`draw` and `update` callback methods:
 
 ```
 Bomber::Bomber (Pingu* p) :
@@ -538,8 +536,6 @@ variable to rearrange and experiment with them during the development.
 However, due to the short-lived nature of callbacks, state variables are 
 unavoidable, being part of the essence of object-oriented programming
 (methods + mutable state).
-
-##### Céu
 
 <a name="bomber"/>
 
@@ -804,6 +800,8 @@ price:
 
 <!-- CPP-CONTAINER -->
 
+<img src="images/game-session-arrows.png" width="300" align="right" valign="top"/>
+
 Containers, in particular, demand extra caution when they handle insertion and 
 removal of components dynamically (which is usually the case):
 
@@ -814,8 +812,6 @@ removal of components dynamically (which is usually the case):
   missing calls to `remove` lead to memory and CPU leaks.
 
 <!-- CPP-CONTAINER-STATIC -->
-
-<img src="images/game-session-arrows.png" width="300" align="right" valign="top"/>
 
 However, it is actually common to have children with a static lifespan, known 
 at compile time.
@@ -946,7 +942,7 @@ The same happens if the block containing the instance of `PinguHolder` goes out
 of scope [X][ceu-world-pinguholder] (and so on, up to the outermost block of 
 the program [X][ceu-main-outermost]).
 
-<img src="images/pool.png" width="350" align="right" valign="top"/>
+<img src="images/pool.png" width="400" align="right" valign="top"/>
 
 Lexical scopes handle memory and dispatching automatically for static organisms 
 and pools.
