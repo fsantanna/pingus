@@ -2,7 +2,7 @@
     <title>On Porting Pingus from C++ to Céu</title>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
     <style>
-        div {
+        div.images {
             float: right;
 /*
             width: 120px;
@@ -90,7 +90,7 @@ from C++ to the programming language Céu
 
 Let's consider the case of handling double clicks in the game.
 
-<div>
+<div class="images">
 <img src="images/double-click-opt.gif" width="350"/>
 <br>Figure X: Double click detection
 </div>
@@ -233,7 +233,7 @@ programming model in the context of video games.
 Céu supports concurrent and deterministic abstractions to specify entities with 
 a high degree of real-time interactions, such as in video game simulation.
 
-<div>
+<div class="images">
 <img src="images/sweeney.png" width="350"/>
 <br>Figure X: Three "kinds" of code
 </div>
@@ -465,18 +465,13 @@ state machine.
 The *bomber action* explodes the clicked pingu, throwing particles around and 
 also destroying the terrain under its radius (Figure X).
 
-<div>
+<div class="images">
 <img src="images/bomber-opt.gif" width="350"/>
 <br>Figure X: The "Bomber" action
 </div>
 
 A sequential state machine models an animation with actions associated to 
 specific frames (Figure X) as follows:
-
-<div>
-<img src="images/state-anim/state-anim.gif" width="550"/>
-<br>Figure X: State machine for the "Bomber" animation
-</div>
 
 1. 0th frame: plays a "Oh no!" sound.
 2. 10th frame: plays a "Bomb!" sound.
@@ -485,6 +480,11 @@ specific frames (Figure X) as follows:
 5. Last frame: kills the pingu
 
 *(Open [this video][youtube-bomber] to listen to the sound effects.)*
+
+<div class="images">
+<img src="images/state-anim/state-anim.gif" width="550"/>
+<br>Figure X: State machine for the "Bomber" animation
+</div>
 
 [youtube-bomber]: https://youtu.be/QLXIT59il6o?t=306
 
@@ -838,7 +838,7 @@ removal of components dynamically (which is usually the case):
 
 <!-- CPP-CONTAINER-STATIC -->
 
-<div>
+<div class="images">
 <img src="images/game-session-arrows.png" width="300"/>
 <br>Figure X: Children with static lifespan.
 </div>
@@ -972,7 +972,7 @@ The same happens if the block containing the instance of `PinguHolder` goes out
 of scope [X][ceu-world-pinguholder] (and so on, up to the outermost block of 
 the program [X][ceu-main-outermost]).
 
-<div>
+<div class="images">
 <img src="images/pool.png" width="400"/>
 <br>Figure X: Lifespan of dynamic organisms
 </div>
