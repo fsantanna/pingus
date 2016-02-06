@@ -1,7 +1,20 @@
 <head>
     <title>On Porting Pingus from C++ to Céu</title>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+    <style>
+        div {
+            float: right;
+/*
+            width: 120px;
+            margin: 0 0 15px 20px;
+            padding: 15px;
+            border: 1px solid black;
+*/
+            text-align: center;
+        }
+    </style>
 </head>
+<body>
 
 <!--
 silentcast, transparent window interior, dont go under the default size
@@ -75,12 +88,15 @@ from C++ to the programming language Céu
 
 ## Warming Up!
 
-<img src="images/double-click-opt.gif" width="350" align="right" valign="top"/>
-
 Let's consider the case of handling double clicks in the game.
 
+<div>
+<img src="images/double-click-opt.gif" width="350"/>
+<br>Figure X: Double click detection
+</div>
+
 In Pingus, double clicking the *Armageddon button* literally explodes all 
-pingus, as illustrated in the figure in the right.
+pingus (Figure X).
 
 The code in C++ [X][cpp-armageddon] implements the class 
 `ArmageddonButton` with methods for rendering and handling events.
@@ -217,7 +233,10 @@ programming model in the context of video games.
 Céu supports concurrent and deterministic abstractions to specify entities with 
 a high degree of real-time interactions, such as in video game simulation.
 
-<img src="images/sweeney.png" width="350" align="right" valign="top"/>
+<div>
+<img src="images/sweeney.png" width="350"/>
+<br>Figure X: Three "kinds" of code
+</div>
 
 According to Tim Sweeney (of Unreal Engine fame), about half of the development 
 complexity resides in the *game simulation* code [X][sweeney].
@@ -444,12 +463,20 @@ state machine.
 #### The "Bomber" Action
 
 The *bomber action* explodes the clicked pingu, throwing particles around and 
-also destroying the terrain under its radius.
-<img src="images/bomber-opt.gif" width="350" align="right" valign="top"/>
-<br/><br/>
-<img src="images/state-anim/state-anim.gif" width="550" align="right" valign="top"/>
+also destroying the terrain under its radius (Figure X).
+
+<div>
+<img src="images/bomber-opt.gif" width="350"/>
+<br>Figure X: The "Bomber" action
+</div>
+
 A sequential state machine models an animation with actions associated to 
-specific frames, as illustrated in the figure in the right and as follows:
+specific frames (Figure X) as follows:
+
+<div>
+<img src="images/state-anim/state-anim.gif" width="550"/>
+<br>Figure X: State machine for the "Bomber" animation
+</div>
 
 1. 0th frame: plays a "Oh no!" sound.
 2. 10th frame: plays a "Bomb!" sound.
@@ -800,8 +827,6 @@ price:
 
 <!-- CPP-CONTAINER -->
 
-<img src="images/game-session-arrows.png" width="300" align="right" valign="top"/>
-
 Containers, in particular, demand extra caution when they handle insertion and 
 removal of components dynamically (which is usually the case):
 
@@ -812,6 +837,11 @@ removal of components dynamically (which is usually the case):
   missing calls to `remove` lead to memory and CPU leaks.
 
 <!-- CPP-CONTAINER-STATIC -->
+
+<div>
+<img src="images/game-session-arrows.png" width="300"/>
+<br>Figure X: Children with static lifespan.
+</div>
 
 However, it is actually common to have children with a static lifespan, known 
 at compile time.
@@ -942,12 +972,15 @@ The same happens if the block containing the instance of `PinguHolder` goes out
 of scope [X][ceu-world-pinguholder] (and so on, up to the outermost block of 
 the program [X][ceu-main-outermost]).
 
-<img src="images/pool.png" width="400" align="right" valign="top"/>
+<div>
+<img src="images/pool.png" width="400"/>
+<br>Figure X: Lifespan of dynamic organisms
+</div>
 
 Lexical scopes handle memory and dispatching automatically for static organisms 
 and pools.
 However, the lifespan of a dynamic organism does not necessarily match the 
-lifespan of its enclosing pool, as illustrated in the figure in the right.
+lifespan of its enclosing pool (Figure X).
 When the execution block of dynamic organism terminates, characterizing its 
 *natural termination*, the organism is automatically removed its pool.
 Therefore, Again, no manual bookkeeping is required for .
