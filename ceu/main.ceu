@@ -413,13 +413,6 @@ void ScreenManager::show_software_cursor(bool visible) {
             );
         end
     end
-with
-    every REDRAW do
-        call {Display::s_framebuffer}:draw_rect(
-            _Rect(100,100,200,200),
-            _Color(255,255,255,255)
-        );
-    end
 end
 
 escape 0;

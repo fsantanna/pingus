@@ -77,11 +77,15 @@ TODO:
 <p><img src="images/pingus-1.png" width="400"/> <img src="images/pingus-2.png" width="400"/></p>
 <h2 id="warming-up">Warming Up!</h2>
 <p>Let's consider the case of handling double clicks in the game.</p>
+<span>
 <div>
+<p style="float:right; text-align:center;">
 <div style="float:right; text-align:center;">
-<img src="images/double-click-opt.gif" width="350"/> <br>Figure X: Double click detection
+<span style="float:right; text-align:center;"> <img src="images/double-click-opt.gif" width="350"/> <br>Figure X: Double click detection </span>
 </div>
+</p>
 </div>
+<p></span></p>
 <p>In Pingus, double clicking the <em>Armageddon button</em> literally explodes all pingus (Figure X).</p>
 <p>The code in C++ <a href="https://github.com/Pingus/pingus/blob/v0.7.6/src/pingus/components/action_button.cpp">X</a> implements the class <code>ArmageddonButton</code> with methods for rendering and handling events. Here, we focus on detecting the double click, hiding unrelated parts:</p>
 <pre><code>ArmageddonButton::ArmageddonButton(&lt;...&gt;):

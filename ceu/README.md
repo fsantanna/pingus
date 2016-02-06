@@ -90,12 +90,18 @@ from C++ to the programming language Céu
 
 Let's consider the case of handling double clicks in the game.
 
+<span>
 <div>
+<p style="float:right; text-align:center;">
 <div style="float:right; text-align:center;">
+<span style="float:right; text-align:center;">
 <img src="images/double-click-opt.gif" width="350"/>
 <br>Figure X: Double click detection
+</span>
 </div>
+</p>
 </div>
+</span>
 
 In Pingus, double clicking the *Armageddon button* literally explodes all 
 pingus (Figure X).
