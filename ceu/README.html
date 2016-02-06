@@ -5,7 +5,7 @@ On Porting Pingus from C++ to Céu
     
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
 <style>
-        div.images {
+        span.images {
             float: right;
 /*
             width: 120px;
@@ -77,9 +77,7 @@ TODO:
 <p><img src="images/pingus-1.png" width="400"/> <img src="images/pingus-2.png" width="400"/></p>
 <h2 id="warming-up">Warming Up!</h2>
 <p>Let's consider the case of handling double clicks in the game.</p>
-<div class="images">
-<img src="images/double-click-opt.gif" width="350"/> <br>Figure X: Double click detection
-</div>
+<p><span class="images"> <img src="images/double-click-opt.gif" width="350"/> <br>Figure X: Double click detection </span></p>
 <p>In Pingus, double clicking the <em>Armageddon button</em> literally explodes all pingus (Figure X).</p>
 <p>The code in C++ <a href="https://github.com/Pingus/pingus/blob/v0.7.6/src/pingus/components/action_button.cpp">X</a> implements the class <code>ArmageddonButton</code> with methods for rendering and handling events. Here, we focus on detecting the double click, hiding unrelated parts:</p>
 <pre><code>ArmageddonButton::ArmageddonButton(&lt;...&gt;):
@@ -142,9 +140,7 @@ end                                                     // X10</code></pre>
 <p>As we argue throughout the document, appropriate control-flow mechanisms (e.g., <code>await</code> and <code>watching</code>) helps on the structure and composition of code, leading to considerable gains in productivity.</p>
 <h1 id="why-porting-pingus-to-céu">Why porting Pingus to Céu?</h1>
 <p>The main motivation to port Pingus from C++ to Céu is to promote its programming model in the context of video games. Céu supports concurrent and deterministic abstractions to specify entities with a high degree of real-time interactions, such as in video game simulation.</p>
-<div class="images">
-<img src="images/sweeney.png" width="350"/> <br>Figure X: Three &quot;kinds&quot; of code
-</div>
+<p><span class="images"> <img src="images/sweeney.png" width="350"/> <br>Figure X: Three &quot;kinds&quot; of code </span></p>
 <p>According to Tim Sweeney (of Unreal Engine fame), about half of the development complexity resides in the <em>game simulation</em> code <a href="https://www.cs.princeton.edu/~dpw/popl/06/Tim-POPL.ppt">X</a>. If we consider that <em>numeric computation</em> and <em>shading</em> do not vary from game to game (i.e., they are part of a game engine), the tendency is to shift the complexity even more towards game simulation. Furthermore, only 10% of the CPU budget goes to game simulation, opening an opportunity for gains in productivity.</p>
 <!--
 When updating 10,000 objects at 60 FPS, everything is performance-sensitive
@@ -272,9 +268,7 @@ state machine.
 --></p>
 <h4 id="the-bomber-action">The &quot;Bomber&quot; Action</h4>
 <p>The <em>bomber action</em> explodes the clicked pingu, throwing particles around and also destroying the terrain under its radius (Figure X).</p>
-<div class="images">
-<img src="images/bomber-opt.gif" width="350"/> <br>Figure X: The &quot;Bomber&quot; action
-</div>
+<p><span class="images"> <img src="images/bomber-opt.gif" width="350"/> <br>Figure X: The &quot;Bomber&quot; action </span></p>
 <p>A sequential state machine models an animation with actions associated to specific frames (Figure X) as follows:</p>
 <ol style="list-style-type: decimal">
 <li>0th frame: plays a &quot;Oh no!&quot; sound.</li>
@@ -284,9 +278,7 @@ state machine.
 <li>Last frame: kills the pingu</li>
 </ol>
 <p><em>(Open <a href="https://youtu.be/QLXIT59il6o?t=306">this video</a> to listen to the sound effects.)</em></p>
-<div class="images">
-<img src="images/state-anim/state-anim.gif" width="550"/> <br>Figure X: State machine for the &quot;Bomber&quot; animation
-</div>
+<p><span class="images"> <img src="images/state-anim/state-anim.gif" width="550"/> <br>Figure X: State machine for the &quot;Bomber&quot; animation </span></p>
 <p>The code in C++ <a href="https://github.com/Pingus/pingus/blob/v0.7.6/src/pingus/actions/bomber.cpp">X</a> defines the class <code>Bomber</code> which implements the <code>draw</code> and <code>update</code> callback methods:</p>
 <pre><code>Bomber::Bomber (Pingu* p) :
     &lt;...&gt;
@@ -487,10 +479,7 @@ end</code></pre>
 </ul>
 <!-- CPP-CONTAINER-STATIC -->
 
-<div class="images">
-<img src="images/game-session-arrows.png" width="300"/> <br>Figure X: Children with static lifespan.
-</div>
-
+<p><span class="images"> <img src="images/game-session-arrows.png" width="300"/> <br>Figure X: Children with static lifespan. </span></p>
 <p>However, it is actually common to have children with a static lifespan, known at compile time. For instance, most entities in the <code>GameSession</code> coexists with it, i.e., they are added in the constructor and are never removed explicitly <a href="https://github.com/Pingus/pingus/blob/v0.7.6/src/pingus/screens/game_session.cpp#L76">X</a>:</p>
 <pre><code>GameSession::GameSession(&lt;...&gt;) :
     &lt;...&gt;
@@ -563,9 +552,7 @@ do                                      // X3
 end                                     // X4</code></pre>
 <p>The class <code>PinguHolder</code> declares a pool of <code>IPingu</code> <a href="https://github.com/fsantanna/pingus/blob/ceu/ceu/main.ceu#L95">X</a> identified as <code>pingus</code> (ln. X1). We spawn instances of <code>Pingu</code> <a href="https://github.com/fsantanna/pingus/blob/ceu/ceu/pingus/pingu.ceu#L54">X</a> (which implements the <code>IPingu</code> interface) on the <code>pingus</code> pool (ln. X2).</p>
 <p>The scope of the <code>pingus</code> pool constrains the lifespan of all pingus dynamically created in reaction to <code>go_create_pingu</code>. Therefore, if the top-level block of <code>PinguHolder</code> goes out of scope (ln.<br />X3-X4), the execution of all pingus is aborted and they are automatically reclaimed from memory. The same happens if the block containing the instance of <code>PinguHolder</code> goes out of scope <a href="https://github.com/fsantanna/pingus/blob/ceu/ceu/pingus/world.ceu#L116">X</a> (and so on, up to the outermost block of the program <a href="https://github.com/fsantanna/pingus/blob/ceu/ceu/main.ceu#L249">X</a>).</p>
-<div class="images">
-<img src="images/pool.png" width="400"/> <br>Figure X: Lifespan of dynamic organisms
-</div>
+<p><span class="images"> <img src="images/pool.png" width="400"/> <br>Figure X: Lifespan of dynamic organisms </span></p>
 <p>Lexical scopes handle memory and dispatching automatically for static organisms and pools. However, the lifespan of a dynamic organism does not necessarily match the lifespan of its enclosing pool (Figure X). When the execution block of dynamic organism terminates, characterizing its <em>natural termination</em>, the organism is automatically removed its pool. Therefore, Again, no manual bookkeeping is required for .</p>
 <p>However, although the lifespan of a dynamic organism is restricted to the lifespan of its enclosing pool, . In other words, the lifespan of a dynamic organism is limited to its .</p>
 <p>Considering the case of removing a pingu from the game, in Céu we just need to terminate its execution block according to the XXX conditions <a href="https://github.com/fsantanna/pingus/blob/ceu/ceu/pingus/pingu.ceu#L83">X</a>:</p>

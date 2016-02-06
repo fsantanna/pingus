@@ -2,7 +2,7 @@
     <title>On Porting Pingus from C++ to Céu</title>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
     <style>
-        div.images {
+        span.images {
             float: right;
 /*
             width: 120px;
@@ -90,10 +90,10 @@ from C++ to the programming language Céu
 
 Let's consider the case of handling double clicks in the game.
 
-<div class="images">
+<span class="images">
 <img src="images/double-click-opt.gif" width="350"/>
 <br>Figure X: Double click detection
-</div>
+</span>
 
 In Pingus, double clicking the *Armageddon button* literally explodes all 
 pingus (Figure X).
@@ -233,10 +233,10 @@ programming model in the context of video games.
 Céu supports concurrent and deterministic abstractions to specify entities with 
 a high degree of real-time interactions, such as in video game simulation.
 
-<div class="images">
+<span class="images">
 <img src="images/sweeney.png" width="350"/>
 <br>Figure X: Three "kinds" of code
-</div>
+</span>
 
 According to Tim Sweeney (of Unreal Engine fame), about half of the development 
 complexity resides in the *game simulation* code [X][sweeney].
@@ -465,10 +465,10 @@ state machine.
 The *bomber action* explodes the clicked pingu, throwing particles around and 
 also destroying the terrain under its radius (Figure X).
 
-<div class="images">
+<span class="images">
 <img src="images/bomber-opt.gif" width="350"/>
 <br>Figure X: The "Bomber" action
-</div>
+</span>
 
 A sequential state machine models an animation with actions associated to 
 specific frames (Figure X) as follows:
@@ -481,10 +481,10 @@ specific frames (Figure X) as follows:
 
 *(Open [this video][youtube-bomber] to listen to the sound effects.)*
 
-<div class="images">
+<span class="images">
 <img src="images/state-anim/state-anim.gif" width="550"/>
 <br>Figure X: State machine for the "Bomber" animation
-</div>
+</span>
 
 [youtube-bomber]: https://youtu.be/QLXIT59il6o?t=306
 
@@ -838,10 +838,10 @@ removal of components dynamically (which is usually the case):
 
 <!-- CPP-CONTAINER-STATIC -->
 
-<div class="images">
+<span class="images">
 <img src="images/game-session-arrows.png" width="300"/>
 <br>Figure X: Children with static lifespan.
-</div>
+</span>
 
 However, it is actually common to have children with a static lifespan, known 
 at compile time.
@@ -972,10 +972,10 @@ The same happens if the block containing the instance of `PinguHolder` goes out
 of scope [X][ceu-world-pinguholder] (and so on, up to the outermost block of 
 the program [X][ceu-main-outermost]).
 
-<div class="images">
+<span class="images">
 <img src="images/pool.png" width="400"/>
 <br>Figure X: Lifespan of dynamic organisms
-</div>
+</span>
 
 Lexical scopes handle memory and dispatching automatically for static organisms 
 and pools.
