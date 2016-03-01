@@ -32,6 +32,9 @@ silentcast, transparent window interior, dont go under the default size
 convert output.gif -fuzz 10% -layers Optimize optimised.gif
 convert -delay 200 -loop 0 *.png state-anim.gif
 :%s/\(\[X]\[[^]]*\]\)/\&#91;\1\&#93;/g
+chico@note:/opt/pingus/ceu$ lua parser.lua README.md > /tmp/README.md
+chico@note:/opt/pingus/ceu$ pandoc /tmp/README.md >README.html 
+
 
 TODO:
     - ver os patterns do GPP
@@ -76,7 +79,8 @@ TODO:
   [Why](#why-porting-pingus-to-céu),
   [How](#how-to-port),
   [Who](#who)?
-* [Detailed Evaluation](#detailed-evaluation)
+* Analysis: [Qualitative](#qualitative-analysis),
+            [Quantitative](#quantitative-analysis)
 
 <!--
 * [TLDR!](#tldr!)
@@ -114,32 +118,33 @@ Let's consider the case of handling double clicks in the game.
 In Pingus, double clicking the *Armageddon button* literally explodes all 
 pingus (Figure X).
 
-The code in C++ [[![X]][cpp-armageddon]] implements the class 
-`ArmageddonButton` with methods for rendering and handling events.
-Here, we focus on detecting the double click, hiding unrelated parts:
+The code in C++ implements the class `ArmageddonButton` 
+[[![X]][cpp-armageddon]] with methods for rendering and handling events.
+Here, we focus on detecting the double click, hiding unrelated parts as 
+`<...>`:
 
 ```
 ArmageddonButton::ArmageddonButton(<...>):
     RectComponent(<...>),
     <...>
-    pressed(false);                         // line X1
-    press_time();                           // line X3
+    pressed(false);
+    press_time();
     <...>
 {
     <...>
 }
 
-void ArmageddonButton::draw (<...>) {       // X10
+void ArmageddonButton::draw (<...>) {
     <...>
-}                                           // X11
+}
 
 void ArmageddonButton::update (float delta) {
     <...>
-    if (pressed) {                          // line X9
-        press_time += delta;                // line X4
+    if (pressed) {
+        press_time += delta;
         if (press_time > 1.0f) {
-            pressed = false;                // line X5
-            press_time = 0;                 // line X6
+            pressed = false;
+            press_time = 0;
         }
     } else {
         pressed = false;
@@ -148,22 +153,25 @@ void ArmageddonButton::update (float delta) {
 }
 
 void ArmageddonButton::on_primary_button_click (<...>) {
-    if (pressed) {                          // line X8
-        server->send_armageddon_event();    // line X7
+    if (pressed) {
+        server->send_armageddon_event();
     } else {
-        pressed = true;                     // line X2
+        pressed = true;
     }
 }
 ```
 
-The class first initializes the variable `pressed` to track the first click 
-(ln. X1,X2).
-It also initializes the variable `press_time` to count the time since the first 
-click (ln. X3,X4).
-If another click occurs within 1 second, the class signals the double click to 
-the application (ln. X7).
-Otherwise, the `pressed` and `press_time` state variables are reset (ln. 
-X5-X6).
+TODO: invert first-second paragraph, explain RectComponent extension ( inherits 
+on_prim_bt_click)
+
+The class first initializes the variable `pressed` to track the first 
+click (ln. 4,33).
+It also initializes the variable `press_time` to count the time since 
+the first click (ln. 5,18).
+If another click occurs within 1 second, the class signals the double 
+click to the application (ln. 31).
+Otherwise, the `pressed` and `press_time` state variables are reset 
+(ln. 20-21).
 
 The methods `update` and `on_primary_button_click` are examples of
 *short-lived callbacks*, which are pieces of code that execute in reaction to 
@@ -175,20 +183,20 @@ the game with real-time responsiveness.
 Because callbacks are short lived, the only way they can affect each other is 
 by manipulating persisting member variables in the object.
 These *state variables* retain their values across multiple invocations, e.g.:
-`on_primary_button_click` writes to `pressed` in the first click, and checks 
-its state in further clicks (ln. X2,X8),
-In the meantime, `update` also checks for `pressed` and may change its state 
-(ln. X9,X5).
+`on_primary_button_click` writes to `pressed` in the first click, and 
+checks its state in further clicks (ln. 30,33),
+In the meantime, `update` also checks for `pressed` and may change its 
+state (ln. 17,20).
 
 However, note how the accesses to these state variables are spread across the 
 entire class.
-For instance, the distance between the initialization of `pressed` (ln. X1) and 
-the last access to it (ln. X2) is over 40 lines in the original file 
-[[![X]][cpp-armageddon-2]].
+For instance, the distance between the initialization of `pressed` 
+(ln. 4) and the last access to it (ln. 33) is over 40 lines in the 
+original file [[![X]][cpp-armageddon-2]].
 Arguably, this dispersion of code across methods makes the understanding and 
 maintenance of the double-click behavior more difficult.
-Also, even though the state variables are private, unrelated methods such as 
-`draw` (ln. X10-X11) can potentially access it.
+Also, even though the state variables are private, unrelated methods 
+such as `draw` (ln. 11-13) can potentially access it.
 
 Céu provides structured constructs to deal with events, aiming to eradicate 
 explicit manipulation of state variables for control-flow purposes.
@@ -238,9 +246,9 @@ As we argue throughout the document, appropriate control-flow mechanisms (e.g.,
 `await` and `watching`) helps on the structure and composition of code, leading 
 to considerable gains in productivity.
 
-[cpp-armageddon]: https://github.com/Pingus/pingus/blob/v0.7.6/src/pingus/components/action_button.cpp
+[cpp-armageddon]: https://github.com/Pingus/pingus/blob/v0.7.6/src/pingus/components/action_button.cpp#L24 
 [cpp-armageddon-2]: https://github.com/Pingus/pingus/blob/v0.7.6/src/pingus/components/action_button.cpp#L33-#L90
-[ceu-armageddon]: https://github.com/fsantanna/pingus/blob/ceu/ceu/pingus/components/action_button.ceu
+[ceu-armageddon]: https://github.com/fsantanna/pingus/blob/ceu/ceu/pingus/components/action_button.ceu#L6
 
 # Why porting Pingus to Céu?
 
@@ -372,31 +380,33 @@ of explicit state which are likely subject to the same porting process.
 We identified seven evident control-flow patterns in Pingus which we discuss 
 further with in-depth examples:
 
-1. **Finite State Machines**
+<a name="finite-state-machines"/>
+
+1. [**Finite State Machines**](#finite-state-machines)
     State machines describe the behavior of game entities by mapping event 
     occurrences to transitions between states triggering appropriate actions.
 
-2. **Dispatching Hierarchies**
+2. [**Dispatching Hierarchies**](#dispatching-hierarchies)
     Some entities in games act as containers for other child entities,
     resulting in dispatching hierarchies for event handling.
 
-3. **Continuation Passing**
+3. [**Continuation Passing**](#continuation-passing)
     The completion of long-lasting activity in a game may have a continuation, 
     i.e., some action to execute next.
 
-4. **Signaling Mechanisms**
+4. [**Signaling Mechanisms**](#signaling-mechanism)
     Entities often need to communicate explicitly through a signaling 
     mechanism, especially if there is no hierarchy relationship between them.
 
-5. **Wall-Clock Timers**
+5. [**Wall-Clock Timers**](#wall-clock-timers)
     Wall-clock timers measure the passage of time from the real world
     (e.g., *10 seconds*) such as for periodic sampling and timeout watchdogs.
 
-6. **Pausing**
+6. [**Pausing**](#pausing)
     Pausing allows parts of the game to temporarily suspend execution or
     reactions to incoming events.
 
-7. **Resource Acquisition and Release**
+7. [**Resource Acquisition and Release**](#resource-acquisition-and-release)
     External resources, such as configuration files and saved games,
     must be acquired and properly released.
 
@@ -422,9 +432,7 @@ Alexander Tkachov
 
 -------------------------------------------------------------------------------
 
-# Detailed Evaluation
-
-## Qualitative Analysis
+# Qualitative Analysis
 
 Selected Code Snippets
 
@@ -469,7 +477,9 @@ Selected Code Snippets
     TODO
 -->
 
-### Finite State Machines
+<a name="finite-state-machines"/>
+
+## Finite State Machines
 
 State machines describe the behavior of game entities by mapping event 
 occurrences to transitions between states triggering appropriate actions.
@@ -478,7 +488,7 @@ The double click behavior for the *Armageddon button* is an example of a simple
 state machine.
 -->
 
-#### The "Bomber" Action
+### The "Bomber" Action
 
 The *bomber action* explodes the clicked pingu, throwing particles around and 
 also destroying the terrain under its radius (Figure X).
@@ -629,10 +639,10 @@ comparison to the implementation in C++:
 - We isolate unrelated behaviors to the animation, such as the pingu movement 
   (ln. X1), in a parallel line of execution.
 - We use a local and lexically-scoped organism
-  (to be discussed [[![X]][hierarchical-dispatching]])
+  (to be discussed [[![X]](#dispatching-hierarchies)])
   for the temporary single-frame explosion (ln. X4-X5).
-- We use auxiliary signalling mechanisms
-  (to be discussed [[![X]][signalling-mechanisms]])
+- We use auxiliary signaling mechanisms
+  (to be discussed [[![X]](#signaling-mechanisms)])
   to await the termination of the animation (ln.  X2) and
   to notify the application about our own termination.
 
@@ -640,10 +650,12 @@ comparison to the implementation in C++:
 [ceu-bomber]: https://github.com/fsantanna/pingus/blob/ceu/ceu/pingus/actions/bomber.ceu
 
 <!--
-#### Sprite Animations
+### Sprite Animations
 -->
 
-### Dispatching Hierarchies
+<a name="dispatching-hierarchies"/>
+
+## Dispatching Hierarchies
 
 Some entities in games act as containers for other child entities,
 resulting in dispatching hierarchies for event handling.
@@ -655,7 +667,7 @@ resulting in dispatching hierarchies for event handling.
     the buttons.
 -->
 
-#### Bomber `draw` and `update` callbacks
+### Bomber `draw` and `update` callbacks
 
 <!-- CPP-BOMBER-SPRITE -->
 
@@ -998,17 +1010,14 @@ of the program [[![X]][ceu-main-outermost]]).
 Lexical scopes handle memory and dispatching automatically for static organisms 
 and pools.
 However, the lifespan of a dynamic organism does not necessarily match the 
-lifespan of its enclosing pool (Figure X).
-When the execution block of dynamic organism terminates, characterizing its 
-*natural termination*, the organism is automatically removed its pool.
-Therefore, Again, no manual bookkeeping is required for .
+lifespan of its corresponding pool (Figure X).
+When the execution block of a dynamic organism terminates, which characterizes
+its *natural termination*, the organism is automatically removed its pool.
+Therefore, dynamic organisms don't require any extra bookkeeping related to 
+containers.
 
-However, although the lifespan of a dynamic organism is restricted to the 
-lifespan of its enclosing pool, .
-In other words, the lifespan of a dynamic organism is limited to its .
-
-Considering the case of removing a pingu from the game, in Céu we just need to 
-terminate its execution block according to the XXX conditions 
+In Céu, going back to the case of removing a pingu from the game, we just need 
+to terminate its execution block according to the appropriate conditions 
 [[![X]][ceu-pingu-dead]]:
 
 ```
@@ -1094,6 +1103,38 @@ end
 
 [ceu-main-outermost]: https://github.com/fsantanna/pingus/blob/ceu/ceu/main.ceu#L249
 
+<a name="continuation-passing"/>
+
+## Continuation Passing
+
+<a name="signaling-mechanism"/>
+
+## Signaling Mechanisms
+
+<a name="wall-clock-timers"/>
+
+## Wall-Clock Timers
+
+<a name="pausing"/>
+
+## Pausing
+
+<a name="resource-acquisition-and-release"/>
+
+## Resource Acquisition and Release
+
+# Quantitative Analysis
+
+## Code Size
+
+## Memory
+
+## CPU
+
+<!-- ************************************ -->
+
+<!--
+
 [[![X]][see pausing]]
 [[![X]][cpp-engine]]: removed files
 
@@ -1122,15 +1163,6 @@ doesn't need
     + lexical scope
 - animation w/ the dispatch path
 
-## Quantitative Analysis
-
-### Code Size
-
-### Memory
-
-### CPU
-
-<!--
 ## The Game Loop
 
 The *game loop* determines the general structure of virtually all games 
