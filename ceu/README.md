@@ -118,9 +118,11 @@ Let's consider the case of handling double clicks in the game.
 In Pingus, double clicking the *Armageddon button* literally explodes all 
 pingus (Figure X).
 
+<!-- CPP-ARMAGEDDON -->
+
 The code in C++ implements the class `ArmageddonButton` 
 [[![X]][cpp-armageddon]] with methods for rendering and handling events.
-Here, we focus on detecting the double click, hiding unrelated parts as 
+Here, we focus on detecting the double click, hiding unrelated parts with 
 `<...>`:
 
 ```
@@ -161,32 +163,23 @@ void ArmageddonButton::on_primary_button_click (<...>) {
 }
 ```
 
-TODO: invert first-second paragraph, explain RectComponent extension ( inherits 
-on_prim_bt_click)
+The `update` (ln. 15-27) and `on_primary_button_click` (ln. 29-35) are the 
+relevant methods of the class and are examples of *short-lived callbacks*, 
+which are pieces of code that execute in reaction to external input events.
+Here, `on_primary_button_click` reacts to mouse clicks (detected by the base 
+class `RectComponent` in ln. 2), while `update` continuously reacts to the 
+passage of time.
+Callbacks are short lived because they must execute as fast as possible to keep 
+the game with real-time responsiveness.
 
-The class first initializes the variable `pressed` to track the first 
-click (ln. 4,33).
+The class first initializes the variable `pressed` to track the first click 
+(ln. 4,33).
 It also initializes the variable `press_time` to count the time since 
 the first click (ln. 5,18).
 If another click occurs within 1 second, the class signals the double 
 click to the application (ln. 31).
 Otherwise, the `pressed` and `press_time` state variables are reset 
 (ln. 20-21).
-
-The methods `update` and `on_primary_button_click` are examples of
-*short-lived callbacks*, which are pieces of code that execute in reaction to 
-external input events.
-Here, `on_primary_button_click` reacts to mouse clicks, while `update` 
-continuously reacts to the passage of time.
-Callbacks are short lived because they must execute as fast as possible to keep 
-the game with real-time responsiveness.
-Because callbacks are short lived, the only way they can affect each other is 
-by manipulating persisting member variables in the object.
-These *state variables* retain their values across multiple invocations, e.g.:
-`on_primary_button_click` writes to `pressed` in the first click, and 
-checks its state in further clicks (ln. 30,33),
-In the meantime, `update` also checks for `pressed` and may change its 
-state (ln. 17,20).
 
 However, note how the accesses to these state variables are spread across the 
 entire class.
@@ -197,6 +190,16 @@ Arguably, this dispersion of code across methods makes the understanding and
 maintenance of the double-click behavior more difficult.
 Also, even though the state variables are private, unrelated methods 
 such as `draw` (ln. 11-13) can potentially access it.
+
+Because callbacks are short lived, the only way they can affect each other is 
+by manipulating persisting member variables in the object.
+These *state variables* retain their values across multiple invocations, e.g.:
+`on_primary_button_click` writes to `pressed` in the first click, and 
+checks its state in further clicks (ln. 30,33),
+In the meantime, `update` also checks for `pressed` and may change its 
+state (ln. 17,20).
+
+<!-- CEU-ARMAGEDDON -->
 
 Céu provides structured constructs to deal with events, aiming to eradicate 
 explicit manipulation of state variables for control-flow purposes.
