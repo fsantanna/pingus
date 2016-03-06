@@ -35,6 +35,9 @@ silentcast, transparent window interior, dont go under the default size
 convert output.gif -fuzz 10% -layers Optimize optimised.gif
 convert -delay 200 -loop 0 *.png state-anim.gif
 :%s/\(\[X]\[[^]]*\]\)/\&#91;\1\&#93;/g
+chico@note:/opt/pingus/ceu$ lua parser.lua README.md > /tmp/README.md
+chico@note:/opt/pingus/ceu$ pandoc /tmp/README.md >README.html 
+
 
 TODO:
     - ver os patterns do GPP
@@ -74,7 +77,7 @@ TODO:
 <h1 id="on-porting-pingus-from-c-to-céu">On Porting Pingus from C++ to Céu</h1>
 <ul>
 <li><a href="#what-is-this-all-about">What</a>, <a href="#why-porting-pingus-to-céu">Why</a>, <a href="#how-to-port">How</a>, <a href="#who">Who</a>?</li>
-<li><a href="#detailed-evaluation">Detailed Evaluation</a></li>
+<li>Analysis: <a href="#qualitative-analysis">Qualitative</a>, <a href="#quantitative-analysis">Quantitative</a></li>
 </ul>
 <!--
 * [TLDR!](#tldr!)
@@ -93,28 +96,30 @@ TODO:
 <img src="images/double-click-opt.gif" width="350"/> <br>Figure X: Double click detection
 </div>
 <p>In Pingus, double clicking the <em>Armageddon button</em> literally explodes all pingus (Figure X).</p>
-<p>The code in C++ [<a href="https://github.com/Pingus/pingus/blob/v0.7.6/src/pingus/components/action_button.cpp"><img src="images/link_12.png" alt="X" /></a>] implements the class <code>ArmageddonButton</code> with methods for rendering and handling events. Here, we focus on detecting the double click, hiding unrelated parts:</p>
+<!-- CPP-ARMAGEDDON -->
+
+<p>The code in C++ implements the class <code>ArmageddonButton</code> [<a href="https://github.com/Pingus/pingus/blob/v0.7.6/src/pingus/components/action_button.cpp#L24"><img src="images/link_12.png" alt="X" /></a>] with methods for rendering and handling events. Here, we focus on detecting the double click, hiding unrelated parts with <code>&lt;...&gt;</code>:</p>
 <pre><code>ArmageddonButton::ArmageddonButton(&lt;...&gt;):
     RectComponent(&lt;...&gt;),
     &lt;...&gt;
-    pressed(false);                         // line X1
-    press_time();                           // line X3
+    pressed(false);
+    press_time();
     &lt;...&gt;
 {
     &lt;...&gt;
 }
 
-void ArmageddonButton::draw (&lt;...&gt;) {       // X10
+void ArmageddonButton::draw (&lt;...&gt;) {
     &lt;...&gt;
-}                                           // X11
+}
 
 void ArmageddonButton::update (float delta) {
     &lt;...&gt;
-    if (pressed) {                          // line X9
-        press_time += delta;                // line X4
+    if (pressed) {
+        press_time += delta;
         if (press_time &gt; 1.0f) {
-            pressed = false;                // line X5
-            press_time = 0;                 // line X6
+            pressed = false;
+            press_time = 0;
         }
     } else {
         pressed = false;
@@ -123,16 +128,19 @@ void ArmageddonButton::update (float delta) {
 }
 
 void ArmageddonButton::on_primary_button_click (&lt;...&gt;) {
-    if (pressed) {                          // line X8
-        server-&gt;send_armageddon_event();    // line X7
+    if (pressed) {
+        server-&gt;send_armageddon_event();
     } else {
-        pressed = true;                     // line X2
+        pressed = true;
     }
 }</code></pre>
-<p>The class first initializes the variable <code>pressed</code> to track the first click (ln. X1,X2). It also initializes the variable <code>press_time</code> to count the time since the first click (ln. X3,X4). If another click occurs within 1 second, the class signals the double click to the application (ln. X7). Otherwise, the <code>pressed</code> and <code>press_time</code> state variables are reset (ln. X5-X6).</p>
-<p>The methods <code>update</code> and <code>on_primary_button_click</code> are examples of <em>short-lived callbacks</em>, which are pieces of code that execute in reaction to external input events. Here, <code>on_primary_button_click</code> reacts to mouse clicks, while <code>update</code> continuously reacts to the passage of time. Callbacks are short lived because they must execute as fast as possible to keep the game with real-time responsiveness. Because callbacks are short lived, the only way they can affect each other is by manipulating persisting member variables in the object. These <em>state variables</em> retain their values across multiple invocations, e.g.: <code>on_primary_button_click</code> writes to <code>pressed</code> in the first click, and checks its state in further clicks (ln. X2,X8), In the meantime, <code>update</code> also checks for <code>pressed</code> and may change its state (ln. X9,X5).</p>
-<p>However, note how the accesses to these state variables are spread across the entire class. For instance, the distance between the initialization of <code>pressed</code> (ln. X1) and the last access to it (ln. X2) is over 40 lines in the original file [<a href="https://github.com/Pingus/pingus/blob/v0.7.6/src/pingus/components/action_button.cpp#L33-#L90"><img src="images/link_12.png" alt="X" /></a>]. Arguably, this dispersion of code across methods makes the understanding and maintenance of the double-click behavior more difficult. Also, even though the state variables are private, unrelated methods such as <code>draw</code> (ln. X10-X11) can potentially access it.</p>
-<p>Céu provides structured constructs to deal with events, aiming to eradicate explicit manipulation of state variables for control-flow purposes. The equivalent code in Céu [<a href="https://github.com/fsantanna/pingus/blob/ceu/ceu/pingus/components/action_button.ceu"><img src="images/link_12.png" alt="X" /></a>] defines the class <code>ArmageddonButton</code> as follows:</p>
+<p>The <code>update</code> (ln. 15-27) and <code>on_primary_button_click</code> (ln. 29-35) are the relevant methods of the class and are examples of <em>short-lived callbacks</em>, which are pieces of code that execute in reaction to external input events. Here, <code>on_primary_button_click</code> reacts to mouse clicks (detected by the base class <code>RectComponent</code> in ln. 2), while <code>update</code> continuously reacts to the passage of time. Callbacks are short lived because they must execute as fast as possible to keep the game with real-time responsiveness.</p>
+<p>The class first initializes the variable <code>pressed</code> to track the first click (ln. 4,33). It also initializes the variable <code>press_time</code> to count the time since the first click (ln. 5,18). If another click occurs within 1 second, the class signals the double click to the application (ln. 31). Otherwise, the <code>pressed</code> and <code>press_time</code> state variables are reset (ln. 20-21).</p>
+<p>However, note how the accesses to these state variables are spread across the entire class. For instance, the distance between the initialization of <code>pressed</code> (ln. 4) and the last access to it (ln. 33) is over 40 lines in the original file [<a href="https://github.com/Pingus/pingus/blob/v0.7.6/src/pingus/components/action_button.cpp#L33-#L90"><img src="images/link_12.png" alt="X" /></a>]. Arguably, this dispersion of code across methods makes the understanding and maintenance of the double-click behavior more difficult. Also, even though the state variables are private, unrelated methods such as <code>draw</code> (ln. 11-13) can potentially access it.</p>
+<p>Because callbacks are short lived, the only way they can affect each other is by manipulating persisting member variables in the object. These <em>state variables</em> retain their values across multiple invocations, e.g.: <code>on_primary_button_click</code> writes to <code>pressed</code> in the first click, and checks its state in further clicks (ln. 30,33), In the meantime, <code>update</code> also checks for <code>pressed</code> and may change its state (ln. 17,20).</p>
+<!-- CEU-ARMAGEDDON -->
+
+<p>Céu provides structured constructs to deal with events, aiming to eradicate explicit manipulation of state variables for control-flow purposes. The equivalent code in Céu [<a href="https://github.com/fsantanna/pingus/blob/ceu/ceu/pingus/components/action_button.ceu#L6"><img src="images/link_12.png" alt="X" /></a>] defines the class <code>ArmageddonButton</code> as follows:</p>
 <pre><code>class ArmageddonButton with
     &lt;...&gt;
 do                                                      // X9
@@ -210,15 +218,17 @@ Claim: Transactions are the only plausible solution to concurrent mutable state
 <p>We believe that most difficulties in implementing control behavior in games is not inherent to this domain, but the result of accidental complexity due to the lack of structured abstractions and appropriate concurrency models to handle event-based applications.</p>
 <p>During the course of the porting process, and following the class-by-class identification described above, we could extract more abstract control patterns that should apply to other games. Our hypothesis is that other games manifesting such patterns must use some form of explicit state which are likely subject to the same porting process.</p>
 <h2 id="control-flow-patterns-in-pingus">Control-Flow Patterns in Pingus</h2>
-<p>We identified seven evident control-flow patterns in Pingus which we discuss further with in-depth examples:</p>
+<p>We identified eight control-flow patterns in Pingus which we discuss further along with in-depth examples:</p>
+<p><a name="finite-state-machines"/></p>
 <ol style="list-style-type: decimal">
-<li><p><strong>Finite State Machines</strong> State machines describe the behavior of game entities by mapping event occurrences to transitions between states triggering appropriate actions.</p></li>
-<li><p><strong>Dispatching Hierarchies</strong> Some entities in games act as containers for other child entities, resulting in dispatching hierarchies for event handling.</p></li>
-<li><p><strong>Continuation Passing</strong> The completion of long-lasting activity in a game may have a continuation, i.e., some action to execute next.</p></li>
-<li><p><strong>Signaling Mechanisms</strong> Entities often need to communicate explicitly through a signaling mechanism, especially if there is no hierarchy relationship between them.</p></li>
-<li><p><strong>Wall-Clock Timers</strong> Wall-clock timers measure the passage of time from the real world (e.g., <em>10 seconds</em>) such as for periodic sampling and timeout watchdogs.</p></li>
-<li><p><strong>Pausing</strong> Pausing allows parts of the game to temporarily suspend execution or reactions to incoming events.</p></li>
-<li><p><strong>Resource Acquisition and Release</strong> External resources, such as configuration files and saved games, must be acquired and properly released.</p></li>
+<li><p><a href="#finite-state-machines"><strong>Finite State Machines</strong></a> State machines describe the behavior of game entities by mapping event occurrences to transitions between states triggering appropriate actions.</p></li>
+<li><p><a href="#dispatching-hierarchies"><strong>Dispatching Hierarchies</strong></a> Some entities in games manage other child entities, resulting in dispatching hierarchies for event forwarding.</p></li>
+<li><p><a href="#containers-and-lifespan"><strong>Containers and Lifespan</strong></a> Similarly to <em>dispatching hierarchies</em>, some entities control the lifespan of other child entities, resulting in dynamic and explicit allocation and deallocation of objects.</p></li>
+<li><p><a href="#continuation-passing"><strong>Continuation Passing</strong></a> The completion of long-lasting activity in a game may have a continuation, i.e., some action to execute next.</p></li>
+<li><p><a href="#signaling-mechanism"><strong>Signaling Mechanisms</strong></a> Entities often need to communicate explicitly through a signaling mechanism, especially if there is no hierarchy relationship between them.</p></li>
+<li><p><a href="#wall-clock-timers"><strong>Wall-Clock Timers</strong></a> Wall-clock timers measure the passage of time from the real world (e.g., <em>10 seconds</em>) such as for periodic sampling and timeout watchdogs.</p></li>
+<li><p><a href="#pausing"><strong>Pausing</strong></a> Pausing allows parts of the game to temporarily suspend execution or reactions to incoming events.</p></li>
+<li><p><a href="#resource-acquisition-and-release"><strong>Resource Acquisition and Release</strong></a> External resources, such as configuration files and saved games, must be acquired and properly released.</p></li>
 </ol>
 <!-- TODO: are these terms and explanations symmetric? -->
 
@@ -239,9 +249,8 @@ Claim: Transactions are the only plausible solution to concurrent mutable state
 <li><a href="https://github.com/Tkachov/">https://github.com/Tkachov/</a></li>
 </ul>
 <hr />
-<h1 id="detailed-evaluation">Detailed Evaluation</h1>
-<h2 id="qualitative-analysis">Qualitative Analysis</h2>
-<p>Selected Code Snippets</p>
+<h1 id="qualitative-analysis">Qualitative Analysis</h1>
+<p>TODO: Selected Code Snippets</p>
 <!--
 3. **Continuation Passing**
     The completion of long-lasting activity in a game may have a continuation, 
@@ -283,12 +292,13 @@ Claim: Transactions are the only plausible solution to concurrent mutable state
     TODO
 -->
 
-<h3 id="finite-state-machines">Finite State Machines</h3>
+<p><a name="finite-state-machines"/></p>
+<h2 id="finite-state-machines">Finite State Machines</h2>
 <p>State machines describe the behavior of game entities by mapping event occurrences to transitions between states triggering appropriate actions. <!--
 The double click behavior for the *Armageddon button* is an example of a simple 
 state machine.
 --></p>
-<h4 id="the-bomber-action">The &quot;Bomber&quot; Action</h4>
+<h3 id="the-bomber-action">The &quot;Bomber&quot; Action</h3>
 <p>The <em>bomber action</em> explodes the clicked pingu, throwing particles around and also destroying the terrain under its radius (Figure X).</p>
 <div class="images">
 <img src="images/bomber-opt.gif" width="350"/> <br>Figure X: The &quot;Bomber&quot; action
@@ -395,25 +405,37 @@ end</code></pre>
 <li>We encode all states implicitly, relying on the natural sequential flow of execution.</li>
 <li>We handle all states (and only them) in the same contiguous block of code.</li>
 <li>We isolate unrelated behaviors to the animation, such as the pingu movement (ln. X1), in a parallel line of execution.</li>
-<li>We use a local and lexically-scoped organism (to be discussed [[<img src="images/link_12.png" alt="X" />][hierarchical-dispatching]]) for the temporary single-frame explosion (ln. X4-X5).</li>
-<li>We use auxiliary signalling mechanisms (to be discussed [[<img src="images/link_12.png" alt="X" />][signalling-mechanisms]]) to await the termination of the animation (ln. X2) and to notify the application about our own termination.</li>
+<li>We use a local and lexically-scoped organism (to be discussed [<a href="#dispatching-hierarchies"><img src="images/link_12.png" alt="X" /></a>]) for the temporary single-frame explosion (ln. X4-X5).</li>
+<li>We use auxiliary signaling mechanisms (to be discussed [<a href="#signaling-mechanisms"><img src="images/link_12.png" alt="X" /></a>]) to await the termination of the animation (ln. X2) and to notify the application about our own termination.</li>
 </ul>
 <!--
-#### Sprite Animations
+### Sprite Animations
 -->
 
-<h3 id="dispatching-hierarchies">Dispatching Hierarchies</h3>
-<p>Some entities in games act as containers for other child entities, resulting in dispatching hierarchies for event handling. <!--
+<p><a name="dispatching-hierarchies"/></p>
+<h2 id="dispatching-hierarchies">Dispatching Hierarchies</h2>
+<p>Some entities in games manage other child entities, resulting in dispatching hierarchies for event forwarding.</p>
+<!--
+It is common to broadcast notifications so that active objects can react to 
+them.
+The .
+Some notifications
+Given that .
+https://en.wikipedia.org/wiki/Observer_pattern
+
+TODO: falar de broadcast (in Ceu: unless it is paused, all receive always)
+
     In Pingus, the *Main Menu* in the figure above is represented as a 
     container class with five buttons as children.
     When a button click occurs, it is first dispatched to the container class,
     which may take an action before deciding to forward the event (or not) to 
     the buttons.
---></p>
-<h4 id="bomber-draw-and-update-callbacks">Bomber <code>draw</code> and <code>update</code> callbacks</h4>
+-->
+
+<h3 id="bomber-draw-and-update-callbacks">Bomber <code>draw</code> and <code>update</code> callbacks</h3>
 <!-- CPP-BOMBER-SPRITE -->
 
-<p>Let's dig into the <code>Bomber</code> animation in C++ [<a href="https://github.com/Pingus/pingus/blob/v0.7.6/src/pingus/actions/bomber.cpp"><img src="images/link_12.png" alt="X" /></a>], focusing on the <code>sprite</code> member, and the <code>update</code> and <code>draw</code> callback methods:</p>
+<p>Let's dig into the <code>Bomber</code> animation class in C++ [<a href="https://github.com/Pingus/pingus/blob/v0.7.6/src/pingus/actions/bomber.cpp"><img src="images/link_12.png" alt="X" /></a>], focusing on the <code>sprite</code> member, and the <code>update</code> and <code>draw</code> callback methods:</p>
 <pre><code>// bomber.hpp/cpp
 
 class Bomber : public PinguAction
@@ -439,23 +461,24 @@ void Bomber::draw (SceneContext&amp; gc) {      // X4
     gc.color().draw(sprite, &lt;...&gt;);
 }                                           // X5</code></pre>
 <p>The class loads the <code>sprite</code> in the constructor (ln. X1) and continually redirects <code>update</code> and <code>draw</code> to it (ln. X2-X3 and X4-X5). The <code>Sprite</code> class knows how to update [<a href="https://github.com/Pingus/pingus/blob/v0.7.6/src/engine/display/sprite_impl.cpp#L112"><img src="images/link_12.png" alt="X" /></a>] and render [<a href="https://github.com/Pingus/pingus/blob/v0.7.6/src/engine/display/sprite_impl.cpp#L140"><img src="images/link_12.png" alt="X" /></a>] itself.</p>
-<p>However, we have to follow a long hierarchy of 8 dispatches to understand how the <code>update</code> and <code>draw</code> callbacks flow from the original environment stimulus down to the sprite:</p>
-<ol start="0" style="list-style-type: decimal">
+<div class="images">
+<img src="images/hierarchy.png" width="550"/> <br>Figure X: Dispatching chain for <code>update</code>.
+</div>
+<p>However, we have to follow a long chain of 7 dispatches (Figure X) to understand how the <code>update</code> and <code>draw</code> callbacks flow from the original environment stimulus down to the sprite:</p>
+<ol style="list-style-type: decimal">
 <li><code>ScreenManager::display</code> [<a href="https://github.com/Pingus/pingus/blob/v0.7.6/src/engine/screen/screen_manager.cpp#L164"><img src="images/link_12.png" alt="X" /></a>] (the game loop) calls <code>this-&gt;update</code> [<a href="https://github.com/Pingus/pingus/blob/v0.7.6/src/engine/screen/screen_manager.cpp#L218"><img src="images/link_12.png" alt="X" /></a>] (in the same class).</li>
-<li><code>ScreenManager::update</code> [<a href="https://github.com/Pingus/pingus/blob/v0.7.6/src/engine/screen/screen_manager.cpp#L235"><img src="images/link_12.png" alt="X" /></a>] calls <code>last_screen-&gt;update</code> [<a href="https://github.com/Pingus/pingus/blob/v0.7.6/src/engine/screen/screen_manager.cpp#L258"><img src="images/link_12.png" alt="X" /></a>] (for the active game screen).</li>
-<li><code>GUIScreen::update</code> [<a href="https://github.com/Pingus/pingus/blob/v0.7.6/src/engine/screen/gui_screen.cpp#L44"><img src="images/link_12.png" alt="X" /></a>] (the base class for all game screens) calls <code>gui_manager-&gt;update</code> [<a href="https://github.com/Pingus/pingus/blob/v0.7.6/src/engine/screen/gui_screen.cpp#L46"><img src="images/link_12.png" alt="X" /></a>] (for the container holding all screen components).</li>
-<li><code>GroupComponent::update</code> [<a href="https://github.com/Pingus/pingus/blob/v0.7.6/src/engine/gui/group_component.cpp#L58"><img src="images/link_12.png" alt="X" /></a>] (for the <code>gui_manager</code>) calls <code>child-&gt;update</code> [<a href="https://github.com/Pingus/pingus/blob/v0.7.6/src/engine/gui/group_component.cpp#L63"><img src="images/link_12.png" alt="X" /></a>] (for each sub-component in the screen).</li>
-<li><code>World::update</code> [<a href="https://github.com/Pingus/pingus/blob/v0.7.6/src/pingus/world.cpp#L146"><img src="images/link_12.png" alt="X" /></a>] (child of the <code>GameSession</code> screen) calls <code>obj-&gt;update</code> [<a href="https://github.com/Pingus/pingus/blob/v0.7.6/src/pingus/world.cpp#L183"><img src="images/link_12.png" alt="X" /></a>] (for each object in the world).</li>
+<li><code>ScreenManager::update</code> [<a href="https://github.com/Pingus/pingus/blob/v0.7.6/src/engine/screen/screen_manager.cpp#L235"><img src="images/link_12.png" alt="X" /></a>] calls <code>last_screen-&gt;update</code> [<a href="https://github.com/Pingus/pingus/blob/v0.7.6/src/engine/screen/screen_manager.cpp#L258"><img src="images/link_12.png" alt="X" /></a>] (the active screen).</li>
+<li><code>GameSession::update</code> [<a href="https://github.com/Pingus/pingus/blob/v0.7.6/src/pingus/screens/game_session.cpp#L195"><img src="images/link_12.png" alt="X" /></a>] (the gameplay screen) calls <code>world-&gt;update</code> [<a href="https://github.com/Pingus/pingus/blob/v0.7.6/src/pingus/server.cpp#L103"><img src="images/link_12.png" alt="X" /></a>]. (with all game objects).</li>
+<li><code>World::update</code> [<a href="https://github.com/Pingus/pingus/blob/v0.7.6/src/pingus/world.cpp#L146"><img src="images/link_12.png" alt="X" /></a>] calls <code>obj-&gt;update</code> [<a href="https://github.com/Pingus/pingus/blob/v0.7.6/src/pingus/world.cpp#L183"><img src="images/link_12.png" alt="X" /></a>] (for each object in the world).</li>
 <li><code>PinguHolder::update</code> [<a href="https://github.com/Pingus/pingus/blob/v0.7.6/src/pingus/pingu_holder.cpp#L89"><img src="images/link_12.png" alt="X" /></a>] (child of <code>World</code>) calls <code>pingu-&gt;update</code> [<a href="https://github.com/Pingus/pingus/blob/v0.7.6/src/pingus/pingu_holder.cpp#L95"><img src="images/link_12.png" alt="X" /></a>] (for each pingu alive).</li>
 <li><code>Pingu::update</code> [<a href="https://github.com/Pingus/pingus/blob/v0.7.6/src/pingus/pingu.cpp#L311"><img src="images/link_12.png" alt="X" /></a>] calls <code>action-&gt;update</code> [<a href="https://github.com/Pingus/pingus/blob/v0.7.6/src/pingus/pingu.cpp#L339"><img src="images/link_12.png" alt="X" /></a>] (for the active pingu action).</li>
 <li><code>Bomber::update</code> [<a href="https://github.com/Pingus/pingus/blob/v0.7.6/src/pingus/actions/bomber.cpp#L58"><img src="images/link_12.png" alt="X" /></a>] calls <code>sprite.update</code> [<a href="https://github.com/Pingus/pingus/blob/v0.7.6/src/pingus/actions/bomber.cpp#L60"><img src="images/link_12.png" alt="X" /></a>.]</li>
 <li><code>Sprite::update</code> [<a href="https://github.com/Pingus/pingus/blob/v0.7.6/src/engine/display/sprite_impl.cpp#L112"><img src="images/link_12.png" alt="X" /></a>] finally updates the animation frames.</li>
 </ol>
-<p>Each dispatching level of indirection has a reason to exist:</p>
+<p>Note that each dispatching step has a reason to exist:</p>
 <ul>
-<li>In a single assignment to <code>last_screen</code>, we can easily redirect all dispatches to a new screen.</li>
-<li>The <code>gui_manager</code> manages and dispatches events to all screen components with a common interface.</li>
-<li>The <code>World</code> groups only the actual concrete and recognizable game entities loaded dynamically from an external level file (e.g., all pingus and traps).</li>
+<li>In a single assignment to <code>last_screen</code>, we can easily deactivate the current screen and redirect all dispatches to a new screen.</li>
+<li>The <code>World</code> class manages and dispatches events to all game entities with a common interface (i.e., <code>WorldObj</code>), which are loaded dynamically from an external level file (e.g., all pingus and traps).</li>
 <li>As it is common to iterate only over the pingus (vs. all world objects), it is convenient to manage all pingus in a <code>PinguHolder</code>.</li>
 <li>As pingus change between actions during lifetime, decoupling them from actions with a level of indirection is also convenient.</li>
 <li>Sprites are reusable everywhere, so it is also convenient to decouple them from actions.</li>
@@ -470,11 +493,15 @@ do
     &lt;...&gt;
 end</code></pre>
 <p>As mentioned before, organisms in Céu are active entities and can react directly to the environment. As soon as we declare the <code>Sprite</code> organism (ln. X1), its execution body starts automatically, bypassing the program hierarchy and reacting directly to the external events <code>WORLD_UPDATE</code> [<a href="https://github.com/fsantanna/pingus/blob/ceu/ceu/engine/display/sprite.ceu#L109"><img src="images/link_12.png" alt="X" /></a>] and <code>REDRAW</code> [<a href="https://github.com/fsantanna/pingus/blob/ceu/ceu/engine/display/sprite.ceu#L138"><img src="images/link_12.png" alt="X" /></a>].</p>
-<p>On the one hand, this radical decoupling between the program hierarchy and external reactions completely eliminates dispatch forwarding. For instance, we removed from the engine most of the boilerplate related to dispatching <code>draw</code>, <code>update</code>, and other callbacks ([[<img src="images/link_12.png" alt="X" />][TODO]]). On the other hand, now that organisms themselves decide whether or not to react to external input, we rely on lexical scopes to control their life cycles.</p>
-<p>Just like standard local variables, we can delimit the scope of organisms through explicit blocks. As an example, the explosion sprite for the <code>Bomber</code> animation above [<a href="#bomber"><img src="images/link_12.png" alt="X" /></a>] reacts exactly for one occurrence of <code>WORLD_UPDATE</code> (after the 13th animation frame):</p>
+<p>On the one hand, the radical decoupling between the program hierarchy and external reactions completely eliminates dispatching chains. For instance, we removed from the engine most of the boilerplate related to dispatching <code>draw</code>, <code>update</code>, and other callbacks ([[<img src="images/link_12.png" alt="X" />][TODO]]). On the other hand, now that organisms themselves decide whether or not to react to external input, we support that lexical scopes should control their life cycles.</p>
+<div class="images">
+<img src="images/explo.png"/> <br>Figure X: Explosion sprite for the <code>Bomber</code> animation.
+</div>
+<p>Just like standard local variables, we can delimit the scope of organisms through explicit blocks. As an example, the explosion sprite for the <code>Bomber</code> animation above [<a href="#bomber"><img src="images/link_12.png" alt="X" /></a>] reacts and redraws exactly for one occurrence of <code>WORLD_UPDATE</code> (after the 13th animation frame):</p>
 <pre><code>class Bomber with
     &lt;...&gt;
 do
+    var Sprite sprite = Sprite.build_name(&lt;...&gt;);
     &lt;...&gt;
         // 13th frame:
         await WORLD_UPDATE until sprite.get_current_frame() == 13;
@@ -485,31 +512,23 @@ do
         end                                                         // X3
         &lt;...&gt;
 end</code></pre>
-<p>We enclose the declaration with an explicit block (ln. X2-X3) that restricts its lifespan to a single occurrence of <code>WORLD_UPDATE</code> (ln. X4). When the block terminates, the organism goes out of scope and its execution body aborts automatically. Note here that we never manipulate references to the <code>Sprite</code>, which is declared anonymous with the placeholder <code>_</code>.</p>
+<p>We enclose the declaration with an explicit block (ln. X2-X3) that restricts its lifespan to a single occurrence of <code>WORLD_UPDATE</code> (ln. X4). When the block terminates, the organism goes out of scope and its execution body aborts automatically, effectively removing it from the screen. Note here that we never manipulate references to the <code>Sprite</code>, which is declared anonymous with the placeholder <code>_</code>. In constrast, the animation in C++ requires to explicitly check the state variable <code>gfx_exploded</code> and forward the <code>draw</code> method down to the child sprite <code>explo_surf</code> [<a href="https://github.com/Pingus/pingus/blob/master/src/pingus/actions/bomber.cpp#L50"><img src="images/link_12.png" alt="X" /></a>].</p>
 <!-- CEU-vs-CPP-BOMBER-SPRITE -->
 
-<p>Overall, passive objects impose a dispatching architecture that comes at a high price:</p>
+<p>Overall, passive objects of C++ impose a dispatching architecture that makes the reasoning about the program harder:</p>
 <ul>
-<li>Reasoning about the dispatching rules requires inspecting dozen of files (we omitted class hierarchies in the list above).</li>
-<li>The dispatching path interleaves between classes specific to the game and classes from the game engine (possibly third-party classes), making the reasoning even harder.</li>
-<li>The hierarchy is mostly dynamic, specially for entities held in containers.</li>
+<li>The full dispatching chain goes through dozen of files (note that we omitted class hierarchies in the list above).</li>
+<li>The dispatching path interleaves between classes specific to the game and also classes from the game engine (possibly third-party classes).</li>
+<li>The actual objects in the hierarchy are often dynamically allocated, specially for entities held in class containers.</li>
 </ul>
 <!--* TODO: efficiency?-->
 
+<p><a name="containers-and-lifespan"/></p>
+<h2 id="containers-and-lifespan">Containers and Lifespan</h2>
+<p>Similarly to <em>dispatching hierarchies</em>, some entities control the lifespan of other child entities, resulting in dynamic and explicit allocation and deallocation of objects.</p>
 <!-- CPP-CONTAINER -->
 
-<p>Containers, in particular, demand extra caution when they handle insertion and removal of components dynamically (which is usually the case):</p>
-<ul>
-<li>Tracking what entities gets dispatched is difficult: one has to &quot;simulate&quot; the program execution and track calls to <code>add</code> and <code>remove</code>.</li>
-<li>Calls to <code>add</code> must always have matching calls to <code>remove</code>: missing calls to <code>remove</code> lead to memory and CPU leaks.</li>
-</ul>
-<!-- CPP-CONTAINER-STATIC -->
-
-<div class="images">
-<img src="images/game-session-arrows.png" width="300"/> <br>Figure X: Children with static lifespan.
-</div>
-
-<p>However, it is actually common to have children with a static lifespan, known at compile time. For instance, most entities in the <code>GameSession</code> coexists with it, i.e., they are added in the constructor and are never removed explicitly [<a href="https://github.com/Pingus/pingus/blob/v0.7.6/src/pingus/screens/game_session.cpp#L76"><img src="images/link_12.png" alt="X" /></a>]:</p>
+<p>However, it is actually common to have children with a static lifespan which are known at compile time. For instance, most entities in the <code>GameSession</code> coexists with it, i.e., they are added in the constructor and need not to be removed explicitly [<a href="https://github.com/Pingus/pingus/blob/v0.7.6/src/pingus/screens/game_session.cpp#L76"><img src="images/link_12.png" alt="X" /></a>]:</p>
 <pre><code>GameSession::GameSession(&lt;...&gt;) :
     &lt;...&gt;
 {
@@ -523,6 +542,18 @@ end</code></pre>
     gui_manager-&gt;add(small_map);                //    hierarchy
     &lt;...&gt;
 }</code></pre>
+<p>Even so, the <code>add</code> method expects only dynamically allocated children because they are automatically deallocated inside the container destructor [[<img src="images/link_12.png" alt="X" />][groupcomponent-delete]].</p>
+<p>The dynamic nature of containers in C++ demand extra caution:</p>
+<ul>
+<li>When containers are part of a dispatching chain, it gets even harder to track what objects are dispatched: one has to &quot;simulate&quot; the program execution and track calls to <code>add</code> and <code>remove</code>.</li>
+<li>For objects with dynamic lifespan, calls to <code>add</code> must always have matching calls to <code>remove</code>: missing calls to <code>remove</code> lead to memory and CPU leaks (see the <em>lapsed listener</em> problem below).</li>
+</ul>
+<!-- CPP-CONTAINER-STATIC -->
+
+<div class="images">
+<img src="images/game-session-arrows.png" width="300"/> <br>Figure X: Children with static lifespan.
+</div>
+
 <!-- CEU-CONTAINER-STATIC -->
 
 <p>In Céu, entities that coexist with an enclosing class just need to be declared at the top-level block [<a href="https://github.com/fsantanna/pingus/blob/ceu/ceu/pingus/world.ceu#L124"><img src="images/link_12.png" alt="X" /></a>]:</p>
@@ -540,9 +571,9 @@ end</code></pre>
 <p>Again, here we never manipulate references to deal with containers, or allocation and deallocation. Also, all memory required for static instances is known at compile time.</p>
 <!-- CPP-CONTAINER-DYNAMIC -->
 
-<p>For entities with a dynamic lifespan, we need to <code>add</code> and <code>remove</code> them explicitly from the container.</p>
+<p>In C++, for entities with a dynamic lifespan, we need to <code>add</code> and <code>remove</code> them explicitly from the container.</p>
 <p>As an example, pingus are dynamic entities created periodically and destroyed under certain conditions (e.g. when going out of the screen [<a href="https://github.com/Pingus/pingus/blob/v0.7.6/src/pingus/pingu.cpp#L322"><img src="images/link_12.png" alt="X" /></a>]):</p>
-<p>TODO: falling image</p>
+<p>TODO: falling and dyeing animation at the same time</p>
 <pre><code>Pingu* PinguHolder::create_pingu (&lt;...&gt;) {              // X1
     &lt;...&gt;
     Pingu* pingu = new Pingu (&lt;...&gt;);
@@ -564,7 +595,7 @@ void PinguHolder::update() {                            // X4
     }
 }                                                       // X5</code></pre>
 <p><code>PinguHolder::create_pingu</code> (ln. X1-X2) creates a new <code>Pingu</code> periodically, adding it to the <code>pingus</code> container (ln. X3). <code>PinguHolder::update</code> (ln. X4-X5) checks all pingus every frame, removing those with the <code>Pingu::PS_DEAD</code> status (ln. X6-X7): Without the <code>erase</code> call, a dead pingu would keep consuming memory and CPU time, i.e., it would remain in the <code>pingus</code> vector and be updated every frame (ln. X8).</p>
-<p>This problem is known as the <em>lapsed listener</em> [<a href="https://github.com/Pingus/pingus/blob/v0.7.6/src/pingus/pingu.cpp#L322"><img src="images/link_12.png" alt="X" /></a>] and is not restricted to languages without garbage collection. Typically, a container holds a strong reference to a child (sometimes the only reference to it), and a collector cannot magically detect it as garbage.</p>
+<p>This problem is known as the <em>lapsed listener</em> [<a href="http://gameprogrammingpatterns.com/observer.html#don&#39;t-worry,-i&#39;ve-got-a-gc"><img src="images/link_12.png" alt="X" /></a>] and is not restricted to languages without garbage collection. Typically, a container holds a strong reference to a child (sometimes the only reference to it), and a collector cannot magically detect it as garbage.</p>
 <!-- CEU-CONTAINER-DYNAMIC -->
 
 <p>In Céu, we rely on primitive <code>pool</code> containers of organisms, which are also subject to lexical scope, just like scalar organisms. The statement <code>spawn &lt;T&gt; in &lt;pool&gt;</code> creates an organism of type <code>&lt;T&gt;</code> dynamically, also specifying a <code>&lt;pool&gt;</code> to hold the new instance.</p>
@@ -584,9 +615,8 @@ end                                     // X4</code></pre>
 <div class="images">
 <img src="images/pool.png" width="400"/> <br>Figure X: Lifespan of dynamic organisms
 </div>
-<p>Lexical scopes handle memory and dispatching automatically for static organisms and pools. However, the lifespan of a dynamic organism does not necessarily match the lifespan of its enclosing pool (Figure X). When the execution block of dynamic organism terminates, characterizing its <em>natural termination</em>, the organism is automatically removed its pool. Therefore, Again, no manual bookkeeping is required for .</p>
-<p>However, although the lifespan of a dynamic organism is restricted to the lifespan of its enclosing pool, . In other words, the lifespan of a dynamic organism is limited to its .</p>
-<p>Considering the case of removing a pingu from the game, in Céu we just need to terminate its execution block according to the XXX conditions [<a href="https://github.com/fsantanna/pingus/blob/ceu/ceu/pingus/pingu.ceu#L83"><img src="images/link_12.png" alt="X" /></a>]:</p>
+<p>Lexical scopes handle memory and dispatching automatically for static organisms and pools. However, the lifespan of a dynamic organism does not necessarily match the lifespan of its corresponding pool (Figure X). When the execution block of a dynamic organism terminates, which characterizes its <em>natural termination</em>, the organism is automatically removed its pool. Therefore, dynamic organisms don't require any extra bookkeeping related to containers.</p>
+<p>In Céu, going back to the case of removing a pingu from the game, we just need to terminate its execution block according to the appropriate conditions [<a href="https://github.com/fsantanna/pingus/blob/ceu/ceu/pingus/pingu.ceu#L83"><img src="images/link_12.png" alt="X" /></a>]:</p>
 <pre><code>class Pingu with
     &lt;...&gt;
 do
@@ -644,35 +674,52 @@ end
 ```
 -->
 
-<p>[[<img src="images/link_12.png" alt="X" />][see pausing]][[<img src="images/link_12.png" alt="X" />][cpp-engine]]: removed files</p>
-<p>** remove = death</p>
-<ul>
-<li>tracking: follow the source code ** execution order, redraw, sort</li>
-</ul>
-<p>composition over inheritance</p>
-<p>doesn't need</p>
-<ul>
-<li>tradeoff here is clear
-<ul>
-<li>indirect reaction + dynamic scope vs</li>
-<li>direct reaction + lexical scope</li>
-</ul></li>
-<li><p>class hier and dispatch hier</p></li>
-<li>no lapsed listener</li>
-<li>no dynamic allocation or GC</li>
-<li>static reasoning</li>
-<li>inheritance vs composition</li>
-<li>no hier b/c orgs can react directly to the env
-<ul>
-<li>lexical scope</li>
-</ul></li>
-<li><p>animation w/ the dispatch path</p></li>
-</ul>
-<h2 id="quantitative-analysis">Quantitative Analysis</h2>
-<h3 id="code-size">Code Size</h3>
-<h3 id="memory">Memory</h3>
-<h3 id="cpu">CPU</h3>
+<p><a name="continuation-passing"/></p>
+<h2 id="continuation-passing">Continuation Passing</h2>
+<p><a name="signaling-mechanism"/></p>
+<h2 id="signaling-mechanisms">Signaling Mechanisms</h2>
+<p><a name="wall-clock-timers"/></p>
+<h2 id="wall-clock-timers">Wall-Clock Timers</h2>
+<p><a name="pausing"/></p>
+<h2 id="pausing">Pausing</h2>
+<p><a name="resource-acquisition-and-release"/></p>
+<h2 id="resource-acquisition-and-release">Resource Acquisition and Release</h2>
+<h1 id="quantitative-analysis">Quantitative Analysis</h1>
+<h2 id="code-size">Code Size</h2>
+<h2 id="memory">Memory</h2>
+<h2 id="cpu">CPU</h2>
+<!-- ************************************ -->
+
 <!--
+
+[[![X]][see pausing]]
+[[![X]][cpp-engine]]: removed files
+
+** remove = death
+
+* tracking: follow the source code
+    ** execution order, redraw, sort
+
+composition over inheritance
+
+
+doesn't need
+
+- tradeoff here is clear
+    - indirect reaction + dynamic scope
+    vs
+    - direct reaction + lexical scope
+
+- class hier and dispatch hier
+
+- no lapsed listener
+- no dynamic allocation or GC
+- static reasoning
+- inheritance vs composition
+- no hier b/c orgs can react directly to the env
+    + lexical scope
+- animation w/ the dispatch path
+
 ## The Game Loop
 
 The *game loop* determines the general structure of virtually all games 

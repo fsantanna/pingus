@@ -380,8 +380,8 @@ of explicit state which are likely subject to the same porting process.
 
 ## Control-Flow Patterns in Pingus
 
-We identified seven evident control-flow patterns in Pingus which we discuss 
-further with in-depth examples:
+We identified eight control-flow patterns in Pingus which we discuss further 
+along with in-depth examples:
 
 <a name="finite-state-machines"/>
 
@@ -390,26 +390,31 @@ further with in-depth examples:
     occurrences to transitions between states triggering appropriate actions.
 
 2. [**Dispatching Hierarchies**](#dispatching-hierarchies)
-    Some entities in games act as containers for other child entities,
-    resulting in dispatching hierarchies for event handling.
+    Some entities in games manage other child entities, resulting in 
+    dispatching hierarchies for event forwarding.
 
-3. [**Continuation Passing**](#continuation-passing)
+3. [**Containers and Lifespan**](#containers-and-lifespan)
+    Similarly to *dispatching hierarchies*, some entities control the lifespan 
+    of other child entities, resulting in dynamic and explicit allocation and
+    deallocation of objects.
+
+4. [**Continuation Passing**](#continuation-passing)
     The completion of long-lasting activity in a game may have a continuation, 
     i.e., some action to execute next.
 
-4. [**Signaling Mechanisms**](#signaling-mechanism)
+5. [**Signaling Mechanisms**](#signaling-mechanism)
     Entities often need to communicate explicitly through a signaling 
     mechanism, especially if there is no hierarchy relationship between them.
 
-5. [**Wall-Clock Timers**](#wall-clock-timers)
+6. [**Wall-Clock Timers**](#wall-clock-timers)
     Wall-clock timers measure the passage of time from the real world
     (e.g., *10 seconds*) such as for periodic sampling and timeout watchdogs.
 
-6. [**Pausing**](#pausing)
+7. [**Pausing**](#pausing)
     Pausing allows parts of the game to temporarily suspend execution or
     reactions to incoming events.
 
-7. [**Resource Acquisition and Release**](#resource-acquisition-and-release)
+8. [**Resource Acquisition and Release**](#resource-acquisition-and-release)
     External resources, such as configuration files and saved games,
     must be acquired and properly released.
 
@@ -437,7 +442,7 @@ Alexander Tkachov
 
 # Qualitative Analysis
 
-Selected Code Snippets
+TODO: Selected Code Snippets
 
 <!--
 3. **Continuation Passing**
@@ -660,9 +665,19 @@ comparison to the implementation in C++:
 
 ## Dispatching Hierarchies
 
-Some entities in games act as containers for other child entities,
-resulting in dispatching hierarchies for event handling.
+Some entities in games manage other child entities, resulting in dispatching 
+hierarchies for event forwarding.
+
 <!--
+It is common to broadcast notifications so that active objects can react to 
+them.
+The .
+Some notifications
+Given that .
+https://en.wikipedia.org/wiki/Observer_pattern
+
+TODO: falar de broadcast (in Ceu: unless it is paused, all receive always)
+
     In Pingus, the *Main Menu* in the figure above is represented as a 
     container class with five buttons as children.
     When a button click occurs, it is first dispatched to the container class,
@@ -674,8 +689,8 @@ resulting in dispatching hierarchies for event handling.
 
 <!-- CPP-BOMBER-SPRITE -->
 
-Let's dig into the `Bomber` animation in C++ [[![X]][cpp-bomber]], focusing on 
-the `sprite` member, and the `update` and `draw` callback methods:
+Let's dig into the `Bomber` animation class in C++ [[![X]][cpp-bomber]], 
+focusing on the `sprite` member, and the `update` and `draw` callback methods:
 
 ```
 // bomber.hpp/cpp
@@ -712,31 +727,30 @@ The `Sprite` class knows how to update [[![X]][cpp-sprite-update]] and render
 [cpp-sprite-update]: https://github.com/Pingus/pingus/blob/v0.7.6/src/engine/display/sprite_impl.cpp#L112
 [cpp-sprite-render]: https://github.com/Pingus/pingus/blob/v0.7.6/src/engine/display/sprite_impl.cpp#L140
 
-However, we have to follow a long hierarchy of 8 dispatches to understand how 
-the `update` and `draw` callbacks flow from the original environment stimulus 
-down to the sprite:
+<div class="images">
+<img src="images/hierarchy.png" width="550"/>
+<br>Figure X: Dispatching chain for `update`.
+</div>
 
-0. `ScreenManager::display` [[![X]][cpp-screenmanager-11]]
+However, we have to follow a long chain of 7 dispatches (Figure X) to 
+understand how the `update` and `draw` callbacks flow from the original 
+environment stimulus down to the sprite:
+
+1. `ScreenManager::display` [[![X]][cpp-screenmanager-11]]
         (the game loop)
    calls
    `this->update` [[![X]][cpp-screenmanager-12]]
         (in the same class).
-1. `ScreenManager::update` [[![X]][cpp-screenmanager-21]]
+2. `ScreenManager::update` [[![X]][cpp-screenmanager-21]]
    calls
    `last_screen->update` [[![X]][cpp-screenmanager-22]]
-        (for the active game screen).
-2. `GUIScreen::update` [[![X]][cpp-guiscreen-1]]
-        (the base class for all game screens)
+        (the active screen).
+3. `GameSession::update` [[![X]][cpp-gamesession-1]]
+        (the gameplay screen)
    calls
-   `gui_manager->update` [[![X]][cpp-guiscreen-2]]
-        (for the container holding all screen components).
-3. `GroupComponent::update` [[![X]][cpp-groupcomponent-1]]
-        (for the `gui_manager`)
-   calls
-   `child->update` [[![X]][cpp-groupcomponent-2]]
-        (for each sub-component in the screen).
+   `world->update` [[![X]][cpp-gamesession-2]].
+        (with all game objects).
 4. `World::update` [[![X]][cpp-world-1]]
-        (child of the `GameSession` screen)
    calls
    `obj->update` [[![X]][cpp-world-2]]
         (for each object in the world).
@@ -755,38 +769,19 @@ down to the sprite:
 8. `Sprite::update` [[![X]][cpp-sprite-1]]
    finally updates the animation frames.
 
-Each dispatching level of indirection has a reason to exist:
+Note that each dispatching step has a reason to exist:
 
-* In a single assignment to `last_screen`, we can easily redirect all 
-  dispatches to a new screen.
-* The `gui_manager` manages and dispatches events to all screen components with 
-  a common interface.
-* The `World` groups only the actual concrete and recognizable game entities 
-  loaded dynamically from an external level file (e.g., all pingus and traps).
+* In a single assignment to `last_screen`, we can easily deactivate the current 
+  screen and redirect all dispatches to a new screen.
+* The `World` class manages and dispatches events to all game entities with a 
+  common interface (i.e., `WorldObj`), which are loaded dynamically from an external
+  level file (e.g., all pingus and traps).
 * As it is common to iterate only over the pingus (vs. all world objects), it 
   is convenient to manage all pingus in a `PinguHolder`.
 * As pingus change between actions during lifetime, decoupling them from 
   actions with a level of indirection is also convenient.
 * Sprites are reusable everywhere, so it is also convenient to decouple them
   from actions.
-
-[cpp-screenmanager-11]: https://github.com/Pingus/pingus/blob/v0.7.6/src/engine/screen/screen_manager.cpp#L164
-[cpp-screenmanager-12]: https://github.com/Pingus/pingus/blob/v0.7.6/src/engine/screen/screen_manager.cpp#L218
-[cpp-screenmanager-21]: https://github.com/Pingus/pingus/blob/v0.7.6/src/engine/screen/screen_manager.cpp#L235
-[cpp-screenmanager-22]: https://github.com/Pingus/pingus/blob/v0.7.6/src/engine/screen/screen_manager.cpp#L258
-[cpp-guiscreen-1]: https://github.com/Pingus/pingus/blob/v0.7.6/src/engine/screen/gui_screen.cpp#L44
-[cpp-guiscreen-2]: https://github.com/Pingus/pingus/blob/v0.7.6/src/engine/screen/gui_screen.cpp#L46
-[cpp-groupcomponent-1]: https://github.com/Pingus/pingus/blob/v0.7.6/src/engine/gui/group_component.cpp#L58
-[cpp-groupcomponent-2]: https://github.com/Pingus/pingus/blob/v0.7.6/src/engine/gui/group_component.cpp#L63
-[cpp-world-1]: https://github.com/Pingus/pingus/blob/v0.7.6/src/pingus/world.cpp#L146
-[cpp-world-2]: https://github.com/Pingus/pingus/blob/v0.7.6/src/pingus/world.cpp#L183
-[cpp-pinguholder-1]: https://github.com/Pingus/pingus/blob/v0.7.6/src/pingus/pingu_holder.cpp#L89
-[cpp-pinguholder-2]: https://github.com/Pingus/pingus/blob/v0.7.6/src/pingus/pingu_holder.cpp#L95
-[cpp-pingu-1]: https://github.com/Pingus/pingus/blob/v0.7.6/src/pingus/pingu.cpp#L311
-[cpp-pingu-2]: https://github.com/Pingus/pingus/blob/v0.7.6/src/pingus/pingu.cpp#L339
-[cpp-bomber-1]: https://github.com/Pingus/pingus/blob/v0.7.6/src/pingus/actions/bomber.cpp#L58
-[cpp-bomber-2]: https://github.com/Pingus/pingus/blob/v0.7.6/src/pingus/actions/bomber.cpp#L60
-[cpp-sprite-1]: https://github.com/Pingus/pingus/blob/v0.7.6/src/engine/display/sprite_impl.cpp#L112
 
 <!-- CEU-BOMBER-SPRITE -->
 
@@ -808,23 +803,30 @@ automatically, bypassing the program hierarchy and reacting directly to the
 external events `WORLD_UPDATE` [[![X]][ceu-sprite-update]] and `REDRAW` 
 [[![X]][ceu-sprite-redraw]].
 
-On the one hand, this radical decoupling between the program hierarchy and 
-external reactions completely eliminates dispatch forwarding.
+On the one hand, the radical decoupling between the program hierarchy and 
+external reactions completely eliminates dispatching chains.
 For instance, we removed from the engine most of the boilerplate related to 
 dispatching `draw`, `update`, and other callbacks ([[![X]][TODO]]).
 On the other hand, now that organisms themselves decide whether or not to react 
-to external input, we rely on lexical scopes to control their life cycles.
+to external input, we support that lexical scopes should control their life 
+cycles.
+
+<div class="images">
+<img src="images/explo.png"/>
+<br>Figure X: Explosion sprite for the `Bomber` animation.
+</div>
 
 Just like standard local variables, we can delimit the scope of organisms 
 through explicit blocks.
 As an example, the explosion sprite for the `Bomber` animation above 
-[[![X]](#bomber)] reacts exactly for one occurrence of `WORLD_UPDATE` (after 
-the 13th animation frame):
+[[![X]](#bomber)] reacts and redraws exactly for one occurrence of 
+`WORLD_UPDATE` (after the 13th animation frame):
 
 ```
 class Bomber with
     <...>
 do
+    var Sprite sprite = Sprite.build_name(<...>);
     <...>
         // 13th frame:
         await WORLD_UPDATE until sprite.get_current_frame() == 13;
@@ -840,46 +842,60 @@ end
 We enclose the declaration with an explicit block (ln. X2-X3) that restricts 
 its lifespan to a single occurrence of `WORLD_UPDATE` (ln.  X4).
 When the block terminates, the organism goes out of scope and its execution 
-body aborts automatically.
+body aborts automatically, effectively removing it from the screen.
 Note here that we never manipulate references to the `Sprite`, which is 
 declared anonymous with the placeholder `_`.
+In constrast, the animation in C++ requires to explicitly check the state 
+variable `gfx_exploded` and forward the `draw` method down to the child sprite 
+`explo_surf` [[![X]][cpp-bomber-explo]].
 
 <!-- CEU-vs-CPP-BOMBER-SPRITE -->
 
-Overall, passive objects impose a dispatching architecture that comes at a high 
-price:
+Overall, passive objects of C++ impose a dispatching architecture that makes 
+the reasoning about the program harder:
 
-* Reasoning about the dispatching rules requires inspecting dozen of files
-  (we omitted class hierarchies in the list above).
-* The dispatching path interleaves between classes specific to the game and
-  classes from the game engine (possibly third-party classes), making the
-  reasoning even harder.
-* The hierarchy is mostly dynamic, specially for entities held in containers.
+* The full dispatching chain goes through dozen of files (note that we omitted 
+  class hierarchies in the list above).
+* The dispatching path interleaves between classes specific to the game and 
+  also classes from the game engine (possibly third-party classes).
+* The actual objects in the hierarchy are often dynamically allocated, 
+  specially for entities held in class containers.
 
 <!--* TODO: efficiency?-->
 
+[cpp-screenmanager-11]: https://github.com/Pingus/pingus/blob/v0.7.6/src/engine/screen/screen_manager.cpp#L164
+[cpp-screenmanager-12]: https://github.com/Pingus/pingus/blob/v0.7.6/src/engine/screen/screen_manager.cpp#L218
+[cpp-screenmanager-21]: https://github.com/Pingus/pingus/blob/v0.7.6/src/engine/screen/screen_manager.cpp#L235
+[cpp-screenmanager-22]: https://github.com/Pingus/pingus/blob/v0.7.6/src/engine/screen/screen_manager.cpp#L258
+[cpp-gamesession-1]: https://github.com/Pingus/pingus/blob/v0.7.6/src/pingus/screens/game_session.cpp#L195
+[cpp-gamesession-2]: https://github.com/Pingus/pingus/blob/v0.7.6/src/pingus/server.cpp#L103 
+[cpp-groupcomponent-1]: https://github.com/Pingus/pingus/blob/v0.7.6/src/engine/gui/group_component.cpp#L58
+[cpp-groupcomponent-2]: https://github.com/Pingus/pingus/blob/v0.7.6/src/engine/gui/group_component.cpp#L63
+[cpp-world-1]: https://github.com/Pingus/pingus/blob/v0.7.6/src/pingus/world.cpp#L146
+[cpp-world-2]: https://github.com/Pingus/pingus/blob/v0.7.6/src/pingus/world.cpp#L183
+[cpp-pinguholder-1]: https://github.com/Pingus/pingus/blob/v0.7.6/src/pingus/pingu_holder.cpp#L89
+[cpp-pinguholder-2]: https://github.com/Pingus/pingus/blob/v0.7.6/src/pingus/pingu_holder.cpp#L95
+[cpp-pingu-1]: https://github.com/Pingus/pingus/blob/v0.7.6/src/pingus/pingu.cpp#L311
+[cpp-pingu-2]: https://github.com/Pingus/pingus/blob/v0.7.6/src/pingus/pingu.cpp#L339
+[cpp-bomber-1]: https://github.com/Pingus/pingus/blob/v0.7.6/src/pingus/actions/bomber.cpp#L58
+[cpp-bomber-2]: https://github.com/Pingus/pingus/blob/v0.7.6/src/pingus/actions/bomber.cpp#L60
+[cpp-sprite-1]: https://github.com/Pingus/pingus/blob/v0.7.6/src/engine/display/sprite_impl.cpp#L112
+[cpp-bomber-explo]: https://github.com/Pingus/pingus/blob/master/src/pingus/actions/bomber.cpp#L50
+
+<a name="containers-and-lifespan"/>
+
+## Containers and Lifespan
+
+Similarly to *dispatching hierarchies*, some entities control the lifespan of 
+other child entities, resulting in dynamic and explicit allocation and 
+deallocation of objects.
+
 <!-- CPP-CONTAINER -->
 
-Containers, in particular, demand extra caution when they handle insertion and 
-removal of components dynamically (which is usually the case):
-
-* Tracking what entities gets dispatched is difficult:
-  one has to "simulate" the program execution and track calls to `add` and
-  `remove`.
-* Calls to `add` must always have matching calls to `remove`:
-  missing calls to `remove` lead to memory and CPU leaks.
-
-<!-- CPP-CONTAINER-STATIC -->
-
-<div class="images">
-<img src="images/game-session-arrows.png" width="300"/>
-<br>Figure X: Children with static lifespan.
-</div>
-
-However, it is actually common to have children with a static lifespan, known 
-at compile time.
+However, it is actually common to have children with a static lifespan which 
+are known at compile time.
 For instance, most entities in the `GameSession` coexists with it, i.e., they 
-are added in the constructor and are never removed explicitly
+are added in the constructor and need not to be removed explicitly
 [[![X]][cpp-gamesession-containers]]:
 
 ```
@@ -897,6 +913,29 @@ GameSession::GameSession(<...>) :
     <...>
 }
 ```
+
+Even so, the `add` method expects only dynamically allocated children because 
+they are automatically deallocated inside the container destructor 
+[[![X]][groupcomponent-delete]].
+
+[cpp-groupcomponent-delete]: https://github.com/Pingus/pingus/blob/v0.7.6/src/engine/gui/group_component.cpp#L37
+
+The dynamic nature of containers in C++ demand extra caution:
+
+* When containers are part of a dispatching chain, it gets even harder to track 
+  what objects are dispatched:
+  one has to "simulate" the program execution and track calls to `add` and
+  `remove`.
+* For objects with dynamic lifespan, calls to `add` must always have matching 
+  calls to `remove`:
+  missing calls to `remove` lead to memory and CPU leaks (see the *lapsed listener* problem below).
+
+<!-- CPP-CONTAINER-STATIC -->
+
+<div class="images">
+<img src="images/game-session-arrows.png" width="300"/>
+<br>Figure X: Children with static lifespan.
+</div>
 
 <!-- CEU-CONTAINER-STATIC -->
 
@@ -923,14 +962,14 @@ Also, all memory required for static instances is known at compile time.
 
 <!-- CPP-CONTAINER-DYNAMIC -->
 
-For entities with a dynamic lifespan, we need to `add` and `remove` them 
-explicitly from the container.
+In C++, for entities with a dynamic lifespan, we need to `add` and `remove` 
+them explicitly from the container.
 
 As an example, pingus are dynamic entities created periodically and destroyed 
 under certain conditions (e.g. when going out of the screen
 [[![X]][cpp-pingu-dead]]):
 
-TODO: falling image
+TODO: falling and dyeing animation at the same time
 
 ```
 Pingu* PinguHolder::create_pingu (<...>) {              // X1
@@ -963,8 +1002,8 @@ Without the `erase` call, a dead pingu would keep consuming memory and CPU
 time, i.e., it would remain in the `pingus` vector and be updated every frame 
 (ln. X8).
 
-This problem is known as the *lapsed listener* [[![X]][cpp-pingu-dead]] and is 
-not restricted to languages without garbage collection.
+This problem is known as the *lapsed listener* [[![X]][gpp-lapsed-listener]] 
+and is not restricted to languages without garbage collection.
 Typically, a container holds a strong reference to a child (sometimes the only 
 reference to it), and a collector cannot magically detect it as garbage.
 
