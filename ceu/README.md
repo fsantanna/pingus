@@ -399,8 +399,8 @@ along with in-depth examples:
     deallocation of objects.
 
 4. [**Continuation Passing**](#continuation-passing)
-    The completion of long-lasting activity in a game may have a continuation, 
-    i.e., some action to execute next.
+    The completion of a long-lasting activity in a game may have a 
+    continuation, i.e., some action to execute next.
 
 5. [**Signaling Mechanisms**](#signaling-mechanism)
     Entities often need to communicate explicitly through a signaling 
@@ -496,7 +496,7 @@ The double click behavior for the *Armageddon button* is an example of a simple
 state machine.
 -->
 
-### The "Bomber" Action
+### Case Study: The "Bomber" Action
 
 The *bomber action* explodes the clicked pingu, throwing particles around and 
 also destroying the terrain under its radius (Figure X).
@@ -685,7 +685,7 @@ TODO: falar de broadcast (in Ceu: unless it is paused, all receive always)
     the buttons.
 -->
 
-### Bomber `draw` and `update` callbacks
+### Case Study: Bomber `draw` and `update` callbacks
 
 <!-- CPP-BOMBER-SPRITE -->
 
@@ -890,12 +890,15 @@ Similarly to *dispatching hierarchies*, some entities control the lifespan of
 other child entities, resulting in dynamic and explicit allocation and 
 deallocation of objects.
 
-<!-- CPP-CONTAINER -->
-
 However, it is actually common to have children with a static lifespan which 
 are known at compile time.
-For instance, most entities in the `GameSession` coexists with it, i.e., they 
-are added in the constructor and need not to be removed explicitly
+
+### Case Study 1: Game UI Widgets
+
+<!-- CPP-CONTAINER -->
+
+Most UI widgets in the `GameSession` are static and coexist with it, i.e., they 
+are added in the constructor and are never removed explicitly
 [[![X]][cpp-gamesession-containers]]:
 
 ```
@@ -934,7 +937,7 @@ The dynamic nature of containers in C++ demand extra caution:
 
 <div class="images">
 <img src="images/game-session-arrows.png" width="300"/>
-<br>Figure X: Children with static lifespan.
+<br>Figure X: UI children with static lifespan.
 </div>
 
 <!-- CEU-CONTAINER-STATIC -->
@@ -959,6 +962,8 @@ end
 Again, here we never manipulate references to deal with containers, or 
 allocation and deallocation.
 Also, all memory required for static instances is known at compile time.
+
+### Case Study 2: The Pingus Container
 
 <!-- CPP-CONTAINER-DYNAMIC -->
 
@@ -1148,6 +1153,52 @@ end
 <a name="continuation-passing"/>
 
 ## Continuation Passing
+
+    The completion of a long-lasting activity in a game may have a 
+    continuation, i.e., some action to execute next.
+
+<!--
+# STATE
+Some entities in games manage other child entities, resulting in dispatching 
+hierarchies for event forwarding.
+### Bomber `draw` and `update` callbacks
+Let's dig into the `Bomber` animation class in C++ [[![X]][cpp-bomber]], 
+focusing on the `sprite` member, and the `update` and `draw` callback methods:
+
+# HIER
+Similarly to *dispatching hierarchies*, some entities control the lifespan of 
+other child entities, resulting in dynamic and explicit allocation and 
+deallocation of objects.
+However, it is actually common to have children with a static lifespan which 
+are known at compile time.
+For instance, most entities in the `GameSession` coexists with it, i.e., they 
+are added in the constructor and need not to be removed explicitly
+[[![X]][cpp-gamesession-containers]]:
+-->
+
+    If the execution flow is dynamic, the program has to tell the activity 
+    where to go when it completes.
+    In Pingus, when the player terminates a level, the game may terminate or
+    return to the main menu, depending on how it was invoked from the command
+    line.
+
+
+
+- tudo porque eu consigo voltar/retornar das "chamadas"
+    - programacao estruturada
+
+more natural structured code with sequences, conditionals, and loops
+
+### Case Study 1: Story Screen
+
+loop do story_screen VS
+i explicito da continuacao
+
+### Case Study 2: Story and Credits Screen
+
+storydot com ou sem credits
+    - 15 p/ 16 clicks
+    - nao existe retorno, sempre continuacao apos continuacao
 
 <a name="signaling-mechanism"/>
 
