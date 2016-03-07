@@ -552,7 +552,7 @@ Bomber::Bomber (Pingu* p) :
 {
     <...>
     // 1. 0th frame: plays a "Oh no!" sound.
-    play_sound("ohno", pingu->get_pos ());          // X3
+    get_world()->play_sound("ohno", pingu->get_pos ());          // X3
 }
 
 void Bomber::update ()
@@ -563,18 +563,18 @@ void Bomber::update ()
     // 2. 10th frame: plays a "Bomb!" sound.
     if (sprite.get_current_frame()==10 && !sound_played) {              // X5
         sound_played = true;
-        play_sound("plop", pingu->get_pos ());
+        get_world()->play_sound("plop", pingu->get_pos ());
     }                                                                   // X6
 
     // 3. 13th frame: throws particles, destroys the terrain, shows an explosion sprite
     if (sprite.get_current_frame()==13 && !particle_thrown) {           // X7
         particle_thrown = true;
-        get_pingu_particle_holder()->add_particle(pingu->get_x(),
+        get_world()->get_pingu_particle_holder()->add_particle(pingu->get_x(),
                                                                          pingu->get_y()-5);
     }
     if (sprite.get_current_frame()==13 && !colmap_exploded) {
         colmap_exploded = true;
-        remove(bomber_radius, <...>);
+        get_world()->remove(bomber_radius, <...>);
     }                                                                   // X8
 
     // 5. Last frame: kills the Pingu

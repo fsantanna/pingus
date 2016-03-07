@@ -331,7 +331,7 @@ state machine.
 {
     &lt;...&gt;
     // 1. 0th frame: plays a &quot;Oh no!&quot; sound.
-    play_sound(&quot;ohno&quot;, pingu-&gt;get_pos ());          // X3
+    get_world()-&gt;play_sound(&quot;ohno&quot;, pingu-&gt;get_pos ());          // X3
 }
 
 void Bomber::update ()
@@ -342,18 +342,18 @@ void Bomber::update ()
     // 2. 10th frame: plays a &quot;Bomb!&quot; sound.
     if (sprite.get_current_frame()==10 &amp;&amp; !sound_played) {              // X5
         sound_played = true;
-        play_sound(&quot;plop&quot;, pingu-&gt;get_pos ());
+        get_world()-&gt;play_sound(&quot;plop&quot;, pingu-&gt;get_pos ());
     }                                                                   // X6
 
     // 3. 13th frame: throws particles, destroys the terrain, shows an explosion sprite
     if (sprite.get_current_frame()==13 &amp;&amp; !particle_thrown) {           // X7
         particle_thrown = true;
-        get_pingu_particle_holder()-&gt;add_particle(pingu-&gt;get_x(),
+        get_world()-&gt;get_pingu_particle_holder()-&gt;add_particle(pingu-&gt;get_x(),
                                                                          pingu-&gt;get_y()-5);
     }
     if (sprite.get_current_frame()==13 &amp;&amp; !colmap_exploded) {
         colmap_exploded = true;
-        remove(bomber_radius, &lt;...&gt;);
+        get_world()-&gt;remove(bomber_radius, &lt;...&gt;);
     }                                                                   // X8
 
     // 5. Last frame: kills the Pingu
