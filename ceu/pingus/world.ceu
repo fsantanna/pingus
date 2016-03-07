@@ -113,7 +113,7 @@ do
     pool IVisible[] layer_bg_1;     // liquid, hotspot
     pool IPingu[] pingus;
 
-    var PinguHolder pingu_holder with
+    var PinguHolder _ with
         this.pingus  = &pingus;
         this.counter = &outer.counter;
     end;

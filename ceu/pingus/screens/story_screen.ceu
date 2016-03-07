@@ -43,7 +43,6 @@ do
     {
         static WorldmapNS::WorldmapStory story = WorldmapNS::WorldmapStory(*THIS(CEU_StoryScreen)->reader);
         static std::vector<StoryPage> pages;
-        static StoryPage page;
     };
     _story = _XXX_PURE({WorldmapNS::WorldmapStory}(*reader)
                 finalize with end);
@@ -58,6 +57,7 @@ do
 
     par do
         loop i in _pages.size() do
+            { static StoryPage page; };
             _page = _XXX_PURE(_pages.at(i));
             var char[] text;
             var char&& image = _XXX_PURE((char&&)_page.image.res_name.c_str());
