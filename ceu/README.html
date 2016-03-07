@@ -128,38 +128,38 @@ void ArmageddonButton::update (float delta) {
     }
 }
 
-void ArmageddonButton::on_primary_button_click (&lt;...&gt;) {
+void ArmageddonButton::on_click (&lt;...&gt;) {
     if (pressed) {
         server-&gt;send_armageddon_event();
     } else {
         pressed = true;
     }
 }</code></pre>
-<p>The <code>update</code> (ln. 15-27) and <code>on_primary_button_click</code> (ln. 29-35) are the relevant methods of the class and are examples of <em>short-lived callbacks</em>, which are pieces of code that execute in reaction to external input events. Here, <code>on_primary_button_click</code> reacts to mouse clicks (detected by the base class <code>RectComponent</code> in ln. 2), while <code>update</code> continuously reacts to the passage of time. Callbacks are short lived because they must execute as fast as possible to keep the game with real-time responsiveness.</p>
+<p>The <code>update</code> (ln. 15-27) and <code>on_click</code> (ln. 29-35) are the relevant methods of the class and are examples of <em>short-lived callbacks</em>, which are pieces of code that execute in reaction to external input events. Here, <code>on_click</code> reacts to mouse clicks (detected by the base class <code>RectComponent</code> in ln. 2), while <code>update</code> continuously reacts to the passage of time. Callbacks are short lived because they must execute as fast as possible to keep the game with real-time responsiveness.</p>
 <div class="images">
 <img src="images/double-click.png" width="550"/> <br>Figure X: State machine for the &quot;Armageddon&quot; double click.
 </div>
 <p>The class first initializes the variable <code>pressed</code> to track the first click (ln. 4,33). It also initializes the variable <code>press_time</code> to count the time since the first click (ln. 5,18). If another click occurs within 1 second, the class signals the double click to the application (ln. 31). Otherwise, the <code>pressed</code> and <code>press_time</code> state variables are reset (ln. 20-21). Figure X illustrates how we can model the double-click behavior as a state machine.</p>
 <p>However, note how the accesses to these state variables are spread across the entire class. For instance, the distance between the initialization of <code>pressed</code> (ln. 4) and the last access to it (ln. 33) is over 40 lines in the original file [<a href="https://github.com/Pingus/pingus/blob/v0.7.6/src/pingus/components/action_button.cpp#L33-#L90"><img src="images/link_12.png" alt="X" /></a>]. Arguably, this dispersion of code across methods makes the understanding and maintenance of the double-click behavior more difficult. Also, even though the state variables are private, unrelated methods such as <code>draw</code> (ln. 11-13) can potentially access it.</p>
-<p>Because callbacks are short lived, the only way they can affect each other is by manipulating persisting member variables in the object. These <em>state variables</em> retain their values across multiple invocations, e.g.: <code>on_primary_button_click</code> writes to <code>pressed</code> in the first click, and checks its state in further clicks (ln. 30,33), In the meantime, <code>update</code> also checks for <code>pressed</code> and may change its state (ln. 17,20).</p>
+<p>Because callbacks are short lived, the only way they can affect each other is by manipulating persisting member variables in the object. These <em>state variables</em> retain their values across multiple invocations, e.g.: <code>on_click</code> writes to <code>pressed</code> in the first click, and checks its state in further clicks (ln. 30,33), In the meantime, <code>update</code> also checks for <code>pressed</code> and may change its state (ln. 17,20).</p>
 <!-- CEU-ARMAGEDDON -->
 
 <p>Céu provides structured constructs to deal with events, aiming to eradicate explicit manipulation of state variables for control-flow purposes. The equivalent code in Céu [<a href="https://github.com/fsantanna/pingus/blob/ceu/ceu/pingus/components/action_button.ceu#L6"><img src="images/link_12.png" alt="X" /></a>] defines the class <code>ArmageddonButton</code> as follows:</p>
 <pre><code>class ArmageddonButton with
     &lt;...&gt;
-do                                                      // X9
+do                                       // X9
     var RectComponent component = &lt;...&gt;;
     &lt;...&gt;
-    loop do                                             // line X1
-        await component.on_primary_button_click;        // line X3
-        watching 1s do                                  // line X4
-            await component.on_primary_button_click;    // line X6
-            break;                                      // line X7
-        end                                             // line X5
-    end                                                 // line X2
+    loop do                              // line X1
+        await component.on_click;        // line X3
+        watching 1s do                   // line X4
+            await component.on_click;    // line X6
+            break;                       // line X7
+        end                              // line X5
+    end                                  // line X2
     &lt;...&gt;
-    emit global:go_armageddon;                          // line X8
-end                                                     // X10</code></pre>
+    emit global:go_armageddon;           // line X8
+end                                      // X10</code></pre>
 <p>Instead of <em>objects</em>, classes in Céu specify <em>organisms</em> with a body declaration (ln. X9-X10) which executes for each instance while alive. Unlike objects, an organism is an active entity and starts to execute its body in a concurrent and deterministic manner with other alive organisms (but <em>not</em> actually in parallel). An execution body can use control-flow statements that keep the execution context across event occurrences (i.e., across <code>await</code> statements).</p>
 <p>The double click detection is a <code>loop</code> (ln. X1-X2) that awaits the first click (ln. X3) and then, watching 1 second (ln. X4-X5), awaits the second click (ln X6). If the second click occurs within 1 second, we <code>break</code> the loop (ln. X7) and signal the double click to the application (ln X8). Otherwise, the <code>watching</code> block as a whole aborts and restarts the loop, falling back to the first click <code>await</code> (ln X3).</p>
 <p>The double click detection in Céu doesn't require state variables and is entirely self-contained in the <code>loop</code> body (ln. X1-X2). Furthermore, these 7 lines of code do nothing besides detecting a double click, i.e., the actual effect happens outside the loop (ln. X8).</p>
@@ -324,14 +324,14 @@ state machine.
 <p>The code in C++ [<a href="https://github.com/Pingus/pingus/blob/v0.7.6/src/pingus/actions/bomber.cpp"><img src="images/link_12.png" alt="X" /></a>] defines the class <code>Bomber</code> which implements the <code>draw</code> and <code>update</code> callback methods:</p>
 <pre><code>Bomber::Bomber (Pingu* p) :
     &lt;...&gt;
-    sound_played(false),        // tracks state 2   X1
+    sound_played(false),        // tracks state 2   // X1
     particle_thrown(false),     // tracks state 3
     colmap_exploded(false),     // tracks state 3
-    gfx_exploded(false)         // tracks state 4   X2
+    gfx_exploded(false)         // tracks state 4   // X2
 {
     &lt;...&gt;
     // 1. 0th frame: plays a &quot;Oh no!&quot; sound.
-    WorldObj::get_world()-&gt;play_sound(&quot;ohno&quot;, pingu-&gt;get_pos ());   // X3
+    play_sound(&quot;ohno&quot;, pingu-&gt;get_pos ());          // X3
 }
 
 void Bomber::update ()
@@ -342,18 +342,18 @@ void Bomber::update ()
     // 2. 10th frame: plays a &quot;Bomb!&quot; sound.
     if (sprite.get_current_frame()==10 &amp;&amp; !sound_played) {              // X5
         sound_played = true;
-        WorldObj::get_world()-&gt;play_sound(&quot;plop&quot;, pingu-&gt;get_pos ());
+        play_sound(&quot;plop&quot;, pingu-&gt;get_pos ());
     }                                                                   // X6
 
     // 3. 13th frame: throws particles, destroys the terrain, shows an explosion sprite
     if (sprite.get_current_frame()==13 &amp;&amp; !particle_thrown) {           // X7
         particle_thrown = true;
-        WorldObj::get_world()-&gt;get_pingu_particle_holder()-&gt;add_particle(pingu-&gt;get_x(),
+        get_pingu_particle_holder()-&gt;add_particle(pingu-&gt;get_x(),
                                                                          pingu-&gt;get_y()-5);
     }
     if (sprite.get_current_frame()==13 &amp;&amp; !colmap_exploded) {
         colmap_exploded = true;
-        WorldObj::get_world()-&gt;remove(bomber_radius, &lt;...&gt;);
+        remove(bomber_radius, &lt;...&gt;);
     }                                                                   // X8
 
     // 5. Last frame: kills the Pingu
@@ -384,17 +384,17 @@ do
         &lt;...&gt;   // pingu movement                                   // X1
     with
         // 1. 0th frame: plays a &quot;Oh no!&quot; sound.
-        call {Sound::PingusSound::play_sound}(&quot;ohno&quot;, 0.5, 0.0);
+        call global:play_sound(&quot;ohno&quot;, 0.5, 0.0);
 
         // 2. 10th frame: plays a &quot;Bomb!&quot; sound.
         await WORLD_UPDATE until sprite.get_current_frame() == 10;
-        call {Sound::PingusSound::play_sound}(&quot;plop&quot;, 0.5, 0.0);
+        call global:play_sound(&quot;plop&quot;, 0.5, 0.0);
 
         // 3. 13th frame: throws particles, destroys the terrain, shows an explosion sprite
         await WORLD_UPDATE until sprite.get_current_frame() == 13;
         emit global:go_create_pingu_particles =&gt; (this.pingu.get_x(),
                                                   this.pingu.get_y()-5);
-        global:world!:remove(&amp;&amp;_bomber_radius, &lt;...&gt;);
+        global:remove(&amp;&amp;_bomber_radius, &lt;...&gt;);
         do                                                          // X4
             var Sprite _ = Sprite.build_name(&lt;...&gt;, &amp;&amp;explo);
             // 4. Game tick: hides the explosion sprite

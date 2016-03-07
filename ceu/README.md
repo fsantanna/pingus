@@ -156,7 +156,7 @@ void ArmageddonButton::update (float delta) {
     }
 }
 
-void ArmageddonButton::on_primary_button_click (<...>) {
+void ArmageddonButton::on_click (<...>) {
     if (pressed) {
         server->send_armageddon_event();
     } else {
@@ -165,12 +165,12 @@ void ArmageddonButton::on_primary_button_click (<...>) {
 }
 ```
 
-The `update` (ln. 15-27) and `on_primary_button_click` (ln. 29-35) are the 
-relevant methods of the class and are examples of *short-lived callbacks*, 
-which are pieces of code that execute in reaction to external input events.
-Here, `on_primary_button_click` reacts to mouse clicks (detected by the base 
-class `RectComponent` in ln. 2), while `update` continuously reacts to the 
-passage of time.
+The `update` (ln. 15-27) and `on_click` (ln. 29-35) are the relevant methods of 
+the class and are examples of *short-lived callbacks*, which are pieces of code 
+that execute in reaction to external input events.
+Here, `on_click` reacts to mouse clicks (detected by the base class 
+`RectComponent` in ln. 2), while `update` continuously reacts to the passage of 
+time.
 Callbacks are short lived because they must execute as fast as possible to keep 
 the game with real-time responsiveness.
 
@@ -203,8 +203,8 @@ such as `draw` (ln. 11-13) can potentially access it.
 Because callbacks are short lived, the only way they can affect each other is 
 by manipulating persisting member variables in the object.
 These *state variables* retain their values across multiple invocations, e.g.:
-`on_primary_button_click` writes to `pressed` in the first click, and 
-checks its state in further clicks (ln. 30,33),
+`on_click` writes to `pressed` in the first click, and checks its state in 
+further clicks (ln. 30,33),
 In the meantime, `update` also checks for `pressed` and may change its 
 state (ln. 17,20).
 
@@ -218,19 +218,19 @@ The equivalent code in Céu [[![X]][ceu-armageddon]] defines the class
 ```
 class ArmageddonButton with
     <...>
-do                                                      // X9
+do                                       // X9
     var RectComponent component = <...>;
     <...>
-    loop do                                             // line X1
-        await component.on_primary_button_click;        // line X3
-        watching 1s do                                  // line X4
-            await component.on_primary_button_click;    // line X6
-            break;                                      // line X7
-        end                                             // line X5
-    end                                                 // line X2
+    loop do                              // line X1
+        await component.on_click;        // line X3
+        watching 1s do                   // line X4
+            await component.on_click;    // line X6
+            break;                       // line X7
+        end                              // line X5
+    end                                  // line X2
     <...>
-    emit global:go_armageddon;                          // line X8
-end                                                     // X10
+    emit global:go_armageddon;           // line X8
+end                                      // X10
 ```
 
 Instead of *objects*, classes in Céu specify *organisms* with a body 
@@ -545,14 +545,14 @@ implements the `draw` and `update` callback methods:
 ```
 Bomber::Bomber (Pingu* p) :
     <...>
-    sound_played(false),        // tracks state 2   X1
+    sound_played(false),        // tracks state 2   // X1
     particle_thrown(false),     // tracks state 3
     colmap_exploded(false),     // tracks state 3
-    gfx_exploded(false)         // tracks state 4   X2
+    gfx_exploded(false)         // tracks state 4   // X2
 {
     <...>
     // 1. 0th frame: plays a "Oh no!" sound.
-    WorldObj::get_world()->play_sound("ohno", pingu->get_pos ());   // X3
+    play_sound("ohno", pingu->get_pos ());          // X3
 }
 
 void Bomber::update ()
@@ -563,18 +563,18 @@ void Bomber::update ()
     // 2. 10th frame: plays a "Bomb!" sound.
     if (sprite.get_current_frame()==10 && !sound_played) {              // X5
         sound_played = true;
-        WorldObj::get_world()->play_sound("plop", pingu->get_pos ());
+        play_sound("plop", pingu->get_pos ());
     }                                                                   // X6
 
     // 3. 13th frame: throws particles, destroys the terrain, shows an explosion sprite
     if (sprite.get_current_frame()==13 && !particle_thrown) {           // X7
         particle_thrown = true;
-        WorldObj::get_world()->get_pingu_particle_holder()->add_particle(pingu->get_x(),
+        get_pingu_particle_holder()->add_particle(pingu->get_x(),
                                                                          pingu->get_y()-5);
     }
     if (sprite.get_current_frame()==13 && !colmap_exploded) {
         colmap_exploded = true;
-        WorldObj::get_world()->remove(bomber_radius, <...>);
+        remove(bomber_radius, <...>);
     }                                                                   // X8
 
     // 5. Last frame: kills the Pingu
@@ -629,17 +629,17 @@ do
         <...>   // pingu movement                                   // X1
     with
         // 1. 0th frame: plays a "Oh no!" sound.
-        call {Sound::PingusSound::play_sound}("ohno", 0.5, 0.0);
+        call global:play_sound("ohno", 0.5, 0.0);
 
         // 2. 10th frame: plays a "Bomb!" sound.
         await WORLD_UPDATE until sprite.get_current_frame() == 10;
-        call {Sound::PingusSound::play_sound}("plop", 0.5, 0.0);
+        call global:play_sound("plop", 0.5, 0.0);
 
         // 3. 13th frame: throws particles, destroys the terrain, shows an explosion sprite
         await WORLD_UPDATE until sprite.get_current_frame() == 13;
         emit global:go_create_pingu_particles => (this.pingu.get_x(),
                                                   this.pingu.get_y()-5);
-        global:world!:remove(&&_bomber_radius, <...>);
+        global:remove(&&_bomber_radius, <...>);
         do                                                          // X4
             var Sprite _ = Sprite.build_name(<...>, &&explo);
             // 4. Game tick: hides the explosion sprite
