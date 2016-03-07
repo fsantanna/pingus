@@ -698,24 +698,127 @@ state passes to the current state what will be the next state.
 more natural structured code with sequences, conditionals, and loops
 -->
 
-### Case Study 1: Story Screen
+### Case Study 1: Story Screen, Advancing Pages
+
+<div class="images">
+<img src="images/story-anim.gif" width="350"/>
+<br>Figure X: The "Story" screen.
+</div>
+
+The world map of Pingus has a clickable "blue dot" with an introductory story 
+about the game (Figure X).
+The words for each story page appears incrementally over time.
+The first click in the button ">>>" fast forwards the text.
+The second click advances to the next page until the story terminates.
+If the page displays completely due to the time elapsing, the first click 
+advances to the next page.
+
+The code in C++ [[![X]][cpp-TODO]] defines the class `StoryScreenComponent` 
+with a `next_text` method to advance the words and pages:
+
+```
+StoryScreenComponent::StoryScreenComponent (WorldmapStory* arg, <...>) : // X11
+    story(arg),                                 // X9
+    <...>
+{
+    pages        = story->get_pages();          // X10
+    current_page = pages.back();                // X2
+    displayed    = false;                       // X5
+    <...>
+}
+
+<...>   // draw, update, etc
+
+void StoryScreenComponent::next_text() {
+    if (!displayed) {                           // X6
+        displayed = true;                       // X7
+        <...>
+    } else {
+        pages.pop_back();                       // X12
+        if (!pages.empty()) {
+            current_page = pages.back();        // X3
+            displayed    = false;               // X8
+            <...>
+        } else {
+            <...>   // terminates the story screen
+        }
+    }
+}
+```
+
+The variable `story` (ln X9,X10) holds all pages from the story received as 
+argument (X11).
+The variable `pages` (ln. X10-X2, X12-X3) is a vector holding each page and 
+also controls the flow of the story:
+each call to `next_text` that advances the story removes a page (ln. X12) and 
+sets the new "continuation" in the `current_page` (ln. X3).
+
+
+The variable `current_page` (ln. X2,X3) represents the page being displayed.
+The variable `displayed` (ln. X5,X6,X7,X8) tracks if the current page has 
+already being displayed completely.
+
+We omitted the code for fast-forwarding the words, as it is a simple state 
+machine (Figure X).
+
+The class first initializes the variable `pressed` to track the first click 
+
+The sequential navigation from page to page
+implicit loop
+
+<div class="images">
+<img src="images/story.png" width="550"/>
+<br>Figure X: State machine for the "Story" screen.
+</div>
+
+
+
+The code for the
+Figure X illustrates how we can model the clicks behavior.
+Stories are dynamically loaded from files
+Each page has to continue to the next page
+
+the two are mixed
+
+ as a state machine.
+
+The class defines one state variable for each action to perform (ln. X1-X2).
+The "Oh no!" sound plays as soon as the object starts in *state-1* (ln. X3).
+The `update` callbacks update the animation sprite and moves the pingu every 
+frame (ln.  X4-X4.1), regardless of the current state.
+When the animation reaches the 10th frame, it plays the "Bomb!" if it hasn't 
+yet (ln. X5-X6), going to *state-2*.
+The `sound_played` state variable is required because the sprite frame doesn't 
+necessarily advance on every `update` invocation.
+The same reasoning and technique applies to the *state-3* (ln. X7-X8 and 
+X9-X10).
+The explosion sprite appears in a single frame in *state-4* (ln. X11).
+Finally, the pingu dies after the animation frames terminate (ln. X12-X13).
+
+
+
+
+is told
+
+
+for it.
+
+Most UI widgets in the `GameSession` screen are static and coexist with it, 
+i.e., they are added in the constructor and are never removed explicitly
+[[![X]][cpp-gamesession-containers]]:
+
+In C++, for entities with a dynamic lifespan, we need to `add` and `remove` 
+them explicitly from the container.
+As an example, pingus are dynamic entities created periodically and destroyed 
+under certain conditions (e.g. when going out of the screen
+[[![X]][cpp-pingu-dead]]):
 
 LOOP do story_screen VS
 i explicito da continuacao (loop unrolling)
 
 next action is encoded in the vector
 
-<div class="images">
-<img src="images/credits-anim.gif" width="550"/>
-<br>Figure X: xxx
-</div>
-
-<div class="images">
-<img src="images/credits.png" width="550"/>
-<br>Figure X: xxx
-</div>
-
-### Case Study 2: Story and Credits Screen
+### Case Study 2: Story Screen, Termination
 
 SEQ
 

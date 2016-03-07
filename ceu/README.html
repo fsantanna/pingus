@@ -436,16 +436,58 @@ state passes to the current state what will be the next state.
 more natural structured code with sequences, conditionals, and loops
 -->
 
-<h3 id="case-study-1-story-screen">Case Study 1: Story Screen</h3>
+<h3 id="case-study-1-story-screen-advancing-pages">Case Study 1: Story Screen, Advancing Pages</h3>
+<div class="images">
+<img src="images/story-anim.gif" width="350"/> <br>Figure X: The &quot;Story&quot; screen.
+</div>
+<p>Each world map in Pingus has a clickable &quot;blue dot&quot; to tell an ambience story (Figure X). The words for each story page appears incrementally over time. The first click in the button &quot;&gt;&gt;&gt;&quot; fast forwards the words. The second click advances to the next page until the story terminates.</p>
+<p>The code in C++ [[<img src="images/link_12.png" alt="X" />][cpp-xxx]] defines the class <code>Bomber</code> which implements the <code>draw</code> and <code>update</code> callback methods:</p>
+<pre><code>StoryScreenComponent::StoryScreenComponent (WorldmapStory* arg, &lt;...&gt;) :
+    page_displayed_completly(),
+    story(arg),
+    pages(),
+    &lt;...&gt;
+    current_page()
+{
+    page_displayed_completly = false;
+    pages = story-&gt;get_pages();
+    current_page = pages.back();
+    &lt;...&gt;
+}
+
+&lt;...&gt;   // draw, update, etc
+
+void StoryScreenComponent::next_text() {
+    if (!page_displayed_completly) {
+        page_displayed_completly = true;
+        &lt;...&gt;
+    } else {
+        pages.pop_back();
+        if (!pages.empty()) {
+            current_page = pages.back();
+            page_displayed_completly = false;
+            &lt;...&gt;
+        } else {
+            &lt;...&gt;
+        }
+    }
+}</code></pre>
+<p>The sequential navigation from page to page implicit loop</p>
+<div class="images">
+<img src="images/story.png" width="550"/> <br>Figure X: State machine for the &quot;Story&quot; screen.
+</div>
+<p>We omitted the code for fast-forwarding the words, as it is a simple state machine (Figure X).</p>
+<p>The code for the Figure X illustrates how we can model the clicks behavior. Stories are dynamically loaded from files Each page has to continue to the next page</p>
+<p>the two are mixed</p>
+<p>as a state machine.</p>
+<p>The class defines one state variable for each action to perform (ln. X1-X2). The &quot;Oh no!&quot; sound plays as soon as the object starts in <em>state-1</em> (ln. X3). The <code>update</code> callbacks update the animation sprite and moves the pingu every frame (ln. X4-X4.1), regardless of the current state. When the animation reaches the 10th frame, it plays the &quot;Bomb!&quot; if it hasn't yet (ln. X5-X6), going to <em>state-2</em>. The <code>sound_played</code> state variable is required because the sprite frame doesn't necessarily advance on every <code>update</code> invocation. The same reasoning and technique applies to the <em>state-3</em> (ln. X7-X8 and X9-X10). The explosion sprite appears in a single frame in <em>state-4</em> (ln. X11). Finally, the pingu dies after the animation frames terminate (ln. X12-X13).</p>
+<p>is told</p>
+<p>for it.</p>
+<p>Most UI widgets in the <code>GameSession</code> screen are static and coexist with it, i.e., they are added in the constructor and are never removed explicitly [<a href="https://github.com/Pingus/pingus/blob/v0.7.6/src/pingus/screens/game_session.cpp#L76"><img src="images/link_12.png" alt="X" /></a>]:</p>
+<p>In C++, for entities with a dynamic lifespan, we need to <code>add</code> and <code>remove</code> them explicitly from the container. As an example, pingus are dynamic entities created periodically and destroyed under certain conditions (e.g. when going out of the screen [<a href="https://github.com/Pingus/pingus/blob/v0.7.6/src/pingus/pingu.cpp#L322"><img src="images/link_12.png" alt="X" /></a>]):</p>
 <p>LOOP do story_screen VS i explicito da continuacao (loop unrolling)</p>
 <p>next action is encoded in the vector</p>
-<div class="images">
-<img src="images/credits-anim.gif" width="550"/> <br>Figure X: xxx
-</div>
-<div class="images">
-<img src="images/credits.png" width="550"/> <br>Figure X: xxx
-</div>
-<h3 id="case-study-2-story-and-credits-screen">Case Study 2: Story and Credits Screen</h3>
+<h3 id="case-study-2-story-screen-termination">Case Study 2: Story Screen, Termination</h3>
 <p>SEQ</p>
 <p>storydot com ou sem credits - 15 p/ 16 clicks - nao existe retorno, sempre continuacao apos continuacao</p>
 <p><a name="dispatching-hierarchies"/></p>
@@ -566,7 +608,7 @@ end</code></pre>
 <h3 id="case-study-1-game-ui-widgets">Case Study 1: Game UI Widgets</h3>
 <!-- CPP-CONTAINER -->
 
-<p>Most UI widgets in the <code>GameSession</code> are static and coexist with it, i.e., they are added in the constructor and are never removed explicitly [<a href="https://github.com/Pingus/pingus/blob/v0.7.6/src/pingus/screens/game_session.cpp#L76"><img src="images/link_12.png" alt="X" /></a>]:</p>
+<p>Most UI widgets in the <code>GameSession</code> screen are static and coexist with it, i.e., they are added in the constructor and are never removed explicitly [<a href="https://github.com/Pingus/pingus/blob/v0.7.6/src/pingus/screens/game_session.cpp#L76"><img src="images/link_12.png" alt="X" /></a>]:</p>
 <pre><code>GameSession::GameSession(&lt;...&gt;) :
     &lt;...&gt;
 {
