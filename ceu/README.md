@@ -106,6 +106,8 @@ from C++ to the programming language Céu
 [ceu-1]: http://ceu-lang.org/
 [ceu-2]: https://github.com/fsantanna/ceu/
 
+<a name="warming-up"/>
+
 ## Warming Up!
 
 Let's consider the case of handling double clicks in the game.
@@ -172,6 +174,11 @@ passage of time.
 Callbacks are short lived because they must execute as fast as possible to keep 
 the game with real-time responsiveness.
 
+<div class="images">
+<img src="images/double-click.png" width="550"/>
+<br>Figure X: State machine for the "Armageddon" double click.
+</div>
+
 The class first initializes the variable `pressed` to track the first click 
 (ln. 4,33).
 It also initializes the variable `press_time` to count the time since 
@@ -180,6 +187,8 @@ If another click occurs within 1 second, the class signals the double
 click to the application (ln. 31).
 Otherwise, the `pressed` and `press_time` state variables are reset 
 (ln. 20-21).
+Figure X illustrates how we can model the double-click behavior as a state 
+machine.
 
 However, note how the accesses to these state variables are spread across the 
 entire class.
@@ -385,36 +394,37 @@ along with in-depth examples:
 
 <a name="finite-state-machines"/>
 
-1. [**Finite State Machines**](#finite-state-machines)
+1. [**Finite State Machines**](#finite-state-machines):
     State machines describe the behavior of game entities by mapping event 
-    occurrences to transitions between states triggering appropriate actions.
+    occurrences to transitions between states and triggering appropriate
+    actions.
 
-2. [**Dispatching Hierarchies**](#dispatching-hierarchies)
+4. [**Continuation Passing**](#continuation-passing):
+    The completion of a long-lasting activity in a game may have a 
+    continuation, i.e., some action to execute next.
+
+2. [**Dispatching Hierarchies**](#dispatching-hierarchies):
     Some entities in games manage other child entities, resulting in 
     dispatching hierarchies for event forwarding.
 
-3. [**Containers and Lifespan**](#containers-and-lifespan)
+3. [**Containers and Lifespan**](#containers-and-lifespan):
     Similarly to *dispatching hierarchies*, some entities control the lifespan 
     of other child entities, resulting in dynamic and explicit allocation and
     deallocation of objects.
 
-4. [**Continuation Passing**](#continuation-passing)
-    The completion of a long-lasting activity in a game may have a 
-    continuation, i.e., some action to execute next.
-
-5. [**Signaling Mechanisms**](#signaling-mechanism)
+5. [**Signaling Mechanisms**](#signaling-mechanism):
     Entities often need to communicate explicitly through a signaling 
     mechanism, especially if there is no hierarchy relationship between them.
 
-6. [**Wall-Clock Timers**](#wall-clock-timers)
+6. [**Wall-Clock Timers**](#wall-clock-timers):
     Wall-clock timers measure the passage of time from the real world
     (e.g., *10 seconds*) such as for periodic sampling and timeout watchdogs.
 
-7. [**Pausing**](#pausing)
+7. [**Pausing**](#pausing):
     Pausing allows parts of the game to temporarily suspend execution or
     reactions to incoming events.
 
-8. [**Resource Acquisition and Release**](#resource-acquisition-and-release)
+8. [**Resource Acquisition and Release**](#resource-acquisition-and-release):
     External resources, such as configuration files and saved games,
     must be acquired and properly released.
 
@@ -443,6 +453,7 @@ Alexander Tkachov
 # Qualitative Analysis
 
 TODO: Selected Code Snippets
+TODO: state vars, code reduction para cada case
 
 <!--
 3. **Continuation Passing**
@@ -490,13 +501,17 @@ TODO: Selected Code Snippets
 ## Finite State Machines
 
 State machines describe the behavior of game entities by mapping event 
-occurrences to transitions between states triggering appropriate actions.
+occurrences to transitions between states and triggering appropriate actions.
 <!--
 The double click behavior for the *Armageddon button* is an example of a simple 
 state machine.
 -->
 
-### Case Study: The "Bomber" Action
+### Case Study 1: The "Armageddon" Double Click
+
+See [Warming Up](#warming-up).
+
+### Case Study 2: The "Bomber" Action
 
 The *bomber action* explodes the clicked pingu, throwing particles around and 
 also destroying the terrain under its radius (Figure X).
@@ -660,6 +675,53 @@ comparison to the implementation in C++:
 <!--
 ### Sprite Animations
 -->
+
+<a name="continuation-passing"/>
+
+## Continuation Passing
+
+The completion of a long-lasting activity in a game may have a continuation, 
+i.e., some action to execute next.
+
+<!--
+If the execution flow is dynamic, the program has to tell the activity where to 
+go when it completes.
+In Pingus, when the player terminates a level, the game may terminate or return 
+to the main menu, depending on how it was invoked from the command line.
+
+Continuation passing is a special case of a state machine in which the previous 
+state passes to the current state what will be the next state.
+
+- tudo porque eu consigo voltar/retornar das "chamadas"
+    - programacao estruturada
+
+more natural structured code with sequences, conditionals, and loops
+-->
+
+### Case Study 1: Story Screen
+
+LOOP do story_screen VS
+i explicito da continuacao (loop unrolling)
+
+next action is encoded in the vector
+
+<div class="images">
+<img src="images/credits-anim.gif" width="550"/>
+<br>Figure X: xxx
+</div>
+
+<div class="images">
+<img src="images/credits.png" width="550"/>
+<br>Figure X: xxx
+</div>
+
+### Case Study 2: Story and Credits Screen
+
+SEQ
+
+storydot com ou sem credits
+    - 15 p/ 16 clicks
+    - nao existe retorno, sempre continuacao apos continuacao
 
 <a name="dispatching-hierarchies"/>
 
@@ -897,8 +959,8 @@ are known at compile time.
 
 <!-- CPP-CONTAINER -->
 
-Most UI widgets in the `GameSession` are static and coexist with it, i.e., they 
-are added in the constructor and are never removed explicitly
+Most UI widgets in the `GameSession` screen are static and coexist with it, 
+i.e., they are added in the constructor and are never removed explicitly
 [[![X]][cpp-gamesession-containers]]:
 
 ```
@@ -919,7 +981,7 @@ GameSession::GameSession(<...>) :
 
 Even so, the `add` method expects only dynamically allocated children because 
 they are automatically deallocated inside the container destructor 
-[[![X]][groupcomponent-delete]].
+[[![X]][cpp-groupcomponent-delete]].
 
 [cpp-groupcomponent-delete]: https://github.com/Pingus/pingus/blob/v0.7.6/src/engine/gui/group_component.cpp#L37
 
@@ -1149,56 +1211,6 @@ end
 [ceu-pingu-dead]: https://github.com/fsantanna/pingus/blob/ceu/ceu/pingus/pingu.ceu#L83
 
 [ceu-main-outermost]: https://github.com/fsantanna/pingus/blob/ceu/ceu/main.ceu#L249
-
-<a name="continuation-passing"/>
-
-## Continuation Passing
-
-    The completion of a long-lasting activity in a game may have a 
-    continuation, i.e., some action to execute next.
-
-<!--
-# STATE
-Some entities in games manage other child entities, resulting in dispatching 
-hierarchies for event forwarding.
-### Bomber `draw` and `update` callbacks
-Let's dig into the `Bomber` animation class in C++ [[![X]][cpp-bomber]], 
-focusing on the `sprite` member, and the `update` and `draw` callback methods:
-
-# HIER
-Similarly to *dispatching hierarchies*, some entities control the lifespan of 
-other child entities, resulting in dynamic and explicit allocation and 
-deallocation of objects.
-However, it is actually common to have children with a static lifespan which 
-are known at compile time.
-For instance, most entities in the `GameSession` coexists with it, i.e., they 
-are added in the constructor and need not to be removed explicitly
-[[![X]][cpp-gamesession-containers]]:
--->
-
-    If the execution flow is dynamic, the program has to tell the activity 
-    where to go when it completes.
-    In Pingus, when the player terminates a level, the game may terminate or
-    return to the main menu, depending on how it was invoked from the command
-    line.
-
-
-
-- tudo porque eu consigo voltar/retornar das "chamadas"
-    - programacao estruturada
-
-more natural structured code with sequences, conditionals, and loops
-
-### Case Study 1: Story Screen
-
-loop do story_screen VS
-i explicito da continuacao
-
-### Case Study 2: Story and Credits Screen
-
-storydot com ou sem credits
-    - 15 p/ 16 clicks
-    - nao existe retorno, sempre continuacao apos continuacao
 
 <a name="signaling-mechanism"/>
 

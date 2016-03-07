@@ -90,6 +90,7 @@ TODO:
 <h1 id="what-is-this-all-about">What is this all about?</h1>
 <p>This report documents the process of porting the video game Pingus [<a href="http://pingus.seul.org/"><img src="images/link_12.png" alt="X" /></a>,<a href="https://github.com/Pingus/pingus/"><img src="images/link_12.png" alt="X" /></a>] from C++ to the programming language Céu [<a href="http://ceu-lang.org/"><img src="images/link_12.png" alt="X" /></a>,<a href="https://github.com/fsantanna/ceu/"><img src="images/link_12.png" alt="X" /></a>].</p>
 <p><img src="images/pingus-1.png" width="400"/> <img src="images/pingus-2.png" width="400"/></p>
+<p><a name="warming-up"/></p>
 <h2 id="warming-up">Warming Up!</h2>
 <p>Let's consider the case of handling double clicks in the game.</p>
 <div class="images">
@@ -135,7 +136,10 @@ void ArmageddonButton::on_primary_button_click (&lt;...&gt;) {
     }
 }</code></pre>
 <p>The <code>update</code> (ln. 15-27) and <code>on_primary_button_click</code> (ln. 29-35) are the relevant methods of the class and are examples of <em>short-lived callbacks</em>, which are pieces of code that execute in reaction to external input events. Here, <code>on_primary_button_click</code> reacts to mouse clicks (detected by the base class <code>RectComponent</code> in ln. 2), while <code>update</code> continuously reacts to the passage of time. Callbacks are short lived because they must execute as fast as possible to keep the game with real-time responsiveness.</p>
-<p>The class first initializes the variable <code>pressed</code> to track the first click (ln. 4,33). It also initializes the variable <code>press_time</code> to count the time since the first click (ln. 5,18). If another click occurs within 1 second, the class signals the double click to the application (ln. 31). Otherwise, the <code>pressed</code> and <code>press_time</code> state variables are reset (ln. 20-21).</p>
+<div class="images">
+<img src="images/double-click.png" width="550"/> <br>Figure X: State machine for the &quot;Armageddon&quot; double click.
+</div>
+<p>The class first initializes the variable <code>pressed</code> to track the first click (ln. 4,33). It also initializes the variable <code>press_time</code> to count the time since the first click (ln. 5,18). If another click occurs within 1 second, the class signals the double click to the application (ln. 31). Otherwise, the <code>pressed</code> and <code>press_time</code> state variables are reset (ln. 20-21). Figure X illustrates how we can model the double-click behavior as a state machine.</p>
 <p>However, note how the accesses to these state variables are spread across the entire class. For instance, the distance between the initialization of <code>pressed</code> (ln. 4) and the last access to it (ln. 33) is over 40 lines in the original file [<a href="https://github.com/Pingus/pingus/blob/v0.7.6/src/pingus/components/action_button.cpp#L33-#L90"><img src="images/link_12.png" alt="X" /></a>]. Arguably, this dispersion of code across methods makes the understanding and maintenance of the double-click behavior more difficult. Also, even though the state variables are private, unrelated methods such as <code>draw</code> (ln. 11-13) can potentially access it.</p>
 <p>Because callbacks are short lived, the only way they can affect each other is by manipulating persisting member variables in the object. These <em>state variables</em> retain their values across multiple invocations, e.g.: <code>on_primary_button_click</code> writes to <code>pressed</code> in the first click, and checks its state in further clicks (ln. 30,33), In the meantime, <code>update</code> also checks for <code>pressed</code> and may change its state (ln. 17,20).</p>
 <!-- CEU-ARMAGEDDON -->
@@ -221,14 +225,14 @@ Claim: Transactions are the only plausible solution to concurrent mutable state
 <p>We identified eight control-flow patterns in Pingus which we discuss further along with in-depth examples:</p>
 <p><a name="finite-state-machines"/></p>
 <ol style="list-style-type: decimal">
-<li><p><a href="#finite-state-machines"><strong>Finite State Machines</strong></a> State machines describe the behavior of game entities by mapping event occurrences to transitions between states triggering appropriate actions.</p></li>
-<li><p><a href="#dispatching-hierarchies"><strong>Dispatching Hierarchies</strong></a> Some entities in games manage other child entities, resulting in dispatching hierarchies for event forwarding.</p></li>
-<li><p><a href="#containers-and-lifespan"><strong>Containers and Lifespan</strong></a> Similarly to <em>dispatching hierarchies</em>, some entities control the lifespan of other child entities, resulting in dynamic and explicit allocation and deallocation of objects.</p></li>
-<li><p><a href="#continuation-passing"><strong>Continuation Passing</strong></a> The completion of a long-lasting activity in a game may have a continuation, i.e., some action to execute next.</p></li>
-<li><p><a href="#signaling-mechanism"><strong>Signaling Mechanisms</strong></a> Entities often need to communicate explicitly through a signaling mechanism, especially if there is no hierarchy relationship between them.</p></li>
-<li><p><a href="#wall-clock-timers"><strong>Wall-Clock Timers</strong></a> Wall-clock timers measure the passage of time from the real world (e.g., <em>10 seconds</em>) such as for periodic sampling and timeout watchdogs.</p></li>
-<li><p><a href="#pausing"><strong>Pausing</strong></a> Pausing allows parts of the game to temporarily suspend execution or reactions to incoming events.</p></li>
-<li><p><a href="#resource-acquisition-and-release"><strong>Resource Acquisition and Release</strong></a> External resources, such as configuration files and saved games, must be acquired and properly released.</p></li>
+<li><p><a href="#finite-state-machines"><strong>Finite State Machines</strong></a>: State machines describe the behavior of game entities by mapping event occurrences to transitions between states and triggering appropriate actions.</p></li>
+<li><p><a href="#continuation-passing"><strong>Continuation Passing</strong></a>: The completion of a long-lasting activity in a game may have a continuation, i.e., some action to execute next.</p></li>
+<li><p><a href="#dispatching-hierarchies"><strong>Dispatching Hierarchies</strong></a>: Some entities in games manage other child entities, resulting in dispatching hierarchies for event forwarding.</p></li>
+<li><p><a href="#containers-and-lifespan"><strong>Containers and Lifespan</strong></a>: Similarly to <em>dispatching hierarchies</em>, some entities control the lifespan of other child entities, resulting in dynamic and explicit allocation and deallocation of objects.</p></li>
+<li><p><a href="#signaling-mechanism"><strong>Signaling Mechanisms</strong></a>: Entities often need to communicate explicitly through a signaling mechanism, especially if there is no hierarchy relationship between them.</p></li>
+<li><p><a href="#wall-clock-timers"><strong>Wall-Clock Timers</strong></a>: Wall-clock timers measure the passage of time from the real world (e.g., <em>10 seconds</em>) such as for periodic sampling and timeout watchdogs.</p></li>
+<li><p><a href="#pausing"><strong>Pausing</strong></a>: Pausing allows parts of the game to temporarily suspend execution or reactions to incoming events.</p></li>
+<li><p><a href="#resource-acquisition-and-release"><strong>Resource Acquisition and Release</strong></a>: External resources, such as configuration files and saved games, must be acquired and properly released.</p></li>
 </ol>
 <!-- TODO: are these terms and explanations symmetric? -->
 
@@ -250,7 +254,7 @@ Claim: Transactions are the only plausible solution to concurrent mutable state
 </ul>
 <hr />
 <h1 id="qualitative-analysis">Qualitative Analysis</h1>
-<p>TODO: Selected Code Snippets</p>
+<p>TODO: Selected Code Snippets TODO: state vars, code reduction para cada case</p>
 <!--
 3. **Continuation Passing**
     The completion of long-lasting activity in a game may have a continuation, 
@@ -294,11 +298,13 @@ Claim: Transactions are the only plausible solution to concurrent mutable state
 
 <p><a name="finite-state-machines"/></p>
 <h2 id="finite-state-machines">Finite State Machines</h2>
-<p>State machines describe the behavior of game entities by mapping event occurrences to transitions between states triggering appropriate actions. <!--
+<p>State machines describe the behavior of game entities by mapping event occurrences to transitions between states and triggering appropriate actions. <!--
 The double click behavior for the *Armageddon button* is an example of a simple 
 state machine.
 --></p>
-<h3 id="case-study-the-bomber-action">Case Study: The &quot;Bomber&quot; Action</h3>
+<h3 id="case-study-1-the-armageddon-double-click">Case Study 1: The &quot;Armageddon&quot; Double Click</h3>
+<p>See <a href="#warming-up">Warming Up</a>.</p>
+<h3 id="case-study-2-the-bomber-action">Case Study 2: The &quot;Bomber&quot; Action</h3>
 <p>The <em>bomber action</em> explodes the clicked pingu, throwing particles around and also destroying the terrain under its radius (Figure X).</p>
 <div class="images">
 <img src="images/bomber-opt.gif" width="350"/> <br>Figure X: The &quot;Bomber&quot; action
@@ -412,6 +418,36 @@ end</code></pre>
 ### Sprite Animations
 -->
 
+<p><a name="continuation-passing"/></p>
+<h2 id="continuation-passing">Continuation Passing</h2>
+<p>The completion of a long-lasting activity in a game may have a continuation, i.e., some action to execute next.</p>
+<!--
+If the execution flow is dynamic, the program has to tell the activity where to 
+go when it completes.
+In Pingus, when the player terminates a level, the game may terminate or return 
+to the main menu, depending on how it was invoked from the command line.
+
+Continuation passing is a special case of a state machine in which the previous 
+state passes to the current state what will be the next state.
+
+- tudo porque eu consigo voltar/retornar das "chamadas"
+    - programacao estruturada
+
+more natural structured code with sequences, conditionals, and loops
+-->
+
+<h3 id="case-study-1-story-screen">Case Study 1: Story Screen</h3>
+<p>LOOP do story_screen VS i explicito da continuacao (loop unrolling)</p>
+<p>next action is encoded in the vector</p>
+<div class="images">
+<img src="images/credits-anim.gif" width="550"/> <br>Figure X: xxx
+</div>
+<div class="images">
+<img src="images/credits.png" width="550"/> <br>Figure X: xxx
+</div>
+<h3 id="case-study-2-story-and-credits-screen">Case Study 2: Story and Credits Screen</h3>
+<p>SEQ</p>
+<p>storydot com ou sem credits - 15 p/ 16 clicks - nao existe retorno, sempre continuacao apos continuacao</p>
 <p><a name="dispatching-hierarchies"/></p>
 <h2 id="dispatching-hierarchies">Dispatching Hierarchies</h2>
 <p>Some entities in games manage other child entities, resulting in dispatching hierarchies for event forwarding.</p>
@@ -544,7 +580,7 @@ end</code></pre>
     gui_manager-&gt;add(small_map);                //    hierarchy
     &lt;...&gt;
 }</code></pre>
-<p>Even so, the <code>add</code> method expects only dynamically allocated children because they are automatically deallocated inside the container destructor [[<img src="images/link_12.png" alt="X" />][groupcomponent-delete]].</p>
+<p>Even so, the <code>add</code> method expects only dynamically allocated children because they are automatically deallocated inside the container destructor [<a href="https://github.com/Pingus/pingus/blob/v0.7.6/src/engine/gui/group_component.cpp#L37"><img src="images/link_12.png" alt="X" /></a>].</p>
 <p>The dynamic nature of containers in C++ demand extra caution:</p>
 <ul>
 <li>When containers are part of a dispatching chain, it gets even harder to track what objects are dispatched: one has to &quot;simulate&quot; the program execution and track calls to <code>add</code> and <code>remove</code>.</li>
@@ -677,45 +713,6 @@ end
 ```
 -->
 
-<p><a name="continuation-passing"/></p>
-<h2 id="continuation-passing">Continuation Passing</h2>
-<pre><code>The completion of a long-lasting activity in a game may have a 
-continuation, i.e., some action to execute next.</code></pre>
-<!--
-# STATE
-Some entities in games manage other child entities, resulting in dispatching 
-hierarchies for event forwarding.
-### Bomber `draw` and `update` callbacks
-Let's dig into the `Bomber` animation class in C++ [[![X]][cpp-bomber]], 
-focusing on the `sprite` member, and the `update` and `draw` callback methods:
-
-# HIER
-Similarly to *dispatching hierarchies*, some entities control the lifespan of 
-other child entities, resulting in dynamic and explicit allocation and 
-deallocation of objects.
-However, it is actually common to have children with a static lifespan which 
-are known at compile time.
-For instance, most entities in the `GameSession` coexists with it, i.e., they 
-are added in the constructor and need not to be removed explicitly
-[[![X]][cpp-gamesession-containers]]:
--->
-
-<pre><code>If the execution flow is dynamic, the program has to tell the activity 
-where to go when it completes.
-In Pingus, when the player terminates a level, the game may terminate or
-return to the main menu, depending on how it was invoked from the command
-line.</code></pre>
-<ul>
-<li>tudo porque eu consigo voltar/retornar das &quot;chamadas&quot;
-<ul>
-<li>programacao estruturada</li>
-</ul></li>
-</ul>
-<p>more natural structured code with sequences, conditionals, and loops</p>
-<h3 id="case-study-1-story-screen">Case Study 1: Story Screen</h3>
-<p>loop do story_screen VS i explicito da continuacao</p>
-<h3 id="case-study-2-story-and-credits-screen">Case Study 2: Story and Credits Screen</h3>
-<p>storydot com ou sem credits - 15 p/ 16 clicks - nao existe retorno, sempre continuacao apos continuacao</p>
 <p><a name="signaling-mechanism"/></p>
 <h2 id="signaling-mechanisms">Signaling Mechanisms</h2>
 <p><a name="wall-clock-timers"/></p>
