@@ -713,118 +713,106 @@ The second click advances to the next page until the story terminates.
 If the page displays completely due to the time elapsing, the first click 
 advances to the next page.
 
-The code in C++ [[![X]][cpp-TODO]] defines the class `StoryScreenComponent` 
-with a `next_text` method to advance the words and pages:
+<!-- CPP-STORY-PAGES -->
+
+The code in C++ [[![X]][cpp-story-pages]] defines the class 
+`StoryScreenComponent` with a `next_text` method to advance the words and 
+pages:
 
 ```
-StoryScreenComponent::StoryScreenComponent (WorldmapStory* arg, <...>) : // X11
-    story(arg),                                 // X9
+StoryScreenComponent::StoryScreenComponent (<...>) :
     <...>
 {
-    pages        = story->get_pages();          // X10
+    pages        = <...>;                       // X1
     current_page = pages.back();                // X2
-    displayed    = false;                       // X5
+    displayed    = false;                       // X7
     <...>
 }
 
-<...>   // draw, update, etc
+<...>   // draw and update page
 
 void StoryScreenComponent::next_text() {
-    if (!displayed) {                           // X6
-        displayed = true;                       // X7
+    if (!displayed) {                           // X8
+        displayed = true;                       // X9
         <...>
-    } else {
-        pages.pop_back();                       // X12
+    } else {                                    // X5
+        pages.pop_back();                       // X3
         if (!pages.empty()) {
-            current_page = pages.back();        // X3
-            displayed    = false;               // X8
+            current_page = pages.back();        // X4
+            displayed    = false;               // X10
             <...>
         } else {
             <...>   // terminates the story screen
         }
-    }
+    }                                           // X6
 }
 ```
-
-The variable `story` (ln X9,X10) holds all pages from the story received as 
-argument (X11).
-The variable `pages` (ln. X10-X2, X12-X3) is a vector holding each page and 
-also controls the flow of the story:
-each call to `next_text` that advances the story removes a page (ln. X12) and 
-sets the new "continuation" in the `current_page` (ln. X3).
-
-
-The variable `current_page` (ln. X2,X3) represents the page being displayed.
-The variable `displayed` (ln. X5,X6,X7,X8) tracks if the current page has 
-already being displayed completely.
-
-We omitted the code for fast-forwarding the words, as it is a simple state 
-machine (Figure X).
-
-The class first initializes the variable `pressed` to track the first click 
-
-The sequential navigation from page to page
-implicit loop
 
 <div class="images">
 <img src="images/story.png" width="550"/>
 <br>Figure X: State machine for the "Story" screen.
 </div>
 
+The variable `pages` (ln. X1-X2, X3-X4) is a vector holding each page and also 
+encodes *continuations* for the story progress:
+each call to `next_text` that advances the story (ln. X5-X6) removes a page 
+(ln. X3) and sets the next action to perform (display a new page) in the 
+variable `current_page` (ln. X3).
+Figure X illustrates the state machine for fast-forwarding the words inside the 
+dashed rectangle and the continuation mechanism to advance pages.
+The state variable `displayed` (ln. X7,X8,X9,X10) switches between the 
+behaviors "advancing text" and "advancing pages" which are mixed inside the 
+method `next_text`.
 
+<!-- CEU-STORY-PAGES -->
 
-The code for the
-Figure X illustrates how we can model the clicks behavior.
-Stories are dynamically loaded from files
-Each page has to continue to the next page
+The code in Céu [[![X]][ceu-story-pages]] uses a `next_text` event to advance 
+the words and pages:
 
-the two are mixed
+```
+class StoryScreen with
+    <...>
+do
+    event void next_text;
 
- as a state machine.
+    _pages = <...>
 
-The class defines one state variable for each action to perform (ln. X1-X2).
-The "Oh no!" sound plays as soon as the object starts in *state-1* (ln. X3).
-The `update` callbacks update the animation sprite and moves the pingu every 
-frame (ln.  X4-X4.1), regardless of the current state.
-When the animation reaches the 10th frame, it plays the "Bomb!" if it hasn't 
-yet (ln. X5-X6), going to *state-2*.
-The `sound_played` state variable is required because the sprite frame doesn't 
-necessarily advance on every `update` invocation.
-The same reasoning and technique applies to the *state-3* (ln. X7-X8 and 
-X9-X10).
-The explosion sprite appears in a single frame in *state-4* (ln. X11).
-Finally, the pingu dies after the animation frames terminate (ln. X12-X13).
+    loop i in _pages.size() do                              // X3
+        par/or do
+            <...>       // loop to redraw current page
+        with
+            watching next_text do
+                <...>   // loop to advance text over time   // X1
+            end
+            await next_text;                                // X2
+        end
+    end                                                     // X4
+end
+```
 
+For the sequential navigation from page to page, we use a simple loop (ln.  X3-X4)
+instead of an explicit continuation state.
+While the text advances in an inner loop (hidden in ln. X1), we watch the 
+`next_text` event to fast forward it.
+The inner loop may also eventually terminate with the time elapsing.
+To go to the next page, we simply `await next_text` again (ln. X2).
+Note that we don't need a variable (such as `displayed` above) to switch 
+between the states "advancing text" or "advancing pages" which are not mixed in 
+the source code.
 
-
-
-is told
-
-
-for it.
-
-Most UI widgets in the `GameSession` screen are static and coexist with it, 
-i.e., they are added in the constructor and are never removed explicitly
-[[![X]][cpp-gamesession-containers]]:
-
-In C++, for entities with a dynamic lifespan, we need to `add` and `remove` 
-them explicitly from the container.
-As an example, pingus are dynamic entities created periodically and destroyed 
-under certain conditions (e.g. when going out of the screen
-[[![X]][cpp-pingu-dead]]):
-
-LOOP do story_screen VS
-i explicito da continuacao (loop unrolling)
-
-next action is encoded in the vector
+[cpp-story-pages]: https://github.com/Pingus/pingus/blob/master/src/pingus/screens/story_screen.cpp#L159
+[ceu-story-pages]: https://github.com/fsantanna/pingus/blob/ceu/ceu/pingus/screens/story_screen.ceu#L14
 
 ### Case Study 2: Story Screen, Termination
 
+<!--
 SEQ
 
 storydot com ou sem credits
     - 15 p/ 16 clicks
     - nao existe retorno, sempre continuacao apos continuacao
+"nowhere to return"
+-->
 
 <a name="dispatching-hierarchies"/>
 
