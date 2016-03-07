@@ -57,8 +57,8 @@ do
     call{Sound::PingusSound::play_music}(_story.get_music(), 0.7);
 
     par do
-        loop do
-            _page = _XXX_PURE(_pages.back());
+        loop i in _pages.size() do
+            _page = _XXX_PURE(_pages.at(i));
             var char[] text;
             var char&& image = _XXX_PURE((char&&)_page.image.res_name.c_str());
             var Rect r = Rect(xc,yc-65, 0,0);
@@ -93,10 +93,6 @@ do
                         *{Display::s_framebuffer}
                     ) finalize with end;
                 end
-            end
-            _pages.pop_back();
-            if _pages.empty() then
-                escape 0;
             end
         end
     with
