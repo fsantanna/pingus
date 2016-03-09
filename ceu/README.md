@@ -27,6 +27,36 @@
             text-align: center;
         }
     </style>
+
+@[[
+FIG_COUNT = 0
+
+function FIG_NEW (id)
+    assert(_G[id] == nil)
+    FIG_COUNT = FIG_COUNT + 1
+    _G[id] = FIG_COUNT
+    return FIG_COUNT
+end
+function FIG_REF (id)
+    return _G[id]
+end
+
+function CODE_LINES (code)
+    local sep = lpeg.P('\n')
+    local elem = lpeg.C((1 - sep)^0)
+    local p = lpeg.Ct(elem * (sep * elem)^0)
+    local t = lpeg.match(p, code)
+    assert(t[1]    == '')
+    assert(t[2]    == '```')
+    assert(t[#t-1] == '```')
+    assert(t[#t]   == '')
+    for i=3, #t-2 do
+        t[i] = string.format('%2s',(i-2))..':  '..t[i]
+    end
+    return table.concat(t,'\n')
+end
+]]
+
 </head>
 <body>
 
@@ -118,20 +148,6 @@ from C++ to the programming language Céu
 
 Let's consider the case of handling double clicks in the game.
 
-@[[
-FIG_COUNT = 0
-
-function FIG_NEW (id)
-    assert(_G[id] == nil)
-    FIG_COUNT = FIG_COUNT + 1
-    _G[id] = FIG_COUNT
-    return FIG_COUNT
-end
-function FIG_REF (id)
-    return _G[id]
-end
-]]
-
 <div class="images">
 <img src="images/double-click-opt.gif" width="350"/>
 <br>Figure @FIG_NEW[[double-click-anim]]: Double click detection
@@ -147,6 +163,7 @@ The code in C++ implements the class `ArmageddonButton`
 Here, we focus on detecting the double click, hiding unrelated parts with 
 `<...>`:
 
+@CODE_LINES[[
 ```
 ArmageddonButton::ArmageddonButton(<...>):
     RectComponent(<...>),
@@ -184,6 +201,7 @@ void ArmageddonButton::on_click (<...>) {
     }
 }
 ```
+]]
 
 The `update` (ln. 15-27) and `on_click` (ln. 29-35) are the relevant methods of 
 the class and are examples of *short-lived callbacks*, which are pieces of code 
@@ -236,6 +254,7 @@ explicit manipulation of state variables for control-flow purposes.
 The equivalent code in Céu [[![X]][ceu-armageddon]] defines the class 
 `ArmageddonButton` as follows:
 
+@CODE_LINES[[
 ```
 class ArmageddonButton with
     <...>
@@ -253,6 +272,7 @@ do                                       // X9
     emit global:go_armageddon;           // line X8
 end                                      // X10
 ```
+]]
 
 Instead of *objects*, classes in Céu specify *organisms* with a body 
 declaration (ln. X9-X10) which executes for each instance while alive.
@@ -563,6 +583,7 @@ specific frames (Figure @FIG_REF[[bomber-states]]) as follows:
 The code in C++ [[![X]][cpp-bomber]] defines the class `Bomber` which 
 implements the `draw` and `update` callback methods:
 
+@CODE_LINES[[
 ```
 Bomber::Bomber (Pingu* p) :
     <...>
@@ -614,6 +635,7 @@ void Bomber::draw (SceneContext& gc) {
     gc.color().draw(sprite, pingu->get_pos ());
 }
 ```
+]]
 
 The class defines one state variable for each action to perform (ln. X1-X2).
 The "Oh no!" sound plays as soon as the object starts in *state-1* (ln. X3).
@@ -641,6 +663,7 @@ unavoidable, being part of the essence of object-oriented programming
 The implementation in Céu doesn't require explicit state variables and more 
 closely reflects in the source code the sequential state machine:
 
+@CODE_LINES[[
 ```
 class Bomber with
     <...>
@@ -673,6 +696,7 @@ do
     end
 end
 ```
+]]
 
 Considering the implementation in Céu, we can highlight some benefits in 
 comparison to the implementation in C++:
@@ -740,6 +764,7 @@ The code in C++ [[![X]][cpp-story-screen-component]] defines the class
 `StoryScreenComponent` with a `next_text` method to advance the words and 
 pages:
 
+@CODE_LINES[[
 ```
 StoryScreenComponent::StoryScreenComponent (<...>) :
     <...>
@@ -768,6 +793,7 @@ void StoryScreenComponent::next_text() {
     }                                           // X6
 }
 ```
+]]
 
 <div class="images">
 <img src="images/story.png" width="550"/>
@@ -791,6 +817,7 @@ method `next_text`.
 The code in Céu [[![X]][ceu-story-pages]] uses a `next_text` event to advance 
 the words and pages:
 
+@CODE_LINES[[
 ```
 class StoryScreen with
     <...>
@@ -811,6 +838,7 @@ do
     end                                                     // X4
 end
 ```
+]]
 
 For the sequential navigation from page to page, we use a simple loop (ln.  X3-X4)
 instead of an explicit continuation state.
@@ -845,6 +873,7 @@ The `StoryDot` in C++ [[![X]][cpp-story-dot]] reads the level file to check
 whether the story should, after termination, display the "Credits" screen or 
 not:
 
+@CODE_LINES[[
 ```
 StoryDot::StoryDot(const FileReader& reader) :
     m_credits(false),                           // by default, don't display
@@ -859,6 +888,7 @@ void StoryDot::on_click() {
     <...>
 }
 ```
+]]
 
 The boolean variable `m_credits` is passed to the `StoryScreen` (ln. X1)
 [[![X]][cpp-story-screen]] and represents its continuation, i.e., what to do 
@@ -866,6 +896,7 @@ after displaying the story.
 The `StoryScreen` forwards the continuation [[![X]][cpp-story-screen-forward]] 
 to the `StoryComponent` [[![X]][cpp-story-screen-component]]:
 
+@CODE_LINES[[
 ```
 StoryScreenComponent::StoryScreenComponent (<...>) :
     m_credits(credits),
@@ -893,6 +924,7 @@ void StoryScreenComponent::next_text() {
     }
 }
 ```
+]]
 
 When the method `next_text` has no pages to display (ln.  X1-X2), it decides 
 where to go next, depending on the continuation flag `m_credits` (ln. X3).
@@ -902,6 +934,7 @@ where to go next, depending on the continuation flag `m_credits` (ln. X3).
 In Céu, the flow of screens to display is a just a sequence of statements, not 
 requiring continuation variables:
 
+@CODE_LINES[[
 ```
 loop do
     var int ret = do WorldmapScreen;                // X1
@@ -916,6 +949,7 @@ loop do
     end
 end
 ```
+]]
 
 The `do` notation is a syntactic sugar for creating and awaiting an organism, 
 e.g.:
@@ -1005,6 +1039,7 @@ TODO: falar de broadcast (in Ceu: unless it is paused, all receive always)
 Let's dig into the `Bomber` animation class in C++ [[![X]][cpp-bomber]], 
 focusing on the `sprite` member, and the `update` and `draw` callback methods:
 
+@CODE_LINES[[
 ```
 // bomber.hpp/cpp
 
@@ -1031,6 +1066,7 @@ void Bomber::draw (SceneContext& gc) {      // X4
     gc.color().draw(sprite, <...>);
 }                                           // X5
 ```
+]]
 
 The class loads the `sprite` in the constructor (ln. X1) and continually 
 redirects `update` and `draw` to it (ln. X2-X3 and X4-X5).
@@ -1100,6 +1136,7 @@ Note that each dispatching step has a reason to exist:
 
 Now, consider the `Bomber` animation in Céu [[![X]][ceu-bomber]]:
 
+@CODE_LINES[[
 ```
 class Bomber with
     interface IPinguAction;
@@ -1108,6 +1145,7 @@ do
     <...>
 end
 ```
+]]
 
 As mentioned before, organisms in Céu are active entities and can react 
 directly to the environment.
@@ -1135,6 +1173,7 @@ As an example, the explosion sprite for the `Bomber` animation above
 [[![X]](#bomber)] reacts and redraws exactly for one occurrence of 
 `WORLD_UPDATE` (after the 13th animation frame):
 
+@CODE_LINES[[
 ```
 class Bomber with
     <...>
@@ -1151,6 +1190,7 @@ do
         <...>
 end
 ```
+]]
 
 We enclose the declaration with an explicit block (ln. X2-X3) that restricts 
 its lifespan to a single occurrence of `WORLD_UPDATE` (ln.  X4).
@@ -1214,6 +1254,7 @@ Most UI widgets in the `GameSession` screen are static and coexist with it,
 i.e., they are added in the constructor and are never removed explicitly
 [[![X]][cpp-gamesession-containers]]:
 
+@CODE_LINES[[
 ```
 GameSession::GameSession(<...>) :
     <...>
@@ -1229,6 +1270,7 @@ GameSession::GameSession(<...>) :
     <...>
 }
 ```
+]]
 
 Even so, the `add` method expects only dynamically allocated children because 
 they are automatically deallocated inside the container destructor 
@@ -1258,6 +1300,7 @@ The dynamic nature of containers in C++ demand extra caution:
 In Céu, entities that coexist with an enclosing class just need to be declared 
 at the top-level block [[![X]][ceu-world-top]]:
 
+@CODE_LINES[[
 ```
 class World with
     <...>
@@ -1271,6 +1314,7 @@ do
     <...>
 end
 ```
+]]
 
 Again, here we never manipulate references to deal with containers, or 
 allocation and deallocation.
@@ -1289,6 +1333,7 @@ under certain conditions (e.g. when going out of the screen
 
 TODO: falling and dyeing animation at the same time
 
+@CODE_LINES[[
 ```
 Pingu* PinguHolder::create_pingu (<...>) {              // X1
     <...>
@@ -1311,6 +1356,7 @@ void PinguHolder::update() {                            // X4
     }
 }                                                       // X5
 ```
+]]
 
 `PinguHolder::create_pingu` (ln. X1-X2) creates a new `Pingu` periodically, 
 adding it to the `pingus` container (ln. X3).
@@ -1335,6 +1381,7 @@ dynamically, also specifying a `<pool>` to hold the new instance.
 The `PinguHolder` class in Céu spawns a new `Pingu` for every occurrence of the 
 event `global:go_create_pingu` [[![X]][ceu-pinguholder-every]]:
 
+@CODE_LINES[[
 ```
 class PinguHolder with
     <...>
@@ -1347,6 +1394,7 @@ do                                      // X3
     end
 end                                     // X4
 ```
+]]
 
 The class `PinguHolder` declares a pool of `IPingu` [[![X]][ceu-ipingu]] 
 identified as `pingus` (ln. X1).
@@ -1380,6 +1428,7 @@ In Céu, going back to the case of removing a pingu from the game, we just need
 to terminate its execution block according to the appropriate conditions 
 [[![X]][ceu-pingu-dead]]:
 
+@CODE_LINES[[
 ```
 class Pingu with
     <...>
@@ -1395,6 +1444,7 @@ do
     end
 end
 ```
+]]
 
 The `escape` statement (ln X1) aborts the execution block of the instance, 
 removing it from its pool automatically.
