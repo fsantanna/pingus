@@ -5,6 +5,8 @@
         body {
             width:950px;
             margin:0 auto;
+            text-align: justify;
+            text-justify: inter-word;
         }
         pre {
             padding: 10px 10px 10px 10px;
@@ -15,11 +17,12 @@
         }
         div.images {
             float: right;
+            background-color: #ffffff;
+            border: 1px solid black;
+            padding: 15px;
+            margin: 0 0 5px 5px;
 /*
             width: 120px;
-            margin: 0 0 15px 20px;
-            padding: 15px;
-            border: 1px solid black;
 */
             text-align: center;
         }
@@ -29,12 +32,15 @@
 
 <!--
 silentcast, transparent window interior, dont go under the default size
-convert output.gif -fuzz 10% -layers Optimize optimised.gif
+convert credits-anim.gif -fuzz 10% -layers Optimize optimised.gif
 convert -delay 200 -loop 0 *.png state-anim.gif
 :%s/\(\[X]\[[^]]*\]\)/\&#91;\1\&#93;/g
 chico@note:/opt/pingus/ceu$ lua parser.lua README.md > /tmp/README.md
 chico@note:/opt/pingus/ceu$ pandoc /tmp/README.md >README.html 
 
+TODO:
+    - TARGET AUDIENCE
+        - game developers that have faced these problems before
 
 TODO:
     - ver os patterns do GPP
@@ -552,7 +558,7 @@ Bomber::Bomber (Pingu* p) :
 {
     <...>
     // 1. 0th frame: plays a "Oh no!" sound.
-    get_world()->play_sound("ohno", pingu->get_pos ());          // X3
+    get_world()->play_sound("ohno", pingu->get_pos()); // X3
 }
 
 void Bomber::update ()
@@ -563,7 +569,7 @@ void Bomber::update ()
     // 2. 10th frame: plays a "Bomb!" sound.
     if (sprite.get_current_frame()==10 && !sound_played) {              // X5
         sound_played = true;
-        get_world()->play_sound("plop", pingu->get_pos ());
+        get_world()->play_sound("plop", pingu->get_pos());
     }                                                                   // X6
 
     // 3. 13th frame: throws particles, destroys the terrain, shows an explosion sprite
@@ -700,13 +706,13 @@ more natural structured code with sequences, conditionals, and loops
 
 ### Case Study 1: Story Screen, Advancing Pages
 
-<div class="images">
+<div class="images" bgcolor="white">
 <img src="images/story-anim.gif" width="350"/>
 <br>Figure X: The "Story" screen.
 </div>
 
-The world map of Pingus has a clickable "blue dot" with an introductory story 
-about the game (Figure X).
+The world map of Pingus has clickable "blue dots" with ambience stories about 
+the game (Figure X).
 The words for each story page appears incrementally over time.
 The first click in the button ">>>" fast forwards the text.
 The second click advances to the next page until the story terminates.
@@ -715,7 +721,7 @@ advances to the next page.
 
 <!-- CPP-STORY-PAGES -->
 
-The code in C++ [[![X]][cpp-story-pages]] defines the class 
+The code in C++ [[![X]][cpp-story-screen-component]] defines the class 
 `StoryScreenComponent` with a `next_text` method to advance the words and 
 pages:
 
@@ -800,10 +806,178 @@ Note that we don't need a variable (such as `displayed` above) to switch
 between the states "advancing text" or "advancing pages" which are not mixed in 
 the source code.
 
+[cpp-story-screen-component]: https://github.com/Pingus/pingus/blob/master/src/pingus/screens/story_screen.cpp#L159
+[ceu-story-screen]: https://github.com/fsantanna/pingus/blob/ceu/ceu/pingus/screens/story_screen.ceu#L14
+
+### Case Study 2: Story Screen, Transition to Credits Screen
+
+<div class="images" bgcolor="white">
+<img src="images/credits-anim.gif" width="350"/>
+<br>Figure X: Transition from "Story" to "Credits" screen.
+</div>
+
+Pingus has clickable "blue dots" for both introductory and ending stories.
+For introductory stories, the game returns to the world map after displaying 
+the pages.
+For ending stories, the game also displays a "Credits" screen before returning 
+to the world map (Figure X).
+
+The code in C++
+uses an explicit continuation variable
+
+<!-- CPP-STORY-CREDITS -->
+
+The clickable "blue dot" in C++ [[![X]][cpp-story-dot]] reads the level file to 
+check whether the story should display the "Credits" screen or not:
+
+```
+StoryDot::StoryDot(const FileReader& reader) :
+    m_credits(false),
+{
+    <...>
+    reader.read_bool("credits", m_credits);
+}
+
+void StoryDot::on_click() {
+    <...>
+    ScreenManager::instance()->push_screen(std::make_shared<StoryScreen>(<...>, m_credits));
+    <...>
+}
+```
+
+The boolean variable `m_credits` is passed to the `StoryScreen` 
+[[![X]][cpp-story-screen]] and represents its continuation, i.e., what to do 
+after displaying the story.
+The `StoryScreen` forwards the continuation [[![X]][cpp-story-screen-forward]] 
+to the `StoryComponent` [[![X]][cpp-story-screen-component]]:
+
+```
+StoryScreenComponent::StoryScreenComponent (<...>) :
+    m_credits(credits),
+    <...>
+{
+    <...>
+}
+
+<...>   // draw and update page
+
+void StoryScreenComponent::next_text() {
+    if (!displayed) {
+        <...>
+    } else {
+        <...>
+        if (!pages.empty()) {
+            <...>
+        } else {
+            if (m_credits) {        // X1
+                ScreenManager::instance()->replace_screen(std::make_shared<Credits>(<...>));
+            } else {
+                ScreenManager::instance()->pop_screen();
+            }                       // X2
+        }
+    }
+}
+```
+
+When the story terminates and the method `next_text` has no pages to display 
+(ln.  X1-X2), it decides where to go next, depending on the continuation flag 
+`m_credits`.
+
+```
+// WORLDMAP
+loop do
+    var int ret = do WorldmapScreen;
+    if ret==_WORLDMAP_RETURN_STORY_MAP or ret==_WORLDMAP_RETURN_STORY_CREDITS then
+        <...>
+        var bool is_click =
+            do StoryScreen with
+                this.reader = &&_reader;
+            end;
+        if is_click and ret==_WORLDMAP_RETURN_STORY_CREDITS then
+            _filename = _Pathname("credits/pingus.credits",{Pathname::DATA_PATH});
+            do Credits with
+                this.filename = &&_filename;
+            end;
+        end
+    else/if ret == _WORLDMAP_RETURN_LEVEL then
+        <...>
+    else
+        <...>
+        escape 0;
+    end
+end
+```
+
+[cpp-story-screen]: https://github.com/Pingus/pingus/blob/master/src/pingus/screens/story_screen.cpp#L136
+[cpp-story-screen-forward]: https://github.com/Pingus/pingus/blob/master/src/pingus/screens/story_screen.cpp#L143
+
+.
+
+StoryScreenComponent::StoryScreenComponent (<...>) :
+    <...>
+{
+}
+
+<...>   // draw and update page
+
+void StoryScreenComponent::next_text() {
+}
+```
+
+<div class="images">
+<img src="images/xxx.png" width="550"/>
+<br>Figure X: XXX
+</div>
+
+The variable `pages` (ln. X1-X2, X3-X4) is a vector holding each page and also 
+encodes *continuations* for the story progress:
+each call to `next_text` that advances the story (ln. X5-X6) removes a page 
+(ln. X3) and sets the next action to perform (display a new page) in the 
+variable `current_page` (ln. X3).
+Figure X illustrates the state machine for fast-forwarding the words inside the 
+dashed rectangle and the continuation mechanism to advance pages.
+The state variable `displayed` (ln. X7,X8,X9,X10) switches between the 
+behaviors "advancing text" and "advancing pages" which are mixed inside the 
+method `next_text`.
+
+<!-- CEU-STORY-CREDITS -->
+
+The code in Céu [[![X]][ceu-story-screen]] uses a `next_text` event to advance 
+the words and pages:
+
+```
+class StoryScreen with
+    <...>
+do
+    event void next_text;
+
+    _pages = <...>
+
+    loop i in _pages.size() do                              // X3
+        par/or do
+            <...>       // loop to redraw current page
+        with
+            watching next_text do
+                <...>   // loop to advance text over time   // X1
+            end
+            await next_text;                                // X2
+        end
+    end                                                     // X4
+end
+```
+
+For the sequential navigation from page to page, we use a simple loop (ln.  X3-X4)
+instead of an explicit continuation state.
+While the text advances in an inner loop (hidden in ln. X1), we watch the 
+`next_text` event to fast forward it.
+The inner loop may also eventually terminate with the time elapsing.
+To go to the next page, we simply `await next_text` again (ln. X2).
+Note that we don't need a variable (such as `displayed` above) to switch 
+between the states "advancing text" or "advancing pages" which are not mixed in 
+the source code.
+
 [cpp-story-pages]: https://github.com/Pingus/pingus/blob/master/src/pingus/screens/story_screen.cpp#L159
 [ceu-story-pages]: https://github.com/fsantanna/pingus/blob/ceu/ceu/pingus/screens/story_screen.ceu#L14
-
-### Case Study 2: Story Screen, Termination
 
 <!--
 SEQ

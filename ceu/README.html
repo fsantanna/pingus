@@ -8,6 +8,8 @@ On Porting Pingus from C++ to Céu
         body {
             width:950px;
             margin:0 auto;
+            text-align: justify;
+            text-justify: inter-word;
         }
         pre {
             padding: 10px 10px 10px 10px;
@@ -18,11 +20,12 @@ On Porting Pingus from C++ to Céu
         }
         div.images {
             float: right;
+            background-color: #ffffff;
+            border: 1px solid black;
+            padding: 15px;
+            margin: 0 0 5px 5px;
 /*
             width: 120px;
-            margin: 0 0 15px 20px;
-            padding: 15px;
-            border: 1px solid black;
 */
             text-align: center;
         }
@@ -32,7 +35,7 @@ On Porting Pingus from C++ to Céu
 
 <!--
 silentcast, transparent window interior, dont go under the default size
-convert output.gif -fuzz 10% -layers Optimize optimised.gif
+convert credits-anim.gif -fuzz 10% -layers Optimize optimised.gif
 convert -delay 200 -loop 0 *.png state-anim.gif
 :%s/\(\[X]\[[^]]*\]\)/\&#91;\1\&#93;/g
 chico@note:/opt/pingus/ceu$ lua parser.lua README.md > /tmp/README.md
@@ -331,7 +334,7 @@ state machine.
 {
     &lt;...&gt;
     // 1. 0th frame: plays a &quot;Oh no!&quot; sound.
-    get_world()-&gt;play_sound(&quot;ohno&quot;, pingu-&gt;get_pos ());          // X3
+    get_world()-&gt;play_sound(&quot;ohno&quot;, pingu-&gt;get_pos()); // X3
 }
 
 void Bomber::update ()
@@ -342,7 +345,7 @@ void Bomber::update ()
     // 2. 10th frame: plays a &quot;Bomb!&quot; sound.
     if (sprite.get_current_frame()==10 &amp;&amp; !sound_played) {              // X5
         sound_played = true;
-        get_world()-&gt;play_sound(&quot;plop&quot;, pingu-&gt;get_pos ());
+        get_world()-&gt;play_sound(&quot;plop&quot;, pingu-&gt;get_pos());
     }                                                                   // X6
 
     // 3. 13th frame: throws particles, destroys the terrain, shows an explosion sprite
@@ -437,10 +440,10 @@ more natural structured code with sequences, conditionals, and loops
 -->
 
 <h3 id="case-study-1-story-screen-advancing-pages">Case Study 1: Story Screen, Advancing Pages</h3>
-<div class="images">
+<div class="images" bgcolor="white">
 <img src="images/story-anim.gif" width="350"/> <br>Figure X: The &quot;Story&quot; screen.
 </div>
-<p>The world map of Pingus has a clickable &quot;blue dot&quot; with an introductory story about the game (Figure X). The words for each story page appears incrementally over time. The first click in the button &quot;&gt;&gt;&gt;&quot; fast forwards the text. The second click advances to the next page until the story terminates. If the page displays completely due to the time elapsing, the first click advances to the next page.</p>
+<p>The world map of Pingus has clickable &quot;blue dots&quot; with ambience stories about the game (Figure X). The words for each story page appears incrementally over time. The first click in the button &quot;&gt;&gt;&gt;&quot; fast forwards the text. The second click advances to the next page until the story terminates. If the page displays completely due to the time elapsing, the first click advances to the next page.</p>
 <!-- CPP-STORY-PAGES -->
 
 <p>The code in C++ [<a href="https://github.com/Pingus/pingus/blob/master/src/pingus/screens/story_screen.cpp#L159"><img src="images/link_12.png" alt="X" /></a>] defines the class <code>StoryScreenComponent</code> with a <code>next_text</code> method to advance the words and pages:</p>
@@ -497,6 +500,11 @@ do
 end</code></pre>
 <p>For the sequential navigation from page to page, we use a simple loop (ln. X3-X4) instead of an explicit continuation state. While the text advances in an inner loop (hidden in ln. X1), we watch the <code>next_text</code> event to fast forward it. The inner loop may also eventually terminate with the time elapsing. To go to the next page, we simply <code>await next_text</code> again (ln. X2). Note that we don't need a variable (such as <code>displayed</code> above) to switch between the states &quot;advancing text&quot; or &quot;advancing pages&quot; which are not mixed in the source code.</p>
 <h3 id="case-study-2-story-screen-termination">Case Study 2: Story Screen, Termination</h3>
+<div class="images" bgcolor="white">
+<img src="images/credits-anim.gif" width="350"/> <br>Figure X: Transition from &quot;Story&quot; to &quot;Credits&quot; screen.
+</div>
+<p>Pingus has clickable &quot;blue dots&quot; for both introductory and ending stories. For introductory stories, after displaying the pages, the game returns to the world map. For ending stories, the game also shows a &quot;Credits&quot; screen before returning to the world map (Figure X).</p>
+<p>with ambience stories about the game (Figure X). Pingus has both introductory and end stories about the game (Figure X). The words for each story page appears incrementally over time. The first click in the button &quot;&gt;&gt;&gt;&quot; fast forwards the text. The second click advances to the next page until the story terminates. If the page displays completely due to the time elapsing, the first click advances to the next page.</p>
 <!--
 SEQ
 
