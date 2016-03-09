@@ -11,12 +11,15 @@ function CALL (f, string)
 end
 
 G = {
-    [1] = Cs((V'Require' + V'Call' + P(1))^0)
+    [1] = Cs((V'Require' + V'CallP' + V'CallB' + P(1))^0)
 ,
     Require = (('@[[' * C((P(1)-']]')^0) * ']]')
                     / DOSTRING)
 ,
-    Call    = (('@' * C((P(1)-'[['-'\n')^0) * '[[' * C((P(1)-']]')^0) * ']]')
+    CallP   = (('@' * C((P(1)-'('-'[['-'\n')^0) * '(' * C((P(1)-')')^0) * ')')
+                    / CALL)
+,
+    CallB   = (('@' * C((P(1)-'[['-'('-'\n')^0) * '[[' * C((P(1)-']]')^0) * ']]')
                     / CALL)
 }
 

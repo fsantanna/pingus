@@ -144,34 +144,34 @@ TODO:
 33:          pressed = true;
 34:      }
 35:  }</code></pre>
-<p>The <code>update</code> (ln. 15-27) and <code>on_click</code> (ln. 29-35) are the relevant methods of the class and are examples of <em>short-lived callbacks</em>, which are pieces of code that execute in reaction to external input events. Here, <code>on_click</code> reacts to mouse clicks (detected by the base class <code>RectComponent</code> in ln. 2), while <code>update</code> continuously reacts to the passage of time. Callbacks are short lived because they must execute as fast as possible to keep the game with real-time responsiveness.</p>
+<p>The <code>update</code> (ln. 15-27) and <code>on_click</code> (ln. 29-35) are the relevant methods of the class and are examples of <em>short-lived callbacks</em>, which are pieces of code that execute in reaction to external input events. Here, <code>on_click</code> reacts to mouse clicks, which are detected by the base class <code>RectComponent</code> (ln. 2), while <code>update</code> continuously reacts to the passage of time. Callbacks are short lived because they must execute as fast as possible to keep the game with real-time responsiveness.</p>
 <div class="images">
 <img src="images/double-click.png" width="550"/> <br>Figure 2: State machine for the &quot;Armageddon&quot; double click.
 </div>
 <p>The class first initializes the variable <code>pressed</code> to track the first click (ln. 4,33). It also initializes the variable <code>press_time</code> to count the time since the first click (ln. 5,18). If another click occurs within 1 second, the class signals the double click to the application (ln. 31). Otherwise, the <code>pressed</code> and <code>press_time</code> state variables are reset (ln. 20-21). Figure 2 illustrates how we can model the double-click behavior as a state machine.</p>
 <p>However, note how the accesses to these state variables are spread across the entire class. For instance, the distance between the initialization of <code>pressed</code> (ln. 4) and the last access to it (ln. 33) is over 40 lines in the original file [<a href="https://github.com/Pingus/pingus/blob/v0.7.6/src/pingus/components/action_button.cpp#L33-#L90"><img src="images/link_12.png" alt="X" /></a>]. Arguably, this dispersion of code across methods makes the understanding and maintenance of the double-click behavior more difficult. Also, even though the state variables are private, unrelated methods such as <code>draw</code> (ln. 11-13) can potentially access it.</p>
-<p>Because callbacks are short lived, the only way they can affect each other is by manipulating persisting member variables in the object. These <em>state variables</em> retain their values across multiple invocations, e.g.: <code>on_click</code> writes to <code>pressed</code> in the first click, and checks its state in further clicks (ln. 30,33), In the meantime, <code>update</code> also checks for <code>pressed</code> and may change its state (ln. 17,20).</p>
+<p>Because callbacks are short lived, the only way they can affect each other is by manipulating persisting member variables in the object. These <em>state variables</em> retain their values across multiple invocations, e.g.: <code>on_click</code> writes to <code>pressed</code> in the first click, and checks its state in further clicks (ln. 30,33). In the meantime, <code>update</code> also checks for <code>pressed</code> and may change its state (ln. 17,20).</p>
 <!-- CEU-ARMAGEDDON -->
 
 <p>Céu provides structured constructs to deal with events, aiming to eradicate explicit manipulation of state variables for control-flow purposes. The equivalent code in Céu [<a href="https://github.com/fsantanna/pingus/blob/ceu/ceu/pingus/components/action_button.ceu#L6"><img src="images/link_12.png" alt="X" /></a>] defines the class <code>ArmageddonButton</code> as follows:</p>
 <pre><code> 1:  class ArmageddonButton with
  2:      &lt;...&gt;
- 3:  do                                       // X9
+ 3:  do
  4:      var RectComponent component = &lt;...&gt;;
  5:      &lt;...&gt;
- 6:      loop do                              // line X1
- 7:          await component.on_click;        // line X3
- 8:          watching 1s do                   // line X4
- 9:              await component.on_click;    // line X6
-10:              break;                       // line X7
-11:          end                              // line X5
-12:      end                                  // line X2
+ 6:      loop do
+ 7:          await component.on_click;
+ 8:          watching 1s do
+ 9:              await component.on_click;
+10:              break;
+11:          end
+12:      end
 13:      &lt;...&gt;
-14:      emit global:go_armageddon;           // line X8
-15:  end                                      // X10</code></pre>
-<p>Instead of <em>objects</em>, classes in Céu specify <em>organisms</em> with a body declaration (ln. X9-X10) which executes for each instance while alive. Unlike objects, an organism is an active entity and starts to execute its body in a concurrent and deterministic manner with other alive organisms (but <em>not</em> actually in parallel). An execution body can use control-flow statements that keep the execution context across event occurrences (i.e., across <code>await</code> statements).</p>
-<p>The double click detection is a <code>loop</code> (ln. X1-X2) that awaits the first click (ln. X3) and then, watching 1 second (ln. X4-X5), awaits the second click (ln X6). If the second click occurs within 1 second, we <code>break</code> the loop (ln. X7) and signal the double click to the application (ln X8). Otherwise, the <code>watching</code> block as a whole aborts and restarts the loop, falling back to the first click <code>await</code> (ln X3).</p>
-<p>The double click detection in Céu doesn't require state variables and is entirely self-contained in the <code>loop</code> body (ln. X1-X2). Furthermore, these 7 lines of code do nothing besides detecting a double click, i.e., the actual effect happens outside the loop (ln. X8).</p>
+14:      emit global:go_armageddon;
+15:  end</code></pre>
+<p>Instead of <em>objects</em>, classes in Céu specify <em>organisms</em> with a body declaration (ln. 3-15) which executes for each instance while alive. Unlike objects, an organism is an active entity and starts to execute its body in a concurrent and deterministic manner with other alive organisms (but <em>not</em> actually in parallel). An execution body can use control-flow statements that keep the execution context across event occurrences (i.e., across <code>await</code> statements).</p>
+<p>The double click detection is a <code>loop</code> (ln. 6-12) that awaits the first click 7 and then, watching 1 second (ln. 8-11), awaits the second click (ln. 9). If the second click occurs within 1 second, we <code>break</code> the loop (ln. 10) and signal the double click to the application (ln. 14). Otherwise, the <code>watching</code> block as a whole aborts and restarts the loop, falling back to the first click <code>await</code> (ln. 7).</p>
+<p>The double click detection in Céu doesn't require state variables and is entirely self-contained in the <code>loop</code> body (ln. 6-12). Furthermore, these 7 lines of code do nothing besides detecting a double click, i.e., the actual effect happens outside the loop (ln. 14).</p>
 <p>As we argue throughout the document, appropriate control-flow mechanisms (e.g., <code>await</code> and <code>watching</code>) helps on the structure and composition of code, leading to considerable gains in productivity.</p>
 <h1 id="why-porting-pingus-to-céu">Why porting Pingus to Céu?</h1>
 <p>The main motivation to port Pingus from C++ to Céu is to promote its programming model in the context of video games. Céu supports concurrent and deterministic abstractions to specify entities with a high degree of real-time interactions, such as in video game simulation.</p>
@@ -333,54 +333,54 @@ state machine.
 <p>The code in C++ [<a href="https://github.com/Pingus/pingus/blob/v0.7.6/src/pingus/actions/bomber.cpp"><img src="images/link_12.png" alt="X" /></a>] defines the class <code>Bomber</code> which implements the <code>draw</code> and <code>update</code> callback methods:</p>
 <pre><code> 1:  Bomber::Bomber (Pingu* p) :
  2:      &lt;...&gt;
- 3:      sound_played(false),        // tracks state 2   // X1
+ 3:      sound_played(false),        // tracks state 2
  4:      particle_thrown(false),     // tracks state 3
  5:      colmap_exploded(false),     // tracks state 3
- 6:      gfx_exploded(false)         // tracks state 4   // X2
+ 6:      gfx_exploded(false)         // tracks state 4
  7:  {
  8:      &lt;...&gt;
  9:      // 1. 0th frame: plays a &quot;Oh no!&quot; sound.
-10:      get_world()-&gt;play_sound(&quot;ohno&quot;, pingu-&gt;get_pos()); // X3
+10:      get_world()-&gt;play_sound(&quot;ohno&quot;, pingu-&gt;get_pos());
 11:  }
 12:  
 13:  void Bomber::update ()
 14:  {
-15:      sprite.update ();               // X4
-16:      &lt;...&gt;   // pingu movement       // X4.1
+15:      sprite.update ();
+16:      &lt;...&gt;   // pingu movement
 17:  
 18:      // 2. 10th frame: plays a &quot;Bomb!&quot; sound.
-19:      if (sprite.get_current_frame()==10 &amp;&amp; !sound_played) {              // X5
+19:      if (sprite.get_current_frame()==10 &amp;&amp; !sound_played) {
 20:          sound_played = true;
 21:          get_world()-&gt;play_sound(&quot;plop&quot;, pingu-&gt;get_pos());
-22:      }                                                                   // X6
+22:      }
 23:  
 24:      // 3. 13th frame: throws particles, destroys the terrain, shows an explosion sprite
-25:      if (sprite.get_current_frame()==13 &amp;&amp; !particle_thrown) {           // X7
+25:      if (sprite.get_current_frame()==13 &amp;&amp; !particle_thrown) {
 26:          particle_thrown = true;
 27:          get_world()-&gt;get_pingu_particle_holder()-&gt;add_particle(pingu-&gt;get_x(),
-28:                                                                           pingu-&gt;get_y()-5);
+28:                                                                 pingu-&gt;get_y()-5);
 29:      }
 30:      if (sprite.get_current_frame()==13 &amp;&amp; !colmap_exploded) {
 31:          colmap_exploded = true;
 32:          get_world()-&gt;remove(bomber_radius, &lt;...&gt;);
-33:      }                                                                   // X8
+33:      }
 34:  
 35:      // 5. Last frame: kills the Pingu
-36:      if (sprite.is_finished ()) {                                        // X12
-37:          pingu-&gt;set_status(Pingu::PS_DEAD);                              // X13
+36:      if (sprite.is_finished ()) {
+37:          pingu_&gt;set_status(Pingu::PS_DEAD);
 38:      }
 39:  }
 40:  
 41:  void Bomber::draw (SceneContext&amp; gc) {
 42:      // 3. 13th frame: throws particles, destroys the terrain, shows an explosion sprite
 43:      // 4. Game tick: hides the explosion sprite
-44:      if (sprite.get_current_frame()==13 &amp;&amp; !gfx_exploded) {              // X9
-45:          gfx_exploded = true;                                            // X10
-46:          gc.color().draw (explo_surf, &lt;...&gt;);                            // X11
+44:      if (sprite.get_current_frame()==13 &amp;&amp; !gfx_exploded) {
+45:          gfx_exploded = true;
+46:          gc.color().draw (explo_surf, &lt;...&gt;);
 47:      }
 48:      gc.color().draw(sprite, pingu-&gt;get_pos ());
 49:  }</code></pre>
-<p>The class defines one state variable for each action to perform (ln. X1-X2). The &quot;Oh no!&quot; sound plays as soon as the object starts in <em>state-1</em> (ln. X3). The <code>update</code> callbacks update the animation sprite and moves the pingu every frame (ln. X4-X4.1), regardless of the current state. When the animation reaches the 10th frame, it plays the &quot;Bomb!&quot; if it hasn't yet (ln. X5-X6), going to <em>state-2</em>. The <code>sound_played</code> state variable is required because the sprite frame doesn't necessarily advance on every <code>update</code> invocation. The same reasoning and technique applies to the <em>state-3</em> (ln. X7-X8 and X9-X10). The explosion sprite appears in a single frame in <em>state-4</em> (ln. X11). Finally, the pingu dies after the animation frames terminate (ln. X12-X13).</p>
+<p>The class defines one state variable for each action to perform (ln. 3-6). The &quot;Oh no!&quot; sound plays as soon as the object starts in <em>state-1</em> (ln. 10). The <code>update</code> callbacks update the animation sprite and moves the pingu every frame (ln. 15-16), regardless of the current state. When the animation reaches the 10th frame, it plays the &quot;Bomb!&quot; if it hasn't yet (ln. 19-22), going to <em>state-2</em>. The <code>sound_played</code> state variable is required because the sprite frame doesn't necessarily advance on every <code>update</code> invocation. The same reasoning and technique applies to the <em>state-3</em> (ln. 25-33) and (ln. 44-45). The explosion sprite appears in a single frame in <em>state-4</em> (ln. 46). Finally, the pingu dies after the animation frames terminate (ln. 36-37).</p>
 <p>Note that a single numeric state variable would suffice to track the states. Probably, the authors chose to encode each state in an independent boolean variable to rearrange and experiment with them during the development.</p>
 <p>However, due to the short-lived nature of callbacks, state variables are unavoidable, being part of the essence of object-oriented programming (methods + mutable state).</p>
 <p><a name="bomber"/></p>
@@ -390,7 +390,7 @@ state machine.
  3:  do
  4:      &lt;...&gt;
  5:      par do
- 6:          &lt;...&gt;   // pingu movement                                   // X1
+ 6:          &lt;...&gt;   // pingu movement
  7:      with
  8:          // 1. 0th frame: plays a &quot;Oh no!&quot; sound.
  9:          call global:play_sound(&quot;ohno&quot;, 0.5, 0.0);
@@ -404,24 +404,24 @@ state machine.
 17:          emit global:go_create_pingu_particles =&gt; (this.pingu.get_x(),
 18:                                                    this.pingu.get_y()-5);
 19:          global:remove(&amp;&amp;_bomber_radius, &lt;...&gt;);
-20:          do                                                          // X4
+20:          do
 21:              var Sprite _ = Sprite.build_name(&lt;...&gt;, &amp;&amp;explo);
 22:              // 4. Game tick: hides the explosion sprite
 23:              await WORLD_UPDATE;
-24:          end                                                         // X5
+24:          end
 25:  
 26:          // 5. Last frame: kills the pingu
-27:          await sprite;                                               // X2
-28:          escape {ActionName::DEAD};                                  // X3
+27:          await sprite;
+28:          escape {ActionName::DEAD};
 29:      end
 30:  end</code></pre>
 <p>Considering the implementation in Céu, we can highlight some benefits in comparison to the implementation in C++:</p>
 <ul>
 <li>We encode all states implicitly, relying on the natural sequential flow of execution.</li>
 <li>We handle all states (and only them) in the same contiguous block of code.</li>
-<li>We isolate unrelated behaviors to the animation, such as the pingu movement (ln. X1), in a parallel line of execution.</li>
-<li>We use a local and lexically-scoped organism (to be discussed [<a href="#dispatching-hierarchies"><img src="images/link_12.png" alt="X" /></a>]) for the temporary single-frame explosion (ln. X4-X5).</li>
-<li>We use auxiliary signaling mechanisms (to be discussed [<a href="#signaling-mechanisms"><img src="images/link_12.png" alt="X" /></a>]) to await the termination of the animation (ln. X2) and to notify the application about our own termination.</li>
+<li>We isolate unrelated behaviors to the animation, such as the pingu movement (ln. 6), in a parallel line of execution.</li>
+<li>We use a local and lexically-scoped organism (to be discussed [<a href="#dispatching-hierarchies"><img src="images/link_12.png" alt="X" /></a>]) for the temporary single-frame explosion (ln. 20-24).</li>
+<li>We use auxiliary signaling mechanisms (to be discussed [<a href="#signaling-mechanisms"><img src="images/link_12.png" alt="X" /></a>]) to await the termination of the animation (ln. 27) and to notify the application about our own termination.</li>
 </ul>
 <!--
 ### Sprite Animations
@@ -456,33 +456,33 @@ more natural structured code with sequences, conditionals, and loops
 <pre><code> 1:  StoryScreenComponent::StoryScreenComponent (&lt;...&gt;) :
  2:      &lt;...&gt;
  3:  {
- 4:      pages        = &lt;...&gt;;                       // X1
- 5:      current_page = pages.back();                // X2
- 6:      displayed    = false;                       // X7
+ 4:      pages        = &lt;...&gt;;
+ 5:      current_page = pages.back();
+ 6:      displayed    = false;
  7:      &lt;...&gt;
  8:  }
  9:  
 10:  &lt;...&gt;   // draw and update page
 11:  
 12:  void StoryScreenComponent::next_text() {
-13:      if (!displayed) {                           // X8
-14:          displayed = true;                       // X9
+13:      if (!displayed) {
+14:          displayed = true;
 15:          &lt;...&gt;
-16:      } else {                                    // X5
-17:          pages.pop_back();                       // X3
+16:      } else {
+17:          pages.pop_back();
 18:          if (!pages.empty()) {
-19:              current_page = pages.back();        // X4
-20:              displayed    = false;               // X10
+19:              current_page = pages.back();
+20:              displayed    = false;
 21:              &lt;...&gt;
 22:          } else {
 23:              &lt;...&gt;   // terminates the story screen
 24:          }
-25:      }                                           // X6
+25:      }
 26:  }</code></pre>
 <div class="images">
 <img src="images/story.png" width="550"/> <br>Figure 7: State machine for the &quot;Story&quot; screen.
 </div>
-<p>The variable <code>pages</code> (ln. X1-X2, X3-X4) is a vector holding each page and also encodes <em>continuations</em> for the story progress: each call to <code>next_text</code> that advances the story (ln. X5-X6) removes a page (ln. X3) and sets the next action to perform (display a new page) in the variable <code>current_page</code> (ln. X3). Figure 7 illustrates the state machine for fast-forwarding the words inside the dashed rectangle and the continuation mechanism to advance pages. The state variable <code>displayed</code> (ln. X7,X8,X9,X10) switches between the behaviors &quot;advancing text&quot; and &quot;advancing pages&quot; which are mixed inside the method <code>next_text</code>.</p>
+<p>The variable <code>pages</code> (ln. 4-5, 17-19) is a vector holding each page and also encodes <em>continuations</em> for the story progress: each call to <code>next_text</code> that advances the story (ln. 16-25) removes a page (ln. 17) and sets the next action to perform (display a new page) in the variable <code>current_page</code> (ln. 19). Figure 7 illustrates the state machine for fast-forwarding the words inside the dashed rectangle and the continuation mechanism to advance pages. The state variable <code>displayed</code> (ln. 6,13,14,20) switches between the behaviors &quot;advancing text&quot; and &quot;advancing pages&quot; which are mixed inside the method <code>next_text</code>.</p>
 <!-- CEU-STORY-PAGES -->
 
 <p>The code in Céu [<a href="https://github.com/fsantanna/pingus/blob/ceu/ceu/pingus/screens/story_screen.ceu#L14"><img src="images/link_12.png" alt="X" /></a>] uses a <code>next_text</code> event to advance the words and pages:</p>
@@ -493,18 +493,18 @@ more natural structured code with sequences, conditionals, and loops
  5:  
  6:      _pages = &lt;...&gt;
  7:  
- 8:      loop i in _pages.size() do                              // X3
+ 8:      loop i in _pages.size() do
  9:          par/or do
 10:              &lt;...&gt;       // loop to redraw current page
 11:          with
 12:              watching next_text do
-13:                  &lt;...&gt;   // loop to advance text over time   // X1
+13:                  &lt;...&gt;   // loop to advance text over time
 14:              end
-15:              await next_text;                                // X2
+15:              await next_text;
 16:          end
-17:      end                                                     // X4
+17:      end
 18:  end</code></pre>
-<p>For the sequential navigation from page to page, we use a simple loop (ln. X3-X4) instead of an explicit continuation state. While the text advances in an inner loop (hidden in ln. X1), we watch the <code>next_text</code> event to fast forward it. The inner loop may also eventually terminate with the time elapsing. To go to the next page, we simply <code>await next_text</code> again (ln. X2). Note that we don't need a variable (such as <code>displayed</code> above) to switch between the states &quot;advancing text&quot; or &quot;advancing pages&quot; which are not mixed in the source code.</p>
+<p>For the sequential navigation from page to page, we use a simple loop (ln. 8,17) instead of an explicit continuation state. While the text advances in an inner loop (hidden in ln. 13), we watch the <code>next_text</code> event to fast forward it. The inner loop may also eventually terminate with the time elapsing. To go to the next page, we simply <code>await next_text</code> again (ln. 15). Note that we don't need a variable (such as <code>displayed</code> above) to switch between the states &quot;advancing text&quot; or &quot;advancing pages&quot; which are not mixed in the source code.</p>
 <h3 id="case-study-2-story-screen-transition-to-credits-screen">Case Study 2: Story Screen, Transition to Credits Screen</h3>
 <div class="images" bgcolor="white">
 <img src="images/credits-anim.gif" width="350"/> <br>Figure 8: Transition from &quot;Story&quot; to &quot;Credits&quot; screen.
@@ -522,10 +522,10 @@ more natural structured code with sequences, conditionals, and loops
  7:  
  8:  void StoryDot::on_click() {
  9:      &lt;...&gt;
-10:      ScreenManager::instance()-&gt;push_screen(std::make_shared&lt;StoryScreen&gt;(&lt;...&gt;, m_credits));    // X1
+10:      ScreenManager::instance()-&gt;push_screen(std::make_shared&lt;StoryScreen&gt;(&lt;...&gt;, m_credits));
 11:      &lt;...&gt;
 12:  }</code></pre>
-<p>The boolean variable <code>m_credits</code> is passed to the <code>StoryScreen</code> (ln. X1) [<a href="https://github.com/Pingus/pingus/blob/master/src/pingus/screens/story_screen.cpp#L136"><img src="images/link_12.png" alt="X" /></a>] and represents its continuation, i.e., what to do after displaying the story. The <code>StoryScreen</code> forwards the continuation [<a href="https://github.com/Pingus/pingus/blob/master/src/pingus/screens/story_screen.cpp#L143"><img src="images/link_12.png" alt="X" /></a>] to the <code>StoryComponent</code> [<a href="https://github.com/Pingus/pingus/blob/master/src/pingus/screens/story_screen.cpp#L159"><img src="images/link_12.png" alt="X" /></a>]:</p>
+<p>The boolean variable <code>m_credits</code> is passed to the <code>StoryScreen</code> (ln. 10) [<a href="https://github.com/Pingus/pingus/blob/master/src/pingus/screens/story_screen.cpp#L136"><img src="images/link_12.png" alt="X" /></a>] and represents its continuation, i.e., what to do after displaying the story. The <code>StoryScreen</code> forwards the continuation [<a href="https://github.com/Pingus/pingus/blob/master/src/pingus/screens/story_screen.cpp#L143"><img src="images/link_12.png" alt="X" /></a>] to the <code>StoryComponent</code> [<a href="https://github.com/Pingus/pingus/blob/master/src/pingus/screens/story_screen.cpp#L159"><img src="images/link_12.png" alt="X" /></a>]:</p>
 <pre><code> 1:  StoryScreenComponent::StoryScreenComponent (&lt;...&gt;) :
  2:      m_credits(credits),
  3:      &lt;...&gt;
@@ -542,27 +542,27 @@ more natural structured code with sequences, conditionals, and loops
 14:          &lt;...&gt;
 15:          if (!pages.empty()) {
 16:              &lt;...&gt;
-17:          } else {                // X1
-18:              if (m_credits) {    // X3
+17:          } else {
+18:              if (m_credits) {
 19:                  ScreenManager::instance()-&gt;replace_screen(std::make_shared&lt;Credits&gt;(&lt;...&gt;));
 20:              } else {
 21:                  ScreenManager::instance()-&gt;pop_screen();
 22:              }
-23:          }                       // X2
+23:          }
 24:      }
 25:  }</code></pre>
-<p>When the method <code>next_text</code> has no pages to display (ln. X1-X2), it decides where to go next, depending on the continuation flag <code>m_credits</code> (ln. X3).</p>
+<p>When the method <code>next_text</code> has no pages to display (ln. 17-23), it decides where to go next, depending on the continuation flag <code>m_credits</code> (ln. 18).</p>
 <!-- CEU-STORY-CREDITS -->
 
 <p>In Céu, the flow of screens to display is a just a sequence of statements, not requiring continuation variables:</p>
 <pre><code> 1:  loop do
- 2:      var int ret = do WorldmapScreen;                // X1
+ 2:      var int ret = do WorldmapScreen;
  3:      if ret==_WORLDMAP_RETURN_STORY_MAP or ret==_WORLDMAP_RETURN_STORY_CREDITS then
- 4:          &lt;...&gt;                                       // X2
- 5:          var bool is_click = do StoryScreen;         // X4
- 6:          if is_click and ret==_WORLDMAP_RETURN_STORY_CREDITS then // X6
- 7:              do Credits;                             // X7
- 8:          end                                         // X3
+ 4:          &lt;...&gt;
+ 5:          var bool is_click = do StoryScreen;
+ 6:          if is_click and ret==_WORLDMAP_RETURN_STORY_CREDITS then
+ 7:              do Credits;
+ 8:          end
  9:      else
 10:          &lt;...&gt;
 11:      end
@@ -580,7 +580,7 @@ do
 end
 &lt;...&gt;</code></pre>
 <p>The <code>do</code> notation is analogous to a procedure call, holding the current state while the given organism executes. The code in sequence (marked as <code>&lt;...&gt;</code>) only executes after the organism terminates.</p>
-<p>In the code above, we first &quot;call&quot; a <code>WorldmapScreen</code> organism (ln. X1), which will exhibit the map and let the player interact until it clicks in a dot. If the player selects a story dot (ln. X2-X3), we &quot;call&quot; the story (ln. X4) and also await its termination. Finally, we check the return values (ln. X6) to display the <code>Credits</code> (ln. X7).</p>
+<p>In the code above, we first &quot;call&quot; a <code>WorldmapScreen</code> organism (ln. 2), which will exhibit the map and let the player interact until it clicks in a dot. If the player selects a story dot (ln. 4-8), we &quot;call&quot; the story (ln. 5) and also await its termination. Finally, we check the return values (ln. 6) to display the <code>Credits</code> (ln. 7).</p>
 <div class="images">
 <img src="images/continuation.png" width="500"/> <br>Figure 9: Continuation (C++) vs Direct (Céu) Styles
 </div>
@@ -630,19 +630,19 @@ TODO: falar de broadcast (in Ceu: unless it is paused, all receive always)
 10:  
 11:  Bomber::Bomber (&lt;...&gt;) : &lt;...&gt;
 12:  {
-13:      sprite.load(&lt;...&gt;);                     // X1
+13:      sprite.load(&lt;...&gt;);
 14:      &lt;...&gt;
 15:  }
 16:  
-17:  void Bomber::update () {                    // X2
+17:  void Bomber::update () {
 18:      sprite.update ();
-19:  }                                           // X3
+19:  }
 20:  
-21:  void Bomber::draw (SceneContext&amp; gc) {      // X4
+21:  void Bomber::draw (SceneContext&amp; gc) {
 22:      &lt;...&gt;
 23:      gc.color().draw(sprite, &lt;...&gt;);
-24:  }                                           // X5</code></pre>
-<p>The class loads the <code>sprite</code> in the constructor (ln. X1) and continually redirects <code>update</code> and <code>draw</code> to it (ln. X2-X3 and X4-X5). The <code>Sprite</code> class knows how to update [<a href="https://github.com/Pingus/pingus/blob/v0.7.6/src/engine/display/sprite_impl.cpp#L112"><img src="images/link_12.png" alt="X" /></a>] and render [<a href="https://github.com/Pingus/pingus/blob/v0.7.6/src/engine/display/sprite_impl.cpp#L140"><img src="images/link_12.png" alt="X" /></a>] itself.</p>
+24:  }</code></pre>
+<p>The class loads the <code>sprite</code> in the constructor (ln. 13) and continually redirects <code>update</code> and <code>draw</code> to it (ln. 17-19 and 21-24). The <code>Sprite</code> class knows how to update [<a href="https://github.com/Pingus/pingus/blob/v0.7.6/src/engine/display/sprite_impl.cpp#L112"><img src="images/link_12.png" alt="X" /></a>] and render [<a href="https://github.com/Pingus/pingus/blob/v0.7.6/src/engine/display/sprite_impl.cpp#L140"><img src="images/link_12.png" alt="X" /></a>] itself.</p>
 <div class="images">
 <img src="images/hierarchy.png" width="550"/> <br>Figure 10: Dispatching chain for <code>update</code>.
 </div>
@@ -671,10 +671,10 @@ TODO: falar de broadcast (in Ceu: unless it is paused, all receive always)
 <pre><code> 1:  class Bomber with
  2:      interface IPinguAction;
  3:  do
- 4:      var Sprite sprite = Sprite.build_name(&lt;...&gt;);   // X1
+ 4:      var Sprite sprite = Sprite.build_name(&lt;...&gt;);
  5:      &lt;...&gt;
  6:  end</code></pre>
-<p>As mentioned before, organisms in Céu are active entities and can react directly to the environment. As soon as we declare the <code>Sprite</code> organism (ln. X1), its execution body starts automatically, bypassing the program hierarchy and reacting directly to the external events <code>WORLD_UPDATE</code> [<a href="https://github.com/fsantanna/pingus/blob/ceu/ceu/engine/display/sprite.ceu#L109"><img src="images/link_12.png" alt="X" /></a>] and <code>REDRAW</code> [<a href="https://github.com/fsantanna/pingus/blob/ceu/ceu/engine/display/sprite.ceu#L138"><img src="images/link_12.png" alt="X" /></a>].</p>
+<p>As mentioned before, organisms in Céu are active entities and can react directly to the environment. As soon as we declare the <code>Sprite</code> organism (ln. 4), its execution body starts automatically, bypassing the program hierarchy and reacting directly to the external events <code>WORLD_UPDATE</code> [<a href="https://github.com/fsantanna/pingus/blob/ceu/ceu/engine/display/sprite.ceu#L109"><img src="images/link_12.png" alt="X" /></a>] and <code>REDRAW</code> [<a href="https://github.com/fsantanna/pingus/blob/ceu/ceu/engine/display/sprite.ceu#L138"><img src="images/link_12.png" alt="X" /></a>].</p>
 <p>On the one hand, the radical decoupling between the program hierarchy and external reactions completely eliminates dispatching chains. For instance, we removed from the engine most of the boilerplate related to dispatching <code>draw</code>, <code>update</code>, and other callbacks ([[<img src="images/link_12.png" alt="X" />][TODO]]). On the other hand, now that organisms themselves decide whether or not to react to external input, we support that lexical scopes should control their life cycles.</p>
 <div class="images">
 <img src="images/explo.png"/> <br>Figure 11: Explosion sprite for the <code>Bomber</code> animation.
@@ -688,13 +688,13 @@ TODO: falar de broadcast (in Ceu: unless it is paused, all receive always)
  6:          // 13th frame:
  7:          await WORLD_UPDATE until sprite.get_current_frame() == 13;
  8:          &lt;...&gt;
- 9:          do                                                          // X2
-10:              var Sprite _ = Sprite.build_name(&lt;...&gt;, &amp;&amp;explo);       // X1
-11:              await WORLD_UPDATE;                                     // X4
-12:          end                                                         // X3
+ 9:          do
+10:              var Sprite _ = Sprite.build_name(&lt;...&gt;, &amp;&amp;explo);
+11:              await WORLD_UPDATE;
+12:          end
 13:          &lt;...&gt;
 14:  end</code></pre>
-<p>We enclose the declaration with an explicit block (ln. X2-X3) that restricts its lifespan to a single occurrence of <code>WORLD_UPDATE</code> (ln. X4). When the block terminates, the organism goes out of scope and its execution body aborts automatically, effectively removing it from the screen. Note here that we never manipulate references to the <code>Sprite</code>, which is declared anonymous with the placeholder <code>_</code>. In constrast, the animation in C++ requires to explicitly check the state variable <code>gfx_exploded</code> and forward the <code>draw</code> method down to the child sprite <code>explo_surf</code> [<a href="https://github.com/Pingus/pingus/blob/master/src/pingus/actions/bomber.cpp#L50"><img src="images/link_12.png" alt="X" /></a>].</p>
+<p>We enclose the declaration with an explicit block (ln. 9-12) that restricts its lifespan to a single occurrence of <code>WORLD_UPDATE</code> (ln. 11). When the block terminates, the organism goes out of scope and its execution body aborts automatically, effectively removing it from the screen. Note here that we never manipulate references to the <code>Sprite</code>, which is declared anonymous with the placeholder <code>_</code>. In constrast, the animation in C++ requires to explicitly check the state variable <code>gfx_exploded</code> and forward the <code>draw</code> method down to the child sprite <code>explo_surf</code> [<a href="https://github.com/Pingus/pingus/blob/master/src/pingus/actions/bomber.cpp#L50"><img src="images/link_12.png" alt="X" /></a>].</p>
 <!-- CEU-vs-CPP-BOMBER-SPRITE -->
 
 <p>Overall, passive objects of C++ impose a dispatching architecture that makes the reasoning about the program harder:</p>
@@ -759,27 +759,27 @@ TODO: falar de broadcast (in Ceu: unless it is paused, all receive always)
 <p>In C++, for entities with a dynamic lifespan, we need to <code>add</code> and <code>remove</code> them explicitly from the container.</p>
 <p>As an example, pingus are dynamic entities created periodically and destroyed under certain conditions (e.g. when going out of the screen [<a href="https://github.com/Pingus/pingus/blob/v0.7.6/src/pingus/pingu.cpp#L322"><img src="images/link_12.png" alt="X" /></a>]):</p>
 <p>TODO: falling and dyeing animation at the same time</p>
-<pre><code> 1:  Pingu* PinguHolder::create_pingu (&lt;...&gt;) {              // X1
+<pre><code> 1:  Pingu* PinguHolder::create_pingu (&lt;...&gt;) {
  2:      &lt;...&gt;
  3:      Pingu* pingu = new Pingu (&lt;...&gt;);
  4:      &lt;...&gt;
- 5:      pingus.push_back(pingu);                            // X3
+ 5:      pingus.push_back(pingu);
  6:      &lt;...&gt;
  7:      return pingu;
- 8:  }                                                       // X2
+ 8:  }
  9:  
-10:  void PinguHolder::update() {                            // X4
+10:  void PinguHolder::update() {
 11:      &lt;...&gt;
 12:      while(pingu != pingus.end()) {
-13:          (*pingu)-&gt;update();                             // X8
-14:          if ((*pingu)-&gt;get_status() == Pingu::PS_DEAD) { // X6
+13:          (*pingu)-&gt;update();
+14:          if ((*pingu)-&gt;get_status() == Pingu::PS_DEAD) {
 15:              pingu = pingus.erase(pingu);
-16:          }                                               // X7
+16:          }
 17:          &lt;...&gt;
 18:          ++pingu;
 19:      }
-20:  }                                                       // X5</code></pre>
-<p><code>PinguHolder::create_pingu</code> (ln. X1-X2) creates a new <code>Pingu</code> periodically, adding it to the <code>pingus</code> container (ln. X3). <code>PinguHolder::update</code> (ln. X4-X5) checks all pingus every frame, removing those with the <code>Pingu::PS_DEAD</code> status (ln. X6-X7): Without the <code>erase</code> call, a dead pingu would keep consuming memory and CPU time, i.e., it would remain in the <code>pingus</code> vector and be updated every frame (ln. X8).</p>
+20:  }</code></pre>
+<p><code>PinguHolder::create_pingu</code> (ln. 1-8) creates a new <code>Pingu</code> periodically, adding it to the <code>pingus</code> container (ln. 5). <code>PinguHolder::update</code> (ln. 10-20) checks all pingus every frame, removing those with the <code>Pingu::PS_DEAD</code> status (ln. 14-16): Without the <code>erase</code> call, a dead pingu would keep consuming memory and CPU time, i.e., it would remain in the <code>pingus</code> vector and be updated every frame (ln. 13).</p>
 <p>This problem is known as the <em>lapsed listener</em> [<a href="http://gameprogrammingpatterns.com/observer.html#don&#39;t-worry,-i&#39;ve-got-a-gc"><img src="images/link_12.png" alt="X" /></a>] and is not restricted to languages without garbage collection. Typically, a container holds a strong reference to a child (sometimes the only reference to it), and a collector cannot magically detect it as garbage.</p>
 <!-- CEU-CONTAINER-DYNAMIC -->
 
@@ -787,16 +787,16 @@ TODO: falar de broadcast (in Ceu: unless it is paused, all receive always)
 <p>The <code>PinguHolder</code> class in Céu spawns a new <code>Pingu</code> for every occurrence of the event <code>global:go_create_pingu</code> [<a href="https://github.com/fsantanna/pingus/blob/ceu/ceu/pingus/pingu_holder.ceu#L12"><img src="images/link_12.png" alt="X" /></a>]:</p>
 <pre><code> 1:  class PinguHolder with
  2:      &lt;...&gt;
- 3:  do                                      // X3
- 4:      pool IPingu[] pingus;               // X1
+ 3:  do
+ 4:      pool IPingu[] pingus;
  5:      &lt;...&gt;
  6:      every (&lt;...&gt;) in global:go_create_pingu do
  7:          &lt;...&gt;
- 8:          spawn Pingu in this.pingus;     // X2
+ 8:          spawn Pingu in this.pingus;
  9:      end
-10:  end                                     // X4</code></pre>
-<p>The class <code>PinguHolder</code> declares a pool of <code>IPingu</code> [<a href="https://github.com/fsantanna/pingus/blob/ceu/ceu/main.ceu#L95"><img src="images/link_12.png" alt="X" /></a>] identified as <code>pingus</code> (ln. X1). We spawn instances of <code>Pingu</code> [<a href="https://github.com/fsantanna/pingus/blob/ceu/ceu/pingus/pingu.ceu#L54"><img src="images/link_12.png" alt="X" /></a>] (which implements the <code>IPingu</code> interface) on the <code>pingus</code> pool (ln. X2).</p>
-<p>The scope of the <code>pingus</code> pool constrains the lifespan of all pingus dynamically created in reaction to <code>go_create_pingu</code>. Therefore, if the top-level block of <code>PinguHolder</code> goes out of scope (ln.<br />X3-X4), the execution of all pingus is aborted and they are automatically reclaimed from memory. The same happens if the block containing the instance of <code>PinguHolder</code> goes out of scope [<a href="https://github.com/fsantanna/pingus/blob/ceu/ceu/pingus/world.ceu#L116"><img src="images/link_12.png" alt="X" /></a>] (and so on, up to the outermost block of the program [<a href="https://github.com/fsantanna/pingus/blob/ceu/ceu/main.ceu#L249"><img src="images/link_12.png" alt="X" /></a>]).</p>
+10:  end</code></pre>
+<p>The class <code>PinguHolder</code> declares a pool of <code>IPingu</code> [<a href="https://github.com/fsantanna/pingus/blob/ceu/ceu/main.ceu#L95"><img src="images/link_12.png" alt="X" /></a>] identified as <code>pingus</code> (ln. 4). We spawn instances of <code>Pingu</code> [<a href="https://github.com/fsantanna/pingus/blob/ceu/ceu/pingus/pingu.ceu#L54"><img src="images/link_12.png" alt="X" /></a>] (which implements the <code>IPingu</code> interface) on the <code>pingus</code> pool (ln. 8).</p>
+<p>The scope of the <code>pingus</code> pool constrains the lifespan of all pingus dynamically created in reaction to <code>go_create_pingu</code>. Therefore, if the top-level block of <code>PinguHolder</code> goes out of scope (ln. 3-10), the execution of all pingus is aborted and they are automatically reclaimed from memory. The same happens if the block containing the instance of <code>PinguHolder</code> goes out of scope [<a href="https://github.com/fsantanna/pingus/blob/ceu/ceu/pingus/world.ceu#L116"><img src="images/link_12.png" alt="X" /></a>] (and so on, up to the outermost block of the program [<a href="https://github.com/fsantanna/pingus/blob/ceu/ceu/main.ceu#L249"><img src="images/link_12.png" alt="X" /></a>]).</p>
 <div class="images">
 <img src="images/pool.png" width="400"/> <br>Figure 13: Lifespan of dynamic organisms
 </div>
@@ -810,12 +810,12 @@ TODO: falar de broadcast (in Ceu: unless it is paused, all receive always)
  6:          await WORLD_UPDATE;
  7:          if this.rel_getpixel(0,-1) == {Groundtype::GP_OUTOFSCREEN} then
  8:              &lt;...&gt;
- 9:              escape _PS_DEAD;        // X1
+ 9:              escape _PS_DEAD;
 10:          end
 11:          &lt;...&gt;
 12:      end
 13:  end</code></pre>
-<p>The <code>escape</code> statement (ln X1) aborts the execution block of the instance, removing it from its pool automatically. Hence, a dynamic organism that terminates naturally leaves no traces in the program. The language ensures, at compile time, that there are no possible dangling pointers to organisms (TODO: not discussed here).</p>
+<p>The <code>escape</code> statement (ln. 9) aborts the execution block of the instance, removing it from its pool automatically. Hence, a dynamic organism that terminates naturally leaves no traces in the program. The language ensures, at compile time, that there are no possible dangling pointers to organisms (TODO: not discussed here).</p>
 <!--
 Céu distinguishes between *aliases* and *pointers*.
 Aliases are similar to C++ references [[![X]][cpp-reference]], while pointers 

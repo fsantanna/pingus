@@ -32,7 +32,7 @@
 FIG_COUNT = 0
 
 function FIG_NEW (id)
-    assert(_G[id] == nil)
+    assert(_G[id] == nil, 'repeated Figure: "'..id..'"')
     FIG_COUNT = FIG_COUNT + 1
     _G[id] = FIG_COUNT
     return FIG_COUNT
@@ -41,7 +41,10 @@ function FIG_REF (id)
     return _G[id]
 end
 
+CODE2N = nil
+
 function CODE_LINES (code)
+    CODE2N = {}
     local sep = lpeg.P('\n')
     local elem = lpeg.C((1 - sep)^0)
     local p = lpeg.Ct(elem * (sep * elem)^0)
@@ -51,9 +54,32 @@ function CODE_LINES (code)
     assert(t[#t-1] == '```')
     assert(t[#t]   == '')
     for i=3, #t-2 do
-        t[i] = string.format('%2s',(i-2))..':  '..t[i]
+        local line = t[i]
+        local id = string.match(line, '@(.*)$')
+        if id then
+            assert(not CODE2N[id], 'repeated @id: "'..id..'"')
+            CODE2N[id] = (i-2)
+            line = string.gsub(line, ' +@.*$', '')
+        end
+        t[i] = string.format('%2s',(i-2))..':  '..line
     end
     return table.concat(t,'\n')
+end
+
+function N (id)
+    local id1, sep, id2 = string.match(id, '(.+)([,%-])(.+)')
+    if not sep then
+        id1 = id
+    end
+    local ret = assert(CODE2N[id1], 'not found: @'..id1)
+    if sep then
+        ret = ret..sep..assert(CODE2N[id2], 'not found: @'..id2)
+    end
+    return ret
+end
+
+function NN (id)
+    return '(ln. '..N(id)..')'
 end
 ]]
 
@@ -166,49 +192,50 @@ Here, we focus on detecting the double click, hiding unrelated parts with
 @CODE_LINES[[
 ```
 ArmageddonButton::ArmageddonButton(<...>):
-    RectComponent(<...>),
+    RectComponent(<...>),                       @base_class
     <...>
-    pressed(false);
-    press_time();
+    pressed(false);                             @pressed_1
+    press_time();                               @press_time_1
     <...>
 {
     <...>
 }
 
-void ArmageddonButton::draw (<...>) {
+void ArmageddonButton::draw (<...>) {           @draw_1
     <...>
-}
+}                                               @draw_2
 
-void ArmageddonButton::update (float delta) {
+void ArmageddonButton::update (float delta) {   @update_1
     <...>
-    if (pressed) {
-        press_time += delta;
+    if (pressed) {                              @pressed_4
+        press_time += delta;                    @press_time_2
         if (press_time > 1.0f) {
-            pressed = false;
-            press_time = 0;
+            pressed = false;                    @reset_1
+            press_time = 0;                     @reset_2
         }
     } else {
         pressed = false;
         press_time = 0;
     }
-}
+}                                               @update_2
 
-void ArmageddonButton::on_click (<...>) {
-    if (pressed) {
-        server->send_armageddon_event();
+void ArmageddonButton::on_click (<...>) {       @on_click_1
+    if (pressed) {                              @pressed_3
+        server->send_armageddon_event();        @armageddon
     } else {
-        pressed = true;
+        pressed = true;                         @pressed_2
     }
-}
+}                                               @on_click_2
 ```
 ]]
 
-The `update` (ln. 15-27) and `on_click` (ln. 29-35) are the relevant methods of 
-the class and are examples of *short-lived callbacks*, which are pieces of code 
-that execute in reaction to external input events.
-Here, `on_click` reacts to mouse clicks (detected by the base class 
-`RectComponent` in ln. 2), while `update` continuously reacts to the passage of 
-time.
+The `update` @NN(update_1-update_2) and `on_click` @NN(on_click_1-on_click_2)
+are the relevant methods of the class and are examples of *short-lived 
+callbacks*, which are pieces of code that execute in reaction to external input 
+events.
+Here, `on_click` reacts to mouse clicks, which are detected by the base class 
+`RectComponent` @NN(base_class), while `update` continuously reacts to the 
+passage of time.
 Callbacks are short lived because they must execute as fast as possible to keep 
 the game with real-time responsiveness.
 
@@ -219,33 +246,33 @@ double click.
 </div>
 
 The class first initializes the variable `pressed` to track the first click 
-(ln. 4,33).
-It also initializes the variable `press_time` to count the time since 
-the first click (ln. 5,18).
-If another click occurs within 1 second, the class signals the double 
-click to the application (ln. 31).
+@NN(pressed_1,pressed_2).
+It also initializes the variable `press_time` to count the time since the first 
+click @NN(press_time_1,press_time_2).
+If another click occurs within 1 second, the class signals the double click to 
+the application @NN(armageddon).
 Otherwise, the `pressed` and `press_time` state variables are reset 
-(ln. 20-21).
+@NN(reset_1-reset_2).
 Figure @FIG_REF[[double-click-states]] illustrates how we can model the 
 double-click behavior as a state machine.
 
 However, note how the accesses to these state variables are spread across the 
 entire class.
 For instance, the distance between the initialization of `pressed` 
-(ln. 4) and the last access to it (ln. 33) is over 40 lines in the 
+@NN(pressed_1) and the last access to it @NN(pressed_2) is over 40 lines in the 
 original file [[![X]][cpp-armageddon-2]].
 Arguably, this dispersion of code across methods makes the understanding and 
 maintenance of the double-click behavior more difficult.
-Also, even though the state variables are private, unrelated methods 
-such as `draw` (ln. 11-13) can potentially access it.
+Also, even though the state variables are private, unrelated methods such as 
+`draw` @NN(draw_1-draw_2) can potentially access it.
 
 Because callbacks are short lived, the only way they can affect each other is 
 by manipulating persisting member variables in the object.
 These *state variables* retain their values across multiple invocations, e.g.:
 `on_click` writes to `pressed` in the first click, and checks its state in 
-further clicks (ln. 30,33),
-In the meantime, `update` also checks for `pressed` and may change its 
-state (ln. 17,20).
+further clicks @NN(pressed_3,pressed_2).
+In the meantime, `update` also checks for `pressed` and may change its state 
+@NN(pressed_4,reset_1).
 
 <!-- CEU-ARMAGEDDON -->
 
@@ -258,42 +285,42 @@ The equivalent code in Céu [[![X]][ceu-armageddon]] defines the class
 ```
 class ArmageddonButton with
     <...>
-do                                       // X9
+do                                       @do
     var RectComponent component = <...>;
     <...>
-    loop do                              // line X1
-        await component.on_click;        // line X3
-        watching 1s do                   // line X4
-            await component.on_click;    // line X6
-            break;                       // line X7
-        end                              // line X5
-    end                                  // line X2
+    loop do                              @loop_do
+        await component.on_click;        @await_1
+        watching 1s do                   @watching_do
+            await component.on_click;    @await_2
+            break;                       @break
+        end                              @watching_end
+    end                                  @loop_end
     <...>
-    emit global:go_armageddon;           // line X8
-end                                      // X10
+    emit global:go_armageddon;           @emit
+end                                      @end
 ```
 ]]
 
 Instead of *objects*, classes in Céu specify *organisms* with a body 
-declaration (ln. X9-X10) which executes for each instance while alive.
+declaration @NN(do-end) which executes for each instance while alive.
 Unlike objects, an organism is an active entity and starts to execute its body 
 in a concurrent and deterministic manner with other alive organisms (but *not* 
 actually in parallel).
 An execution body can use control-flow statements that keep the execution 
 context across event occurrences (i.e., across `await` statements).
 
-The double click detection is a `loop` (ln. X1-X2) that awaits the first click 
-(ln. X3) and then, watching 1 second (ln. X4-X5), awaits the second click (ln 
-X6).
-If the second click occurs within 1 second, we `break` the loop (ln. X7) and 
-signal the double click to the application (ln X8).
+The double click detection is a `loop` @NN(loop_do-loop_end) that awaits the 
+first click @N(await_1) and then, watching 1 second 
+@NN(watching_do-watching_end), awaits the second click @NN(await_2).
+If the second click occurs within 1 second, we `break` the loop @NN(break) and 
+signal the double click to the application @NN(emit).
 Otherwise, the `watching` block as a whole aborts and restarts the loop, 
-falling back to the first click `await` (ln X3).
+falling back to the first click `await` @NN(await_1).
 
 The double click detection in Céu doesn't require state variables and is 
-entirely self-contained in the `loop` body (ln. X1-X2).
+entirely self-contained in the `loop` body  @NN(loop_do-loop_end).
 Furthermore, these 7 lines of code do nothing besides detecting a double click, 
-i.e., the actual effect happens outside the loop (ln. X8).
+i.e., the actual effect happens outside the loop @NN(emit).
 
 As we argue throughout the document, appropriate control-flow mechanisms (e.g., 
 `await` and `watching`) helps on the structure and composition of code, leading 
@@ -587,68 +614,70 @@ implements the `draw` and `update` callback methods:
 ```
 Bomber::Bomber (Pingu* p) :
     <...>
-    sound_played(false),        // tracks state 2   // X1
+    sound_played(false),        // tracks state 2               @def_1
     particle_thrown(false),     // tracks state 3
     colmap_exploded(false),     // tracks state 3
-    gfx_exploded(false)         // tracks state 4   // X2
+    gfx_exploded(false)         // tracks state 4               @def_2
 {
     <...>
     // 1. 0th frame: plays a "Oh no!" sound.
-    get_world()->play_sound("ohno", pingu->get_pos()); // X3
+    get_world()->play_sound("ohno", pingu->get_pos());          @sound_ohno
 }
 
 void Bomber::update ()
 {
-    sprite.update ();               // X4
-    <...>   // pingu movement       // X4.1
+    sprite.update ();                                           @update_1
+    <...>   // pingu movement                                   @update_2
 
     // 2. 10th frame: plays a "Bomb!" sound.
-    if (sprite.get_current_frame()==10 && !sound_played) {              // X5
+    if (sprite.get_current_frame()==10 && !sound_played) {      @sound_bomb_1
         sound_played = true;
         get_world()->play_sound("plop", pingu->get_pos());
-    }                                                                   // X6
+    }                                                           @sound_bomb_2
 
     // 3. 13th frame: throws particles, destroys the terrain, shows an explosion sprite
-    if (sprite.get_current_frame()==13 && !particle_thrown) {           // X7
+    if (sprite.get_current_frame()==13 && !particle_thrown) {   @state_3_1
         particle_thrown = true;
         get_world()->get_pingu_particle_holder()->add_particle(pingu->get_x(),
-                                                                         pingu->get_y()-5);
+                                                               pingu->get_y()-5);
     }
     if (sprite.get_current_frame()==13 && !colmap_exploded) {
         colmap_exploded = true;
         get_world()->remove(bomber_radius, <...>);
-    }                                                                   // X8
+    }                                                           @state_3_2
 
     // 5. Last frame: kills the Pingu
-    if (sprite.is_finished ()) {                                        // X12
-        pingu->set_status(Pingu::PS_DEAD);                              // X13
+    if (sprite.is_finished ()) {                                @die_1
+        pingu_>set_status(Pingu::PS_DEAD);                      @die_2
     }
 }
 
 void Bomber::draw (SceneContext& gc) {
     // 3. 13th frame: throws particles, destroys the terrain, shows an explosion sprite
     // 4. Game tick: hides the explosion sprite
-    if (sprite.get_current_frame()==13 && !gfx_exploded) {              // X9
-        gfx_exploded = true;                                            // X10
-        gc.color().draw (explo_surf, <...>);                            // X11
+    if (sprite.get_current_frame()==13 && !gfx_exploded) {      @state_3_3
+        gfx_exploded = true;                                    @state_3_4
+        gc.color().draw (explo_surf, <...>);                    @state_4
     }
     gc.color().draw(sprite, pingu->get_pos ());
 }
 ```
 ]]
 
-The class defines one state variable for each action to perform (ln. X1-X2).
-The "Oh no!" sound plays as soon as the object starts in *state-1* (ln. X3).
+The class defines one state variable for each action to perform 
+@NN(def_1-def_2).
+The "Oh no!" sound plays as soon as the object starts in *state-1* 
+@NN(sound_ohno).
 The `update` callbacks update the animation sprite and moves the pingu every 
-frame (ln.  X4-X4.1), regardless of the current state.
+frame @NN(update_1-update_2), regardless of the current state.
 When the animation reaches the 10th frame, it plays the "Bomb!" if it hasn't 
-yet (ln. X5-X6), going to *state-2*.
+yet @NN(sound_bomb_1-sound_bomb_2), going to *state-2*.
 The `sound_played` state variable is required because the sprite frame doesn't 
 necessarily advance on every `update` invocation.
-The same reasoning and technique applies to the *state-3* (ln. X7-X8 and 
-X9-X10).
-The explosion sprite appears in a single frame in *state-4* (ln. X11).
-Finally, the pingu dies after the animation frames terminate (ln. X12-X13).
+The same reasoning and technique applies to the *state-3* 
+@NN(state_3_1-state_3_2) and @NN(state_3_3-state_3_4).
+The explosion sprite appears in a single frame in *state-4* @NN(state_4).
+Finally, the pingu dies after the animation frames terminate @NN(die_1-die_2).
 
 Note that a single numeric state variable would suffice to track the states.
 Probably, the authors chose to encode each state in an independent boolean 
@@ -670,7 +699,7 @@ class Bomber with
 do
     <...>
     par do
-        <...>   // pingu movement                                   // X1
+        <...>   // pingu movement                                   @move
     with
         // 1. 0th frame: plays a "Oh no!" sound.
         call global:play_sound("ohno", 0.5, 0.0);
@@ -684,15 +713,15 @@ do
         emit global:go_create_pingu_particles => (this.pingu.get_x(),
                                                   this.pingu.get_y()-5);
         global:remove(&&_bomber_radius, <...>);
-        do                                                          // X4
+        do                                                          @do
             var Sprite _ = Sprite.build_name(<...>, &&explo);
             // 4. Game tick: hides the explosion sprite
             await WORLD_UPDATE;
-        end                                                         // X5
+        end                                                         @end
 
         // 5. Last frame: kills the pingu
-        await sprite;                                               // X2
-        escape {ActionName::DEAD};                                  // X3
+        await sprite;                                               @await
+        escape {ActionName::DEAD};
     end
 end
 ```
@@ -705,13 +734,13 @@ comparison to the implementation in C++:
   execution.
 - We handle all states (and only them) in the same contiguous block of code.
 - We isolate unrelated behaviors to the animation, such as the pingu movement 
-  (ln. X1), in a parallel line of execution.
+  @NN(move), in a parallel line of execution.
 - We use a local and lexically-scoped organism
   (to be discussed [[![X]](#dispatching-hierarchies)])
-  for the temporary single-frame explosion (ln. X4-X5).
+  for the temporary single-frame explosion @NN(do-end).
 - We use auxiliary signaling mechanisms
   (to be discussed [[![X]](#signaling-mechanisms)])
-  to await the termination of the animation (ln.  X2) and
+  to await the termination of the animation @NN(await) and
   to notify the application about our own termination.
 
 [cpp-bomber]: https://github.com/Pingus/pingus/blob/v0.7.6/src/pingus/actions/bomber.cpp
@@ -769,28 +798,28 @@ pages:
 StoryScreenComponent::StoryScreenComponent (<...>) :
     <...>
 {
-    pages        = <...>;                       // X1
-    current_page = pages.back();                // X2
-    displayed    = false;                       // X7
+    pages        = <...>;                       @pages_1
+    current_page = pages.back();                @pages_2
+    displayed    = false;                       @dsp_1
     <...>
 }
 
 <...>   // draw and update page
 
 void StoryScreenComponent::next_text() {
-    if (!displayed) {                           // X8
-        displayed = true;                       // X9
+    if (!displayed) {                           @dsp_2
+        displayed = true;                       @dsp_3
         <...>
-    } else {                                    // X5
-        pages.pop_back();                       // X3
+    } else {                                    @adv_1
+        pages.pop_back();                       @pages_3
         if (!pages.empty()) {
-            current_page = pages.back();        // X4
-            displayed    = false;               // X10
+            current_page = pages.back();        @pages_4
+            displayed    = false;               @dsp_4
             <...>
         } else {
             <...>   // terminates the story screen
         }
-    }                                           // X6
+    }                                           @adv_2
 }
 ```
 ]]
@@ -800,17 +829,18 @@ void StoryScreenComponent::next_text() {
 <br>Figure @FIG_NEW[[story-states]]: State machine for the "Story" screen.
 </div>
 
-The variable `pages` (ln. X1-X2, X3-X4) is a vector holding each page and also 
-encodes *continuations* for the story progress:
-each call to `next_text` that advances the story (ln. X5-X6) removes a page 
-(ln. X3) and sets the next action to perform (display a new page) in the 
-variable `current_page` (ln. X3).
+The variable `pages` (ln. @N(pages_1)-@N(pages_2), @N(pages_3)-@N(pages_4)) is 
+a vector holding each page and also encodes *continuations* for the story 
+progress:
+each call to `next_text` that advances the story @NN(adv_1-adv_2) removes a 
+page @NN(pages_3) and sets the next action to perform (display a new page) in 
+the variable `current_page` @NN(pages_4).
 Figure @FIG_REF[[story-states]] illustrates the state machine for 
 fast-forwarding the words inside the dashed rectangle and the continuation 
 mechanism to advance pages.
-The state variable `displayed` (ln. X7,X8,X9,X10) switches between the 
-behaviors "advancing text" and "advancing pages" which are mixed inside the 
-method `next_text`.
+The state variable `displayed` (ln. @N(dsp_1),@N(dsp_2),@N(dsp_3),@N(dsp_4)) 
+switches between the behaviors "advancing text" and "advancing pages" which are 
+mixed inside the method `next_text`.
 
 <!-- CEU-STORY-PAGES -->
 
@@ -826,26 +856,26 @@ do
 
     _pages = <...>
 
-    loop i in _pages.size() do                              // X3
+    loop i in _pages.size() do                              @loop_do
         par/or do
             <...>       // loop to redraw current page
         with
             watching next_text do
-                <...>   // loop to advance text over time   // X1
+                <...>   // loop to advance text over time   @advance
             end
-            await next_text;                                // X2
+            await next_text;                                @await
         end
-    end                                                     // X4
+    end                                                     @loop_end
 end
 ```
 ]]
 
-For the sequential navigation from page to page, we use a simple loop (ln.  X3-X4)
-instead of an explicit continuation state.
-While the text advances in an inner loop (hidden in ln. X1), we watch the 
-`next_text` event to fast forward it.
+For the sequential navigation from page to page, we use a simple loop 
+@NN(loop_do,loop_end) instead of an explicit continuation state.
+While the text advances in an inner loop (hidden in ln. @N(advance)), we watch 
+the `next_text` event to fast forward it.
 The inner loop may also eventually terminate with the time elapsing.
-To go to the next page, we simply `await next_text` again (ln. X2).
+To go to the next page, we simply `await next_text` again @NN(await).
 Note that we don't need a variable (such as `displayed` above) to switch 
 between the states "advancing text" or "advancing pages" which are not mixed in 
 the source code.
@@ -884,13 +914,13 @@ StoryDot::StoryDot(const FileReader& reader) :
 
 void StoryDot::on_click() {
     <...>
-    ScreenManager::instance()->push_screen(std::make_shared<StoryScreen>(<...>, m_credits));    // X1
+    ScreenManager::instance()->push_screen(std::make_shared<StoryScreen>(<...>, m_credits)); @call
     <...>
 }
 ```
 ]]
 
-The boolean variable `m_credits` is passed to the `StoryScreen` (ln. X1)
+The boolean variable `m_credits` is passed to the `StoryScreen` @NN(call)
 [[![X]][cpp-story-screen]] and represents its continuation, i.e., what to do 
 after displaying the story.
 The `StoryScreen` forwards the continuation [[![X]][cpp-story-screen-forward]] 
@@ -914,20 +944,21 @@ void StoryScreenComponent::next_text() {
         <...>
         if (!pages.empty()) {
             <...>
-        } else {                // X1
-            if (m_credits) {    // X3
+        } else {                @adv_1
+            if (m_credits) {    @m_credits
                 ScreenManager::instance()->replace_screen(std::make_shared<Credits>(<...>));
             } else {
                 ScreenManager::instance()->pop_screen();
             }
-        }                       // X2
+        }                       @adv_2
     }
 }
 ```
 ]]
 
-When the method `next_text` has no pages to display (ln.  X1-X2), it decides 
-where to go next, depending on the continuation flag `m_credits` (ln. X3).
+When the method `next_text` has no pages to display @NN(adv_1-adv_2), it 
+decides where to go next, depending on the continuation flag `m_credits` 
+@NN(m_credits).
 
 <!-- CEU-STORY-CREDITS -->
 
@@ -937,13 +968,13 @@ requiring continuation variables:
 @CODE_LINES[[
 ```
 loop do
-    var int ret = do WorldmapScreen;                // X1
+    var int ret = do WorldmapScreen;                @call_world
     if ret==_WORLDMAP_RETURN_STORY_MAP or ret==_WORLDMAP_RETURN_STORY_CREDITS then
-        <...>                                       // X2
-        var bool is_click = do StoryScreen;         // X4
-        if is_click and ret==_WORLDMAP_RETURN_STORY_CREDITS then // X6
-            do Credits;                             // X7
-        end                                         // X3
+        <...>                                       @story_1
+        var bool is_click = do StoryScreen;         @call_story
+        if is_click and ret==_WORLDMAP_RETURN_STORY_CREDITS then @check
+            do Credits;                             @call_credits
+        end                                         @story_2
     else
         <...>
     end
@@ -973,11 +1004,13 @@ while the given organism executes.
 The code in sequence (marked as `<...>`) only executes after the organism 
 terminates.
 
-In the code above, we first "call" a `WorldmapScreen` organism (ln. X1), which 
-will exhibit the map and let the player interact until it clicks in a dot.
-If the player selects a story dot (ln. X2-X3), we "call" the story (ln. X4) and 
-also await its termination.
-Finally, we check the return values (ln. X6) to display the `Credits` (ln. X7).
+In the code above, we first "call" a `WorldmapScreen` organism @NN(call_world), 
+which will exhibit the map and let the player interact until it clicks in a 
+dot.
+If the player selects a story dot @NN(story_1-story_2), we "call" the story 
+@NN(call_story) and also await its termination.
+Finally, we check the return values @NN(check) to display the `Credits` 
+@NN(call_credits).
 
 <div class="images">
 <img src="images/continuation.png" width="500"/>
@@ -1053,23 +1086,24 @@ class Bomber : public PinguAction
 
 Bomber::Bomber (<...>) : <...>
 {
-    sprite.load(<...>);                     // X1
+    sprite.load(<...>);                     @load
     <...>
 }
 
-void Bomber::update () {                    // X2
+void Bomber::update () {                    @update_1
     sprite.update ();
-}                                           // X3
+}                                           @update_2
 
-void Bomber::draw (SceneContext& gc) {      // X4
+void Bomber::draw (SceneContext& gc) {      @draw_1
     <...>
     gc.color().draw(sprite, <...>);
-}                                           // X5
+}                                           @draw_2
 ```
 ]]
 
-The class loads the `sprite` in the constructor (ln. X1) and continually 
-redirects `update` and `draw` to it (ln. X2-X3 and X4-X5).
+The class loads the `sprite` in the constructor @NN(load) and continually 
+redirects `update` and `draw` to it (ln. @N(update_1)-@N(update_2) and 
+@N(draw_1)-@N(draw_2)).
 The `Sprite` class knows how to update [[![X]][cpp-sprite-update]] and render 
 [[![X]][cpp-sprite-render]] itself.
 
@@ -1141,7 +1175,7 @@ Now, consider the `Bomber` animation in Céu [[![X]][ceu-bomber]]:
 class Bomber with
     interface IPinguAction;
 do
-    var Sprite sprite = Sprite.build_name(<...>);   // X1
+    var Sprite sprite = Sprite.build_name(<...>);   @dcl
     <...>
 end
 ```
@@ -1149,7 +1183,7 @@ end
 
 As mentioned before, organisms in Céu are active entities and can react 
 directly to the environment.
-As soon as we declare the `Sprite` organism (ln. X1), its execution body starts 
+As soon as we declare the `Sprite` organism @NN(dcl), its execution body starts 
 automatically, bypassing the program hierarchy and reacting directly to the 
 external events `WORLD_UPDATE` [[![X]][ceu-sprite-update]] and `REDRAW` 
 [[![X]][ceu-sprite-redraw]].
@@ -1183,17 +1217,17 @@ do
         // 13th frame:
         await WORLD_UPDATE until sprite.get_current_frame() == 13;
         <...>
-        do                                                          // X2
-            var Sprite _ = Sprite.build_name(<...>, &&explo);       // X1
-            await WORLD_UPDATE;                                     // X4
-        end                                                         // X3
+        do                                                      @do
+            var Sprite _ = Sprite.build_name(<...>, &&explo);
+            await WORLD_UPDATE;                                 @await
+        end                                                     @end
         <...>
 end
 ```
 ]]
 
-We enclose the declaration with an explicit block (ln. X2-X3) that restricts 
-its lifespan to a single occurrence of `WORLD_UPDATE` (ln.  X4).
+We enclose the declaration with an explicit block @NN(do-end) that restricts 
+its lifespan to a single occurrence of `WORLD_UPDATE` @NN(await).
 When the block terminates, the organism goes out of scope and its execution 
 body aborts automatically, effectively removing it from the screen.
 Note here that we never manipulate references to the `Sprite`, which is 
@@ -1335,36 +1369,36 @@ TODO: falling and dyeing animation at the same time
 
 @CODE_LINES[[
 ```
-Pingu* PinguHolder::create_pingu (<...>) {              // X1
+Pingu* PinguHolder::create_pingu (<...>) {              @create_1
     <...>
     Pingu* pingu = new Pingu (<...>);
     <...>
-    pingus.push_back(pingu);                            // X3
+    pingus.push_back(pingu);                            @push
     <...>
     return pingu;
-}                                                       // X2
+}                                                       @create_2
 
-void PinguHolder::update() {                            // X4
+void PinguHolder::update() {                            @update_1
     <...>
     while(pingu != pingus.end()) {
-        (*pingu)->update();                             // X8
-        if ((*pingu)->get_status() == Pingu::PS_DEAD) { // X6
+        (*pingu)->update();                             @update
+        if ((*pingu)->get_status() == Pingu::PS_DEAD) { @dead_1
             pingu = pingus.erase(pingu);
-        }                                               // X7
+        }                                               @dead_2
         <...>
         ++pingu;
     }
-}                                                       // X5
+}                                                       @update_2
 ```
 ]]
 
-`PinguHolder::create_pingu` (ln. X1-X2) creates a new `Pingu` periodically, 
-adding it to the `pingus` container (ln. X3).
-`PinguHolder::update` (ln. X4-X5) checks all pingus every frame, removing those 
-with the `Pingu::PS_DEAD` status (ln. X6-X7):
+`PinguHolder::create_pingu` @NN(create_1-create_2) creates a new `Pingu` 
+periodically, adding it to the `pingus` container @NN(push).
+`PinguHolder::update` @NN(update_1-update_2) checks all pingus every frame, 
+removing those with the `Pingu::PS_DEAD` status @NN(dead_1-dead_2):
 Without the `erase` call, a dead pingu would keep consuming memory and CPU 
 time, i.e., it would remain in the `pingus` vector and be updated every frame 
-(ln. X8).
+@NN(update).
 
 This problem is known as the *lapsed listener* [[![X]][gpp-lapsed-listener]] 
 and is not restricted to languages without garbage collection.
@@ -1385,26 +1419,26 @@ event `global:go_create_pingu` [[![X]][ceu-pinguholder-every]]:
 ```
 class PinguHolder with
     <...>
-do                                      // X3
-    pool IPingu[] pingus;               // X1
+do                                      @do
+    pool IPingu[] pingus;               @pool
     <...>
     every (<...>) in global:go_create_pingu do
         <...>
-        spawn Pingu in this.pingus;     // X2
+        spawn Pingu in this.pingus;     @spawn
     end
-end                                     // X4
+end                                     @end
 ```
 ]]
 
 The class `PinguHolder` declares a pool of `IPingu` [[![X]][ceu-ipingu]] 
-identified as `pingus` (ln. X1).
+identified as `pingus` @NN(pool).
 We spawn instances of `Pingu` [[![X]][ceu-pingu]] (which implements the 
-`IPingu` interface) on the `pingus` pool (ln. X2).
+`IPingu` interface) on the `pingus` pool @NN(spawn).
 
 The scope of the `pingus` pool constrains the lifespan of all pingus 
 dynamically created in reaction to `go_create_pingu`.
-Therefore, if the top-level block of `PinguHolder` goes out of scope (ln.  
-X3-X4), the execution of all pingus is aborted and they are automatically 
+Therefore, if the top-level block of `PinguHolder` goes out of scope 
+@NN(do-end), the execution of all pingus is aborted and they are automatically 
 reclaimed from memory.
 The same happens if the block containing the instance of `PinguHolder` goes out 
 of scope [[![X]][ceu-world-pinguholder]] (and so on, up to the outermost block 
@@ -1438,7 +1472,7 @@ do
         await WORLD_UPDATE;
         if this.rel_getpixel(0,-1) == {Groundtype::GP_OUTOFSCREEN} then
             <...>
-            escape _PS_DEAD;        // X1
+            escape _PS_DEAD;        @escape
         end
         <...>
     end
@@ -1446,7 +1480,7 @@ end
 ```
 ]]
 
-The `escape` statement (ln X1) aborts the execution block of the instance, 
+The `escape` statement @NN(escape) aborts the execution block of the instance, 
 removing it from its pool automatically.
 Hence, a dynamic organism that terminates naturally leaves no traces in the 
 program.
