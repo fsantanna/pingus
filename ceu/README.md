@@ -118,13 +118,27 @@ from C++ to the programming language Céu
 
 Let's consider the case of handling double clicks in the game.
 
+@[[
+FIG_COUNT = 0
+
+function FIG_NEW (id)
+    assert(_G[id] == nil)
+    FIG_COUNT = FIG_COUNT + 1
+    _G[id] = FIG_COUNT
+    return FIG_COUNT
+end
+function FIG_REF (id)
+    return _G[id]
+end
+]]
+
 <div class="images">
 <img src="images/double-click-opt.gif" width="350"/>
-<br>Figure X: Double click detection
+<br>Figure @FIG_NEW[[double-click-anim]]: Double click detection
 </div>
 
 In Pingus, double clicking the *Armageddon button* literally explodes all 
-pingus (Figure X).
+pingus (Figure @FIG_REF[[double-click-anim]]).
 
 <!-- CPP-ARMAGEDDON -->
 
@@ -182,7 +196,8 @@ the game with real-time responsiveness.
 
 <div class="images">
 <img src="images/double-click.png" width="550"/>
-<br>Figure X: State machine for the "Armageddon" double click.
+<br>Figure @FIG_NEW[[double-click-states]]: State machine for the "Armageddon" 
+double click.
 </div>
 
 The class first initializes the variable `pressed` to track the first click 
@@ -193,8 +208,8 @@ If another click occurs within 1 second, the class signals the double
 click to the application (ln. 31).
 Otherwise, the `pressed` and `press_time` state variables are reset 
 (ln. 20-21).
-Figure X illustrates how we can model the double-click behavior as a state 
-machine.
+Figure @FIG_REF[[double-click-states]] illustrates how we can model the 
+double-click behavior as a state machine.
 
 However, note how the accesses to these state variables are spread across the 
 entire class.
@@ -277,7 +292,7 @@ a high degree of real-time interactions, such as in video game simulation.
 
 <div class="images">
 <img src="images/sweeney.png" width="350"/>
-<br>Figure X: Three "kinds" of code
+<br>Figure @FIG_NEW[[sweeney]]: Three "kinds" of code
 </div>
 
 According to Tim Sweeney (of Unreal Engine fame), about half of the development 
@@ -519,16 +534,21 @@ See [Warming Up](#warming-up).
 
 ### Case Study 2: The "Bomber" Action
 
-The *bomber action* explodes the clicked pingu, throwing particles around and 
-also destroying the terrain under its radius (Figure X).
-
 <div class="images">
 <img src="images/bomber-opt.gif" width="350"/>
-<br>Figure X: The "Bomber" action
+<br>Figure @FIG_NEW[[bomber-anim]]: The "Bomber" action
+</div>
+
+The *bomber action* explodes the clicked pingu, throwing particles around and 
+also destroying the terrain under its radius (Figure @FIG_REF[[bomber-anim]]).
+
+<div class="images">
+<img src="images/state-anim/state-anim.gif" width="550"/>
+<br>Figure @FIG_NEW[[bomber-states]]: State machine for the "Bomber" animation
 </div>
 
 A sequential state machine models an animation with actions associated to 
-specific frames (Figure X) as follows:
+specific frames (Figure @FIG_REF[[bomber-states]]) as follows:
 
 1. 0th frame: plays a "Oh no!" sound.
 2. 10th frame: plays a "Bomb!" sound.
@@ -537,11 +557,6 @@ specific frames (Figure X) as follows:
 5. Last frame: kills the pingu
 
 *(Open [this video][youtube-bomber] to listen to the sound effects.)*
-
-<div class="images">
-<img src="images/state-anim/state-anim.gif" width="550"/>
-<br>Figure X: State machine for the "Bomber" animation
-</div>
 
 [youtube-bomber]: https://youtu.be/QLXIT59il6o?t=306
 
@@ -708,11 +723,11 @@ more natural structured code with sequences, conditionals, and loops
 
 <div class="images" bgcolor="white">
 <img src="images/story-anim.gif" width="350"/>
-<br>Figure X: The "Story" screen.
+<br>Figure @FIG_NEW[[story-anim]]: The "Story" screen.
 </div>
 
 The world map of Pingus has clickable "blue dots" with ambience stories about 
-the game (Figure X).
+the game (Figure @FIG_REF[[story-anim]]).
 The words for each story page appears incrementally over time.
 The first click in the button ">>>" fast forwards the text.
 The second click advances to the next page until the story terminates.
@@ -756,7 +771,7 @@ void StoryScreenComponent::next_text() {
 
 <div class="images">
 <img src="images/story.png" width="550"/>
-<br>Figure X: State machine for the "Story" screen.
+<br>Figure @FIG_NEW[[story-states]]: State machine for the "Story" screen.
 </div>
 
 The variable `pages` (ln. X1-X2, X3-X4) is a vector holding each page and also 
@@ -764,8 +779,9 @@ encodes *continuations* for the story progress:
 each call to `next_text` that advances the story (ln. X5-X6) removes a page 
 (ln. X3) and sets the next action to perform (display a new page) in the 
 variable `current_page` (ln. X3).
-Figure X illustrates the state machine for fast-forwarding the words inside the 
-dashed rectangle and the continuation mechanism to advance pages.
+Figure @FIG_REF[[story-states]] illustrates the state machine for 
+fast-forwarding the words inside the dashed rectangle and the continuation 
+mechanism to advance pages.
 The state variable `displayed` (ln. X7,X8,X9,X10) switches between the 
 behaviors "advancing text" and "advancing pages" which are mixed inside the 
 method `next_text`.
@@ -813,39 +829,38 @@ the source code.
 
 <div class="images" bgcolor="white">
 <img src="images/credits-anim.gif" width="350"/>
-<br>Figure X: Transition from "Story" to "Credits" screen.
+<br>Figure @FIG_NEW[[credits-anim]]: Transition from "Story" to "Credits" 
+screen.
 </div>
 
-Pingus has clickable "blue dots" for both introductory and ending stories.
+Pingus has clickable story dots for both introductory and ending stories.
 For introductory stories, the game returns to the world map after displaying 
 the pages.
 For ending stories, the game also displays a "Credits" screen before returning 
-to the world map (Figure X).
-
-The code in C++
-uses an explicit continuation variable
+to the world map (Figure @FIG_REF[[credits-anim]]).
 
 <!-- CPP-STORY-CREDITS -->
 
-The clickable "blue dot" in C++ [[![X]][cpp-story-dot]] reads the level file to 
-check whether the story should display the "Credits" screen or not:
+The `StoryDot` in C++ [[![X]][cpp-story-dot]] reads the level file to check 
+whether the story should, after termination, display the "Credits" screen or 
+not:
 
 ```
 StoryDot::StoryDot(const FileReader& reader) :
-    m_credits(false),
+    m_credits(false),                           // by default, don't display
 {
     <...>
-    reader.read_bool("credits", m_credits);
+    reader.read_bool("credits", m_credits);     // read from the file
 }
 
 void StoryDot::on_click() {
     <...>
-    ScreenManager::instance()->push_screen(std::make_shared<StoryScreen>(<...>, m_credits));
+    ScreenManager::instance()->push_screen(std::make_shared<StoryScreen>(<...>, m_credits));    // X1
     <...>
 }
 ```
 
-The boolean variable `m_credits` is passed to the `StoryScreen` 
+The boolean variable `m_credits` is passed to the `StoryScreen` (ln. X1)
 [[![X]][cpp-story-screen]] and represents its continuation, i.e., what to do 
 after displaying the story.
 The `StoryScreen` forwards the continuation [[![X]][cpp-story-screen-forward]] 
@@ -868,113 +883,84 @@ void StoryScreenComponent::next_text() {
         <...>
         if (!pages.empty()) {
             <...>
-        } else {
-            if (m_credits) {        // X1
+        } else {                // X1
+            if (m_credits) {    // X3
                 ScreenManager::instance()->replace_screen(std::make_shared<Credits>(<...>));
             } else {
                 ScreenManager::instance()->pop_screen();
-            }                       // X2
-        }
+            }
+        }                       // X2
     }
 }
 ```
 
-When the story terminates and the method `next_text` has no pages to display 
-(ln.  X1-X2), it decides where to go next, depending on the continuation flag 
-`m_credits`.
+When the method `next_text` has no pages to display (ln.  X1-X2), it decides 
+where to go next, depending on the continuation flag `m_credits` (ln. X3).
+
+<!-- CEU-STORY-CREDITS -->
+
+In Céu, the flow of screens to display is a just a sequence of statements, not 
+requiring continuation variables:
 
 ```
-// WORLDMAP
 loop do
-    var int ret = do WorldmapScreen;
+    var int ret = do WorldmapScreen;                // X1
     if ret==_WORLDMAP_RETURN_STORY_MAP or ret==_WORLDMAP_RETURN_STORY_CREDITS then
-        <...>
-        var bool is_click =
-            do StoryScreen with
-                this.reader = &&_reader;
-            end;
-        if is_click and ret==_WORLDMAP_RETURN_STORY_CREDITS then
-            _filename = _Pathname("credits/pingus.credits",{Pathname::DATA_PATH});
-            do Credits with
-                this.filename = &&_filename;
-            end;
-        end
-    else/if ret == _WORLDMAP_RETURN_LEVEL then
-        <...>
+        <...>                                       // X2
+        var bool is_click = do StoryScreen;         // X4
+        if is_click and ret==_WORLDMAP_RETURN_STORY_CREDITS then // X6
+            do Credits;                             // X7
+        end                                         // X3
     else
         <...>
-        escape 0;
     end
 end
 ```
 
+The `do` notation is a syntactic sugar for creating and awaiting an organism, 
+e.g.:
+
+```
+var int ret = do WorldmapScreen;
+<...>
+
+// is equivalent to
+
+var int ret;
+do
+    var WorldmapScreen w;
+    ret = await w;
+end
+<...>
+```
+
+The `do` notation is analogous to a procedure call, holding the current state 
+while the given organism executes.
+The code in sequence (marked as `<...>`) only executes after the organism 
+terminates.
+
+In the code above, we first "call" a `WorldmapScreen` organism (ln. X1), which 
+will exhibit the map and let the player interact until it clicks in a dot.
+If the player selects a story dot (ln. X2-X3), we "call" the story (ln. X4) and 
+also await its termination.
+Finally, we check the return values (ln. X6) to display the `Credits` (ln. X7).
+
+<div class="images">
+<img src="images/continuation.png" width="500"/>
+<br>Figure @FIG_NEW[[continuation]]: Continuation (C++) vs Direct (Céu) Styles
+</div>
+
 [cpp-story-screen]: https://github.com/Pingus/pingus/blob/master/src/pingus/screens/story_screen.cpp#L136
 [cpp-story-screen-forward]: https://github.com/Pingus/pingus/blob/master/src/pingus/screens/story_screen.cpp#L143
 
-.
+[wiki-style-direct]:       https://en.wikipedia.org/wiki/Direct_style
+[wiki-style-continuation]: https://en.wikipedia.org/wiki/Continuation-passing_style
 
-StoryScreenComponent::StoryScreenComponent (<...>) :
-    <...>
-{
-}
-
-<...>   // draw and update page
-
-void StoryScreenComponent::next_text() {
-}
-```
-
-<div class="images">
-<img src="images/xxx.png" width="550"/>
-<br>Figure X: XXX
-</div>
-
-The variable `pages` (ln. X1-X2, X3-X4) is a vector holding each page and also 
-encodes *continuations* for the story progress:
-each call to `next_text` that advances the story (ln. X5-X6) removes a page 
-(ln. X3) and sets the next action to perform (display a new page) in the 
-variable `current_page` (ln. X3).
-Figure X illustrates the state machine for fast-forwarding the words inside the 
-dashed rectangle and the continuation mechanism to advance pages.
-The state variable `displayed` (ln. X7,X8,X9,X10) switches between the 
-behaviors "advancing text" and "advancing pages" which are mixed inside the 
-method `next_text`.
-
-<!-- CEU-STORY-CREDITS -->
-
-The code in Céu [[![X]][ceu-story-screen]] uses a `next_text` event to advance 
-the words and pages:
-
-```
-class StoryScreen with
-    <...>
-do
-    event void next_text;
-
-    _pages = <...>
-
-    loop i in _pages.size() do                              // X3
-        par/or do
-            <...>       // loop to redraw current page
-        with
-            watching next_text do
-                <...>   // loop to advance text over time   // X1
-            end
-            await next_text;                                // X2
-        end
-    end                                                     // X4
-end
-```
-
-For the sequential navigation from page to page, we use a simple loop (ln.  X3-X4)
-instead of an explicit continuation state.
-While the text advances in an inner loop (hidden in ln. X1), we watch the 
-`next_text` event to fast forward it.
-The inner loop may also eventually terminate with the time elapsing.
-To go to the next page, we simply `await next_text` again (ln. X2).
-Note that we don't need a variable (such as `displayed` above) to switch 
-between the states "advancing text" or "advancing pages" which are not mixed in 
-the source code.
+Since callbacks cannot hold state
+In particular, they cannot wait for long-XXX to return.
+This way, we need to pass
+form the base of the game
+The code in C++ need
 
 [cpp-story-pages]: https://github.com/Pingus/pingus/blob/master/src/pingus/screens/story_screen.cpp#L159
 [ceu-story-pages]: https://github.com/fsantanna/pingus/blob/ceu/ceu/pingus/screens/story_screen.ceu#L14
@@ -1056,12 +1042,12 @@ The `Sprite` class knows how to update [[![X]][cpp-sprite-update]] and render
 
 <div class="images">
 <img src="images/hierarchy.png" width="550"/>
-<br>Figure X: Dispatching chain for `update`.
+<br>Figure @FIG_NEW[[hierarchy]]: Dispatching chain for `update`.
 </div>
 
-However, we have to follow a long chain of 7 dispatches (Figure X) to 
-understand how the `update` and `draw` callbacks flow from the original 
-environment stimulus down to the sprite:
+However, we have to follow a long chain of 7 dispatches
+(Figure @FIG_REF[[hierarchy]]) to understand how the `update` and `draw` 
+callbacks flow from the original environment stimulus down to the sprite:
 
 1. `ScreenManager::display` [[![X]][cpp-screenmanager-11]]
         (the game loop)
@@ -1140,7 +1126,7 @@ cycles.
 
 <div class="images">
 <img src="images/explo.png"/>
-<br>Figure X: Explosion sprite for the `Bomber` animation.
+<br>Figure @FIG_NEW[[explo]]: Explosion sprite for the `Bomber` animation.
 </div>
 
 Just like standard local variables, we can delimit the scope of organisms 
@@ -1264,7 +1250,7 @@ The dynamic nature of containers in C++ demand extra caution:
 
 <div class="images">
 <img src="images/game-session-arrows.png" width="300"/>
-<br>Figure X: UI children with static lifespan.
+<br>Figure @FIG_NEW[[game-session]]: UI children with static lifespan.
 </div>
 
 <!-- CEU-CONTAINER-STATIC -->
@@ -1378,13 +1364,13 @@ of the program [[![X]][ceu-main-outermost]]).
 
 <div class="images">
 <img src="images/pool.png" width="400"/>
-<br>Figure X: Lifespan of dynamic organisms
+<br>Figure @FIG_NEW[[pool]]: Lifespan of dynamic organisms
 </div>
 
 Lexical scopes handle memory and dispatching automatically for static organisms 
 and pools.
 However, the lifespan of a dynamic organism does not necessarily match the 
-lifespan of its corresponding pool (Figure X).
+lifespan of its corresponding pool (Figure @FIG_REF[[pool]]).
 When the execution block of a dynamic organism terminates, which characterizes
 its *natural termination*, the organism is automatically removed its pool.
 Therefore, dynamic organisms don't require any extra bookkeeping related to 
