@@ -208,15 +208,19 @@ _printf("POS=%f %f\n", pos.x, pos.y);
         //every (but,id_,status) in dot.ok_clicked do
         loop do
             var int but,id_,status;
-            var bool is_story;
-            (but,id_,is_story,status) = await dot.ok_clicked;
+            var bool is_story, show_credits;
+            (but,id_,is_story,show_credits,status) = await dot.ok_clicked;
             if but == 1 then
                 if id_ == pingus.node then
                     if {globals::developer_mode} then
                         _log_info("Worldmap: Pingu is on node, issue on_click()");
                     end
                     if is_story then
-                        escape _WORLDMAP_RETURN_STORY;
+                        if show_credits then
+                            escape _WORLDMAP_RETURN_STORY_CREDITS;
+                        else
+                            escape _WORLDMAP_RETURN_STORY_MAP;
+                        end
                     else
                         escape _WORLDMAP_RETURN_LEVEL;
                     end

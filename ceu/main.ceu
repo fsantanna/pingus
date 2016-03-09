@@ -236,7 +236,7 @@ native/pre do
     ##include "pingus/result.hpp"
     static PingusLevel plf;
     static Result result;
-    static Pathname filename;
+    static Pathname filename, filename_credits;
     static FileReader reader;
     static CommandLineOptions cmd;
 end
@@ -270,13 +270,22 @@ with
                         do WorldmapScreen with
                             this.filename = &&_filename;
                         end;
-                    if ret == _WORLDMAP_RETURN_STORY then
+                    if ret == _WORLDMAP_RETURN_STORY_MAP
+                    or ret == _WORLDMAP_RETURN_STORY_CREDITS
+                    then
                         finalize
                             _reader = {FileReader::parse}(_Pathname(&&global:worldmap_return_filename, {Pathname::DATA_PATH}));
                         with end
-                        do StoryScreen with
-                            this.reader = &&_reader;
-                        end;
+                        var bool is_click =
+                            do StoryScreen with
+                                this.reader = &&_reader;
+                            end;
+                        if is_click and ret==_WORLDMAP_RETURN_STORY_CREDITS then
+                            _filename_credits = _Pathname("credits/pingus.credits",{Pathname::DATA_PATH});
+                            do Credits with
+                                this.filename = &&_filename_credits;
+                            end;
+                        end
                     else/if ret == _WORLDMAP_RETURN_LEVEL then
                         finalize
                             _plf = {PLFResMgr::load_plf}({std::string}(&&worldmap_return_filename)

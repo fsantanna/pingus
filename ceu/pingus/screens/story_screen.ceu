@@ -105,7 +105,7 @@ do
         end
     with
         await skip.get_component().on_click;
-        escape 0;
+        escape 1;               // is_click = true
     with
         every skip.get_component().on_pointer_enter do
             call {Sound::PingusSound::play_sound}("tick");
@@ -114,7 +114,7 @@ do
         loop do
             var _Input__ButtonEvent&& but = await ON_BUTTON_PRESSED;
             if but:name == {Input::ESCAPE_BUTTON} then
-                escape 0;
+                escape 0;       // is_click = false
             else/if but:name == {Input::FAST_FORWARD_BUTTON} then
                 emit next_text;
             end

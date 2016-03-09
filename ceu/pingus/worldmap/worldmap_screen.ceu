@@ -4,7 +4,8 @@
 native/pre do
     enum {
         WORLDMAP_RETURN_EXIT = 0,
-        WORLDMAP_RETURN_STORY,
+        WORLDMAP_RETURN_STORY_MAP,
+        WORLDMAP_RETURN_STORY_CREDITS,
         WORLDMAP_RETURN_LEVEL
     };
 end
