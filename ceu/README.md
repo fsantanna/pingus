@@ -1,5 +1,5 @@
 <head>
-    <title>On Porting Pingus from C++ to Céu</title>
+    <title>On Rewriting Pingus from C++ to Céu</title>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
     <style>
         body {
@@ -19,12 +19,21 @@
             float: right;
             background-color: #ffffff;
             border: 1px solid black;
-            padding: 15px;
-            margin: 0 0 5px 5px;
+            padding: 10px;
+            margin: 0 0 5px 10px;
 /*
             width: 120px;
 */
             text-align: center;
+        }
+        div.box {
+            float: right;
+            background-color: #ffffff;
+            border: 1px solid black;
+            padding: 10px;
+            margin: 0 0 5px 10px;
+            display: inline-block;
+            width: 400px;
         }
     </style>
 
@@ -135,11 +144,11 @@ TODO:
 
 [X]: images/link_12.png
 
-# On Porting Pingus from C++ to Céu
+# On Rewriting Pingus from C++ to Céu
 
 * [What](#what-is-this-all-about),
-  [Why](#why-porting-pingus-to-céu),
-  [How](#how-to-port),
+  [Why](#why-rewrite-pingus-to-céu),
+  [How](#how-to-rewrite),
   [Who](#who)?
 * Analysis: [Qualitative](#qualitative-analysis),
             [Quantitative](#quantitative-analysis)
@@ -154,7 +163,7 @@ TODO:
 
 # What is this all about?
 
-This report documents the process of porting the video game Pingus
+This report documents the process of rewriting the video game Pingus
 [[![X]][pingus-1],[![X]][pingus-2]]
 from C++ to the programming language Céu
 [[![X]][ceu-1],[![X]][ceu-2]].
@@ -330,9 +339,9 @@ to considerable gains in productivity.
 [cpp-armageddon-2]: https://github.com/Pingus/pingus/blob/v0.7.6/src/pingus/components/action_button.cpp#L33-#L90
 [ceu-armageddon]: https://github.com/fsantanna/pingus/blob/ceu/ceu/pingus/components/action_button.ceu#L6
 
-# Why porting Pingus to Céu?
+# Why rewriting Pingus to Céu?
 
-The main motivation to port Pingus from C++ to Céu is to promote its 
+The main motivation to rewrite Pingus from C++ to Céu is to promote its 
 programming model in the context of video games.
 Céu supports concurrent and deterministic abstractions to specify entities with 
 a high degree of real-time interactions, such as in video game simulation.
@@ -401,12 +410,12 @@ motivations for this report as follows:
   idiomatic code.
 * Exercise the interface between Céu and C/C++.
   Céu is designed to integrate seamlessly with C.
-  This allowed us to perform a *live porting*, i.e., we incrementally ported 
+  This allowed us to perform a *live rewriting*, i.e., we incrementally rewrote 
   code from C++ to Céu without breaking the game for long.
 * Serve as a deep and comprehensive guide for developers interested in trying 
   Céu.
   We discuss a number of game behaviors with an in-depth comparison between the 
-  original code in C++ and the equivalent code ported to Céu.
+  original code in C++ and the equivalent code rewritten to Céu.
 * Stress-test the implementation of Céu.
   Academic artifacts typically do not go beyond working prototypes.
   We also want Céu to be a robust and practical language for everyday use.
@@ -414,7 +423,7 @@ motivations for this report as follows:
   Having C++ as a benchmark, how does Céu compare in terms of memory usage, 
   code size, and execution time (e.g., FPS rate)?
 
-# How to port?
+# How to rewrite?
 
 The general idea is to identify control-flow patterns that encompass successive 
 reactions to events, which imply crossing multiple method invocations in C++.
@@ -422,7 +431,7 @@ We then rewrite these patterns in a class in Céu, using appropriate structured
 constructs, and redirect the instantiation and event dispatching to the new 
 class.
 The remaining classes in C++ should interoperate with the new classes in Céu 
-until we complete the porting process.
+until we complete the rewriting process.
 
 Note that we only touch classes that deal with events, as Céu is actually less 
 expressive than C++ for pure data manipulation.
@@ -449,11 +458,11 @@ not inherent to this domain, but the result of accidental complexity due to the
 lack of structured abstractions and appropriate concurrency models to handle 
 event-based applications.
 
-During the course of the porting process, and following the class-by-class 
+During the course of the rewriting process, and following the class-by-class 
 identification described above, we could extract more abstract control patterns 
 that should apply to other games.
 Our hypothesis is that other games manifesting such patterns must use some form 
-of explicit state which are likely subject to the same porting process.
+of explicit state which are likely subject to the same rewriting process.
 
 ## Control-Flow Patterns in Pingus
 
@@ -982,6 +991,7 @@ end
 ```
 ]]
 
+<div class="box">
 The `do` notation is a syntactic sugar for creating and awaiting an organism, 
 e.g.:
 
@@ -999,14 +1009,14 @@ end
 <...>
 ```
 
-The `do` notation is analogous to a procedure call, holding the current state 
-while the given organism executes.
+A `do` is analogous to a procedure call, holding the current state while the 
+started organism executes.
 The code in sequence (marked as `<...>`) only executes after the organism 
 terminates.
+</div>
 
-In the code above, we first "call" a `WorldmapScreen` organism @NN(call_world), 
-which will exhibit the map and let the player interact until it clicks in a 
-dot.
+We first "call" a `WorldmapScreen` organism @NN(call_world), which will exhibit 
+the map and let the player interact until it clicks in a dot.
 If the player selects a story dot @NN(story_1-story_2), we "call" the story 
 @NN(call_story) and also await its termination.
 Finally, we check the return values @NN(check) to display the `Credits` 
