@@ -96,6 +96,25 @@ function NN (id1, sep, id2)
         return N(id1)
     end
 end
+
+
+SECS = {}
+
+function SEC (str)
+    local ln, hs, tit = string.match(str, '(\n*)(#*) (.*)')
+    local n = string.len(hs) - 1
+    if n > #SECS then
+        SECS[#SECS+1] = 0
+    elseif n == #SECS then
+    else
+        while n < #SECS do
+            SECS[#SECS] = nil
+        end
+    end
+    SECS[#SECS] = SECS[#SECS] + 1
+    return ln..hs..' '..table.concat(SECS,'.')..') '..tit
+end
+
 ]]
 
 </head>
@@ -167,7 +186,7 @@ TODO:
     - what about CPU,ROM,RAM?
 -->
 
-# What is this all about?
+## What is this all about?
 
 This report documents the process of rewriting the video game Pingus
 [[![X]][pingus-1],[![X]][pingus-2]]
@@ -185,7 +204,7 @@ from C++ to the programming language Céu
 
 <a name="warming-up"/>
 
-## Warming Up!
+### Warming Up!
 
 Let's consider the case of handling double clicks in the game.
 
@@ -343,7 +362,7 @@ to considerable gains in productivity.
 [cpp-armageddon-2]: https://github.com/Pingus/pingus/blob/v0.7.6/src/pingus/components/action_button.cpp#L33-#L90
 [ceu-armageddon]: https://github.com/fsantanna/pingus/blob/ceu/ceu/pingus/components/action_button.ceu#L6
 
-# Why rewriting Pingus to Céu?
+## Why rewriting Pingus to Céu?
 
 The main motivation to rewrite Pingus from C++ to Céu is to promote its 
 programming model in the context of video games.
@@ -426,7 +445,7 @@ motivations for this report as follows:
   Having C++ as a benchmark, how does Céu compare in terms of memory usage, 
   code size, and execution time (e.g., FPS rate)?
 
-# How to rewrite?
+## How to rewrite?
 
 The general idea is to identify control-flow patterns that encompass successive 
 reactions to events, which imply crossing multiple method invocations in C++.
@@ -467,7 +486,7 @@ that should apply to other games.
 Our hypothesis is that other games manifesting such patterns must use some form 
 of explicit state which are likely subject to the same rewriting process.
 
-## Control-Flow Patterns in Pingus
+### Control-Flow Patterns in Pingus
 
 We identified eight control-flow patterns in Pingus which we discuss further 
 along with in-depth examples:
@@ -510,7 +529,7 @@ along with in-depth examples:
 
 <!-- TODO: are these terms and explanations symmetric? -->
 
-# Who?
+## Who?
 
 Francisco Sant'Anna
 
@@ -518,7 +537,7 @@ Francisco Sant'Anna
 * <https://github.com/fsantanna/>
 * [&#64;fsantanna_puc](https://twitter.com/fsantanna_puc/)
 
-## Acknowledgments
+### Acknowledgments
 
 Leonardo Kaplan
 
@@ -578,7 +597,9 @@ TODO: state vars, code reduction para cada case
 
 <a name="finite-state-machines"/>
 
+@SEC[[
 ## Finite State Machines
+]]
 
 State machines describe the behavior of game entities by mapping event 
 occurrences to transitions between states and triggering appropriate actions.
@@ -587,11 +608,15 @@ The double click behavior for the *Armageddon button* is an example of a simple
 state machine.
 -->
 
-### Case Study 1: The "Armageddon" Double Click
+@SEC[[
+### Case Study: The "Armageddon" Double Click
+]]
 
 See [Warming Up](#warming-up).
 
-### Case Study 2: The "Bomber" Action
+@SEC[[
+### Case Study: The "Bomber" Action
+]]
 
 @FIG_NEW(bomber-opt.gif,
          The "Bomber" action,
@@ -764,7 +789,9 @@ comparison to the implementation in C++:
 
 <a name="continuation-passing"/>
 
+@SEC[[
 ## Continuation Passing
+]]
 
 The completion of a long-lasting activity in a game may have a continuation, 
 i.e., some action to execute next.
@@ -784,7 +811,9 @@ state passes to the current state what will be the next state.
 more natural structured code with sequences, conditionals, and loops
 -->
 
-### Case Study 1: Story Screen, Advancing Pages
+@SEC[[
+### Case Study: Story Screen, Advancing Pages
+]]
 
 @FIG_NEW(story-anim.gif,
          The "Story" screen,
@@ -893,7 +922,9 @@ the source code.
 [cpp-story-screen-component]: https://github.com/Pingus/pingus/blob/master/src/pingus/screens/story_screen.cpp#L159
 [ceu-story-screen]: https://github.com/fsantanna/pingus/blob/ceu/ceu/pingus/screens/story_screen.ceu#L14
 
-### Case Study 2: Story Screen, Transition to Credits Screen
+@SEC[[
+### Case Study: Story Screen, Transition to Credits Screen
+]]
 
 @FIG_NEW(credits-anim.gif,
          Transition from "Story" to "Credits" screen,
@@ -1048,7 +1079,7 @@ C++ and *direct style* of Céu for the screen transitions:
 The direct style of Céu has some advantages:
 
 * It uses structured control flow (i.e., sequences and loops) instead of an 
-  explicit stack and continuation variable.
+  explicit stack and a continuation variable.
 * The screens are decoupled from one another, i.e., the `Worldmap` has no
   references to `Story`, which has no references to `Credits`.
 * The flow between the screens is self-contained in a single loop instead of 
@@ -1073,7 +1104,9 @@ https://github.com/Pingus/pingus/blob/master/src/pingus/screens/story_screen.cpp
 
 <a name="dispatching-hierarchies"/>
 
+@SEC[[
 ## Dispatching Hierarchies
+]]
 
 Some entities in games manage other child entities, resulting in dispatching 
 hierarchies for event forwarding.
@@ -1095,7 +1128,9 @@ TODO: falar de broadcast (in Ceu: unless it is paused, all receive always)
     the buttons.
 -->
 
+@SEC[[
 ### Case Study: Bomber `draw` and `update` callbacks
+]]
 
 <!-- CPP-BOMBER-SPRITE -->
 
@@ -1299,7 +1334,9 @@ the reasoning about the program harder:
 
 <a name="containers-and-lifespan"/>
 
+@SEC[[
 ## Containers and Lifespan
+]]
 
 Similarly to *dispatching hierarchies*, some entities control the lifespan of 
 other child entities, resulting in dynamic and explicit allocation and 
@@ -1308,7 +1345,9 @@ deallocation of objects.
 However, it is actually common to have children with a static lifespan which 
 are known at compile time.
 
-### Case Study 1: Game UI Widgets
+@SEC[[
+### Case Study: Game UI Widgets
+]]
 
 <!-- CPP-CONTAINER -->
 
@@ -1381,7 +1420,9 @@ Again, here we never manipulate references to deal with containers, or
 allocation and deallocation.
 Also, all memory required for static instances is known at compile time.
 
-### Case Study 2: The Pingus Container
+@SEC[[
+### Case Study: The Pingus Container
+]]
 
 <!-- CPP-CONTAINER-DYNAMIC -->
 
@@ -1575,19 +1616,27 @@ end
 
 <a name="signaling-mechanism"/>
 
+@SEC[[
 ## Signaling Mechanisms
+]]
 
 <a name="wall-clock-timers"/>
 
+@SEC[[
 ## Wall-Clock Timers
+]]
 
 <a name="pausing"/>
 
+@SEC[[
 ## Pausing
+]]
 
 <a name="resource-acquisition-and-release"/>
 
+@SEC[[
 ## Resource Acquisition and Release
+]]
 
 # Quantitative Analysis
 
