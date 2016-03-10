@@ -40,14 +40,23 @@
 @[[
 FIG_COUNT = 0
 
-function FIG_NEW (id)
-    assert(_G[id] == nil, 'repeated Figure: "'..id..'"')
+function FIG_NEW (file, title, width)
+    assert(file and _G[file] == nil, 'repeated Figure: "'..tostring(file)..'"')
+    width = (width and ('width="'..width..'"')) or ''
     FIG_COUNT = FIG_COUNT + 1
-    _G[id] = FIG_COUNT
-    return FIG_COUNT
+    _G[file] = FIG_COUNT
+    return [=[
+<div class="images">
+<img src="images/]=]..file..[=[" ]=]..width..[=[/>
+<br>
+<a href="images/]=]..file..[=[">
+Figure ]=]..FIG_COUNT..[=[</a>: ]=]..title..[=[
+</div>
+]=]
 end
-function FIG_REF (id)
-    return _G[id]
+
+function FIG_REF (file)
+    return 'Figure '..assert(_G[file], 'figure not found: '..file)
 end
 
 CODE2N = nil
@@ -76,19 +85,16 @@ function CODE_LINES (code)
 end
 
 function N (id)
-    local id1, sep, id2 = string.match(id, '(.+)([,%-])(.+)')
-    if not sep then
-        id1 = id
-    end
-    local ret = assert(CODE2N[id1], 'not found: @'..id1)
-    if sep then
-        ret = ret..sep..assert(CODE2N[id2], 'not found: @'..id2)
-    end
-    return ret
+    return assert(CODE2N[id], 'not found: @'..id)
 end
 
-function NN (id)
-    return '(ln. '..N(id)..')'
+function NN (id1, sep, id2)
+    sep = (sep=='' and ',') or sep
+    if sep then
+        return '(ln. '..N(id1)..sep..N(id2)..')'
+    else
+        return N(id1)
+    end
 end
 ]]
 
@@ -183,13 +189,12 @@ from C++ to the programming language Céu
 
 Let's consider the case of handling double clicks in the game.
 
-<div class="images">
-<img src="images/double-click-opt.gif" width="350"/>
-<br>Figure @FIG_NEW[[double-click-anim]]: Double click detection
-</div>
+@FIG_NEW(double-click-opt.gif,
+         Double click detection,
+         350)
 
 In Pingus, double clicking the *Armageddon button* literally explodes all 
-pingus (Figure @FIG_REF[[double-click-anim]]).
+pingus (@FIG_REF[[double-click-opt.gif]]).
 
 <!-- CPP-ARMAGEDDON -->
 
@@ -238,7 +243,8 @@ void ArmageddonButton::on_click (<...>) {       @on_click_1
 ```
 ]]
 
-The `update` @NN(update_1-update_2) and `on_click` @NN(on_click_1-on_click_2)
+The `update` @NN(update_1,-,update_2) and `on_click` 
+@NN(on_click_1,-,on_click_2)
 are the relevant methods of the class and are examples of *short-lived 
 callbacks*, which are pieces of code that execute in reaction to external input 
 events.
@@ -248,21 +254,19 @@ passage of time.
 Callbacks are short lived because they must execute as fast as possible to keep 
 the game with real-time responsiveness.
 
-<div class="images">
-<img src="images/double-click.png" width="550"/>
-<br>Figure @FIG_NEW[[double-click-states]]: State machine for the "Armageddon" 
-double click.
-</div>
+@FIG_NEW(double-click.png,
+         State machine for the "Armageddon" double click,
+         550)
 
 The class first initializes the variable `pressed` to track the first click 
-@NN(pressed_1,pressed_2).
+@NN(pressed_1,,pressed_2).
 It also initializes the variable `press_time` to count the time since the first 
-click @NN(press_time_1,press_time_2).
+click @NN(press_time_1,,press_time_2).
 If another click occurs within 1 second, the class signals the double click to 
 the application @NN(armageddon).
 Otherwise, the `pressed` and `press_time` state variables are reset 
-@NN(reset_1-reset_2).
-Figure @FIG_REF[[double-click-states]] illustrates how we can model the 
+@NN(reset_1,-,reset_2).
+Figure @FIG_REF[[double-click.png]] illustrates how we can model the 
 double-click behavior as a state machine.
 
 However, note how the accesses to these state variables are spread across the 
@@ -273,15 +277,15 @@ original file [[![X]][cpp-armageddon-2]].
 Arguably, this dispersion of code across methods makes the understanding and 
 maintenance of the double-click behavior more difficult.
 Also, even though the state variables are private, unrelated methods such as 
-`draw` @NN(draw_1-draw_2) can potentially access it.
+`draw` @NN(draw_1,-,draw_2) can potentially access it.
 
 Because callbacks are short lived, the only way they can affect each other is 
 by manipulating persisting member variables in the object.
 These *state variables* retain their values across multiple invocations, e.g.:
 `on_click` writes to `pressed` in the first click, and checks its state in 
-further clicks @NN(pressed_3,pressed_2).
+further clicks @NN(pressed_3,,pressed_2).
 In the meantime, `update` also checks for `pressed` and may change its state 
-@NN(pressed_4,reset_1).
+@NN(pressed_4,,reset_1).
 
 <!-- CEU-ARMAGEDDON -->
 
@@ -311,23 +315,23 @@ end                                      @end
 ]]
 
 Instead of *objects*, classes in Céu specify *organisms* with a body 
-declaration @NN(do-end) which executes for each instance while alive.
+declaration @NN(do,-,end) which executes for each instance while alive.
 Unlike objects, an organism is an active entity and starts to execute its body 
 in a concurrent and deterministic manner with other alive organisms (but *not* 
 actually in parallel).
 An execution body can use control-flow statements that keep the execution 
 context across event occurrences (i.e., across `await` statements).
 
-The double click detection is a `loop` @NN(loop_do-loop_end) that awaits the 
+The double click detection is a `loop` @NN(loop_do,-,loop_end) that awaits the 
 first click @N(await_1) and then, watching 1 second 
-@NN(watching_do-watching_end), awaits the second click @NN(await_2).
+@NN(watching_do,-,watching_end), awaits the second click @NN(await_2).
 If the second click occurs within 1 second, we `break` the loop @NN(break) and 
 signal the double click to the application @NN(emit).
 Otherwise, the `watching` block as a whole aborts and restarts the loop, 
 falling back to the first click `await` @NN(await_1).
 
 The double click detection in Céu doesn't require state variables and is 
-entirely self-contained in the `loop` body  @NN(loop_do-loop_end).
+entirely self-contained in the `loop` body  @NN(loop_do,-,loop_end).
 Furthermore, these 7 lines of code do nothing besides detecting a double click, 
 i.e., the actual effect happens outside the loop @NN(emit).
 
@@ -346,10 +350,9 @@ programming model in the context of video games.
 Céu supports concurrent and deterministic abstractions to specify entities with 
 a high degree of real-time interactions, such as in video game simulation.
 
-<div class="images">
-<img src="images/sweeney.png" width="350"/>
-<br>Figure @FIG_NEW[[sweeney]]: Three "kinds" of code
-</div>
+@FIG_NEW(sweeney.png,
+         Three "kinds" of code,
+         350)
 
 According to Tim Sweeney (of Unreal Engine fame), about half of the development 
 complexity resides in the *game simulation* code [[![X]][sweeney]].
@@ -590,21 +593,20 @@ See [Warming Up](#warming-up).
 
 ### Case Study 2: The "Bomber" Action
 
-<div class="images">
-<img src="images/bomber-opt.gif" width="350"/>
-<br>Figure @FIG_NEW[[bomber-anim]]: The "Bomber" action
-</div>
+@FIG_NEW(bomber-opt.gif,
+         The "Bomber" action,
+         350)
 
 The *bomber action* explodes the clicked pingu, throwing particles around and 
-also destroying the terrain under its radius (Figure @FIG_REF[[bomber-anim]]).
+also destroying the terrain under its radius (Figure 
+@FIG_REF[[bomber-opt.gif]]).
 
-<div class="images">
-<img src="images/state-anim/state-anim.gif" width="550"/>
-<br>Figure @FIG_NEW[[bomber-states]]: State machine for the "Bomber" animation
-</div>
+@FIG_NEW(state-anim/state-anim.gif,
+         State machine for the "Bomber" animation,
+         550)
 
 A sequential state machine models an animation with actions associated to 
-specific frames (Figure @FIG_REF[[bomber-states]]) as follows:
+specific frames (Figure @FIG_REF[[state-anim/state-anim.gif]]) as follows:
 
 1. 0th frame: plays a "Oh no!" sound.
 2. 10th frame: plays a "Bomb!" sound.
@@ -674,19 +676,20 @@ void Bomber::draw (SceneContext& gc) {
 ]]
 
 The class defines one state variable for each action to perform 
-@NN(def_1-def_2).
+@NN(def_1,-,def_2).
 The "Oh no!" sound plays as soon as the object starts in *state-1* 
 @NN(sound_ohno).
 The `update` callbacks update the animation sprite and moves the pingu every 
-frame @NN(update_1-update_2), regardless of the current state.
+frame @NN(update_1,-,update_2), regardless of the current state.
 When the animation reaches the 10th frame, it plays the "Bomb!" if it hasn't 
-yet @NN(sound_bomb_1-sound_bomb_2), going to *state-2*.
+yet @NN(sound_bomb_1,-,sound_bomb_2), going to *state-2*.
 The `sound_played` state variable is required because the sprite frame doesn't 
 necessarily advance on every `update` invocation.
 The same reasoning and technique applies to the *state-3* 
-@NN(state_3_1-state_3_2) and @NN(state_3_3-state_3_4).
+@NN(state_3_1,-,state_3_2) and @NN(state_3_3,-,state_3_4).
 The explosion sprite appears in a single frame in *state-4* @NN(state_4).
-Finally, the pingu dies after the animation frames terminate @NN(die_1-die_2).
+Finally, the pingu dies after the animation frames terminate 
+@NN(die_1,-,die_2).
 
 Note that a single numeric state variable would suffice to track the states.
 Probably, the authors chose to encode each state in an independent boolean 
@@ -746,7 +749,7 @@ comparison to the implementation in C++:
   @NN(move), in a parallel line of execution.
 - We use a local and lexically-scoped organism
   (to be discussed [[![X]](#dispatching-hierarchies)])
-  for the temporary single-frame explosion @NN(do-end).
+  for the temporary single-frame explosion @NN(do,-,end).
 - We use auxiliary signaling mechanisms
   (to be discussed [[![X]](#signaling-mechanisms)])
   to await the termination of the animation @NN(await) and
@@ -783,13 +786,12 @@ more natural structured code with sequences, conditionals, and loops
 
 ### Case Study 1: Story Screen, Advancing Pages
 
-<div class="images" bgcolor="white">
-<img src="images/story-anim.gif" width="350"/>
-<br>Figure @FIG_NEW[[story-anim]]: The "Story" screen.
-</div>
+@FIG_NEW(story-anim.gif,
+         The "Story" screen,
+         350)
 
 The world map of Pingus has clickable "blue dots" with ambience stories about 
-the game (Figure @FIG_REF[[story-anim]]).
+the game (Figure @FIG_REF[[story-anim.gif]]).
 The words for each story page appears incrementally over time.
 The first click in the button ">>>" fast forwards the text.
 The second click advances to the next page until the story terminates.
@@ -833,20 +835,19 @@ void StoryScreenComponent::next_text() {
 ```
 ]]
 
-<div class="images">
-<img src="images/story.png" width="550"/>
-<br>Figure @FIG_NEW[[story-states]]: State machine for the "Story" screen.
-</div>
+@FIG_NEW(story.png,
+         State machine for the "Story" screen,
+         550)
 
 The variable `pages` (ln. @N(pages_1)-@N(pages_2), @N(pages_3)-@N(pages_4)) is 
 a vector holding each page and also encodes *continuations* for the story 
 progress:
-each call to `next_text` that advances the story @NN(adv_1-adv_2) removes a 
+each call to `next_text` that advances the story @NN(adv_1,-,adv_2) removes a 
 page @NN(pages_3) and sets the next action to perform (display a new page) in 
 the variable `current_page` @NN(pages_4).
-Figure @FIG_REF[[story-states]] illustrates the state machine for 
-fast-forwarding the words inside the dashed rectangle and the continuation 
-mechanism to advance pages.
+Figure @FIG_REF[[story.png]] illustrates the state machine for fast-forwarding 
+the words inside the dashed rectangle and the continuation mechanism to advance 
+pages.
 The state variable `displayed` (ln. @N(dsp_1),@N(dsp_2),@N(dsp_3),@N(dsp_4)) 
 switches between the behaviors "advancing text" and "advancing pages" which are 
 mixed inside the method `next_text`.
@@ -880,7 +881,7 @@ end
 ]]
 
 For the sequential navigation from page to page, we use a simple loop 
-@NN(loop_do,loop_end) instead of an explicit continuation state.
+@NN(loop_do,,loop_end) instead of an explicit continuation state.
 While the text advances in an inner loop (hidden in ln. @N(advance)), we watch 
 the `next_text` event to fast forward it.
 The inner loop may also eventually terminate with the time elapsing.
@@ -894,17 +895,16 @@ the source code.
 
 ### Case Study 2: Story Screen, Transition to Credits Screen
 
-<div class="images" bgcolor="white">
-<img src="images/credits-anim.gif" width="350"/>
-<br>Figure @FIG_NEW[[credits-anim]]: Transition from "Story" to "Credits" 
-screen.
-</div>
+@FIG_NEW(credits-anim.gif,
+         Transition from "Story" to "Credits" screen,
+         350)
 
-Pingus has clickable story dots for both introductory and ending stories.
+The world map has clickable story dots for both introductory and ending 
+stories.
 For introductory stories, the game returns to the world map after displaying 
 the pages.
 For ending stories, the game also displays a "Credits" screen before returning 
-to the world map (Figure @FIG_REF[[credits-anim]]).
+to the world map (Figure @FIG_REF[[credits-anim.gif]]).
 
 <!-- CPP-STORY-CREDITS -->
 
@@ -965,14 +965,14 @@ void StoryScreenComponent::next_text() {
 ```
 ]]
 
-When the method `next_text` has no pages to display @NN(adv_1-adv_2), it 
+When the method `next_text` has no pages to display @NN(adv_1,-,adv_2), it 
 decides where to go next, depending on the continuation flag `m_credits` 
 @NN(m_credits).
 
 <!-- CEU-STORY-CREDITS -->
 
-In Céu, the flow of screens to display is a just a sequence of statements, not 
-requiring continuation variables:
+In Céu, the flow between the screens to display is a simple sequence of 
+statements:
 
 @CODE_LINES[[
 ```
@@ -1015,41 +1015,61 @@ The code in sequence (marked as `<...>`) only executes after the organism
 terminates.
 </div>
 
-We first "call" a `WorldmapScreen` organism @NN(call_world), which will exhibit 
-the map and let the player interact until it clicks in a dot.
-If the player selects a story dot @NN(story_1-story_2), we "call" the story 
+We first "call" a `WorldmapScreen` organism @NN(call_world), which exhibits the 
+map and let the player interact until it clicks in a dot.
+If the player selects a story dot @NN(story_1,-,story_2), we "call" the story 
 @NN(call_story) and also await its termination.
 Finally, we check the return values @NN(check) to display the `Credits` 
 @NN(call_credits).
 
-<div class="images">
-<img src="images/continuation.png" width="500"/>
-<br>Figure @FIG_NEW[[continuation]]: Continuation (C++) vs Direct (Céu) Styles
-</div>
+@FIG_NEW(continuation.png,
+         Continuation [C++] vs Direct [Céu] Styles,
+         500)
 
-[cpp-story-screen]: https://github.com/Pingus/pingus/blob/master/src/pingus/screens/story_screen.cpp#L136
+Figure @FIG_REF[[continuation.png]] depicts the *continuation-passing style* of 
+C++ and *direct style* of Céu for the screen transitions:
+
+1. `Main Loop` => `Worldmap`:
+    C++ uses an explicit stack to push the world map screen;
+    Céu calls the world map screen (with the `do` notation), expecting a return
+    value;
+2. `Worldmap` (*blue dot click*) => `Story`:
+    C++ `StoryDot` pushes the story screen forward, also passing the 
+    continuation flag;
+    Céu gets the return value of the `Worldmap` (i.e., if it should display the 
+    `Credits`) and calls the story screen.
+3. `Story` => `Credits`:
+    C++ `Story` replaces the current screen with the credits screen.
+    Céu calls the credits screen after the `do Story` returns.
+4. `Credits` => `Worldmap`:
+    C++ pops the credits screen, going back to the world map screen.
+    Céu uses an enclosing `loop` to restart the process.
+
+The direct style of Céu has some advantages:
+
+* It uses structured control flow (i.e., sequences and loops) instead of an 
+  explicit stack and continuation variable.
+* The screens are decoupled from one another, i.e., the `Worldmap` has no
+  references to `Story`, which has no references to `Credits`.
+* The flow between the screens is self-contained in a single loop instead of 
+  spread across multiple classes.
+
+<!--
+TODO:
+- always forward, no returns
+- nao existe retorno, sempre continuacao apos continuacao
+"nowhere to return"
+-->
+
+[cpp-story-screen]: 
+https://github.com/Pingus/pingus/blob/master/src/pingus/screens/story_screen.cpp#L136
 [cpp-story-screen-forward]: https://github.com/Pingus/pingus/blob/master/src/pingus/screens/story_screen.cpp#L143
 
 [wiki-style-direct]:       https://en.wikipedia.org/wiki/Direct_style
 [wiki-style-continuation]: https://en.wikipedia.org/wiki/Continuation-passing_style
 
-Since callbacks cannot hold state
-In particular, they cannot wait for long-XXX to return.
-This way, we need to pass
-form the base of the game
-The code in C++ need
-
 [cpp-story-pages]: https://github.com/Pingus/pingus/blob/master/src/pingus/screens/story_screen.cpp#L159
 [ceu-story-pages]: https://github.com/fsantanna/pingus/blob/ceu/ceu/pingus/screens/story_screen.ceu#L14
-
-<!--
-SEQ
-
-storydot com ou sem credits
-    - 15 p/ 16 clicks
-    - nao existe retorno, sempre continuacao apos continuacao
-"nowhere to return"
--->
 
 <a name="dispatching-hierarchies"/>
 
@@ -1120,13 +1140,12 @@ The `Sprite` class knows how to update [[![X]][cpp-sprite-update]] and render
 [cpp-sprite-update]: https://github.com/Pingus/pingus/blob/v0.7.6/src/engine/display/sprite_impl.cpp#L112
 [cpp-sprite-render]: https://github.com/Pingus/pingus/blob/v0.7.6/src/engine/display/sprite_impl.cpp#L140
 
-<div class="images">
-<img src="images/hierarchy.png" width="550"/>
-<br>Figure @FIG_NEW[[hierarchy]]: Dispatching chain for `update`.
-</div>
+@FIG_NEW(hierarchy.png,
+         Dispatching chain for `update`,
+         550)
 
 However, we have to follow a long chain of 7 dispatches
-(Figure @FIG_REF[[hierarchy]]) to understand how the `update` and `draw` 
+(Figure @FIG_REF[[hierarchy.png]]) to understand how the `update` and `draw` 
 callbacks flow from the original environment stimulus down to the sprite:
 
 1. `ScreenManager::display` [[![X]][cpp-screenmanager-11]]
@@ -1206,10 +1225,9 @@ On the other hand, now that organisms themselves decide whether or not to react
 to external input, we support that lexical scopes should control their life 
 cycles.
 
-<div class="images">
-<img src="images/explo.png"/>
-<br>Figure @FIG_NEW[[explo]]: Explosion sprite for the `Bomber` animation.
-</div>
+@FIG_NEW(explo.png,
+         Explosion sprite for the `Bomber` animation,
+         )
 
 Just like standard local variables, we can delimit the scope of organisms 
 through explicit blocks.
@@ -1236,7 +1254,7 @@ end
 ```
 ]]
 
-We enclose the declaration with an explicit block @NN(do-end) that restricts 
+We enclose the declaration with an explicit block @NN(do,-,end) that restricts 
 its lifespan to a single occurrence of `WORLD_UPDATE` @NN(await).
 When the block terminates, the organism goes out of scope and its execution 
 body aborts automatically, effectively removing it from the screen.
@@ -1334,10 +1352,9 @@ The dynamic nature of containers in C++ demand extra caution:
 
 <!-- CPP-CONTAINER-STATIC -->
 
-<div class="images">
-<img src="images/game-session-arrows.png" width="300"/>
-<br>Figure @FIG_NEW[[game-session]]: UI children with static lifespan.
-</div>
+@FIG_NEW(game-session-arrows.png,
+         UI children with static lifespan,
+         300)
 
 <!-- CEU-CONTAINER-STATIC -->
 
@@ -1402,10 +1419,10 @@ void PinguHolder::update() {                            @update_1
 ```
 ]]
 
-`PinguHolder::create_pingu` @NN(create_1-create_2) creates a new `Pingu` 
+`PinguHolder::create_pingu` @NN(create_1,-,create_2) creates a new `Pingu` 
 periodically, adding it to the `pingus` container @NN(push).
-`PinguHolder::update` @NN(update_1-update_2) checks all pingus every frame, 
-removing those with the `Pingu::PS_DEAD` status @NN(dead_1-dead_2):
+`PinguHolder::update` @NN(update_1,-,update_2) checks all pingus every frame, 
+removing those with the `Pingu::PS_DEAD` status @NN(dead_1,-,dead_2):
 Without the `erase` call, a dead pingu would keep consuming memory and CPU 
 time, i.e., it would remain in the `pingus` vector and be updated every frame 
 @NN(update).
@@ -1448,21 +1465,20 @@ We spawn instances of `Pingu` [[![X]][ceu-pingu]] (which implements the
 The scope of the `pingus` pool constrains the lifespan of all pingus 
 dynamically created in reaction to `go_create_pingu`.
 Therefore, if the top-level block of `PinguHolder` goes out of scope 
-@NN(do-end), the execution of all pingus is aborted and they are automatically 
-reclaimed from memory.
+@NN(do,-,end), the execution of all pingus is aborted and they are 
+automatically reclaimed from memory.
 The same happens if the block containing the instance of `PinguHolder` goes out 
 of scope [[![X]][ceu-world-pinguholder]] (and so on, up to the outermost block 
 of the program [[![X]][ceu-main-outermost]]).
 
-<div class="images">
-<img src="images/pool.png" width="400"/>
-<br>Figure @FIG_NEW[[pool]]: Lifespan of dynamic organisms
-</div>
+@FIG_NEW(pool.png,
+         Lifespan of dynamic organisms,
+         400)
 
 Lexical scopes handle memory and dispatching automatically for static organisms 
 and pools.
 However, the lifespan of a dynamic organism does not necessarily match the 
-lifespan of its corresponding pool (Figure @FIG_REF[[pool]]).
+lifespan of its corresponding pool (Figure @FIG_REF[[pool.png]]).
 When the execution block of a dynamic organism terminates, which characterizes
 its *natural termination*, the organism is automatically removed its pool.
 Therefore, dynamic organisms don't require any extra bookkeeping related to 
