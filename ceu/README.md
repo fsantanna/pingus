@@ -1599,7 +1599,165 @@ The option can be set anywhere in the game by pressing *Ctrl-G*.
 Also, the *Options* menu has a check box to toggle the *Mouse Grab* option, 
 which has to update automatically on *Ctrl-G* presses.
 
+<!-- CPP-GRAB -->
+
+The code in C++ implements the class `ArmageddonButton` 
+[[![X]][cpp-armageddon]] with methods for rendering and handling events.
+Here, we focus on detecting the double click, hiding unrelated parts with 
+`<...>`:
+
+@CODE_LINES[[
+```
+/* GLOBAL_EVENT.CPP */
+
+void GlobalEvent::on_button_press (const SDL_KeyboardEvent& event) {
+    Uint8* keystate = SDL_GetKeyState(NULL);
+    switch (event.keysym.sym) {
+        <...>
+        case SDLK_g:
+            if (keystate[SDLK_LCTRL] || keystate[SDLK_RCTRL]) {
+                config_manager.set_mouse_grab(!config_manager.get_mouse_grab());
+            }
+            break;
+    }
+}
+
+/* CONFIG_MANAGER.CPP */
+
+void ConfigManager::set_mouse_grab(bool v) {
+    <...>
+    if (v != get_mouse_grab()) {
+        <...>;
+        on_mouse_grab_change(v);
+    }
+    m_opts.mouse_grab.set(v);
+}
+
+/* OPTION_MENU.CPP */
+
+typedef std::vector<boost::signals2::connection> Connections;
+Connections connections;
+
+OptionMenu::OptionMenu() :
+    connections(),
+    mousegrab_box(),
+    <...>
+{
+    mousegrab_box = new CheckBox(<...>);
+    connections.push_back(
+        mousegrab_box->on_change.connect(
+            std::bind(&OptionMenu::on_mousegrab_change, <...>)
+        )
+    )
+    mousegrab_box->set_state(config_manager.get_mouse_grab(), <...>);
+    connections.push_back(
+        config_manager.on_mouse_grab_change.connect(
+            std::bind(&CheckBox::set_state, mousegrab_box, <...>, false);
+    );
+    <...>
+
+}
+
+void OptionMenu::on_mousegrab_change(bool v) {
+  config_manager.set_mouse_grab(v);
+}
+
+OptionMenu::~OptionMenu() {
+    for (Connections::iterator i=connections.begin(); i!=connections.end(); ++i) {
+        (*i).disconnect();
+    }
+}
+
+/* CHECK_BOX.CPP */
+
+void CheckBox::on_primary_button_press (int x, int y) {
+    state = !state;
+    on_change(state);
+}
+
+void CheckBox::set_state (bool v, bool send_signal) {
+    state = v;
+    if (send_signal) {
+        on_change(state);
+    }
+}
+
+```
+]]
+
+@CODE_LINES[[
+```
+/* GLOBAL_EVENT.CEU */
+
+class GlobalEvent with
+do
+    every e in SDL_KEYDOWN do
+        var _u8&& keystate = _XXX_PURE(_SDL_GetKeyState(null));
+        if e:keysym.sym == _SDLK_g then
+            if (keystate[_SDLK_LCTRL] or keystate[_SDLK_RCTRL]) then
+                emit global:go_toggle_mouse_grab;
+            end
+        end
+        <...>
+    end
+end
+
+/* CONFIG_MANAGER.CEU */
+
+class ConfigManager with
+do
+    every global:go_toggle_mouse_grab do
+        _config_manager.set_mouse_grab(not _config_manager.get_mouse_grab());
+    end
+end
+
+/* OPTION_MENU.CEU */
+
+class OptionMenu with
+do
+    <...>
+    var CheckBox b2 = CheckBox.build(r21, _config_manager.get_mouse_grab());
+    spawn do
+        loop do
+            watching global:go_toggle_mouse_grab do
+                every v in b2.ok_clicked do
+                    emit global:go_toggle_mouse_grab;
+                end
+            end
+            emit b2.ok_clicked => not b2.is_on;
+        end
+    end
+end
+
+/* CHECK_BOX.CEU */
+
+class CheckBox with
+    <...>
+    var bool is_on;
+    event bool ok_clicked;
+do
+    loop do
+        watching is_on in this.ok_clicked do
+            if this.is_on then
+                <...>
+                await component.on_primary_button_pressed;
+                is_on = false;
+            else
+                <...>
+                await component.on_primary_button_pressed;
+                is_on = true;
+            end
+            emit ok_clicked => is_on;
+        end
+    end
+end
+```
+]]
+
+T
+
 bi-directional dependency
+`if` required
 
 
  also toggles the same flag, which should adjust the

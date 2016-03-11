@@ -859,7 +859,149 @@ end
 <img src="images/options-anim-opt.gif" width="350"/> <br> <a href="images/options-anim-opt.gif"> Figure 14</a>: TODO
 </div>
 <p>In Pingus, the <em>Mouse Grab</em> option restricts the mouse movement to the game window boudaries (Figure 14). The option can be set anywhere in the game by pressing <em>Ctrl-G</em>. Also, the <em>Options</em> menu has a check box to toggle the <em>Mouse Grab</em> option, which has to update automatically on <em>Ctrl-G</em> presses.</p>
-<p>bi-directional dependency</p>
+<!-- CPP-GRAB -->
+
+<p>The code in C++ implements the class <code>ArmageddonButton</code> [<a href="https://github.com/Pingus/pingus/blob/v0.7.6/src/pingus/components/action_button.cpp#L24"><img src="images/link_12.png" alt="X" /></a>] with methods for rendering and handling events. Here, we focus on detecting the double click, hiding unrelated parts with <code>&lt;...&gt;</code>:</p>
+<pre><code> 1:  /* GLOBAL_EVENT.CPP */
+ 2:  
+ 3:  void GlobalEvent::on_button_press (const SDL_KeyboardEvent&amp; event) {
+ 4:      Uint8* keystate = SDL_GetKeyState(NULL);
+ 5:      switch (event.keysym.sym) {
+ 6:          &lt;...&gt;
+ 7:          case SDLK_g:
+ 8:              if (keystate[SDLK_LCTRL] || keystate[SDLK_RCTRL]) {
+ 9:                  config_manager.set_mouse_grab(!config_manager.get_mouse_grab());
+10:              }
+11:              break;
+12:      }
+13:  }
+14:  
+15:  /* CONFIG_MANAGER.CPP */
+16:  
+17:  void ConfigManager::set_mouse_grab(bool v) {
+18:      &lt;...&gt;
+19:      if (v != get_mouse_grab()) {
+20:          &lt;...&gt;;
+21:          on_mouse_grab_change(v);
+22:      }
+23:      m_opts.mouse_grab.set(v);
+24:  }
+25:  
+26:  /* OPTION_MENU.CPP */
+27:  
+28:  typedef std::vector&lt;boost::signals2::connection&gt; Connections;
+29:  Connections connections;
+30:  
+31:  OptionMenu::OptionMenu() :
+32:      connections(),
+33:      mousegrab_box(),
+34:      &lt;...&gt;
+35:  {
+36:      mousegrab_box = new CheckBox(&lt;...&gt;);
+37:      connections.push_back(
+38:          mousegrab_box-&gt;on_change.connect(
+39:              std::bind(&amp;OptionMenu::on_mousegrab_change, &lt;...&gt;)
+40:          )
+41:      )
+42:      mousegrab_box-&gt;set_state(config_manager.get_mouse_grab(), &lt;...&gt;);
+43:      connections.push_back(
+44:          config_manager.on_mouse_grab_change.connect(
+45:              std::bind(&amp;CheckBox::set_state, mousegrab_box, &lt;...&gt;, false);
+46:      );
+47:      &lt;...&gt;
+48:  
+49:  }
+50:  
+51:  void OptionMenu::on_mousegrab_change(bool v) {
+52:    config_manager.set_mouse_grab(v);
+53:  }
+54:  
+55:  OptionMenu::~OptionMenu() {
+56:      for (Connections::iterator i=connections.begin(); i!=connections.end(); ++i) {
+57:          (*i).disconnect();
+58:      }
+59:  }
+60:  
+61:  /* CHECK_BOX.CPP */
+62:  
+63:  void CheckBox::on_primary_button_press (int x, int y) {
+64:      state = !state;
+65:      on_change(state);
+66:  }
+67:  
+68:  void CheckBox::set_state (bool v, bool send_signal) {
+69:      state = v;
+70:      if (send_signal) {
+71:          on_change(state);
+72:      }
+73:  }
+74:  </code></pre>
+<pre><code> 1:  /* GLOBAL_EVENT.CEU */
+ 2:  
+ 3:  class GlobalEvent with
+ 4:  do
+ 5:      every e in SDL_KEYDOWN do
+ 6:          var _u8&amp;&amp; keystate = _XXX_PURE(_SDL_GetKeyState(null));
+ 7:          if e:keysym.sym == _SDLK_g then
+ 8:              if (keystate[_SDLK_LCTRL] or keystate[_SDLK_RCTRL]) then
+ 9:                  emit global:go_toggle_mouse_grab;
+10:              end
+11:          end
+12:          &lt;...&gt;
+13:      end
+14:  end
+15:  
+16:  /* CONFIG_MANAGER.CEU */
+17:  
+18:  class ConfigManager with
+19:  do
+20:      every global:go_toggle_mouse_grab do
+21:          _config_manager.set_mouse_grab(not _config_manager.get_mouse_grab());
+22:      end
+23:  end
+24:  
+25:  /* OPTION_MENU.CEU */
+26:  
+27:  class OptionMenu with
+28:  do
+29:      &lt;...&gt;
+30:      var CheckBox b2 = CheckBox.build(r21, _config_manager.get_mouse_grab());
+31:      spawn do
+32:          loop do
+33:              watching global:go_toggle_mouse_grab do
+34:                  every v in b2.ok_clicked do
+35:                      emit global:go_toggle_mouse_grab;
+36:                  end
+37:              end
+38:              emit b2.ok_clicked =&gt; not b2.is_on;
+39:          end
+40:      end
+41:  end
+42:  
+43:  /* CHECK_BOX.CEU */
+44:  
+45:  class CheckBox with
+46:      &lt;...&gt;
+47:      var bool is_on;
+48:      event bool ok_clicked;
+49:  do
+50:      loop do
+51:          watching is_on in this.ok_clicked do
+52:              if this.is_on then
+53:                  &lt;...&gt;
+54:                  await component.on_primary_button_pressed;
+55:                  is_on = false;
+56:              else
+57:                  &lt;...&gt;
+58:                  await component.on_primary_button_pressed;
+59:                  is_on = true;
+60:              end
+61:              emit ok_clicked =&gt; is_on;
+62:          end
+63:      end
+64:  end</code></pre>
+<p>T</p>
+<p>bi-directional dependency <code>if</code> required</p>
 <p>also toggles the same flag, which should adjust the checkbox accordingly.</p>
 <p><a name="wall-clock-timers"/></p>
 <h2 id="wall-clock-timers">6) Wall-Clock Timers</h2>
