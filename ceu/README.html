@@ -430,7 +430,7 @@ more natural structured code with sequences, conditionals, and loops
 <p>The world map of Pingus has clickable <em>blue dots</em> with ambience stories about the game (Figure 6). The words for each story page appears incrementally over time. The first click in the button <code>&gt;&gt;&gt;</code> fast forwards the text. The second click advances to the next page until the story terminates. If the page displays completely due to the time elapsing, the first click advances to the next page.</p>
 <!-- CPP-STORY-PAGES -->
 
-<p>The code in C++ [<a href="https://github.com/Pingus/pingus/blob/master/src/pingus/screens/story_screen.cpp#L159"><img src="images/link_12.png" alt="X" /></a>] defines the class <code>StoryScreenComponent</code> with a <code>next_text</code> method to advance the words and pages:</p>
+<p>The code in C++ [<a href="https://github.com/Pingus/pingus/blob/v0.7.6/src/pingus/screens/story_screen.cpp#L159"><img src="images/link_12.png" alt="X" /></a>] defines the class <code>StoryScreenComponent</code> with a <code>next_text</code> method to advance the words and pages:</p>
 <pre><code> 1:  StoryScreenComponent::StoryScreenComponent (&lt;...&gt;) :
  2:      &lt;...&gt;
  3:  {
@@ -503,7 +503,7 @@ more natural structured code with sequences, conditionals, and loops
 10:      ScreenManager::instance()-&gt;push_screen(std::make_shared&lt;StoryScreen&gt;(&lt;...&gt;, m_credits));
 11:      &lt;...&gt;
 12:  }</code></pre>
-<p>The boolean variable <code>m_credits</code> is passed to the <code>StoryScreen</code> 10 [<a href="https://github.com/Pingus/pingus/blob/master/src/pingus/screens/story_screen.cpp#L136"><img src="images/link_12.png" alt="X" /></a>] and represents its continuation, i.e., what to do after displaying the story. The <code>StoryScreen</code> forwards the continuation [<a href="https://github.com/Pingus/pingus/blob/master/src/pingus/screens/story_screen.cpp#L143"><img src="images/link_12.png" alt="X" /></a>] to the <code>StoryComponent</code> [<a href="https://github.com/Pingus/pingus/blob/master/src/pingus/screens/story_screen.cpp#L159"><img src="images/link_12.png" alt="X" /></a>]:</p>
+<p>The boolean variable <code>m_credits</code> is passed to the <code>StoryScreen</code> 10 [<a href="https://github.com/Pingus/pingus/blob/v0.7.6/src/pingus/screens/story_screen.cpp#L136"><img src="images/link_12.png" alt="X" /></a>] and represents its continuation, i.e., what to do after displaying the story. The <code>StoryScreen</code> forwards the continuation [<a href="https://github.com/Pingus/pingus/blob/v0.7.6/src/pingus/screens/story_screen.cpp#L143"><img src="images/link_12.png" alt="X" /></a>] to the <code>StoryComponent</code> [<a href="https://github.com/Pingus/pingus/blob/v0.7.6/src/pingus/screens/story_screen.cpp#L159"><img src="images/link_12.png" alt="X" /></a>]:</p>
 <pre><code> 1:  StoryScreenComponent::StoryScreenComponent (&lt;...&gt;) :
  2:      m_credits(credits),
  3:      &lt;...&gt;
@@ -685,7 +685,7 @@ TODO: falar de broadcast (in Ceu: unless it is paused, all receive always)
 12:          end
 13:          &lt;...&gt;
 14:  end</code></pre>
-<p>We enclose the declaration with an explicit block (ln. 9-12) that restricts its lifespan to a single occurrence of <code>WORLD_UPDATE</code> 11. When the block terminates, the organism goes out of scope and its execution body aborts automatically, effectively removing it from the screen. Note here that we never manipulate references to the <code>Sprite</code>, which is declared anonymous with the placeholder <code>_</code>. In constrast, the animation in C++ requires to explicitly check the state variable <code>gfx_exploded</code> and forward the <code>draw</code> method down to the child sprite <code>explo_surf</code> [<a href="https://github.com/Pingus/pingus/blob/master/src/pingus/actions/bomber.cpp#L50"><img src="images/link_12.png" alt="X" /></a>].</p>
+<p>We enclose the declaration with an explicit block (ln. 9-12) that restricts its lifespan to a single occurrence of <code>WORLD_UPDATE</code> 11. When the block terminates, the organism goes out of scope and its execution body aborts automatically, effectively removing it from the screen. Note here that we never manipulate references to the <code>Sprite</code>, which is declared anonymous with the placeholder <code>_</code>. In constrast, the animation in C++ requires to explicitly check the state variable <code>gfx_exploded</code> and forward the <code>draw</code> method down to the child sprite <code>explo_surf</code> [<a href="https://github.com/Pingus/pingus/blob/v0.7.6/src/pingus/actions/bomber.cpp#L50"><img src="images/link_12.png" alt="X" /></a>].</p>
 <!-- CEU-vs-CPP-BOMBER-SPRITE -->
 
 <p>Overall, passive objects of C++ impose a dispatching architecture that makes the reasoning about the program harder:</p>
@@ -859,150 +859,147 @@ end
 <img src="images/options-anim-opt.gif" width="350"/> <br> <a href="images/options-anim-opt.gif"> Figure 14</a>: TODO
 </div>
 <p>In Pingus, the <em>Mouse Grab</em> option restricts the mouse movement to the game window boudaries (Figure 14). The option can be set anywhere in the game by pressing <em>Ctrl-G</em>. Also, the <em>Options</em> menu has a check box to toggle the <em>Mouse Grab</em> option, which has to update automatically on <em>Ctrl-G</em> presses.</p>
-<!-- CPP-GRAB -->
-
-<p>The code in C++ implements the class <code>ArmageddonButton</code> [<a href="https://github.com/Pingus/pingus/blob/v0.7.6/src/pingus/components/action_button.cpp#L24"><img src="images/link_12.png" alt="X" /></a>] with methods for rendering and handling events. Here, we focus on detecting the double click, hiding unrelated parts with <code>&lt;...&gt;</code>:</p>
+<p>First, let's compare the <code>GlobalEvent</code> classes to detect the <em>Ctrl-G</em> in C++ [<a href="https://github.com/Pingus/pingus/blob/v0.7.6/src/pingus/global_event.cpp#L34"><img src="images/link_12.png" alt="X" /></a>] and Céu [<a href="https://github.com/fsantanna/pingus/blob/ceu/ceu/pingus/global_event.ceu#L4"><img src="images/link_12.png" alt="X" /></a>]:</p>
 <pre><code> 1:  /* GLOBAL_EVENT.CPP */
  2:  
  3:  void GlobalEvent::on_button_press (const SDL_KeyboardEvent&amp; event) {
- 4:      Uint8* keystate = SDL_GetKeyState(NULL);
+ 4:      &lt;...&gt;
  5:      switch (event.keysym.sym) {
- 6:          &lt;...&gt;
- 7:          case SDLK_g:
- 8:              if (keystate[SDLK_LCTRL] || keystate[SDLK_RCTRL]) {
- 9:                  config_manager.set_mouse_grab(!config_manager.get_mouse_grab());
-10:              }
-11:              break;
+ 6:          case SDLK_g:
+ 7:              if (keystate[SDLK_LCTRL] || keystate[SDLK_RCTRL]) {
+ 8:                  config_manager.set_mouse_grab(!config_manager.get_mouse_grab());
+ 9:              }
+10:              break;
+11:          &lt;...&gt;
 12:      }
-13:  }
-14:  
-15:  /* CONFIG_MANAGER.CPP */
-16:  
-17:  void ConfigManager::set_mouse_grab(bool v) {
-18:      &lt;...&gt;
-19:      if (v != get_mouse_grab()) {
-20:          &lt;...&gt;;
-21:          on_mouse_grab_change(v);
-22:      }
-23:      m_opts.mouse_grab.set(v);
-24:  }
-25:  
-26:  /* OPTION_MENU.CPP */
-27:  
-28:  typedef std::vector&lt;boost::signals2::connection&gt; Connections;
-29:  Connections connections;
-30:  
-31:  OptionMenu::OptionMenu() :
-32:      connections(),
-33:      mousegrab_box(),
-34:      &lt;...&gt;
-35:  {
-36:      mousegrab_box = new CheckBox(&lt;...&gt;);
-37:      connections.push_back(
-38:          mousegrab_box-&gt;on_change.connect(
-39:              std::bind(&amp;OptionMenu::on_mousegrab_change, &lt;...&gt;)
-40:          )
-41:      )
-42:      mousegrab_box-&gt;set_state(config_manager.get_mouse_grab(), &lt;...&gt;);
-43:      connections.push_back(
-44:          config_manager.on_mouse_grab_change.connect(
-45:              std::bind(&amp;CheckBox::set_state, mousegrab_box, &lt;...&gt;, false);
-46:      );
-47:      &lt;...&gt;
-48:  
-49:  }
-50:  
-51:  void OptionMenu::on_mousegrab_change(bool v) {
-52:    config_manager.set_mouse_grab(v);
-53:  }
-54:  
-55:  OptionMenu::~OptionMenu() {
-56:      for (Connections::iterator i=connections.begin(); i!=connections.end(); ++i) {
-57:          (*i).disconnect();
-58:      }
-59:  }
-60:  
-61:  /* CHECK_BOX.CPP */
-62:  
-63:  void CheckBox::on_primary_button_press (int x, int y) {
-64:      state = !state;
-65:      on_change(state);
-66:  }
-67:  
-68:  void CheckBox::set_state (bool v, bool send_signal) {
-69:      state = v;
-70:      if (send_signal) {
-71:          on_change(state);
-72:      }
-73:  }
-74:  </code></pre>
+13:  }</code></pre>
 <pre><code> 1:  /* GLOBAL_EVENT.CEU */
  2:  
- 3:  class GlobalEvent with
+ 3:  event void go_toggle_mouse_grab;    // a global definition in `main.ceu`
+ 4:  
+ 5:  class GlobalEvent with
+ 6:  do
+ 7:      every e in SDL_KEYDOWN do
+ 8:          &lt;...&gt;
+ 9:          if e:keysym.sym == _SDLK_g then
+10:              if (keystate[_SDLK_LCTRL] or keystate[_SDLK_RCTRL]) then
+11:                  emit global:go_toggle_mouse_grab;
+12:              end
+13:          end
+14:          &lt;...&gt;
+15:      end
+16:  end</code></pre>
+<p>The code is similar, i.e., just standard event handling to detect the key press. The difference is that C++ executes a method in <code>config_manager</code> 8 while Céu emits the global event <code>go_toggle_mouse_grab</code> 11. The <code>event</code> keyword declares an internal event which applications can <code>emit</code> and <code>await</code>. Internal events are TODO. stack vs queue</p>
+<p>The <code>ConfigManager</code> class TODO C++ [<a href="https://github.com/Pingus/pingus/blob/v0.7.6/src/pingus/config_manager.cpp#L182"><img src="images/link_12.png" alt="X" /></a>] and Céu [<a href="https://github.com/fsantanna/pingus/blob/ceu/ceu/pingus/config_manager.ceu#L4"><img src="images/link_12.png" alt="X" /></a>]:</p>
+<pre><code> 1:  /* CONFIG_MANAGER.CPP */
+ 2:  
+ 3:  boost::signals2::signal&lt;void(bool)&gt; on_mouse_grab_change;   // definition in `config_manager.h`
+ 4:  
+ 5:  void ConfigManager::set_mouse_grab(bool v) {
+ 6:      &lt;...&gt;
+ 7:      if (v != get_mouse_grab()) {
+ 8:          &lt;...&gt;
+ 9:          on_mouse_grab_change(v);
+10:      }
+11:  }</code></pre>
+<pre><code> 1:  /* CONFIG_MANAGER.CEU */
+ 2:  
+ 3:  class ConfigManager with
  4:  do
- 5:      every e in SDL_KEYDOWN do
- 6:          var _u8&amp;&amp; keystate = _XXX_PURE(_SDL_GetKeyState(null));
- 7:          if e:keysym.sym == _SDLK_g then
- 8:              if (keystate[_SDLK_LCTRL] or keystate[_SDLK_RCTRL]) then
- 9:                  emit global:go_toggle_mouse_grab;
-10:              end
-11:          end
-12:          &lt;...&gt;
-13:      end
-14:  end
-15:  
-16:  /* CONFIG_MANAGER.CEU */
-17:  
-18:  class ConfigManager with
-19:  do
-20:      every global:go_toggle_mouse_grab do
-21:          _config_manager.set_mouse_grab(not _config_manager.get_mouse_grab());
-22:      end
-23:  end
-24:  
-25:  /* OPTION_MENU.CEU */
-26:  
-27:  class OptionMenu with
-28:  do
-29:      &lt;...&gt;
-30:      var CheckBox b2 = CheckBox.build(r21, _config_manager.get_mouse_grab());
-31:      spawn do
-32:          loop do
-33:              watching global:go_toggle_mouse_grab do
-34:                  every v in b2.ok_clicked do
-35:                      emit global:go_toggle_mouse_grab;
-36:                  end
-37:              end
-38:              emit b2.ok_clicked =&gt; not b2.is_on;
-39:          end
-40:      end
-41:  end
-42:  
-43:  /* CHECK_BOX.CEU */
-44:  
-45:  class CheckBox with
-46:      &lt;...&gt;
-47:      var bool is_on;
-48:      event bool ok_clicked;
-49:  do
-50:      loop do
-51:          watching is_on in this.ok_clicked do
-52:              if this.is_on then
-53:                  &lt;...&gt;
-54:                  await component.on_primary_button_pressed;
-55:                  is_on = false;
-56:              else
-57:                  &lt;...&gt;
-58:                  await component.on_primary_button_pressed;
-59:                  is_on = true;
-60:              end
-61:              emit ok_clicked =&gt; is_on;
-62:          end
-63:      end
-64:  end</code></pre>
-<p>T</p>
-<p>bi-directional dependency <code>if</code> required</p>
-<p>also toggles the same flag, which should adjust the checkbox accordingly.</p>
+ 5:      every global:go_toggle_mouse_grab do
+ 6:          &lt;...&gt;
+ 7:      end
+ 8:  end</code></pre>
+<p>The <code>OptionMenu</code> class TODO C++ [<a href="https://github.com/Pingus/pingus/blob/v0.7.6/src/pingus/screens/option_menu.cpp#L79"><img src="images/link_12.png" alt="X" /></a>] and Céu [<a href="https://github.com/fsantanna/pingus/blob/ceu/ceu/pingus/screens/option_menu.ceu#L26"><img src="images/link_12.png" alt="X" /></a>]:</p>
+<pre><code> 1:  /* OPTION_MENU.CPP */
+ 2:  
+ 3:  typedef std::vector&lt;boost::signals2::connection&gt; Connections;
+ 4:  Connections connections;
+ 5:  
+ 6:  OptionMenu::OptionMenu() :
+ 7:      connections(),
+ 8:      mousegrab_box(),
+ 9:      &lt;...&gt;
+10:  {
+11:      mousegrab_box = new CheckBox(&lt;...&gt;);
+12:      connections.push_back(
+13:          mousegrab_box-&gt;on_change.connect(
+14:              std::bind(&amp;OptionMenu::on_mousegrab_change, &lt;...&gt;)
+15:          )
+16:      )
+17:      mousegrab_box-&gt;set_state(config_manager.get_mouse_grab(), &lt;...&gt;);
+18:      connections.push_back(
+19:          config_manager.on_mouse_grab_change.connect(
+20:              std::bind(&amp;CheckBox::set_state, mousegrab_box, &lt;...&gt;, false);
+21:      );
+22:      &lt;...&gt;
+23:  
+24:  }
+25:  
+26:  void OptionMenu::on_mousegrab_change(bool v) {
+27:    config_manager.set_mouse_grab(v);
+28:  }
+29:  
+30:  OptionMenu::~OptionMenu() {
+31:      for (Connections::iterator i=connections.begin(); i!=connections.end(); ++i) {
+32:          (*i).disconnect();
+33:      }
+34:  }</code></pre>
+<pre><code> 1:  /* OPTION_MENU.CEU */
+ 2:  
+ 3:  class OptionMenu with
+ 4:  do
+ 5:      &lt;...&gt;
+ 6:      var CheckBox b2 = CheckBox.build(r21, _config_manager.get_mouse_grab());
+ 7:      spawn do
+ 8:          loop do
+ 9:              watching global:go_toggle_mouse_grab do
+10:                  every v in b2.ok_clicked do
+11:                      emit global:go_toggle_mouse_grab;
+12:                  end
+13:              end
+14:              emit b2.ok_clicked =&gt; not b2.is_on;
+15:          end
+16:      end
+17:  end</code></pre>
+<p>The <code>CheckBox</code> class TODO C++ [<a href="https://github.com/Pingus/pingus/blob/v0.7.6/src/pingus/components/choice_box.cpp#L54"><img src="images/link_12.png" alt="X" /></a>] and Céu [<a href="https://github.com/fsantanna/pingus/blob/ceu/ceu/pingus/components/check_box.ceu#L4"><img src="images/link_12.png" alt="X" /></a>]:</p>
+<p>The <code>CheckBox</code> class:</p>
+<pre><code> 1:  /* CHECK_BOX.CPP */
+ 2:  
+ 3:  void CheckBox::on_primary_button_press (int x, int y) {
+ 4:      state = !state;
+ 5:      on_change(state);
+ 6:  }
+ 7:  
+ 8:  void CheckBox::set_state (bool v, bool send_signal) {
+ 9:      state = v;
+10:      if (send_signal) {
+11:          on_change(state);
+12:      }
+13:  }</code></pre>
+<pre><code> 1:  /* CHECK_BOX.CEU */
+ 2:  
+ 3:  class CheckBox with
+ 4:      &lt;...&gt;
+ 5:      var bool is_on;
+ 6:      event bool ok_clicked;
+ 7:  do
+ 8:      loop do
+ 9:          watching is_on in this.ok_clicked do
+10:              if this.is_on then
+11:                  &lt;...&gt;
+12:                  await component.on_primary_button_pressed;
+13:                  is_on = false;
+14:              else
+15:                  &lt;...&gt;
+16:                  await component.on_primary_button_pressed;
+17:                  is_on = true;
+18:              end
+19:              emit ok_clicked =&gt; is_on;
+20:          end
+21:      end
+22:  end</code></pre>
+<p>TODO: bi-directional dependency TODO: <code>if</code> required</p>
 <p><a name="wall-clock-timers"/></p>
 <h2 id="wall-clock-timers">6) Wall-Clock Timers</h2>
 <!--
@@ -1115,7 +1112,7 @@ In this sense, they eliminate any vestige of structured programming, becoming
 
 The game loop:
 `ScreenManager::display`
-https://github.com/fsantanna/pingus/blob/master/src/engine/screen/screen_manager.cpp#L164
+https://github.com/fsantanna/pingus/blob/v0.7.6/src/engine/screen/screen_manager.cpp#L164
 
 ```
 void ScreenManager::display() {
