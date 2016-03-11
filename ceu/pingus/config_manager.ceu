@@ -4,7 +4,14 @@
 class ConfigManager with
 do
     every global:go_toggle_mouse_grab do
-        _config_manager.set_mouse_grab(not _config_manager.get_mouse_grab());
+        var bool v = not _config_manager.get_mouse_grab();
+        _log_info("ConfigManager::set_mouse_grab: %1%", v);
+        if v then
+            _SDL_WM_GrabInput(_SDL_GRAB_ON);
+        else
+            _SDL_WM_GrabInput(_SDL_GRAB_OFF);
+        end
+        _config_manager.m_opts.mouse_grab.set(v);
     end
 end
 

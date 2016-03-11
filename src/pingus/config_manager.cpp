@@ -181,6 +181,7 @@ ConfigManager::get_resizable() const
 void
 ConfigManager::set_mouse_grab(bool v)
 {
+  //assert(!"NOT PORTED");
   log_info("ConfigManager::set_mouse_grab: %1%", v);
 
   if (v != get_mouse_grab())
