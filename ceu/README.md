@@ -96,7 +96,7 @@ function NN (id1, sep, id2)
     if sep then
         return '(ln. '..N(id1)..sep..N(id2)..')'
     else
-        return N(id1)
+        return '(ln. '..N(id1)..')'
     end
 end
 
@@ -1602,6 +1602,8 @@ The option can be set anywhere in the game by pressing *Ctrl-G*.
 Also, the *Options* menu has a check box to toggle the *Mouse Grab* option, 
 which has to update automatically on *Ctrl-G* presses.
 
+<!-- GLOBAL_EVENT -->
+
 First, let's compare the `GlobalEvent` classes to detect the *Ctrl-G* in
 C++ [[![X]][cpp-global_event]]
 and
@@ -1609,8 +1611,6 @@ Céu [[![X]][ceu-global_event]]:
 
 @CODE_LINES[[
 ```
-/* GLOBAL_EVENT.CPP */
-
 void GlobalEvent::on_button_press (const SDL_KeyboardEvent& event) {
     <...>
     switch (event.keysym.sym) {
@@ -1629,8 +1629,6 @@ void GlobalEvent::on_button_press (const SDL_KeyboardEvent& event) {
 
 @CODE_LINES[[
 ```
-/* GLOBAL_EVENT.CEU */
-
 event void go_toggle_mouse_grab;    // a global definition in `main.ceu`            @go_toggle_mouse_grab
 
 class GlobalEvent with
@@ -1650,48 +1648,60 @@ end
 
 @[[ CODE2N_RESET = true ]]
 
-The code is similar, i.e., just standard event handling to detect the key 
-press.
-The difference is that C++ executes a method in `config_manager` 
-@NN(ctrl_g_cpp) while Céu emits the global event `go_toggle_mouse_grab` 
-@NN(ctrl_g_ceu).
+The implementations are similar, i.e., just standard event handling to detect 
+the key press.
+The difference is that
+C++ executes a method in `config_manager` @NN(ctrl_g_cpp)
+while
+Céu emits the global event `go_toggle_mouse_grab` @NN(ctrl_g_ceu).
 The `event` keyword declares an internal event which applications can `emit` 
 and `await`.
+
 Internal events are TODO. stack vs queue
 
-The `ConfigManager` class TODO
-C++ [[![X]][cpp-config_manager]]
-and
-Céu [[![X]][ceu-config_manager]]:
+<!-- CONFIG_MANAGER -->
+
+The `ConfigManager` class in C++ [[![X]][cpp-config_manager]] uses a 
+`boost::signal` [[![X]][boost-signal]] which serves the same purpose of 
+internal events in Céu:
 
 @CODE_LINES[[
 ```
-/* CONFIG_MANAGER.CPP */
-
 boost::signals2::signal<void(bool)> on_mouse_grab_change;   // definition in `config_manager.h`
 
-void ConfigManager::set_mouse_grab(bool v) {
+void ConfigManager::set_mouse_grab (bool v) {   @set_mouse_grab
     <...>
-    if (v != get_mouse_grab()) {
-        <...>
-        on_mouse_grab_change(v);
-    }
+    if (v != get_mouse_grab()) {                @if_1
+        <...>   // the actual "grab" effect
+        on_mouse_grab_change(v);                @signal
+    }                                           @if_2
 }
 ```
 ]]
 
+Once the `GlobalEvent` detects a key press, it calls `set_mouse_grab` 
+@NN(set_mouse_grab) which broadcasts the signal @NN(signal).
+TODO: `if` @NN(if_1,-,if_2)
+
+The version in Céu [[![X]][ceu-config_manager]] reacts continuously to the
+`go_toggle_mouse_grab` event to perform the *grab* effect:
+
 @CODE_LINES[[
 ```
-/* CONFIG_MANAGER.CEU */
-
 class ConfigManager with
 do
     every global:go_toggle_mouse_grab do
-        <...>
+        <...>   // the actual "grab" effect
     end
 end
 ```
 ]]
+
+The `GlobalEvent` and `ConfigManager` classes handle the case of TODO.
+They also prepare the broadcast for the check box in the *Option* menu via the 
+`xxx` and `yyy` TODO.
+
+<!-- OPTION_MENU -->
 
 The `OptionMenu` class TODO
 C++ [[![X]][cpp-option_menu]]
@@ -1700,8 +1710,6 @@ Céu [[![X]][ceu-option_menu]]:
 
 @CODE_LINES[[
 ```
-/* OPTION_MENU.CPP */
-
 typedef std::vector<boost::signals2::connection> Connections;
 Connections connections;
 
@@ -1739,8 +1747,6 @@ OptionMenu::~OptionMenu() {
 
 @CODE_LINES[[
 ```
-/* OPTION_MENU.CEU */
-
 class OptionMenu with
 do
     <...>
@@ -1759,6 +1765,8 @@ end
 ```
 ]]
 
+<!-- CHECK_BOX.CEU -->
+
 The `CheckBox` class TODO
 C++ [[![X]][cpp-check_box]]
 and
@@ -1766,8 +1774,6 @@ Céu [[![X]][ceu-check_box]]:
 
 @CODE_LINES[[
 ```
-/* CHECK_BOX.CPP */
-
 void CheckBox::on_primary_button_press (int x, int y) {
     state = !state;
     on_change(state);
@@ -1784,8 +1790,6 @@ void CheckBox::set_state (bool v, bool send_signal) {
 
 @CODE_LINES[[
 ```
-/* CHECK_BOX.CEU */
-
 class CheckBox with
     <...>
     var bool is_on;
@@ -1812,6 +1816,7 @@ end
 TODO: bi-directional dependency
 TODO: `if` required
 
+[boost-signal]:http://www.boost.org/doc/libs/1_60_0/doc/html/signals2.html
 [cpp-global_event]:https://github.com/Pingus/pingus/blob/v0.7.6/src/pingus/global_event.cpp#L34
 [ceu-global_event]:https://github.com/fsantanna/pingus/blob/ceu/ceu/pingus/global_event.ceu#L4
 [cpp-config_manager]:https://github.com/Pingus/pingus/blob/v0.7.6/src/pingus/config_manager.cpp#L182
