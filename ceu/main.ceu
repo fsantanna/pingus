@@ -204,6 +204,7 @@ event bool go_pause;
 
 #include "engine/input/sdl_driver.ceu"
 #include "pingus/global_event.ceu"
+#include "pingus/config_manager.ceu"
 #include "pingus/fps_counter.ceu"
 #include "pingus/worldmap/worldmap_screen.ceu"
 #include "pingus/screens/credits.ceu"
@@ -247,8 +248,9 @@ native/pre do
     static CommandLineOptions cmd;
 end
 
-var SDL_Driver  _;
-var GlobalEvent _;
+var SDL_Driver    _;
+var GlobalEvent   _;
+var ConfigManager _;
 
 var _CommandLineOptions&& cmd = await MAIN;
 _cmd = *cmd;

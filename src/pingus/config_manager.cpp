@@ -186,7 +186,7 @@ ConfigManager::set_mouse_grab(bool v)
   if (v != get_mouse_grab())
   {
     SDL_WM_GrabInput(v ? SDL_GRAB_ON : SDL_GRAB_OFF);
-    on_mouse_grab_change(v);
+    //on_mouse_grab_change(v);
   }
 
   m_opts.mouse_grab.set(v);

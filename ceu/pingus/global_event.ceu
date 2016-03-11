@@ -3,9 +3,8 @@
 
 class GlobalEvent with
 do
-    par do
-        every e in SDL_KEYDOWN do
-            var _u8&& keystate = _XXX_PURE(_SDL_GetKeyState(null));
+    every e in SDL_KEYDOWN do
+        var _u8&& keystate = _XXX_PURE(_SDL_GetKeyState(null));
 #if 0
   switch (event.keysym.sym)
   {
@@ -115,11 +114,6 @@ do
       break;
   }
 #endif
-        end
-    with
-        every global:go_toggle_mouse_grab do
-            _config_manager.set_mouse_grab(not _config_manager.get_mouse_grab());
-        end
     end
 end
 

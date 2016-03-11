@@ -1,0 +1,11 @@
+#ifndef _CONFIG_MANAGER_CEU
+#define _CONFIG_MANAGER_CEU
+
+class ConfigManager with
+do
+    every global:go_toggle_mouse_grab do
+        _config_manager.set_mouse_grab(not _config_manager.get_mouse_grab());
+    end
+end
+
+#endif
