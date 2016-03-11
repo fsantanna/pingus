@@ -551,49 +551,14 @@ Alexander Tkachov
 
 # Qualitative Analysis
 
+- why not quantitative?
+    - focus on how
+    - not all changes delete code
+    - more intereseted in changes that remove global rearrange
+        - expressiveness
+
 TODO: Selected Code Snippets
 TODO: state vars, code reduction para cada case
-
-<!--
-3. **Continuation Passing**
-    The completion of long-lasting activity in a game may have a continuation, 
-    i.e., some action to execute next.
-
-    If the execution flow is dynamic, the program has to tell the activity 
-    where to go when it completes.
-    In Pingus, when the player terminates a level, the game may terminate or
-    return to the main menu, depending on how it was invoked from the command
-    line.
-
-4. **Signaling Mechanisms**
-    Entities often need to communicate explicitly through a signaling 
-    mechanism, especially if there is no hierarchy relationship between them.
-
-    As illustrated in the figure in the right, the clicking the checkbox 
-    toggles the *Mouse Grab* flag.
-    However, at any point in the game (even outside the *Option Menu*), 
-    pressing *Ctrl-G* also toggles the same flag, which should adjust the
-    checkbox accordingly.
-
-5. **Wall-Clock Timers**
-    Wall-clock timers measure the passage of time from the real world
-    (e.g., *10 seconds*) such as for periodic sampling and timeout watchdogs.
-
-    The double click behavior above uses a timeout of 1 second to restart.
-
-6. **Pausing**
-    Pausing allows parts of the game to temporarily suspend execution or
-    reactions to incoming events.
-
-    In Pingus, the player can press a button in the screen to toggle between 
-    pause and resume.
-
-7. **Resource Acquisition and Release**
-    External resources, such as configuration files and saved games,
-    must be acquired and properly released.
-
-    TODO
--->
 
 <a name="finite-state-machines"/>
 
@@ -606,6 +571,7 @@ occurrences to transitions between states and triggering appropriate actions.
 <!--
 The double click behavior for the *Armageddon button* is an example of a simple 
 state machine.
+TODO: Case 3: Sprite Animations
 -->
 
 @SEC[[
@@ -782,10 +748,6 @@ comparison to the implementation in C++:
 
 [cpp-bomber]: https://github.com/Pingus/pingus/blob/v0.7.6/src/pingus/actions/bomber.cpp
 [ceu-bomber]: https://github.com/fsantanna/pingus/blob/ceu/ceu/pingus/actions/bomber.ceu
-
-<!--
-### Sprite Animations
--->
 
 <a name="continuation-passing"/>
 
@@ -1620,11 +1582,38 @@ end
 ## Signaling Mechanisms
 ]]
 
+Entities often need to communicate explicitly through a signaling mechanism, 
+especially if there is no hierarchy relationship between them.
+
+@SEC[[
+### Case Study: The Pingus Container
+]]
+
+<!--
+4. **Signaling Mechanisms**
+    Entities often need to communicate explicitly through a signaling 
+    mechanism, especially if there is no hierarchy relationship between them.
+
+    As illustrated in the figure in the right, the clicking the checkbox 
+    toggles the *Mouse Grab* flag.
+    However, at any point in the game (even outside the *Option Menu*), 
+    pressing *Ctrl-G* also toggles the same flag, which should adjust the
+    checkbox accordingly.
+-->
+
 <a name="wall-clock-timers"/>
 
 @SEC[[
 ## Wall-Clock Timers
 ]]
+
+<!--
+5. **Wall-Clock Timers**
+    Wall-clock timers measure the passage of time from the real world
+    (e.g., *10 seconds*) such as for periodic sampling and timeout watchdogs.
+
+    The double click behavior above uses a timeout of 1 second to restart.
+-->
 
 <a name="pausing"/>
 
@@ -1632,11 +1621,28 @@ end
 ## Pausing
 ]]
 
+<!--
+6. **Pausing**
+    Pausing allows parts of the game to temporarily suspend execution or
+    reactions to incoming events.
+
+    In Pingus, the player can press a button in the screen to toggle between 
+    pause and resume.
+-->
+
 <a name="resource-acquisition-and-release"/>
 
 @SEC[[
 ## Resource Acquisition and Release
 ]]
+
+<!--
+7. **Resource Acquisition and Release**
+    External resources, such as configuration files and saved games,
+    must be acquired and properly released.
+
+    TODO
+-->
 
 # Quantitative Analysis
 
