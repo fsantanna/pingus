@@ -52,6 +52,7 @@ convert -delay 200 -loop 0 *.png state-anim.gif
 :%s/\(\[X]\[[^]]*\]\)/\&#91;\1\&#93;/g
 chico@note:/opt/pingus/ceu$ lua parser.lua README.md > /tmp/README.md
 chico@note:/opt/pingus/ceu$ pandoc /tmp/README.md >README.html 
+key-mon --noshift --noalt
 
 TODO:
     - TARGET AUDIENCE
@@ -155,9 +156,9 @@ TODO:
 35:  }</code></pre>
 <p>The <code>update</code> (ln. 15-27) and <code>on_click</code> (ln. 29-35) are the relevant methods of the class and are examples of <em>short-lived callbacks</em>, which are pieces of code that execute in reaction to external input events. Here, <code>on_click</code> reacts to mouse clicks, which are detected by the base class <code>RectComponent</code> 2, while <code>update</code> continuously reacts to the passage of time. Callbacks are short lived because they must execute as fast as possible to keep the game with real-time responsiveness.</p>
 <div class="images">
-<img src="images/double-click.png" width="550"/> <br> <a href="images/double-click.png"> Figure 2</a>: State machine for the &quot;Armageddon&quot; double click
+<img src="images/double-click.png" width="550"/> <br> <a href="images/double-click.png"> Figure 2</a>: State machine for the <em>Armageddon</em> double click
 </div>
-<p>The class first initializes the variable <code>pressed</code> to track the first click (ln. 4,33). It also initializes the variable <code>press_time</code> to count the time since the first click (ln. 5,18). If another click occurs within 1 second, the class signals the double click to the application 31. Otherwise, the <code>pressed</code> and <code>press_time</code> state variables are reset (ln. 20-21). Figure Figure 2 illustrates how we can model the double-click behavior as a state machine.</p>
+<p>The class first initializes the variable <code>pressed</code> to track the first click (ln. 4,33). It also initializes the variable <code>press_time</code> to count the time since the first click (ln. 5,18). If another click occurs within 1 second, the class signals the double click to the application 31. Otherwise, the <code>pressed</code> and <code>press_time</code> state variables are reset (ln. 20-21). Figure 2 illustrates how we can model the double-click behavior as a state machine.</p>
 <p>However, note how the accesses to these state variables are spread across the entire class. For instance, the distance between the initialization of <code>pressed</code> 4 and the last access to it 33 is over 40 lines in the original file [<a href="https://github.com/Pingus/pingus/blob/v0.7.6/src/pingus/components/action_button.cpp#L33-#L90"><img src="images/link_12.png" alt="X" /></a>]. Arguably, this dispersion of code across methods makes the understanding and maintenance of the double-click behavior more difficult. Also, even though the state variables are private, unrelated methods such as <code>draw</code> (ln. 11-13) can potentially access it.</p>
 <p>Because callbacks are short lived, the only way they can affect each other is by manipulating persisting member variables in the object. These <em>state variables</em> retain their values across multiple invocations, e.g.: <code>on_click</code> writes to <code>pressed</code> in the first click, and checks its state in further clicks (ln. 30,33). In the meantime, <code>update</code> also checks for <code>pressed</code> and may change its state (ln. 17,20).</p>
 <!-- CEU-ARMAGEDDON -->
@@ -272,65 +273,36 @@ Claim: Transactions are the only plausible solution to concurrent mutable state
 </ul>
 <hr />
 <h1 id="qualitative-analysis">Qualitative Analysis</h1>
+<ul>
+<li>why not quantitative?
+<ul>
+<li>focus on how</li>
+<li>not all changes delete code</li>
+<li>more intereseted in changes that remove global rearrange
+<ul>
+<li>expressiveness</li>
+</ul></li>
+</ul></li>
+</ul>
 <p>TODO: Selected Code Snippets TODO: state vars, code reduction para cada case</p>
-<!--
-3. **Continuation Passing**
-    The completion of long-lasting activity in a game may have a continuation, 
-    i.e., some action to execute next.
-
-    If the execution flow is dynamic, the program has to tell the activity 
-    where to go when it completes.
-    In Pingus, when the player terminates a level, the game may terminate or
-    return to the main menu, depending on how it was invoked from the command
-    line.
-
-4. **Signaling Mechanisms**
-    Entities often need to communicate explicitly through a signaling 
-    mechanism, especially if there is no hierarchy relationship between them.
-
-    As illustrated in the figure in the right, the clicking the checkbox 
-    toggles the *Mouse Grab* flag.
-    However, at any point in the game (even outside the *Option Menu*), 
-    pressing *Ctrl-G* also toggles the same flag, which should adjust the
-    checkbox accordingly.
-
-5. **Wall-Clock Timers**
-    Wall-clock timers measure the passage of time from the real world
-    (e.g., *10 seconds*) such as for periodic sampling and timeout watchdogs.
-
-    The double click behavior above uses a timeout of 1 second to restart.
-
-6. **Pausing**
-    Pausing allows parts of the game to temporarily suspend execution or
-    reactions to incoming events.
-
-    In Pingus, the player can press a button in the screen to toggle between 
-    pause and resume.
-
-7. **Resource Acquisition and Release**
-    External resources, such as configuration files and saved games,
-    must be acquired and properly released.
-
-    TODO
--->
-
 <p><a name="finite-state-machines"/></p>
 <h2 id="finite-state-machines">1) Finite State Machines</h2>
 <p>State machines describe the behavior of game entities by mapping event occurrences to transitions between states and triggering appropriate actions. <!--
 The double click behavior for the *Armageddon button* is an example of a simple 
 state machine.
+TODO: Case 3: Sprite Animations
 --></p>
-<h3 id="case-study-the-armageddon-double-click">1.1) Case Study: The &quot;Armageddon&quot; Double Click</h3>
+<h3 id="case-study-the-armageddon-double-click">1.1) Case Study: The <em>Armageddon</em> Double Click</h3>
 <p>See <a href="#warming-up">Warming Up</a>.</p>
-<h3 id="case-study-the-bomber-action">1.2) Case Study: The &quot;Bomber&quot; Action</h3>
+<h3 id="case-study-the-bomber-action">1.2) Case Study: The <em>Bomber</em> Action</h3>
 <div class="images">
-<img src="images/bomber-opt.gif" width="350"/> <br> <a href="images/bomber-opt.gif"> Figure 4</a>: The &quot;Bomber&quot; action
+<img src="images/bomber-opt.gif" width="350"/> <br> <a href="images/bomber-opt.gif"> Figure 4</a>: The <em>Bomber</em> action
 </div>
-<p>The <em>bomber action</em> explodes the clicked pingu, throwing particles around and also destroying the terrain under its radius (Figure Figure 4).</p>
+<p>The <em>bomber action</em> explodes the clicked pingu, throwing particles around and also destroying the terrain under its radius (Figure 4).</p>
 <div class="images">
-<img src="images/state-anim/state-anim.gif" width="550"/> <br> <a href="images/state-anim/state-anim.gif"> Figure 5</a>: State machine for the &quot;Bomber&quot; animation
+<img src="images/state-anim/state-anim.gif" width="550"/> <br> <a href="images/state-anim/state-anim.gif"> Figure 5</a>: State machine for the <em>Bomber</em> animation
 </div>
-<p>A sequential state machine models an animation with actions associated to specific frames (Figure Figure 5) as follows:</p>
+<p>A sequential state machine models an animation with actions associated to specific frames (Figure 5) as follows:</p>
 <ol style="list-style-type: decimal">
 <li>0th frame: plays a &quot;Oh no!&quot; sound.</li>
 <li>10th frame: plays a &quot;Bomb!&quot; sound.</li>
@@ -432,10 +404,6 @@ state machine.
 <li>We use a local and lexically-scoped organism (to be discussed [<a href="#dispatching-hierarchies"><img src="images/link_12.png" alt="X" /></a>]) for the temporary single-frame explosion (ln. 20-24).</li>
 <li>We use auxiliary signaling mechanisms (to be discussed [<a href="#signaling-mechanisms"><img src="images/link_12.png" alt="X" /></a>]) to await the termination of the animation 27 and to notify the application about our own termination.</li>
 </ul>
-<!--
-### Sprite Animations
--->
-
 <p><a name="continuation-passing"/></p>
 <h2 id="continuation-passing">2) Continuation Passing</h2>
 <p>The completion of a long-lasting activity in a game may have a continuation, i.e., some action to execute next.</p>
@@ -457,9 +425,9 @@ more natural structured code with sequences, conditionals, and loops
 
 <h3 id="case-study-story-screen-advancing-pages">2.1) Case Study: Story Screen, Advancing Pages</h3>
 <div class="images">
-<img src="images/story-anim.gif" width="350"/> <br> <a href="images/story-anim.gif"> Figure 6</a>: The &quot;Story&quot; screen
+<img src="images/story-anim.gif" width="350"/> <br> <a href="images/story-anim.gif"> Figure 6</a>: The <em>Story</em> screen
 </div>
-<p>The world map of Pingus has clickable &quot;blue dots&quot; with ambience stories about the game (Figure Figure 6). The words for each story page appears incrementally over time. The first click in the button &quot;&gt;&gt;&gt;&quot; fast forwards the text. The second click advances to the next page until the story terminates. If the page displays completely due to the time elapsing, the first click advances to the next page.</p>
+<p>The world map of Pingus has clickable <em>blue dots</em> with ambience stories about the game (Figure 6). The words for each story page appears incrementally over time. The first click in the button <code>&gt;&gt;&gt;</code> fast forwards the text. The second click advances to the next page until the story terminates. If the page displays completely due to the time elapsing, the first click advances to the next page.</p>
 <!-- CPP-STORY-PAGES -->
 
 <p>The code in C++ [<a href="https://github.com/Pingus/pingus/blob/master/src/pingus/screens/story_screen.cpp#L159"><img src="images/link_12.png" alt="X" /></a>] defines the class <code>StoryScreenComponent</code> with a <code>next_text</code> method to advance the words and pages:</p>
@@ -490,9 +458,9 @@ more natural structured code with sequences, conditionals, and loops
 25:      }
 26:  }</code></pre>
 <div class="images">
-<img src="images/story.png" width="550"/> <br> <a href="images/story.png"> Figure 7</a>: State machine for the &quot;Story&quot; screen
+<img src="images/story.png" width="550"/> <br> <a href="images/story.png"> Figure 7</a>: State machine for the <em>Story</em> screen
 </div>
-<p>The variable <code>pages</code> (ln. 4-5, 17-19) is a vector holding each page and also encodes <em>continuations</em> for the story progress: each call to <code>next_text</code> that advances the story (ln. 16-25) removes a page 17 and sets the next action to perform (display a new page) in the variable <code>current_page</code> 19. Figure Figure 7 illustrates the state machine for fast-forwarding the words inside the dashed rectangle and the continuation mechanism to advance pages. The state variable <code>displayed</code> (ln. 6,13,14,20) switches between the behaviors &quot;advancing text&quot; and &quot;advancing pages&quot; which are mixed inside the method <code>next_text</code>.</p>
+<p>The variable <code>pages</code> (ln. 4-5, 17-19) is a vector holding each page and also encodes <em>continuations</em> for the story progress: each call to <code>next_text</code> that advances the story (ln. 16-25) removes a page 17 and sets the next action to perform (display a new page) in the variable <code>current_page</code> 19. Figure 7 illustrates the state machine for fast-forwarding the words inside the dashed rectangle and the continuation mechanism to advance pages. The state variable <code>displayed</code> (ln. 6,13,14,20) switches between the behaviors &quot;advancing text&quot; and &quot;advancing pages&quot; which are mixed inside the method <code>next_text</code>.</p>
 <!-- CEU-STORY-PAGES -->
 
 <p>The code in Céu [<a href="https://github.com/fsantanna/pingus/blob/ceu/ceu/pingus/screens/story_screen.ceu#L14"><img src="images/link_12.png" alt="X" /></a>] uses a <code>next_text</code> event to advance the words and pages:</p>
@@ -517,12 +485,12 @@ more natural structured code with sequences, conditionals, and loops
 <p>For the sequential navigation from page to page, we use a simple loop (ln. 8,17) instead of an explicit continuation state. While the text advances in an inner loop (hidden in ln. 13), we watch the <code>next_text</code> event to fast forward it. The inner loop may also eventually terminate with the time elapsing. To go to the next page, we simply <code>await next_text</code> again 15. Note that we don't need a variable (such as <code>displayed</code> above) to switch between the states &quot;advancing text&quot; or &quot;advancing pages&quot; which are not mixed in the source code.</p>
 <h3 id="case-study-story-screen-transition-to-credits-screen">2.2) Case Study: Story Screen, Transition to Credits Screen</h3>
 <div class="images">
-<img src="images/credits-anim.gif" width="350"/> <br> <a href="images/credits-anim.gif"> Figure 8</a>: Transition from &quot;Story&quot; to &quot;Credits&quot; screen
+<img src="images/credits-anim.gif" width="350"/> <br> <a href="images/credits-anim.gif"> Figure 8</a>: Transition from <em>Story</em> to <em>Credits</em> screen
 </div>
-<p>The world map has clickable story dots for both introductory and ending stories. For introductory stories, the game returns to the world map after displaying the pages. For ending stories, the game also displays a &quot;Credits&quot; screen before returning to the world map (Figure Figure 8).</p>
+<p>The world map has clickable story dots for both introductory and ending stories. For introductory stories, the game returns to the world map after displaying the pages. For ending stories, the game also displays a <em>Credits</em> screen before returning to the world map (Figure 8).</p>
 <!-- CPP-STORY-CREDITS -->
 
-<p>The <code>StoryDot</code> in C++ [[<img src="images/link_12.png" alt="X" />][cpp-story-dot]] reads the level file to check whether the story should, after termination, display the &quot;Credits&quot; screen or not:</p>
+<p>The <code>StoryDot</code> in C++ [[<img src="images/link_12.png" alt="X" />][cpp-story-dot]] reads the level file to check whether the story should, after termination, display the <em>Credits</em> screen or not:</p>
 <pre><code> 1:  StoryDot::StoryDot(const FileReader&amp; reader) :
  2:      m_credits(false),                           // by default, don&#39;t display
  3:  {
@@ -596,7 +564,7 @@ A <code>do</code> is analogous to a procedure call, holding the current state wh
 <div class="images">
 <img src="images/continuation.png" width="500"/> <br> <a href="images/continuation.png"> Figure 9</a>: Continuation [C++] vs Direct [Céu] Styles
 </div>
-<p>Figure Figure 9 depicts the <em>continuation-passing style</em> of C++ and <em>direct style</em> of Céu for the screen transitions:</p>
+<p>Figure 9 depicts the <em>continuation-passing style</em> of C++ and <em>direct style</em> of Céu for the screen transitions:</p>
 <ol style="list-style-type: decimal">
 <li><code>Main Loop</code> =&gt; <code>Worldmap</code>: C++ uses an explicit stack to push the world map screen; Céu calls the world map screen (with the <code>do</code> notation), expecting a return value;</li>
 <li><code>Worldmap</code> (<em>blue dot click</em>) =&gt; <code>Story</code>: C++ <code>StoryDot</code> pushes the story screen forward, also passing the continuation flag; Céu gets the return value of the <code>Worldmap</code> (i.e., if it should display the <code>Credits</code>) and calls the story screen.</li>
@@ -669,7 +637,7 @@ TODO: falar de broadcast (in Ceu: unless it is paused, all receive always)
 <div class="images">
 <img src="images/hierarchy.png" width="550"/> <br> <a href="images/hierarchy.png"> Figure 10</a>: Dispatching chain for <code>update</code>
 </div>
-<p>However, we have to follow a long chain of 7 dispatches (Figure Figure 10) to understand how the <code>update</code> and <code>draw</code> callbacks flow from the original environment stimulus down to the sprite:</p>
+<p>However, we have to follow a long chain of 7 dispatches (Figure 10) to understand how the <code>update</code> and <code>draw</code> callbacks flow from the original environment stimulus down to the sprite:</p>
 <ol style="list-style-type: decimal">
 <li><code>ScreenManager::display</code> [<a href="https://github.com/Pingus/pingus/blob/v0.7.6/src/engine/screen/screen_manager.cpp#L164"><img src="images/link_12.png" alt="X" /></a>] (the game loop) calls <code>this-&gt;update</code> [<a href="https://github.com/Pingus/pingus/blob/v0.7.6/src/engine/screen/screen_manager.cpp#L218"><img src="images/link_12.png" alt="X" /></a>] (in the same class).</li>
 <li><code>ScreenManager::update</code> [<a href="https://github.com/Pingus/pingus/blob/v0.7.6/src/engine/screen/screen_manager.cpp#L235"><img src="images/link_12.png" alt="X" /></a>] calls <code>last_screen-&gt;update</code> [<a href="https://github.com/Pingus/pingus/blob/v0.7.6/src/engine/screen/screen_manager.cpp#L258"><img src="images/link_12.png" alt="X" /></a>] (the active screen).</li>
@@ -824,7 +792,7 @@ TODO: falar de broadcast (in Ceu: unless it is paused, all receive always)
 <div class="images">
 <img src="images/pool.png" width="400"/> <br> <a href="images/pool.png"> Figure 13</a>: Lifespan of dynamic organisms
 </div>
-<p>Lexical scopes handle memory and dispatching automatically for static organisms and pools. However, the lifespan of a dynamic organism does not necessarily match the lifespan of its corresponding pool (Figure Figure 13). When the execution block of a dynamic organism terminates, which characterizes its <em>natural termination</em>, the organism is automatically removed its pool. Therefore, dynamic organisms don't require any extra bookkeeping related to containers.</p>
+<p>Lexical scopes handle memory and dispatching automatically for static organisms and pools. However, the lifespan of a dynamic organism does not necessarily match the lifespan of its corresponding pool (Figure 13). When the execution block of a dynamic organism terminates, which characterizes its <em>natural termination</em>, the organism is automatically removed its pool. Therefore, dynamic organisms don't require any extra bookkeeping related to containers.</p>
 <p>In Céu, going back to the case of removing a pingu from the game, we just need to terminate its execution block according to the appropriate conditions [<a href="https://github.com/fsantanna/pingus/blob/ceu/ceu/pingus/pingu.ceu#L83"><img src="images/link_12.png" alt="X" /></a>]:</p>
 <pre><code> 1:  class Pingu with
  2:      &lt;...&gt;
@@ -885,12 +853,45 @@ end
 
 <p><a name="signaling-mechanism"/></p>
 <h2 id="signaling-mechanisms">5) Signaling Mechanisms</h2>
+<p>Entities often need to communicate explicitly through a signaling mechanism, especially if there is no hierarchy relationship between them.</p>
+<h3 id="case-study-global-keys-and-the-options-menu">5.1) Case Study: Global Keys and the Options Menu</h3>
+<div class="images">
+<img src="images/options-anim-opt.gif" width="350"/> <br> <a href="images/options-anim-opt.gif"> Figure 14</a>: TODO
+</div>
+<p>In Pingus, the <em>Mouse Grab</em> option restricts the mouse movement to the game window boudaries (Figure 14). The option can be set anywhere in the game by pressing <em>Ctrl-G</em>. Also, the <em>Options</em> menu has a check box to toggle the <em>Mouse Grab</em> option, which has to update automatically on <em>Ctrl-G</em> presses.</p>
+<p>bi-directional dependency</p>
+<p>also toggles the same flag, which should adjust the checkbox accordingly.</p>
 <p><a name="wall-clock-timers"/></p>
 <h2 id="wall-clock-timers">6) Wall-Clock Timers</h2>
+<!--
+5. **Wall-Clock Timers**
+    Wall-clock timers measure the passage of time from the real world
+    (e.g., *10 seconds*) such as for periodic sampling and timeout watchdogs.
+
+    The double click behavior above uses a timeout of 1 second to restart.
+-->
+
 <p><a name="pausing"/></p>
 <h2 id="pausing">7) Pausing</h2>
+<!--
+6. **Pausing**
+    Pausing allows parts of the game to temporarily suspend execution or
+    reactions to incoming events.
+
+    In Pingus, the player can press a button in the screen to toggle between 
+    pause and resume.
+-->
+
 <p><a name="resource-acquisition-and-release"/></p>
 <h2 id="resource-acquisition-and-release">8) Resource Acquisition and Release</h2>
+<!--
+7. **Resource Acquisition and Release**
+    External resources, such as configuration files and saved games,
+    must be acquired and properly released.
+
+    TODO
+-->
+
 <h1 id="quantitative-analysis">Quantitative Analysis</h1>
 <h2 id="code-size">Code Size</h2>
 <h2 id="memory">Memory</h2>

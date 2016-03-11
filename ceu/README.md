@@ -127,6 +127,7 @@ convert -delay 200 -loop 0 *.png state-anim.gif
 :%s/\(\[X]\[[^]]*\]\)/\&#91;\1\&#93;/g
 chico@note:/opt/pingus/ceu$ lua parser.lua README.md > /tmp/README.md
 chico@note:/opt/pingus/ceu$ pandoc /tmp/README.md >README.html 
+key-mon --noshift --noalt
 
 TODO:
     - TARGET AUDIENCE
@@ -274,7 +275,7 @@ Callbacks are short lived because they must execute as fast as possible to keep
 the game with real-time responsiveness.
 
 @FIG_NEW(double-click.png,
-         State machine for the "Armageddon" double click,
+         State machine for the *Armageddon* double click,
          550)
 
 The class first initializes the variable `pressed` to track the first click 
@@ -285,8 +286,8 @@ If another click occurs within 1 second, the class signals the double click to
 the application @NN(armageddon).
 Otherwise, the `pressed` and `press_time` state variables are reset 
 @NN(reset_1,-,reset_2).
-Figure @FIG_REF[[double-click.png]] illustrates how we can model the 
-double-click behavior as a state machine.
+@FIG_REF[[double-click.png]] illustrates how we can model the double-click 
+behavior as a state machine.
 
 However, note how the accesses to these state variables are spread across the 
 entire class.
@@ -575,29 +576,28 @@ TODO: Case 3: Sprite Animations
 -->
 
 @SEC[[
-### Case Study: The "Armageddon" Double Click
+### Case Study: The *Armageddon* Double Click
 ]]
 
 See [Warming Up](#warming-up).
 
 @SEC[[
-### Case Study: The "Bomber" Action
+### Case Study: The *Bomber* Action
 ]]
 
 @FIG_NEW(bomber-opt.gif,
-         The "Bomber" action,
+         The *Bomber* action,
          350)
 
 The *bomber action* explodes the clicked pingu, throwing particles around and 
-also destroying the terrain under its radius (Figure 
-@FIG_REF[[bomber-opt.gif]]).
+also destroying the terrain under its radius (@FIG_REF[[bomber-opt.gif]]).
 
 @FIG_NEW(state-anim/state-anim.gif,
-         State machine for the "Bomber" animation,
+         State machine for the *Bomber* animation,
          550)
 
 A sequential state machine models an animation with actions associated to 
-specific frames (Figure @FIG_REF[[state-anim/state-anim.gif]]) as follows:
+specific frames (@FIG_REF[[state-anim/state-anim.gif]]) as follows:
 
 1. 0th frame: plays a "Oh no!" sound.
 2. 10th frame: plays a "Bomb!" sound.
@@ -778,13 +778,13 @@ more natural structured code with sequences, conditionals, and loops
 ]]
 
 @FIG_NEW(story-anim.gif,
-         The "Story" screen,
+         The *Story* screen,
          350)
 
-The world map of Pingus has clickable "blue dots" with ambience stories about 
-the game (Figure @FIG_REF[[story-anim.gif]]).
+The world map of Pingus has clickable *blue dots* with ambience stories about 
+the game (@FIG_REF[[story-anim.gif]]).
 The words for each story page appears incrementally over time.
-The first click in the button ">>>" fast forwards the text.
+The first click in the button `>>>` fast forwards the text.
 The second click advances to the next page until the story terminates.
 If the page displays completely due to the time elapsing, the first click 
 advances to the next page.
@@ -827,7 +827,7 @@ void StoryScreenComponent::next_text() {
 ]]
 
 @FIG_NEW(story.png,
-         State machine for the "Story" screen,
+         State machine for the *Story* screen,
          550)
 
 The variable `pages` (ln. @N(pages_1)-@N(pages_2), @N(pages_3)-@N(pages_4)) is 
@@ -836,8 +836,8 @@ progress:
 each call to `next_text` that advances the story @NN(adv_1,-,adv_2) removes a 
 page @NN(pages_3) and sets the next action to perform (display a new page) in 
 the variable `current_page` @NN(pages_4).
-Figure @FIG_REF[[story.png]] illustrates the state machine for fast-forwarding 
-the words inside the dashed rectangle and the continuation mechanism to advance 
+@FIG_REF[[story.png]] illustrates the state machine for fast-forwarding the 
+words inside the dashed rectangle and the continuation mechanism to advance 
 pages.
 The state variable `displayed` (ln. @N(dsp_1),@N(dsp_2),@N(dsp_3),@N(dsp_4)) 
 switches between the behaviors "advancing text" and "advancing pages" which are 
@@ -889,20 +889,20 @@ the source code.
 ]]
 
 @FIG_NEW(credits-anim.gif,
-         Transition from "Story" to "Credits" screen,
+         Transition from *Story* to *Credits* screen,
          350)
 
 The world map has clickable story dots for both introductory and ending 
 stories.
 For introductory stories, the game returns to the world map after displaying 
 the pages.
-For ending stories, the game also displays a "Credits" screen before returning 
-to the world map (Figure @FIG_REF[[credits-anim.gif]]).
+For ending stories, the game also displays a *Credits* screen before returning 
+to the world map (@FIG_REF[[credits-anim.gif]]).
 
 <!-- CPP-STORY-CREDITS -->
 
 The `StoryDot` in C++ [[![X]][cpp-story-dot]] reads the level file to check 
-whether the story should, after termination, display the "Credits" screen or 
+whether the story should, after termination, display the *Credits* screen or 
 not:
 
 @CODE_LINES[[
@@ -1019,8 +1019,8 @@ Finally, we check the return values @NN(check) to display the `Credits`
          Continuation [C++] vs Direct [Céu] Styles,
          500)
 
-Figure @FIG_REF[[continuation.png]] depicts the *continuation-passing style* of 
-C++ and *direct style* of Céu for the screen transitions:
+@FIG_REF[[continuation.png]] depicts the *continuation-passing style* of C++ 
+and *direct style* of Céu for the screen transitions:
 
 1. `Main Loop` => `Worldmap`:
     C++ uses an explicit stack to push the world map screen;
@@ -1142,8 +1142,8 @@ The `Sprite` class knows how to update [[![X]][cpp-sprite-update]] and render
          550)
 
 However, we have to follow a long chain of 7 dispatches
-(Figure @FIG_REF[[hierarchy.png]]) to understand how the `update` and `draw` 
-callbacks flow from the original environment stimulus down to the sprite:
+(@FIG_REF[[hierarchy.png]]) to understand how the `update` and `draw` callbacks 
+flow from the original environment stimulus down to the sprite:
 
 1. `ScreenManager::display` [[![X]][cpp-screenmanager-11]]
         (the game loop)
@@ -1481,7 +1481,7 @@ of the program [[![X]][ceu-main-outermost]]).
 Lexical scopes handle memory and dispatching automatically for static organisms 
 and pools.
 However, the lifespan of a dynamic organism does not necessarily match the 
-lifespan of its corresponding pool (Figure @FIG_REF[[pool.png]]).
+lifespan of its corresponding pool (@FIG_REF[[pool.png]]).
 When the execution block of a dynamic organism terminates, which characterizes
 its *natural termination*, the organism is automatically removed its pool.
 Therefore, dynamic organisms don't require any extra bookkeeping related to 
@@ -1586,20 +1586,24 @@ Entities often need to communicate explicitly through a signaling mechanism,
 especially if there is no hierarchy relationship between them.
 
 @SEC[[
-### Case Study: The Pingus Container
+### Case Study: Global Keys and the Options Menu
 ]]
 
-<!--
-4. **Signaling Mechanisms**
-    Entities often need to communicate explicitly through a signaling 
-    mechanism, especially if there is no hierarchy relationship between them.
+@FIG_NEW(options-anim-opt.gif,
+         TODO,
+         350)
 
-    As illustrated in the figure in the right, the clicking the checkbox 
-    toggles the *Mouse Grab* flag.
-    However, at any point in the game (even outside the *Option Menu*), 
-    pressing *Ctrl-G* also toggles the same flag, which should adjust the
-    checkbox accordingly.
--->
+In Pingus, the *Mouse Grab* option restricts the mouse movement to the game 
+window boudaries (@FIG_REF[[options-anim-opt.gif]]).
+The option can be set anywhere in the game by pressing *Ctrl-G*.
+Also, the *Options* menu has a check box to toggle the *Mouse Grab* option, 
+which has to update automatically on *Ctrl-G* presses.
+
+bi-directional dependency
+
+
+ also toggles the same flag, which should adjust the
+checkbox accordingly.
 
 <a name="wall-clock-timers"/>
 
