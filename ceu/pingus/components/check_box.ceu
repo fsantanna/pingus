@@ -17,16 +17,18 @@ do
     end;
 
     loop do
-        if this.is_on then
-            var Sprite _ = Sprite.build_name(&rect, "core/menu/checkbox_marked_small");
-            await component.on_primary_button_pressed;
-            is_on = false;
-        else
-            var Sprite _ = Sprite.build_name(&rect, "core/menu/checkbox_small");
-            await component.on_primary_button_pressed;
-            is_on = true;
+        watching is_on in this.ok_clicked do
+            if this.is_on then
+                var Sprite _ = Sprite.build_name(&rect, "core/menu/checkbox_marked_small");
+                await component.on_primary_button_pressed;
+                is_on = false;
+            else
+                var Sprite _ = Sprite.build_name(&rect, "core/menu/checkbox_small");
+                await component.on_primary_button_pressed;
+                is_on = true;
+            end
+            emit ok_clicked => is_on;
         end
-        emit ok_clicked => is_on;
     end
 end
 

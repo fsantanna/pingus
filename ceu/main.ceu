@@ -172,6 +172,8 @@ interface Global with
     event (float,float)             go_create_pingu_particles;
     event (float,float,float,float) go_create_smoke_particles;
 
+    event void go_toggle_mouse_grab;
+
     var IWorldMap&&? worldmap;
     var IWorld&&? world;
     var float gravity;
@@ -188,16 +190,20 @@ event int  ok_pingu;
 event (float,float,s8,int)      go_create_pingu;
 event (float,float)             go_create_pingu_particles;
 event (float,float,float,float) go_create_smoke_particles;
-var char[] worldmap_return_filename;
+
+event void go_toggle_mouse_grab;
 
 var IWorldMap&&? worldmap;
 var IWorld&&? world;
 var float gravity = 0.2;
 var Vector2i offset = Vector2i(0,0);
 
+var char[] worldmap_return_filename;
+
 event bool go_pause;
 
 #include "engine/input/sdl_driver.ceu"
+#include "pingus/global_event.ceu"
 #include "pingus/fps_counter.ceu"
 #include "pingus/worldmap/worldmap_screen.ceu"
 #include "pingus/screens/credits.ceu"
@@ -241,7 +247,8 @@ native/pre do
     static CommandLineOptions cmd;
 end
 
-var SDL_Driver _;
+var SDL_Driver  _;
+var GlobalEvent _;
 
 var _CommandLineOptions&& cmd = await MAIN;
 _cmd = *cmd;
