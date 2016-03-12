@@ -1604,7 +1604,7 @@ which has to update automatically on *Ctrl-G* presses.
 
 <!-- GLOBAL_EVENT -->
 
-First, let's compare the `GlobalEvent` classes to detect the *Ctrl-G* in
+First, let's compare the `GlobalEvent` classes to detect *Ctrl-G* presses in
 C++ [[![X]][cpp-global_event]]
 and
 Céu [[![X]][ceu-global_event]]:
@@ -1646,28 +1646,30 @@ end
 ```
 ]]
 
-@[[ CODE2N_RESET = true ]]
-
-The implementations are similar, i.e., just standard event handling to detect 
-the key press.
+The implementations are similar, i.e., standard event handling to detect the 
+key press.
 The difference is that
 C++ executes a method in `config_manager` @NN(ctrl_g_cpp)
 while
 Céu emits the global event `go_toggle_mouse_grab` @NN(ctrl_g_ceu).
-The `event` keyword declares an internal event which applications can `emit` 
-and `await`.
+The `event` keyword @NN(go_toggle_mouse_grab) declares an internal event which 
+applications can `emit` and `await`.
 
+<div class="box">
 Internal events are TODO. stack vs queue
+</div>
 
 <!-- CONFIG_MANAGER -->
 
-The `ConfigManager` class in C++ [[![X]][cpp-config_manager]] uses a 
-`boost::signal` [[![X]][boost-signal]] which serves the same purpose of 
-internal events in Céu:
+The `ConfigManager` class manages all game configuration properties such as the 
+*Mouse Grab* option.
+
+The implementation in C++ [[![X]][cpp-config_manager]] uses a `boost::signal` 
+[[![X]][boost-signal]] which serves the same purpose of internal events in Céu:
 
 @CODE_LINES[[
 ```
-boost::signals2::signal<void(bool)> on_mouse_grab_change;   // definition in `config_manager.h`
+boost::signals2::signal<void(bool)> on_mouse_grab_change;   // definition in `config_manager.h` @singal_def
 
 void ConfigManager::set_mouse_grab (bool v) {   @set_mouse_grab
     <...>
@@ -1697,21 +1699,20 @@ end
 ```
 ]]
 
-The `GlobalEvent` and `ConfigManager` classes handle the case of TODO.
-They also prepare the broadcast for the check box in the *Option* menu via the 
-`xxx` and `yyy` TODO.
+The `GlobalEvent` and `ConfigManager` classes handle the simpler case of 
+setting the *grab* option.
+They also broadcast changes through `on_mouse_grab_change` and 
+`go_toggle_mouse_grab` so that the check box in the *Option* menu can 
+reconfigure itself.
 
 <!-- OPTION_MENU -->
 
-The `OptionMenu` class TODO
-C++ [[![X]][cpp-option_menu]]
-and
-Céu [[![X]][ceu-option_menu]]:
+The `OptionMenu` in C++ [[![X]][cpp-option_menu]] is as follows:
 
 @CODE_LINES[[
 ```
-typedef std::vector<boost::signals2::connection> Connections;
-Connections connections;
+typedef std::vector<boost::signals2::connection> Connections;   // definition in `option_menu.hpp`
+Connections connections;                                        // definition in `option_menu.hpp`
 
 OptionMenu::OptionMenu() :
     connections(),
@@ -1719,22 +1720,17 @@ OptionMenu::OptionMenu() :
     <...>
 {
     mousegrab_box = new CheckBox(<...>);
-    connections.push_back(
-        mousegrab_box->on_change.connect(
-            std::bind(&OptionMenu::on_mousegrab_change, <...>)
-        )
-    )
-    mousegrab_box->set_state(config_manager.get_mouse_grab(), <...>);
-    connections.push_back(
+    connections.push_back(                              @bind_11
         config_manager.on_mouse_grab_change.connect(
             std::bind(&CheckBox::set_state, mousegrab_box, <...>, false);
-    );
+    );                                                  @bind_12
+    connections.push_back(                              @bind_21
+        mousegrab_box->on_change.connect(
+            std::bind(&ConfigManager::set_mouse_grab, &config_manager, <...>);
+        )
+    );                                                  @bind_22
     <...>
 
-}
-
-void OptionMenu::on_mousegrab_change(bool v) {
-  config_manager.set_mouse_grab(v);
 }
 
 OptionMenu::~OptionMenu() {
@@ -1745,21 +1741,34 @@ OptionMenu::~OptionMenu() {
 ```
 ]]
 
+The constructor binds
+the signal `config.on_mouse_grab_change` to the callback method
+           `mousegrab_box->set_state`
+           @NN(bind_11,-,bind_22),
+and also
+the signal `mousegrab_box->on_change` to the callback method
+           `config_manager.set_mouse_grab`
+           @NN(bind_11,-,bind_22).
+This way, every time the `ConfigManager` signals `on_mouse_grab_change` (ln.  
+@N(signal) of that class), `set_state` is implicitly called.
+The same XXX happens between YYY and ZZZ.
+
+The `OptionMenu` in Céu [[![X]][ceu-option_menu]]:
+
 @CODE_LINES[[
 ```
 class OptionMenu with
 do
     <...>
-    var CheckBox b2 = CheckBox.build(r21, _config_manager.get_mouse_grab());
-    spawn do
-        loop do
-            watching global:go_toggle_mouse_grab do
-                every v in b2.ok_clicked do
-                    emit global:go_toggle_mouse_grab;
-                end
+    var CheckBox b2 = <...>;
+    <...>
+    loop do
+        watching global:go_toggle_mouse_grab do
+            every v in b2.ok_clicked do
+                emit global:go_toggle_mouse_grab;
             end
-            emit b2.ok_clicked => not b2.is_on;
         end
+        emit b2.ok_clicked => not b2.is_on;
     end
 end
 ```
@@ -1825,6 +1834,8 @@ TODO: `if` required
 [ceu-option_menu]:https://github.com/fsantanna/pingus/blob/ceu/ceu/pingus/screens/option_menu.ceu#L26
 [cpp-check_box]:https://github.com/Pingus/pingus/blob/v0.7.6/src/pingus/components/choice_box.cpp#L54
 [ceu-check_box]:https://github.com/fsantanna/pingus/blob/ceu/ceu/pingus/components/check_box.ceu#L4
+
+@[[ CODE2N_RESET = true ]]
 
 <a name="wall-clock-timers"/>
 

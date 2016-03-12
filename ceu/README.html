@@ -861,7 +861,7 @@ end
 <p>In Pingus, the <em>Mouse Grab</em> option restricts the mouse movement to the game window boudaries (Figure 14). The option can be set anywhere in the game by pressing <em>Ctrl-G</em>. Also, the <em>Options</em> menu has a check box to toggle the <em>Mouse Grab</em> option, which has to update automatically on <em>Ctrl-G</em> presses.</p>
 <!-- GLOBAL_EVENT -->
 
-<p>First, let's compare the <code>GlobalEvent</code> classes to detect the <em>Ctrl-G</em> in C++ [<a href="https://github.com/Pingus/pingus/blob/v0.7.6/src/pingus/global_event.cpp#L34"><img src="images/link_12.png" alt="X" /></a>] and Céu [<a href="https://github.com/fsantanna/pingus/blob/ceu/ceu/pingus/global_event.ceu#L4"><img src="images/link_12.png" alt="X" /></a>]:</p>
+<p>First, let's compare the <code>GlobalEvent</code> classes to detect <em>Ctrl-G</em> presses in C++ [<a href="https://github.com/Pingus/pingus/blob/v0.7.6/src/pingus/global_event.cpp#L34"><img src="images/link_12.png" alt="X" /></a>] and Céu [<a href="https://github.com/fsantanna/pingus/blob/ceu/ceu/pingus/global_event.ceu#L4"><img src="images/link_12.png" alt="X" /></a>]:</p>
 <pre><code> 1:  void GlobalEvent::on_button_press (const SDL_KeyboardEvent&amp; event) {
  2:      &lt;...&gt;
  3:      switch (event.keysym.sym) {
@@ -887,11 +887,14 @@ end
 12:          &lt;...&gt;
 13:      end
 14:  end</code></pre>
-<p>The implementations are similar, i.e., just standard event handling to detect the key press. The difference is that C++ executes a method in <code>config_manager</code> (ln. 6) while Céu emits the global event <code>go_toggle_mouse_grab</code> (ln. 9). The <code>event</code> keyword declares an internal event which applications can <code>emit</code> and <code>await</code>.</p>
-<p>Internal events are TODO. stack vs queue</p>
+<p>The implementations are similar, i.e., standard event handling to detect the key press. The difference is that C++ executes a method in <code>config_manager</code> (ln. 6) while Céu emits the global event <code>go_toggle_mouse_grab</code> (ln. 9). The <code>event</code> keyword (ln. 1) declares an internal event which applications can <code>emit</code> and <code>await</code>.</p>
+<div class="box">
+Internal events are TODO. stack vs queue
+</div>
 <!-- CONFIG_MANAGER -->
 
-<p>The <code>ConfigManager</code> class in C++ [<a href="https://github.com/Pingus/pingus/blob/v0.7.6/src/pingus/config_manager.cpp#L182"><img src="images/link_12.png" alt="X" /></a>] uses a <code>boost::signal</code> [<a href="http://www.boost.org/doc/libs/1_60_0/doc/html/signals2.html"><img src="images/link_12.png" alt="X" /></a>] which serves the same purpose of internal events in Céu:</p>
+<p>The <code>ConfigManager</code> class manages all game configuration properties such as the <em>Mouse Grab</em> option.</p>
+<p>The implementation in C++ [<a href="https://github.com/Pingus/pingus/blob/v0.7.6/src/pingus/config_manager.cpp#L182"><img src="images/link_12.png" alt="X" /></a>] uses a <code>boost::signal</code> [<a href="http://www.boost.org/doc/libs/1_60_0/doc/html/signals2.html"><img src="images/link_12.png" alt="X" /></a>] which serves the same purpose of internal events in Céu:</p>
 <pre><code> 1:  boost::signals2::signal&lt;void(bool)&gt; on_mouse_grab_change;   // definition in `config_manager.h`
  2:  
  3:  void ConfigManager::set_mouse_grab (bool v) {
@@ -909,12 +912,12 @@ end
  4:          &lt;...&gt;   // the actual &quot;grab&quot; effect
  5:      end
  6:  end</code></pre>
-<p>The <code>GlobalEvent</code> and <code>ConfigManager</code> classes handle the case of TODO. They also prepare the broadcast for the check box in the <em>Option</em> menu via the <code>xxx</code> and <code>yyy</code> TODO.</p>
+<p>The <code>GlobalEvent</code> and <code>ConfigManager</code> classes handle the simpler case of setting the <em>grab</em> option. They also broadcast changes through <code>on_mouse_grab_change</code> and <code>go_toggle_mouse_grab</code> so that the check box in the <em>Option</em> menu can reconfigure itself.</p>
 <!-- OPTION_MENU -->
 
-<p>The <code>OptionMenu</code> class TODO C++ [<a href="https://github.com/Pingus/pingus/blob/v0.7.6/src/pingus/screens/option_menu.cpp#L79"><img src="images/link_12.png" alt="X" /></a>] and Céu [<a href="https://github.com/fsantanna/pingus/blob/ceu/ceu/pingus/screens/option_menu.ceu#L26"><img src="images/link_12.png" alt="X" /></a>]:</p>
-<pre><code> 1:  typedef std::vector&lt;boost::signals2::connection&gt; Connections;
- 2:  Connections connections;
+<p>The <code>OptionMenu</code> in C++ [<a href="https://github.com/Pingus/pingus/blob/v0.7.6/src/pingus/screens/option_menu.cpp#L79"><img src="images/link_12.png" alt="X" /></a>] is as follows:</p>
+<pre><code> 1:  typedef std::vector&lt;boost::signals2::connection&gt; Connections;   // definition in `option_menu.hpp`
+ 2:  Connections connections;                                        // definition in `option_menu.hpp`
  3:  
  4:  OptionMenu::OptionMenu() :
  5:      connections(),
@@ -923,43 +926,39 @@ end
  8:  {
  9:      mousegrab_box = new CheckBox(&lt;...&gt;);
 10:      connections.push_back(
-11:          mousegrab_box-&gt;on_change.connect(
-12:              std::bind(&amp;OptionMenu::on_mousegrab_change, &lt;...&gt;)
-13:          )
-14:      )
-15:      mousegrab_box-&gt;set_state(config_manager.get_mouse_grab(), &lt;...&gt;);
-16:      connections.push_back(
-17:          config_manager.on_mouse_grab_change.connect(
-18:              std::bind(&amp;CheckBox::set_state, mousegrab_box, &lt;...&gt;, false);
-19:      );
-20:      &lt;...&gt;
-21:  
-22:  }
-23:  
-24:  void OptionMenu::on_mousegrab_change(bool v) {
-25:    config_manager.set_mouse_grab(v);
-26:  }
-27:  
-28:  OptionMenu::~OptionMenu() {
-29:      for (Connections::iterator i=connections.begin(); i!=connections.end(); ++i) {
-30:          (*i).disconnect();
-31:      }
-32:  }</code></pre>
+11:          config_manager.on_mouse_grab_change.connect(
+12:              std::bind(&amp;CheckBox::set_state, mousegrab_box, &lt;...&gt;, false);
+13:      );
+14:      connections.push_back(
+15:          mousegrab_box-&gt;on_change.connect(
+16:              std::bind(&amp;ConfigManager::set_mouse_grab, &amp;config_manager, &lt;...&gt;);
+17:          )
+18:      );
+19:      &lt;...&gt;
+20:  
+21:  }
+22:  
+23:  OptionMenu::~OptionMenu() {
+24:      for (Connections::iterator i=connections.begin(); i!=connections.end(); ++i) {
+25:          (*i).disconnect();
+26:      }
+27:  }</code></pre>
+<p>The constructor binds the signal <code>config.on_mouse_grab_change</code> to the callback method <code>mousegrab_box-&gt;set_state</code> (ln. 10-18), and also the signal <code>mousegrab_box-&gt;on_change</code> to the callback method <code>config_manager.set_mouse_grab</code> (ln. 10-18). This way, every time the <code>ConfigManager</code> signals <code>on_mouse_grab_change</code> (ln.<br />7 of that class), <code>set_state</code> is implicitly called. The same XXX happens between YYY and ZZZ.</p>
+<p>The <code>OptionMenu</code> in Céu [<a href="https://github.com/fsantanna/pingus/blob/ceu/ceu/pingus/screens/option_menu.ceu#L26"><img src="images/link_12.png" alt="X" /></a>]:</p>
 <pre><code> 1:  class OptionMenu with
  2:  do
  3:      &lt;...&gt;
- 4:      var CheckBox b2 = CheckBox.build(r21, _config_manager.get_mouse_grab());
- 5:      spawn do
- 6:          loop do
- 7:              watching global:go_toggle_mouse_grab do
- 8:                  every v in b2.ok_clicked do
- 9:                      emit global:go_toggle_mouse_grab;
-10:                  end
-11:              end
-12:              emit b2.ok_clicked =&gt; not b2.is_on;
-13:          end
-14:      end
-15:  end</code></pre>
+ 4:      var CheckBox b2 = &lt;...&gt;;
+ 5:      &lt;...&gt;
+ 6:      loop do
+ 7:          watching global:go_toggle_mouse_grab do
+ 8:              every v in b2.ok_clicked do
+ 9:                  emit global:go_toggle_mouse_grab;
+10:              end
+11:          end
+12:          emit b2.ok_clicked =&gt; not b2.is_on;
+13:      end
+14:  end</code></pre>
 <!-- CHECK_BOX.CEU -->
 
 <p>The <code>CheckBox</code> class TODO C++ [<a href="https://github.com/Pingus/pingus/blob/v0.7.6/src/pingus/components/choice_box.cpp#L54"><img src="images/link_12.png" alt="X" /></a>] and Céu [<a href="https://github.com/fsantanna/pingus/blob/ceu/ceu/pingus/components/check_box.ceu#L4"><img src="images/link_12.png" alt="X" /></a>]:</p>
