@@ -17,6 +17,10 @@ do
     end;
 
     par do
+        every component.on_primary_button_pressed do
+            emit go_click => not this.is_on;
+        end
+    with
         loop do
             var char[] file;
             if this.is_on then
@@ -26,10 +30,6 @@ do
             end
             var Sprite _ = Sprite.build_name(&rect, (char&&)&&file);
             this.is_on = await this.go_click;
-        end
-    with
-        every component.on_primary_button_pressed do
-            emit go_click => not is_on;
         end
     end
 end

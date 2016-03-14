@@ -63,12 +63,12 @@ do
     var Label _ = Label.build("Mouse Grab", r22);
     spawn do
         par do
-            every v in b2.go_click do
-                emit config_manager.go_mouse_grab => v;
-            end
-        with
             every v in config_manager.go_mouse_grab do
                 emit b2.go_click => v;
+            end
+        with
+            every v in b2.go_click do
+                emit config_manager.go_mouse_grab => v;
             end
         end
     end
