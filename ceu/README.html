@@ -38,6 +38,11 @@ On Rewriting Pingus from C++ to Céu
             display: inline-block;
             width: 400px;
         }
+        div.summary {
+            background-color: #FFCCCC;
+            border: 1px solid black;
+            padding: 5px;
+        }
     </style>
 
 
@@ -244,14 +249,38 @@ Claim: Transactions are the only plausible solution to concurrent mutable state
 <p>We identified eight control-flow patterns in Pingus which we discuss further along with in-depth examples:</p>
 <p><a name="finite-state-machines"/></p>
 <ol style="list-style-type: decimal">
-<li><p><a href="#finite-state-machines"><strong>Finite State Machines</strong></a>: State machines describe the behavior of game entities by mapping event occurrences to transitions between states and triggering appropriate actions.</p></li>
-<li><p><a href="#continuation-passing"><strong>Continuation Passing</strong></a>: The completion of a long-lasting activity in a game may have a continuation, i.e., some action to execute next.</p></li>
-<li><p><a href="#dispatching-hierarchies"><strong>Dispatching Hierarchies</strong></a>: Some entities in games manage other child entities, resulting in dispatching hierarchies for event forwarding.</p></li>
-<li><p><a href="#containers-and-lifespan"><strong>Containers and Lifespan</strong></a>: Similarly to <em>dispatching hierarchies</em>, some entities control the lifespan of other child entities, resulting in dynamic and explicit allocation and deallocation of objects.</p></li>
-<li><p><a href="#signaling-mechanism"><strong>Signaling Mechanisms</strong></a>: Entities often need to communicate explicitly through a signaling mechanism, especially if there is no hierarchy relationship between them.</p></li>
-<li><p><a href="#wall-clock-timers"><strong>Wall-Clock Timers</strong></a>: Wall-clock timers measure the passage of time from the real world (e.g., <em>10 seconds</em>) such as for periodic sampling and timeout watchdogs.</p></li>
-<li><p><a href="#pausing"><strong>Pausing</strong></a>: Pausing allows parts of the game to temporarily suspend execution or reactions to incoming events.</p></li>
-<li><p><a href="#resource-acquisition-and-release"><strong>Resource Acquisition and Release</strong></a>: External resources, such as configuration files and saved games, must be acquired and properly released.</p></li>
+<li><a href="#finite-state-machines"><strong>Finite State Machines</strong></a>: State machines describe the behavior of game entities by mapping event occurrences to transitions between states and triggering appropriate actions.
+<ul>
+<li>[ <a href="#finite-state-machines-1">case 1</a> | [ <a href="#finite-state-machines-2">case 2</a> | <a href="#finite-state-machines-summary">summary</a> ]</li>
+</ul></li>
+<li><a href="#continuation-passing"><strong>Continuation Passing</strong></a>: The completion of a long-lasting activity in a game may have a continuation, i.e., some action to execute next.
+<ul>
+<li>[ <a href="#continuation-passing-1">case 1</a> | [ <a href="#continuation-passing-2">case 2</a> | <a href="#continuation-passing-summary">summary</a> ]</li>
+</ul></li>
+<li><a href="#dispatching-hierarchies"><strong>Dispatching Hierarchies</strong></a>: Some entities in games manage other child entities, resulting in dispatching hierarchies for event forwarding.
+<ul>
+<li>[ <a href="#dispatching-hierarchies-1">case 1</a> | <a href="#dispatching-hierarchies-summary">summary</a> ]</li>
+</ul></li>
+<li><a href="#containers-and-lifespan"><strong>Containers and Lifespan</strong></a>: Similarly to <em>dispatching hierarchies</em>, some entities control the lifespan of other child entities, resulting in dynamic and explicit allocation and deallocation of objects.
+<ul>
+<li>[ <a href="#containers-and-lifespan-1">case 1</a> | [ <a href="#containers-and-lifespan-2">case 2</a> | <a href="#containers-and-lifespan-summary">summary</a> ]</li>
+</ul></li>
+<li><a href="#signaling-mechanism"><strong>Signaling Mechanisms</strong></a>: Entities often need to communicate explicitly through a signaling mechanism, especially if there is no hierarchy relationship between them.
+<ul>
+<li>[ <a href="#signaling-mechanism-1">case 1</a> | <a href="#signaling-mechanism-summary">summary</a> ]</li>
+</ul></li>
+<li><a href="#wall-clock-timers"><strong>Wall-Clock Timers</strong></a>: Wall-clock timers measure the passage of time from the real world (e.g., <em>10 seconds</em>) such as for periodic sampling and timeout watchdogs.
+<ul>
+<li>[ <a href="#wall-clock-timers-summary">summary</a> ]</li>
+</ul></li>
+<li><a href="#pausing"><strong>Pausing</strong></a>: Pausing allows parts of the game to temporarily suspend execution or reactions to incoming events.
+<ul>
+<li>[ <a href="#pausing-summary">summary</a> ]</li>
+</ul></li>
+<li><a href="#resource-acquisition-and-release"><strong>Resource Acquisition and Release</strong></a>: External resources, such as configuration files and saved games, must be acquired and properly released.
+<ul>
+<li>[ <a href="#resource-acquisition-and-release-summary">summary</a> ]</li>
+</ul></li>
 </ol>
 <!-- TODO: are these terms and explanations symmetric? -->
 
@@ -292,8 +321,10 @@ The double click behavior for the *Armageddon button* is an example of a simple
 state machine.
 TODO: Case 3: Sprite Animations
 --></p>
+<p><a name="finite-state-machines-1"/></p>
 <h3 id="case-study-the-armageddon-double-click">1.1) Case Study: The <em>Armageddon</em> Double Click</h3>
 <p>See <a href="#warming-up">Warming Up</a>.</p>
+<p><a name="finite-state-machines-2"/></p>
 <h3 id="case-study-the-bomber-action">1.2) Case Study: The <em>Bomber</em> Action</h3>
 <div class="images">
 <img src="images/bomber-opt.gif" width="350"/> <br> <a href="images/bomber-opt.gif"> Figure 4</a>: The <em>Bomber</em> action
@@ -363,7 +394,7 @@ TODO: Case 3: Sprite Animations
 49:  }</code></pre>
 <p>The class defines one state variable for each action to perform (ln. 3-6). The &quot;Oh no!&quot; sound plays as soon as the object starts in <em>state-1</em> (ln. 10). The <code>update</code> callbacks update the animation sprite and moves the pingu every frame (ln. 15-16), regardless of the current state. When the animation reaches the 10th frame, it plays the &quot;Bomb!&quot; if it hasn't yet (ln. 19-22), going to <em>state-2</em>. The <code>sound_played</code> state variable is required because the sprite frame doesn't necessarily advance on every <code>update</code> invocation. The same reasoning and technique applies to the <em>state-3</em> (ln. 25-33) and (ln. 44-45). The explosion sprite appears in a single frame in <em>state-4</em> (ln. 46). Finally, the pingu dies after the animation frames terminate (ln. 36-37).</p>
 <p>Note that a single numeric state variable would suffice to track the states. Probably, the authors chose to encode each state in an independent boolean variable to rearrange and experiment with them during the development.</p>
-<p>However, due to the short-lived nature of callbacks, state variables are unavoidable, being part of the essence of object-oriented programming (methods + mutable state).</p>
+<p>However, due to the short-lived nature of callbacks, state variables are unavoidable, being part of the essence of object-oriented programming (i.e., <em>methods + mutable state</em>).</p>
 <p><a name="bomber"/></p>
 <p>The implementation in Céu doesn't require explicit state variables and more closely reflects in the source code the sequential state machine:</p>
 <pre><code> 1:  class Bomber with
@@ -396,14 +427,16 @@ TODO: Case 3: Sprite Animations
 28:          escape {ActionName::DEAD};
 29:      end
 30:  end</code></pre>
-<p>Considering the implementation in Céu, we can highlight some benefits in comparison to the implementation in C++:</p>
+<p>Note how we isolate unrelated behaviors to the animation, such as the pingu movement (ln. 6), in a parallel line of execution. Note also that we use a local and lexically-scoped organism (to be discussed [<a href="#dispatching-hierarchies"><img src="images/link_12.png" alt="X" /></a>]) for the temporary single-frame explosion (ln. 20-24). Finally, we use auxiliary signaling mechanisms (to be discussed [<a href="#signaling-mechanisms"><img src="images/link_12.png" alt="X" /></a>]) to await the termination of the animation (ln. 27) and to notify the application about our own termination.</p>
+<p><a name="finite-state-machines-summary"/> <br/></p>
+<div class="summary">
+<p><strong>Summary</strong>:</p>
+<p>Structured state machines in Céu provide some advantages in comparison to explicit state machines in C++:</p>
 <ul>
-<li>We encode all states implicitly, relying on the natural sequential flow of execution.</li>
-<li>We handle all states (and only them) in the same contiguous block of code.</li>
-<li>We isolate unrelated behaviors to the animation, such as the pingu movement (ln. 6), in a parallel line of execution.</li>
-<li>We use a local and lexically-scoped organism (to be discussed [<a href="#dispatching-hierarchies"><img src="images/link_12.png" alt="X" /></a>]) for the temporary single-frame explosion (ln. 20-24).</li>
-<li>We use auxiliary signaling mechanisms (to be discussed [<a href="#signaling-mechanisms"><img src="images/link_12.png" alt="X" /></a>]) to await the termination of the animation (ln. 27) and to notify the application about our own termination.</li>
+<li>They encode all states implicitly, not requiring state variables.</li>
+<li>They handle all states (and only them) in the same contiguous block of code, increasing the behavior encapsulation.</li>
 </ul>
+</div>
 <p><a name="continuation-passing"/></p>
 <h2 id="continuation-passing">2) Continuation Passing</h2>
 <p>The completion of a long-lasting activity in a game may have a continuation, i.e., some action to execute next.</p>
@@ -422,7 +455,7 @@ state passes to the current state what will be the next state.
 more natural structured code with sequences, conditionals, and loops
 -->
 
-
+<p><a name="continuation-passing-1"/></p>
 <h3 id="case-study-story-screen-advancing-pages">2.1) Case Study: Story Screen, Advancing Pages</h3>
 <div class="images">
 <img src="images/story-anim.gif" width="350"/> <br> <a href="images/story-anim.gif"> Figure 6</a>: The <em>Story</em> screen
@@ -483,6 +516,7 @@ more natural structured code with sequences, conditionals, and loops
 17:      end
 18:  end</code></pre>
 <p>For the sequential navigation from page to page, we use a simple loop (ln. 8,17) instead of an explicit continuation state. While the text advances in an inner loop (hidden in ln. 13), we watch the <code>next_text</code> event to fast forward it. The inner loop may also eventually terminate with the time elapsing. To go to the next page, we simply <code>await next_text</code> again (ln. 15). Note that we don't need a variable (such as <code>displayed</code> above) to switch between the states &quot;advancing text&quot; or &quot;advancing pages&quot; which are not mixed in the source code.</p>
+<p><a name="continuation-passing-2"/></p>
 <h3 id="case-study-story-screen-transition-to-credits-screen">2.2) Case Study: Story Screen, Transition to Credits Screen</h3>
 <div class="images">
 <img src="images/credits-anim.gif" width="350"/> <br> <a href="images/credits-anim.gif"> Figure 8</a>: Transition from <em>Story</em> to <em>Credits</em> screen
@@ -490,7 +524,7 @@ more natural structured code with sequences, conditionals, and loops
 <p>The world map has clickable story dots for both introductory and ending stories. For introductory stories, the game returns to the world map after displaying the pages. For ending stories, the game also displays a <em>Credits</em> screen before returning to the world map (Figure 8).</p>
 <!-- CPP-STORY-CREDITS -->
 
-<p>The <code>StoryDot</code> in C++ [[<img src="images/link_12.png" alt="X" />][cpp-story-dot]] reads the level file to check whether the story should, after termination, display the <em>Credits</em> screen or not:</p>
+<p>The <code>StoryDot</code> in C++ [<a href="https://github.com/Pingus/pingus/blob/v0.7.6/src/pingus/worldmap/story_dot.cpp#L31"><img src="images/link_12.png" alt="X" /></a>] reads the level file to check whether the story should, after termination, display the <em>Credits</em> screen or not:</p>
 <pre><code> 1:  StoryDot::StoryDot(const FileReader&amp; reader) :
  2:      m_credits(false),                           // by default, don&#39;t display
  3:  {
@@ -571,12 +605,7 @@ A <code>do</code> is analogous to a procedure call, holding the current state wh
 <li><code>Story</code> =&gt; <code>Credits</code>: C++ <code>Story</code> replaces the current screen with the <em>Credits</em> screen. Céu calls the <em>Credits</em> screen after the <code>do Story</code> returns.</li>
 <li><code>Credits</code> =&gt; <code>Worldmap</code>: C++ pops the <em>Credits</em> screen, going back to the <em>World Map</em> screen. Céu uses an enclosing <code>loop</code> to restart the process.</li>
 </ol>
-<p>The direct style of Céu has some advantages:</p>
-<ul>
-<li>It uses structured control flow (i.e., sequences and loops) instead of an explicit stack and a continuation variable.</li>
-<li>The screens are decoupled from one another, i.e., the <code>Worldmap</code> has no references to <code>Story</code>, which has no references to <code>Credits</code>.</li>
-<li>The flow between the screens is self-contained in a single loop instead of spread across multiple classes.</li>
-</ul>
+<p>In contrast to C++, the screens Céu are decoupled and only the <code>Main Loop</code> touches them: the <code>Worldmap</code> has no references to <code>Story</code>, which has no references to <code>Credits</code>.</p>
 <!--
 TODO:
 - always forward, no returns
@@ -584,6 +613,16 @@ TODO:
 "nowhere to return"
 -->
 
+<p><a name="continuation-passing-summary"/> <br/></p>
+<div class="summary">
+<p><strong>Summary</strong>:</p>
+<p>The direct style of Céu has some advantages in comparison to the continuation-passing style of C++:</p>
+<ul>
+<li>It uses structured control flow (i.e., sequences and loops) instead of explicit data structures (e.g., stacks) or continuation variables.</li>
+<li>The activities are decoupled from one another, i.e., they do not hold references to one another.</li>
+<li>A single parent class describes the flow between the activities in a self-contained block of code (instead of being spread among the activity classes).</li>
+</ul>
+</div>
 <p><a name="dispatching-hierarchies"/></p>
 <h2 id="dispatching-hierarchies">3) Dispatching Hierarchies</h2>
 <p>Some entities in games manage other child entities, resulting in dispatching hierarchies for event forwarding.</p>
@@ -604,7 +643,7 @@ TODO: falar de broadcast (in Ceu: unless it is paused, all receive always)
     the buttons.
 -->
 
-
+<p><a name="dispatching-hierarchies-1"/></p>
 <h3 id="case-study-bomber-draw-and-update-callbacks">3.1) Case Study: Bomber <code>draw</code> and <code>update</code> callbacks</h3>
 <!-- CPP-BOMBER-SPRITE -->
 
@@ -688,18 +727,23 @@ TODO: falar de broadcast (in Ceu: unless it is paused, all receive always)
 <p>We enclose the declaration with an explicit block (ln. 9-12) that restricts its lifespan to a single occurrence of <code>WORLD_UPDATE</code> (ln. 11). When the block terminates, the organism goes out of scope and its execution body aborts automatically, effectively removing it from the screen. Note here that we never manipulate references to the <code>Sprite</code>, which is declared anonymous with the placeholder <code>_</code>. In constrast, the animation in C++ requires to explicitly check the state variable <code>gfx_exploded</code> and forward the <code>draw</code> method down to the child sprite <code>explo_surf</code> [<a href="https://github.com/Pingus/pingus/blob/v0.7.6/src/pingus/actions/bomber.cpp#L50"><img src="images/link_12.png" alt="X" /></a>].</p>
 <!-- CEU-vs-CPP-BOMBER-SPRITE -->
 
+<p><a name="dispatching-hierarchies-summary"/> <br/></p>
+<div class="summary">
+<p><strong>Summary</strong>:</p>
 <p>Overall, passive objects of C++ impose a dispatching architecture that makes the reasoning about the program harder:</p>
 <ul>
-<li>The full dispatching chain goes through dozen of files (note that we omitted class hierarchies in the list above).</li>
+<li>The full dispatching chain goes through dozen of files (note that we omitted class hierarchies from the discussion).</li>
 <li>The dispatching path interleaves between classes specific to the game and also classes from the game engine (possibly third-party classes).</li>
 <li>The actual objects in the hierarchy are often dynamically allocated, specially for entities held in class containers.</li>
 </ul>
+</div>
 <!--* TODO: efficiency?-->
 
 <p><a name="containers-and-lifespan"/></p>
 <h2 id="containers-and-lifespan">4) Containers and Lifespan</h2>
 <p>Similarly to <em>dispatching hierarchies</em>, some entities control the lifespan of other child entities, resulting in dynamic and explicit allocation and deallocation of objects.</p>
 <p>However, it is actually common to have children with a static lifespan which are known at compile time.</p>
+<p><a name="containers-and-lifespan-1"/></p>
 <h3 id="case-study-game-ui-widgets">4.1) Case Study: Game UI Widgets</h3>
 <!-- CPP-CONTAINER -->
 
@@ -745,6 +789,7 @@ TODO: falar de broadcast (in Ceu: unless it is paused, all receive always)
 10:      &lt;...&gt;
 11:  end</code></pre>
 <p>Again, here we never manipulate references to deal with containers, or allocation and deallocation. Also, all memory required for static instances is known at compile time.</p>
+<p><a name="containers-and-lifespan-2"/></p>
 <h3 id="case-study-the-pingus-container">4.2) Case Study: The Pingus Container</h3>
 <!-- CPP-CONTAINER-DYNAMIC -->
 
@@ -851,10 +896,36 @@ end
 ```
 -->
 
+<p><a name="containers-and-lifespan-summary"/> <br/></p>
+<div class="summary">
+<p><strong>Summary</strong>:</p>
+<!--
+Overall, passive objects of C++ impose a dispatching architecture that makes 
+the reasoning about the program harder:
+
+# case-1
+* When containers are part of a dispatching chain, it gets even harder to track 
+  what objects are dispatched:
+  one has to "simulate" the program execution and track calls to `add` and
+  `remove`.
+* For objects with dynamic lifespan, calls to `add` must always have matching 
+  calls to `remove`:
+  missing calls to `remove` lead to memory and CPU leaks (see the *lapsed listener* problem below).
+In Céu, entities that coexist with an enclosing class just need to be declared 
+at the top-level block [[![X]][ceu-world-top]]:
+Again, here we never manipulate references to deal with containers, or 
+allocation and deallocation.
+Also, all memory required for static instances is known at compile time.
+
+# case-2
+-->
+</div>
+
 <p><a name="signaling-mechanism"/></p>
-<h2 id="signaling-mechanisms">5) Signaling Mechanisms</h2>
+<h2>5) Signaling Mechanisms</h2>
 <p>Entities often need to communicate explicitly through a signaling mechanism, especially if there is no hierarchy relationship between them.</p>
-<h3 id="case-study-global-keys-and-the-options-menu">5.1) Case Study: Global Keys and the Options Menu</h3>
+<p><a name="signaling-mechanism-1"/></p>
+<h3>5.1) Case Study: Global Keys and the Options Menu</h3>
 <div class="images">
 <img src="images/options-anim-opt.gif" width="350"/> <br> <a href="images/options-anim-opt.gif"> Figure 14</a>: The *Mouse Grab&quot; configuration option.
 </div>
@@ -864,8 +935,6 @@ end
 <div class="images">
 <img src="images/events.png" width="450"/> <br> <a href="images/events.png"> Figure 15</a>: Mutual dependecy between TODO
 </div>
-
-
 <p>The implementations in C++ and Céu use a notification mechanism to propagate state changes between the configuration manager (<code>ConfigManager</code> class) and the check box component (<code>CheckBox</code> class). Figure 15 illustrates how the mutual notifications create a dependency cycle between the two classes.</p>
 <p>In C++, pressing <em>Ctrl-G</em> invokes the callback method <code>ConfigManager::set_mouse_grab</code>, which broadcasts the signal <code>ConfigManager::on_mouse_grab_change</code>, which implicitly invokes the callback method <code>CheckBox::set_state</code>. Likewise, clicking in the check box invokes the callback method <code>CheckBox::set_state</code>, which broadcasts the signal <code>CheckBox::on_change</code>, which implicitly invokes the callback method <code>ConfigManager::set_mouse_grab</code>. As we show further, explicit condition tests in the callback methods break the cycle to avoid infinite execution.</p>
 <p>In Céu, pressing <em>Ctrl-G</em> awakes a block of code (equivalent to <code>ConfigManager::set_mouse_grab</code>) that broadcasts the internal event <code>ConfigManager::toggle_grab</code>, which awakes a block of code that takes the appropriate actions (equivalent to <code>CheckBox::set_state</code>). Likewise, clicking in the check box awakes a block of code (equivalent to <code>CheckBox::set_state</code>) that broadcasts the internal event <code>CheckBox::go_click</code>, which awakes a block of code that takes the appropriate actions (equivalent to <code>ConfigManager::set_mouse_grab</code>). In Céu, programs with mutually-dependent internal events cannot create infinite execution loops.</p>
@@ -1014,13 +1083,16 @@ The <code>event</code> keyword declares an internal event which applications can
 16:  end</code></pre>
 <p>The two loops parallel handle the connections in opposite directions: from the <code>ConfigManager</code> to the <code>CheckBox</code> (ln. 8-10); and from the <code>CheckBox</code> to the <code>ConfigManager</code> (ln. 12-14).</p>
 <p>When the <em>Option</em> screen terminates, its execution body aborts and the connections break automatically.</p>
-<p>Comparing</p>
-<p>TODO: bi-directional dependency TODO: <code>if</code> required</p>
+<p><a name="signaling-mechanism-summary"/> <br/></p>
+<div class="summary">
+<p><strong>Summary</strong>:</p>
+<p>First-class internal events of Céu provide some advantages in comparison to Boost signals of C++:</p>
 <ul>
-<li>no cycles possible, stack-based execution</li>
-<li>no explicit unbinding</li>
-<li>first-class, no libraries or non-standard extensions syntax, emit/await/every</li>
+<li>They use the same convenient syntax of external events (e.g., <code>emit</code>, <code>await</code>, <code>every</code>, etc.).</li>
+<li>They never create infinite dependency loops.</li>
+<li>They do not require explicit unbinding.</li>
 </ul>
+</div>
 <p><a name="wall-clock-timers"/></p>
 <h2 id="wall-clock-timers">6) Wall-Clock Timers</h2>
 <!--
@@ -1031,6 +1103,10 @@ The <code>event</code> keyword declares an internal event which applications can
     The double click behavior above uses a timeout of 1 second to restart.
 -->
 
+<p><a name="wall-clock-timers-summary"/> <br/></p>
+<div class="summary">
+<strong>Summary</strong>:
+</div>
 <p><a name="pausing"/></p>
 <h2 id="pausing">7) Pausing</h2>
 <!--
@@ -1042,6 +1118,10 @@ The <code>event</code> keyword declares an internal event which applications can
     pause and resume.
 -->
 
+<p><a name="pausing-summary"/> <br/></p>
+<div class="summary">
+<strong>Summary</strong>:
+</div>
 <p><a name="resource-acquisition-and-release"/></p>
 <h2 id="resource-acquisition-and-release">8) Resource Acquisition and Release</h2>
 <!--
@@ -1052,6 +1132,10 @@ The <code>event</code> keyword declares an internal event which applications can
     TODO
 -->
 
+<p><a name="resource-acquisition-and-release-summary"/> <br/></p>
+<div class="summary">
+<strong>Summary</strong>:
+</div>
 <h1 id="quantitative-analysis">Quantitative Analysis</h1>
 <h2 id="code-size">Code Size</h2>
 <h2 id="memory">Memory</h2>

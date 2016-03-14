@@ -35,6 +35,11 @@
             display: inline-block;
             width: 400px;
         }
+        div.summary {
+            background-color: #FFCCCC;
+            border: 1px solid black;
+            padding: 5px;
+        }
     </style>
 
 @[[
@@ -501,35 +506,52 @@ along with in-depth examples:
     State machines describe the behavior of game entities by mapping event 
     occurrences to transitions between states and triggering appropriate
     actions.
+    * [ [case 1](#finite-state-machines-1) |
+      [ [case 2](#finite-state-machines-2) |
+      [summary](#finite-state-machines-summary) ]
 
-4. [**Continuation Passing**](#continuation-passing):
+2. [**Continuation Passing**](#continuation-passing):
     The completion of a long-lasting activity in a game may have a 
     continuation, i.e., some action to execute next.
+    * [ [case 1](#continuation-passing-1) |
+      [ [case 2](#continuation-passing-2) |
+      [summary](#continuation-passing-summary) ]
 
-2. [**Dispatching Hierarchies**](#dispatching-hierarchies):
+
+3. [**Dispatching Hierarchies**](#dispatching-hierarchies):
     Some entities in games manage other child entities, resulting in 
     dispatching hierarchies for event forwarding.
+    * [ [case 1](#dispatching-hierarchies-1) |
+      [summary](#dispatching-hierarchies-summary) ]
 
-3. [**Containers and Lifespan**](#containers-and-lifespan):
+4. [**Containers and Lifespan**](#containers-and-lifespan):
     Similarly to *dispatching hierarchies*, some entities control the lifespan 
     of other child entities, resulting in dynamic and explicit allocation and
     deallocation of objects.
+    * [ [case 1](#containers-and-lifespan-1) |
+      [ [case 2](#containers-and-lifespan-2) |
+      [summary](#containers-and-lifespan-summary) ]
 
 5. [**Signaling Mechanisms**](#signaling-mechanism):
     Entities often need to communicate explicitly through a signaling 
     mechanism, especially if there is no hierarchy relationship between them.
+    * [ [case 1](#signaling-mechanism-1) |
+      [summary](#signaling-mechanism-summary) ]
 
 6. [**Wall-Clock Timers**](#wall-clock-timers):
     Wall-clock timers measure the passage of time from the real world
     (e.g., *10 seconds*) such as for periodic sampling and timeout watchdogs.
+    * [ [summary](#wall-clock-timers-summary) ]
 
 7. [**Pausing**](#pausing):
     Pausing allows parts of the game to temporarily suspend execution or
     reactions to incoming events.
+    * [ [summary](#pausing-summary) ]
 
 8. [**Resource Acquisition and Release**](#resource-acquisition-and-release):
     External resources, such as configuration files and saved games,
     must be acquired and properly released.
+    * [ [summary](#resource-acquisition-and-release-summary) ]
 
 <!-- TODO: are these terms and explanations symmetric? -->
 
@@ -578,11 +600,15 @@ state machine.
 TODO: Case 3: Sprite Animations
 -->
 
+<a name="finite-state-machines-1"/>
+
 @SEC[[
 ### Case Study: The *Armageddon* Double Click
 ]]
 
 See [Warming Up](#warming-up).
+
+<a name="finite-state-machines-2"/>
 
 @SEC[[
 ### Case Study: The *Bomber* Action
@@ -691,7 +717,7 @@ variable to rearrange and experiment with them during the development.
 
 However, due to the short-lived nature of callbacks, state variables are 
 unavoidable, being part of the essence of object-oriented programming
-(methods + mutable state).
+(i.e., *methods + mutable state*).
 
 <a name="bomber"/>
 
@@ -733,21 +759,29 @@ end
 ```
 ]]
 
-Considering the implementation in Céu, we can highlight some benefits in 
-comparison to the implementation in C++:
+Note how we isolate unrelated behaviors to the animation, such as the pingu 
+movement @NN(move), in a parallel line of execution.
+Note also that we use a local and lexically-scoped organism
+(to be discussed [[![X]](#dispatching-hierarchies)])
+for the temporary single-frame explosion @NN(do,-,end).
+Finally, we use auxiliary signaling mechanisms
+(to be discussed [[![X]](#signaling-mechanisms)])
+to await the termination of the animation @NN(await) and
+to notify the application about our own termination.
 
-- We encode all states implicitly, relying on the natural sequential flow of 
-  execution.
-- We handle all states (and only them) in the same contiguous block of code.
-- We isolate unrelated behaviors to the animation, such as the pingu movement 
-  @NN(move), in a parallel line of execution.
-- We use a local and lexically-scoped organism
-  (to be discussed [[![X]](#dispatching-hierarchies)])
-  for the temporary single-frame explosion @NN(do,-,end).
-- We use auxiliary signaling mechanisms
-  (to be discussed [[![X]](#signaling-mechanisms)])
-  to await the termination of the animation @NN(await) and
-  to notify the application about our own termination.
+<a name="finite-state-machines-summary"/>
+<br/>
+
+<div class="summary">
+**Summary**:
+
+Structured state machines in Céu provide some advantages in comparison to 
+explicit state machines in C++:
+
+* They encode all states implicitly, not requiring state variables.
+* They handle all states (and only them) in the same contiguous block of code,
+  increasing the behavior encapsulation.
+</div>
 
 [cpp-bomber]: https://github.com/Pingus/pingus/blob/v0.7.6/src/pingus/actions/bomber.cpp
 [ceu-bomber]: https://github.com/fsantanna/pingus/blob/ceu/ceu/pingus/actions/bomber.ceu
@@ -775,6 +809,8 @@ state passes to the current state what will be the next state.
 
 more natural structured code with sequences, conditionals, and loops
 -->
+
+<a name="continuation-passing-1"/>
 
 @SEC[[
 ### Case Study: Story Screen, Advancing Pages
@@ -884,8 +920,7 @@ Note that we don't need a variable (such as `displayed` above) to switch
 between the states "advancing text" or "advancing pages" which are not mixed in 
 the source code.
 
-[cpp-story-screen-component]: https://github.com/Pingus/pingus/blob/v0.7.6/src/pingus/screens/story_screen.cpp#L159
-[ceu-story-screen]: https://github.com/fsantanna/pingus/blob/ceu/ceu/pingus/screens/story_screen.ceu#L14
+<a name="continuation-passing-2"/>
 
 @SEC[[
 ### Case Study: Story Screen, Transition to Credits Screen
@@ -1042,14 +1077,10 @@ and *direct style* of Céu for the screen transitions:
     C++ pops the *Credits* screen, going back to the *World Map* screen.
     Céu uses an enclosing `loop` to restart the process.
 
-The direct style of Céu has some advantages:
-
-* It uses structured control flow (i.e., sequences and loops) instead of an 
-  explicit stack and a continuation variable.
-* The screens are decoupled from one another, i.e., the `Worldmap` has no
-  references to `Story`, which has no references to `Credits`.
-* The flow between the screens is self-contained in a single loop instead of 
-  spread across multiple classes.
+In contrast to C++, the screens Céu are decoupled and only the `Main Loop` 
+touches them:
+the `Worldmap` has no references to `Story`,
+which has no references to `Credits`.
 
 <!--
 TODO:
@@ -1058,15 +1089,35 @@ TODO:
 "nowhere to return"
 -->
 
-[cpp-story-screen]: 
-https://github.com/Pingus/pingus/blob/v0.7.6/src/pingus/screens/story_screen.cpp#L136
-[cpp-story-screen-forward]: https://github.com/Pingus/pingus/blob/v0.7.6/src/pingus/screens/story_screen.cpp#L143
+<a name="continuation-passing-summary"/>
+<br/>
+
+<div class="summary">
+**Summary**:
+
+The direct style of Céu has some advantages in comparison to the 
+continuation-passing style of C++:
+
+* It uses structured control flow (i.e., sequences and loops) instead of 
+  explicit data structures (e.g., stacks) or continuation variables.
+* The activities are decoupled from one another, i.e., they do not hold 
+  references to one another.
+* A single parent class describes the flow between the activities in a 
+  self-contained block of code (instead of being spread among the activity
+  classes).
+</div>
+
+[cpp-story-screen]:https://github.com/Pingus/pingus/blob/v0.7.6/src/pingus/screens/story_screen.cpp#L136
+[cpp-story-screen-component]:https://github.com/Pingus/pingus/blob/v0.7.6/src/pingus/screens/story_screen.cpp#L159
+[cpp-story-screen-forward]:https://github.com/Pingus/pingus/blob/v0.7.6/src/pingus/screens/story_screen.cpp#L143
+[cpp-story-dot]:https://github.com/Pingus/pingus/blob/v0.7.6/src/pingus/worldmap/story_dot.cpp#L31
+[cpp-story-pages]:https://github.com/Pingus/pingus/blob/v0.7.6/src/pingus/screens/story_screen.cpp#L159
+
+[ceu-story-screen]:https://github.com/fsantanna/pingus/blob/ceu/ceu/pingus/screens/story_screen.ceu#L14
+[ceu-story-pages]:https://github.com/fsantanna/pingus/blob/ceu/ceu/pingus/screens/story_screen.ceu#L14
 
 [wiki-style-direct]:       https://en.wikipedia.org/wiki/Direct_style
 [wiki-style-continuation]: https://en.wikipedia.org/wiki/Continuation-passing_style
-
-[cpp-story-pages]: https://github.com/Pingus/pingus/blob/v0.7.6/src/pingus/screens/story_screen.cpp#L159
-[ceu-story-pages]: https://github.com/fsantanna/pingus/blob/ceu/ceu/pingus/screens/story_screen.ceu#L14
 
 <a name="dispatching-hierarchies"/>
 
@@ -1093,6 +1144,8 @@ TODO: falar de broadcast (in Ceu: unless it is paused, all receive always)
     which may take an action before deciding to forward the event (or not) to 
     the buttons.
 -->
+
+<a name="dispatching-hierarchies-1"/>
 
 @SEC[[
 ### Case Study: Bomber `draw` and `update` callbacks
@@ -1267,15 +1320,22 @@ variable `gfx_exploded` and forward the `draw` method down to the child sprite
 
 <!-- CEU-vs-CPP-BOMBER-SPRITE -->
 
+<a name="dispatching-hierarchies-summary"/>
+<br/>
+
+<div class="summary">
+**Summary**:
+
 Overall, passive objects of C++ impose a dispatching architecture that makes 
 the reasoning about the program harder:
 
-* The full dispatching chain goes through dozen of files (note that we omitted 
-  class hierarchies in the list above).
+* The full dispatching chain goes through dozen of files
+  (note that we omitted class hierarchies from the discussion).
 * The dispatching path interleaves between classes specific to the game and 
   also classes from the game engine (possibly third-party classes).
 * The actual objects in the hierarchy are often dynamically allocated, 
   specially for entities held in class containers.
+</div>
 
 <!--* TODO: efficiency?-->
 
@@ -1310,6 +1370,8 @@ deallocation of objects.
 
 However, it is actually common to have children with a static lifespan which 
 are known at compile time.
+
+<a name="containers-and-lifespan-1"/>
 
 @SEC[[
 ### Case Study: Game UI Widgets
@@ -1385,6 +1447,8 @@ end
 Again, here we never manipulate references to deal with containers, or 
 allocation and deallocation.
 Also, all memory required for static instances is known at compile time.
+
+<a name="containers-and-lifespan-2"/>
 
 @SEC[[
 ### Case Study: The Pingus Container
@@ -1563,6 +1627,34 @@ end
 ```
 -->
 
+<a name="containers-and-lifespan-summary"/>
+<br/>
+
+<div class="summary">
+**Summary**:
+
+<!--
+Overall, passive objects of C++ impose a dispatching architecture that makes 
+the reasoning about the program harder:
+
+# case-1
+* When containers are part of a dispatching chain, it gets even harder to track 
+  what objects are dispatched:
+  one has to "simulate" the program execution and track calls to `add` and
+  `remove`.
+* For objects with dynamic lifespan, calls to `add` must always have matching 
+  calls to `remove`:
+  missing calls to `remove` lead to memory and CPU leaks (see the *lapsed listener* problem below).
+In Céu, entities that coexist with an enclosing class just need to be declared 
+at the top-level block [[![X]][ceu-world-top]]:
+Again, here we never manipulate references to deal with containers, or 
+allocation and deallocation.
+Also, all memory required for static instances is known at compile time.
+
+# case-2
+-->
+</div>
+
 [cpp-gamesession-containers]: https://github.com/Pingus/pingus/blob/v0.7.6/src/pingus/screens/game_session.cpp#L76
 [cpp-pingu-dead]: https://github.com/Pingus/pingus/blob/v0.7.6/src/pingus/pingu.cpp#L322
 [gpp-lapsed-listener]: http://gameprogrammingpatterns.com/observer.html#don't-worry,-i've-got-a-gc
@@ -1588,6 +1680,8 @@ end
 
 Entities often need to communicate explicitly through a signaling mechanism, 
 especially if there is no hierarchy relationship between them.
+
+<a name="signaling-mechanism-1"/>
 
 @SEC[[
 ### Case Study: Global Keys and the Options Menu
@@ -1900,15 +1994,20 @@ from the `CheckBox` to the `ConfigManager` @NN(loop_21,-,loop_22).
 When the *Option* screen terminates, its execution body aborts and the 
 connections break automatically.
 
-Comparing
+<a name="signaling-mechanism-summary"/>
+<br/>
 
-TODO: bi-directional dependency
-TODO: `if` required
+<div class="summary">
+**Summary**:
 
-* no cycles possible, stack-based execution
-* no explicit unbinding
-* first-class, no libraries or non-standard extensions
-  syntax, emit/await/every
+First-class internal events of Céu provide some advantages in comparison to 
+Boost signals of C++:
+
+* They use the same convenient syntax of external events 
+  (e.g., `emit`, `await`, `every`, etc.).
+* They never create infinite dependency loops.
+* They do not require explicit unbinding.
+</div>
 
 [boost-signal]:http://www.boost.org/doc/libs/1_60_0/doc/html/signals2.html
 [cpp-global_event]:https://github.com/Pingus/pingus/blob/v0.7.6/src/pingus/global_event.cpp#L34
@@ -1936,6 +2035,13 @@ TODO: `if` required
     The double click behavior above uses a timeout of 1 second to restart.
 -->
 
+<a name="wall-clock-timers-summary"/>
+<br/>
+
+<div class="summary">
+**Summary**:
+</div>
+
 <a name="pausing"/>
 
 @SEC[[
@@ -1951,6 +2057,13 @@ TODO: `if` required
     pause and resume.
 -->
 
+<a name="pausing-summary"/>
+<br/>
+
+<div class="summary">
+**Summary**:
+</div>
+
 <a name="resource-acquisition-and-release"/>
 
 @SEC[[
@@ -1964,6 +2077,13 @@ TODO: `if` required
 
     TODO
 -->
+
+<a name="resource-acquisition-and-release-summary"/>
+<br/>
+
+<div class="summary">
+**Summary**:
+</div>
 
 # Quantitative Analysis
 
