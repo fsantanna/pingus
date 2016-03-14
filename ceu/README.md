@@ -1606,7 +1606,7 @@ which has to update automatically on *Ctrl-G* presses.
 
 @FIG_NEW(events.png,
          Mutual dependecy between TODO,
-         400)
+         450)
 
 The implementations in C++ and Céu use a notification mechanism to propagate 
 state changes between the configuration manager (`ConfigManager` class) and the 
@@ -1621,23 +1621,33 @@ method `CheckBox::set_state`.
 Likewise, clicking in the check box invokes the callback method 
 `CheckBox::set_state`, which broadcasts the signal `CheckBox::on_change`, which 
 implicitly invokes the callback method `ConfigManager::set_mouse_grab`.
-As we show further, explicit condition tests in the methods break the cycle to 
-avoid infinite execution.
+As we show further, explicit condition tests in the callback methods break the 
+cycle to avoid infinite execution.
 
+In Céu, pressing *Ctrl-G* awakes a block of code (equivalent to 
+`ConfigManager::set_mouse_grab`) that broadcasts the internal event 
+`ConfigManager::toggle_grab`, which awakes a block of code that takes the 
+appropriate actions (equivalent to `CheckBox::set_state`).
+Likewise, clicking in the check box awakes a block of code (equivalent to 
+`CheckBox::set_state`) that broadcasts the internal event 
+`CheckBox::ok_clicked`, which awakes a block of code that takes the appropriate 
+actions (equivalent to `ConfigManager::set_mouse_grab`).
+Becuase of XXX, mutually YYY internal events cannot create infinite loops, 
+TODO.
 
-
-Céu emits the global event `go_toggle_grab`
+<div class="box">
 The `event` keyword declares an internal event which applications can `emit` 
 and `await`.
+Internal events are TODO. stack vs queue
+</div>
 
-<!-- CEU EVENTS -->
+Let's dig into the relevant classes to implement this TODO:
+`GlobalEvent`, `ConfigManager`, `CheckBox`, and `OptionMenu`.
 
 <!-- GLOBAL_EVENT -->
 
-First, let's compare the `GlobalEvent` classes to detect *Ctrl-G* presses in
-C++ [[![X]][cpp-global_event]]
-and
-Céu [[![X]][ceu-global_event]]:
+The `GlobalEvent` class detects events that apply to all game screens such as 
+pressing *Ctrl-G*.
 
 @CODE_LINES[[
 ```
@@ -1678,16 +1688,12 @@ end
 
 The implementations are similar, i.e., standard event handling to detect the 
 key press.
-The difference is that
-C++ executes a method in `config_manager` @NN(ctrl_g_cpp)
+As @FIG_REF(events.png) illustrates,
+the implementation in C++ invokes the method `ConfigManager::set_mouse_grab` 
+@NN(ctrl_g_cpp),
 while
-Céu emits the global event `go_toggle_grab` @NN(ctrl_g_ceu).
-The `event` keyword @NN(go_toggle_grab) declares an internal event which 
-applications can `emit` and `await`.
-
-<div class="box">
-Internal events are TODO. stack vs queue
-</div>
+the implementation in Céu the event `ConfigManager::go_toggle_grab` 
+@NN(ctrl_g_ceu).
 
 <!-- CONFIG_MANAGER -->
 
@@ -1715,12 +1721,12 @@ void ConfigManager::set_mouse_grab (bool v) {   @set_mouse_grab
 
 Once the `GlobalEvent` detects a key press, it calls `set_mouse_grab` 
 @NN(set_mouse_grab) which broadcasts the signal @NN(signal).
+The `if` enclosing the signal emission @NN(if_1,-,if_2) breaks the dependency 
+cycle of @FIG_REF(events.png) to avoid an infinite execution loop.
 
-As we discuss further, the `if` enclosing the signal emission @NN(if_1,-,if_2) 
-breaks a dependency cycle with another signal that could potentially freeze the 
-application.
-
-The version in Céu [[![X]][ceu-config_manager]] reacts continuously to the
+Since the class `GlobalEvent` already broadcasts 
+`ConfigManager::go_toggle_grab`, the `ConfigManager` in Céu 
+[[![X]][ceu-config_manager]] just needs to react continuously to the
 `go_toggle_grab` event to perform the *grab* effect:
 
 @CODE_LINES[[
@@ -1734,12 +1740,6 @@ end
 ```
 ]]
 
-So far, the `GlobalEvent` and `ConfigManager` classes handle the simpler case 
-of setting the *Mouse Grab* option from *Ctrl-G* presses.
-They also broadcast changes through `on_mouse_grab_change` and 
-`go_toggle_grab` so that the check box in the *Option* menu can 
-reconfigure itself.
-
 <!-- CHECK_BOX.CEU -->
 
 The `CheckBox` in C++ [[![X]][cpp-check_box]] also uses a `boost::signal` to 
@@ -1752,15 +1752,14 @@ boost::signals2::signal<void (bool)> on_change;   // definition in `check_box.hp
 void CheckBox::set_state (bool v, bool send_signal) {
     <...>
     if (send_signal) {      @if_cb_1
-        on_change(state);
+        on_change(v);
     }                       @if_cb_2
 }
 ```
 ]]
 
-Again, as we discuss further, the `if` enclosing the signal emission 
-@NN(if_cb_1,-,if_cb_2) breaks a dependency cycle with `on_mouse_grab_change` 
-([ln @N(signal_def)](#cpp-config-manager)).
+Again, the `if` enclosing the signal emission @NN(if_cb_1,-,if_cb_2) breaks the 
+dependency cycle of @FIG_REF(events.png).
 
 The `CheckBox` in Céu [[![X]][ceu-check_box]] is as follows:
 
@@ -1773,15 +1772,8 @@ class CheckBox with
 do
     loop do
         watching is_on in this.ok_clicked do
-            if this.is_on then
-                <...>
-                await component.on_primary_button_pressed;
-                is_on = false;
-            else
-                <...>
-                await component.on_primary_button_pressed;
-                is_on = true;
-            end
+            await component.on_primary_button_pressed;
+            is_on = not is_on;
             emit ok_clicked => is_on;
         end
     end

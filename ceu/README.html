@@ -861,24 +861,21 @@ end
 <p>In Pingus, the <em>Mouse Grab</em> option restricts the mouse movement to the game window boudaries (Figure 14). The option can be set anywhere in the game by pressing <em>Ctrl-G</em>. Also, the <em>Options</em> menu has a check box to toggle the <em>Mouse Grab</em> option, which has to update automatically on <em>Ctrl-G</em> presses.</p>
 <!-- SIGNALS vs EVENTS -->
 
-<p>The implementations in C++ and Céu use a notification mechanism to propagate state changes between the configuration manager (<code>ConfigManager</code> class) and the check box component (<code>CheckBox</code> class).</p>
-<p>
-
 <div class="images">
-<img src="images/events.png" width="400"/> <br> <a href="images/events.png"> Figure 15</a>: Mutual dependecy between TODO
+<img src="images/events.png" width="450"/> <br> <a href="images/events.png"> Figure 15</a>: Mutual dependecy between TODO
 </div>
 
 
-
-
-<p>(Figure 15)</p>
-<p>signaling mechanism to</p>
-<p>. The difference is that C++ executes a method in <code>config_manager</code> while Céu emits the global event <code>go_toggle_mouse_grab</code> The <code>event</code> keyword declares an internal event which applications can <code>emit</code> and <code>await</code>.</p>
-<!-- CEU EVENTS -->
-
+<p>The implementations in C++ and Céu use a notification mechanism to propagate state changes between the configuration manager (<code>ConfigManager</code> class) and the check box component (<code>CheckBox</code> class). Figure 15 illustrates how the mutual notifications create a dependency cycle between the two classes.</p>
+<p>In C++, pressing <em>Ctrl-G</em> invokes the callback method <code>ConfigManager::set_mouse_grab</code>, which broadcasts the signal <code>ConfigManager::on_mouse_grab_change</code>, which implicitly invokes the callback method <code>CheckBox::set_state</code>. Likewise, clicking in the check box invokes the callback method <code>CheckBox::set_state</code>, which broadcasts the signal <code>CheckBox::on_change</code>, which implicitly invokes the callback method <code>ConfigManager::set_mouse_grab</code>. As we show further, explicit condition tests in the callback methods break the cycle to avoid infinite execution.</p>
+<p>In Céu, pressing <em>Ctrl-G</em> awakes a block of code (equivalent to <code>ConfigManager::set_mouse_grab</code>) that broadcasts the internal event <code>ConfigManager::toggle_grab</code>, which awakes a block of code that takes the appropriate actions (equivalent to <code>CheckBox::set_state</code>). Likewise, clicking in the check box awakes a block of code (equivalent to <code>CheckBox::set_state</code>) that broadcasts the internal event <code>CheckBox::ok_clicked</code>, which awakes a block of code that takes the appropriate actions (equivalent to <code>ConfigManager::set_mouse_grab</code>). Becuase of XXX, mutually YYY internal events cannot create infinite loops, TODO.</p>
+<div class="box">
+The <code>event</code> keyword declares an internal event which applications can <code>emit</code> and <code>await</code>. Internal events are TODO. stack vs queue
+</div>
+<p>Let's dig into the relevant classes to implement this TODO: <code>GlobalEvent</code>, <code>ConfigManager</code>, <code>CheckBox</code>, and <code>OptionMenu</code>.</p>
 <!-- GLOBAL_EVENT -->
 
-<p>First, let's compare the <code>GlobalEvent</code> classes to detect <em>Ctrl-G</em> presses in C++ [<a href="https://github.com/Pingus/pingus/blob/v0.7.6/src/pingus/global_event.cpp#L34"><img src="images/link_12.png" alt="X" /></a>] and Céu [<a href="https://github.com/fsantanna/pingus/blob/ceu/ceu/pingus/global_event.ceu#L4"><img src="images/link_12.png" alt="X" /></a>]:</p>
+<p>The <code>GlobalEvent</code> class detects events that apply to all game screens, such as <em>Ctrl-G</em> presses.</p>
 <pre><code> 1:  void GlobalEvent::on_button_press (const SDL_KeyboardEvent&amp; event) {
  2:      &lt;...&gt;
  3:      switch (event.keysym.sym) {
@@ -890,7 +887,7 @@ end
  9:          &lt;...&gt;
 10:      }
 11:  }</code></pre>
-<pre><code> 1:  event void go_toggle_mouse_grab;    // a global definition in `main.ceu`
+<pre><code> 1:  event void go_toggle_grab;    // a global definition in `main.ceu`
  2:  
  3:  class GlobalEvent with
  4:  do
@@ -898,16 +895,13 @@ end
  6:          &lt;...&gt;
  7:          if e:keysym.sym == _SDLK_g then
  8:              if (keystate[_SDLK_LCTRL] or keystate[_SDLK_RCTRL]) then
- 9:                  emit global:go_toggle_mouse_grab;
+ 9:                  emit global:go_toggle_grab;
 10:              end
 11:          end
 12:          &lt;...&gt;
 13:      end
 14:  end</code></pre>
-<p>The implementations are similar, i.e., standard event handling to detect the key press. The difference is that C++ executes a method in <code>config_manager</code> (ln. 6) while Céu emits the global event <code>go_toggle_mouse_grab</code> (ln. 9). The <code>event</code> keyword (ln. 1) declares an internal event which applications can <code>emit</code> and <code>await</code>.</p>
-<div class="box">
-Internal events are TODO. stack vs queue
-</div>
+<p>The implementations are similar, i.e., standard event handling to detect the key press. As Figure 15 illustrates, the implementation in C++ invokes the method <code>ConfigManager::set_mouse_grab</code> (ln. 6), while the implementation in Céu the event <code>ConfigManager::go_toggle_grab</code> (ln. 9).</p>
 <!-- CONFIG_MANAGER -->
 
 <p>The <code>ConfigManager</code> class manages all game configuration properties such as the <em>Mouse Grab</em> option.</p>
@@ -924,14 +918,14 @@ Internal events are TODO. stack vs queue
  9:  }</code></pre>
 <p>Once the <code>GlobalEvent</code> detects a key press, it calls <code>set_mouse_grab</code> (ln. 3) which broadcasts the signal (ln. 7).</p>
 <p>As we discuss further, the <code>if</code> enclosing the signal emission (ln. 5-8) breaks a dependency cycle with another signal that could potentially freeze the application.</p>
-<p>The version in Céu [<a href="https://github.com/fsantanna/pingus/blob/ceu/ceu/pingus/config_manager.ceu#L4"><img src="images/link_12.png" alt="X" /></a>] reacts continuously to the <code>go_toggle_mouse_grab</code> event to perform the <em>grab</em> effect:</p>
+<p>The version in Céu [<a href="https://github.com/fsantanna/pingus/blob/ceu/ceu/pingus/config_manager.ceu#L4"><img src="images/link_12.png" alt="X" /></a>] reacts continuously to the <code>go_toggle_grab</code> event to perform the <em>grab</em> effect:</p>
 <pre><code> 1:  class ConfigManager with
  2:  do
- 3:      every global:go_toggle_mouse_grab do
+ 3:      every global:go_toggle_grab do
  4:          &lt;...&gt;   // the actual &quot;grab&quot; effect
  5:      end
  6:  end</code></pre>
-<p>So far, the <code>GlobalEvent</code> and <code>ConfigManager</code> classes handle the simpler case of setting the <em>Mouse Grab</em> option from <em>Ctrl-G</em> presses. They also broadcast changes through <code>on_mouse_grab_change</code> and <code>go_toggle_mouse_grab</code> so that the check box in the <em>Option</em> menu can reconfigure itself.</p>
+<p>So far, the <code>GlobalEvent</code> and <code>ConfigManager</code> classes handle the simpler case of setting the <em>Mouse Grab</em> option from <em>Ctrl-G</em> presses. They also broadcast changes through <code>on_mouse_grab_change</code> and <code>go_toggle_grab</code> so that the check box in the <em>Option</em> menu can reconfigure itself.</p>
 <!-- CHECK_BOX.CEU -->
 
 <p>The <code>CheckBox</code> in C++ [<a href="https://github.com/Pingus/pingus/blob/v0.7.6/src/pingus/components/choice_box.cpp#L54"><img src="images/link_12.png" alt="X" /></a>] also uses a <code>boost::signal</code> to notify the application on changes:</p>
@@ -1003,9 +997,9 @@ Internal events are TODO. stack vs queue
  4:      var CheckBox b2 = &lt;...&gt;;
  5:      &lt;...&gt;
  6:      loop do
- 7:          watching global:go_toggle_mouse_grab do
+ 7:          watching global:go_toggle_grab do
  8:              every v in b2.ok_clicked do
- 9:                  emit global:go_toggle_mouse_grab;
+ 9:                  emit global:go_toggle_grab;
 10:              end
 11:          end
 12:          emit b2.ok_clicked =&gt; not b2.is_on;
