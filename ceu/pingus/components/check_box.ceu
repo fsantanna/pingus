@@ -16,8 +16,8 @@ do
         this.rect = &outer.rect;
     end;
 
-    loop do
-        watching is_on in this.ok_clicked do
+    par do
+        loop do
             var char[] file;
             if this.is_on then
                 file = [] .. "core/menu/checkbox_marked_small";
@@ -25,9 +25,11 @@ do
                 file = [] .. "core/menu/checkbox_small";
             end
             var Sprite _ = Sprite.build_name(&rect, (char&&)&&file);
-            await component.on_primary_button_pressed;
-            is_on = not is_on;
-            emit ok_clicked => is_on;
+            this.is_on = await this.ok_clicked;
+        end
+    with
+        every component.on_primary_button_pressed do
+            emit ok_clicked => not is_on;
         end
     end
 end

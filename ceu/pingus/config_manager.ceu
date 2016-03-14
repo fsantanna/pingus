@@ -2,10 +2,9 @@
 #define _CONFIG_MANAGER_CEU
 
 class ConfigManager with
-    event void go_toggle_grab;
+    event bool go_mouse_grab;
 do
-    every this.go_toggle_grab do
-        var bool v = not _config_manager.get_mouse_grab();
+    every v in this.go_mouse_grab do
         _log_info("ConfigManager::set_mouse_grab: %1%", v);
         if v then
             _SDL_WM_GrabInput(_SDL_GRAB_ON);

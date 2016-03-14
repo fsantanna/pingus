@@ -62,13 +62,14 @@ do
     var CheckBox b2 = CheckBox.build(r21, _config_manager.get_mouse_grab());
     var Label _ = Label.build("Mouse Grab", r22);
     spawn do
-        loop do
-            watching config_manager.go_toggle_grab do
-                every v in b2.ok_clicked do
-                    emit config_manager.go_toggle_grab;
-                end
+        par do
+            every v in b2.ok_clicked do
+                emit config_manager.go_mouse_grab => v;
             end
-            emit b2.ok_clicked => not b2.is_on;
+        with
+            every v in config_manager.go_mouse_grab do
+                emit b2.ok_clicked => v;
+            end
         end
     end
 

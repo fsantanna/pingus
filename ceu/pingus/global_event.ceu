@@ -93,7 +93,8 @@ do
 #endif
             if e:keysym.sym == _SDLK_g then
                 if (keystate[_SDLK_LCTRL] or keystate[_SDLK_RCTRL]) then
-                    emit config_manager.go_toggle_grab;
+                    emit config_manager.go_mouse_grab =>
+                            not _config_manager.get_mouse_grab();
                 end
             end
 #if 0
