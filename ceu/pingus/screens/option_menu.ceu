@@ -24,6 +24,7 @@ end
 #include "../components/slider_box.ceu"
 
 class OptionMenu with
+    var ConfigManager& config_manager;
 do
     var Rect rect = Rect(
         {Display::get_width()}  / 2,
@@ -62,9 +63,9 @@ do
     var Label _ = Label.build("Mouse Grab", r22);
     spawn do
         loop do
-            watching global:go_toggle_mouse_grab do
+            watching config_manager.go_toggle_grab do
                 every v in b2.ok_clicked do
-                    emit global:go_toggle_mouse_grab;
+                    emit config_manager.go_toggle_grab;
                 end
             end
             emit b2.ok_clicked => not b2.is_on;

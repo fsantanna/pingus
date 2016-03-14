@@ -2,8 +2,9 @@
 #define _CONFIG_MANAGER_CEU
 
 class ConfigManager with
+    event void go_toggle_grab;
 do
-    every global:go_toggle_mouse_grab do
+    every this.go_toggle_grab do
         var bool v = not _config_manager.get_mouse_grab();
         _log_info("ConfigManager::set_mouse_grab: %1%", v);
         if v then

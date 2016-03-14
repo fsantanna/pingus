@@ -172,7 +172,6 @@ interface Global with
     event (float,float)             go_create_pingu_particles;
     event (float,float,float,float) go_create_smoke_particles;
 
-    event void go_toggle_mouse_grab;
 
     var IWorldMap&&? worldmap;
     var IWorld&&? world;
@@ -191,7 +190,6 @@ event (float,float,s8,int)      go_create_pingu;
 event (float,float)             go_create_pingu_particles;
 event (float,float,float,float) go_create_smoke_particles;
 
-event void go_toggle_mouse_grab;
 
 var IWorldMap&&? worldmap;
 var IWorld&&? world;
@@ -203,8 +201,8 @@ var char[] worldmap_return_filename;
 event bool go_pause;
 
 #include "engine/input/sdl_driver.ceu"
-#include "pingus/global_event.ceu"
 #include "pingus/config_manager.ceu"
+#include "pingus/global_event.ceu"
 #include "pingus/fps_counter.ceu"
 #include "pingus/worldmap/worldmap_screen.ceu"
 #include "pingus/screens/credits.ceu"
@@ -248,9 +246,11 @@ native/pre do
     static CommandLineOptions cmd;
 end
 
-var SDL_Driver    _;
-var GlobalEvent   _;
-var ConfigManager _;
+var SDL_Driver _;
+var ConfigManager config_manager;
+var GlobalEvent _ with
+    this.config_manager = &config_manager;
+end;
 
 var _CommandLineOptions&& cmd = await MAIN;
 _cmd = *cmd;
@@ -389,7 +389,9 @@ with
             end
         end
         emit go_pause => true;
-        do OptionMenu;
+        do OptionMenu with
+            this.config_manager = &config_manager;
+        end;
         emit go_pause => false;
     end
 with
