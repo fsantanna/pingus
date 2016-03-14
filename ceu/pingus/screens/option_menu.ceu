@@ -49,7 +49,7 @@ do
     var CheckBox b1 = CheckBox.build(r11, _config_manager.get_fullscreen());
     var Label _ = Label.build("Fullscreen", r12);
     spawn do
-        every v in b1.ok_clicked do
+        every v in b1.go_click do
             _config_manager.set_fullscreen(v);
         end
     end
@@ -63,12 +63,12 @@ do
     var Label _ = Label.build("Mouse Grab", r22);
     spawn do
         par do
-            every v in b2.ok_clicked do
+            every v in b2.go_click do
                 emit config_manager.go_mouse_grab => v;
             end
         with
             every v in config_manager.go_mouse_grab do
-                emit b2.ok_clicked => v;
+                emit b2.go_click => v;
             end
         end
     end
@@ -82,7 +82,7 @@ do
     var CheckBox b3 = CheckBox.build(r31, _config_manager.get_software_cursor());
     var Label _ = Label.build("Software Cursor", r32);
     spawn do
-        every v in b3.ok_clicked do
+        every v in b3.go_click do
             _config_manager.set_software_cursor(v);
         end
     end
@@ -95,7 +95,7 @@ do
     var CheckBox b4 = CheckBox.build(r41, _config_manager.get_auto_scrolling());
     var Label _ = Label.build("Autoscrolling", r42);
     spawn do
-        every v in b4.ok_clicked do
+        every v in b4.go_click do
             _config_manager.set_auto_scrolling(v);
         end
     end
@@ -108,7 +108,7 @@ do
     var CheckBox b5 = CheckBox.build(r51, _config_manager.get_drag_drop_scrolling());
     var Label _ = Label.build("Drag&Drop Scrolling", r52);
     spawn do
-        every v in b5.ok_clicked do
+        every v in b5.go_click do
             _config_manager.set_drag_drop_scrolling(v);
         end
     end
@@ -122,7 +122,7 @@ do
     var CheckBox b6 = CheckBox.build(r61, _config_manager.get_print_fps());
     var Label _ = Label.build("Print FPS", r62);
     spawn do
-        every v in b6.ok_clicked do
+        every v in b6.go_click do
             _config_manager.set_print_fps(v);
         end
     end

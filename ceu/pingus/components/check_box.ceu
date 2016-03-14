@@ -5,7 +5,7 @@ class CheckBox with
     var Rect rect;
     var bool is_on;
     function (Rect rect, bool is_on)=>CheckBox build;
-    event bool ok_clicked;
+    event bool go_click;
 do
     function (Rect rect, bool is_on)=>CheckBox build do
         this.rect  = rect;
@@ -25,11 +25,11 @@ do
                 file = [] .. "core/menu/checkbox_small";
             end
             var Sprite _ = Sprite.build_name(&rect, (char&&)&&file);
-            this.is_on = await this.ok_clicked;
+            this.is_on = await this.go_click;
         end
     with
         every component.on_primary_button_pressed do
-            emit ok_clicked => not is_on;
+            emit go_click => not is_on;
         end
     end
 end
