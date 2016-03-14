@@ -1026,19 +1026,20 @@ Finally, we check the return values @NN(check) to display the `Credits`
 and *direct style* of Céu for the screen transitions:
 
 1. `Main Loop` => `Worldmap`:
-    C++ uses an explicit stack to push the world map screen;
-    Céu calls the world map screen (with the `do` notation), expecting a return
+    C++ uses an explicit stack to push the *World Map* screen;
+    Céu calls the *World Map* screen (with the `do` notation), expecting a 
+    return
     value;
 2. `Worldmap` (*blue dot click*) => `Story`:
-    C++ `StoryDot` pushes the story screen forward, also passing the 
+    C++ `StoryDot` pushes the *Story* screen forward, also passing the 
     continuation flag;
     Céu gets the return value of the `Worldmap` (i.e., if it should display the 
-    `Credits`) and calls the story screen.
+    `Credits`) and calls the *Story* screen.
 3. `Story` => `Credits`:
-    C++ `Story` replaces the current screen with the credits screen.
-    Céu calls the credits screen after the `do Story` returns.
+    C++ `Story` replaces the current screen with the *Credits* screen.
+    Céu calls the *Credits* screen after the `do Story` returns.
 4. `Credits` => `Worldmap`:
-    C++ pops the credits screen, going back to the world map screen.
+    C++ pops the *Credits* screen, going back to the *World Map* screen.
     Céu uses an enclosing `loop` to restart the process.
 
 The direct style of Céu has some advantages:
@@ -1316,8 +1317,8 @@ are known at compile time.
 
 <!-- CPP-CONTAINER -->
 
-Most UI widgets in the `GameSession` screen are static and coexist with it, 
-i.e., they are added in the constructor and are never removed explicitly
+Most UI widgets in the `GameSession` screen class are static and coexist with 
+it, i.e., they are added in the constructor and are never removed explicitly
 [[![X]][cpp-gamesession-containers]]:
 
 @CODE_LINES[[
@@ -1629,11 +1630,11 @@ In Céu, pressing *Ctrl-G* awakes a block of code (equivalent to
 `ConfigManager::toggle_grab`, which awakes a block of code that takes the 
 appropriate actions (equivalent to `CheckBox::set_state`).
 Likewise, clicking in the check box awakes a block of code (equivalent to 
-`CheckBox::set_state`) that broadcasts the internal event 
-`CheckBox::ok_clicked`, which awakes a block of code that takes the appropriate 
-actions (equivalent to `ConfigManager::set_mouse_grab`).
-Becuase of XXX, mutually YYY internal events cannot create infinite loops, 
-TODO.
+`CheckBox::set_state`) that broadcasts the internal event `CheckBox::go_click`, 
+which awakes a block of code that takes the appropriate actions (equivalent to 
+`ConfigManager::set_mouse_grab`).
+In Céu, programs with mutually-dependent internal events cannot create infinite 
+execution loops.
 
 <div class="box">
 The `event` keyword declares an internal event which applications can `emit` 
@@ -1641,22 +1642,29 @@ and `await`.
 Internal events are TODO. stack vs queue
 </div>
 
-Let's dig into the relevant classes to implement this TODO:
-`GlobalEvent`, `ConfigManager`, `CheckBox`, and `OptionMenu`.
+The classes
+`GlobalEvent`, `ConfigManager`, `CheckBox`, and `OptionMenu`
+interoperate for *Mouse Grab* behavior,
+and we discuss them as follows.
 
 <!-- GLOBAL_EVENT -->
 
-The `GlobalEvent` class detects events that apply to all game screens such as 
+#### Class `GlobalEvent`
+
+The `GlobalEvent` detects events that apply to all game screens, such as 
 pressing *Ctrl-G*.
+The implementations in C++ and Céu are similar, i.e., standard event handling 
+to detect the key press:
 
 @CODE_LINES[[
 ```
-void GlobalEvent::on_button_press (const SDL_KeyboardEvent& event) {
+void GlobalEvent::on_button_press (<...>) {
     <...>
     switch (event.keysym.sym) {
         case SDLK_g:
             if (keystate[SDLK_LCTRL] || keystate[SDLK_RCTRL]) {
-                config_manager.set_mouse_grab(!config_manager.get_mouse_grab());    @ctrl_g_cpp
+                config_manager.set_mouse_grab(          @ctrl_g_cpp
+                    !config_manager.get_mouse_grab());
             }
             break;
         <...>
@@ -1669,15 +1677,15 @@ void GlobalEvent::on_button_press (const SDL_KeyboardEvent& event) {
 
 @CODE_LINES[[
 ```
-event void go_toggle_grab;    // a global definition in `main.ceu`            @go_toggle_grab
-
 class GlobalEvent with
+    <...>
 do
     every e in SDL_KEYDOWN do
         <...>
         if e:keysym.sym == _SDLK_g then
             if (keystate[_SDLK_LCTRL] or keystate[_SDLK_RCTRL]) then
-                emit global:go_toggle_grab;                                   @ctrl_g_ceu
+                emit config_manager:go_mouse_grab =>    @ctrl_g_ceu
+                        not _config_manager.get_mouse_grab();
             end
         end
         <...>
@@ -1686,18 +1694,18 @@ end
 ```
 ]]
 
-The implementations are similar, i.e., standard event handling to detect the 
-key press.
 As @FIG_REF(events.png) illustrates,
 the implementation in C++ invokes the method `ConfigManager::set_mouse_grab` 
 @NN(ctrl_g_cpp),
 while
-the implementation in Céu the event `ConfigManager::go_toggle_grab` 
+the implementation in Céu broadcasts the event `ConfigManager::go_mouse_grab` 
 @NN(ctrl_g_ceu).
 
 <!-- CONFIG_MANAGER -->
 
-The `ConfigManager` class manages all game configuration properties such as the 
+#### Class `ConfigManager`
+
+The `ConfigManager` manages all game configuration properties, such as the 
 *Mouse Grab* option.
 
 The implementation in C++ [[![X]][cpp-config_manager]] uses a `boost::signal` 
@@ -1720,39 +1728,45 @@ void ConfigManager::set_mouse_grab (bool v) {   @set_mouse_grab
 ]]
 
 Once the `GlobalEvent` detects a key press, it calls `set_mouse_grab` 
-@NN(set_mouse_grab) which broadcasts the signal @NN(signal).
+@NN(set_mouse_grab) which broadcasts the signal `on_mouse_grab_change` 
+@NN(signal).
 The `if` enclosing the signal emission @NN(if_1,-,if_2) breaks the dependency 
 cycle of @FIG_REF(events.png) to avoid an infinite execution loop.
 
-Since the class `GlobalEvent` already broadcasts 
-`ConfigManager::go_toggle_grab`, the `ConfigManager` in Céu 
-[[![X]][ceu-config_manager]] just needs to react continuously to the
-`go_toggle_grab` event to perform the *grab* effect:
+In Céu, since the class `GlobalEvent` already broadcasts the event
+`ConfigManager::go_mouse_grab`, the `ConfigManager` 
+[[![X]][ceu-config_manager]] just needs to react to it continuously to perform 
+the *grab* effect:
 
 @CODE_LINES[[
 ```
 class ConfigManager with
+    event bool go_mouse_grab;
 do
-    every global:go_toggle_grab do
+    every v in this.go_mouse_grab do
         <...>   // the actual "grab" effect
     end
 end
 ```
 ]]
 
-<!-- CHECK_BOX.CEU -->
+<!-- CHECK_BOX -->
+
+#### Class `CheckBox`
 
 The `CheckBox` in C++ [[![X]][cpp-check_box]] also uses a `boost::signal` to 
 notify the application on changes:
+
+<a name="cpp-check-box"/>
 
 @CODE_LINES[[
 ```
 boost::signals2::signal<void (bool)> on_change;   // definition in `check_box.hpp`
 
-void CheckBox::set_state (bool v, bool send_signal) {
-    <...>
+void CheckBox::set_state (bool is_on, bool send_signal) {   @last_argument
+    <...>   // switches the check box state
     if (send_signal) {      @if_cb_1
-        on_change(v);
+        on_change(is_on);
     }                       @if_cb_2
 }
 ```
@@ -1761,29 +1775,45 @@ void CheckBox::set_state (bool v, bool send_signal) {
 Again, the `if` enclosing the signal emission @NN(if_cb_1,-,if_cb_2) breaks the 
 dependency cycle of @FIG_REF(events.png).
 
-The `CheckBox` in Céu [[![X]][ceu-check_box]] is as follows:
+The `CheckBox` in Céu [[![X]][ceu-check_box]] exposes the event `go_click` for 
+notifications in both directions, i.e., from the class to the application and 
+*vice versa*:
 
 @CODE_LINES[[
 ```
 class CheckBox with
     <...>
-    var bool is_on;
-    event bool ok_clicked;
+    event bool go_click;
 do
-    loop do
-        watching is_on in this.ok_clicked do
-            await component.on_primary_button_pressed;
-            is_on = not is_on;
-            emit ok_clicked => is_on;
-        end
+    <...>
+    par do
+        every component.on_primary_button_pressed do    @every_1
+            emit go_click => not this.is_on;            @dir_class_app
+        end                                             @every_2
+    with
+        loop do                                         @loop_1
+            <...>   // switches the check box state
+            this.is_on = await this.go_click;           @dir_app_class
+        end                                             @loop_2
     end
 end
 ```
 ]]
 
+The class reacts to external clicks continuously @NN(every_1,-,every_2) to 
+broadcast the event `go_click` @NN(dir_class_app).
+It also react continuously to `go_click` in another trail @NN(loop_1,-,loop_2), 
+which awakes from notifications from the first trail or from the application.
+
 <!-- OPTION_MENU -->
 
-The `OptionMenu` in C++ [[![X]][cpp-option_menu]] is as follows:
+#### Class `OptionMenu`
+
+The `OptionMenu` closes the loop between the signals in `ConfigManager` and 
+`CheckBox`.
+
+The implementation in C++ [[![X]][cpp-option_menu]] connects the two signals as 
+follows:
 
 @CODE_LINES[[
 ```
@@ -1798,7 +1828,7 @@ OptionMenu::OptionMenu() :
     mousegrab_box = new CheckBox(<...>);
     connections.push_back(                              @bind_11
         config_manager.on_mouse_grab_change.connect(
-            std::bind(&CheckBox::set_state, mousegrab_box, <...>, false);
+            std::bind(&CheckBox::set_state, mousegrab_box, <...>, false); @bind_false
     );                                                  @bind_12
     connections.push_back(                              @bind_21
         mousegrab_box->on_change.connect(
@@ -1809,48 +1839,68 @@ OptionMenu::OptionMenu() :
 
 }
 
-OptionMenu::~OptionMenu() {
+OptionMenu::~OptionMenu() {     @destr_1
     for (Connections::iterator i=connections.begin(); i!=connections.end(); ++i) {
         (*i).disconnect();
     }
-}
+}                               @destr_2
 ```
 ]]
 
 The constructor binds
-the signal `config.on_mouse_grab_change` to the callback method
+the signal `config_manager.on_mouse_grab_change` to the callback method
            `mousegrab_box->set_state`
            @NN(bind_11,-,bind_22),
 and also
 the signal `mousegrab_box->on_change` to the callback method
            `config_manager.set_mouse_grab`
            @NN(bind_11,-,bind_22).
-This way, every time the `ConfigManager` signals `on_mouse_grab_change` ([ln.  
-@N(signal)](#cpp-config-manager)), `set_state` is implicitly called.
+This way, every time the `ConfigManager` signals `on_mouse_grab_change`
+(ln. @N(signal) [up](#cpp-config-manager)), `set_state` is implicitly called.
 The same happens between the signal `on_change` in the `CheckBox` and the 
-method `set_mouse_grab` in the `ConfigManager` ([ln.  
-@N(set_mouse_grab)](#cpp-config-manager)).
+method `set_mouse_grab` in the `ConfigManager`
+(ln. @N(set_mouse_grab) [up](#cpp-config-manager)).
 
-The `OptionMenu` in Céu [[![X]][ceu-option_menu]]:
+Note that the signal binding to call `CheckBox::set_state` @NN(bind_false) 
+receives a fixed `false` as the last argument to prevent infinite execution 
+(ln. @N(last_argument) [up](#cpp-check-box)).
+
+The destructor @NN(destr_1,-,destr_2) has to break the connections when the *Option*
+screen terminates.
+
+The implementation in Céu [[![X]][ceu-option_menu]] connects the two events as 
+follows:
 
 @CODE_LINES[[
 ```
 class OptionMenu with
+    <...>
 do
     <...>
     var CheckBox b2 = <...>;
     <...>
-    loop do
-        watching global:go_toggle_grab do
-            every v in b2.ok_clicked do
-                emit global:go_toggle_grab;
-            end
-        end
-        emit b2.ok_clicked => not b2.is_on;
+    par do
+        every v in config_manager.go_mouse_grab do  @loop_11
+            emit b2.go_click => v;
+        end                                         @loop_12
+    with
+        every v in b2.go_click do                   @loop_21
+            emit config_manager.go_mouse_grab => v;
+        end                                         @loop_22
     end
 end
 ```
 ]]
+
+The two loops parallel handle the connections in opposite directions:
+from the `ConfigManager` to the `CheckBox` @NN(loop_11,-,loop_12);
+and
+from the `CheckBox` to the `ConfigManager` @NN(loop_21,-,loop_22).
+
+When the *Option* screen terminates, its execution body aborts and the 
+connections break automatically.
+
+Comparing
 
 TODO: bi-directional dependency
 TODO: `if` required
