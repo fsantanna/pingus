@@ -127,7 +127,7 @@ TODO:
 <pre><code><b><font size="-1" color="#666666"> 1:</font></b>  ArmageddonButton::ArmageddonButton(<...>):
 <b><font size="-1" color="#666666"> 2:</font></b>      RectComponent(<...>),
 <b><font size="-1" color="#666666"> 3:</font></b>      <...>
-<b><font size="-1" color="#666666"> 4:</font></b>      pressed(false);
+<b><font size="-1" color="#666666"> 4:</font></b>      pressed(<b>false</b>);
 <b><font size="-1" color="#666666"> 5:</font></b>      press_time();
 <b><font size="-1" color="#666666"> 6:</font></b>      <...>
 <b><font size="-1" color="#666666"> 7:</font></b>  {
@@ -138,16 +138,16 @@ TODO:
 <b><font size="-1" color="#666666">12:</font></b>      <...>
 <b><font size="-1" color="#666666">13:</font></b>  }
 <b><font size="-1" color="#666666">14:</font></b>  
-<b><font size="-1" color="#666666">15:</font></b>  <b>void</b> ArmageddonButton::update (float delta) {
+<b><font size="-1" color="#666666">15:</font></b>  <b>void</b> ArmageddonButton::update (<b>float</b> delta) {
 <b><font size="-1" color="#666666">16:</font></b>      <...>
 <b><font size="-1" color="#666666">17:</font></b>      <b>if</b> (pressed) {
 <b><font size="-1" color="#666666">18:</font></b>          press_time += delta;
 <b><font size="-1" color="#666666">19:</font></b>          <b>if</b> (press_time > 1.0f) {
-<b><font size="-1" color="#666666">20:</font></b>              pressed = <b>false;</b>
+<b><font size="-1" color="#666666">20:</font></b>              pressed = <b>false</b>;
 <b><font size="-1" color="#666666">21:</font></b>              press_time = 0;
 <b><font size="-1" color="#666666">22:</font></b>          }
 <b><font size="-1" color="#666666">23:</font></b>      } <b>else</b> {
-<b><font size="-1" color="#666666">24:</font></b>          pressed = <b>false;</b>
+<b><font size="-1" color="#666666">24:</font></b>          pressed = <b>false</b>;
 <b><font size="-1" color="#666666">25:</font></b>          press_time = 0;
 <b><font size="-1" color="#666666">26:</font></b>      }
 <b><font size="-1" color="#666666">27:</font></b>  }
@@ -156,7 +156,7 @@ TODO:
 <b><font size="-1" color="#666666">30:</font></b>      <b>if</b> (pressed) {
 <b><font size="-1" color="#666666">31:</font></b>          server->send_armageddon_event();
 <b><font size="-1" color="#666666">32:</font></b>      } <b>else</b> {
-<b><font size="-1" color="#666666">33:</font></b>          pressed = <b>true;</b>
+<b><font size="-1" color="#666666">33:</font></b>          pressed = <b>true</b>;
 <b><font size="-1" color="#666666">34:</font></b>      }
 <b><font size="-1" color="#666666">35:</font></b>  }</code></pre>
 
@@ -179,11 +179,11 @@ TODO:
 <b><font size="-1" color="#666666"> 7:</font></b>          <b>await</b> component.on_click;
 <b><font size="-1" color="#666666"> 8:</font></b>          <b>watching</b> 1s <b>do</b>
 <b><font size="-1" color="#666666"> 9:</font></b>              <b>await</b> component.on_click;
-<b><font size="-1" color="#666666">10:</font></b>              <b>break;</b>
+<b><font size="-1" color="#666666">10:</font></b>              <b>break</b>;
 <b><font size="-1" color="#666666">11:</font></b>          <b>end</b>
 <b><font size="-1" color="#666666">12:</font></b>      <b>end</b>
 <b><font size="-1" color="#666666">13:</font></b>      <...>
-<b><font size="-1" color="#666666">14:</font></b>      <b>emit</b> <b>global:</b>go_armageddon;
+<b><font size="-1" color="#666666">14:</font></b>      <b>emit</b> <b>global</b>:go_armageddon;
 <b><font size="-1" color="#666666">15:</font></b>  <b>end</b></code></pre>
 
 <p>Instead of <em>objects</em>, classes in Céu specify <em>organisms</em> with a body declaration (ln. 3-15) which executes for each instance while alive. Unlike objects, an organism is an active entity and starts to execute its body in a concurrent and deterministic manner with other alive organisms (but <em>not</em> actually in parallel). An execution body can use control-flow statements that keep the execution context across event occurrences (i.e., across <code>await</code> statements).</p>
@@ -347,10 +347,10 @@ TODO: Case 3: Sprite Animations
 <p>The code in C++ [<a href="https://github.com/Pingus/pingus/blob/v0.7.6/src/pingus/actions/bomber.cpp"><img src="images/link_12.png" alt="X" /></a>] defines the class <code>Bomber</code> which implements the <code>draw</code> and <code>update</code> callback methods:</p>
 <pre><code><b><font size="-1" color="#666666"> 1:</font></b>  Bomber::Bomber (Pingu* p) :
 <b><font size="-1" color="#666666"> 2:</font></b>      <...>
-<b><font size="-1" color="#666666"> 3:</font></b>      sound_played(false),        // tracks state 2
-<b><font size="-1" color="#666666"> 4:</font></b>      particle_thrown(false),     // tracks state 3
-<b><font size="-1" color="#666666"> 5:</font></b>      colmap_exploded(false),     // tracks state 3
-<b><font size="-1" color="#666666"> 6:</font></b>      gfx_exploded(false)         // tracks state 4
+<b><font size="-1" color="#666666"> 3:</font></b>      sound_played(<b>false</b>),        // tracks state 2
+<b><font size="-1" color="#666666"> 4:</font></b>      particle_thrown(<b>false</b>),     // tracks state 3
+<b><font size="-1" color="#666666"> 5:</font></b>      colmap_exploded(<b>false</b>),     // tracks state 3
+<b><font size="-1" color="#666666"> 6:</font></b>      gfx_exploded(<b>false</b>)         // tracks state 4
 <b><font size="-1" color="#666666"> 7:</font></b>  {
 <b><font size="-1" color="#666666"> 8:</font></b>      <...>
 <b><font size="-1" color="#666666"> 9:</font></b>      // 1. 0th frame: plays a "Oh no!" sound.
@@ -364,24 +364,24 @@ TODO: Case 3: Sprite Animations
 <b><font size="-1" color="#666666">17:</font></b>  
 <b><font size="-1" color="#666666">18:</font></b>      // 2. 10th frame: plays a "Bomb!" sound.
 <b><font size="-1" color="#666666">19:</font></b>      <b>if</b> (sprite.get_current_frame()==10 && !sound_played) {
-<b><font size="-1" color="#666666">20:</font></b>          sound_played = <b>true;</b>
+<b><font size="-1" color="#666666">20:</font></b>          sound_played = <b>true</b>;
 <b><font size="-1" color="#666666">21:</font></b>          get_world()->play_sound("plop", pingu->get_pos());
 <b><font size="-1" color="#666666">22:</font></b>      }
 <b><font size="-1" color="#666666">23:</font></b>  
 <b><font size="-1" color="#666666">24:</font></b>      // 3. 13th frame: throws particles, destroys the terrain, shows an explosion sprite
 <b><font size="-1" color="#666666">25:</font></b>      <b>if</b> (sprite.get_current_frame()==13 && !particle_thrown) {
-<b><font size="-1" color="#666666">26:</font></b>          particle_thrown = <b>true;</b>
+<b><font size="-1" color="#666666">26:</font></b>          particle_thrown = <b>true</b>;
 <b><font size="-1" color="#666666">27:</font></b>          get_world()->get_pingu_particle_holder()->add_particle(pingu->get_x(),
 <b><font size="-1" color="#666666">28:</font></b>                                                                 pingu->get_y()-5);
 <b><font size="-1" color="#666666">29:</font></b>      }
 <b><font size="-1" color="#666666">30:</font></b>      <b>if</b> (sprite.get_current_frame()==13 && !colmap_exploded) {
-<b><font size="-1" color="#666666">31:</font></b>          colmap_exploded = <b>true;</b>
+<b><font size="-1" color="#666666">31:</font></b>          colmap_exploded = <b>true</b>;
 <b><font size="-1" color="#666666">32:</font></b>          get_world()->remove(bomber_radius, <...>);
 <b><font size="-1" color="#666666">33:</font></b>      }
 <b><font size="-1" color="#666666">34:</font></b>  
 <b><font size="-1" color="#666666">35:</font></b>      // 5. Last frame: kills the Pingu
 <b><font size="-1" color="#666666">36:</font></b>      <b>if</b> (sprite.is_finished ()) {
-<b><font size="-1" color="#666666">37:</font></b>          pingu_>set_status(Pingu::PS_DEAD);
+<b><font size="-1" color="#666666">37:</font></b>          pingu->set_status(Pingu::PS_DEAD);
 <b><font size="-1" color="#666666">38:</font></b>      }
 <b><font size="-1" color="#666666">39:</font></b>  }
 <b><font size="-1" color="#666666">40:</font></b>  
@@ -389,7 +389,7 @@ TODO: Case 3: Sprite Animations
 <b><font size="-1" color="#666666">42:</font></b>      // 3. 13th frame: throws particles, destroys the terrain, shows an explosion sprite
 <b><font size="-1" color="#666666">43:</font></b>      // 4. Game tick: hides the explosion sprite
 <b><font size="-1" color="#666666">44:</font></b>      <b>if</b> (sprite.get_current_frame()==13 && !gfx_exploded) {
-<b><font size="-1" color="#666666">45:</font></b>          gfx_exploded = <b>true;</b>
+<b><font size="-1" color="#666666">45:</font></b>          gfx_exploded = <b>true</b>;
 <b><font size="-1" color="#666666">46:</font></b>          gc.color().draw (explo_surf, <...>);
 <b><font size="-1" color="#666666">47:</font></b>      }
 <b><font size="-1" color="#666666">48:</font></b>      gc.color().draw(sprite, pingu->get_pos ());
@@ -408,17 +408,17 @@ TODO: Case 3: Sprite Animations
 <b><font size="-1" color="#666666"> 6:</font></b>          <...>   // pingu movement
 <b><font size="-1" color="#666666"> 7:</font></b>      <b>with</b>
 <b><font size="-1" color="#666666"> 8:</font></b>          // 1. 0th frame: plays a "Oh no!" sound.
-<b><font size="-1" color="#666666"> 9:</font></b>          <b>call</b> <b>global:</b>play_sound("ohno", 0.5, 0.0);
+<b><font size="-1" color="#666666"> 9:</font></b>          <b>call</b> <b>global</b>:play_sound("ohno", 0.5, 0.0);
 <b><font size="-1" color="#666666">10:</font></b>  
 <b><font size="-1" color="#666666">11:</font></b>          // 2. 10th frame: plays a "Bomb!" sound.
 <b><font size="-1" color="#666666">12:</font></b>          <b>await</b> WORLD_UPDATE <b>until</b> sprite.get_current_frame() == 10;
-<b><font size="-1" color="#666666">13:</font></b>          <b>call</b> <b>global:</b>play_sound("plop", 0.5, 0.0);
+<b><font size="-1" color="#666666">13:</font></b>          <b>call</b> <b>global</b>:play_sound("plop", 0.5, 0.0);
 <b><font size="-1" color="#666666">14:</font></b>  
 <b><font size="-1" color="#666666">15:</font></b>          // 3. 13th frame: throws particles, destroys the terrain, shows an explosion sprite
 <b><font size="-1" color="#666666">16:</font></b>          <b>await</b> WORLD_UPDATE <b>until</b> sprite.get_current_frame() == 13;
-<b><font size="-1" color="#666666">17:</font></b>          <b>emit</b> <b>global:</b>go_create_pingu_particles => <b>(this.</b>pingu.get_x(),
-<b><font size="-1" color="#666666">18:</font></b>                                                    <b>this.</b>pingu.get_y()-5);
-<b><font size="-1" color="#666666">19:</font></b>          <b>global:</b>remove(&&_bomber_radius, <...>);
+<b><font size="-1" color="#666666">17:</font></b>          <b>emit</b> <b>global</b>:go_create_pingu_particles => (<b>this</b>.pingu.get_x(),
+<b><font size="-1" color="#666666">18:</font></b>                                                    <b>this</b>.pingu.get_y()-5);
+<b><font size="-1" color="#666666">19:</font></b>          <b>global</b>:remove(&&_bomber_radius, <...>);
 <b><font size="-1" color="#666666">20:</font></b>          <b>do</b>
 <b><font size="-1" color="#666666">21:</font></b>              <b>var</b> Sprite _ = Sprite.build_name(<...>, &&explo);
 <b><font size="-1" color="#666666">22:</font></b>              // 4. Game tick: hides the explosion sprite
@@ -473,7 +473,7 @@ more natural structured code with sequences, conditionals, and loops
 <b><font size="-1" color="#666666"> 3:</font></b>  {
 <b><font size="-1" color="#666666"> 4:</font></b>      pages        = <...>;
 <b><font size="-1" color="#666666"> 5:</font></b>      current_page = pages.back();
-<b><font size="-1" color="#666666"> 6:</font></b>      displayed    = <b>false;</b>
+<b><font size="-1" color="#666666"> 6:</font></b>      displayed    = <b>false</b>;
 <b><font size="-1" color="#666666"> 7:</font></b>      <...>
 <b><font size="-1" color="#666666"> 8:</font></b>  }
 <b><font size="-1" color="#666666"> 9:</font></b>  
@@ -481,13 +481,13 @@ more natural structured code with sequences, conditionals, and loops
 <b><font size="-1" color="#666666">11:</font></b>  
 <b><font size="-1" color="#666666">12:</font></b>  <b>void</b> StoryScreenComponent::next_text() {
 <b><font size="-1" color="#666666">13:</font></b>      <b>if</b> (!displayed) {
-<b><font size="-1" color="#666666">14:</font></b>          displayed = <b>true;</b>
+<b><font size="-1" color="#666666">14:</font></b>          displayed = <b>true</b>;
 <b><font size="-1" color="#666666">15:</font></b>          <...>
 <b><font size="-1" color="#666666">16:</font></b>      } <b>else</b> {
 <b><font size="-1" color="#666666">17:</font></b>          pages.pop_back();
 <b><font size="-1" color="#666666">18:</font></b>          <b>if</b> (!pages.empty()) {
 <b><font size="-1" color="#666666">19:</font></b>              current_page = pages.back();
-<b><font size="-1" color="#666666">20:</font></b>              displayed    = <b>false;</b>
+<b><font size="-1" color="#666666">20:</font></b>              displayed    = <b>false</b>;
 <b><font size="-1" color="#666666">21:</font></b>              <...>
 <b><font size="-1" color="#666666">22:</font></b>          } <b>else</b> {
 <b><font size="-1" color="#666666">23:</font></b>              <...>   // terminates the story screen
@@ -512,7 +512,7 @@ more natural structured code with sequences, conditionals, and loops
 <b><font size="-1" color="#666666"> 6:</font></b>      _pages = <...>
 <b><font size="-1" color="#666666"> 7:</font></b>  
 <b><font size="-1" color="#666666"> 8:</font></b>      <b>loop</b> i <b>in</b> _pages.size() <b>do</b>
-<b><font size="-1" color="#666666"> 9:</font></b>          <b>par/</b>or <b>do</b>
+<b><font size="-1" color="#666666"> 9:</font></b>          <b>par</b>/<b>or</b> <b>do</b>
 <b><font size="-1" color="#666666">10:</font></b>              <...>       // <b>loop</b> to redraw current page
 <b><font size="-1" color="#666666">11:</font></b>          <b>with</b>
 <b><font size="-1" color="#666666">12:</font></b>              <b>watching</b> next_text <b>do</b>
@@ -534,10 +534,10 @@ more natural structured code with sequences, conditionals, and loops
 
 <p>The <code>StoryDot</code> in C++ [<a href="https://github.com/Pingus/pingus/blob/v0.7.6/src/pingus/worldmap/story_dot.cpp#L31"><img src="images/link_12.png" alt="X" /></a>] reads the level file to check whether the story should, after termination, display the <em>Credits</em> screen or not:</p>
 <pre><code><b><font size="-1" color="#666666"> 1:</font></b>  StoryDot::StoryDot(const FileReader& reader) :
-<b><font size="-1" color="#666666"> 2:</font></b>      m_credits(false),                           // by default, don't display
+<b><font size="-1" color="#666666"> 2:</font></b>      m_credits(<b>false</b>),                           // by default, don't display
 <b><font size="-1" color="#666666"> 3:</font></b>  {
 <b><font size="-1" color="#666666"> 4:</font></b>      <...>
-<b><font size="-1" color="#666666"> 5:</font></b>      reader.read_bool("credits", m_credits);     // read from the file
+<b><font size="-1" color="#666666"> 5:</font></b>      reader.read_<b>bool</b>("credits", m_credits);     // read from the file
 <b><font size="-1" color="#666666"> 6:</font></b>  }
 <b><font size="-1" color="#666666"> 7:</font></b>  
 <b><font size="-1" color="#666666"> 8:</font></b>  <b>void</b> StoryDot::on_click() {
@@ -801,7 +801,7 @@ TODO: falar de broadcast (in Ceu: unless it is paused, all receive always)
 <b><font size="-1" color="#666666"> 6:</font></b>      <b>var</b> ButtonPanel button_panel;               // reacting directly without
 <b><font size="-1" color="#666666"> 7:</font></b>      <b>var</b> SmallMap smallmap <b>with</b>                  // a dispatching hierarchy
 <b><font size="-1" color="#666666"> 8:</font></b>          <...>
-<b><font size="-1" color="#666666"> 9:</font></b>      <b>end;</b>
+<b><font size="-1" color="#666666"> 9:</font></b>      <b>end</b>;
 <b><font size="-1" color="#666666">10:</font></b>      <...>
 <b><font size="-1" color="#666666">11:</font></b>  <b>end</b></code></pre>
 
@@ -826,7 +826,7 @@ TODO: falar de broadcast (in Ceu: unless it is paused, all receive always)
 <b><font size="-1" color="#666666"> 9:</font></b>  
 <b><font size="-1" color="#666666">10:</font></b>  <b>void</b> PinguHolder::update() {
 <b><font size="-1" color="#666666">11:</font></b>      <...>
-<b><font size="-1" color="#666666">12:</font></b>      while(pingu != pingus.end()) {
+<b><font size="-1" color="#666666">12:</font></b>      <b>while</b>(pingu != pingus.end()) {
 <b><font size="-1" color="#666666">13:</font></b>          (*pingu)->update();
 <b><font size="-1" color="#666666">14:</font></b>          <b>if</b> ((*pingu)->get_status() == Pingu::PS_DEAD) {
 <b><font size="-1" color="#666666">15:</font></b>              pingu = pingus.erase(pingu);
@@ -847,9 +847,9 @@ TODO: falar de broadcast (in Ceu: unless it is paused, all receive always)
 <b><font size="-1" color="#666666"> 3:</font></b>  <b>do</b>
 <b><font size="-1" color="#666666"> 4:</font></b>      <b>pool</b> IPingu[] pingus;
 <b><font size="-1" color="#666666"> 5:</font></b>      <...>
-<b><font size="-1" color="#666666"> 6:</font></b>      <b>every</b> (<...>) <b>in</b> <b>global:</b>go_create_pingu <b>do</b>
+<b><font size="-1" color="#666666"> 6:</font></b>      <b>every</b> (<...>) <b>in</b> <b>global</b>:go_create_pingu <b>do</b>
 <b><font size="-1" color="#666666"> 7:</font></b>          <...>
-<b><font size="-1" color="#666666"> 8:</font></b>          <b>spawn</b> Pingu <b>in</b> <b>this.</b>pingus;
+<b><font size="-1" color="#666666"> 8:</font></b>          <b>spawn</b> Pingu <b>in</b> <b>this</b>.pingus;
 <b><font size="-1" color="#666666"> 9:</font></b>      <b>end</b>
 <b><font size="-1" color="#666666">10:</font></b>  <b>end</b></code></pre>
 
@@ -866,7 +866,7 @@ TODO: falar de broadcast (in Ceu: unless it is paused, all receive always)
 <b><font size="-1" color="#666666"> 4:</font></b>      <...>
 <b><font size="-1" color="#666666"> 5:</font></b>      <b>loop</b> <b>do</b>
 <b><font size="-1" color="#666666"> 6:</font></b>          <b>await</b> WORLD_UPDATE;
-<b><font size="-1" color="#666666"> 7:</font></b>          <b>if</b> <b>this.</b>rel_getpixel(0,-1) == {Groundtype::GP_OUTOFSCREEN} <b>then</b>
+<b><font size="-1" color="#666666"> 7:</font></b>          <b>if</b> <b>this</b>.rel_getpixel(0,-1) == {Groundtype::GP_OUTOFSCREEN} <b>then</b>
 <b><font size="-1" color="#666666"> 8:</font></b>              <...>
 <b><font size="-1" color="#666666"> 9:</font></b>              <b>escape</b> _PS_DEAD;
 <b><font size="-1" color="#666666">10:</font></b>          <b>end</b>
@@ -949,7 +949,7 @@ Also, all memory required for static instances is known at compile time.
 <p><a name="signaling-mechanism-1"/></p>
 <h3>5.1) Case Study: Global Keys and the Options Menu</h3>
 <div class="images">
-<img src="images/options-anim-opt.gif" width="350"/> <br> <a href="images/options-anim-opt.gif"> Figure 15</a>: The *Mouse Grab&quot; configuration option.
+<img src="images/options-anim-opt.gif" width="350"/> <br> <a href="images/options-anim-opt.gif"> Figure 15</a>: The <em>Mouse Grab</em> configuration option.
 </div>
 <p>In Pingus, the <em>Mouse Grab</em> option restricts the mouse movement to the game window boudaries (Figure 15). The option can be set anywhere in the game by pressing <em>Ctrl-G</em>. Also, the <em>Options</em> menu has a check box to toggle the <em>Mouse Grab</em> option, which has to update automatically on <em>Ctrl-G</em> presses.</p>
 <!-- SIGNALS vs EVENTS -->
@@ -971,12 +971,12 @@ The <code>event</code> keyword declares an internal event which applications can
 <pre><code><b><font size="-1" color="#666666"> 1:</font></b>  <b>void</b> GlobalEvent::on_button_press (<...>) {
 <b><font size="-1" color="#666666"> 2:</font></b>      <...>
 <b><font size="-1" color="#666666"> 3:</font></b>      <b>switch</b> (event.keysym.sym) {
-<b><font size="-1" color="#666666"> 4:</font></b>          case SDLK_g:
+<b><font size="-1" color="#666666"> 4:</font></b>          <b>case</b> SDLK_g:
 <b><font size="-1" color="#666666"> 5:</font></b>              <b>if</b> (keystate[SDLK_LCTRL] || keystate[SDLK_RCTRL]) {
 <b><font size="-1" color="#666666"> 6:</font></b>                  config_manager.set_mouse_grab(
 <b><font size="-1" color="#666666"> 7:</font></b>                      !config_manager.get_mouse_grab());
 <b><font size="-1" color="#666666"> 8:</font></b>              }
-<b><font size="-1" color="#666666"> 9:</font></b>              break;
+<b><font size="-1" color="#666666"> 9:</font></b>              <b>break</b>;
 <b><font size="-1" color="#666666">10:</font></b>          <...>
 <b><font size="-1" color="#666666">11:</font></b>      }
 <b><font size="-1" color="#666666">12:</font></b>  }</code></pre>
@@ -1003,9 +1003,9 @@ The <code>event</code> keyword declares an internal event which applications can
 <p>The <code>ConfigManager</code> manages all game configuration properties, such as the <em>Mouse Grab</em> option.</p>
 <p>The implementation in C++ [<a href="https://github.com/Pingus/pingus/blob/v0.7.6/src/pingus/config_manager.cpp#L182"><img src="images/link_12.png" alt="X" /></a>] uses a <code>boost::signal</code> [<a href="http://www.boost.org/doc/libs/1_60_0/doc/html/signals2.html"><img src="images/link_12.png" alt="X" /></a>] which serves the same purpose of internal events in Céu:</p>
 <p><a name="cpp-config-manager"/></p>
-<pre><code><b><font size="-1" color="#666666"> 1:</font></b>  boost::signals2::signal<void(bool)> on_mouse_grab_change;   // definition in `config_manager.h`
+<pre><code><b><font size="-1" color="#666666"> 1:</font></b>  boost::signals2::signal<<b>void</b>(<b>bool</b>)> on_mouse_grab_change;   // definition in `config_manager.h`
 <b><font size="-1" color="#666666"> 2:</font></b>  
-<b><font size="-1" color="#666666"> 3:</font></b>  <b>void</b> ConfigManager::set_mouse_grab <b>(bool</b> v) {
+<b><font size="-1" color="#666666"> 3:</font></b>  <b>void</b> ConfigManager::set_mouse_grab (<b>bool</b> v) {
 <b><font size="-1" color="#666666"> 4:</font></b>      <...>
 <b><font size="-1" color="#666666"> 5:</font></b>      <b>if</b> (v != get_mouse_grab()) {
 <b><font size="-1" color="#666666"> 6:</font></b>          <...>   // the actual "grab" effect
@@ -1018,7 +1018,7 @@ The <code>event</code> keyword declares an internal event which applications can
 <pre><code><b><font size="-1" color="#666666"> 1:</font></b>  <b>class</b> ConfigManager <b>with</b>
 <b><font size="-1" color="#666666"> 2:</font></b>      <b>event</b> <b>bool</b> go_mouse_grab;
 <b><font size="-1" color="#666666"> 3:</font></b>  <b>do</b>
-<b><font size="-1" color="#666666"> 4:</font></b>      <b>every</b> v <b>in</b> <b>this.</b>go_mouse_grab <b>do</b>
+<b><font size="-1" color="#666666"> 4:</font></b>      <b>every</b> v <b>in</b> <b>this</b>.go_mouse_grab <b>do</b>
 <b><font size="-1" color="#666666"> 5:</font></b>          <...>   // the actual "grab" effect
 <b><font size="-1" color="#666666"> 6:</font></b>      <b>end</b>
 <b><font size="-1" color="#666666"> 7:</font></b>  <b>end</b></code></pre>
@@ -1028,9 +1028,9 @@ The <code>event</code> keyword declares an internal event which applications can
 <h4 id="class-checkbox">Class <code>CheckBox</code></h4>
 <p>The <code>CheckBox</code> in C++ [<a href="https://github.com/Pingus/pingus/blob/v0.7.6/src/pingus/components/choice_box.cpp#L54"><img src="images/link_12.png" alt="X" /></a>] also uses a <code>boost::signal</code> to notify the application on changes:</p>
 <p><a name="cpp-check-box"/></p>
-<pre><code><b><font size="-1" color="#666666"> 1:</font></b>  boost::signals2::signal<void <b>(bool)></b> on_change;   // definition in `check_box.hpp`
+<pre><code><b><font size="-1" color="#666666"> 1:</font></b>  boost::signals2::signal<<b>void</b> (<b>bool</b>)> on_change;   // definition in `check_box.hpp`
 <b><font size="-1" color="#666666"> 2:</font></b>  
-<b><font size="-1" color="#666666"> 3:</font></b>  <b>void</b> CheckBox::set_state <b>(bool</b> is_on, <b>bool</b> send_signal) {
+<b><font size="-1" color="#666666"> 3:</font></b>  <b>void</b> CheckBox::set_state (<b>bool</b> is_on, <b>bool</b> send_signal) {
 <b><font size="-1" color="#666666"> 4:</font></b>      <...>   // switches the check box state
 <b><font size="-1" color="#666666"> 5:</font></b>      <b>if</b> (send_signal) {
 <b><font size="-1" color="#666666"> 6:</font></b>          on_change(is_on);
@@ -1046,12 +1046,12 @@ The <code>event</code> keyword declares an internal event which applications can
 <b><font size="-1" color="#666666"> 5:</font></b>      <...>
 <b><font size="-1" color="#666666"> 6:</font></b>      <b>par</b> <b>do</b>
 <b><font size="-1" color="#666666"> 7:</font></b>          <b>every</b> component.on_primary_button_pressed <b>do</b>
-<b><font size="-1" color="#666666"> 8:</font></b>              <b>emit</b> go_click => <b>not</b> <b>this.</b>is_on;
+<b><font size="-1" color="#666666"> 8:</font></b>              <b>emit</b> go_click => <b>not</b> <b>this</b>.is_on;
 <b><font size="-1" color="#666666"> 9:</font></b>          <b>end</b>
 <b><font size="-1" color="#666666">10:</font></b>      <b>with</b>
 <b><font size="-1" color="#666666">11:</font></b>          <b>loop</b> <b>do</b>
 <b><font size="-1" color="#666666">12:</font></b>              <...>   // switches the check box state
-<b><font size="-1" color="#666666">13:</font></b>              <b>this.</b>is_on = <b>await</b> <b>this.</b>go_click;
+<b><font size="-1" color="#666666">13:</font></b>              <b>this</b>.is_on = <b>await</b> <b>this</b>.go_click;
 <b><font size="-1" color="#666666">14:</font></b>          <b>end</b>
 <b><font size="-1" color="#666666">15:</font></b>      <b>end</b>
 <b><font size="-1" color="#666666">16:</font></b>  <b>end</b></code></pre>
@@ -1073,7 +1073,7 @@ The <code>event</code> keyword declares an internal event which applications can
 <b><font size="-1" color="#666666"> 9:</font></b>      mousegrab_box = <b>new</b> CheckBox(<...>);
 <b><font size="-1" color="#666666">10:</font></b>      connections.push_back(
 <b><font size="-1" color="#666666">11:</font></b>          config_manager.on_mouse_grab_change.connect(
-<b><font size="-1" color="#666666">12:</font></b>              std::bind(&CheckBox::set_state, mousegrab_box, <...>, <b>false);</b>
+<b><font size="-1" color="#666666">12:</font></b>              std::bind(&CheckBox::set_state, mousegrab_box, <...>, <b>false</b>);
 <b><font size="-1" color="#666666">13:</font></b>      );
 <b><font size="-1" color="#666666">14:</font></b>      connections.push_back(
 <b><font size="-1" color="#666666">15:</font></b>          mousegrab_box->on_change.connect(

@@ -68,9 +68,9 @@ CODE2N = nil
 
 local KEYS = {
     CPP = {
-        'class', 'else', 'return', 'if',
+        'class', 'else', 'return', 'if', 'while', 'case',
         'bool', 'this', 'false', 'true', 'void', 'int',
-        'new', 'switch', 'typedef', 'for',
+        'new', 'switch', 'typedef', 'for', 'break', 'float',
     },
     CEU = {
         'class', 'else', 'return', 'if',
@@ -120,9 +120,9 @@ function CODE_LINES (code)
 
     if OPTS.language then
         for _, key in ipairs(assert(KEYS[OPTS.language])) do
-            ret = string.gsub(ret, '(%s)(%p*'..key..')$',    '%1<b>%2</b>')
-            ret = string.gsub(ret, '(%s)(%p*'..key..')(%s)', '%1<b>%2</b>%3')
-            ret = string.gsub(ret, '(%s)(%p*'..key..'%p+)',  '%1<b>%2</b>')
+            ret = string.gsub(ret, '([%s%p]+)('..key..')([%s%p])', '%1<b>%2</b>%3')
+            ret = string.gsub(ret, '([%s%p]+)('..key..')$',    '%1<b>%2</b>')
+            --ret = string.gsub(ret, '([%s%p]+)('..key..'%p+)',  '%1<b>%2</b>')
         end
     end
 
@@ -711,7 +711,7 @@ void Bomber::update ()
 
     // 5. Last frame: kills the Pingu
     if (sprite.is_finished ()) {                                @die_1
-        pingu_>set_status(Pingu::PS_DEAD);                      @die_2
+        pingu->set_status(Pingu::PS_DEAD);                      @die_2
     }
 }
 
@@ -1693,7 +1693,7 @@ especially if there is no hierarchy relationship between them.
 ]]
 
 @FIG_NEW(options-anim-opt.gif,
-         The *Mouse Grab" configuration option.,
+         The *Mouse Grab* configuration option.,
          350)
 
 In Pingus, the *Mouse Grab* option restricts the mouse movement to the game 
