@@ -65,31 +65,68 @@ function FIG_REF (file)
 end
 
 CODE2N = nil
-CODE2N_RESET = true
+
+local KEYS = {
+    CPP = {
+        'class', 'else', 'return', 'if',
+        'bool', 'this', 'false', 'true', 'void', 'int',
+        'new', 'switch', 'typedef', 'for',
+    },
+    CEU = {
+        'class', 'else', 'return', 'if',
+        'bool', 'this', 'false', 'true', 'void', 'int',
+        'do', 'end', 'loop', 'escape', 'then', 'global', 'with', 'watching',
+        'await', 'emit',
+        'par', 'par/or', 'par/and', 'call',
+        'var', 'event', 'in', 'or',
+        'and', 'interface', 'until', 'pool',
+        'every', 'spawn', 'break', 'not',
+    },
+}
 
 function CODE_LINES (code)
-    if CODE2N_RESET then
-        CODE2N = {}
-    end
     local sep = lpeg.P('\n')
     local elem = lpeg.C((1 - sep)^0)
     local p = lpeg.Ct(elem * (sep * elem)^0)
     local t = lpeg.match(p, code)
-    assert(t[1]    == '')
-    assert(t[2]    == '```')
-    assert(t[#t-1] == '```')
-    assert(t[#t]   == '')
-    for i=3, #t-2 do
-        local line = t[i]
+
+    local OPTS = {}
+    for opt,v in string.gmatch(t[1], '(%a+)=(%a+),?') do
+        OPTS[opt] = v
+    end
+
+    assert(t[#t] == '')
+    table.remove(t, 1)
+    table.remove(t, #t)
+
+    if OPTS.reset ~= 'false' then
+        CODE2N = {}
+    end
+
+    for i, line in ipairs(t) do
         local id = string.match(line, '@(.*)$')
         if id then
             assert(not CODE2N[id], 'repeated @id: "'..id..'"')
-            CODE2N[id] = (i-2)
+            CODE2N[id] = i
             line = string.gsub(line, ' +@.*$', '')
+            t[i] = line
         end
-        t[i] = string.format('%2s',(i-2))..':  '..line
+        if OPTS.lines ~= 'false' then
+            t[i] = string.format('<b><font size="-1" color="#666666">%2s',i)..
+                                 ':</font></b>  '..line
+        end
     end
-    return table.concat(t,'\n')
+    local ret = table.concat(t,'\n')
+
+    if OPTS.language then
+        for _, key in ipairs(assert(KEYS[OPTS.language])) do
+            ret = string.gsub(ret, '(%s)(%p*'..key..')$',    '%1<b>%2</b>')
+            ret = string.gsub(ret, '(%s)(%p*'..key..')(%s)', '%1<b>%2</b>%3')
+            ret = string.gsub(ret, '(%s)(%p*'..key..'%p+)',  '%1<b>%2</b>')
+        end
+    end
+
+    return '<pre><code>'..ret..'</code></pre>'
 end
 
 function N (id)
@@ -231,8 +268,7 @@ The code in C++ implements the class `ArmageddonButton`
 Here, we focus on detecting the double click, hiding unrelated parts with 
 `<...>`:
 
-@CODE_LINES[[
-```
+@CODE_LINES[[language=CPP,
 ArmageddonButton::ArmageddonButton(<...>):
     RectComponent(<...>),                       @base_class
     <...>
@@ -268,7 +304,6 @@ void ArmageddonButton::on_click (<...>) {       @on_click_1
         pressed = true;                         @pressed_2
     }
 }                                               @on_click_2
-```
 ]]
 
 The `update` @NN(update_1,-,update_2) and `on_click` 
@@ -322,8 +357,7 @@ explicit manipulation of state variables for control-flow purposes.
 The equivalent code in Céu [[![X]][ceu-armageddon]] defines the class 
 `ArmageddonButton` as follows:
 
-@CODE_LINES[[
-```
+@CODE_LINES[[language=CEU,
 class ArmageddonButton with
     <...>
 do                                       @do
@@ -339,7 +373,6 @@ do                                       @do
     <...>
     emit global:go_armageddon;           @emit
 end                                      @end
-```
 ]]
 
 Instead of *objects*, classes in Céu specify *organisms* with a body 
@@ -641,8 +674,7 @@ specific frames (@FIG_REF[[state-anim/state-anim.gif]]) as follows:
 The code in C++ [[![X]][cpp-bomber]] defines the class `Bomber` which 
 implements the `draw` and `update` callback methods:
 
-@CODE_LINES[[
-```
+@CODE_LINES[[language=CPP,
 Bomber::Bomber (Pingu* p) :
     <...>
     sound_played(false),        // tracks state 2               @def_1
@@ -692,7 +724,6 @@ void Bomber::draw (SceneContext& gc) {
     }
     gc.color().draw(sprite, pingu->get_pos ());
 }
-```
 ]]
 
 The class defines one state variable for each action to perform 
@@ -724,8 +755,7 @@ unavoidable, being part of the essence of object-oriented programming
 The implementation in Céu doesn't require explicit state variables and more 
 closely reflects in the source code the sequential state machine:
 
-@CODE_LINES[[
-```
+@CODE_LINES[[language=CEU,
 class Bomber with
     <...>
 do
@@ -756,7 +786,6 @@ do
         escape {ActionName::DEAD};
     end
 end
-```
 ]]
 
 Note how we isolate unrelated behaviors to the animation, such as the pingu 
@@ -834,8 +863,7 @@ The code in C++ [[![X]][cpp-story-screen-component]] defines the class
 `StoryScreenComponent` with a `next_text` method to advance the words and 
 pages:
 
-@CODE_LINES[[
-```
+@CODE_LINES[[language=CPP,
 StoryScreenComponent::StoryScreenComponent (<...>) :
     <...>
 {
@@ -862,7 +890,6 @@ void StoryScreenComponent::next_text() {
         }
     }                                           @adv_2
 }
-```
 ]]
 
 @FIG_NEW(story.png,
@@ -887,8 +914,7 @@ mixed inside the method `next_text`.
 The code in Céu [[![X]][ceu-story-pages]] uses a `next_text` event to advance 
 the words and pages:
 
-@CODE_LINES[[
-```
+@CODE_LINES[[language=CEU,
 class StoryScreen with
     <...>
 do
@@ -907,7 +933,6 @@ do
         end
     end                                                     @loop_end
 end
-```
 ]]
 
 For the sequential navigation from page to page, we use a simple loop 
@@ -943,8 +968,7 @@ The `StoryDot` in C++ [[![X]][cpp-story-dot]] reads the level file to check
 whether the story should, after termination, display the *Credits* screen or 
 not:
 
-@CODE_LINES[[
-```
+@CODE_LINES[[language=CPP,
 StoryDot::StoryDot(const FileReader& reader) :
     m_credits(false),                           // by default, don't display
 {
@@ -957,7 +981,6 @@ void StoryDot::on_click() {
     ScreenManager::instance()->push_screen(std::make_shared<StoryScreen>(<...>, m_credits)); @call
     <...>
 }
-```
 ]]
 
 The boolean variable `m_credits` is passed to the `StoryScreen` @NN(call)
@@ -966,8 +989,7 @@ after displaying the story.
 The `StoryScreen` forwards the continuation [[![X]][cpp-story-screen-forward]] 
 to the `StoryComponent` [[![X]][cpp-story-screen-component]]:
 
-@CODE_LINES[[
-```
+@CODE_LINES[[language=CPP,
 StoryScreenComponent::StoryScreenComponent (<...>) :
     m_credits(credits),
     <...>
@@ -993,7 +1015,6 @@ void StoryScreenComponent::next_text() {
         }                       @adv_2
     }
 }
-```
 ]]
 
 When the method `next_text` has no pages to display @NN(adv_1,-,adv_2), it 
@@ -1005,8 +1026,7 @@ decides where to go next, depending on the continuation flag `m_credits`
 In Céu, the flow between the screens to display is a simple sequence of 
 statements:
 
-@CODE_LINES[[
-```
+@CODE_LINES[[language=CEU,
 loop do
     var int ret = do WorldmapScreen;                @call_world
     if ret==_WORLDMAP_RETURN_STORY_MAP or ret==_WORLDMAP_RETURN_STORY_CREDITS then
@@ -1019,14 +1039,15 @@ loop do
         <...>
     end
 end
-```
 ]]
 
 <div class="box">
+**The `do` notation**:
+
 The `do` notation is a syntactic sugar for creating and awaiting an organism, 
 e.g.:
 
-```
+@CODE_LINES[[language=CEU, lines=false, reset=false,
 var int ret = do WorldmapScreen;
 <...>
 
@@ -1038,7 +1059,7 @@ do
     ret = await w;
 end
 <...>
-```
+]]
 
 A `do` is analogous to a procedure call, holding the current state while the 
 started organism executes.
@@ -1156,10 +1177,7 @@ TODO: falar de broadcast (in Ceu: unless it is paused, all receive always)
 Let's dig into the `Bomber` animation class in C++ [[![X]][cpp-bomber]], 
 focusing on the `sprite` member, and the `update` and `draw` callback methods:
 
-@CODE_LINES[[
-```
-// bomber.hpp/cpp
-
+@CODE_LINES[[language=CPP,
 class Bomber : public PinguAction
 {
     <...>
@@ -1182,7 +1200,6 @@ void Bomber::draw (SceneContext& gc) {      @draw_1
     <...>
     gc.color().draw(sprite, <...>);
 }                                           @draw_2
-```
 ]]
 
 The class loads the `sprite` in the constructor @NN(load) and continually 
@@ -1253,15 +1270,13 @@ Note that each dispatching step has a reason to exist:
 
 Now, consider the `Bomber` animation in Céu [[![X]][ceu-bomber]]:
 
-@CODE_LINES[[
-```
+@CODE_LINES[[language=CEU,
 class Bomber with
     interface IPinguAction;
 do
     var Sprite sprite = Sprite.build_name(<...>);   @dcl
     <...>
 end
-```
 ]]
 
 As mentioned before, organisms in Céu are active entities and can react 
@@ -1289,8 +1304,7 @@ As an example, the explosion sprite for the `Bomber` animation above
 [[![X]](#bomber)] reacts and redraws exactly for one occurrence of 
 `WORLD_UPDATE` (after the 13th animation frame):
 
-@CODE_LINES[[
-```
+@CODE_LINES[[language=CEU,
 class Bomber with
     <...>
 do
@@ -1305,7 +1319,6 @@ do
         end                                                     @end
         <...>
 end
-```
 ]]
 
 We enclose the declaration with an explicit block @NN(do,-,end) that restricts 
@@ -1383,8 +1396,7 @@ Most UI widgets in the `GameSession` screen class are static and coexist with
 it, i.e., they are added in the constructor and are never removed explicitly
 [[![X]][cpp-gamesession-containers]]:
 
-@CODE_LINES[[
-```
+@CODE_LINES[[language=CPP,
 GameSession::GameSession(<...>) :
     <...>
 {
@@ -1398,7 +1410,6 @@ GameSession::GameSession(<...>) :
     gui_manager->add(small_map);                //    hierarchy
     <...>
 }
-```
 ]]
 
 Even so, the `add` method expects only dynamically allocated children because 
@@ -1428,8 +1439,7 @@ The dynamic nature of containers in C++ demand extra caution:
 In Céu, entities that coexist with an enclosing class just need to be declared 
 at the top-level block [[![X]][ceu-world-top]]:
 
-@CODE_LINES[[
-```
+@CODE_LINES[[language=CEU,
 class World with
     <...>
 do
@@ -1441,7 +1451,6 @@ do
     end;
     <...>
 end
-```
 ]]
 
 Again, here we never manipulate references to deal with containers, or 
@@ -1459,14 +1468,15 @@ Also, all memory required for static instances is known at compile time.
 In C++, for entities with a dynamic lifespan, we need to `add` and `remove` 
 them explicitly from the container.
 
+@FIG_NEW(pingus_create_die-anim.gif,
+         Creation and death of pingus,
+         400)
+
 As an example, pingus are dynamic entities created periodically and destroyed 
-under certain conditions (e.g. when going out of the screen
-[[![X]][cpp-pingu-dead]]):
+under certain conditions (e.g., @FIG_REF(pingus_create_die-anim.gif), when 
+falling from a high altitude [[![X]][cpp-pingu-dead]]):
 
-TODO: falling and dyeing animation at the same time
-
-@CODE_LINES[[
-```
+@CODE_LINES[[language=CPP,
 Pingu* PinguHolder::create_pingu (<...>) {              @create_1
     <...>
     Pingu* pingu = new Pingu (<...>);
@@ -1487,7 +1497,6 @@ void PinguHolder::update() {                            @update_1
         ++pingu;
     }
 }                                                       @update_2
-```
 ]]
 
 `PinguHolder::create_pingu` @NN(create_1,-,create_2) creates a new `Pingu` 
@@ -1513,8 +1522,7 @@ dynamically, also specifying a `<pool>` to hold the new instance.
 The `PinguHolder` class in Céu spawns a new `Pingu` for every occurrence of the 
 event `global:go_create_pingu` [[![X]][ceu-pinguholder-every]]:
 
-@CODE_LINES[[
-```
+@CODE_LINES[[language=CEU,
 class PinguHolder with
     <...>
 do                                      @do
@@ -1525,7 +1533,6 @@ do                                      @do
         spawn Pingu in this.pingus;     @spawn
     end
 end                                     @end
-```
 ]]
 
 The class `PinguHolder` declares a pool of `IPingu` [[![X]][ceu-ipingu]] 
@@ -1559,8 +1566,7 @@ In Céu, going back to the case of removing a pingu from the game, we just need
 to terminate its execution block according to the appropriate conditions 
 [[![X]][ceu-pingu-dead]]:
 
-@CODE_LINES[[
-```
+@CODE_LINES[[language=CEU,
 class Pingu with
     <...>
 do
@@ -1574,7 +1580,6 @@ do
         <...>
     end
 end
-```
 ]]
 
 The `escape` statement @NN(escape) aborts the execution block of the instance, 
@@ -1656,7 +1661,7 @@ Also, all memory required for static instances is known at compile time.
 </div>
 
 [cpp-gamesession-containers]: https://github.com/Pingus/pingus/blob/v0.7.6/src/pingus/screens/game_session.cpp#L76
-[cpp-pingu-dead]: https://github.com/Pingus/pingus/blob/v0.7.6/src/pingus/pingu.cpp#L322
+[cpp-pingu-dead]:https://github.com/Pingus/pingus/blob/v0.7.6/src/pingus/actions/splashed.cpp#L48
 [gpp-lapsed-listener]: http://gameprogrammingpatterns.com/observer.html#don't-worry,-i've-got-a-gc
 
 [ceu-sprite-update]: https://github.com/fsantanna/pingus/blob/ceu/ceu/engine/display/sprite.ceu#L109
@@ -1750,8 +1755,7 @@ pressing *Ctrl-G*.
 The implementations in C++ and Céu are similar, i.e., standard event handling 
 to detect the key press:
 
-@CODE_LINES[[
-```
+@CODE_LINES[[language=CPP,
 void GlobalEvent::on_button_press (<...>) {
     <...>
     switch (event.keysym.sym) {
@@ -1764,13 +1768,9 @@ void GlobalEvent::on_button_press (<...>) {
         <...>
     }
 }
-```
 ]]
 
-@[[ CODE2N_RESET = false ]]
-
-@CODE_LINES[[
-```
+@CODE_LINES[[language=CEU,reset=false,
 class GlobalEvent with
     <...>
 do
@@ -1785,7 +1785,6 @@ do
         <...>
     end
 end
-```
 ]]
 
 As @FIG_REF(events.png) illustrates,
@@ -1807,8 +1806,7 @@ The implementation in C++ [[![X]][cpp-config_manager]] uses a `boost::signal`
 
 <a name="cpp-config-manager"/>
 
-@CODE_LINES[[
-```
+@CODE_LINES[[language=CPP,reset=false,
 boost::signals2::signal<void(bool)> on_mouse_grab_change;   // definition in `config_manager.h` @signal_def
 
 void ConfigManager::set_mouse_grab (bool v) {   @set_mouse_grab
@@ -1818,7 +1816,6 @@ void ConfigManager::set_mouse_grab (bool v) {   @set_mouse_grab
         on_mouse_grab_change(v);                @signal
     }                                           @if_2
 }
-```
 ]]
 
 Once the `GlobalEvent` detects a key press, it calls `set_mouse_grab` 
@@ -1832,8 +1829,7 @@ In Céu, since the class `GlobalEvent` already broadcasts the event
 [[![X]][ceu-config_manager]] just needs to react to it continuously to perform 
 the *grab* effect:
 
-@CODE_LINES[[
-```
+@CODE_LINES[[language=CEU,reset=false,
 class ConfigManager with
     event bool go_mouse_grab;
 do
@@ -1841,7 +1837,6 @@ do
         <...>   // the actual "grab" effect
     end
 end
-```
 ]]
 
 <!-- CHECK_BOX -->
@@ -1853,8 +1848,7 @@ notify the application on changes:
 
 <a name="cpp-check-box"/>
 
-@CODE_LINES[[
-```
+@CODE_LINES[[language=CPP,reset=false,
 boost::signals2::signal<void (bool)> on_change;   // definition in `check_box.hpp`
 
 void CheckBox::set_state (bool is_on, bool send_signal) {   @last_argument
@@ -1863,7 +1857,6 @@ void CheckBox::set_state (bool is_on, bool send_signal) {   @last_argument
         on_change(is_on);
     }                       @if_cb_2
 }
-```
 ]]
 
 Again, the `if` enclosing the signal emission @NN(if_cb_1,-,if_cb_2) breaks the 
@@ -1873,8 +1866,7 @@ The `CheckBox` in Céu [[![X]][ceu-check_box]] exposes the event `go_click` for
 notifications in both directions, i.e., from the class to the application and 
 *vice versa*:
 
-@CODE_LINES[[
-```
+@CODE_LINES[[language=CEU,reset=false,
 class CheckBox with
     <...>
     event bool go_click;
@@ -1891,7 +1883,6 @@ do
         end                                             @loop_2
     end
 end
-```
 ]]
 
 The class reacts to external clicks continuously @NN(every_1,-,every_2) to 
@@ -1909,8 +1900,7 @@ The `OptionMenu` closes the loop between the signals in `ConfigManager` and
 The implementation in C++ [[![X]][cpp-option_menu]] connects the two signals as 
 follows:
 
-@CODE_LINES[[
-```
+@CODE_LINES[[language=CPP,reset=false,
 typedef std::vector<boost::signals2::connection> Connections;   // definition in `option_menu.hpp`
 Connections connections;                                        // definition in `option_menu.hpp`
 
@@ -1938,7 +1928,6 @@ OptionMenu::~OptionMenu() {     @destr_1
         (*i).disconnect();
     }
 }                               @destr_2
-```
 ]]
 
 The constructor binds
@@ -1965,8 +1954,7 @@ screen terminates.
 The implementation in Céu [[![X]][ceu-option_menu]] connects the two events as 
 follows:
 
-@CODE_LINES[[
-```
+@CODE_LINES[[language=CEU,reset=false,
 class OptionMenu with
     <...>
 do
@@ -1983,7 +1971,6 @@ do
         end                                         @loop_22
     end
 end
-```
 ]]
 
 The two loops parallel handle the connections in opposite directions:
@@ -2018,8 +2005,6 @@ Boost signals of C++:
 [ceu-option_menu]:https://github.com/fsantanna/pingus/blob/ceu/ceu/pingus/screens/option_menu.ceu#L26
 [cpp-check_box]:https://github.com/Pingus/pingus/blob/v0.7.6/src/pingus/components/choice_box.cpp#L54
 [ceu-check_box]:https://github.com/fsantanna/pingus/blob/ceu/ceu/pingus/components/check_box.ceu#L4
-
-@[[ CODE2N_RESET = true ]]
 
 <a name="wall-clock-timers"/>
 
