@@ -170,7 +170,7 @@ silentcast, transparent window interior, dont go under the default size
 convert credits-anim.gif -fuzz 10% -layers Optimize optimised.gif
 convert -delay 200 -loop 0 *.png state-anim.gif
 :%s/\(\[X]\[[^]]*\]\)/\&#91;\1\&#93;/g
-chico@note:/opt/pingus/ceu$ lua parser.lua README.md > /tmp/README.md
+chico@note:/opt/pingus/ceu$ lua md-macros.lua README.md > /tmp/README.md
 chico@note:/opt/pingus/ceu$ pandoc /tmp/README.md >README.html 
 key-mon --noshift --noalt
 
@@ -264,7 +264,8 @@ pingus (@FIG_REF[[double-click-opt.gif]]).
 <!-- CPP-ARMAGEDDON -->
 
 The code in C++ implements the class `ArmageddonButton` 
-[[![X]][cpp-armageddon]] with methods for rendering and handling events.
+[[![X]][cpp-armageddon]] with methods for rendering the button and handling its 
+events.
 Here, we focus on detecting the double click, hiding unrelated parts with 
 `<...>`:
 
@@ -272,8 +273,8 @@ Here, we focus on detecting the double click, hiding unrelated parts with
 ArmageddonButton::ArmageddonButton(<...>):
     RectComponent(<...>),                       @base_class
     <...>
-    pressed(false);                             @pressed_1
-    press_time();                               @press_time_1
+    pressed(false); // initial button state             @pressed_1
+    press_time();   // how long since the 1st click?    @press_time_1
     <...>
 {
     <...>
@@ -288,11 +289,11 @@ void ArmageddonButton::update (float delta) {   @update_1
     if (pressed) {                              @pressed_4
         press_time += delta;                    @press_time_2
         if (press_time > 1.0f) {
-            pressed = false;                    @reset_1
-            press_time = 0;                     @reset_2
+            pressed = false;    // giving up, 1st click was     @reset_1
+            press_time = 0;     //            too long ago      @reset_2
         }
     } else {
-        pressed = false;
+        <...>
         press_time = 0;
     }
 }                                               @update_2
@@ -311,11 +312,11 @@ The `update` @NN(update_1,-,update_2) and `on_click`
 are the relevant methods of the class and are examples of *short-lived 
 callbacks*, which are pieces of code that execute in reaction to external input 
 events.
-Here, `on_click` reacts to mouse clicks, which are detected by the base class 
+The callback `on_click` reacts to mouse clicks detected by the base class 
 `RectComponent` @NN(base_class), while `update` continuously reacts to the 
 passage of time.
-Callbacks are short lived because they must execute as fast as possible to keep 
-the game with real-time responsiveness.
+Callbacks must be short lived because they should react to input as fast as 
+possible to keep the game with real-time responsiveness.
 
 @FIG_NEW(double-click.png,
          State machine for the *Armageddon* double click,
@@ -329,11 +330,14 @@ If another click occurs within 1 second, the class signals the double click to
 the application @NN(armageddon).
 Otherwise, the `pressed` and `press_time` state variables are reset 
 @NN(reset_1,-,reset_2).
+
 @FIG_REF[[double-click.png]] illustrates how we can model the double-click 
 behavior as a state machine.
+The circles represent the state of the variables in the class, while the arrows 
+represent callback reactions that manipulate the state.
 
-However, note how the accesses to these state variables are spread across the 
-entire class.
+Note how the accesses to these state variables are spread across the entire 
+class.
 For instance, the distance between the initialization of `pressed` 
 @NN(pressed_1) and the last access to it @NN(pressed_2) is over 40 lines in the 
 original file [[![X]][cpp-armageddon-2]].
@@ -344,18 +348,23 @@ Also, even though the state variables are private, unrelated methods such as
 
 Because callbacks are short lived, the only way they can affect each other is 
 by manipulating persisting member variables in the object.
-These *state variables* retain their values across multiple invocations, e.g.:
-`on_click` writes to `pressed` in the first click, and checks its state in 
-further clicks @NN(pressed_3,,pressed_2).
-In the meantime, `update` also checks for `pressed` and may change its state 
-@NN(pressed_4,,reset_1).
+These *state variables* retain their values across multiple invocations and 
+serve as a control mechanism across reaction to external events.
+As an example, callbacks `on_click` and `update` react independently but must 
+agree on a common protocol to detect the double click:
+
+* Callback `on_click` writes to `pressed` in the first click @NN(pressed_3), 
+  and checks its state in further clicks @NN(pressed_2).
+* In the meantime, callback `update` also checks for `pressed` and may reset 
+  its state @NN(pressed_4,,reset_1).
 
 <!-- CEU-ARMAGEDDON -->
 
-Céu provides structured constructs to deal with events, aiming to eradicate 
-explicit manipulation of state variables for control-flow purposes.
-The equivalent code in Céu [[![X]][ceu-armageddon]] defines the class 
-`ArmageddonButton` as follows:
+Using an antagonistic approach, Céu provides structured constructs to deal with 
+events, aiming to eradicate explicit manipulation of state variables for 
+control-flow purposes.
+The equivalent code in Céu defines the class `ArmageddonButton` 
+[[![X]][ceu-armageddon]] as follows:
 
 @CODE_LINES[[language=CEU,
 class ArmageddonButton with
@@ -375,30 +384,31 @@ do                                       @do
 end                                      @end
 ]]
 
-Instead of *objects*, classes in Céu specify *organisms* with a body 
-declaration @NN(do,-,end) which executes for each instance while alive.
-Unlike objects, an organism is an active entity and starts to execute its body 
-in a concurrent and deterministic manner with other alive organisms (but *not* 
-actually in parallel).
-An execution body can use control-flow statements that keep the execution 
-context across event occurrences (i.e., across `await` statements).
+Instead of *objects*, classes in Céu instantiate *organisms* with a body 
+declaration @NN(do,-,end) that starts to execute automatically.
+Unlike objects, an organism is a reactive entity that executes concurrently 
+with other organisms.
+Organisms react to external events sequentially, one after the other, resulting 
+in deterministic programs.
+Unlike callbacks, organism bodies keep the execution context across event 
+occurrences alive (if they don't terminate).
 
 The double click detection is a `loop` @NN(loop_do,-,loop_end) that awaits the 
-first click @N(await_1) and then, watching 1 second 
+first click @NN(await_1) and then, watching 1 second 
 @NN(watching_do,-,watching_end), awaits the second click @NN(await_2).
 If the second click occurs within 1 second, we `break` the loop @NN(break) and 
 signal the double click to the application @NN(emit).
 Otherwise, the `watching` block as a whole aborts and restarts the loop, 
 falling back to the first click `await` @NN(await_1).
 
-The double click detection in Céu doesn't require state variables and is 
+Note how double click detection in Céu doesn't require state variables and is 
 entirely self-contained in the `loop` body  @NN(loop_do,-,loop_end).
-Furthermore, these 7 lines of code do nothing besides detecting a double click, 
-i.e., the actual effect happens outside the loop @NN(emit).
+Furthermore, these 7 lines of code **only** detects a double click, leaving the 
+actual effect to happen outside the loop @NN(emit).
 
-As we argue throughout the document, appropriate control-flow mechanisms (e.g., 
-`await` and `watching`) helps on the structure and composition of code, leading 
-to considerable gains in productivity.
+As we argue throughout this document, appropriate control-flow mechanisms for 
+reactive applications (e.g., `await` and `watching`) helps on the structure and 
+composition of code, resulting in considerable gains in productivity.
 
 [cpp-armageddon]: https://github.com/Pingus/pingus/blob/v0.7.6/src/pingus/components/action_button.cpp#L24 
 [cpp-armageddon-2]: https://github.com/Pingus/pingus/blob/v0.7.6/src/pingus/components/action_button.cpp#L33-#L90

@@ -55,7 +55,7 @@ silentcast, transparent window interior, dont go under the default size
 convert credits-anim.gif -fuzz 10% -layers Optimize optimised.gif
 convert -delay 200 -loop 0 *.png state-anim.gif
 :%s/\(\[X]\[[^]]*\]\)/\&#91;\1\&#93;/g
-chico@note:/opt/pingus/ceu$ lua parser.lua README.md > /tmp/README.md
+chico@note:/opt/pingus/ceu$ lua md-macros.lua README.md > /tmp/README.md
 chico@note:/opt/pingus/ceu$ pandoc /tmp/README.md >README.html 
 key-mon --noshift --noalt
 
@@ -123,12 +123,12 @@ TODO:
 <p>In Pingus, double clicking the <em>Armageddon button</em> literally explodes all pingus (Figure 1).</p>
 <!-- CPP-ARMAGEDDON -->
 
-<p>The code in C++ implements the class <code>ArmageddonButton</code> [<a href="https://github.com/Pingus/pingus/blob/v0.7.6/src/pingus/components/action_button.cpp#L24"><img src="images/link_12.png" alt="X" /></a>] with methods for rendering and handling events. Here, we focus on detecting the double click, hiding unrelated parts with <code>&lt;...&gt;</code>:</p>
+<p>The code in C++ implements the class <code>ArmageddonButton</code> [<a href="https://github.com/Pingus/pingus/blob/v0.7.6/src/pingus/components/action_button.cpp#L24"><img src="images/link_12.png" alt="X" /></a>] with methods for rendering the button and handling its events. Here, we focus on detecting the double click, hiding unrelated parts with <code>&lt;...&gt;</code>:</p>
 <pre><code><b><font size="-1" color="#666666"> 1:</font></b>  ArmageddonButton::ArmageddonButton(<...>):
 <b><font size="-1" color="#666666"> 2:</font></b>      RectComponent(<...>),
 <b><font size="-1" color="#666666"> 3:</font></b>      <...>
-<b><font size="-1" color="#666666"> 4:</font></b>      pressed(<b>false</b>);
-<b><font size="-1" color="#666666"> 5:</font></b>      press_time();
+<b><font size="-1" color="#666666"> 4:</font></b>      pressed(<b>false</b>); // initial button state
+<b><font size="-1" color="#666666"> 5:</font></b>      press_time();   // how long since the 1st click?
 <b><font size="-1" color="#666666"> 6:</font></b>      <...>
 <b><font size="-1" color="#666666"> 7:</font></b>  {
 <b><font size="-1" color="#666666"> 8:</font></b>      <...>
@@ -143,11 +143,11 @@ TODO:
 <b><font size="-1" color="#666666">17:</font></b>      <b>if</b> (pressed) {
 <b><font size="-1" color="#666666">18:</font></b>          press_time += delta;
 <b><font size="-1" color="#666666">19:</font></b>          <b>if</b> (press_time > 1.0f) {
-<b><font size="-1" color="#666666">20:</font></b>              pressed = <b>false</b>;
-<b><font size="-1" color="#666666">21:</font></b>              press_time = 0;
+<b><font size="-1" color="#666666">20:</font></b>              pressed = <b>false</b>;    // giving up, 1st click was
+<b><font size="-1" color="#666666">21:</font></b>              press_time = 0;     //            too long ago
 <b><font size="-1" color="#666666">22:</font></b>          }
 <b><font size="-1" color="#666666">23:</font></b>      } <b>else</b> {
-<b><font size="-1" color="#666666">24:</font></b>          pressed = <b>false</b>;
+<b><font size="-1" color="#666666">24:</font></b>          <...>
 <b><font size="-1" color="#666666">25:</font></b>          press_time = 0;
 <b><font size="-1" color="#666666">26:</font></b>      }
 <b><font size="-1" color="#666666">27:</font></b>  }
@@ -160,16 +160,21 @@ TODO:
 <b><font size="-1" color="#666666">34:</font></b>      }
 <b><font size="-1" color="#666666">35:</font></b>  }</code></pre>
 
-<p>The <code>update</code> (ln. 15-27) and <code>on_click</code> (ln. 29-35) are the relevant methods of the class and are examples of <em>short-lived callbacks</em>, which are pieces of code that execute in reaction to external input events. Here, <code>on_click</code> reacts to mouse clicks, which are detected by the base class <code>RectComponent</code> (ln. 2), while <code>update</code> continuously reacts to the passage of time. Callbacks are short lived because they must execute as fast as possible to keep the game with real-time responsiveness.</p>
+<p>The <code>update</code> (ln. 15-27) and <code>on_click</code> (ln. 29-35) are the relevant methods of the class and are examples of <em>short-lived callbacks</em>, which are pieces of code that execute in reaction to external input events. The callback <code>on_click</code> reacts to mouse clicks detected by the base class <code>RectComponent</code> (ln. 2), while <code>update</code> continuously reacts to the passage of time. Callbacks must be short lived because they should react to input as fast as possible to keep the game with real-time responsiveness.</p>
 <div class="images">
 <img src="images/double-click.png" width="550"/> <br> <a href="images/double-click.png"> Figure 2</a>: State machine for the <em>Armageddon</em> double click
 </div>
-<p>The class first initializes the variable <code>pressed</code> to track the first click (ln. 4,33). It also initializes the variable <code>press_time</code> to count the time since the first click (ln. 5,18). If another click occurs within 1 second, the class signals the double click to the application (ln. 31). Otherwise, the <code>pressed</code> and <code>press_time</code> state variables are reset (ln. 20-21). Figure 2 illustrates how we can model the double-click behavior as a state machine.</p>
-<p>However, note how the accesses to these state variables are spread across the entire class. For instance, the distance between the initialization of <code>pressed</code> (ln. 4) and the last access to it (ln. 33) is over 40 lines in the original file [<a href="https://github.com/Pingus/pingus/blob/v0.7.6/src/pingus/components/action_button.cpp#L33-#L90"><img src="images/link_12.png" alt="X" /></a>]. Arguably, this dispersion of code across methods makes the understanding and maintenance of the double-click behavior more difficult. Also, even though the state variables are private, unrelated methods such as <code>draw</code> (ln. 11-13) can potentially access it.</p>
-<p>Because callbacks are short lived, the only way they can affect each other is by manipulating persisting member variables in the object. These <em>state variables</em> retain their values across multiple invocations, e.g.: <code>on_click</code> writes to <code>pressed</code> in the first click, and checks its state in further clicks (ln. 30,33). In the meantime, <code>update</code> also checks for <code>pressed</code> and may change its state (ln. 17,20).</p>
+<p>The class first initializes the variable <code>pressed</code> to track the first click (ln. 4,33). It also initializes the variable <code>press_time</code> to count the time since the first click (ln. 5,18). If another click occurs within 1 second, the class signals the double click to the application (ln. 31). Otherwise, the <code>pressed</code> and <code>press_time</code> state variables are reset (ln. 20-21).</p>
+<p>Figure 2 illustrates how we can model the double-click behavior as a state machine. The circles represent the state of the variables in the class, while the arrows represent callback reactions that manipulate the state.</p>
+<p>Note how the accesses to these state variables are spread across the entire class. For instance, the distance between the initialization of <code>pressed</code> (ln. 4) and the last access to it (ln. 33) is over 40 lines in the original file [<a href="https://github.com/Pingus/pingus/blob/v0.7.6/src/pingus/components/action_button.cpp#L33-#L90"><img src="images/link_12.png" alt="X" /></a>]. Arguably, this dispersion of code across methods makes the understanding and maintenance of the double-click behavior more difficult. Also, even though the state variables are private, unrelated methods such as <code>draw</code> (ln. 11-13) can potentially access it.</p>
+<p>Because callbacks are short lived, the only way they can affect each other is by manipulating persisting member variables in the object. These <em>state variables</em> retain their values across multiple invocations and serve as a control mechanism across reaction to external events. As an example, callbacks <code>on_click</code> and <code>update</code> react independently but must agree on a common protocol to detect the double click:</p>
+<ul>
+<li>Callback <code>on_click</code> writes to <code>pressed</code> in the first click (ln. 30), and checks its state in further clicks (ln. 33).</li>
+<li>In the meantime, callback <code>update</code> also checks for <code>pressed</code> and may reset its state (ln. 17,20).</li>
+</ul>
 <!-- CEU-ARMAGEDDON -->
 
-<p>Céu provides structured constructs to deal with events, aiming to eradicate explicit manipulation of state variables for control-flow purposes. The equivalent code in Céu [<a href="https://github.com/fsantanna/pingus/blob/ceu/ceu/pingus/components/action_button.ceu#L6"><img src="images/link_12.png" alt="X" /></a>] defines the class <code>ArmageddonButton</code> as follows:</p>
+<p>Using an antagonistic approach, Céu provides structured constructs to deal with events, aiming to eradicate explicit manipulation of state variables for control-flow purposes. The equivalent code in Céu defines the class <code>ArmageddonButton</code> [<a href="https://github.com/fsantanna/pingus/blob/ceu/ceu/pingus/components/action_button.ceu#L6"><img src="images/link_12.png" alt="X" /></a>] as follows:</p>
 <pre><code><b><font size="-1" color="#666666"> 1:</font></b>  <b>class</b> ArmageddonButton <b>with</b>
 <b><font size="-1" color="#666666"> 2:</font></b>      <...>
 <b><font size="-1" color="#666666"> 3:</font></b>  <b>do</b>
@@ -186,10 +191,10 @@ TODO:
 <b><font size="-1" color="#666666">14:</font></b>      <b>emit</b> <b>global</b>:go_armageddon;
 <b><font size="-1" color="#666666">15:</font></b>  <b>end</b></code></pre>
 
-<p>Instead of <em>objects</em>, classes in Céu specify <em>organisms</em> with a body declaration (ln. 3-15) which executes for each instance while alive. Unlike objects, an organism is an active entity and starts to execute its body in a concurrent and deterministic manner with other alive organisms (but <em>not</em> actually in parallel). An execution body can use control-flow statements that keep the execution context across event occurrences (i.e., across <code>await</code> statements).</p>
-<p>The double click detection is a <code>loop</code> (ln. 6-12) that awaits the first click 7 and then, watching 1 second (ln. 8-11), awaits the second click (ln. 9). If the second click occurs within 1 second, we <code>break</code> the loop (ln. 10) and signal the double click to the application (ln. 14). Otherwise, the <code>watching</code> block as a whole aborts and restarts the loop, falling back to the first click <code>await</code> (ln. 7).</p>
-<p>The double click detection in Céu doesn't require state variables and is entirely self-contained in the <code>loop</code> body (ln. 6-12). Furthermore, these 7 lines of code do nothing besides detecting a double click, i.e., the actual effect happens outside the loop (ln. 14).</p>
-<p>As we argue throughout the document, appropriate control-flow mechanisms (e.g., <code>await</code> and <code>watching</code>) helps on the structure and composition of code, leading to considerable gains in productivity.</p>
+<p>Instead of <em>objects</em>, classes in Céu instantiate <em>organisms</em> with a body declaration (ln. 3-15) that starts to execute automatically. Unlike objects, an organism is a reactive entity that executes concurrently with other organisms. Organisms react to external events sequentially, one after the other, resulting in deterministic programs. Unlike callbacks, organism bodies keep the execution context across event occurrences alive (if they don't terminate).</p>
+<p>The double click detection is a <code>loop</code> (ln. 6-12) that awaits the first click (ln. 7) and then, watching 1 second (ln. 8-11), awaits the second click (ln. 9). If the second click occurs within 1 second, we <code>break</code> the loop (ln. 10) and signal the double click to the application (ln. 14). Otherwise, the <code>watching</code> block as a whole aborts and restarts the loop, falling back to the first click <code>await</code> (ln. 7).</p>
+<p>Note how double click detection in Céu doesn't require state variables and is entirely self-contained in the <code>loop</code> body (ln. 6-12). Furthermore, these 7 lines of code <strong>only</strong> detects a double click, leaving the actual effect to happen outside the loop (ln. 14).</p>
+<p>As we argue throughout this document, appropriate control-flow mechanisms for reactive applications (e.g., <code>await</code> and <code>watching</code>) helps on the structure and composition of code, resulting in considerable gains in productivity.</p>
 <h2 id="why-rewriting-pingus-to-céu">Why rewriting Pingus to Céu?</h2>
 <p>The main motivation to rewrite Pingus from C++ to Céu is to promote its programming model in the context of video games. Céu supports concurrent and deterministic abstractions to specify entities with a high degree of real-time interactions, such as in video game simulation.</p>
 <div class="images">
