@@ -341,107 +341,111 @@ TODO: Case 3: Sprite Animations
 <div class="images">
 <img src="images/bomber-opt.gif" width="350"/> <br> <a href="images/bomber-opt.gif"> Figure 4</a>: The <em>Bomber</em> action
 </div>
-<p>The <em>bomber action</em> explodes the clicked pingu, throwing particles around and also destroying the terrain under its radius (Figure 4).</p>
+<p>The <em>Bomber</em> action explodes the clicked pingu, throwing particles around and also destroying the terrain under its radius (Figure 4).</p>
 <div class="images">
 <img src="images/state-anim/state-anim.gif" width="550"/> <br> <a href="images/state-anim/state-anim.gif"> Figure 5</a>: State machine for the <em>Bomber</em> animation
 </div>
-<p>A sequential state machine models an animation with actions associated to specific frames (Figure 5) as follows:</p>
+<p>A sequential state machine (Figure 5) models the animation with actions associated to specific frames as follows:</p>
 <ol style="list-style-type: decimal">
 <li>0th frame: plays a &quot;Oh no!&quot; sound.</li>
 <li>10th frame: plays a &quot;Bomb!&quot; sound.</li>
-<li>13th frame: throws particles, destroys the terrain, shows an explosion sprite</li>
-<li>Game tick: hides the explosion sprite</li>
-<li>Last frame: kills the pingu</li>
+<li>13th frame: throws particles, destroys the terrain, and shows an explosion sprite.</li>
+<li>Game tick: hides the explosion sprite.</li>
+<li>Last frame: kills the pingu.</li>
 </ol>
 <p><em>(Open <a href="https://youtu.be/QLXIT59il6o?t=306">this video</a> to listen to the sound effects.)</em></p>
-<p>The code in C++ [<a href="https://github.com/Pingus/pingus/blob/v0.7.6/src/pingus/actions/bomber.cpp"><img src="images/link_12.png" alt="X" /></a>] defines the class <code>Bomber</code> which implements the <code>draw</code> and <code>update</code> callback methods:</p>
+<p>The code in C++ defines the class <code>Bomber</code> [<a href="https://github.com/Pingus/pingus/blob/v0.7.6/src/pingus/actions/bomber.cpp"><img src="images/link_12.png" alt="X" /></a>] with callbacks <code>draw</code> and <code>update</code> to manage the state machine:</p>
 <pre><code><b><font size="-1" color="#666666"> 1:</font></b>  Bomber::Bomber (Pingu* p) :
 <b><font size="-1" color="#666666"> 2:</font></b>      <...>
-<b><font size="-1" color="#666666"> 3:</font></b>      sound_played(<b>false</b>),        // tracks state 2
-<b><font size="-1" color="#666666"> 4:</font></b>      particle_thrown(<b>false</b>),     // tracks state 3
-<b><font size="-1" color="#666666"> 5:</font></b>      colmap_exploded(<b>false</b>),     // tracks state 3
-<b><font size="-1" color="#666666"> 6:</font></b>      gfx_exploded(<b>false</b>)         // tracks state 4
-<b><font size="-1" color="#666666"> 7:</font></b>  {
-<b><font size="-1" color="#666666"> 8:</font></b>      <...>
-<b><font size="-1" color="#666666"> 9:</font></b>      // 1. 0th frame: plays a "Oh no!" sound.
-<b><font size="-1" color="#666666">10:</font></b>      get_world()->play_sound("ohno", pingu->get_pos());
-<b><font size="-1" color="#666666">11:</font></b>  }
-<b><font size="-1" color="#666666">12:</font></b>  
-<b><font size="-1" color="#666666">13:</font></b>  <b>void</b> Bomber::update ()
-<b><font size="-1" color="#666666">14:</font></b>  {
-<b><font size="-1" color="#666666">15:</font></b>      sprite.update ();
-<b><font size="-1" color="#666666">16:</font></b>      <...>   // pingu movement
-<b><font size="-1" color="#666666">17:</font></b>  
-<b><font size="-1" color="#666666">18:</font></b>      // 2. 10th frame: plays a "Bomb!" sound.
-<b><font size="-1" color="#666666">19:</font></b>      <b>if</b> (sprite.get_current_frame()==10 && !sound_played) {
-<b><font size="-1" color="#666666">20:</font></b>          sound_played = <b>true</b>;
-<b><font size="-1" color="#666666">21:</font></b>          get_world()->play_sound("plop", pingu->get_pos());
-<b><font size="-1" color="#666666">22:</font></b>      }
-<b><font size="-1" color="#666666">23:</font></b>  
-<b><font size="-1" color="#666666">24:</font></b>      // 3. 13th frame: throws particles, destroys the terrain, shows an explosion sprite
-<b><font size="-1" color="#666666">25:</font></b>      <b>if</b> (sprite.get_current_frame()==13 && !particle_thrown) {
-<b><font size="-1" color="#666666">26:</font></b>          particle_thrown = <b>true</b>;
-<b><font size="-1" color="#666666">27:</font></b>          get_world()->get_pingu_particle_holder()->add_particle(pingu->get_x(),
-<b><font size="-1" color="#666666">28:</font></b>                                                                 pingu->get_y()-5);
-<b><font size="-1" color="#666666">29:</font></b>      }
-<b><font size="-1" color="#666666">30:</font></b>      <b>if</b> (sprite.get_current_frame()==13 && !colmap_exploded) {
-<b><font size="-1" color="#666666">31:</font></b>          colmap_exploded = <b>true</b>;
-<b><font size="-1" color="#666666">32:</font></b>          get_world()->remove(bomber_radius, <...>);
-<b><font size="-1" color="#666666">33:</font></b>      }
-<b><font size="-1" color="#666666">34:</font></b>  
-<b><font size="-1" color="#666666">35:</font></b>      // 5. Last frame: kills the Pingu
-<b><font size="-1" color="#666666">36:</font></b>      <b>if</b> (sprite.is_finished ()) {
-<b><font size="-1" color="#666666">37:</font></b>          pingu->set_status(Pingu::PS_DEAD);
-<b><font size="-1" color="#666666">38:</font></b>      }
-<b><font size="-1" color="#666666">39:</font></b>  }
-<b><font size="-1" color="#666666">40:</font></b>  
-<b><font size="-1" color="#666666">41:</font></b>  <b>void</b> Bomber::draw (SceneContext& gc) {
-<b><font size="-1" color="#666666">42:</font></b>      // 3. 13th frame: throws particles, destroys the terrain, shows an explosion sprite
-<b><font size="-1" color="#666666">43:</font></b>      // 4. Game tick: hides the explosion sprite
-<b><font size="-1" color="#666666">44:</font></b>      <b>if</b> (sprite.get_current_frame()==13 && !gfx_exploded) {
-<b><font size="-1" color="#666666">45:</font></b>          gfx_exploded = <b>true</b>;
-<b><font size="-1" color="#666666">46:</font></b>          gc.color().draw (explo_surf, <...>);
-<b><font size="-1" color="#666666">47:</font></b>      }
-<b><font size="-1" color="#666666">48:</font></b>      gc.color().draw(sprite, pingu->get_pos ());
-<b><font size="-1" color="#666666">49:</font></b>  }</code></pre>
+<b><font size="-1" color="#666666"> 3:</font></b>      sprite(),                   // bomber sprite
+<b><font size="-1" color="#666666"> 4:</font></b>      sound_played(<b>false</b>),        // tracks state 2
+<b><font size="-1" color="#666666"> 5:</font></b>      particle_thrown(<b>false</b>),     // tracks state 3
+<b><font size="-1" color="#666666"> 6:</font></b>      colmap_exploded(<b>false</b>),     // tracks state 3
+<b><font size="-1" color="#666666"> 7:</font></b>      gfx_exploded(<b>false</b>)         // tracks state 4
+<b><font size="-1" color="#666666"> 8:</font></b>  {
+<b><font size="-1" color="#666666"> 9:</font></b>      <...>
+<b><font size="-1" color="#666666">10:</font></b>      // 1. 0th frame: plays a "Oh no!" sound.
+<b><font size="-1" color="#666666">11:</font></b>      get_world()->play_sound("ohno", pingu->get_pos());
+<b><font size="-1" color="#666666">12:</font></b>  }
+<b><font size="-1" color="#666666">13:</font></b>  
+<b><font size="-1" color="#666666">14:</font></b>  <b>void</b> Bomber::update ()
+<b><font size="-1" color="#666666">15:</font></b>  {
+<b><font size="-1" color="#666666">16:</font></b>      sprite.update ();
+<b><font size="-1" color="#666666">17:</font></b>      <...>   // pingu movement
+<b><font size="-1" color="#666666">18:</font></b>  
+<b><font size="-1" color="#666666">19:</font></b>      // 2. 10th frame: plays a "Bomb!" sound.
+<b><font size="-1" color="#666666">20:</font></b>      <b>if</b> (sprite.get_current_frame()==10 && !sound_played) {
+<b><font size="-1" color="#666666">21:</font></b>          sound_played = <b>true</b>;
+<b><font size="-1" color="#666666">22:</font></b>          get_world()->play_sound("plop", pingu->get_pos());
+<b><font size="-1" color="#666666">23:</font></b>      }
+<b><font size="-1" color="#666666">24:</font></b>  
+<b><font size="-1" color="#666666">25:</font></b>      // 3. 13th frame: throws particles, destroys the terrain, shows an explosion sprite
+<b><font size="-1" color="#666666">26:</font></b>      <b>if</b> (sprite.get_current_frame()==13 && !particle_thrown) {
+<b><font size="-1" color="#666666">27:</font></b>          particle_thrown = <b>true</b>;
+<b><font size="-1" color="#666666">28:</font></b>          get_world()->get_pingu_particle_holder()->add_particle(pingu->get_x(),
+<b><font size="-1" color="#666666">29:</font></b>                                                                 pingu->get_y()-5);
+<b><font size="-1" color="#666666">30:</font></b>      }
+<b><font size="-1" color="#666666">31:</font></b>      <b>if</b> (sprite.get_current_frame()==13 && !colmap_exploded) {
+<b><font size="-1" color="#666666">32:</font></b>          colmap_exploded = <b>true</b>;
+<b><font size="-1" color="#666666">33:</font></b>          get_world()->remove(bomber_radius, <...>);
+<b><font size="-1" color="#666666">34:</font></b>      }
+<b><font size="-1" color="#666666">35:</font></b>  
+<b><font size="-1" color="#666666">36:</font></b>      // 5. Last frame: kills the Pingu
+<b><font size="-1" color="#666666">37:</font></b>      <b>if</b> (sprite.is_finished ()) {
+<b><font size="-1" color="#666666">38:</font></b>          pingu->set_status(Pingu::PS_DEAD);
+<b><font size="-1" color="#666666">39:</font></b>      }
+<b><font size="-1" color="#666666">40:</font></b>  }
+<b><font size="-1" color="#666666">41:</font></b>  
+<b><font size="-1" color="#666666">42:</font></b>  <b>void</b> Bomber::draw (SceneContext& gc) {
+<b><font size="-1" color="#666666">43:</font></b>      // 3. 13th frame: throws particles, destroys the terrain, shows an explosion sprite
+<b><font size="-1" color="#666666">44:</font></b>      // 4. Game tick: hides the explosion sprite
+<b><font size="-1" color="#666666">45:</font></b>      <b>if</b> (sprite.get_current_frame()==13 && !gfx_exploded) {
+<b><font size="-1" color="#666666">46:</font></b>          gfx_exploded = <b>true</b>;
+<b><font size="-1" color="#666666">47:</font></b>          gc.color().draw (explo_surf, <...>);
+<b><font size="-1" color="#666666">48:</font></b>      }
+<b><font size="-1" color="#666666">49:</font></b>      gc.color().draw(sprite, pingu->get_pos());
+<b><font size="-1" color="#666666">50:</font></b>  }</code></pre>
 
-<p>The class defines one state variable for each action to perform (ln. 3-6). The &quot;Oh no!&quot; sound plays as soon as the object starts in <em>state-1</em> (ln. 10). The <code>update</code> callbacks update the animation sprite and moves the pingu every frame (ln. 15-16), regardless of the current state. When the animation reaches the 10th frame, it plays the &quot;Bomb!&quot; if it hasn't yet (ln. 19-22), going to <em>state-2</em>. The <code>sound_played</code> state variable is required because the sprite frame doesn't necessarily advance on every <code>update</code> invocation. The same reasoning and technique applies to the <em>state-3</em> (ln. 25-33) and (ln. 44-45). The explosion sprite appears in a single frame in <em>state-4</em> (ln. 46). Finally, the pingu dies after the animation frames terminate (ln. 36-37).</p>
-<p>Note that a single numeric state variable would suffice to track the states. Probably, the authors chose to encode each state in an independent boolean variable to rearrange and experiment with them during the development.</p>
-<p>However, due to the short-lived nature of callbacks, state variables are unavoidable, being part of the essence of object-oriented programming (i.e., <em>methods + mutable state</em>).</p>
+<!--*-->
+
+<p>The class defines one state variable for each action to perform (ln. 4-7). The &quot;Oh no!&quot; sound plays as soon as the object starts in <em>state-1</em> (ln. 11). The <code>update</code> callback updates pingu animation and movement every frame regardless of its current state (ln. 16-17). When the animation reaches the 10th frame, it plays the &quot;Bomb!&quot; sound and switches to <em>state-2</em> (ln. 20-23). The state variable <code>sound_played</code> is required because the sprite frame doesn't necessarily advance on every <code>update</code> invocation. The same reasoning and technique applies to the <em>state-3</em> (ln. 26-34 and 45-46). The explosion sprite appears in a single frame in <em>state-4</em> (ln. 47). Finally, the pingu dies after the animation frames terminate (ln. 37-39).</p>
+<p>Note that a single numeric state variable would suffice to track the states. Probably, the authors chose to encode each state in an independent boolean variable to rearrange and experiment with them during the development. Still, due to the short-lived nature of callbacks, state variables are unavoidable, and are actually the essence of object-oriented programming (i.e., <em>methods + mutable state</em>).</p>
 <p><a name="bomber"/></p>
-<p>The implementation in Céu doesn't require explicit state variables and more closely reflects in the source code the sequential state machine:</p>
+<p>The implementation in Céu doesn't require explicit state variables and reflects the sequential state machine implicitly, as sequential code separated by <code>await</code> statements:</p>
 <pre><code><b><font size="-1" color="#666666"> 1:</font></b>  <b>class</b> Bomber <b>with</b>
 <b><font size="-1" color="#666666"> 2:</font></b>      <...>
 <b><font size="-1" color="#666666"> 3:</font></b>  <b>do</b>
 <b><font size="-1" color="#666666"> 4:</font></b>      <...>
-<b><font size="-1" color="#666666"> 5:</font></b>      <b>par</b> <b>do</b>
-<b><font size="-1" color="#666666"> 6:</font></b>          <...>   // pingu movement
-<b><font size="-1" color="#666666"> 7:</font></b>      <b>with</b>
-<b><font size="-1" color="#666666"> 8:</font></b>          // 1. 0th frame: plays a "Oh no!" sound.
-<b><font size="-1" color="#666666"> 9:</font></b>          <b>call</b> <b>global</b>:play_sound("ohno", 0.5, 0.0);
-<b><font size="-1" color="#666666">10:</font></b>  
-<b><font size="-1" color="#666666">11:</font></b>          // 2. 10th frame: plays a "Bomb!" sound.
-<b><font size="-1" color="#666666">12:</font></b>          <b>await</b> WORLD_UPDATE <b>until</b> sprite.get_current_frame() == 10;
-<b><font size="-1" color="#666666">13:</font></b>          <b>call</b> <b>global</b>:play_sound("plop", 0.5, 0.0);
-<b><font size="-1" color="#666666">14:</font></b>  
-<b><font size="-1" color="#666666">15:</font></b>          // 3. 13th frame: throws particles, destroys the terrain, shows an explosion sprite
-<b><font size="-1" color="#666666">16:</font></b>          <b>await</b> WORLD_UPDATE <b>until</b> sprite.get_current_frame() == 13;
-<b><font size="-1" color="#666666">17:</font></b>          <b>emit</b> <b>global</b>:go_create_pingu_particles => (<b>this</b>.pingu.get_x(),
-<b><font size="-1" color="#666666">18:</font></b>                                                    <b>this</b>.pingu.get_y()-5);
-<b><font size="-1" color="#666666">19:</font></b>          <b>global</b>:remove(&&_bomber_radius, <...>);
-<b><font size="-1" color="#666666">20:</font></b>          <b>do</b>
-<b><font size="-1" color="#666666">21:</font></b>              <b>var</b> Sprite _ = Sprite.build_name(<...>, &&explo);
-<b><font size="-1" color="#666666">22:</font></b>              // 4. Game tick: hides the explosion sprite
-<b><font size="-1" color="#666666">23:</font></b>              <b>await</b> WORLD_UPDATE;
-<b><font size="-1" color="#666666">24:</font></b>          <b>end</b>
-<b><font size="-1" color="#666666">25:</font></b>  
-<b><font size="-1" color="#666666">26:</font></b>          // 5. Last frame: kills the pingu
-<b><font size="-1" color="#666666">27:</font></b>          <b>await</b> sprite;
-<b><font size="-1" color="#666666">28:</font></b>          <b>escape</b> {ActionName::DEAD};
-<b><font size="-1" color="#666666">29:</font></b>      <b>end</b>
-<b><font size="-1" color="#666666">30:</font></b>  <b>end</b></code></pre>
+<b><font size="-1" color="#666666"> 5:</font></b>      <b>var</b> Sprite sprite = <...>;      // bomber sprite
+<b><font size="-1" color="#666666"> 6:</font></b>      <b>par</b> <b>do</b>
+<b><font size="-1" color="#666666"> 7:</font></b>          <...>   // pingu movement
+<b><font size="-1" color="#666666"> 8:</font></b>      <b>with</b>
+<b><font size="-1" color="#666666"> 9:</font></b>          // 1. 0th frame: plays a "Oh no!" sound.
+<b><font size="-1" color="#666666">10:</font></b>          <b>call</b> <b>global</b>:play_sound("ohno", 0.5, 0.0);
+<b><font size="-1" color="#666666">11:</font></b>  
+<b><font size="-1" color="#666666">12:</font></b>          // 2. 10th frame: plays a "Bomb!" sound.
+<b><font size="-1" color="#666666">13:</font></b>          <b>await</b> WORLD_UPDATE <b>until</b> sprite.get_current_frame() == 10;
+<b><font size="-1" color="#666666">14:</font></b>          <b>call</b> <b>global</b>:play_sound("plop", 0.5, 0.0);
+<b><font size="-1" color="#666666">15:</font></b>  
+<b><font size="-1" color="#666666">16:</font></b>          // 3. 13th frame: throws particles, destroys the terrain, shows an explosion sprite
+<b><font size="-1" color="#666666">17:</font></b>          <b>await</b> WORLD_UPDATE <b>until</b> sprite.get_current_frame() == 13;
+<b><font size="-1" color="#666666">18:</font></b>          <b>emit</b> <b>global</b>:go_create_pingu_particles => (<b>this</b>.pingu.get_x(),
+<b><font size="-1" color="#666666">19:</font></b>                                                    <b>this</b>.pingu.get_y()-5);
+<b><font size="-1" color="#666666">20:</font></b>          <b>global</b>:remove(&&_bomber_radius, <...>);
+<b><font size="-1" color="#666666">21:</font></b>          <b>do</b>
+<b><font size="-1" color="#666666">22:</font></b>              <b>var</b> Sprite _ = Sprite.build_name(<...>, &&explo);
+<b><font size="-1" color="#666666">23:</font></b>              // 4. Game tick: hides the explosion sprite
+<b><font size="-1" color="#666666">24:</font></b>              <b>await</b> WORLD_UPDATE;
+<b><font size="-1" color="#666666">25:</font></b>          <b>end</b>
+<b><font size="-1" color="#666666">26:</font></b>  
+<b><font size="-1" color="#666666">27:</font></b>          // 5. Last frame: kills the pingu
+<b><font size="-1" color="#666666">28:</font></b>          <b>await</b> sprite;
+<b><font size="-1" color="#666666">29:</font></b>          <b>escape</b> {ActionName::DEAD};
+<b><font size="-1" color="#666666">30:</font></b>      <b>end</b>
+<b><font size="-1" color="#666666">31:</font></b>  <b>end</b></code></pre>
 
-<p>Note how we isolate unrelated behaviors to the animation, such as the pingu movement (ln. 6), in a parallel line of execution. Note also that we use a local and lexically-scoped organism (to be discussed [<a href="#dispatching-hierarchies"><img src="images/link_12.png" alt="X" /></a>]) for the temporary single-frame explosion (ln. 20-24). Finally, we use auxiliary signaling mechanisms (to be discussed [<a href="#signaling-mechanisms"><img src="images/link_12.png" alt="X" /></a>]) to await the termination of the animation (ln. 27) and to notify the application about our own termination.</p>
+<p>The <code>par</code> composition (ln. 6-30) isolates non-interacting behaviors, such as the pingu movement (ln. 7) and animation (ln. 9-29). The animation is a direct sequence of statements that await transition conditions to change behavior.</p>
+<p>Note that we use a local and lexically-scoped organism (to be discussed [<a href="#dispatching-hierarchies"><img src="images/link_12.png" alt="X" /></a>]) for the temporary single-frame explosion (ln. 21-25). We also use auxiliary signaling mechanisms (to be discussed [<a href="#signaling-mechanisms"><img src="images/link_12.png" alt="X" /></a>]) to await the termination of the animation (ln. 28) and to notify the application about our own termination.</p>
 <p><a name="finite-state-machines-summary"/> <br/></p>
 <div class="summary">
 <p><strong>Summary</strong>:</p>

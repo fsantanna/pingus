@@ -663,32 +663,34 @@ See [Warming Up](#warming-up).
          The *Bomber* action,
          350)
 
-The *bomber action* explodes the clicked pingu, throwing particles around and 
+The *Bomber* action explodes the clicked pingu, throwing particles around and 
 also destroying the terrain under its radius (@FIG_REF[[bomber-opt.gif]]).
 
 @FIG_NEW(state-anim/state-anim.gif,
          State machine for the *Bomber* animation,
          550)
 
-A sequential state machine models an animation with actions associated to 
-specific frames (@FIG_REF[[state-anim/state-anim.gif]]) as follows:
+A sequential state machine (@FIG_REF[[state-anim/state-anim.gif]]) models the 
+animation with actions associated to specific frames as follows:
 
-1. 0th frame: plays a "Oh no!" sound.
+1. 0th frame:  plays a "Oh no!" sound.
 2. 10th frame: plays a "Bomb!" sound.
-3. 13th frame: throws particles, destroys the terrain, shows an explosion sprite
-4. Game tick: hides the explosion sprite
-5. Last frame: kills the pingu
+3. 13th frame: throws particles, destroys the terrain, and shows an explosion
+               sprite.
+4. Game tick:  hides the explosion sprite.
+5. Last frame: kills the pingu.
 
 *(Open [this video][youtube-bomber] to listen to the sound effects.)*
 
 [youtube-bomber]: https://youtu.be/QLXIT59il6o?t=306
 
-The code in C++ [[![X]][cpp-bomber]] defines the class `Bomber` which 
-implements the `draw` and `update` callback methods:
+The code in C++ defines the class `Bomber` [[![X]][cpp-bomber]] with callbacks 
+`draw` and `update` to manage the state machine:
 
 @CODE_LINES[[language=CPP,
 Bomber::Bomber (Pingu* p) :
     <...>
+    sprite(),                   // bomber sprite
     sound_played(false),        // tracks state 2               @def_1
     particle_thrown(false),     // tracks state 3
     colmap_exploded(false),     // tracks state 3
@@ -723,8 +725,8 @@ void Bomber::update ()
 
     // 5. Last frame: kills the Pingu
     if (sprite.is_finished ()) {                                @die_1
-        pingu->set_status(Pingu::PS_DEAD);                      @die_2
-    }
+        pingu->set_status(Pingu::PS_DEAD);
+    }                                                           @die_2
 }
 
 void Bomber::draw (SceneContext& gc) {
@@ -734,22 +736,24 @@ void Bomber::draw (SceneContext& gc) {
         gfx_exploded = true;                                    @state_3_4
         gc.color().draw (explo_surf, <...>);                    @state_4
     }
-    gc.color().draw(sprite, pingu->get_pos ());
+    gc.color().draw(sprite, pingu->get_pos());
 }
 ]]
+
+<!--*-->
 
 The class defines one state variable for each action to perform 
 @NN(def_1,-,def_2).
 The "Oh no!" sound plays as soon as the object starts in *state-1* 
 @NN(sound_ohno).
-The `update` callbacks update the animation sprite and moves the pingu every 
-frame @NN(update_1,-,update_2), regardless of the current state.
-When the animation reaches the 10th frame, it plays the "Bomb!" if it hasn't 
-yet @NN(sound_bomb_1,-,sound_bomb_2), going to *state-2*.
-The `sound_played` state variable is required because the sprite frame doesn't 
+The `update` callback updates pingu animation and movement every frame 
+regardless of its current state @NN(update_1,-,update_2).
+When the animation reaches the 10th frame, it plays the "Bomb!" sound and 
+switches to *state-2* @NN(sound_bomb_1,-,sound_bomb_2).
+The state variable `sound_played` is required because the sprite frame doesn't 
 necessarily advance on every `update` invocation.
-The same reasoning and technique applies to the *state-3* 
-@NN(state_3_1,-,state_3_2) and @NN(state_3_3,-,state_3_4).
+The same reasoning and technique applies to the *state-3*
+(ln. @N(state_3_1)-@N(state_3_2) and @N(state_3_3)-@N(state_3_4)).
 The explosion sprite appears in a single frame in *state-4* @NN(state_4).
 Finally, the pingu dies after the animation frames terminate 
 @NN(die_1,-,die_2).
@@ -757,25 +761,26 @@ Finally, the pingu dies after the animation frames terminate
 Note that a single numeric state variable would suffice to track the states.
 Probably, the authors chose to encode each state in an independent boolean 
 variable to rearrange and experiment with them during the development.
-
-However, due to the short-lived nature of callbacks, state variables are 
-unavoidable, being part of the essence of object-oriented programming
+Still, due to the short-lived nature of callbacks, state variables are 
+unavoidable, and are actually the essence of object-oriented programming
 (i.e., *methods + mutable state*).
 
 <a name="bomber"/>
 
-The implementation in Céu doesn't require explicit state variables and more 
-closely reflects in the source code the sequential state machine:
+The implementation in Céu doesn't require explicit state variables and reflects 
+the sequential state machine implicitly, as sequential code separated by 
+`await` statements:
 
 @CODE_LINES[[language=CEU,
 class Bomber with
     <...>
 do
     <...>
-    par do
+    var Sprite sprite = <...>;      // bomber sprite
+    par do                                                          @par_do
         <...>   // pingu movement                                   @move
     with
-        // 1. 0th frame: plays a "Oh no!" sound.
+        // 1. 0th frame: plays a "Oh no!" sound.                    @anim_1
         call global:play_sound("ohno", 0.5, 0.0);
 
         // 2. 10th frame: plays a "Bomb!" sound.
@@ -795,17 +800,20 @@ do
 
         // 5. Last frame: kills the pingu
         await sprite;                                               @await
-        escape {ActionName::DEAD};
-    end
+        escape {ActionName::DEAD};                                  @anim_2
+    end                                                             @par_end
 end
 ]]
 
-Note how we isolate unrelated behaviors to the animation, such as the pingu 
-movement @NN(move), in a parallel line of execution.
-Note also that we use a local and lexically-scoped organism
+The `par` composition @NN(par_do,-,par_end) isolates non-interacting behaviors, 
+such as the pingu movement @NN(move) and animation @NN(anim_1,-,anim_2).
+The animation is a direct sequence of statements that await transition 
+conditions to change behavior.
+
+Note that we use a local and lexically-scoped organism
 (to be discussed [[![X]](#dispatching-hierarchies)])
 for the temporary single-frame explosion @NN(do,-,end).
-Finally, we use auxiliary signaling mechanisms
+We also use auxiliary signaling mechanisms
 (to be discussed [[![X]](#signaling-mechanisms)])
 to await the termination of the animation @NN(await) and
 to notify the application about our own termination.
