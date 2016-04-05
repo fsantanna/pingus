@@ -445,7 +445,7 @@ TODO: Case 3: Sprite Animations
 <b><font size="-1" color="#666666">31:</font></b>  <b>end</b></code></pre>
 
 <p>The <code>par</code> composition (ln. 6-30) isolates non-interacting behaviors, such as the pingu movement (ln. 7) and animation (ln. 9-29). The animation is a direct sequence of statements that await transition conditions to change behavior.</p>
-<p>Note that we use a local and lexically-scoped organism (to be discussed further [<a href="#dispatching-hierarchies"><img src="images/link_12.png" alt="X" /></a>]) for the temporary single-frame explosion (ln. 21-25). We also use auxiliary signaling mechanisms (to be discussed further [<a href="#signaling-mechanisms"><img src="images/link_12.png" alt="X" /></a>]) to await the termination of the animation (ln. 28) and to notify the application about our own termination.</p>
+<p>Note that we use a local and lexically-scoped organism (to be discussed further [<a href="#dispatching-hierarchies"><img src="images/link_12.png" alt="X" /></a>]) for the temporary single-frame explosion (ln. 21-25). We also use auxiliary signaling mechanisms (to be discussed further [<a href="#signaling-mechanisms"><img src="images/link_12.png" alt="X" /></a>]) to throw pingu particles (ln. 18), to await the termination of the animation (ln. 28), and to notify the application about our own termination.</p>
 <p><a name="finite-state-machines-summary"/> <br/></p>
 <div class="summary">
 <p><strong>Summary</strong>:</p>

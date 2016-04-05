@@ -789,7 +789,7 @@ do
 
         // 3. 13th frame: throws particles, destroys the terrain, shows an explosion sprite
         await WORLD_UPDATE until sprite.get_current_frame() == 13;
-        emit global:go_create_pingu_particles => (this.pingu.get_x(),
+        emit global:go_create_pingu_particles => (this.pingu.get_x(), @particles
                                                   this.pingu.get_y()-5);
         global:remove(&&_bomber_radius, <...>);
         do                                                          @do
@@ -815,7 +815,8 @@ Note that we use a local and lexically-scoped organism
 for the temporary single-frame explosion @NN(do,-,end).
 We also use auxiliary signaling mechanisms
 (to be discussed further [[![X]](#signaling-mechanisms)])
-to await the termination of the animation @NN(await) and
+to throw pingu particles @NN(particles),
+to await the termination of the animation @NN(await), and
 to notify the application about our own termination.
 
 <a name="finite-state-machines-summary"/>
