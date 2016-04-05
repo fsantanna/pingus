@@ -196,11 +196,11 @@ TODO:
 <p>Note how double click detection in Céu doesn't require state variables and is entirely self-contained in the <code>loop</code> body (ln. 6-12). Furthermore, these 7 lines of code <strong>only</strong> detects a double click, leaving the actual effect to happen outside the loop (ln. 14).</p>
 <p>As we argue throughout this document, appropriate control-flow mechanisms for reactive applications (e.g., <code>await</code> and <code>watching</code>) helps on the structure and composition of code, resulting in considerable gains in productivity.</p>
 <h2 id="why-rewriting-pingus-to-céu">Why rewriting Pingus to Céu?</h2>
-<p>The main motivation to rewrite Pingus from C++ to Céu is to promote its programming model in the context of video games. Céu supports concurrent and deterministic abstractions to specify entities with a high degree of real-time interactions, such as in video game simulation.</p>
+<p>The main motivation to rewrite Pingus from C++ to Céu is to promote its programming model in the context of video games. Céu supports concurrent and deterministic abstractions to specify entities with a high degree of real-time interactions such as in video games.</p>
 <div class="images">
 <img src="images/sweeney.png" width="350"/> <br> <a href="images/sweeney.png"> Figure 3</a>: Three &quot;kinds&quot; of code
 </div>
-<p>According to Tim Sweeney (of Unreal Engine fame), about half of the development complexity resides in the <em>game simulation</em> code [<a href="https://www.cs.princeton.edu/~dpw/popl/06/Tim-POPL.ppt"><img src="images/link_12.png" alt="X" /></a>]. If we consider that <em>numeric computation</em> and <em>shading</em> do not vary from game to game (i.e., they are part of a game engine), the tendency is to shift the complexity even more towards game simulation. Furthermore, only 10% of the CPU budget goes to game simulation, opening an opportunity for gains in productivity.</p>
+<p>According to Tim Sweeney (of Unreal Engine fame), about half of the development complexity in games resides in <em>simulation</em> [<a href="https://www.cs.princeton.edu/~dpw/popl/06/Tim-POPL.ppt"><img src="images/link_12.png" alt="X" /></a>], i.e., in the way entities interact in real time. If we consider that <em>numeric computation</em> and <em>shading</em> do not vary from game to game (i.e., they are part of a game engine), the tendency is to shift the complexity even more towards game simulation. Furthermore, only 10% of the CPU budget goes to game simulation, opening an opportunity for gains in productivity.</p>
 <!--
 When updating 10,000 objects at 60 FPS, everything is performance-sensitive
 But:
@@ -238,20 +238,20 @@ if it enables our state-intensive code to scale to many threads, it’s still a 
 Claim: Transactions are the only plausible solution to concurrent mutable state
 -->
 
-<p>Besides promoting the concurrency model of Céu, we enumerate additional motivations for this report as follows:</p>
+<p>Besides promoting the concurrency model of Céu, we have additional motivations to write this report as follows:</p>
 <ul>
-<li>Expose Céu to a real code base that was neither specified nor implemented by the designers of language. Even though video games match its domain, Céu is still primarily an academic &quot;toy&quot; language. Also, a real-world project consists of a range of requirements, forcing us to transpose the &quot;academic fences&quot; of papers, which usually only explore idiomatic code.</li>
+<li>Expose Céu to a real code base that was neither specified nor implemented by the designers of the language. Even though video games match the domain of Céu, a real-world project consists of a range of requirements, forcing us to transpose the &quot;academic fences&quot; of papers (which usually only explore idiomatic code).</li>
 <li>Exercise the interface between Céu and C/C++. Céu is designed to integrate seamlessly with C. This allowed us to perform a <em>live rewriting</em>, i.e., we incrementally rewrote code from C++ to Céu without breaking the game for long.</li>
-<li>Serve as a deep and comprehensive guide for developers interested in trying Céu. We discuss a number of game behaviors with an in-depth comparison between the original code in C++ and the equivalent code rewritten to Céu.</li>
+<li>Serve as a deep and comprehensive guide for developers interested in trying Céu. We provide an in-depth comparison between the original code in C++ and the equivalent code rewritten to Céu for a number of behaviors in the game.</li>
 <li>Stress-test the implementation of Céu. Academic artifacts typically do not go beyond working prototypes. We also want Céu to be a robust and practical language for everyday use.</li>
 <li>Evaluate the performance of Céu. Having C++ as a benchmark, how does Céu compare in terms of memory usage, code size, and execution time (e.g., FPS rate)?</li>
 </ul>
-<h2 id="how-to-rewrite">How to rewrite?</h2>
-<p>The general idea is to identify control-flow patterns that encompass successive reactions to events, which imply crossing multiple method invocations in C++. We then rewrite these patterns in a class in Céu, using appropriate structured constructs, and redirect the instantiation and event dispatching to the new class. The remaining classes in C++ should interoperate with the new classes in Céu until we complete the rewriting process.</p>
-<p>Note that we only touch classes that deal with events, as Céu is actually less expressive than C++ for pure data manipulation. Hence, we rely on the integration between Céu and C/C++ and take advantage of the existing code base and libraries.</p>
-<p>To identify these control-flow patterns, we inspect the C++ class definitions searching for members with suspicious names (e.g., <a href="https://github.com/Pingus/pingus/blob/v0.7.6/src/pingus/components/action_button.hpp#L36"><code>pressed</code></a>, <a href="https://github.com/Pingus/pingus/blob/v0.7.6/src/pingus/actions/bomber.hpp#L31"><code>particle_thrown</code></a>, <a href="https://github.com/Pingus/pingus/blob/v0.7.6/src/pingus/actions/bridger.hpp#L30"><code>mode</code></a>, or <a href="https://github.com/Pingus/pingus/blob/v0.7.6/src/pingus/actions/digger.hpp#L32"><code>delay_count</code></a>). Good chances are that variables with identifiers resembling verbs, status, or counters encode some form of control-flow progression that cross multiple callback invocations.</p>
-<p>We believe that most difficulties in implementing control behavior in games is not inherent to this domain, but the result of accidental complexity due to the lack of structured abstractions and appropriate concurrency models to handle event-based applications.</p>
+<h2 id="how-to-rewrite-from-c-to-céu">How to rewrite from C++ to Céu?</h2>
+<p>The general idea is to identify control-flow behavior in the game that crosses successive reactions to events. Our hypothesis is that the implementation in C++ involves callbacks manipulating state explicitly. We then rewrite these behaviors in a class in Céu, using appropriate structured constructs, and redirect the instantiation and event dispatching to the new class. The remaining classes in C++ should interoperate with the new classes in Céu until we complete the rewriting process.</p>
+<p>Note that we only touch classes that deal with events, as Céu is actually less expressive than C++ for pure data manipulation. Therefore, we also rely on the tight integration between Céu and C/C++ to take advantage of the existing code base and libraries.</p>
+<p>To identify these control-flow behaviors, we inspect the C++ class definitions searching for members with suspicious names (e.g., <a href="https://github.com/Pingus/pingus/blob/v0.7.6/src/pingus/components/action_button.hpp#L36"><code>pressed</code></a>, <a href="https://github.com/Pingus/pingus/blob/v0.7.6/src/pingus/actions/bomber.hpp#L31"><code>particle_thrown</code></a>, <a href="https://github.com/Pingus/pingus/blob/v0.7.6/src/pingus/actions/bridger.hpp#L30"><code>mode</code></a>, or <a href="https://github.com/Pingus/pingus/blob/v0.7.6/src/pingus/actions/digger.hpp#L32"><code>delay_count</code></a>). Good chances are that variables with identifiers resembling verbs, status, or counters encode some form of control-flow progression that cross multiple callback invocations.</p>
 <p>During the course of the rewriting process, and following the class-by-class identification described above, we could extract more abstract control patterns that should apply to other games. Our hypothesis is that other games manifesting such patterns must use some form of explicit state which are likely subject to the same rewriting process.</p>
+<p>Overall, we believe that most difficulties in implementing control behavior in games is not inherent to this domain, but result of accidental complexity due to the lack of structured abstractions and appropriate concurrency models to handle event-based applications.</p>
 <h3 id="control-flow-patterns-in-pingus">Control-Flow Patterns in Pingus</h3>
 <p>We identified eight control-flow patterns in Pingus which we discuss further along with in-depth examples:</p>
 <p><a name="finite-state-machines"/></p>
@@ -264,23 +264,28 @@ Claim: Transactions are the only plausible solution to concurrent mutable state
 <ul>
 <li>[ <a href="#continuation-passing-1">case 1</a> | [ <a href="#continuation-passing-2">case 2</a> | <a href="#continuation-passing-summary">summary</a> ]</li>
 </ul></li>
-<li><a href="#dispatching-hierarchies"><strong>Dispatching Hierarchies</strong></a>: Some entities in games manage other child entities, resulting in dispatching hierarchies for event forwarding.
+<li><a href="#dispatching-hierarchies"><strong>Dispatching Hierarchies</strong></a>: Some entities manage other child entities, resulting in dispatching hierarchies for event forwarding.
 <ul>
 <li>[ <a href="#dispatching-hierarchies-1">case 1</a> | <a href="#dispatching-hierarchies-summary">summary</a> ]</li>
 </ul></li>
-<li><a href="#containers-and-lifespan"><strong>Containers and Lifespan</strong></a>: Similarly to <em>dispatching hierarchies</em>, some entities control the lifespan of other child entities, resulting in dynamic and explicit allocation and deallocation of objects.
+<li><a href="#scoping-hierarchies"><strong>Scoping Hierarchies</strong></a>: Some entities manage other child entities, resulting in scoping hierarchies for the lifespan of objects.
 <ul>
-<li>[ <a href="#containers-and-lifespan-1">case 1</a> | [ <a href="#containers-and-lifespan-2">case 2</a> | <a href="#containers-and-lifespan-summary">summary</a> ]</li>
+<li>[ <a href="#scoping-hierarchies-1">case 1</a> | [ <a href="#scoping-hierarchies-2">case 2</a> | <a href="#scoping-hierarchies-summary">summary</a> ]</li>
 </ul></li>
 <li><a href="#signaling-mechanism"><strong>Signaling Mechanisms</strong></a>: Entities often need to communicate explicitly through a signaling mechanism, especially if there is no hierarchy relationship between them.
 <ul>
 <li>[ <a href="#signaling-mechanism-1">case 1</a> | <a href="#signaling-mechanism-summary">summary</a> ]</li>
 </ul></li>
-<li><a href="#wall-clock-timers"><strong>Wall-Clock Timers</strong></a>: Wall-clock timers measure the passage of time from the real world (e.g., <em>10 seconds</em>) such as for periodic sampling and timeout watchdogs.
-<ul>
-<li>[ <a href="#wall-clock-timers-summary">summary</a> ]</li>
-</ul></li>
-<li><a href="#pausing"><strong>Pausing</strong></a>: Pausing allows parts of the game to temporarily suspend execution or reactions to incoming events.
+</ol>
+<!--
+6. [**Wall-Clock Timers**](#wall-clock-timers):
+    Wall-clock timers measure the passage of time from the real world
+    (e.g., *10 seconds*) such as for periodic sampling and timeout watchdogs.
+    * [ [summary](#wall-clock-timers-summary) ]
+-->
+
+<ol start="6" style="list-style-type: decimal">
+<li><a href="#pausing"><strong>Pausing</strong></a>: Pausing allows parts of the game to temporarily stop reacting to incoming events.
 <ul>
 <li>[ <a href="#pausing-summary">summary</a> ]</li>
 </ul></li>
@@ -296,7 +301,7 @@ Claim: Transactions are the only plausible solution to concurrent mutable state
 <ul>
 <li><a href="http://www.ceu-lang.org/chico/">http://www.ceu-lang.org/chico/</a></li>
 <li><a href="https://github.com/fsantanna/">https://github.com/fsantanna/</a></li>
-<li><a href="https://twitter.com/fsantanna_puc/">@fsantanna_puc</a></li>
+<li><a href="https://twitter.com/fsantanna_uerj/">@fsantanna_uerj</a></li>
 </ul>
 <h3 id="acknowledgments">Acknowledgments</h3>
 <p>Leonardo Kaplan</p>
@@ -759,11 +764,11 @@ TODO: falar de broadcast (in Ceu: unless it is paused, all receive always)
 </div>
 <!--* TODO: efficiency?-->
 
-<p><a name="containers-and-lifespan"/></p>
-<h2 id="containers-and-lifespan">4) Containers and Lifespan</h2>
+<p><a name="scoping-hierarchies"/></p>
+<h2 id="scoping-hierarchies">4) Scoping Hierarchies</h2>
 <p>Similarly to <em>dispatching hierarchies</em>, some entities control the lifespan of other child entities, resulting in dynamic and explicit allocation and deallocation of objects.</p>
 <p>However, it is actually common to have children with a static lifespan which are known at compile time.</p>
-<p><a name="containers-and-lifespan-1"/></p>
+<p><a name="scoping-hierarchies-1"/></p>
 <h3 id="case-study-game-ui-widgets">4.1) Case Study: Game UI Widgets</h3>
 <!-- CPP-CONTAINER -->
 
@@ -811,7 +816,7 @@ TODO: falar de broadcast (in Ceu: unless it is paused, all receive always)
 <b><font size="-1" color="#666666">11:</font></b>  <b>end</b></code></pre>
 
 <p>Again, here we never manipulate references to deal with containers, or allocation and deallocation. Also, all memory required for static instances is known at compile time.</p>
-<p><a name="containers-and-lifespan-2"/></p>
+<p><a name="scoping-hierarchies-2"/></p>
 <h3 id="case-study-the-pingus-container">4.2) Case Study: The Pingus Container</h3>
 <!-- CPP-CONTAINER-DYNAMIC -->
 
@@ -923,7 +928,7 @@ end
 ```
 -->
 
-<p><a name="containers-and-lifespan-summary"/> <br/></p>
+<p><a name="scoping-hierarchies-summary"/> <br/></p>
 <div class="summary">
 <p><strong>Summary</strong>:</p>
 <!--
@@ -1128,20 +1133,27 @@ The <code>event</code> keyword declares an internal event which applications can
 <li>They do not require explicit unbinding.</li>
 </ul>
 </div>
-<p><a name="wall-clock-timers"/></p>
-<h2 id="wall-clock-timers">6) Wall-Clock Timers</h2>
 <!--
+<a name="wall-clock-timers"/>
+
+
+## 6) Wall-Clock Timers
+
+
 5. **Wall-Clock Timers**
     Wall-clock timers measure the passage of time from the real world
     (e.g., *10 seconds*) such as for periodic sampling and timeout watchdogs.
 
     The double click behavior above uses a timeout of 1 second to restart.
+
+<a name="wall-clock-timers-summary"/>
+<br/>
+
+<div class="summary">
+**Summary**:
+</div>
 -->
 
-<p><a name="wall-clock-timers-summary"/> <br/></p>
-<div class="summary">
-<strong>Summary</strong>:
-</div>
 <p><a name="pausing"/></p>
 <h2 id="pausing">7) Pausing</h2>
 <!--
