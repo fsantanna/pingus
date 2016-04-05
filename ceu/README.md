@@ -811,10 +811,10 @@ The animation is a direct sequence of statements that await transition
 conditions to change behavior.
 
 Note that we use a local and lexically-scoped organism
-(to be discussed [[![X]](#dispatching-hierarchies)])
+(to be discussed further [[![X]](#dispatching-hierarchies)])
 for the temporary single-frame explosion @NN(do,-,end).
 We also use auxiliary signaling mechanisms
-(to be discussed [[![X]](#signaling-mechanisms)])
+(to be discussed further [[![X]](#signaling-mechanisms)])
 to await the termination of the animation @NN(await) and
 to notify the application about our own termination.
 
@@ -824,12 +824,13 @@ to notify the application about our own termination.
 <div class="summary">
 **Summary**:
 
-Structured state machines in Céu provide some advantages in comparison to 
+Implicit state machines in Céu provide some advantages in comparison to 
 explicit state machines in C++:
 
-* They encode all states implicitly, not requiring state variables.
-* They handle all states (and only them) in the same contiguous block of code,
-  increasing the behavior encapsulation.
+* They encode all states with direct sequential code, not requiring state
+  variables.
+* They handle all states (and only them) in the same contiguous block,
+  improving code encapsulation.
 </div>
 
 [cpp-bomber]: https://github.com/Pingus/pingus/blob/v0.7.6/src/pingus/actions/bomber.cpp

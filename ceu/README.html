@@ -445,14 +445,14 @@ TODO: Case 3: Sprite Animations
 <b><font size="-1" color="#666666">31:</font></b>  <b>end</b></code></pre>
 
 <p>The <code>par</code> composition (ln. 6-30) isolates non-interacting behaviors, such as the pingu movement (ln. 7) and animation (ln. 9-29). The animation is a direct sequence of statements that await transition conditions to change behavior.</p>
-<p>Note that we use a local and lexically-scoped organism (to be discussed [<a href="#dispatching-hierarchies"><img src="images/link_12.png" alt="X" /></a>]) for the temporary single-frame explosion (ln. 21-25). We also use auxiliary signaling mechanisms (to be discussed [<a href="#signaling-mechanisms"><img src="images/link_12.png" alt="X" /></a>]) to await the termination of the animation (ln. 28) and to notify the application about our own termination.</p>
+<p>Note that we use a local and lexically-scoped organism (to be discussed further [<a href="#dispatching-hierarchies"><img src="images/link_12.png" alt="X" /></a>]) for the temporary single-frame explosion (ln. 21-25). We also use auxiliary signaling mechanisms (to be discussed further [<a href="#signaling-mechanisms"><img src="images/link_12.png" alt="X" /></a>]) to await the termination of the animation (ln. 28) and to notify the application about our own termination.</p>
 <p><a name="finite-state-machines-summary"/> <br/></p>
 <div class="summary">
 <p><strong>Summary</strong>:</p>
-<p>Structured state machines in Céu provide some advantages in comparison to explicit state machines in C++:</p>
+<p>Implicit state machines in Céu provide some advantages in comparison to explicit state machines in C++:</p>
 <ul>
-<li>They encode all states implicitly, not requiring state variables.</li>
-<li>They handle all states (and only them) in the same contiguous block of code, increasing the behavior encapsulation.</li>
+<li>They encode all states with direct sequential code, not requiring state variables.</li>
+<li>They handle all states (and only them) in the same contiguous block, improving code encapsulation.</li>
 </ul>
 </div>
 <p><a name="continuation-passing"/></p>
