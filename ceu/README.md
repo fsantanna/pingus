@@ -1,3 +1,6 @@
+* TODO
+    * events before signalling
+
 <head>
     <title>On Rewriting Pingus from C++ to Céu</title>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
@@ -864,51 +867,59 @@ more natural structured code with sequences, conditionals, and loops
 <a name="continuation-passing-1"/>
 
 @SEC[[
-### Case Study: Story Screen, Advancing Pages
+### Case Study: Advancing Pages in the *Story* Screen
 ]]
 
 @FIG_NEW(story-anim.gif,
          The *Story* screen,
          350)
 
-The world map of Pingus has clickable *blue dots* with ambience stories about 
-the game (@FIG_REF[[story-anim.gif]]).
-The words for each story page appears incrementally over time.
-The first click in the button `>>>` fast forwards the text.
-The second click advances to the next page until the story terminates.
-If the page displays completely due to the time elapsing, the first click 
+The clickable *blue dots* in the world map of Pingus transit to ambience story 
+screens about the game (@FIG_REF[[story-anim.gif]]).
+Inside each page, the words of the story appear incrementally over time.
+A first click in the button `>>>` fast forwards the words to show the full 
+page.
+A second click advances to the next page, until the story terminates.
+If the page completes before a click (due to the time elapsing), a first click 
 advances to the next page.
 
 <!-- CPP-STORY-PAGES -->
 
-The code in C++ [[![X]][cpp-story-screen-component]] defines the class 
-`StoryScreenComponent` with a `next_text` method to advance the words and 
-pages:
+The code in C++ defines the class `StoryScreenComponent` 
+[[![X]][cpp-story-screen-component]] uses the method `next_text`, which is a 
+callback from clicks in `>>>`:
 
 @CODE_LINES[[language=CPP,
 StoryScreenComponent::StoryScreenComponent (<...>) :
     <...>
 {
-    pages        = <...>;                       @pages_1
-    current_page = pages.back();                @pages_2
-    displayed    = false;                       @dsp_1
+    pages        = <...>;           // vector with loaded pages     @pages_1
+    current_page = pages.back();    // first loaded page            @pages_2
+    displayed    = false;           // if current page is complete  @dsp_1
     <...>
 }
 
-<...>   // draw and update page
+<...>   // draw page over time
+
+void StoryScreenComponent::update (<...>) {
+    <...>
+    if (<...>) {
+        displayed = true;                       @dsp_11
+    }
+}
 
 void StoryScreenComponent::next_text() {
     if (!displayed) {                           @dsp_2
         displayed = true;                       @dsp_3
-        <...>
+        <...>                       // remove current page
     } else {                                    @adv_1
         pages.pop_back();                       @pages_3
-        if (!pages.empty()) {
+        if (!pages.empty()) {       // next page
             current_page = pages.back();        @pages_4
             displayed    = false;               @dsp_4
             <...>
         } else {
-            <...>   // terminates the story screen
+            <...>                   // terminates the story screen
         }
     }                                           @adv_2
 }
@@ -919,37 +930,38 @@ void StoryScreenComponent::next_text() {
          550)
 
 The variable `pages` (ln. @N(pages_1)-@N(pages_2), @N(pages_3)-@N(pages_4)) is 
-a vector holding each page and also encodes *continuations* for the story 
-progress:
-each call to `next_text` that advances the story @NN(adv_1,-,adv_2) removes a 
-page @NN(pages_3) and sets the next action to perform (display a new page) in 
-the variable `current_page` @NN(pages_4).
-@FIG_REF[[story.png]] illustrates the state machine for fast-forwarding the 
-words inside the dashed rectangle and the continuation mechanism to advance 
+a vector holding each page, but which also encodes *continuations* for the 
+story progress:
+each call to `next_text` that advances the story @NN(adv_1,-,adv_2) removes the 
+current page @NN(pages_3) and sets the next action to perform (i.e., "display a 
+new page") in the variable `current_page` @NN(pages_4).
+@FIG_REF[[story.png]] illustrates the state machine for fast-forwarding words 
+(inside the dashed rectangle) and also the continuation mechanism to advance 
 pages.
-The state variable `displayed` (ln. @N(dsp_1),@N(dsp_2),@N(dsp_3),@N(dsp_4)) 
-switches between the behaviors "advancing text" and "advancing pages" which are 
-mixed inside the method `next_text`.
+The state variable `displayed`
+(ln. @N(dsp_1),@N(dsp_11),@N(dsp_2),@N(dsp_3),@N(dsp_4))
+switches between the behaviors "advancing text" and "advancing pages", which 
+are both handled inside the method `next_text`.
 
 <!-- CEU-STORY-PAGES -->
 
-The code in Céu [[![X]][ceu-story-pages]] uses a `next_text` event to advance 
-the words and pages:
+The code in Céu [[![X]][ceu-story-pages]] uses the event `next_text`, which is 
+emitted from clicks in `>>>`:
 
 @CODE_LINES[[language=CEU,
 class StoryScreen with
     <...>
 do
-    event void next_text;
+    event void next_text;   // emitted from clicks in `>>>`
 
-    _pages = <...>
+    _pages = <...>          // same as in C++
 
     loop i in _pages.size() do                              @loop_do
         par/or do
-            <...>       // loop to redraw current page
+            <...>           // loop to redraw current _pages[i]
         with
             watching next_text do
-                <...>   // loop to advance text over time   @advance
+                <...>       // loop to advance text over time   @advance
             end
             await next_text;                                @await
         end
@@ -957,20 +969,21 @@ do
 end
 ]]
 
-For the sequential navigation from page to page, we use a simple loop 
-@NN(loop_do,,loop_end) instead of an explicit continuation state.
+For the sequential navigation from page to page, we use a direct loop 
+@NN(loop_do,-,loop_end) instead of an explicit continuation state variable.
 While the text advances in an inner loop (hidden in ln. @N(advance)), we watch 
-the `next_text` event to fast forward it.
-The inner loop may also eventually terminate with the time elapsing.
-To go to the next page, we simply `await next_text` again @NN(await).
-Note that we don't need a variable (such as `displayed` above) to switch 
+the `next_text` event that fast forwards it.
+The inner loop may also eventually terminate with the time elapsing normally.
+To go to the next page, we simply `await next_text` again in sequence 
+@NN(await).
+Note that we don't need a variable (such as `displayed` in C++) to switch 
 between the states "advancing text" or "advancing pages" which are not mixed in 
 the source code.
 
 <a name="continuation-passing-2"/>
 
 @SEC[[
-### Case Study: Story Screen, Transition to Credits Screen
+### Case Study: Transition to the *Credits* Screen in the *Story* Screen
 ]]
 
 @FIG_NEW(credits-anim.gif,

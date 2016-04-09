@@ -1,3 +1,9 @@
+<ul>
+<li>TODO
+<ul>
+<li>events before signalling</li>
+</ul></li>
+</ul>
 <head>
     <title>
 On Rewriting Pingus from C++ to Céu
@@ -474,72 +480,79 @@ more natural structured code with sequences, conditionals, and loops
 -->
 
 <p><a name="continuation-passing-1"/></p>
-<h3 id="case-study-story-screen-advancing-pages">2.1) Case Study: Story Screen, Advancing Pages</h3>
+<h3 id="case-study-advancing-pages-in-the-story-screen">2.1) Case Study: Advancing Pages in the <em>Story</em> Screen</h3>
 <div class="images">
 <img src="images/story-anim.gif" width="350"/> <br> <a href="images/story-anim.gif"> Figure 6</a>: The <em>Story</em> screen
 </div>
-<p>The world map of Pingus has clickable <em>blue dots</em> with ambience stories about the game (Figure 6). The words for each story page appears incrementally over time. The first click in the button <code>&gt;&gt;&gt;</code> fast forwards the text. The second click advances to the next page until the story terminates. If the page displays completely due to the time elapsing, the first click advances to the next page.</p>
+<p>The clickable <em>blue dots</em> in the world map of Pingus transit to ambience story screens about the game (Figure 6). Inside each page, the words of the story appear incrementally over time. A first click in the button <code>&gt;&gt;&gt;</code> fast forwards the words to show the full page. A second click advances to the next page, until the story terminates. If the page completes before a click (due to the time elapsing), a first click advances to the next page.</p>
 <!-- CPP-STORY-PAGES -->
 
-<p>The code in C++ [<a href="https://github.com/Pingus/pingus/blob/v0.7.6/src/pingus/screens/story_screen.cpp#L159"><img src="images/link_12.png" alt="X" /></a>] defines the class <code>StoryScreenComponent</code> with a <code>next_text</code> method to advance the words and pages:</p>
+<p>The code in C++ defines the class <code>StoryScreenComponent</code> [<a href="https://github.com/Pingus/pingus/blob/v0.7.6/src/pingus/screens/story_screen.cpp#L159"><img src="images/link_12.png" alt="X" /></a>] uses the method <code>next_text</code>, which is a callback from clicks in <code>&gt;&gt;&gt;</code>:</p>
 <pre><code><b><font size="-1" color="#666666"> 1:</font></b>  StoryScreenComponent::StoryScreenComponent (<...>) :
 <b><font size="-1" color="#666666"> 2:</font></b>      <...>
 <b><font size="-1" color="#666666"> 3:</font></b>  {
-<b><font size="-1" color="#666666"> 4:</font></b>      pages        = <...>;
-<b><font size="-1" color="#666666"> 5:</font></b>      current_page = pages.back();
-<b><font size="-1" color="#666666"> 6:</font></b>      displayed    = <b>false</b>;
+<b><font size="-1" color="#666666"> 4:</font></b>      pages        = <...>;           // vector with loaded pages
+<b><font size="-1" color="#666666"> 5:</font></b>      current_page = pages.back();    // first loaded page
+<b><font size="-1" color="#666666"> 6:</font></b>      displayed    = <b>false</b>;           // <b>if</b> current page is complete
 <b><font size="-1" color="#666666"> 7:</font></b>      <...>
 <b><font size="-1" color="#666666"> 8:</font></b>  }
 <b><font size="-1" color="#666666"> 9:</font></b>  
-<b><font size="-1" color="#666666">10:</font></b>  <...>   // draw and update page
+<b><font size="-1" color="#666666">10:</font></b>  <...>   // draw page over time
 <b><font size="-1" color="#666666">11:</font></b>  
-<b><font size="-1" color="#666666">12:</font></b>  <b>void</b> StoryScreenComponent::next_text() {
-<b><font size="-1" color="#666666">13:</font></b>      <b>if</b> (!displayed) {
-<b><font size="-1" color="#666666">14:</font></b>          displayed = <b>true</b>;
-<b><font size="-1" color="#666666">15:</font></b>          <...>
-<b><font size="-1" color="#666666">16:</font></b>      } <b>else</b> {
-<b><font size="-1" color="#666666">17:</font></b>          pages.pop_back();
-<b><font size="-1" color="#666666">18:</font></b>          <b>if</b> (!pages.empty()) {
-<b><font size="-1" color="#666666">19:</font></b>              current_page = pages.back();
-<b><font size="-1" color="#666666">20:</font></b>              displayed    = <b>false</b>;
-<b><font size="-1" color="#666666">21:</font></b>              <...>
-<b><font size="-1" color="#666666">22:</font></b>          } <b>else</b> {
-<b><font size="-1" color="#666666">23:</font></b>              <...>   // terminates the story screen
-<b><font size="-1" color="#666666">24:</font></b>          }
-<b><font size="-1" color="#666666">25:</font></b>      }
-<b><font size="-1" color="#666666">26:</font></b>  }</code></pre>
+<b><font size="-1" color="#666666">12:</font></b>  <b>void</b> StoryScreenComponent::update (<...>) {
+<b><font size="-1" color="#666666">13:</font></b>      <...>
+<b><font size="-1" color="#666666">14:</font></b>      <b>if</b> (<...>) {
+<b><font size="-1" color="#666666">15:</font></b>          displayed = <b>true</b>;
+<b><font size="-1" color="#666666">16:</font></b>      }
+<b><font size="-1" color="#666666">17:</font></b>  }
+<b><font size="-1" color="#666666">18:</font></b>  
+<b><font size="-1" color="#666666">19:</font></b>  <b>void</b> StoryScreenComponent::next_text() {
+<b><font size="-1" color="#666666">20:</font></b>      <b>if</b> (!displayed) {
+<b><font size="-1" color="#666666">21:</font></b>          displayed = <b>true</b>;
+<b><font size="-1" color="#666666">22:</font></b>          <...>                       // remove current page
+<b><font size="-1" color="#666666">23:</font></b>      } <b>else</b> {
+<b><font size="-1" color="#666666">24:</font></b>          pages.pop_back();
+<b><font size="-1" color="#666666">25:</font></b>          <b>if</b> (!pages.empty()) {       // next page
+<b><font size="-1" color="#666666">26:</font></b>              current_page = pages.back();
+<b><font size="-1" color="#666666">27:</font></b>              displayed    = <b>false</b>;
+<b><font size="-1" color="#666666">28:</font></b>              <...>
+<b><font size="-1" color="#666666">29:</font></b>          } <b>else</b> {
+<b><font size="-1" color="#666666">30:</font></b>              <...>                   // terminates the story screen
+<b><font size="-1" color="#666666">31:</font></b>          }
+<b><font size="-1" color="#666666">32:</font></b>      }
+<b><font size="-1" color="#666666">33:</font></b>  }</code></pre>
 
 <div class="images">
 <img src="images/story.png" width="550"/> <br> <a href="images/story.png"> Figure 7</a>: State machine for the <em>Story</em> screen
 </div>
 
 
-<p>The variable <code>pages</code> (ln. 4-5, 17-19) is a vector holding each page and also encodes <em>continuations</em> for the story progress: each call to <code>next_text</code> that advances the story (ln. 16-25) removes a page (ln. 17) and sets the next action to perform (display a new page) in the variable <code>current_page</code> (ln. 19). Figure 7 illustrates the state machine for fast-forwarding the words inside the dashed rectangle and the continuation mechanism to advance pages. The state variable <code>displayed</code> (ln. 6,13,14,20) switches between the behaviors &quot;advancing text&quot; and &quot;advancing pages&quot; which are mixed inside the method <code>next_text</code>.</p>
+<p>The variable <code>pages</code> (ln. 4-5, 24-26) is a vector holding each page, but which also encodes <em>continuations</em> for the story progress: each call to <code>next_text</code> that advances the story (ln. 23-32) removes the current page (ln. 24) and sets the next action to perform (i.e., &quot;display a new page&quot;) in the variable <code>current_page</code> (ln. 26). Figure 7 illustrates the state machine for fast-forwarding words (inside the dashed rectangle) and also the continuation mechanism to advance pages. The state variable <code>displayed</code> (ln. 6,15,20,21,27) switches between the behaviors &quot;advancing text&quot; and &quot;advancing pages&quot;, which are both handled inside the method <code>next_text</code>.</p>
 <!-- CEU-STORY-PAGES -->
 
-<p>The code in Céu [<a href="https://github.com/fsantanna/pingus/blob/ceu/ceu/pingus/screens/story_screen.ceu#L14"><img src="images/link_12.png" alt="X" /></a>] uses a <code>next_text</code> event to advance the words and pages:</p>
+<p>The code in Céu [<a href="https://github.com/fsantanna/pingus/blob/ceu/ceu/pingus/screens/story_screen.ceu#L14"><img src="images/link_12.png" alt="X" /></a>] uses the event <code>next_text</code>, which is emitted from clicks in <code>&gt;&gt;&gt;</code>:</p>
 <pre><code><b><font size="-1" color="#666666"> 1:</font></b>  <b>class</b> StoryScreen <b>with</b>
 <b><font size="-1" color="#666666"> 2:</font></b>      <...>
 <b><font size="-1" color="#666666"> 3:</font></b>  <b>do</b>
-<b><font size="-1" color="#666666"> 4:</font></b>      <b>event</b> <b>void</b> next_text;
+<b><font size="-1" color="#666666"> 4:</font></b>      <b>event</b> <b>void</b> next_text;   // emitted from clicks <b>in</b> `>>>`
 <b><font size="-1" color="#666666"> 5:</font></b>  
-<b><font size="-1" color="#666666"> 6:</font></b>      _pages = <...>
+<b><font size="-1" color="#666666"> 6:</font></b>      _pages = <...>          // same as <b>in</b> C++
 <b><font size="-1" color="#666666"> 7:</font></b>  
 <b><font size="-1" color="#666666"> 8:</font></b>      <b>loop</b> i <b>in</b> _pages.size() <b>do</b>
 <b><font size="-1" color="#666666"> 9:</font></b>          <b>par</b>/<b>or</b> <b>do</b>
-<b><font size="-1" color="#666666">10:</font></b>              <...>       // <b>loop</b> to redraw current page
+<b><font size="-1" color="#666666">10:</font></b>              <...>           // <b>loop</b> to redraw current _pages[i]
 <b><font size="-1" color="#666666">11:</font></b>          <b>with</b>
 <b><font size="-1" color="#666666">12:</font></b>              <b>watching</b> next_text <b>do</b>
-<b><font size="-1" color="#666666">13:</font></b>                  <...>   // <b>loop</b> to advance text over time
+<b><font size="-1" color="#666666">13:</font></b>                  <...>       // <b>loop</b> to advance text over time
 <b><font size="-1" color="#666666">14:</font></b>              <b>end</b>
 <b><font size="-1" color="#666666">15:</font></b>              <b>await</b> next_text;
 <b><font size="-1" color="#666666">16:</font></b>          <b>end</b>
 <b><font size="-1" color="#666666">17:</font></b>      <b>end</b>
 <b><font size="-1" color="#666666">18:</font></b>  <b>end</b></code></pre>
 
-<p>For the sequential navigation from page to page, we use a simple loop (ln. 8,17) instead of an explicit continuation state. While the text advances in an inner loop (hidden in ln. 13), we watch the <code>next_text</code> event to fast forward it. The inner loop may also eventually terminate with the time elapsing. To go to the next page, we simply <code>await next_text</code> again (ln. 15). Note that we don't need a variable (such as <code>displayed</code> above) to switch between the states &quot;advancing text&quot; or &quot;advancing pages&quot; which are not mixed in the source code.</p>
+<p>For the sequential navigation from page to page, we use a direct loop (ln. 8-17) instead of an explicit continuation state variable. While the text advances in an inner loop (hidden in ln. 13), we watch the <code>next_text</code> event that fast forwards it. The inner loop may also eventually terminate with the time elapsing normally. To go to the next page, we simply <code>await next_text</code> again in sequence (ln. 15). Note that we don't need a variable (such as <code>displayed</code> in C++) to switch between the states &quot;advancing text&quot; or &quot;advancing pages&quot; which are not mixed in the source code.</p>
 <p><a name="continuation-passing-2"/></p>
-<h3 id="case-study-story-screen-transition-to-credits-screen">2.2) Case Study: Story Screen, Transition to Credits Screen</h3>
+<h3 id="case-study-transition-to-the-credits-screen-in-the-story-screen">2.2) Case Study: Transition to the <em>Credits</em> Screen in the <em>Story</em> Screen</h3>
 <div class="images">
 <img src="images/credits-anim.gif" width="350"/> <br> <a href="images/credits-anim.gif"> Figure 8</a>: Transition from <em>Story</em> to <em>Credits</em> screen
 </div>
