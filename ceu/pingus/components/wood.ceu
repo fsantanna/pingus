@@ -19,7 +19,7 @@ do
                     break;
                 end
                 call {Display::s_framebuffer}:draw_surface(
-                    this.sfc.get_framebuffer_surface(),
+                    this.sfc.framebuffer_surface,
                     _Vector2i(x, y)
                 );
                 x = x + sfc.get_width();

@@ -1,3 +1,4 @@
+- TODO: names in bridger?
 - TODO: pause p/ world pause
 - BUG: worldmap edge lines on dev mode
 - BUG: credits clip rect

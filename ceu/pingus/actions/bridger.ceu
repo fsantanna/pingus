@@ -23,7 +23,8 @@ do
 
     var int bricks = _BRIDGER_MAX_BRICKS;
 
-    var char[]& name = &this.pingu.get_name();
+// TODO: ???
+    var char[]& name = &this.pingu.name;
     name = [] .. "Bridger (" ..
            (char&&)({StringUtil::to_string}(this.bricks).c_str()) ..
            ")";
@@ -157,7 +158,8 @@ do
     function (void)=>void place_a_brick do
         this.bricks = this.bricks - 1;
 
-        var char[]& n = &this.pingu.get_name();
+// TODO: ???
+        var char[]& n = &this.pingu.name;
         n = [] .. "Bridger (" ..
                   (char&&)({StringUtil::to_string}(this.bricks).c_str()) ..
                   ")";

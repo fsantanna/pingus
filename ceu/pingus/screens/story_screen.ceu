@@ -96,18 +96,18 @@ do
             end
         end
     with
-        every next.get_component().on_click do
+        every next.component.on_click do
             emit next_text;
         end
     with
-        every next.get_component().on_pointer_enter do
+        every next.component.on_pointer_enter do
             call {Sound::PingusSound::play_sound}("tick");
         end
     with
-        await skip.get_component().on_click;
+        await skip.component.on_click;
         escape 1;               // is_click = true
     with
-        every skip.get_component().on_pointer_enter do
+        every skip.component.on_pointer_enter do
             call {Sound::PingusSound::play_sound}("tick");
         end
     with

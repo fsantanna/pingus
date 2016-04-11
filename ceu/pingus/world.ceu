@@ -45,19 +45,12 @@ class World with
     var _PingusLevel& plf;
     var PingusCounter& counter;
     var int game_time = 0;
-    var Rect state = Rect(0,0,0,0);
+    var Rect rect = Rect(0,0,0,0);
 do
     global:world = &&this;
 
     var int width  = this.plf.get_size().width;
     var int height = this.plf.get_size().height;
-
-    var Rect rect = Rect(
-        {Math::max}(({Display::get_width()}-width)/2, 0),
-        {Math::max}(({Display::get_height()}-height)/2, 0),
-        {Math::min}({Display::get_width()},  width),
-        {Math::min}({Display::get_height()}, height)
-    );
 
     var _GroundMap&? gfx_map;
     finalize
@@ -74,8 +67,9 @@ do
     with
         _delete(&&state_!);
     end
-    this.state_!.set_limit(_Rect(_Vector2i(0,0), _Size(width, height)));
-    state = Rect(0,0, width,height);
+    this.state = &state_!;
+    this.state.set_limit(_Rect(_Vector2i(0,0), _Size(width, height)));
+    this.rect = Rect(0,0, width,height);
 
     spawn do
         par do
@@ -131,10 +125,16 @@ do
     var PauseButton      _ = PauseButton.build     (dwidth-40*3, dheight-62);
     var ButtonPanel button_panel;
 
+    var Rect rect_big = Rect(
+        {Math::max}(({Display::get_width()}-width)/2, 0),
+        {Math::max}(({Display::get_height()}-height)/2, 0),
+        {Math::min}({Display::get_width()},  width),
+        {Math::min}({Display::get_height()}, height)
+    );
     var Playfield playfield with
         this.action_next = &button_panel.action;
         this.pingus      = &pingus;
-        this.rect        = &rect;
+        this.rect        = &rect_big;
     end;
 
     var Rect rect_small = Rect(6,{Display::get_size}().height-105, 175,100);
@@ -156,9 +156,9 @@ do
         this.smallmap = &smallmap;
     end;
 
-    this.state_!.set_pos(_Vector2i(objs.pos_start.x,objs.pos_start.y));
-    state.left = objs.pos_start.x;
-    state.top  = objs.pos_start.y;
+    this.state.set_pos(_Vector2i(objs.pos_start.x,objs.pos_start.y));
+    this.rect.left = objs.pos_start.x;
+    this.rect.top  = objs.pos_start.y;
 
     par/or do
         do GoalManager with
@@ -225,9 +225,6 @@ do
     function (void)=>_CollisionMap&& get_colmap do
         return _XXX_PURE(this.gfx_map!.get_colmap());
     end
-    function (void)=>_GraphicContextState& get_state do
-        return &this.state_!;
-    end
 
     function (_CollisionMask&& mask,int x,int y,_Groundtype__GPType type)=>void put do
         this.gfx_map!.put(mask:get_surface(), x, y);
@@ -242,8 +239,8 @@ do
     function (void)=>Vector2i get_offset do
         var Vector2i ret =
             Vector2i(
-                -(state.left - state.width/2),
-                -(state.top  - state.height/2)
+                -(this.rect.left - this.rect.width/2),
+                -(this.rect.top  - this.rect.height/2)
             );
         return ret;
     end
@@ -251,8 +248,8 @@ do
     function (void)=>Vector2i get_offset do
         var Vector2i ret =
             Vector2i(
-                (state_!.get_pos().x - state_!.get_width()/2),
-                (state_!.get_pos().y - state_!.get_height()/2)
+                (state.get_pos().x - state.get_width()/2),
+                (state.get_pos().y - state.get_height()/2)
             );
         return ret;
     end

@@ -136,7 +136,7 @@ do
                         break;
                     end
                     call {Display::s_framebuffer}:draw_surface(
-                        bg_sfc.get_framebuffer_surface(),
+                        bg_sfc.framebuffer_surface,
                         _Vector2i(x-off.x,y-off.y)
                     );
                     x = x + bg_sfc.get_width();

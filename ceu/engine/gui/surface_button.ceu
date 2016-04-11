@@ -10,18 +10,19 @@ class SurfaceButton with
     var char&& button;
     var char&& button_pressed;
     var char&& button_over;
-
-    function (void)=>RectComponent& get_component;
+output:
+    var RectComponent& component;
 do
     var char[] b         = []..button;
     var char[] b_pressed = []..button_pressed;
     var char[] b_over    = []..button_over;
 
     var Rect rect = Rect(x, y, 0, 0);
-    var Sprite sprite = Sprite.build_name(&rect, _XXX_PURE(&&b));
-    var RectComponent component with
+    var RectComponent component_ with
         this.rect = &rect;
     end;
+    this.component = &component_;
+    var Sprite sprite = Sprite.build_name(&rect, _XXX_PURE(&&b));
     kill sprite;
 
     loop do
@@ -39,10 +40,6 @@ do
                 await ON_PRIMARY_BUTTON_RELEASED;
             end
         end
-    end
-
-    function (void)=>RectComponent& get_component do
-        return &this.component;
     end
 end
 

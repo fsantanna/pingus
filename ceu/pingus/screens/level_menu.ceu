@@ -85,30 +85,30 @@ do
     // terminate on ESCAPE or cancel click
 
     par do
-        every cancel.get_component().on_pointer_enter do
+        every cancel.component.on_pointer_enter do
             call {Sound::PingusSound::play_sound}("tick");
         end
     with
-        await cancel.get_component().on_click;
+        await cancel.component.on_click;
         escape -1;
     with
-        every prv.get_component().on_pointer_enter do
+        every prv.component.on_pointer_enter do
             call {Sound::PingusSound::play_sound}("tick");
         end
     with
-        every nxt.get_component().on_pointer_enter do
+        every nxt.component.on_pointer_enter do
             call {Sound::PingusSound::play_sound}("tick");
         end
     with
         par do
-            every prv.get_component().on_click do
+            every prv.component.on_click do
                 if this.item_at_top > 0 then
                     this.item_at_top = item_at_top - 1;
                     emit this.go => this.item_height;
                 end
             end
         with
-            every nxt.get_component().on_click do
+            every nxt.component.on_click do
                 if this.item_at_top < this.items_total-this.items_per_page then
                     this.item_at_top = item_at_top + 1;
                     emit this.go => -this.item_height;
@@ -117,9 +117,9 @@ do
         with
             every but in ON_BUTTON_PRESSED do
                 if but:name == {Input::ACTION_DOWN_BUTTON} then
-                    emit nxt.get_component().on_click;
+                    emit nxt.component.on_click;
                 else/if but:name == {Input::ACTION_UP_BUTTON} then
-                    emit prv.get_component().on_click;
+                    emit prv.component.on_click;
                 end
             end
         end

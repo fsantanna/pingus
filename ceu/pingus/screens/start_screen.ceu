@@ -43,18 +43,18 @@ do
     end;
 
     par do
-        every cancel.get_component().on_pointer_enter do
+        every cancel.component.on_pointer_enter do
             call {Sound::PingusSound::play_sound}("tick");
         end
     with
-        await cancel.get_component().on_click;
+        await cancel.component.on_click;
         escape false;
     with
-        every start.get_component().on_pointer_enter do
+        every start.component.on_pointer_enter do
             call {Sound::PingusSound::play_sound}("tick");
         end
     with
-        await start.get_component().on_click;
+        await start.component.on_click;
         call {Sound::PingusSound::play_sound}("yipee");
         escape 1;
     with

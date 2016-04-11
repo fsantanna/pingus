@@ -38,43 +38,43 @@ do
     with
         every REDRAW do
             call {Display::s_framebuffer}:draw_surface(
-                s1.get_framebuffer_surface(),
+                s1.framebuffer_surface,
                 _Vector2i(x1, y1)
             );
             call {Display::s_framebuffer}:draw_surface(
-                s1.get_framebuffer_surface(),
+                s1.framebuffer_surface,
                 _Vector2i(x1-{Display::get_width()}, y1)
             );
             call {Display::s_framebuffer}:draw_surface(
-                s2.get_framebuffer_surface(),
+                s2.framebuffer_surface,
                 _Vector2i(x2, y2)
             );
             call {Display::s_framebuffer}:draw_surface(
-                s2.get_framebuffer_surface(),
+                s2.framebuffer_surface,
                 _Vector2i(x2-{Display::get_width()}, y2)
             );
             call {Display::s_framebuffer}:draw_surface(
-                s3.get_framebuffer_surface(),
+                s3.framebuffer_surface,
                 _Vector2i(x3, y3)
             );
             call {Display::s_framebuffer}:draw_surface(
-                s3.get_framebuffer_surface(),
+                s3.framebuffer_surface,
                 _Vector2i(x3-{Display::get_width()}, y3)
             );
             call {Display::s_framebuffer}:draw_surface(
-                s4.get_framebuffer_surface(),
+                s4.framebuffer_surface,
                 _Vector2i(x4, y4)
             );
             call {Display::s_framebuffer}:draw_surface(
-                s4.get_framebuffer_surface(),
+                s4.framebuffer_surface,
                 _Vector2i(x4-{Display::get_width()}, y4)
             );
             call {Display::s_framebuffer}:draw_surface(
-                s5.get_framebuffer_surface(),
+                s5.framebuffer_surface,
                 _Vector2i(x5, y5)
             );
             call {Display::s_framebuffer}:draw_surface(
-                s5.get_framebuffer_surface(),
+                s5.framebuffer_surface,
                 _Vector2i(x5-{Display::get_width()}, y5)
             );
         end

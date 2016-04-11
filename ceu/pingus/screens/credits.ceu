@@ -80,11 +80,11 @@ do
     var float offset     = {Display::get_height()} - 50;
 
     par do
-        await ok.get_component().on_click;
+        await ok.component.on_click;
         call {Sound::PingusSound::play_sound}("yipee");
         escape 0;
     with
-        every ok.get_component().on_pointer_enter do
+        every ok.component.on_pointer_enter do
             call {Sound::PingusSound::play_sound}("tick");
         end
     with

@@ -20,23 +20,26 @@ class Surface with
     var _ResourceModifier__Enum mod     = {ResourceModifier::ROT0};
     var char&&                  name    = null;
 
+output:
+    var _FramebufferSurface& framebuffer_surface;
+
     function (@hold char&& name)=>Surface build;
-    function (void)=>_FramebufferSurface& get_framebuffer_surface;
 do
     function (@hold char&& name)=>Surface build do
         this.name := name;
     end
 
-    var _FramebufferSurface&? framebuffer_surface;
+    var _FramebufferSurface&? framebuffer_surface_;
     //do
         if surface != null then
             finalize
-                framebuffer_surface =
+                framebuffer_surface_ =
                     &{new FramebufferSurface}(
                         {new SDLFramebufferSurfaceImpl}(surface:get_surface()));
             with
-                //_delete(&&framebuffer_surface!);
+                //_delete(&&framebuffer_surface_!);
             end
+            this.framebuffer_surface = &framebuffer_surface_!;
         else
             if name != null then
                 desc = _Resource__load_sprite_desc(name);
@@ -46,11 +49,12 @@ do
             end
             _assert(desc != null);
             finalize
-                framebuffer_surface =
+                framebuffer_surface_ =
                     &_load_framebuffer_sdl_surface(desc:filename, mod);
             with
-                //_delete(&&framebuffer_surface!);
+                //_delete(&&framebuffer_surface_!);
             end
+            this.framebuffer_surface = &framebuffer_surface_!;
         end
     //end
 
@@ -59,13 +63,10 @@ do
     /* PUBLIC */
 
     function (void)=>int get_width do
-        return framebuffer_surface!.get_width();
+        return framebuffer_surface.get_width();
     end
     function (void)=>int get_height do
-        return framebuffer_surface!.get_height();
-    end
-    function (void)=>_FramebufferSurface& get_framebuffer_surface do
-        return &framebuffer_surface!;
+        return framebuffer_surface.get_height();
     end
 end
 

@@ -180,7 +180,7 @@ do
         end
 
         call {Display::s_framebuffer}:draw_surface(
-            this.sfc.get_framebuffer_surface(),
+            this.sfc.framebuffer_surface,
             _Rect(
                 _Vector2i(this.frame_pos.x,this.frame_pos.y) +
                     _Vector2i(this.frame_size.width  * (this.frame%this.array.width),

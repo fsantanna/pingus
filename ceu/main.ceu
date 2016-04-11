@@ -27,7 +27,7 @@ native do
 end
 native @pure _Resource__load_sprite_desc(), _Pathname();
 native @plain _std__string, _Vector3f, _Vector2i, _Color, _Rect, _Size;
-native @plain _Sprite, _Surface, _SpriteDescription;
+native @plain _Sprite, _Surface, _SpriteDescription, _GraphicContextState;
 native @plain _Input__Event, _Input__ButtonEvent;
 native @plain _ResourceModifier__Enum;
 native @plain _PingusLevel, _Result, _Levelset;
@@ -101,6 +101,9 @@ interface IPingu with
     var   _ActionName__Enum wall_action;
     var   _ActionName__Enum fall_action;
 
+output:
+    var char[]& name;
+
     event    _ActionName__Enum           go_action;
     function (_ActionName__Enum) => bool check_action;
 
@@ -126,7 +129,6 @@ interface IPingu with
 
     function (void)         => int          get_id;
     function (void)         => int          get_owner;
-    function (void)         => char[]&      get_name;
 end
 
 data PingusCounter with
@@ -145,16 +147,15 @@ interface IPinguAction with
 end
 
 interface IWorld with
+    var Rect rect;
+output:
+    var _GraphicContextState& state;
+
     function (void)=>int get_width;
     function (void)=>int get_height;
-
-    function (void)=>_CollisionMap&&       get_colmap;
-    function (void)=>_GraphicContextState& get_state;
-
+    function (void)=>_CollisionMap&& get_colmap;
     function (_CollisionMask&& mask,int x,int y,_Groundtype__GPType type)=>void put;
     function (_CollisionMask&& mask,int x,int y)=>void remove;
-
-    var Rect state;
     function (void)=>Vector2i get_offset;
 end
 

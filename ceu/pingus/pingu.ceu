@@ -63,7 +63,8 @@ class Pingu with
     var _ActionName__Enum fall_action    = {ActionName::NONE};
 do
     var Vector3f velocity = Vector3f(0, 0, 0);
-    var char[] name;
+    var char[] name_;
+    this.name = &name_;
 
     var int ret =
     do
@@ -314,10 +315,6 @@ do
             ostr << THIS_F(CEU_Pingu)->owner_id;
         };
         return _ostr.str();
-    end
-
-    function (void)=>char[]& get_name do
-        return &this.name;
     end
 
     function (_ActionName__Enum new_action)=>bool check_action do

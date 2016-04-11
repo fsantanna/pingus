@@ -104,25 +104,25 @@ do
     end
 
     par do
-        every abort.get_component().on_pointer_enter do
+        every abort.component.on_pointer_enter do
             call {Sound::PingusSound::play_sound}("tick");
         end
     with
-        await abort.get_component().on_click;
+        await abort.component.on_click;
         escape false;
     with
-        every retry.get_component().on_pointer_enter do
+        every retry.component.on_pointer_enter do
             call {Sound::PingusSound::play_sound}("tick");
         end
     with
-        await retry.get_component().on_click;
+        await retry.component.on_click;
         escape true;
     with
-        every ok.get_component().on_pointer_enter do
+        every ok.component.on_pointer_enter do
             call {Sound::PingusSound::play_sound}("tick");
         end
     with
-        await ok.get_component().on_click;
+        await ok.component.on_click;
         call {Sound::PingusSound::play_sound}("yipee");
         escape false;
     with

@@ -29,7 +29,7 @@ do
                      this.pos.y>pos_ini.y and this.pos.y<(pos_ini.y + sfc.get_height())))
             then
                 call {Display::s_framebuffer}:draw_surface(
-                    this.sfc.get_framebuffer_surface(),
+                    this.sfc.framebuffer_surface,
                     _Vector2i(-global:offset.x + pos_ini.x,
                               -global:offset.y + pos_ini.y)
                 );
@@ -37,14 +37,14 @@ do
                 // FIXME: Hack for the 0.6.0 release/tutorial world remove // later
 // TODO
                 call {Display::s_framebuffer}:draw_surface(
-                    this.sfc.get_framebuffer_surface(),
+                    this.sfc.framebuffer_surface,
                     _Vector2i(-global:offset.x + pos_ini.x,
                               -global:offset.y + pos_ini.y)
                 );
             end
         else
             call {Display::s_framebuffer}:draw_surface(
-                this.sfc.get_framebuffer_surface(),
+                this.sfc.framebuffer_surface,
                 _Vector2i(-global:offset.x + pos_ini.x,
                           -global:offset.y + pos_ini.y)
             );

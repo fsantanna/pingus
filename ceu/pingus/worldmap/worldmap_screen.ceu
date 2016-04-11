@@ -61,11 +61,11 @@ do
                 );
             end
         with
-            every close.get_component().on_pointer_enter do
+            every close.component.on_pointer_enter do
                 call {Sound::PingusSound::play_sound}("tick");
             end
         with
-            await close.get_component().on_click;
+            await close.component.on_click;
             escape false;
         end
     with
