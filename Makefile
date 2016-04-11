@@ -34,7 +34,8 @@ clean:
 	scons -c
 
 ceu:
-	cd ceu/ && ceu --cpp-args "-DCEU_DEBUG" main.ceu && mv _ceu_app.c ../src/ && mv _ceu_app.h ../src/ && cd ../
+	cd /data/ceu/ceu/ && make ceu SRC=$(PWD)/ceu/main.ceu
+	mv ceu/build/_ceu_app.* src/
 
 install: install-exec install-data install-man
 
