@@ -34,6 +34,7 @@ void ceu_sys_log (int mode, long s) {
     }
 }
 
+#include "../../src/util/string_util.hpp"
 #include "ceu_vars.h"
 #include "_ceu_app.c"
 tceu_app CEU_APP;

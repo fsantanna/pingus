@@ -3,7 +3,6 @@
 
 native do
     ##include "../../src/math/vector3f.hpp"
-    ##include "../../src/util/string_util.hpp"
     ##include "../../src/pingus/gettext.h"
 end
 
