@@ -43,9 +43,9 @@ do
         every (x,y) in ON_PRIMARY_BUTTON_PRESSED do
             if is_inside(x,y) then
                 if {globals::developer_mode} then
-                    _log_info("Worldmap: Clicked on: %1%", (char&&)&&dot.filename);
+                    _log_info("Worldmap: Clicked on: %1%", (_char&&)&&dot.filename);
                 end
-                global:worldmap_return_filename = [] .. dot.filename;
+                global:worldmap_return_filename = [] .. (_char&&)&&dot.filename;
                 emit this.dot.e.ok_clicked =>
                     (1,this.dot.id,this.dot.is_story,this.dot.show_credits,this.dot.status);
             end
@@ -93,8 +93,8 @@ do
     this.reader:read_bool  ("credits", _m_credits);
     this.show_credits = _m_credits;
 
-    var char[] m_name = [] .. (char&&)_m_name.c_str();
-    this.filename = [] .. (char&&)_m_story.c_str();
+    var char[] m_name = [] .. (_char&&)_m_name.c_str();
+    this.filename = [] .. (_char&&)_m_story.c_str();
 
     var Rect rect = Rect(_pos.x,_pos.y, 0, 0);
     var Sprite _ = Sprite.build_name(&rect, "core/worldmap/story_dot");
@@ -112,7 +112,7 @@ do
                 _origin_top_center,
                 -global:offset.x + rect.left,
                 -global:offset.y + rect.top-44,
-                __(&&m_name),
+                __((_char&&)&&m_name),
                 *{Display::s_framebuffer}
             );
         end
@@ -144,8 +144,8 @@ do
     this.reader:read_string("levelname", _resname);
     { plf = PLFResMgr::load_plf(resname); };
 
-    var char[] res_name = [] .. (char&&)_resname.c_str();
-    var char[] lvl_name = [] .. (char&&)_plf.get_levelname().c_str();
+    var char[] res_name = [] .. (_char&&)_resname.c_str();
+    var char[] lvl_name = [] .. (_char&&)_plf.get_levelname().c_str();
 
     this.filename = [] .. res_name;
 
@@ -206,7 +206,7 @@ do
                     call {Fonts::pingus_small}.render(
                         _origin_top_center,
                         x+rect.left, y+rect.top-44,
-                        __(&&lvl_name),
+                        __((_char&&)&&lvl_name),
                         *{Display::s_framebuffer}
                     );
                 end
@@ -214,7 +214,7 @@ do
                     call {Fonts::pingus_small}.render(
                         _origin_top_center,
                         x+rect.left, y+rect.top-70,
-                        __(&&res_name),
+                        __((_char&&)&&res_name),
                         *{Display::s_framebuffer}
                     );
                 end

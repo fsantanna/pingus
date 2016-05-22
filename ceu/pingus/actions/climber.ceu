@@ -7,10 +7,10 @@ class Climber with
     interface IPinguAction;
 do
     var char[] left  = [] .. "pingus/player"
-                          .. (char&&)this.pingu.get_owner_str().c_str()
+                          .. (_char&&)this.pingu.get_owner_str().c_str()
                           .. "/climber/left";
     var char[] right = [] .. "pingus/player"
-                          .. (char&&)this.pingu.get_owner_str().c_str()
+                          .. (_char&&)this.pingu.get_owner_str().c_str()
                           .. "/climber/right";
     var RightLeftSprites _ with
         this.parent = &outer.pingu;

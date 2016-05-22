@@ -9,10 +9,10 @@ do
     { Sound::PingusSound::play_sound("yipee"); };
 
     var char[] left  = [] .. "pingus/player"
-                          .. (char&&)this.pingu.get_owner_str().c_str()
+                          .. (_char&&)this.pingu.get_owner_str().c_str()
                           .. "/exit/left";
     var char[] right = [] .. "pingus/player"
-                          .. (char&&)this.pingu.get_owner_str().c_str()
+                          .. (_char&&)this.pingu.get_owner_str().c_str()
                           .. "/exit/right";
     do RightLeftSprites with
         this.parent = &outer.pingu;

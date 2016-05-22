@@ -90,10 +90,10 @@ await WORLD_UPDATE;
     with
         do
             var char[] left  = [] .. "pingus/player"
-                                  ..  (char&&)this.pingu.get_owner_str().c_str()
+                                  ..  (_char&&)this.pingu.get_owner_str().c_str()
                                   .. "/faller/left";
             var char[] right = [] .. "pingus/player"
-                                  ..  (char&&)this.pingu.get_owner_str().c_str()
+                                  ..  (_char&&)this.pingu.get_owner_str().c_str()
                                   .. "/faller/right";
             var RightLeftSprites _ with
                 this.parent = &pingu;
@@ -104,10 +104,10 @@ await WORLD_UPDATE;
         end
         do
             var char[] left  = [] .. "pingus/player"
-                                  ..  (char&&)this.pingu.get_owner_str().c_str()
+                                  ..  (_char&&)this.pingu.get_owner_str().c_str()
                                   .. "/tumbler/left";
             var char[] right = [] .. "pingus/player"
-                                  ..  (char&&)this.pingu.get_owner_str().c_str()
+                                  ..  (_char&&)this.pingu.get_owner_str().c_str()
                                   .. "/tumbler/right";
             do RightLeftSprites with
                 this.parent = &pingu;

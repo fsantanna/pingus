@@ -7,9 +7,9 @@
 class SurfaceButton with
     var float x;
     var float y;
-    var char&& button;
-    var char&& button_pressed;
-    var char&& button_over;
+    var _char&& button;
+    var _char&& button_pressed;
+    var _char&& button_over;
 output:
     var RectComponent& component;
 do
@@ -22,21 +22,21 @@ do
         this.rect = &rect;
     end;
     this.component = &component_;
-    var Sprite sprite = Sprite.build_name(&rect, _XXX_PURE(&&b));
+    var Sprite sprite = Sprite.build_name(&rect, (_char&&)&&b);
     kill sprite;
 
     loop do
         do
-            var Sprite _ = Sprite.build_name(&rect, _XXX_PURE(&&b));
+            var Sprite _ = Sprite.build_name(&rect, (_char&&)&&b);
             await component.on_pointer_enter;
         end
         watching component.on_pointer_leave do
             loop do
                 do
-                    var Sprite _ = Sprite.build_name(&rect, _XXX_PURE(&&b_over));
+                    var Sprite _ = Sprite.build_name(&rect, (_char&&)&&b_over);
                     await component.on_primary_button_pressed;
                 end
-                var Sprite _ = Sprite.build_name(&rect, _XXX_PURE(&&b_pressed));
+                var Sprite _ = Sprite.build_name(&rect, (_char&&)&&b_pressed);
                 await ON_PRIMARY_BUTTON_RELEASED;
             end
         end

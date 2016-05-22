@@ -127,7 +127,7 @@ do
             end
         with
             loop do
-                name = [] .. (char&&){ActionName::to_screenname}
+                name = [] .. (_char&&){ActionName::to_screenname}
                                 (this.current_action);
                 par/or do
                     this.current_action = await e_set_action;

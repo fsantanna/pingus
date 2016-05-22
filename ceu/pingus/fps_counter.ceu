@@ -3,7 +3,6 @@
 
 native/pre do
     ##include <string>
-    ##include <sstream>
     static std::string fps_string;
 end
 

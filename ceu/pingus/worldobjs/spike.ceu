@@ -18,16 +18,18 @@ do
 
     loop do
         var IPingu&& pingu =
-            loop do
-                await WORLD_UPDATE;
-                var IPingu&&? pingu;
-                loop p in this.pingus do
-                    if (p:get_pos().x > this.pos.x+16-5 and
-                        p:get_pos().x < this.pos.x+16+5 and
-                        p:get_pos().y > this.pos.y      and
-                        p:get_pos().y < this.pos.y + 32)
-                    then
-                        escape p;
+            do
+                loop do
+                    await WORLD_UPDATE;
+                    var IPingu&&? pingu;
+                    loop p in this.pingus do
+                        if (p:get_pos().x > this.pos.x+16-5 and
+                            p:get_pos().x < this.pos.x+16+5 and
+                            p:get_pos().y > this.pos.y      and
+                            p:get_pos().y < this.pos.y + 32)
+                        then
+                            escape p;
+                        end
                     end
                 end
             end;

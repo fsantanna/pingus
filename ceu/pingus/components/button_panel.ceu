@@ -48,7 +48,7 @@ do
 
     var char[] name = []
         .. "pingus/player0/"
-        ..  (char&&)({ActionName::to_string}(this.id_me).c_str())
+        ..  (_char&&)({ActionName::to_string}(this.id_me).c_str())
         .. "/right";
 
     par do
@@ -57,7 +57,7 @@ do
 
         if n == 0 then
             var Sprite _ = Sprite.build_nameX(&r1, "core/buttons/buttonbackgroundhl");
-            var Sprite sprite = Sprite.build_nameX(&r2, _XXX_PURE(&&name));
+            var Sprite sprite = Sprite.build_nameX(&r2, (_char&&)&&name);
             sprite.is_loop = true;
             this.id_out = this.id_me;
             await out.e;
@@ -66,7 +66,7 @@ do
         loop do
             do
                 var Sprite _ = Sprite.build_nameX(&r1, "core/buttons/buttonbackground");
-                var Sprite sprite = Sprite.build_nameX(&r2, _XXX_PURE(&&name));
+                var Sprite sprite = Sprite.build_nameX(&r2, (_char&&)&&name);
                 sprite.frame_delay = 0;
 
                 par/or do
@@ -80,7 +80,7 @@ do
             end
             do
                 var Sprite _ = Sprite.build_nameX(&r1, "core/buttons/buttonbackgroundhl");
-                var Sprite sprite = Sprite.build_nameX(&r2, _XXX_PURE(&&name));
+                var Sprite sprite = Sprite.build_nameX(&r2, (_char&&)&&name);
                 sprite.is_loop = true;
                 await out.e;
             end

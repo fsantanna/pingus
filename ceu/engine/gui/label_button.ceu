@@ -11,16 +11,16 @@ class LabelButton with
 output:
     var RectComponent& component;
 
-    function (float x, float y, char&& label)=>LabelButton build;
+    function (float x, float y, _char&& label)=>LabelButton build;
 do
-    function (float x, float y, char&& label)=>LabelButton build do
+    function (float x, float y, _char&& label)=>LabelButton build do
         this.x = x;
         this.y = y;
         this.label = []..label;
     end
 
     var Rect rect = Rect(x, y,
-                         {Fonts::chalk_small}.get_width(&&this.label)
+                         {Fonts::chalk_small}.get_width((_char&&)&&this.label)
                             finalize with end,
                          {Fonts::chalk_small}.get_height());
     var RectComponent component_ with
@@ -32,7 +32,7 @@ do
         call {Fonts::chalk_small}.render(
             _origin_top_left,
             x, y,
-            &&this.label,
+            (_char&&)&&this.label,
             *{Display::s_framebuffer}
         ) finalize with nothing; end;
     end

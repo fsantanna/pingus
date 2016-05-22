@@ -27,10 +27,10 @@ do
     function (void)=>bool have_something_to_dig;
 
     var char[] left  = [] .. "pingus/player"
-                          .. (char&&)this.pingu.get_owner_str().c_str()
+                          .. (_char&&)this.pingu.get_owner_str().c_str()
                           .. "/basher/left";
     var char[] right = [] .. "pingus/player"
-                          .. (char&&)this.pingu.get_owner_str().c_str()
+                          .. (_char&&)this.pingu.get_owner_str().c_str()
                           .. "/basher/right";
     var RightLeftSprites sprites with
         this.parent = &outer.pingu;

@@ -35,9 +35,9 @@ do
     end;
 
     var char[] name = [] .. "core/misc/flag" ..
-                        (char&&){StringUtil::to_string}(owner_id).c_str();
+                        (_char&&){StringUtil::to_string}(owner_id).c_str();
     var Rect r2 = Rect(pos.x+40,pos.y, 0,0);
-    var Sprite _ = Sprite.build_name(&r2, _XXX_PURE(&&name));
+    var Sprite _ = Sprite.build_name(&r2, (_char&&)&&name);
 
     do
         { static ResDescriptor desc; };         // TODO: repeated above

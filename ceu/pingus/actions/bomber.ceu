@@ -12,12 +12,12 @@ class Bomber with
     interface IPinguAction;
 do
     var char[] bomber = [] .. "pingus/player"
-                           .. (char&&)this.pingu.get_owner_str().c_str()
+                           .. (_char&&)this.pingu.get_owner_str().c_str()
                            .. "/bomber/left";
-    var Sprite sprite = Sprite.build_name(&outer.pingu.rect, (char&&)&&bomber);
+    var Sprite sprite = Sprite.build_name(&outer.pingu.rect, (_char&&)&&bomber);
 
     var char[] explo = [] .. "pingus/player"
-                          ..  (char&&)this.pingu.get_owner_str().c_str()
+                          ..  (_char&&)this.pingu.get_owner_str().c_str()
                           .. "/explo";
     {
         ##include "../../../src/pingus/collision_mask.hpp"
@@ -54,7 +54,7 @@ do
         );
 
         do
-            var Sprite s = Sprite.build_name(&outer.pingu.rect, (char&&)&&explo);
+            var Sprite s = Sprite.build_name(&outer.pingu.rect, (_char&&)&&explo);
             s.offset.x = 32;
             s.offset.y = 48;
             await WORLD_UPDATE;

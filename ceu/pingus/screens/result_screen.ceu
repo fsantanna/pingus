@@ -27,7 +27,7 @@ do
         );
     end
 
-    var char[] level_name = [] ..  (char&&)__(result.plf.get_levelname()).c_str();
+    var char[] level_name = [] ..  (_char&&)__(result.plf.get_levelname()).c_str();
     var char[] message;
     if has_succeeded then
         if (result.killed == 0 and result.saved == result.total) then
@@ -58,8 +58,8 @@ do
     end
 
     var char[] saved_needed = [] ..  
-        (char&&){StringUtil::to_string}((int)result.saved).c_str() .. ['/'] ..
-        (char&&){StringUtil::to_string}((int)result.needed).c_str();
+        (_char&&){StringUtil::to_string}((int)result.saved).c_str() .. ['/'] ..
+        (_char&&){StringUtil::to_string}((int)result.needed).c_str();
 
     var Rect rect = Rect(
         {Display::get_width()}  / 2,
@@ -138,104 +138,108 @@ do
         end
     with
         every REDRAW do
-            var int left_x  = {Display::get_width()}/2 - 150;
-            var int right_x = {Display::get_width()}/2 + 150;
-            var int y = {Display::get_height()}/2 + 40;
+            do
+                var int left_x  = {Display::get_width()}/2 - 150;
+                var int right_x = {Display::get_width()}/2 + 150;
+                var int y = {Display::get_height()}/2 + 40;
 
-            if not has_succeeded then
-                // abort button
+                if not has_succeeded then
+                    // abort button
+                    call {Fonts::chalk_normal}.render(
+                        _origin_top_center,
+                        abort.x+55, abort.y-4,
+                        __("Give Up"),
+                        *{Display::s_framebuffer}
+                    );
+                    call {Fonts::chalk_normal}.render(
+                        _origin_top_center,
+                        retry.x+30, retry.y-24,
+                        __("Retry"),
+                        *{Display::s_framebuffer}
+                    );
+                end
+
+                call {Fonts::chalk_large}.render(
+                    _origin_top_center,
+                    {Display::get_width()}/2, {Display::get_height()}/2-200,
+                    (_char&&)&&level_name,
+                    *{Display::s_framebuffer}
+                ) finalize with nothing; end;
+
+                if has_succeeded then
+                    call {Fonts::chalk_large}.render(
+                        _origin_top_center,
+                        {Display::get_width()}/2, {Display::get_height()}/2-140,
+                        __("Success!"),
+                        *{Display::s_framebuffer}
+                    );
+                    /*gc:print_center(Fonts::pingus_small, gc:get_width()/2, * * * gc:get_height()-30,
+                    "..:: Press Space to continue ::..");*/
+                else
+                    call {Fonts::chalk_large}.render(
+                        _origin_top_center,
+                        {Display::get_width()}/2, {Display::get_height()}/2-140,
+                        __("Failure!"),
+                        *{Display::s_framebuffer}
+                    );
+                    /*gc:print_center(Fonts::pingus_normal, gc:get_width()/2, * * gc:get_height()-30,
+                    "..:: Press Space to retry the level ::..");*/
+                end
+
                 call {Fonts::chalk_normal}.render(
                     _origin_top_center,
-                    abort.x+55, abort.y-4,
-                    __("Give Up"),
+                    {Display::get_width()}/2, {Display::get_height()}/2-70,
+                    (_char&&)&&message,
+                    *{Display::s_framebuffer}
+                ) finalize with nothing; end;
+            end
+
+            do
+                var int left_x  = {Display::get_width()}/2 - 100;
+                var int right_x = {Display::get_width()}/2 + 100;
+                var int y = {Display::get_height()}/2 + 10;
+
+                call {Fonts::chalk_normal}.render(
+                    _origin_top_left,
+                    left_x, y,
+                    __("Saved: "),
                     *{Display::s_framebuffer}
                 );
                 call {Fonts::chalk_normal}.render(
-                    _origin_top_center,
-                    retry.x+30, retry.y-24,
-                    __("Retry"),
+                    _origin_top_right,
+                    right_x, y,
+                    (_char&&)&&saved_needed,
+                    *{Display::s_framebuffer}
+                ) finalize with nothing; end;
+
+                y = y + 30;
+                call {Fonts::chalk_normal}.render(
+                    _origin_top_left,
+                    left_x, y,
+                    __("Died: "),
+                    *{Display::s_framebuffer}
+                );
+                call {Fonts::chalk_normal}.render(
+                    _origin_top_right,
+                    right_x, y,
+                    {StringUtil::to_string}(n_killed),
+                    *{Display::s_framebuffer}
+                );
+
+                y = y + 30;
+                call {Fonts::chalk_normal}.render(
+                    _origin_top_left,
+                    left_x, y,
+                    __("Time left: "),
+                    *{Display::s_framebuffer}
+                );
+                call {Fonts::chalk_normal}.render(
+                    _origin_top_right,
+                    right_x, y,
+                    _RESULT_SCREEN_time_str,
                     *{Display::s_framebuffer}
                 );
             end
-
-            call {Fonts::chalk_large}.render(
-                _origin_top_center,
-                {Display::get_width()}/2, {Display::get_height()}/2-200,
-                &&level_name,
-                *{Display::s_framebuffer}
-            ) finalize with nothing; end;
-
-            if has_succeeded then
-                call {Fonts::chalk_large}.render(
-                    _origin_top_center,
-                    {Display::get_width()}/2, {Display::get_height()}/2-140,
-                    __("Success!"),
-                    *{Display::s_framebuffer}
-                );
-                /*gc:print_center(Fonts::pingus_small, gc:get_width()/2, * * * gc:get_height()-30,
-                "..:: Press Space to continue ::..");*/
-            else
-                call {Fonts::chalk_large}.render(
-                    _origin_top_center,
-                    {Display::get_width()}/2, {Display::get_height()}/2-140,
-                    __("Failure!"),
-                    *{Display::s_framebuffer}
-                );
-                /*gc:print_center(Fonts::pingus_normal, gc:get_width()/2, * * gc:get_height()-30,
-                "..:: Press Space to retry the level ::..");*/
-            end
-
-            call {Fonts::chalk_normal}.render(
-                _origin_top_center,
-                {Display::get_width()}/2, {Display::get_height()}/2-70,
-                &&message,
-                *{Display::s_framebuffer}
-            ) finalize with nothing; end;
-
-            var int left_x  = {Display::get_width()}/2 - 100;
-            var int right_x = {Display::get_width()}/2 + 100;
-            var int y = {Display::get_height()}/2 + 10;
-
-            call {Fonts::chalk_normal}.render(
-                _origin_top_left,
-                left_x, y,
-                __("Saved: "),
-                *{Display::s_framebuffer}
-            );
-            call {Fonts::chalk_normal}.render(
-                _origin_top_right,
-                right_x, y,
-                &&saved_needed,
-                *{Display::s_framebuffer}
-            ) finalize with nothing; end;
-
-            y = y + 30;
-            call {Fonts::chalk_normal}.render(
-                _origin_top_left,
-                left_x, y,
-                __("Died: "),
-                *{Display::s_framebuffer}
-            );
-            call {Fonts::chalk_normal}.render(
-                _origin_top_right,
-                right_x, y,
-                {StringUtil::to_string}(n_killed),
-                *{Display::s_framebuffer}
-            );
-
-            y = y + 30;
-            call {Fonts::chalk_normal}.render(
-                _origin_top_left,
-                left_x, y,
-                __("Time left: "),
-                *{Display::s_framebuffer}
-            );
-            call {Fonts::chalk_normal}.render(
-                _origin_top_right,
-                right_x, y,
-                _RESULT_SCREEN_time_str,
-                *{Display::s_framebuffer}
-            );
         end
     end
 end

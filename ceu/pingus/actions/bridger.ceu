@@ -26,7 +26,7 @@ do
 // TODO: ???
     var char[]& name = &this.pingu.name;
     name = [] .. "Bridger (" ..
-           (char&&)({StringUtil::to_string}(this.bricks).c_str()) ..
+           (_char&&)({StringUtil::to_string}(this.bricks).c_str()) ..
            ")";
 
     /* UPDATE */
@@ -35,10 +35,10 @@ do
         // BUILDING
         do
             var char[] left  = [] .. "pingus/player"
-                                  .. (char&&)this.pingu.get_owner_str().c_str()
+                                  .. (_char&&)this.pingu.get_owner_str().c_str()
                                   .. "/bridger/left";
             var char[] right = [] .. "pingus/player"
-                                  .. (char&&)this.pingu.get_owner_str().c_str()
+                                  .. (_char&&)this.pingu.get_owner_str().c_str()
                                   .. "/bridger/right";
             var RightLeftSprites builds with
                 this.parent = &outer.pingu;
@@ -65,10 +65,10 @@ do
         // WALKING
         do
             var char[] left  = [] .. "pingus/player"
-                                  ..  (char&&)this.pingu.get_owner_str().c_str()
+                                  ..  (_char&&)this.pingu.get_owner_str().c_str()
                                   .. "/bridger_walk/left";
             var char[] right = [] .. "pingus/player"
-                                  ..  (char&&)this.pingu.get_owner_str().c_str()
+                                  ..  (_char&&)this.pingu.get_owner_str().c_str()
                                   .. "/bridger_walk/right";
             do RightLeftSprites with
                 this.parent = &outer.pingu;
@@ -161,7 +161,7 @@ do
 // TODO: ???
         var char[]& n = &this.pingu.name;
         n = [] .. "Bridger (" ..
-                  (char&&)({StringUtil::to_string}(this.bricks).c_str()) ..
+                  (_char&&)({StringUtil::to_string}(this.bricks).c_str()) ..
                   ")";
 
         if this.bricks < 4 then

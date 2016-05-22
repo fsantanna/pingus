@@ -7,10 +7,10 @@ class Drown with
     interface IPinguAction;
 do
     var char[] left  = [] .. "pingus/player"
-                          .. (char&&)this.pingu.get_owner_str().c_str()
+                          .. (_char&&)this.pingu.get_owner_str().c_str()
                           .. "/drownfall/left";
     var char[] right = [] .. "pingus/player"
-                          .. (char&&)this.pingu.get_owner_str().c_str()
+                          .. (_char&&)this.pingu.get_owner_str().c_str()
                           .. "/drownfall/right";
     do RightLeftSprites with
         this.parent = &outer.pingu;

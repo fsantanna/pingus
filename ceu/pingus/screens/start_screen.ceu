@@ -12,7 +12,7 @@ end
 class StartScreen with
     var _PingusLevel& plf;
 do
-    var char[] description = [] .. (char&&)
+    var char[] description = [] .. (_char&&)
         {StringFormat::break_line}(__(plf.get_description()),
                                    800-200,
                                    {Fonts::chalk_normal}).c_str();
@@ -91,7 +91,7 @@ do
             call {Fonts::chalk_normal}.render(
                 _origin_top_left,
                 {Display::get_width()}/2-300, {Display::get_height()}/2-170,
-                &&description,
+                (_char&&)&&description,
                 *{Display::s_framebuffer}
             ) finalize with nothing; end;
 

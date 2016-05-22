@@ -5,9 +5,9 @@ class ChoiceItem with
     var Rect   rect;
     var char[] value;
     event bool go_pause;
-    function (Rect rect, char&& value)=>ChoiceItem build;
+    function (Rect rect, _char&& value)=>ChoiceItem build;
 do
-    function (Rect rect, char&& value)=>ChoiceItem build do
+    function (Rect rect, _char&& value)=>ChoiceItem build do
         this.rect  = rect;
         this.value = []..value;
     end
@@ -19,7 +19,7 @@ do
                     _origin_top_center,
                     rect.left + rect.width/2,
                     rect.top,
-                    &&this.value,
+                    (_char&&)&&this.value,
                     *{Display::s_framebuffer}
                 ) finalize with end;
             end

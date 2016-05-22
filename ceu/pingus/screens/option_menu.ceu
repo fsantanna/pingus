@@ -169,7 +169,7 @@ do
     spawn do
         every v in c1.ok_changed do
             { Size size_; };
-            if _sscanf(&&vec1[v]!:value, "%dx%d", &&_size_.width, &&_size_.height) != 2 then
+            if _sscanf((_char&&)&&vec1[v]!:value, "%dx%d", &&_size_.width, &&_size_.height) != 2 then
                 _log_error("failed to parse: %1%", &&vec1[v]!:value);
             else
                 _config_manager.set_fullscreen_resolution(_size_);
@@ -208,7 +208,7 @@ do
     spawn do
         every v in c2.ok_changed do
             _config_manager.set_renderer(
-                _framebuffer_type_from_string(&&vec2[v]!:value)
+                _framebuffer_type_from_string((_char&&)&&vec2[v]!:value)
                     finalize with end
             );
         end
@@ -256,7 +256,7 @@ do
     spawn do
         every v in c3.ok_changed do
             { static char* str; };
-            _str = _XXX_PURE(&&vec3[v]!:value);
+            _str := (_char&&)&&vec3[v]!:value;
             { static auto it = m_language_map.find(str); };
             { it = m_language_map.find(str); };
             if _it == _m_language_map.end() then

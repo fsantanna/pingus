@@ -9,9 +9,9 @@ class MenuButton with
     var char[] text, hint;
     event void ok_clicked;
 
-    function (float x, float y, char&& text, char&& hint)=>MenuButton build;
+    function (float x, float y, _char&& text, _char&& hint)=>MenuButton build;
 do
-    function (float x, float y, char&& text, char&& hint)=>MenuButton build do
+    function (float x, float y, _char&& text, _char&& hint)=>MenuButton build do
         this.x    = x;
         this.y    = y;
         this.text = []..text;
@@ -46,7 +46,7 @@ do
                 _origin_top_center,
                 r1.left,
                 r1.top - 28,
-                &&this.text,
+                (_char&&)&&this.text,
                 *{Display::s_framebuffer}
             ) finalize with end;
         end

@@ -7,9 +7,9 @@ class Waiter with
     interface IPinguAction;
 do
     var char[] str = [] .. "pingus/player"
-                        .. (char&&)this.pingu.get_owner_str().c_str()
+                        .. (_char&&)this.pingu.get_owner_str().c_str()
                         .. "/waiter/left";
-    var Sprite _ = Sprite.build_name(&outer.pingu.rect, _XXX_PURE(&&str));
+    var Sprite _ = Sprite.build_name(&outer.pingu.rect, (_char&&)&&str);
 
     var float countdown = 2.0;
     loop do

@@ -263,7 +263,7 @@ do
             with
                 var Rect r = Rect(x+10, y, 0, 0);
                 var Sprite _ = Sprite.build_name(&r,
-                                    (char&&)_XXX_PURE(_levelsets[i]:get_image().c_str()));
+                                    (_char&&)_XXX_PURE(_levelsets[i]:get_image().c_str()));
                 every REDRAW do
                     call {Fonts::chalk_normal}.render(
                         _origin_top_left,
@@ -316,8 +316,8 @@ end
 class LevelSelector with
     var _Levelset& levelset;
 do
-    var char[] title = [] .. (char&&)this.levelset.get_title().c_str();
-    var char[] image = [] .. (char&&)this.levelset.get_image().c_str();
+    var char[] title = [] .. (_char&&)this.levelset.get_title().c_str();
+    var char[] image = [] .. (_char&&)this.levelset.get_image().c_str();
     var int count = this.levelset.get_level_count();
 
     //this.levelset.refresh();
@@ -328,12 +328,12 @@ do
 
     var Rect    r1 = Rect(0, yy, 0, 0);
     var Sprite s1 = Sprite.build_name(&r1,
-                        (char&&)_XXX_PURE(outer.levelset.get_image().c_str()));
+                        (_char&&)_XXX_PURE(outer.levelset.get_image().c_str()));
         r1.left = 60 + 680/2 - s1.get_width()/2 - 275;
 
     var Rect    r2 = Rect(0, yy, 0, 0);
     var Sprite s2 = Sprite.build_name(&r2,
-                        (char&&)_XXX_PURE(outer.levelset.get_image().c_str()));
+                        (_char&&)_XXX_PURE(outer.levelset.get_image().c_str()));
         r2.left = 60 + 680/2 - s2.get_width()/2 + 275;
 
     pool Level[] levels;

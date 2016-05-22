@@ -28,7 +28,7 @@ do
             else
                 file = [] .. "core/menu/checkbox_small";
             end
-            var Sprite _ = Sprite.build_name(&rect, (char&&)&&file);
+            var Sprite _ = Sprite.build_name(&rect, (_char&&)&&file);
             this.is_on = await this.go_click;
         end
     end

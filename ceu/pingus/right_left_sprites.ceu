@@ -30,11 +30,11 @@ do
                     this.is_world = outer.is_world;
                     this.rect = &outer.parent.rect;
                     if outer.parent.direction == _NONE then
-                        this.name = _XXX_PURE(&&outer.none);
+                        this.name = (_char&&)&&outer.none;
                     else/if outer.parent.direction == _LEFT then
-                        this.name = _XXX_PURE(&&outer.left);
+                        this.name = (_char&&)&&outer.left;
                     else
-                        this.name = _XXX_PURE(&&outer.right);
+                        this.name = (_char&&)&&outer.right;
                     end;
                 end;
             par/or do

@@ -47,7 +47,7 @@ do
     _story = _XXX_PURE({WorldmapNS::WorldmapStory}(*reader)
                 finalize with end);
 
-    var char[] title = [] .. (char&&)_story.get_title().c_str();
+    var char[] title = [] .. (_char&&)_story.get_title().c_str();
     {
         pages = story.get_pages();
     };
@@ -61,8 +61,8 @@ do
             _page = _XXX_PURE(_pages.at(i));
             var char[] text;
             var char&& image = _XXX_PURE((char&&)_page.image.res_name.c_str());
-            var Rect r = Rect(xc,yc-65, 0,0);
-            var Sprite _ = Sprite.build_name(&r, _XXX_PURE(image));
+            var Rect r2 = Rect(xc,yc-65, 0,0);
+            var Sprite _ = Sprite.build_name(&r2, _XXX_PURE(image));
             par/or do
                 var float time = 0;
                 watching next_text do
@@ -73,15 +73,16 @@ do
                         var int cur = 20*time;
                         var int max = {UTF8::length}(_page.text);
 
-                        text = [] .. (char&&)
-                            {UTF8::substr}(_page.text,0,{Math::min}(max,cur)).c_str();
+                        text = [] .. (_char&&){UTF8::substr}(
+                                        _page.text, 0, {Math::min}(max,cur)
+                                      ).c_str();
 
                         if cur >= max then
                             break;
                         end
                     end
                 end
-                text = [] .. (char&&)_page.text.c_str();
+                text = [] .. (_char&&)_page.text.c_str();
                 await next_text;
             with
                 every REDRAW do
@@ -89,7 +90,7 @@ do
                         _origin_top_left,
                         {Display::get_width()} /2 - 280,
                         {Display::get_height()}/2 + 35,
-                        &&text,
+                        (_char&&)&&text,
                         *{Display::s_framebuffer}
                     ) finalize with end;
                 end
@@ -125,7 +126,7 @@ do
                 _origin_top_center,
                 {Display::get_width()} /2,
                 {Display::get_height()}/2 - 200,
-                &&title,
+                &&(_char&&)title,
                 *{Display::s_framebuffer}
             ) finalize with end;
         end

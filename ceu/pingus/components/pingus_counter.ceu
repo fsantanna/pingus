@@ -15,7 +15,7 @@ do
     var Sprite _ = Sprite.build_nameX(&rect, "core/buttons/info");
 
     every REDRAW do
-        var _char[128] str;
+        var _char[128] str = [];
 
         _snprintf(&&str, 128,
             __("Released:%3d/%d   Out:%3d   Saved:%3d/%d").c_str(),

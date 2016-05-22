@@ -7,10 +7,10 @@ class Walker with
     interface IPinguAction;
 do
     var char[] left1  = [] .. "pingus/player"
-                           .. (char&&)this.pingu.get_owner_str().c_str()
+                           .. (_char&&)this.pingu.get_owner_str().c_str()
                            .. "/walker/left";
     var char[] right1 = [] .. "pingus/player"
-                           .. (char&&)this.pingu.get_owner_str().c_str()
+                           .. (_char&&)this.pingu.get_owner_str().c_str()
                            .. "/walker/right";
     var RightLeftSprites _ with
         this.parent = &outer.pingu;

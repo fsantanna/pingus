@@ -284,7 +284,7 @@ with
                     or ret == _WORLDMAP_RETURN_STORY_CREDITS
                     then
                         finalize
-                            _reader = {FileReader::parse}(_Pathname(&&global:worldmap_return_filename, {Pathname::DATA_PATH}));
+                            _reader = {FileReader::parse}(_Pathname((_char&&)&&global:worldmap_return_filename, {Pathname::DATA_PATH}));
                         with end
                         var bool is_click =
                             do StoryScreen with
@@ -298,7 +298,7 @@ with
                         end
                     else/if ret == _WORLDMAP_RETURN_LEVEL then
                         finalize
-                            _plf = {PLFResMgr::load_plf}({std::string}(&&worldmap_return_filename)
+                            _plf = {PLFResMgr::load_plf}({std::string}((_char&&)&&worldmap_return_filename)
                                     finalize with end);
                         with end
                         do Start_Game_Result_Loop with

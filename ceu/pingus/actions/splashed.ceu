@@ -16,9 +16,9 @@ do
     call {Sound::PingusSound::play_sound}("splash", 0.5, 0.0);
 
     var char[] str = [] .. "pingus/player"
-                        .. (char&&)this.pingu.get_owner_str().c_str()
+                        .. (_char&&)this.pingu.get_owner_str().c_str()
                         .. "/splat";
-    var Sprite _ = Sprite.build_name(&outer.pingu.rect, _XXX_PURE(&&str));
+    var Sprite _ = Sprite.build_name(&outer.pingu.rect, (_char&&)&&str);
 
     escape {ActionName::DEAD};
 end

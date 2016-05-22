@@ -3,7 +3,6 @@
 
 native do
     ##include <fstream>
-    ##include <sstream>
     ##include "pingus/stat_manager.hpp"
 end
 
