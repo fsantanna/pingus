@@ -256,7 +256,6 @@ native/pre do
     static FileReader reader;
 end
 
-var SDL_Driver _;
 var ConfigManager config_manager;
 var GlobalEvent _ with
     this.config_manager = &config_manager;
@@ -265,6 +264,8 @@ end;
 
 var _CommandLineOptions&& cmd = await MAIN;
 _cmd = *cmd;
+
+spawn SDL_Driver();
 
 par/or do
     await QUIT;
@@ -435,6 +436,7 @@ void ScreenManager::show_software_cursor(bool visible) {
 }
 #endif
 
+    {globals::print_fps = 1;};
     spawn FPS_Counter();
     every REDRAW do
         if {globals::developer_mode} != 0 then

@@ -21,7 +21,7 @@ input _SDL_KeyboardEvent&& SDL_KEYUP;
 
 native/pos do
 
-void SDLDriver_update (float delta) {
+void SDL_Driver_update (float delta) {
   SDL_Event event;
   while (SDL_PollEvent(&event))
   {

@@ -30,7 +30,7 @@ using tinygettext::Log;
 
 #include "_ceu_app.c.h"
 
-extern void SDLDriver_update (float delta);
+extern void SDL_Driver_update (float delta);
 
 FramebufferSurface* load_framebuffer_sdl_surface(const Pathname& filename, ResourceModifier::Enum modifier)
 {
@@ -97,7 +97,7 @@ ScreenManager::display(CommandLineOptions* cmd_options)
       previous_frame_time  = float(ticks - last_ticks)/1000.0f;
       dt = ticks - last_ticks;
       last_ticks = ticks;
-      SDLDriver_update(previous_frame_time);
+      SDL_Driver_update(previous_frame_time);
     }
 
     {
