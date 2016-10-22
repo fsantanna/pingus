@@ -21,10 +21,14 @@
 #include "engine/input/event.hpp"
 #include "engine/display/display.hpp"
 #include "engine/display/framebuffer.hpp"
+#include "engine/display/sdl_framebuffer_surface_impl.hpp"
 #include "pingus/fonts.hpp"
 #include "pingus/globals.hpp"
+#include "external/tinygettext/include/tinygettext/log.hpp"
+using tinygettext::Log;
+#include "external/tinygettext/include/tinygettext/log_stream.hpp"
 
-#include "ceu_vars.h"
+#include "_ceu_app.c.h"
 
 extern void SDLDriver_update (float delta);
 
@@ -43,7 +47,7 @@ FramebufferSurface* load_framebuffer_sdl_surface(const Pathname& filename, Resou
   catch(const std::exception& err)
   {
     // return a dummy surface for cases where the image file can't be found
-    log_error("%1%", err.what());
+    //log_error("%1%", err.what());
     Surface surface(Pathname("images/core/misc/404.png", Pathname::DATA_PATH));
     return new FramebufferSurface(new SDLFramebufferSurfaceImpl(surface.get_surface()));
   }
@@ -61,13 +65,28 @@ ScreenManager::~ScreenManager() {
   instance_ = 0;
 }
 
+static int is_terminating = 0;
+tceu_callback_ret ceu_callback (int cmd, tceu_callback_arg p1,
+                                         tceu_callback_arg p2)
+{
+    tceu_callback_ret ret = { .is_handled=1 };
+    switch (cmd) {
+        case CEU_CALLBACK_TERMINATING:
+            is_terminating = 1;
+            break;
+    }
+}
+
 void
-ScreenManager::display()
+ScreenManager::display(CommandLineOptions* cmd_options)
 {
   Uint32 last_ticks = SDL_GetTicks();
   float previous_frame_time;
 
-  while (CEU_APP.isAlive)
+  ceu_start();
+  ceu_input(CEU_INPUT_MAIN, &cmd_options);
+
+  while (!is_terminating)
   {
     Uint32 dt;
 
@@ -84,8 +103,8 @@ ScreenManager::display()
     {
       s32 dt_us = 1000*dt;
       if (dt_us > 0) {
-        ceu_out_go(&CEU_APP, CEU_IN__WCLOCK, &dt_us);
-        ceu_out_go(&CEU_APP, CEU_IN_SDL_DT,  &dt);
+        ceu_input(CEU_INPUT__WCLOCK, &dt_us);
+        ceu_input(CEU_INPUT_SDL_DT,  &dt);
       }
     }
 
@@ -99,9 +118,9 @@ ScreenManager::display()
     {
 ////
 {
-  ceu_sys_go(&CEU_APP, CEU_IN_SDL_REDRAW, NULL);
+  ceu_input(CEU_INPUT_SDL_REDRAW, NULL);
   Display::flip_display();
-  ceu_sys_go(&CEU_APP, CEU_IN__ASYNC, NULL);    /// TODO: remove
+  ceu_input(CEU_INPUT__ASYNC, NULL);    /// TODO: remove
 }
 ////
 
@@ -116,6 +135,7 @@ ScreenManager::display()
       }
     }
   }
+  ceu_stop();
 }
 
 ScreenManager* ScreenManager::instance() {

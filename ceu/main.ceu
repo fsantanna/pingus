@@ -1,18 +1,24 @@
 #include "c.ceu"
 
 native/pre do
-    ##include "engine/input/event.hpp"
     ##define private public
     ##define protected public
+
+    ##include "engine/input/event.hpp"
+    ##include "pingus/globals.hpp"
+    ##include "pingus/fonts.hpp"
+    ##include "engine/display/display.hpp"
 
     ##define std__string std::string
     ##define Resource__load_sprite_desc(name) Resource::load_sprite_desc(name)
     ##define ResourceModifier__Enum ResourceModifier::Enum
     ##define Input__Event Input::Event
     ##define Input__ButtonEvent Input::ButtonEvent
+
+    static CommandLineOptions cmd;
 end
 
-native do
+native/pos do
     ##include <assert.h>
 
     ##include "external/logmich/include/logmich/log.hpp"
@@ -22,18 +28,20 @@ native do
     ##define XXX_PURE(x) x
     ##define XXX_NOHOLD(x) x
     ##define XXX_PTR2REF(x) x
-    ##define THIS(tp) ((tp*)_ceu_org)
+    ##define THIS(tp) ((tceu_code_mem_####tp*)_ceu_mem)
     ##define THIS_F(tp) ((tp*)__ceu_this)
 end
-native @pure _Resource__load_sprite_desc(), _Pathname();
-native @plain _std__string, _Vector3f, _Vector2i, _Color, _Rect, _Size;
-native @plain _Sprite, _Surface, _SpriteDescription, _GraphicContextState;
-native @plain _Input__Event, _Input__ButtonEvent;
-native @plain _ResourceModifier__Enum;
-native @plain _PingusLevel, _Result, _Levelset;
-native @pure   _XXX_PURE(), _XXX_PTR2REF();
-native @nohold _XXX_NOHOLD();
-native @nohold _delete(), _sscanf(), _log_error(), _log_info(), __();
+native/pure _Resource__load_sprite_desc, _Pathname;
+native/plain _std__string, _Vector3f, _Vector2i, _Color, _Rect, _Size;
+native/plain _Sprite, _Surface, _SpriteDescription, _GraphicContextState;
+native/plain _origin_top_center;
+native/plain _cmd, _CommandLineOptions;
+native/plain _Input__Event, _Input__ButtonEvent;
+native/plain _ResourceModifier__Enum;
+native/plain _PingusLevel, _Result, _Levelset;
+native/pure   _XXX_PURE, _XXX_PTR2REF;
+native/nohold _XXX_NOHOLD;
+native/nohold _delete, _log_error, _log_info, __;
 
 #define AWAIT_UNTIL_MYSELF(TP,EVT)             \
     do                                         \
@@ -87,6 +95,10 @@ data Vector3f with
     var float z;
 end
 
+#include "engine/input/sdl_driver.ceu"
+#include "pingus/fps_counter.ceu"
+
+#if 0
 interface IPositionDirection with
     var  s8   direction;
     var  Rect rect;
@@ -201,10 +213,8 @@ var char[] worldmap_return_filename;
 
 event bool go_pause;
 
-#include "engine/input/sdl_driver.ceu"
 #include "pingus/config_manager.ceu"
 #include "pingus/global_event.ceu"
-#include "pingus/fps_counter.ceu"
 #include "pingus/worldmap/worldmap_screen.ceu"
 #include "pingus/screens/credits.ceu"
 #include "pingus/screens/story_screen.ceu"
@@ -244,7 +254,6 @@ native/pre do
     static Result result;
     static Pathname filename, filename_credits;
     static FileReader reader;
-    static CommandLineOptions cmd;
 end
 
 var SDL_Driver _;
@@ -252,6 +261,7 @@ var ConfigManager config_manager;
 var GlobalEvent _ with
     this.config_manager = &config_manager;
 end;
+#endif
 
 var _CommandLineOptions&& cmd = await MAIN;
 _cmd = *cmd;
@@ -259,6 +269,7 @@ _cmd = *cmd;
 par/or do
     await QUIT;
 with
+#if 0
     pause/if go_pause do
         if _cmd.rest.is_set() then
             _filename = _Pathname(_cmd.rest.get(), {Pathname::SYSTEM_PATH});
@@ -371,8 +382,12 @@ with
             end
         end
     end
+#else
+    await FOREVER;
+#endif
 with
 // OPTIONS
+#if 0
     loop do
         par/or do
             await global:go_options;
@@ -395,6 +410,9 @@ with
         end;
         emit go_pause => false;
     end
+#else
+    await FOREVER;
+#endif
 with
 #if 0
     var Sprite _ = Sprite.build(CURSOR);
@@ -417,11 +435,11 @@ void ScreenManager::show_software_cursor(bool visible) {
 }
 #endif
 
-    var FPSCounter _;
+    spawn FPS_Counter();
     every REDRAW do
-        if {globals::developer_mode} then
+        if {globals::developer_mode} != 0 then
             var int height;
-            if {globals::print_fps} then
+            if {globals::print_fps} != 0 then
                 height = 60;
             else
                 height = 35;

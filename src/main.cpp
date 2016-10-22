@@ -18,8 +18,6 @@
 
 #include "pingus/pingus_main.hpp"
 
-int XXX_FROM_CEU = 0;
-
 void ceu_sys_log (int mode, long s) {
     switch (mode) {
         case 0:
@@ -35,18 +33,10 @@ void ceu_sys_log (int mode, long s) {
 }
 
 #include "../../src/util/string_util.hpp"
-#include "ceu_vars.h"
-#include "_ceu_app.c"
-tceu_app CEU_APP;
 
 int main(int argc, char** argv)
 {
   PingusMain app;
-
-  static char CEU_DATA[sizeof(CEU_Main)];
-  CEU_APP.data = (tceu_org*) &CEU_DATA;
-  CEU_APP.init = &ceu_app_init;
-  CEU_APP.init(&CEU_APP);
 
   return app.run(argc, argv);
 }

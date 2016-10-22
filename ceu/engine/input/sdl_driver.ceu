@@ -9,15 +9,17 @@ input void SDL_QUIT;
 input void SDL_REDRAW;
 input int  SDL_DT;
 
+native/plain _SDL_MouseButtonEvent, _SDL_MouseMotionEvent, _SDL_KeyboardEvent;
+native/plain _SDL_BUTTON_LEFT;
+native/plain _SDLK_p, _SDLK_f, _SDLK_s, _SDLK_a, _SDLK_ESCAPE;
+
 input _SDL_MouseButtonEvent&& SDL_MOUSEBUTTONDOWN;
 input _SDL_MouseButtonEvent&& SDL_MOUSEBUTTONUP;
 input _SDL_MouseMotionEvent&& SDL_MOUSEMOTION;
 input _SDL_KeyboardEvent&& SDL_KEYDOWN;
 input _SDL_KeyboardEvent&& SDL_KEYUP;
 
-native @plain _SDL_MouseButtonEvent, _SDL_MouseMotionEvent, _SDL_KeyboardEvent;
-
-native do
+native/pos do
 
 void SDLDriver_update (float delta) {
   SDL_Event event;
@@ -27,17 +29,17 @@ void SDLDriver_update (float delta) {
     switch(event.type)
     {
       case SDL_QUIT:
-        ceu_sys_go(&CEU_APP, CEU_IN_SDL_QUIT, NULL);
+        ceu_input(CEU_INPUT_SDL_QUIT, NULL);
         break;
 
       case SDL_MOUSEMOTION:
-        ceu_sys_go(&CEU_APP, CEU_IN_SDL_MOUSEMOTION, &p);
+        ceu_input(CEU_INPUT_SDL_MOUSEMOTION, &p);
         break;
       case SDL_MOUSEBUTTONDOWN:
-        ceu_sys_go(&CEU_APP, CEU_IN_SDL_MOUSEBUTTONDOWN, &p);
+        ceu_input(CEU_INPUT_SDL_MOUSEBUTTONDOWN, &p);
         break;
       case SDL_MOUSEBUTTONUP:
-        ceu_sys_go(&CEU_APP, CEU_IN_SDL_MOUSEBUTTONUP, &p);
+        ceu_input(CEU_INPUT_SDL_MOUSEBUTTONUP, &p);
         break;
 
       case SDL_VIDEORESIZE:
@@ -46,11 +48,11 @@ void SDLDriver_update (float delta) {
 
       case SDL_KEYDOWN:
         //global_event.on_button_press(event.key);
-        ceu_sys_go(&CEU_APP, CEU_IN_SDL_KEYDOWN, &p);
+        ceu_input(CEU_INPUT_SDL_KEYDOWN, &p);
         break;
       case SDL_KEYUP:
         //global_event.on_button_release(event.key);
-        ceu_sys_go(&CEU_APP, CEU_IN_SDL_KEYUP, &p);
+        ceu_input(CEU_INPUT_SDL_KEYUP, &p);
         break;
 
       case SDL_JOYAXISMOTION:
@@ -68,8 +70,7 @@ void SDLDriver_update (float delta) {
 end
 
 
-class SDL_Driver with
-do
+code/await SDL_Driver (void) -> FOREVER do
     par do
 #if 0
         every SDL_QUIT do
@@ -86,53 +87,58 @@ do
     with
         every dt in SDL_DT do
             async (dt) do
-                emit DELTA => dt;
+                emit DELTA(dt);
             end
         end
     with
 #endif
+        var _SDL_MouseButtonEvent&& e;
         every e in SDL_MOUSEBUTTONDOWN do
             var _SDL_MouseButtonEvent but = *e;
-            async (but) do
+            await async (but) do
                 if but.button == _SDL_BUTTON_LEFT then
-                    emit ON_PRIMARY_BUTTON_PRESSED => (but.x, but.y);
+                    emit ON_PRIMARY_BUTTON_PRESSED(but.x, but.y);
                 else
-                    emit ON_SECONDARY_BUTTON_PRESSED => (but.x, but.y);
+                    emit ON_SECONDARY_BUTTON_PRESSED(but.x, but.y);
                 end
             end
         end
     with
+        var _SDL_MouseButtonEvent&& e;
         every e in SDL_MOUSEBUTTONUP do
             var _SDL_MouseButtonEvent but = *e;
-            async (but) do
+            await async (but) do
                 if but.button == _SDL_BUTTON_LEFT then
-                    emit ON_PRIMARY_BUTTON_RELEASED => (but.x, but.y);
+                    emit ON_PRIMARY_BUTTON_RELEASED(but.x, but.y);
                 else
-                    emit ON_SECONDARY_BUTTON_RELEASED => (but.x, but.y);
+                    emit ON_SECONDARY_BUTTON_RELEASED(but.x, but.y);
                 end
             end
         end
     with
+        var _SDL_MouseMotionEvent&& e;
         every e in SDL_MOUSEMOTION do
             var _SDL_MouseMotionEvent mot = *e;
-            async (mot) do
-                emit ON_POINTER_MOVE => (mot.x, mot.y);
+            await async (mot) do
+                emit ON_POINTER_MOVE(mot.x, mot.y);
             end
         end
     with
         loop do
             var _SDL_KeyboardEvent&&? e;
-            var bool is_down =
+            var bool is_down = do
                 par do
                     e = await SDL_KEYDOWN;
                     escape true;
                 with
                     e = await SDL_KEYUP;
                     escape false;
-                end;
+                end
+            end;
             var _SDL_KeyboardEvent key = *e!;
-            async (is_down,key) do
+            await async (is_down,key) do
                 var bool ok = true;
+                native _but;
 // TODO: problem of initialization
 {
                 Input__ButtonEvent but;
@@ -152,9 +158,9 @@ do
                 end
                 if ok then
                     if is_down then
-                        emit ON_BUTTON_PRESSED => &&_but;
+                        emit ON_BUTTON_PRESSED(&&_but);
                     else
-                        emit ON_BUTTON_RELEASED => &&_but;
+                        emit ON_BUTTON_RELEASED(&&_but);
                     end
                 end
             end

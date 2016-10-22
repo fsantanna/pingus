@@ -20,6 +20,8 @@ DATADIR = $(PREFIX)/share/pingus
 MANDIR  = $(PREFIX)/share/man
 BINDIR  = $(PREFIX)/bin
 
+CEU_DIR = /data/ceu/ceu
+
 build/pingus: ceu
 	mkdir -p build
 	scons src
@@ -34,8 +36,21 @@ clean:
 	scons -c
 
 ceu:
-	cd /data/ceu/ceu/ && make ceu SRC=$(PWD)/ceu/main.ceu
-	mv ceu/build/_ceu_app.* src/
+	ceu --pre --pre-args="-I$(CEU_DIR)/include -I./include"      \
+	    --pre-input=ceu/main.ceu                                 \
+	    --ceu --ceu-err-unused=pass --ceu-err-uninitialized=pass \
+	    --ceu-features-lua=false --ceu-features-thread=false     \
+	    --env --env-types=$(CEU_DIR)/env/types.h                 \
+	          --env-output=src/_ceu_app.c.h
+
+ceu-cpp:
+	ceu --pre --pre-args="-I$(CEU_DIR)/include -I./include"      \
+	    --pre-input=ceu/main.ceu                                 \
+	    --ceu --ceu-err-unused=pass --ceu-err-uninitialized=pass \
+	    --ceu-features-lua=false --ceu-features-thread=false     \
+	          --ceu-line-directives=false                        \
+	    --env --env-types=$(CEU_DIR)/env/types.h                 \
+	          --env-output=src/_ceu_app.c.h
 
 install: install-exec install-data install-man
 

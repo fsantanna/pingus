@@ -18,8 +18,7 @@
 
 #include "math/vector3f.hpp"
 #include "pingus/groundtype.hpp"
-
-#include "ceu_vars.h"
+#include "pingus/pingu_enums.hpp"
 
 namespace Colliders {
 

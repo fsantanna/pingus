@@ -59,8 +59,6 @@ extern "C" {
 #include "pingus/savegame_manager.hpp"
 #include "pingus/stat_manager.hpp"
 
-#include "ceu_vars.h"
-
 #if _MSC_VER >= 1400
 // Disable stupid deprecation warnings
 #pragma warning( disable : 4996 )
@@ -548,14 +546,7 @@ PingusMain::start_game ()
     screen_manager.push_screen(editor);
 #endif
   }
-  else
-  {
-    CommandLineOptions* p = &cmd_options;
-    //screen_manager.push_screen(std::make_shared<EmptySession>());
-    ceu_sys_go(&CEU_APP, CEU_IN_MAIN, &p);
-  }
-
-  screen_manager.display();
+  screen_manager.display(&cmd_options);
 }
 
 int

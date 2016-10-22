@@ -20,6 +20,8 @@
 #include <memory>
 #include <vector>
 
+#include "pingus/options.hpp"
+#include "util/command_line.hpp"
 #include "math/vector2f.hpp"
 
 namespace Input {
@@ -44,7 +46,7 @@ public:
   ScreenManager();
   ~ScreenManager();
   void resize(const Size& size);
-  void display();
+  void display(CommandLineOptions* cmd_options);
   void update(float delta, const std::vector<Input::Event>& events);
   static ScreenManager* instance();
 

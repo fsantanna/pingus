@@ -1,13 +1,13 @@
 #ifndef _FPS_COUNTER_CEU
 #define _FPS_COUNTER_CEU
 
+native _fps_string;
 native/pre do
     ##include <string>
     static std::string fps_string;
 end
 
-class FPSCounter with
-do
+code/await FPS_Counter (void) -> FOREVER do
     var int count = 0;
     par do
         loop do
@@ -19,7 +19,7 @@ do
             {
                 {
                     std::ostringstream str;
-                    str << THIS(CEU_FPSCounter)->count << " fps";
+                    str << THIS(FPS_Counter)->count << " fps";
                     fps_string = str.str();
                 }
             };
@@ -28,7 +28,7 @@ do
     with
         loop do
             await REDRAW;
-            if {globals::print_fps} then
+            if {globals::print_fps} != 0 then
                 call {Fonts::pingus_small}.render(
                     _origin_top_center,
                     {Display::get_width()}/2, 35,
