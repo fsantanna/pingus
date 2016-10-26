@@ -1,7 +1,7 @@
 #ifndef _OPTIONMENU_CEU
 #define _OPTIONMENU_CEU
 
-native do
+native/pos do
     ##include "util/system.hpp"
     ##include "tinygettext/dictionary_manager.hpp"
     ##include "pingus/config_manager.hpp"
@@ -16,24 +16,28 @@ native do
     static tinygettext::Language m_language = dictionary_manager.get_language();
 end
 
+#include "../../engine/display/sprite.ceu"
+
+#if 0
 #include "../../engine/gui/surface_button.ceu"
 #include "../components/wood.ceu"
 #include "../components/label.ceu"
 #include "../components/check_box.ceu"
 #include "../components/choice_box.ceu"
 #include "../components/slider_box.ceu"
+#endif
 
-class OptionMenu with
-    var ConfigManager& config_manager;
-do
-    var Rect rect = Rect(
-        {Display::get_width()}  / 2,
-        {Display::get_height()} / 2,
-        0, 0
-    );
+code/await OptionMenu (void) -> void do
+    var Rect rect = val Rect({Display::get_width()}  / 2,
+                             {Display::get_height()} / 2,
+                             0, 0
+                            );
 
-    var Wood _;
-    var Sprite _ = Sprite.build_name(&rect, "core/menu/blackboard");
+    ///var Wood _;
+    var Sprite sprite = _;
+    spawn Sprite_from_name(&sprite, &rect, "core/menu/blackboard");
+    await FOREVER;
+#if 0
 
     var int x_offset = ({Display::get_width()}  - 800) / 2;
     var int y_offset = ({Display::get_height()} - 600) / 2;
@@ -334,7 +338,7 @@ do
             await ON_BUTTON_PRESSED
             until but:name  == {Input::ESCAPE_BUTTON};
     with
-        every REDRAW do
+        every SDL_REDRAW do
             call {Fonts::chalk_large}.render(
                 _origin_top_center,
                 {Display::get_width()}/2,
@@ -367,6 +371,7 @@ do
     };
     _log_info("saving configuration: %1%", _cfg_filename);
     _config_manager.get_options().save(_cfg_filename);
+#endif
 end
 
 #endif

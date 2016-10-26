@@ -1,10 +1,17 @@
 #ifndef _CONFIG_MANAGER_CEU
 #define _CONFIG_MANAGER_CEU
 
-class ConfigManager with
+native _config_manager;
+
+data ConfigManager with
     event bool go_mouse_grab;
-do
-    every v in this.go_mouse_grab do
+end
+
+var ConfigManager config_manager = val ConfigManager(_);
+
+spawn do
+    var bool v;
+    every v in config_manager.go_mouse_grab do
         _log_info("ConfigManager::set_mouse_grab: %1%", v);
         if v then
             _SDL_WM_GrabInput(_SDL_GRAB_ON);

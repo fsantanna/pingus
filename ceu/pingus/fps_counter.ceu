@@ -12,7 +12,7 @@ code/await FPS_Counter (void) -> FOREVER do
     par do
         loop do
             watching 1s do
-                every DELTA do
+                every SDL_DT do
                     count = count + 1;
                 end
             end
@@ -27,7 +27,7 @@ code/await FPS_Counter (void) -> FOREVER do
         end
     with
         loop do
-            await REDRAW;
+            await SDL_REDRAW;
             if {globals::print_fps} != 0 then
                 call {Fonts::pingus_small}.render(
                     _origin_top_center,
@@ -35,7 +35,7 @@ code/await FPS_Counter (void) -> FOREVER do
                     _fps_string,
                     *{Display::s_framebuffer}
                 );
-                await REDRAW;
+                await SDL_REDRAW;
                 call {Fonts::pingus_small}.render(
                     _origin_top_center,
                     {Display::get_width()}/2, 35,

@@ -1,73 +1,69 @@
 #ifndef _SURFACE_CEU
 #define _SURFACE_CEU
 
+native/plain _Sprite, _Surface, _SpriteDescription, _GraphicContextState;
+native/plain _SpriteDescription_ptr;
 native/pre do
     ##include "engine/display/display.hpp"
     ##include "engine/display/framebuffer.hpp"
     ##include "engine/display/sdl_framebuffer_surface_impl.hpp"
     ##include "engine/display/sprite_description.hpp"
     ##define loop_ loop
+    typedef SpriteDescription* SpriteDescription_ptr;
 end
-native @plain _FramebufferSurface;
 
-class Surface with
-    function (void)=>int get_width;
-    function (void)=>int get_height;
+data Surface with
+    var& _FramebufferSurface    framebuffer;
+    var& _SpriteDescription_ptr desc;
+end
 
-    // constructor
-    var _Surface&&              surface = null;
-    var _SpriteDescription&&    desc    = null;
-    var _ResourceModifier__Enum mod     = {ResourceModifier::ROT0};
-    var char&&                  name    = null;
-
-output:
-    var _FramebufferSurface& framebuffer_surface;
-
-    function (@hold char&& name)=>Surface build;
+#if 0
+code/await Surface_from_sdl (var _Surface&& sdl) ->
+                                (var& Surface surface) ->
+                                    FOREVER
 do
-    function (@hold char&& name)=>Surface build do
-        this.name := name;
-    end
+    var&? _FramebufferSurface framebuffer =
+        &{new FramebufferSurface}({new SDLFramebufferSurfaceImpl}(sdl:get_surface()))
+            finalize (framebuffer) with
+                _delete(&&framebuffer!);
+            end;
 
-    var _FramebufferSurface&? framebuffer_surface_;
-    //do
-        if surface != null then
-            finalize
-                framebuffer_surface_ =
-                    &{new FramebufferSurface}(
-                        {new SDLFramebufferSurfaceImpl}(surface:get_surface()));
-            with
-                //_delete(&&framebuffer_surface_!);
-            end
-            this.framebuffer_surface = &framebuffer_surface_!;
-        else
-            if name != null then
-                desc = _Resource__load_sprite_desc(name);
-            end
-            if desc == null then
-                desc = _Resource__load_sprite_desc("core/misc/404");
-            end
-            _assert(desc != null);
-            finalize
-                framebuffer_surface_ =
-                    &_load_framebuffer_sdl_surface(desc:filename, mod);
-            with
-                //_delete(&&framebuffer_surface_!);
-            end
-            this.framebuffer_surface = &framebuffer_surface_!;
-        end
-    //end
+    var Surface surface_ = val Surface(&framebuffer!);
+    surface = &surface_;
 
     await FOREVER;
+end
+#endif
 
-    /* PUBLIC */
+code/await Surface_from_desc (var _SpriteDescription_ptr desc,
+                              var _ResourceModifier__Enum mod)
+                                -> (var& Surface surface)
+                                    -> FOREVER
+do
+    var&? _FramebufferSurface framebuffer =
+        &_load_framebuffer_sdl_surface(desc:filename, mod)
+            finalize (framebuffer) with
+                _delete(&&framebuffer!);
+            end;
 
-    function (void)=>int get_width do
-        return framebuffer_surface.get_width();
+    var Surface surface_ = val Surface(&framebuffer!, &desc);
+    surface = &surface_;
+
+    await FOREVER;
+end
+
+code/await Surface_from_name (var _char&& name,
+                              var _ResourceModifier__Enum mod)
+                                -> (var& Surface surface)
+                                    -> FOREVER
+do
+    var _SpriteDescription_ptr desc = _Resource__load_sprite_desc(name);
+    if desc == null then
+        desc = _Resource__load_sprite_desc("core/misc/404");
     end
-    function (void)=>int get_height do
-        return framebuffer_surface.get_height();
-    end
+    _assert(desc != null);
+
+    await Surface_from_desc(desc,mod) -> (&surface);
 end
 
 #endif

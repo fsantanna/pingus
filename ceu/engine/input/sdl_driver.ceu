@@ -1,10 +1,6 @@
 #ifndef _SDL_DRIVER
 #define _SDL_DRIVER
 
-#define QUIT   SDL_QUIT
-#define REDRAW SDL_REDRAW
-#define DELTA  SDL_DT
-
 input void SDL_QUIT;
 input void SDL_REDRAW;
 input int  SDL_DT;
@@ -12,7 +8,12 @@ input int  SDL_DT;
 native/plain _SDL_MouseButtonEvent, _SDL_MouseMotionEvent, _SDL_KeyboardEvent;
 native/plain _SDL_BUTTON_LEFT;
 native/plain _SDLK_p, _SDLK_f, _SDLK_s, _SDLK_a, _SDLK_ESCAPE;
+native/plain _SDL_GRAB_ON, _SDL_GRAB_OFF;
 
+native
+    _load_framebuffer_sdl_surface,
+    _SDL_WM_GrabInput,
+;
 input _SDL_MouseButtonEvent&& SDL_MOUSEBUTTONDOWN;
 input _SDL_MouseButtonEvent&& SDL_MOUSEBUTTONUP;
 input _SDL_MouseMotionEvent&& SDL_MOUSEMOTION;
@@ -72,26 +73,6 @@ end
 
 code/await SDL_Driver (void) -> FOREVER do
     par do
-#if 0
-        every SDL_QUIT do
-            async do
-                emit QUIT;
-            end
-        end
-    with
-        every SDL_REDRAW do
-            async do
-                emit REDRAW;
-            end
-        end
-    with
-        every dt in SDL_DT do
-            async (dt) do
-                emit DELTA(dt);
-            end
-        end
-    with
-#endif
         var _SDL_MouseButtonEvent&& e;
         every e in SDL_MOUSEBUTTONDOWN do
             var _SDL_MouseButtonEvent but = *e;

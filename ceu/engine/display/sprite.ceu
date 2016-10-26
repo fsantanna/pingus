@@ -9,11 +9,72 @@ native/pre do
     ##define loop_ loop
     extern FramebufferSurface* load_framebuffer_sdl_surface(const Pathname& filename, ResourceModifier::Enum modifier);
 end
-native @plain _FramebufferSurface;
+native/plain _FramebufferSurface;
 
 #include "surface.ceu"
 
-class Sprite with
+data Sprite with
+    var Vector2i offset      = val Vector2i(0, 0);
+    var Vector2i frame_pos   = val Vector2i(0, 0);
+    var Size     frame_size  = val Size(0,0);
+    var int      frame_delay = 0;
+    var Size     array       = val Size(0,0);
+    var bool     is_loop     = false;
+    var int      frame       = 0;
+end
+
+code/await Sprite_from_name (var& Sprite sprite, var& Rect rect, var _char&& name) -> FOREVER do
+    var& Surface sfc;
+    spawn Surface_from_name(name, {ResourceModifier::ROT0}) -> (&sfc);
+
+    sprite.frame_pos   = val Vector2i(sfc.desc:frame_pos.x, sfc.desc:frame_pos.y);
+    sprite.array       = val Size(sfc.desc:array.width, sfc.desc:array.height);
+    sprite.frame_delay = sfc.desc:speed;
+    sprite.is_loop     = (sfc.desc:loop_ as bool);
+
+    if sfc.desc:frame_size.width  == -1 then
+        sprite.frame_size.width  = sfc.framebuffer.get_width()  / sprite.array.width;
+        sprite.frame_size.height = sfc.framebuffer.get_height() / sprite.array.height;
+    else
+        sprite.frame_size.width  = sfc.desc:frame_size.width;
+        sprite.frame_size.height = sfc.desc:frame_size.height;
+    end
+
+    native _vec;
+    {
+        static Vector2i vec;
+        vec = calc_origin((*(THIS(Sprite_from_name)->sfc->desc))->origin,
+                          Size(THIS(Sprite_from_name)->sprite->frame_size.width,
+                              THIS(Sprite_from_name)->sprite->frame_size.height))
+                - (*THIS(Sprite_from_name)->sfc->desc)->offset;
+    };
+    sprite.offset = val Vector2i(_vec.x, _vec.y);
+
+    /* DRAW */
+    every SDL_REDRAW do
+        var float x, y;
+        x = rect.left;
+        y = rect.top;
+
+        var int xx=0, yy=0;
+#if 0
+        call {Display::s_framebuffer}:draw_surface(
+                                        sfc.framebuffer,
+                                        _Vector2i(x,y),
+        );
+#endif
+        call {Display::s_framebuffer}:draw_surface(
+            sfc.framebuffer,
+            _Rect(
+                _Vector2i(sprite.frame_pos.x,sprite.frame_pos.y) +
+                    _Vector2i(sprite.frame_size.width  * (sprite.frame%sprite.array.width),
+                              sprite.frame_size.height * (sprite.frame/sprite.array.width)),
+                _Size(sprite.frame_size.width,sprite.frame_size.height)),
+            _Vector2i(-xx + x - sprite.offset.x,
+                      -yy + y - sprite.offset.y)
+        );
+    end
+#if 0
     function (void)=>int get_current_frame;
     function (int)=>void set_frame;
     function (void)=>int get_frame_count;
@@ -22,7 +83,6 @@ class Sprite with
 
     var bool is_world = true;   // TODO: rename to is_relative
 
-    var Rect&  rect;
     var Rect&? small_map;   // TODO
 
     var Vector2i offset      = Vector2i(0, 0);
@@ -37,12 +97,10 @@ class Sprite with
     var _Surface&&              surface = null;
     var _SpriteDescription&&    desc    = null;
     var _ResourceModifier__Enum mod     = {ResourceModifier::ROT0};
-    var char&&                  name    = null;
 
     function (Rect& rect, char&& name)=>Sprite build_name;
     function (Rect& rect, char&& name)=>Sprite build_nameX;
     function (int x, int y)=>void draw;
-do
     function (Rect& rect, char&& name)=>Sprite build_name do
         this.rect = &rect;
         this.name = _XXX_PURE(name);
@@ -190,6 +248,7 @@ do
                       -yy + y - this.offset.y)
         );
     end
+#endif
 end
 
 #endif

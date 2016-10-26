@@ -33,7 +33,6 @@ native/pos do
 end
 native/pure _Resource__load_sprite_desc, _Pathname;
 native/plain _std__string, _Vector3f, _Vector2i, _Color, _Rect, _Size;
-native/plain _Sprite, _Surface, _SpriteDescription, _GraphicContextState;
 native/plain _origin_top_center;
 native/plain _cmd, _CommandLineOptions;
 native/plain _Input__Event, _Input__ButtonEvent;
@@ -49,9 +48,6 @@ native/nohold _delete, _log_error, _log_info, __;
                        until ptr == &&this.me; \
     end
 
-input void QUIT;
-input void REDRAW;
-input int  DELTA;
 input _CommandLineOptions&& MAIN;
 
 input (int,int) ON_POINTER_MOVE;
@@ -96,7 +92,11 @@ data Vector3f with
 end
 
 #include "engine/input/sdl_driver.ceu"
+
 #include "pingus/fps_counter.ceu"
+#include "pingus/config_manager.ceu"
+
+#include "pingus/screens/option_menu.ceu"
 
 #if 0
 interface IPositionDirection with
@@ -194,7 +194,6 @@ interface Global with
     var char[] worldmap_return_filename;
 end
 
-event void go_options;
 event void go_pause_toggle;
 event bool go_forward;
 event void go_armageddon;
@@ -213,13 +212,11 @@ var char[] worldmap_return_filename;
 
 event bool go_pause;
 
-#include "pingus/config_manager.ceu"
 #include "pingus/global_event.ceu"
 #include "pingus/worldmap/worldmap_screen.ceu"
 #include "pingus/screens/credits.ceu"
 #include "pingus/screens/story_screen.ceu"
 #include "pingus/screens/pingus_menu.ceu"
-#include "pingus/screens/option_menu.ceu"
 #include "pingus/screens/start_screen.ceu"
 #include "pingus/screens/result_screen.ceu"
 #include "pingus/screens/game_session.ceu"
@@ -262,13 +259,15 @@ var GlobalEvent _ with
 end;
 #endif
 
+event void go_options;
+
 var _CommandLineOptions&& cmd = await MAIN;
 _cmd = *cmd;
 
 spawn SDL_Driver();
 
 par/or do
-    await QUIT;
+    await SDL_QUIT;
 with
 #if 0
     pause/if go_pause do
@@ -388,11 +387,9 @@ with
 #endif
 with
 // OPTIONS
-#if 0
     loop do
-        par/or do
-            await global:go_options;
-        with
+#if 0
+        watching go_options do
             loop do
 // TODO
                 var _SDL_KeyboardEvent&& key = await SDL_KEYDOWN;
@@ -406,14 +403,10 @@ with
             end
         end
         emit go_pause => true;
-        do OptionMenu with
-            this.config_manager = &config_manager;
-        end;
-        emit go_pause => false;
-    end
-#else
-    await FOREVER;
 #endif
+        await OptionMenu();
+        ///emit go_pause => false;
+    end
 with
 #if 0
     var Sprite _ = Sprite.build(CURSOR);
@@ -438,7 +431,7 @@ void ScreenManager::show_software_cursor(bool visible) {
 
     {globals::print_fps = 1;};
     spawn FPS_Counter();
-    every REDRAW do
+    every SDL_REDRAW do
         if {globals::developer_mode} != 0 then
             var int height;
             if {globals::print_fps} != 0 then
