@@ -1,49 +1,49 @@
 #ifndef _RECT_COMPONENT_CEU
 #define _RECT_COMPONENT_CEU
 
-class RectComponent with
-    var Rect& rect;
-
+data IRectComponent with
     event (int,int) on_primary_button_pressed;
     event void      on_pointer_enter;
     event void      on_pointer_leave;
     event void      on_click;
+end
 
-    function (int x, int y)=>bool is_at;
-    function (Rect& rect)=>RectComponent build;
+code/tight Rect_is_at (var& Rect rect, var int x, var int y) -> bool do
+    escape rect.left<=x and x<=rect.left+rect.width
+       and rect.top <=y and y<=rect.top+rect.height;
+end
+
+code/await RectComponent (var& Rect rect)
+                            -> (var& IRectComponent comp)
+                                -> FOREVER
 do
-    function (Rect& rect)=>RectComponent build do
-        this.rect = &rect;
-    end
+    var IRectComponent comp_ = val IRectComponent(_,_,_,_);
+    comp = &comp_;
 
     par do
         loop do
             var int x, y;
             (x,y) = await ON_PRIMARY_BUTTON_PRESSED
-                    until this.is_at(x,y);
-            emit this.on_primary_button_pressed => (x,y);
+                    until call Rect_is_at(&rect,x,y);
+            emit comp_.on_primary_button_pressed(x,y);
             (x,y) = await ON_PRIMARY_BUTTON_RELEASED;
-            if this.is_at(x,y) then
-                emit this.on_click;
+            if call Rect_is_at(&rect,x,y) then
+                emit comp_.on_click;
             end
         end
     with
-        var int is = false;
+        var bool is_on = false;
+        var int x,y;
         every (x,y) in ON_POINTER_MOVE do
-            if this.is_at(x,y) != is then
-                is = not is;
-                if is then
-                    emit this.on_pointer_enter;
+            if call Rect_is_at(&rect,x,y) != is_on then
+                is_on = not is_on;
+                if is_on then
+                    emit comp_.on_pointer_enter;
                 else
-                    emit this.on_pointer_leave;
+                    emit comp_.on_pointer_leave;
                 end
             end
         end
-    end
-
-    function (int x, int y)=>bool is_at do
-        return rect.left<=x and x<=rect.left+rect.width
-           and rect.top <=y and y<=rect.top+rect.height;
     end
 end
 

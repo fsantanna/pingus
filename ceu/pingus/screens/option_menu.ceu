@@ -17,12 +17,12 @@ native/pos do
 end
 
 #include "../../engine/display/sprite.ceu"
+#include "../components/wood.ceu"
+#include "../components/check_box.ceu"
+#include "../components/label.ceu"
 
 #if 0
 #include "../../engine/gui/surface_button.ceu"
-#include "../components/wood.ceu"
-#include "../components/label.ceu"
-#include "../components/check_box.ceu"
 #include "../components/choice_box.ceu"
 #include "../components/slider_box.ceu"
 #endif
@@ -33,26 +33,26 @@ code/await OptionMenu (void) -> void do
                              0, 0
                             );
 
-    ///var Wood _;
+    spawn Wood();
     var Sprite sprite = _;
     spawn Sprite_from_name(&sprite, &rect, "core/menu/blackboard");
-    await FOREVER;
-#if 0
 
     var int x_offset = ({Display::get_width()}  - 800) / 2;
     var int y_offset = ({Display::get_height()} - 600) / 2;
 
     var int yy = 140 + y_offset;
-    var Rect r0 = Rect(80+x_offset, yy, 320, 32);
+    var Rect r0 = val Rect(80+x_offset, yy, 320, 32);
 
     // LEFT OPTIONS //
 
     // Fullscreen
-    var Rect r11 = Rect(r0.left,   r0.top, 32,32);
-    var Rect r12 = Rect(r0.left+40,r0.top, 32,32);
-    var CheckBox b1 = CheckBox.build(r11, _config_manager.get_fullscreen());
-    var Label _ = Label.build("Fullscreen", r12);
+    var Rect r11 = val Rect(r0.left,   r0.top, 32,32);
+    var Rect r12 = val Rect(r0.left+40,r0.top, 32,32);
+    var& ICheckBox b1;
+    spawn CheckBox(&r11, (_config_manager.get_fullscreen() as bool)) -> (&b1);
+    spawn Label("Fullscreen", &r12);
     spawn do
+        var bool v;
         every v in b1.go_click do
             _config_manager.set_fullscreen(v);
         end
@@ -61,28 +61,32 @@ code/await OptionMenu (void) -> void do
     r0.top = r0.top + 32;
 
     // Mouse Grab
-    var Rect r21 = Rect(r0.left,   r0.top, 32,32);
-    var Rect r22 = Rect(r0.left+40,r0.top, 32,32);
-    var CheckBox b2 = CheckBox.build(r21, _config_manager.get_mouse_grab());
-    var Label _ = Label.build("Mouse Grab", r22);
+    var Rect r21 = val Rect(r0.left,   r0.top, 32,32);
+    var Rect r22 = val Rect(r0.left+40,r0.top, 32,32);
+    var& ICheckBox b2;
+    spawn CheckBox(&r21, (_config_manager.get_mouse_grab() as bool)) -> (&b2);
+    spawn Label("Mouse Grab", &r22);
     spawn do
         par do
-            every v in config_manager.go_mouse_grab do
-                emit b2.go_click => v;
+            var bool v;
+            every v in outer.config_manager.go_mouse_grab do
+                emit b2.go_click(v);
             end
         with
+            var bool v;
             every v in b2.go_click do
-                emit config_manager.go_mouse_grab => v;
+                emit outer.config_manager.go_mouse_grab(v);
             end
         end
     end
 
     r0.top = r0.top + 32;
     r0.top = r0.top + 32;
+#if 0
 
     // Software Cursor
-    var Rect r31 = Rect(r0.left,   r0.top, 32,32);
-    var Rect r32 = Rect(r0.left+40,r0.top, 32,32);
+    var Rect r31 = val Rect(r0.left,   r0.top, 32,32);
+    var Rect r32 = val Rect(r0.left+40,r0.top, 32,32);
     var CheckBox b3 = CheckBox.build(r31, _config_manager.get_software_cursor());
     var Label _ = Label.build("Software Cursor", r32);
     spawn do
@@ -94,8 +98,8 @@ code/await OptionMenu (void) -> void do
     r0.top = r0.top + 32;
 
     // Auto Scrolling
-    var Rect r41 = Rect(r0.left,   r0.top, 32,32);
-    var Rect r42 = Rect(r0.left+40,r0.top, 32,32);
+    var Rect r41 = val Rect(r0.left,   r0.top, 32,32);
+    var Rect r42 = val Rect(r0.left+40,r0.top, 32,32);
     var CheckBox b4 = CheckBox.build(r41, _config_manager.get_auto_scrolling());
     var Label _ = Label.build("Autoscrolling", r42);
     spawn do
@@ -107,8 +111,8 @@ code/await OptionMenu (void) -> void do
     r0.top = r0.top + 32;
 
     // Drag & Drop Scrolling
-    var Rect r51 = Rect(r0.left,   r0.top, 32,32);
-    var Rect r52 = Rect(r0.left+40,r0.top, 32,32);
+    var Rect r51 = val Rect(r0.left,   r0.top, 32,32);
+    var Rect r52 = val Rect(r0.left+40,r0.top, 32,32);
     var CheckBox b5 = CheckBox.build(r51, _config_manager.get_drag_drop_scrolling());
     var Label _ = Label.build("Drag&Drop Scrolling", r52);
     spawn do
@@ -121,8 +125,8 @@ code/await OptionMenu (void) -> void do
     r0.top = r0.top + 32;
 
     // Print FPS
-    var Rect r61 = Rect(r0.left,   r0.top, 32,32);
-    var Rect r62 = Rect(r0.left+40,r0.top, 32,32);
+    var Rect r61 = val Rect(r0.left,   r0.top, 32,32);
+    var Rect r62 = val Rect(r0.left+40,r0.top, 32,32);
     var CheckBox b6 = CheckBox.build(r61, _config_manager.get_print_fps());
     var Label _ = Label.build("Print FPS", r62);
     spawn do
@@ -133,9 +137,9 @@ code/await OptionMenu (void) -> void do
 
     // RIGHT OPTIONS //
 
-    var Rect left  = Rect(r0.left+320,         yy,
+    var Rect left  = val Rect(r0.left+320,         yy,
                           r0.width-180,        r0.height);
-    var Rect right = Rect(r0.left+320+140,     yy,
+    var Rect right = val Rect(r0.left+320+140,     yy,
                           r0.width-left.width, r0.height);
 
     // Resolution
@@ -372,6 +376,8 @@ code/await OptionMenu (void) -> void do
     _log_info("saving configuration: %1%", _cfg_filename);
     _config_manager.get_options().save(_cfg_filename);
 #endif
+
+    await FOREVER;
 end
 
 #endif

@@ -3,11 +3,11 @@
 
 #include "../../engine/display/surface.ceu"
 
-class Wood with
-do
-    var Surface sfc = Surface.build("core/menu/wood");
+code/await Wood (void) -> FOREVER do
+    var& Surface sfc;
+    spawn Surface_from_name("core/menu/wood",_) -> (&sfc);
 
-    every REDRAW do
+    every SDL_REDRAW do
         var int y = 0;
         loop do
             if y >= {Display::get_height()} then
@@ -19,12 +19,12 @@ do
                     break;
                 end
                 call {Display::s_framebuffer}:draw_surface(
-                    this.sfc.framebuffer_surface,
+                    sfc.framebuffer,
                     _Vector2i(x, y)
                 );
-                x = x + sfc.get_width();
+                x = x + sfc.framebuffer.get_width();
             end
-            y = y + sfc.get_height();
+            y = y + sfc.framebuffer.get_height();
         end
     end
 end

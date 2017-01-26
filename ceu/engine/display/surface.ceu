@@ -35,13 +35,20 @@ do
 end
 #endif
 
-code/await Surface_from_desc (var _SpriteDescription_ptr desc,
-                              var _ResourceModifier__Enum mod)
+code/await Surface_from_desc (var _SpriteDescription_ptr   desc,
+                              var _ResourceModifier__Enum? mod)
                                 -> (var& Surface surface)
                                     -> FOREVER
 do
+    var _ResourceModifier__Enum mod_;
+    if mod? then
+        mod_ = mod!;
+    else
+        mod_ = {ResourceModifier::ROT0};
+    end
+
     var&? _FramebufferSurface framebuffer =
-        &_load_framebuffer_sdl_surface(desc:filename, mod)
+        &_load_framebuffer_sdl_surface(desc:filename, mod_)
             finalize (framebuffer) with
                 _delete(&&framebuffer!);
             end;
@@ -53,7 +60,7 @@ do
 end
 
 code/await Surface_from_name (var _char&& name,
-                              var _ResourceModifier__Enum mod)
+                              var _ResourceModifier__Enum? mod)
                                 -> (var& Surface surface)
                                     -> FOREVER
 do

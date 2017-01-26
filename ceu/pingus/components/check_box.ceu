@@ -1,35 +1,38 @@
 #ifndef _CHECKBOX_CEU
 #define _CHECKBOX_CEU
 
-class CheckBox with
-    var Rect rect;
-    var bool is_on;
-    function (Rect rect, bool is_on)=>CheckBox build;
-    event bool go_click;
-do
-    function (Rect rect, bool is_on)=>CheckBox build do
-        this.rect  = rect;
-        this.is_on = is_on;
-    end
+#include "../../engine/gui/rect_component.ceu"
 
-    var RectComponent component with
-        this.rect = &outer.rect;
-    end;
+data ICheckBox with
+    var   bool is_on;
+    event bool go_click;
+end
+
+code/await CheckBox (var& Rect rect, var bool is_on)
+                        -> (var& ICheckBox checkbox)
+                            -> FOREVER
+do
+    var ICheckBox checkbox_ = val ICheckBox(is_on,_);
+    checkbox = &checkbox_;
+
+    var& IRectComponent comp;
+    spawn RectComponent(&rect) -> (&comp);
 
     par do
-        every component.on_primary_button_pressed do
-            emit go_click => not this.is_on;
+        every comp.on_primary_button_pressed do
+            emit checkbox_.go_click(not checkbox_.is_on);
         end
     with
         loop do
-            var char[] file;
-            if this.is_on then
-                file = [] .. "core/menu/checkbox_marked_small";
+            var _char_const_ptr file;
+            if checkbox_.is_on then
+                file = "core/menu/checkbox_marked_small";
             else
-                file = [] .. "core/menu/checkbox_small";
+                file = "core/menu/checkbox_small";
             end
-            var Sprite _ = Sprite.build_name(&rect, (_char&&)&&file);
-            this.is_on = await this.go_click;
+            var Sprite sprite = _;
+            spawn Sprite_from_name(&sprite, &rect, file);
+            checkbox_.is_on = await checkbox_.go_click;
         end
     end
 end

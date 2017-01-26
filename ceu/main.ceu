@@ -1,10 +1,14 @@
 #include "c.ceu"
 
+native/plain _char_const_ptr;
+native _origin_top_left;
+
 native/pre do
     ##define private public
     ##define protected public
 
     ##define typeof(x) __typeof__(x)
+    typedef char* char_const_ptr;
 
     ##include "engine/input/event.hpp"
     ##include "pingus/globals.hpp"

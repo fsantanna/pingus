@@ -1,24 +1,16 @@
 #ifndef _LABEL_CEU
 #define _LABEL_CEU
 
-class Label with
-    var char[] label;
-    var Rect   rect;
-    function (_char&& label, Rect rect)=>Label build;
+code/await Label (var _char_const_ptr label, var& Rect rect) -> FOREVER
 do
-    function (_char&& label, Rect rect)=>Label build do
-        this.label = []..label;
-        this.rect  = rect;
-    end
-
-    every REDRAW do
+    every SDL_REDRAW do
         call {Fonts::chalk_normal}.render(
             _origin_top_left,
-            this.rect.left,
-            this.rect.top,
-            (_char&&)&&this.label,
+            rect.left,
+            rect.top,
+            label,
             *{Display::s_framebuffer}
-        ) finalize with end;
+        );
     end
 end
 
