@@ -5,6 +5,8 @@ native/pos do
     ##include "util/system.hpp"
     ##include "tinygettext/dictionary_manager.hpp"
     ##include "pingus/config_manager.hpp"
+    ##include "tinygettext/language.hpp"
+    ##include "pingus/gettext.h"
     extern tinygettext::DictionaryManager dictionary_manager;
     struct LanguageSorter {
         bool operator()(const tinygettext::Language& lhs,
@@ -21,11 +23,8 @@ end
 #include "../components/check_box.ceu"
 #include "../components/label.ceu"
 #include "../components/choice_box.ceu"
-
-#if 0
-#include "../../engine/gui/surface_button.ceu"
 #include "../components/slider_box.ceu"
-#endif
+#include "../../engine/gui/surface_button.ceu"
 
 code/await OptionMenu (void) -> void do
     var Rect rect = val Rect({Display::get_width()}  / 2,
@@ -170,15 +169,15 @@ code/await OptionMenu (void) -> void do
         end
 
         // add resolution to the box
-        var _char_const_ptr str = _;
+        var _char_const_ptr str1 = _;
         {
             {
                 std::ostringstream ostr;
                 ostr << it1->width << "x" << it1->height;
-                @str = ostr.str().c_str();
+                @str1 = ostr.str().c_str();
             }
         };
-        spawn ChoiceItem(&r1, str, i, &cb1) in its1;
+        spawn ChoiceItem(&r1, str1, i, &cb1) in its1;
 
         if {fullscreen} == {*it1} then
             cb1.current = {it1 - resolutions.begin()};
@@ -261,11 +260,11 @@ code/await OptionMenu (void) -> void do
             break;
         end
         {
-            static const char* str;
-            str = it3->get_name().c_str();
-            m_language_map[str] = *it3;
+            const char* str3;
+            str3 = it3->get_name().c_str();
+            m_language_map[str3] = *it3;
         }
-        spawn ChoiceItem(&r3, {str}, i, &cb3) in its3;
+        spawn ChoiceItem(&r3, {str3}, i, &cb3) in its3;
 
         if {dictionary_manager.get_language()} == {*it3} then
             cb3.current = {it3 - langs.begin()};
@@ -290,19 +289,20 @@ code/await OptionMenu (void) -> void do
         end
     end
 
-#if 0
     left.top  = left.top + 32;
     left.top  = left.top + 32;
     right.top = right.top + 32;
     right.top = right.top + 32;
 
     // Master Volume
-    var Label _ = Label.build("Master Volume", left);
-    var SliderBox s1 = SliderBox.build(right, 25,
-                        _config_manager.get_master_volume());
+    var Rect l4 = left;
+    var Rect r4 = right;
+    spawn Label("Master Volume", &l4);
+    event& int go4;
+    spawn SliderBox(&r4, 25, _config_manager.get_master_volume()) -> (&go4);
     spawn do
-        var bool v;
-        every v in s1.ok_changed do
+        var int v;
+        every v in go4 do
             _config_manager.set_master_volume(v);
         end
     end
@@ -311,12 +311,14 @@ code/await OptionMenu (void) -> void do
     right.top = right.top + 32;
 
     // Sound Volume
-    var Label _ = Label.build("Sound Volume", left);
-    var SliderBox s2 = SliderBox.build(right, 25,
-                        _config_manager.get_sound_volume());
+    var Rect l5 = left;
+    var Rect r5 = right;
+    spawn Label("Sound Volume", &l5);
+    event& int go5;
+    spawn SliderBox(&r5, 25, _config_manager.get_sound_volume()) -> (&go5);
     spawn do
-        var bool v;
-        every v in s2.ok_changed do
+        var int v;
+        every v in go5 do
             _config_manager.set_sound_volume(v);
         end
     end
@@ -325,12 +327,14 @@ code/await OptionMenu (void) -> void do
     right.top = right.top + 32;
 
     // Music Volume
-    var Label _ = Label.build("Music Volume", left);
-    var SliderBox s3 = SliderBox.build(right, 25,
-                        _config_manager.get_music_volume());
+    var Rect l6 = left;
+    var Rect r6 = right;
+    spawn Label("Music Volume", &l6);
+    event& int go6;
+    spawn SliderBox(&r6, 25, _config_manager.get_music_volume()) -> (&go6);
     spawn do
-        var bool v;
-        every v in s3.ok_changed do
+        var int v;
+        every v in go6 do
             _config_manager.set_music_volume(v);
         end
     end
@@ -340,20 +344,21 @@ code/await OptionMenu (void) -> void do
 
     // CLOSE //
 
-    var SurfaceButton close with
-        this.x = {Display::get_width()/2}  + 245;
-        this.y = {Display::get_height()/2} + 150;
-        this.button         = "core/start/ok";
-        this.button_pressed = "core/start/ok_clicked";
-        this.button_over    = "core/start/ok_hover";
-    end;
+    var Rect r7 = val Rect({Display::get_width()/2}  + 245,
+                           {Display::get_height()/2} + 150,
+                           0, 0);
+    var& IRectComponent component;
+    spawn SurfaceButton(&r7, "core/start/ok",
+                             "core/start/ok_clicked",
+                             "core/start/ok_hover")
+            -> (&component);
 
     par/or do
-        every close.component.on_pointer_enter do
+        every component.on_pointer_enter do
             call {Sound::PingusSound::play_sound}("tick");
         end
     with
-        await close.component.on_click;
+        await component.on_click;
         call {Sound::PingusSound::play_sound}("yipee");
     with
         var _Input__ButtonEvent&& but =
@@ -388,14 +393,13 @@ code/await OptionMenu (void) -> void do
     end
 
     {
-        Pathname cfg_filename(System::get_userdir() + "config",
-                              Pathname::SYSTEM_PATH);
+        {
+            Pathname cfg_filename(System::get_userdir() + "config",
+                                  Pathname::SYSTEM_PATH);
+            log_info("saving configuration: %1%", cfg_filename);
+            config_manager.get_options().save(cfg_filename);
+        }
     };
-    _log_info("saving configuration: %1%", _cfg_filename);
-    _config_manager.get_options().save(_cfg_filename);
-#endif
-
-    await FOREVER;
 end
 
 #endif

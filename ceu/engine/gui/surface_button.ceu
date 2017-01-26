@@ -4,39 +4,37 @@
 #include "../display/sprite.ceu"
 #include "rect_component.ceu"
 
-class SurfaceButton with
-    var float x;
-    var float y;
-    var _char&& button;
-    var _char&& button_pressed;
-    var _char&& button_over;
-output:
-    var RectComponent& component;
+code/await SurfaceButton (var& Rect rect,
+                          var _char_const_ptr button,
+                          var _char_const_ptr button_pressed,
+                          var _char_const_ptr button_over)
+                            -> (var& IRectComponent component)
+                                -> FOREVER
 do
-    var char[] b         = []..button;
-    var char[] b_pressed = []..button_pressed;
-    var char[] b_over    = []..button_over;
+    var& IRectComponent component_;
+    spawn RectComponent(&rect) -> (&component_);
+    component = &component_;
 
-    var Rect rect = Rect(x, y, 0, 0);
-    var RectComponent component_ with
-        this.rect = &rect;
-    end;
-    this.component = &component_;
-    var Sprite sprite = Sprite.build_name(&rect, (_char&&)&&b);
-    kill sprite;
+    do
+        var Sprite sprite = _;
+        spawn Sprite_from_name(&sprite, &rect, button);
+    end
 
     loop do
         do
-            var Sprite _ = Sprite.build_name(&rect, (_char&&)&&b);
-            await component.on_pointer_enter;
+            var Sprite sprite = _;
+            spawn Sprite_from_name(&sprite, &rect, button);
+            await component_.on_pointer_enter;
         end
-        watching component.on_pointer_leave do
+        watching component_.on_pointer_leave do
             loop do
                 do
-                    var Sprite _ = Sprite.build_name(&rect, (_char&&)&&b_over);
-                    await component.on_primary_button_pressed;
+                    var Sprite sprite = _;
+                    spawn Sprite_from_name(&sprite, &rect, button_over);
+                    await component_.on_primary_button_pressed;
                 end
-                var Sprite _ = Sprite.build_name(&rect, (_char&&)&&b_pressed);
+                var Sprite sprite = _;
+                spawn Sprite_from_name(&sprite, &rect, button_pressed);
                 await ON_PRIMARY_BUTTON_RELEASED;
             end
         end

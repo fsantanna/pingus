@@ -1,10 +1,6 @@
 #ifndef _START_SCREEN
 #define _START_SCREEN
 
-native/pre do
-    ##include "pingus/string_format.hpp"
-end
-
 #include "../../engine/display/sprite.ceu"
 #include "../../engine/gui/surface_button.ceu"
 #include "../components/wood.ceu"

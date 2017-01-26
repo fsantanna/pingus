@@ -18,6 +18,7 @@ native/pre do
     ##include "pingus/globals.hpp"
     ##include "pingus/fonts.hpp"
     ##include "engine/display/display.hpp"
+    ##include "engine/sound/sound.hpp"
 
     ##define std__string std::string
     ##define Resource__load_sprite_desc(name) Resource::load_sprite_desc(name)
