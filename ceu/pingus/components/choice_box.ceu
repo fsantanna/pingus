@@ -45,6 +45,7 @@ do
 
     emit choicebox.go;
 
+    // TODO: $items
     var int tot = 0;
     loop in items do
         tot = tot + 1;

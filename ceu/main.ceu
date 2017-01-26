@@ -2,6 +2,7 @@
 
 native/plain _char_const_ptr;
 native
+    _framebuffer_type_from_string,
     _origin_top_left,
     _origin_top_right,
 ;

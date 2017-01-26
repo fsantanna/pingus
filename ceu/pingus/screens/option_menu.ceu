@@ -150,7 +150,9 @@ code/await OptionMenu (void) -> void do
                               r0.width-left.width, r0.height);
 
     // Resolution
-    spawn Label("Resolution", &left);
+    var Rect l1 = left;
+    var Rect r1 = right;
+    spawn Label("Resolution", &l1);
     pool[] ChoiceItem its1;
     var    IChoiceBox cb1 = val IChoiceBox(_,_,_);
 
@@ -176,14 +178,14 @@ code/await OptionMenu (void) -> void do
                 @str = ostr.str().c_str();
             }
         };
-        spawn ChoiceItem(&right, str, i, &cb1) in its1;
+        spawn ChoiceItem(&r1, str, i, &cb1) in its1;
 
         if {fullscreen} == {*it1} then
             cb1.current = {it1 - resolutions.begin()};
         end
         {it1++;};
     end
-    spawn ChoiceBox(&right, &its1, &cb1);
+    spawn ChoiceBox(&r1, &its1, &cb1);
     spawn do
         every cb1.go do
             { static Size size_; };
@@ -195,41 +197,37 @@ code/await OptionMenu (void) -> void do
         end
     end
 
-#if 0
     left.top  = left.top + 32;
     right.top = right.top + 32;
 
     // Renderer
-    var Label _ = Label.build("Renderer", left);
-    var int current2;
-    if _config_manager.get_renderer() == _SDL_FRAMEBUFFER then
-        current2 = 0;
-    else/if _config_manager.get_renderer() == _DELTA_FRAMEBUFFER then
-        current2 = 1;
+    var Rect l2 = left;
+    var Rect r2 = right;
+    spawn Label("Renderer", &l2);
+    pool[] ChoiceItem its2;
+    var    IChoiceBox cb2 = val IChoiceBox(_,_,_);
+    if _config_manager.get_renderer() == {SDL_FRAMEBUFFER} then
+        cb2.current = 0;
+    else/if _config_manager.get_renderer() == {DELTA_FRAMEBUFFER} then
+        cb2.current = 1;
 #ifdef HAVE_OPENGL
-    else/if _config_manager.get_renderer() == _OPENGL_FRAMEBUFFER then
-        current2 = 2;
+    else/if _config_manager.get_renderer() == {OPENGL_FRAMEBUFFER} then
+        cb2.current = 2;
 #endif
     else
-        current2 = -1;
-        _assert(not "unknown renderer type");
+        cb2.current = -1;
+        _ceu_dbg_assert({!"unknown renderer type"});
     end
-    var ChoiceItem&&?[] vec2;
-    var ChoiceItem it21 = ChoiceItem.build(right, "sdl");
-    vec2 = [] .. vec2 .. [ &&it21 ];
-    var ChoiceItem it22 = ChoiceItem.build(right, "delta");
-    vec2 = [] .. vec2 .. [ &&it22 ];
+    spawn ChoiceItem(&r2, "sdl",    0, &cb2) in its2;
+    spawn ChoiceItem(&r2, "delta",  1, &cb2) in its2;
 #ifdef HAVE_OPENGL
-    var ChoiceItem it23 = ChoiceItem.build(right, "opengl");
-    vec2 = vec2 .. [ &&it23 ];
+    spawn ChoiceItem(&r2, "opengl", 2, &cb2) in its2;
 #endif
-    var ChoiceBox c2 = ChoiceBox.build(right, &vec2, current2);
+    spawn ChoiceBox(&r2, &its2, &cb2);
     spawn do
-        var bool v;
-        every v in c2.ok_changed do
+        every cb2.go do
             _config_manager.set_renderer(
-                _framebuffer_type_from_string((_char&&)&&vec2[v]!:value)
-                    finalize with end
+                _framebuffer_type_from_string(&&cb2.value[0] as _char_const_ptr)
             );
         end
     end
@@ -240,9 +238,11 @@ code/await OptionMenu (void) -> void do
     right.top = right.top + 32;
 
     // Language
-    var Label _ = Label.build("Language", left);
-    var ChoiceItem&&?[] vec3;
-    pool ChoiceItem[] its2;
+    var Rect l3 = left;
+    var Rect r3 = right;
+    spawn Label("Language", &l3);
+    pool[] ChoiceItem its3;
+    var    IChoiceBox cb3 = val IChoiceBox(_,_,_);
 
     {
         static std::set<tinygettext::Language> languages =
@@ -252,43 +252,45 @@ code/await OptionMenu (void) -> void do
         languages.insert(tinygettext::Language::from_name("en"));
         static std::vector<tinygettext::Language> langs(languages.begin(), languages.end());
         std::sort(langs.begin(), langs.end(), LanguageSorter());
-        static auto it2 = langs.begin();
-        it2 = langs.begin();
+        static auto it3 = langs.begin();
+        it3 = langs.begin();
     };
-    var int? current3;
-    loop do
-        if _it2 == _langs.end() then
+    var int i;
+    loop i do
+        if {it3} == {langs.end()} then
             break;
         end
+        {
+            static const char* str;
+            str = it3->get_name().c_str();
+            m_language_map[str] = *it3;
+        }
+        spawn ChoiceItem(&r3, {str}, i, &cb3) in its3;
 
-        var char&& str = _XXX_PURE((char&&)_it2:get_name().c_str());
-        _m_language_map[_XXX_PURE(str)] = *_it2;
-
-        var ChoiceItem&&? it = spawn ChoiceItem.build(right, str) in its2;
-        vec3 = []..vec3..[it];
-
-        if _dictionary_manager.get_language() == *_it2 then
-            current3 = (_it2 - _langs.begin());
+        if {dictionary_manager.get_language()} == {*it3} then
+            cb3.current = {it3 - langs.begin()};
         end
-        {it2++;};
+        {it3++;};
     end
-    var ChoiceBox c3 = ChoiceBox.build(right, &vec3, current3!);
+    spawn ChoiceBox(&r3, &its3, &cb3);
     spawn do
-        var bool v;
-        every v in c3.ok_changed do
-            { static char* str; };
-            _str := (_char&&)&&vec3[v]!:value;
-            { static auto it = m_language_map.find(str); };
-            { it = m_language_map.find(str); };
-            if _it == _m_language_map.end() then
-                _log_error("unknown language: %1%", &&vec3[v]!:value);
+        every cb3.go do
+            {
+                static auto it = m_language_map.find(@(&&cb3.value[0] as _char&&));
+                it = m_language_map.find(@(&&cb3.value[0] as _char&&));
+            }
+            if {it} == {m_language_map.end()} then
+                _log_error("unknown language: %1%", &&cb3.value[0]);
             else
-                _m_language = _it:second;
-                _config_manager.set_language(_it:second);
+                {
+                    m_language = it->second;
+                    config_manager.set_language(it->second);
+                }
             end
         end
     end
 
+#if 0
     left.top  = left.top + 32;
     left.top  = left.top + 32;
     right.top = right.top + 32;
