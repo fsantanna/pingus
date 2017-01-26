@@ -4,6 +4,8 @@ native/pre do
     ##define private public
     ##define protected public
 
+    ##define typeof(x) __typeof__(x)
+
     ##include "engine/input/event.hpp"
     ##include "pingus/globals.hpp"
     ##include "pingus/fonts.hpp"

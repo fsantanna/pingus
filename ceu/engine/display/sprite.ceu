@@ -43,10 +43,10 @@ code/await Sprite_from_name (var& Sprite sprite, var& Rect rect, var _char&& nam
     native _vec;
     {
         static Vector2i vec;
-        vec = calc_origin((*(THIS(Sprite_from_name)->sfc->desc))->origin,
-                          Size(THIS(Sprite_from_name)->sprite->frame_size.width,
-                              THIS(Sprite_from_name)->sprite->frame_size.height))
-                - (*THIS(Sprite_from_name)->sfc->desc)->offset;
+        vec = calc_origin(@(sfc.desc:origin),
+                          Size(@(sprite.frame_size.width),
+                               @(sprite.frame_size.height)))
+                - @(sfc.desc:offset);
     };
     sprite.offset = val Vector2i(_vec.x, _vec.y);
 

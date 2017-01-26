@@ -70,11 +70,12 @@ void SDL_Driver_update (float delta) {
 }
 end
 
+// TODO: may loose events (loop vs every)
 
 code/await SDL_Driver (void) -> FOREVER do
     par do
-        var _SDL_MouseButtonEvent&& e;
-        every e in SDL_MOUSEBUTTONDOWN do
+        loop do
+            var _SDL_MouseButtonEvent&& e = await SDL_MOUSEBUTTONDOWN;
             var _SDL_MouseButtonEvent but = *e;
             await async (but) do
                 if but.button == _SDL_BUTTON_LEFT then
@@ -85,8 +86,8 @@ code/await SDL_Driver (void) -> FOREVER do
             end
         end
     with
-        var _SDL_MouseButtonEvent&& e;
-        every e in SDL_MOUSEBUTTONUP do
+        loop do
+            var _SDL_MouseButtonEvent&& e = await SDL_MOUSEBUTTONUP;
             var _SDL_MouseButtonEvent but = *e;
             await async (but) do
                 if but.button == _SDL_BUTTON_LEFT then
@@ -97,8 +98,8 @@ code/await SDL_Driver (void) -> FOREVER do
             end
         end
     with
-        var _SDL_MouseMotionEvent&& e;
-        every e in SDL_MOUSEMOTION do
+        loop do
+            var _SDL_MouseMotionEvent&& e = await SDL_MOUSEMOTION;
             var _SDL_MouseMotionEvent mot = *e;
             await async (mot) do
                 emit ON_POINTER_MOVE(mot.x, mot.y);
