@@ -39,6 +39,8 @@ code/await Sprite_from_name (var& Sprite sprite, var& Rect rect, var _char_const
         sprite.frame_size.width  = sfc.desc:frame_size.width;
         sprite.frame_size.height = sfc.desc:frame_size.height;
     end
+    rect.width  = sprite.frame_size.width;
+    rect.height = sprite.frame_size.height;
 
     native _vec;
     {
@@ -117,9 +119,6 @@ code/await Sprite_from_name (var& Sprite sprite, var& Rect rect, var _char_const
         this.mod     = outer.mod;
         this.name    = name;
     end;
-
-    this.rect.width  = sfc.get_width();
-    this.rect.height = sfc.get_height();
 
     if surface != null then
         this.frame_pos   = Vector2i(0, 0);

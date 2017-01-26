@@ -15,11 +15,6 @@ do
     spawn RectComponent(&rect) -> (&component_);
     component = &component_;
 
-    do
-        var Sprite sprite = _;
-        spawn Sprite_from_name(&sprite, &rect, button);
-    end
-
     loop do
         do
             var Sprite sprite = _;
