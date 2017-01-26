@@ -1,76 +1,74 @@
 #ifndef _CHOICEBOX_CEU
 #define _CHOICEBOX_CEU
 
-class ChoiceItem with
-    var Rect   rect;
-    var char[] value;
-    event bool go_pause;
-    function (Rect rect, _char&& value)=>ChoiceItem build;
-do
-    function (Rect rect, _char&& value)=>ChoiceItem build do
-        this.rect  = rect;
-        this.value = []..value;
-    end
+data IChoiceBox with
+    var      int  current;
+    vector[] byte value;
+    event    void go;
+end
 
+code/await ChoiceItem (var& Rect rect, var _char_const_ptr value, var int n, var& IChoiceBox choicebox)
+                        -> FOREVER
+do
+    vector[] byte value_ = []..(value as _char&&);
+
+    event bool go_pause;
     par do
-        pause/if this.go_pause do
-            every REDRAW do
-                call {Fonts::chalk_normal}.render(
+        pause/if go_pause do
+            every SDL_REDRAW do
+                call ({Fonts::chalk_normal.render} as /nohold)(
                     _origin_top_center,
                     rect.left + rect.width/2,
                     rect.top,
-                    (_char&&)&&this.value,
+                    &&value_[0] as _char_const_ptr,
                     *{Display::s_framebuffer}
-                ) finalize with end;
+                );
             end
         end
     with
-        // starts paused
-        emit this.go_pause => true;
-        await FOREVER;
+        every choicebox.go do
+            if choicebox.current == n then
+                emit go_pause(false);
+                choicebox.value = []..value_;
+            else
+                emit go_pause(true);
+            end
+        end
     end
 end
 
-class ChoiceBox with
-    var Rect rect;
-    var ChoiceItem&&?[]& options;
-    var int  current;
-    event int ok_changed;
-    function (Rect rect, ChoiceItem&&?[]& options, int current)=>ChoiceBox build;
+code/await ChoiceBox (var& Rect rect, pool&[] ChoiceItem items, var& IChoiceBox choicebox)
+                        -> FOREVER
 do
-    function (Rect rect, ChoiceItem&&?[]& options, int current)=>ChoiceBox build do
-        this.rect    = rect;
-        this.options = &options;
-        this.current = current;
+    var& IRectComponent component;
+    spawn RectComponent(&rect) -> (&component);
+
+    emit choicebox.go;
+
+    var int tot = 0;
+    loop in items do
+        tot = tot + 1;
     end
-
-    var RectComponent component with
-        this.rect = &outer.rect;
-    end;
-
-    emit options[current]!:go_pause => false;
+    _ceu_dbg_assert(tot > 0);
 
     par do
+        var int x,y;
         every (x,y) in component.on_primary_button_pressed do
-            var int old = current;
-            x = x - rect.left;
+            var int old = choicebox.current;
+            x = x - (rect.left as int);
             if x > rect.width/2 then
-                current = (current + 1) % $options;
+                choicebox.current = (choicebox.current + 1) % tot;
             else
-                current = current - 1;
-                if current < 0 then
-                    current = $options - 1;
+                choicebox.current = choicebox.current - 1;
+                if choicebox.current < 0 then
+                    choicebox.current = tot - 1;
                 end
             end
-            if old != current then
-                emit options[old]!:go_pause => true;
-                emit options[current]!:go_pause => false;
-                emit this.ok_changed => current;
-            end
+            emit choicebox.go;
         end
     with
-        every REDRAW do
-            if {globals::developer_mode} then
+        every SDL_REDRAW do
+            if {globals::developer_mode} as bool then
                 call {Display::s_framebuffer}:draw_rect(
                     _Rect(rect.left,rect.width,rect.width,rect.height),
                     _Color(0, 255, 255)

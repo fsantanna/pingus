@@ -66,16 +66,40 @@ ScreenManager::~ScreenManager() {
 }
 
 static int is_terminating = 0;
-tceu_callback_ret ceu_callback (int cmd, tceu_callback_arg p1,
-                                         tceu_callback_arg p2)
-{
+tceu_callback_ret ceu_callback (int cmd, tceu_callback_arg p1, tceu_callback_arg p2) {
     tceu_callback_ret ret = { .is_handled=1 };
     switch (cmd) {
         case CEU_CALLBACK_TERMINATING:
             is_terminating = 1;
             break;
+        case CEU_CALLBACK_WCLOCK_DT:
+            ret.value.num  = CEU_WCLOCK_INACTIVE;
+            break;
+        case CEU_CALLBACK_ABORT:
+            abort();
+            break;
+        case CEU_CALLBACK_LOG: {
+            switch (p1.num) {
+                case 0:
+                    printf("%s", (char*)p2.ptr);
+                    break;
+                case 1:
+                    printf("%p", p2.ptr);
+                    break;
+                case 2:
+                    printf("%d", p2.num);
+                    break;
+            }
+            break;
+        }
+        case CEU_CALLBACK_REALLOC:
+            ret.value.ptr = realloc(p1.ptr, p2.size);
+        default:
+            ret.is_handled = 0;
     }
+    return ret;
 }
+
 
 void
 ScreenManager::display(CommandLineOptions* cmd_options)

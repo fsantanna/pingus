@@ -20,10 +20,10 @@ end
 #include "../components/wood.ceu"
 #include "../components/check_box.ceu"
 #include "../components/label.ceu"
+#include "../components/choice_box.ceu"
 
 #if 0
 #include "../../engine/gui/surface_button.ceu"
-#include "../components/choice_box.ceu"
 #include "../components/slider_box.ceu"
 #endif
 
@@ -82,14 +82,15 @@ code/await OptionMenu (void) -> void do
 
     r0.top = r0.top + 32;
     r0.top = r0.top + 32;
-#if 0
 
     // Software Cursor
     var Rect r31 = val Rect(r0.left,   r0.top, 32,32);
     var Rect r32 = val Rect(r0.left+40,r0.top, 32,32);
-    var CheckBox b3 = CheckBox.build(r31, _config_manager.get_software_cursor());
-    var Label _ = Label.build("Software Cursor", r32);
+    var& ICheckBox b3;
+    spawn CheckBox(&r31, (_config_manager.get_software_cursor() as bool)) -> (&b3);
+    spawn Label("Software Cursor", &r32);
     spawn do
+        var bool v;
         every v in b3.go_click do
             _config_manager.set_software_cursor(v);
         end
@@ -100,9 +101,11 @@ code/await OptionMenu (void) -> void do
     // Auto Scrolling
     var Rect r41 = val Rect(r0.left,   r0.top, 32,32);
     var Rect r42 = val Rect(r0.left+40,r0.top, 32,32);
-    var CheckBox b4 = CheckBox.build(r41, _config_manager.get_auto_scrolling());
-    var Label _ = Label.build("Autoscrolling", r42);
+    var& ICheckBox b4;
+    spawn CheckBox(&r41, (_config_manager.get_auto_scrolling() as bool)) -> (&b4);
+    spawn Label("Autoscrolling", &r42);
     spawn do
+        var bool v;
         every v in b4.go_click do
             _config_manager.set_auto_scrolling(v);
         end
@@ -113,9 +116,11 @@ code/await OptionMenu (void) -> void do
     // Drag & Drop Scrolling
     var Rect r51 = val Rect(r0.left,   r0.top, 32,32);
     var Rect r52 = val Rect(r0.left+40,r0.top, 32,32);
-    var CheckBox b5 = CheckBox.build(r51, _config_manager.get_drag_drop_scrolling());
-    var Label _ = Label.build("Drag&Drop Scrolling", r52);
+    var& ICheckBox b5;
+    spawn CheckBox(&r51, (_config_manager.get_drag_drop_scrolling() as bool)) -> (&b5);
+    spawn Label("Drag&Drop Scrolling", &r52);
     spawn do
+        var bool v;
         every v in b5.go_click do
             _config_manager.set_drag_drop_scrolling(v);
         end
@@ -127,9 +132,11 @@ code/await OptionMenu (void) -> void do
     // Print FPS
     var Rect r61 = val Rect(r0.left,   r0.top, 32,32);
     var Rect r62 = val Rect(r0.left+40,r0.top, 32,32);
-    var CheckBox b6 = CheckBox.build(r61, _config_manager.get_print_fps());
-    var Label _ = Label.build("Print FPS", r62);
+    var& ICheckBox b6;
+    spawn CheckBox(&r61, (_config_manager.get_print_fps() as bool)) -> (&b6);
+    spawn Label("Print FPS", &r62);
     spawn do
+        var bool v;
         every v in b6.go_click do
             _config_manager.set_print_fps(v);
         end
@@ -138,14 +145,14 @@ code/await OptionMenu (void) -> void do
     // RIGHT OPTIONS //
 
     var Rect left  = val Rect(r0.left+320,         yy,
-                          r0.width-180,        r0.height);
+                              r0.width-180,        r0.height);
     var Rect right = val Rect(r0.left+320+140,     yy,
-                          r0.width-left.width, r0.height);
+                              r0.width-left.width, r0.height);
 
     // Resolution
-    var Label _ = Label.build("Resolution", left);
-    pool ChoiceItem[] its1;
-    var ChoiceItem&&?[] vec1;
+    spawn Label("Resolution", &left);
+    pool[] ChoiceItem its1;
+    var    IChoiceBox cb1 = val IChoiceBox(_,_,_);
 
     {
         static std::vector<Size> resolutions = Display::get_fullscreen_video_modes();
@@ -153,38 +160,42 @@ code/await OptionMenu (void) -> void do
         static auto it1 = resolutions.begin();
         it1 = resolutions.begin();
     };
-    var int current1 = _resolutions.size() - 1;
-    loop do
-        if _it1 == _resolutions.end() then
+    cb1.current = {resolutions.size()} - 1;
+    var int i;
+    loop i do
+        if {it1} == {resolutions.end()} then
             break;
         end
 
         // add resolution to the box
+        var _char_const_ptr str = _;
         {
-            std::ostringstream ostr;
-            ostr << it1->width << "x" << it1->height;
+            {
+                std::ostringstream ostr;
+                ostr << it1->width << "x" << it1->height;
+                @str = ostr.str().c_str();
+            }
         };
-        var char&& str = _XXX_PURE((char&&) _ostr.str().c_str());
-        var ChoiceItem&&? it = spawn ChoiceItem.build(right, str) in its1;
-        vec1 = []..vec1..[it];
+        spawn ChoiceItem(&right, str, i, &cb1) in its1;
 
-        if _fullscreen == *_it1 then
-            current1 = (_it1 - _resolutions.begin());
+        if {fullscreen} == {*it1} then
+            cb1.current = {it1 - resolutions.begin()};
         end
         {it1++;};
     end
-    var ChoiceBox c1 = ChoiceBox.build(right, &vec1, current1);
+    spawn ChoiceBox(&right, &its1, &cb1);
     spawn do
-        every v in c1.ok_changed do
-            { Size size_; };
-            if _sscanf((_char&&)&&vec1[v]!:value, "%dx%d", &&_size_.width, &&_size_.height) != 2 then
-                _log_error("failed to parse: %1%", &&vec1[v]!:value);
+        every cb1.go do
+            { static Size size_; };
+            if _sscanf(&&cb1.value[0] as _char_const_ptr, "%dx%d", {&size_.width}, {&size_.height}) != 2 then
+                _log_error("failed to parse: %1%", &&cb1.value[0] as _char_const_ptr);
             else
-                _config_manager.set_fullscreen_resolution(_size_);
+                _config_manager.set_fullscreen_resolution({size_});
             end
         end
     end
 
+#if 0
     left.top  = left.top + 32;
     right.top = right.top + 32;
 
@@ -214,6 +225,7 @@ code/await OptionMenu (void) -> void do
 #endif
     var ChoiceBox c2 = ChoiceBox.build(right, &vec2, current2);
     spawn do
+        var bool v;
         every v in c2.ok_changed do
             _config_manager.set_renderer(
                 _framebuffer_type_from_string((_char&&)&&vec2[v]!:value)
@@ -262,6 +274,7 @@ code/await OptionMenu (void) -> void do
     end
     var ChoiceBox c3 = ChoiceBox.build(right, &vec3, current3!);
     spawn do
+        var bool v;
         every v in c3.ok_changed do
             { static char* str; };
             _str := (_char&&)&&vec3[v]!:value;
@@ -286,6 +299,7 @@ code/await OptionMenu (void) -> void do
     var SliderBox s1 = SliderBox.build(right, 25,
                         _config_manager.get_master_volume());
     spawn do
+        var bool v;
         every v in s1.ok_changed do
             _config_manager.set_master_volume(v);
         end
@@ -299,6 +313,7 @@ code/await OptionMenu (void) -> void do
     var SliderBox s2 = SliderBox.build(right, 25,
                         _config_manager.get_sound_volume());
     spawn do
+        var bool v;
         every v in s2.ok_changed do
             _config_manager.set_sound_volume(v);
         end
@@ -312,6 +327,7 @@ code/await OptionMenu (void) -> void do
     var SliderBox s3 = SliderBox.build(right, 25,
                         _config_manager.get_music_volume());
     spawn do
+        var bool v;
         every v in s3.ok_changed do
             _config_manager.set_music_volume(v);
         end

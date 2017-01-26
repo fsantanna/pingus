@@ -18,20 +18,6 @@
 
 #include "pingus/pingus_main.hpp"
 
-void ceu_sys_log (int mode, long s) {
-    switch (mode) {
-        case 0:
-            printf("%s", (char*)s);
-            break;
-        case 1:
-            printf("%lX", s);
-            break;
-        case 2:
-            printf("%ld", s);
-            break;
-    }
-}
-
 #include "../../src/util/string_util.hpp"
 
 int main(int argc, char** argv)

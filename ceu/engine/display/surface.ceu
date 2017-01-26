@@ -59,7 +59,7 @@ do
     await FOREVER;
 end
 
-code/await Surface_from_name (var _char&& name,
+code/await Surface_from_name (var _char_const_ptr name,
                               var _ResourceModifier__Enum? mod)
                                 -> (var& Surface surface)
                                     -> FOREVER

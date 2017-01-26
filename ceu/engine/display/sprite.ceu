@@ -23,7 +23,7 @@ data Sprite with
     var int      frame       = 0;
 end
 
-code/await Sprite_from_name (var& Sprite sprite, var& Rect rect, var _char&& name) -> FOREVER do
+code/await Sprite_from_name (var& Sprite sprite, var& Rect rect, var _char_const_ptr name) -> FOREVER do
     var& Surface sfc;
     spawn Surface_from_name(name, {ResourceModifier::ROT0}) -> (&sfc);
 
