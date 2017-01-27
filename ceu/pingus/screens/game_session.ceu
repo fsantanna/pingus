@@ -11,39 +11,41 @@ native/pre do
     static ActionHolder* GLOBAL_ACTIONHOLDER = NULL;
 end
 
+#if 0
 #include "../goal_manager.ceu"
 #include "../world.ceu"
+#endif
 
-class GameSession with
-    var _PingusLevel& plf;
+code/await GameSession (var& _PingusLevel plf) -> void
 do
     var bool is_paused         = false;
     var bool is_fast_forwarded = false;
     var bool do_single_step    = false;
 
-    _GLOBAL_ACTIONHOLDER = _XXX_PURE({new ActionHolder}(this.plf));
-
-    _result.plf = _XXX_PURE(this.plf);
+    {
+        GLOBAL_ACTIONHOLDER = new ActionHolder(@plf);
+        result.plf = @plf;
+    }
 
     /// TODO: from "on_startup", called on creation and when popped back
-    if {globals::developer_mode} then
-        _log_info("Starting Music: %1%", this.plf.get_music());
+    if {globals::developer_mode} as bool then
+        _log_info("Starting Music: %1%", plf.get_music());
     end
-    if this.plf.get_music()=="none"
-    or this.plf.get_music().empty()
-    then
+    if plf.get_music()=="none" or ({@plf.get_music().empty()} as bool) then
         {Sound::PingusSound::stop_music();};
     else
-        call {Sound::PingusSound::play_music}(this.plf.get_music());
+        call {Sound::PingusSound::play_music}(plf.get_music());
     end
 
+await 1s;
+#if 0
     var PingusCounter counter = PingusCounter(0,0,0,0,
-                                    this.plf.get_number_of_pingus(),
-                                    this.plf.get_number_to_save());
+                                    plf.get_number_of_pingus(),
+                                    plf.get_number_to_save());
 
     var World world with
-        this.plf = &plf;
-        this.counter = &counter;
+        plf = &plf;
+        counter = &counter;
     end;
 
     par/or do
@@ -141,6 +143,7 @@ do
                         result.saved);
         SavegameManager::instance()->store(savegame);
     };
+#endif
 end
 
 #endif

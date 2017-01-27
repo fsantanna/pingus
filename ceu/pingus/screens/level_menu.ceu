@@ -38,8 +38,8 @@ do
     var ILevelUI levelui_ = _;
     levelui = &levelui_;
 
-    var float xc = {Display::get_width()}  / 2;
-    var float yc = {Display::get_height()} / 2;
+    var int xc = {Display::get_width()}  / 2;
+    var int yc = {Display::get_height()} / 2;
 
     spawn Wood();
 
@@ -140,8 +140,8 @@ do
     var& IRectComponent component;
     spawn RectComponent(&rect) -> (&component);
 
-    var float x = rect.left;
-    var float y = rect.top;
+    var int x = rect.left;
+    var int y = rect.top;
 
     event bool pse;
     par do
@@ -235,7 +235,7 @@ do
         watching LevelUI(levelset.get_level_count(), LEVEL_ITEMS_PER_PAGE, LEVEL_ITEM_HEIGHT)
                     -> (&ui)
         do
-            var float yy  = 50+15;
+            var int yy  = 50+15;
 
             var Rect r1 = val Rect(0, yy, 0, 0);
             spawn Sprite_from_name(_, &r1, {@levelset.get_image()}.c_str());
@@ -277,8 +277,8 @@ do
     var& IRectComponent component;
     spawn RectComponent(&rect) -> (&component);
 
-    var float x = rect.left;
-    var float y = rect.top;
+    var int x = rect.left;
+    var int y = rect.top;
 
     event bool pse;
     par do
