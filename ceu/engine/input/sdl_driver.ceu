@@ -147,15 +147,15 @@ code/await SDL_Driver (void) -> FOREVER do
                 Input__ButtonEvent but;
 };
                 if key.keysym.sym == _SDLK_p then
-                    _but.name = _XXX_PURE({Input::PAUSE_BUTTON});
+                    _but.name = {Input::PAUSE_BUTTON};
                 else/if key.keysym.sym == _SDLK_f then
-                    _but.name = _XXX_PURE({Input::FAST_FORWARD_BUTTON});
+                    _but.name = {Input::FAST_FORWARD_BUTTON};
                 else/if key.keysym.sym == _SDLK_s then
-                    _but.name = _XXX_PURE({Input::SINGLE_STEP_BUTTON});
+                    _but.name = {Input::SINGLE_STEP_BUTTON};
                 else/if key.keysym.sym == _SDLK_a then
-                    _but.name = _XXX_PURE({Input::ARMAGEDDON_BUTTON});
+                    _but.name = {Input::ARMAGEDDON_BUTTON};
                 else/if key.keysym.sym == _SDLK_ESCAPE then
-                    _but.name = _XXX_PURE({Input::ESCAPE_BUTTON});
+                    _but.name = {Input::ESCAPE_BUTTON};
                 else
                     ok = false;
                 end

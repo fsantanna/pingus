@@ -25,101 +25,100 @@ end
 
 ////////////////////////////////////////////////////////////////////////////////
 
-class LevelUI with
-    var   int items_total;
-    var   int items_per_page;
-    var   int item_height;
+data ILevelUI with
     var   int item_at_top = 0;
     event int ok;
     event int go;
-    function (int total, int per, int height)=>LevelUI build;
+end
+
+code/await LevelUI (var int items_total, var int items_per_page, var int item_height)
+                    -> (var& ILevelUI levelui)
+                        -> int
 do
-    function (int total, int per, int height)=>LevelUI build do
-        this.items_total    = total;
-        this.items_per_page = per;
-        this.item_height    = height;
-    end
+    var ILevelUI levelui_ = _;
+    levelui = &levelui_;
 
     var float xc = {Display::get_width()}  / 2;
     var float yc = {Display::get_height()} / 2;
 
-    var Wood _;
+    spawn Wood();
 
-    var Rect rect = Rect(xc, yc, 0, 0);
-    var Sprite _ = Sprite.build_name(&rect, "core/menu/blackboard");
+    var Rect rect = val Rect(xc, yc, _,_);
+    spawn Sprite_from_name(_, &rect, "core/menu/blackboard");
 
-    var SurfaceButton cancel with
-        this.x = xc - 300;
-        this.y = yc + 200;
-        this.button         = "core/start/back";
-        this.button_pressed = "core/start/back_clicked";
-        this.button_over    = "core/start/back_hover";
-    end;
+    var& IRectComponent cancel;
+    var Rect cancel_r = val Rect(xc-300, yc+200, 0, 0);
+    spawn SurfaceButton(&cancel_r,
+                        "core/start/back",
+                        "core/start/back_clicked",
+                        "core/start/back_hover")
+                            -> (&cancel);
     spawn do
-        every REDRAW do
+        every SDL_REDRAW do
             call {Fonts::chalk_normal}.render(
                 _origin_top_center,
-                cancel.x + 55, cancel.y,
+                cancel_r.left + 55, cancel_r.top,
                 __("Back"),
                 *{Display::s_framebuffer}
             );
         end
     end
 
-    var SurfaceButton prv with
-        this.x = xc + 280;
-        this.y = yc - 48 - 12;
-        this.button         = "core/menu/arrow_up";
-        this.button_pressed = "core/menu/arrow_up_pressed";
-        this.button_over    = "core/menu/arrow_up_hover";
-    end;
+    var& IRectComponent prv;
+    var Rect prv_r = val Rect(xc+280, yc-48-12, _,_);
+    spawn SurfaceButton(&prv_r,
+                        "core/menu/arrow_up",
+                        "core/menu/arrow_up_pressed",
+                        "core/menu/arrow_up_hover")
+                            -> (&prv);
 
-    var SurfaceButton nxt with
-        this.x = xc + 280;
-        this.y = yc +  12;
-        this.button         = "core/menu/arrow_down";
-        this.button_pressed = "core/menu/arrow_down_pressed";
-        this.button_over    = "core/menu/arrow_down_hover";
-    end;
+    var& IRectComponent nxt;
+    var Rect nxt_r = val Rect(xc+280, yc+12, _,_);
+    spawn SurfaceButton(&nxt_r,
+                        "core/menu/arrow_down",
+                        "core/menu/arrow_down_pressed",
+                        "core/menu/arrow_down_hover")
+                            -> (&nxt);
 
     // terminate on ESCAPE or cancel click
 
     par do
-        every cancel.component.on_pointer_enter do
+        every cancel.on_pointer_enter do
             call {Sound::PingusSound::play_sound}("tick");
         end
     with
-        await cancel.component.on_click;
+        await cancel.on_click;
         escape -1;
     with
-        every prv.component.on_pointer_enter do
+        every prv.on_pointer_enter do
             call {Sound::PingusSound::play_sound}("tick");
         end
     with
-        every nxt.component.on_pointer_enter do
+        every nxt.on_pointer_enter do
             call {Sound::PingusSound::play_sound}("tick");
         end
     with
         par do
-            every prv.component.on_click do
-                if this.item_at_top > 0 then
-                    this.item_at_top = item_at_top - 1;
-                    emit this.go => this.item_height;
+            every prv.on_click do
+                if levelui_.item_at_top > 0 then
+                    levelui_.item_at_top = levelui_.item_at_top - 1;
+                    emit levelui_.go(item_height);
                 end
             end
         with
-            every nxt.component.on_click do
-                if this.item_at_top < this.items_total-this.items_per_page then
-                    this.item_at_top = item_at_top + 1;
-                    emit this.go => -this.item_height;
+            every nxt.on_click do
+                if levelui_.item_at_top < items_total-items_per_page then
+                    levelui_.item_at_top = levelui_.item_at_top + 1;
+                    emit levelui_.go(-item_height);
                 end
             end
         with
+            var _Input__ButtonEvent&& but;
             every but in ON_BUTTON_PRESSED do
                 if but:name == {Input::ACTION_DOWN_BUTTON} then
-                    emit nxt.component.on_click;
+                    emit nxt.on_click;
                 else/if but:name == {Input::ACTION_UP_BUTTON} then
-                    emit prv.component.on_click;
+                    emit prv.on_click;
                 end
             end
         end
@@ -135,23 +134,12 @@ end
 
 ////////////////////////////////////////////////////////////////////////////////
 
-class Level with
-    var _Levelset& levelset;
-    var LevelUI& ui;
-    var int      i;
-    var Rect     rect;
-    function (_Levelset& levelset, LevelUI& ui, int i, Rect rect)=>Level build;
+code/await Level (var& _Levelset levelset, var& ILevelUI ui, var int i, var Rect rect)
+                    -> FOREVER
 do
-    function (_Levelset& levelset, LevelUI& ui, int i, Rect rect)=>Level build do
-        this.levelset = &levelset;
-        this.ui       = &ui;
-        this.i        = i;
-        this.rect     = rect;
-    end
+    var& IRectComponent component;
+    spawn RectComponent(&rect) -> (&component);
 
-    var RectComponent component with
-        this.rect = &outer.rect;
-    end;
     var float x = rect.left;
     var float y = rect.top;
 
@@ -159,17 +147,18 @@ do
     par do
         pause/if pse do
             par do
-                if this.levelset.get_level(i):accessible then
+/// TODO
+                if {@levelset.get_level(i)}:accessible as bool then
                     par do
                         every component.on_click do
-                            emit this.ui.ok => this.i;
+                            emit ui.ok(i);
                         end
                     with
                         // draw background highlight mark
                         loop do
                             await component.on_pointer_enter;
-                            var Rect r = Rect(60+20, y, 0, 0);
-                            var Sprite _ = Sprite.build_name(&r, "core/menu/marker2");
+                            var Rect r = val Rect(60+20, y, 0, 0);
+                            spawn Sprite_from_name(_, &r, "core/menu/marker2");
                             await component.on_pointer_leave;
                         end
                     end
@@ -177,32 +166,39 @@ do
                     await FOREVER;
                 end
             with
-                // draw icon
-                if (not this.levelset.get_level(i):accessible) then
-                    var Rect r = Rect(x, y, 0, 0);
-                    do Sprite.build_name(&r, "core/menu/locked_small");
-                else/if this.levelset.get_level(i):finished then
-                    var Rect r = Rect(x, y, 0, 0);
-                    do Sprite.build_name(&r, "core/menu/checkbox_marked_small");
+                // load checkbox
+                var _char&& name;
+                if not ({@levelset.get_level(i)}:accessible as bool) then
+                    name = "core/menu/locked_small";
+                else/if {@levelset.get_level(i)}:finished as bool then
+                    name = "core/menu/checkbox_marked_small";
                 else
-                    var Rect r = Rect(x, y, 0, 0);
-                    do Sprite.build_name(&r, "core/menu/checkbox_small");
+                    name = "core/menu/checkbox_small";
                 end
-            with
-                every REDRAW do
+                var& Surface sfc;
+                spawn Surface_from_name(name, _)
+                        -> (&sfc);
+
+                every SDL_REDRAW do
+                    // draw checkbox
+                    call {Display::s_framebuffer}:draw_surface(
+                        sfc.framebuffer,
+                        _Vector2i(x, y)
+                    );
+
                     // draw levelname
-                    if {globals::developer_mode} then
+                    if {globals::developer_mode} as bool then
                         call {Fonts::chalk_normal}.render(
                             _origin_top_left,
                             x+40, y+4,
-                            __(this.levelset.get_level(i):plf.get_resname()),
+                            __({@levelset.get_level(i)}:plf.get_resname()),
                             *{Display::s_framebuffer}
                         );
                     else
                         call {Fonts::chalk_normal}.render(
                             _origin_top_left,
                             x+40, y+4,
-                            __(this.levelset.get_level(i):plf.get_levelname()),
+                            __({@levelset.get_level(i)}:plf.get_levelname()),
                             *{Display::s_framebuffer}
                         );
                     end
@@ -211,12 +207,12 @@ do
         end
     with
         loop do
-            if this.i>=ui.item_at_top and
-               this.i<ui.item_at_top+LEVEL_ITEMS_PER_PAGE
+            if i>=ui.item_at_top and
+               i<ui.item_at_top+LEVEL_ITEMS_PER_PAGE
             then
-                emit pse => false;
+                emit pse(false);
             else
-                emit pse => true;
+                emit pse(true);
             end
             var int v = await ui.go;
             rect.top = rect.top + v;
@@ -227,21 +223,60 @@ end
 
 ////////////////////////////////////////////////////////////////////////////////
 
-class Levelset with
-    var LevelUI& ui;
-    var int      i;
-    var Rect     rect;
-    function (LevelUI& ui, int i, Rect rect)=>Levelset build;
+code/await LevelSelector (var& _Levelset levelset) -> int
 do
-    function (LevelUI& ui, int i, Rect rect)=>Levelset build do
-        this.ui   = &ui;
-        this.i    = i;
-        this.rect = rect;
-    end
+    vector[] byte title = [] .. ({@levelset.get_title()}.c_str() as _char&&);
+    vector[] byte image = [] .. ({@levelset.get_image()}.c_str() as _char&&);
+    var int count = levelset.get_level_count();
 
-    var RectComponent component with
-        this.rect = &outer.rect;
-    end;
+    //levelset.refresh();
+    var& ILevelUI ui;
+    var int? ret =
+        watching LevelUI(levelset.get_level_count(), LEVEL_ITEMS_PER_PAGE, LEVEL_ITEM_HEIGHT)
+                    -> (&ui)
+        do
+            var float yy  = 50+15;
+
+            var Rect r1 = val Rect(0, yy, 0, 0);
+            spawn Sprite_from_name(_, &r1, {@levelset.get_image()}.c_str());
+                r1.left = 60 + 680/2 - r1.width/2 - 275;
+
+            var Rect r2 = val Rect(0, yy, 0, 0);
+            spawn Sprite_from_name(_, &r2, {@levelset.get_image()}.c_str());
+                r2.left = 60 + 680/2 - r2.width/2 + 275;
+
+            pool[] Level levels;
+            var Rect rect = val Rect(60+50, 50+112, 680-90, LEVEL_ITEM_HEIGHT-1);
+            var int i;
+            loop i in [0->levelset.get_level_count()[ do
+                spawn Level(&levelset, &ui, i, rect) in levels;
+                rect.top = rect.top + LEVEL_ITEM_HEIGHT;
+            end
+
+            par do
+                var int v = await ui.ok;
+                escape v;   // always >= 0
+            with
+                every SDL_REDRAW do
+                    call {Fonts::chalk_large}.render(
+                        _origin_top_left,
+                        680/2, 50+10,
+                        __(levelset.get_title()),
+                        *{Display::s_framebuffer}
+                    );
+                end
+            end
+        end;
+    escape ret!;
+end
+
+////////////////////////////////////////////////////////////////////////////////
+
+code/await Levelset (var& ILevelUI ui, var int i, var Rect rect) -> FOREVER
+do
+    var& IRectComponent component;
+    spawn RectComponent(&rect) -> (&component);
+
     var float x = rect.left;
     var float y = rect.top;
 
@@ -250,46 +285,51 @@ do
         pause/if pse do
             par do
                 every component.on_click do
-                    emit this.ui.ok => this.i;
+                    emit ui.ok(i);
                 end
             with
                 // draw background highlight mark
                 loop do
                     await component.on_pointer_enter;
-                    var Rect r = Rect(60+15, y-5, 0, 0);
-                    var Sprite _ = Sprite.build_name(&r, "core/menu/marker");
+                    var Rect r = val Rect(60+15, y-5, _,_);
+                    spawn Sprite_from_name(_, &r, "core/menu/marker");
                     await component.on_pointer_leave;
                 end
             with
-                var Rect r = Rect(x+10, y, 0, 0);
-                var Sprite _ = Sprite.build_name(&r,
-                                    (_char&&)_XXX_PURE(_levelsets[i]:get_image().c_str()));
-                every REDRAW do
+                var& Surface sfc;
+                spawn Surface_from_name({levelsets[@i]->get_image().c_str()}, _)
+                        -> (&sfc);
+                every SDL_REDRAW do
+                    call {Display::s_framebuffer}:draw_surface(
+                        sfc.framebuffer,
+                        _Vector2i(x+10, y)
+                    );
+
                     call {Fonts::chalk_normal}.render(
                         _origin_top_left,
                         rect.left+105, 15+rect.top,
-                        __(_levelsets[i]:get_title()),
+                        {_(levelsets[@i]->get_title())},
                         *{Display::s_framebuffer}
                     );
 
                     call {Fonts::chalk_normal}.render(
                         _origin_top_left,
                         rect.left+105, 40+rect.top,
-                        __(_levelsets[i]:get_description()),
+                        {_(levelsets[@i]->get_description())},
                         *{Display::s_framebuffer}
                     );
 
                     call {Fonts::chalk_normal}.render(
                         _origin_top_right,
                         60+rect.width, 15+rect.top,
-                        {(boost::format("%1% %2%%%") % _("Solved:") % levelsets[THIS(CEU_Levelset)->i]->get_completion()).str()},
+                        {(boost::format("%1% %2%%%") % _("Solved:") % levelsets[@i]->get_completion()).str()},
                         *{Display::s_framebuffer}
                     );
 
                     call {Fonts::chalk_normal}.render(
                         _origin_top_right,
                         60+rect.width, 40+rect.top,
-                        {(boost::format("%1% %2%") % levelsets[THIS(CEU_Levelset)->i]->get_level_count() % _("levels")).str()},
+                        {(boost::format("%1% %2%") % levelsets[@i]->get_level_count() % _("levels")).str()},
                         *{Display::s_framebuffer}
                     );
                 end
@@ -297,12 +337,12 @@ do
         end
     with
         loop do
-            if this.i>=ui.item_at_top and
-               this.i<ui.item_at_top+LEVELSET_ITEMS_PER_PAGE
+            if i>=ui.item_at_top and
+               i<ui.item_at_top+LEVELSET_ITEMS_PER_PAGE
             then
-                emit pse => false;
+                emit pse(false);
             else
-                emit pse => true;
+                emit pse(true);
             end
             var int v = await ui.go;
             rect.top = rect.top + v;
@@ -311,58 +351,7 @@ do
     end
 end
 
-////////////////////////////////////////////////////////////////////////////////
-
-class LevelSelector with
-    var _Levelset& levelset;
-do
-    var char[] title = [] .. (_char&&)this.levelset.get_title().c_str();
-    var char[] image = [] .. (_char&&)this.levelset.get_image().c_str();
-    var int count = this.levelset.get_level_count();
-
-    //this.levelset.refresh();
-    var LevelUI ui = LevelUI.build(outer.levelset.get_level_count(),
-                                   LEVEL_ITEMS_PER_PAGE, LEVEL_ITEM_HEIGHT);
-
-    var float yy  = 50+15;
-
-    var Rect    r1 = Rect(0, yy, 0, 0);
-    var Sprite s1 = Sprite.build_name(&r1,
-                        (_char&&)_XXX_PURE(outer.levelset.get_image().c_str()));
-        r1.left = 60 + 680/2 - s1.get_width()/2 - 275;
-
-    var Rect    r2 = Rect(0, yy, 0, 0);
-    var Sprite s2 = Sprite.build_name(&r2,
-                        (_char&&)_XXX_PURE(outer.levelset.get_image().c_str()));
-        r2.left = 60 + 680/2 - s2.get_width()/2 + 275;
-
-    pool Level[] levels;
-    var Rect rect = Rect(60+50, 50+112, 680-90, LEVEL_ITEM_HEIGHT-1);
-    loop i in this.levelset.get_level_count() do
-        spawn Level.build(&outer.levelset, &ui, i, rect) in levels;
-        rect.top = rect.top + LEVEL_ITEM_HEIGHT;
-    end
-
-    par do
-        var int v = await ui;
-        escape v;   // always -1
-    with
-        var int v = await ui.ok;
-        escape v;   // always >= 0
-    with
-        every REDRAW do
-            call {Fonts::chalk_large}.render(
-                _origin_top_left,
-                680/2, 50+10,
-                __(this.levelset.get_title()),
-                *{Display::s_framebuffer}
-            );
-        end
-    end
-end
-
-class LevelsetSelector with
-do
+code/await LevelsetSelector (void) -> int do
     {
         static auto directory = Pathname("levelsets", Pathname::DATA_PATH).opendir("*.levelset");
         directory = Pathname("levelsets", Pathname::DATA_PATH).opendir("*.levelset");
@@ -389,61 +378,57 @@ do
         std::sort(levelsets.begin(), levelsets.end(), LevelsetPrioritySorter());
     };
 
-    var LevelUI ui = LevelUI.build(_levelsets.size(),
-                                   LEVELSET_ITEMS_PER_PAGE, LEVELSET_ITEM_HEIGHT);
+    var& ILevelUI ui;
+    var int? ret =
+        watching LevelUI({levelsets.size()}, LEVELSET_ITEMS_PER_PAGE, LEVELSET_ITEM_HEIGHT)
+                    -> (&ui)
+        do
+            pool[] Levelset sets;
+            var Rect rect = val Rect(60+30, 50+70, 680-90, LEVELSET_ITEM_HEIGHT-1);
+            var int i;
+            loop i in [0 -> {levelsets.size()}[ do
+                spawn Levelset(&ui, i, rect) in sets;
+                rect.top = rect.top + LEVELSET_ITEM_HEIGHT;
+            end
 
-    pool Levelset[] sets;
-    var Rect rect = Rect(60+30, 50+70, 680-90, LEVELSET_ITEM_HEIGHT-1);
-    loop i in _levelsets.size() do
-        spawn Levelset.build(&ui, i, rect) in sets;
-        rect.top = rect.top + LEVELSET_ITEM_HEIGHT;
-    end
-
-    par do
-        var int v = await ui;
-        escape v;   // always -1
-    with
-        var int v = await ui.ok;
-        escape v;   // always >= 0
-    with
-        every REDRAW do
-            call {Fonts::chalk_large}.render(
-                _origin_top_center,
-                60+680/2, 50+10,
-                __("Levelsets"),
-                *{Display::s_framebuffer}
-            );
-        end
-    end
+            par do
+                var int v = await ui.ok;
+                escape v;   // always >= 0
+            with
+                every SDL_REDRAW do
+                    call {Fonts::chalk_large}.render(
+                        _origin_top_center,
+                        60+680/2, 50+10,
+                        __("Levelsets"),
+                        *{Display::s_framebuffer}
+                    );
+                end
+            end
+        end;
+    escape ret!;
 end
 
 ////////////////////////////////////////////////////////////////////////////////
 
-class LevelMenu with
-do
+code/await LevelMenu (void) -> void do
     loop do
-        var int v = do LevelsetSelector;
+        var int v = await LevelsetSelector();
         if v == -1 then
             break;
         end
-        var _Levelset&? levelset;
-        finalize
-            levelset = &_XXX_NOHOLD(_levelsets[v].get());
-        with
-            // TODO
-        end
-        _current_levelset = _levelsets[v];
+        var&? _Levelset levelset = &{levelsets[@v]}.get() finalize (levelset) with end;
+        {current_levelset = levelsets[@v];}
         loop do
-            var int v = do LevelSelector with
-                            this.levelset = &levelset!;
-                        end;
+            var int v = await LevelSelector(&levelset);
             if v == -1 then
                 break;
             end
-            do Start_Game_Result_Loop with
+#if 0
+            await Start_Game_Result_Loop with
                 this.plf    = &_XXX_PURE(&&levelset!.get_level(v):plf);
                 this.result = &_XXX_PURE(&&_result);
             end;
+#endif
         end
     end
 end

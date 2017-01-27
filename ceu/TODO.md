@@ -1,3 +1,4 @@
+- recolocar option_menu, languages
 - TODO: names in bridger?
 - TODO: pause p/ world pause
 - BUG: worldmap edge lines on dev mode

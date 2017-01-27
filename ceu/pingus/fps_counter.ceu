@@ -19,7 +19,7 @@ code/await FPS_Counter (void) -> FOREVER do
             {
                 {
                     std::ostringstream str;
-                    str << THIS(FPS_Counter)->count << " fps";
+                    str << @(count) << " fps";
                     fps_string = str.str();
                 }
             };

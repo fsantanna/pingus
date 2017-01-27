@@ -36,11 +36,11 @@ native/pos do
     ##include "pingus/resource.hpp"
     ##include "pingus/plf_res_mgr.hpp"
 
-    ##define XXX_PURE(x) x
-    ##define XXX_NOHOLD(x) x
-    ##define XXX_PTR2REF(x) x
-    ##define THIS(tp) ((tceu_code_mem_####tp*)_ceu_mem)
-    ##define THIS_F(tp) ((tp*)__ceu_this)
+    //##define XXX_PURE(x) x
+    //##define XXX_NOHOLD(x) x
+    //##define XXX_PTR2REF(x) x
+    //##define THIS(tp) ((tceu_code_mem_####tp*)_ceu_mem)
+    //##define THIS_F(tp) ((tp*)__ceu_this)
 end
 native/pure _Resource__load_sprite_desc, _Pathname;
 native/plain _std__string, _Vector3f, _Vector2i, _Color, _Rect, _Size;
@@ -110,6 +110,7 @@ end
 event void go_options;
 
 #include "pingus/screens/pingus_menu.ceu"
+#include "pingus/screens/level_menu.ceu"
 #include "pingus/screens/option_menu.ceu"
 
 #if 0
@@ -254,8 +255,6 @@ do
     end
 end
 
-#include "pingus/screens/level_menu.ceu"
-
 native/pre do
     ##include "pingus/result.hpp"
     static PingusLevel plf;
@@ -385,7 +384,7 @@ with
                 else/if opt == {PINGUSMENU_EDITOR} then
                     _ceu_dbg_assert({!"NOT PORTED"});
                 else/if opt == {PINGUSMENU_LEVELSETS} then
-                    ///do LevelMenu;
+                    await LevelMenu();
                 else/if opt == {PINGUSMENU_EXIT} then
                     escape 0;
                 else
