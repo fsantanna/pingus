@@ -33,8 +33,7 @@ code/await OptionMenu (void) -> void do
                             );
 
     spawn Wood();
-    var Sprite sprite = _;
-    spawn Sprite_from_name(&sprite, &rect, "core/menu/blackboard");
+    spawn Sprite_from_name(_, &rect, "core/menu/blackboard");
 
     var int x_offset = ({Display::get_width()}  - 800) / 2;
     var int y_offset = ({Display::get_height()} - 600) / 2;
@@ -262,6 +261,8 @@ code/await OptionMenu (void) -> void do
         {
             const char* str3;
             str3 = it3->get_name().c_str();
+// TODO: crashes if removes printf
+printf("str3.1 = %s\n", str3);
             m_language_map[str3] = *it3;
         }
         spawn ChoiceItem(&r3, {str3}, i, &cb3) in its3;

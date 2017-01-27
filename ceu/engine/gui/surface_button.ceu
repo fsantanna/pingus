@@ -17,19 +17,17 @@ do
 
     loop do
         do
-            var Sprite sprite = _;
-            spawn Sprite_from_name(&sprite, &rect, button);
+            spawn Sprite_from_name(_, &rect, button);
             await component_.on_pointer_enter;
         end
         watching component_.on_pointer_leave do
             loop do
                 do
-                    var Sprite sprite = _;
-                    spawn Sprite_from_name(&sprite, &rect, button_over);
+                    spawn Sprite_from_name(_, &rect, button_over);
                     await component_.on_primary_button_pressed;
                 end
                 var Sprite sprite = _;
-                spawn Sprite_from_name(&sprite, &rect, button_pressed);
+                spawn Sprite_from_name(_, &rect, button_pressed);
                 await ON_PRIMARY_BUTTON_RELEASED;
             end
         end
