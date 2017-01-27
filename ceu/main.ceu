@@ -1,6 +1,6 @@
 #include "c.ceu"
 
-native/plain _char_const_ptr;
+native/plain _char_const_ptr, _u8;
 native
     _framebuffer_type_from_string,
     _origin_top_left,
@@ -107,6 +107,7 @@ end
 #include "pingus/fps_counter.ceu"
 #include "pingus/config_manager.ceu"
 
+#include "pingus/screens/pingus_menu.ceu"
 #include "pingus/screens/option_menu.ceu"
 
 #if 0
@@ -221,13 +222,10 @@ var Vector2i offset = Vector2i(0,0);
 
 var char[] worldmap_return_filename;
 
-event bool go_pause;
-
 #include "pingus/global_event.ceu"
 #include "pingus/worldmap/worldmap_screen.ceu"
 #include "pingus/screens/credits.ceu"
 #include "pingus/screens/story_screen.ceu"
-#include "pingus/screens/pingus_menu.ceu"
 #include "pingus/screens/start_screen.ceu"
 #include "pingus/screens/result_screen.ceu"
 #include "pingus/screens/game_session.ceu"
@@ -271,6 +269,7 @@ end;
 #endif
 
 event void go_options;
+event bool go_pause;
 
 var _CommandLineOptions&& cmd = await MAIN;
 _cmd = *cmd;
@@ -280,16 +279,16 @@ spawn SDL_Driver();
 par/or do
     await SDL_QUIT;
 with
-#if 0
     pause/if go_pause do
+#if 0
         if _cmd.rest.is_set() then
             _filename = _Pathname(_cmd.rest.get(), {Pathname::SYSTEM_PATH});
             if {StringUtil::has_suffix(cmd.rest.get(), ".pingus-demo")} then
 // DEMO
-                _assert(not "NOT PORTED");
+                _ceu_dbg_assert({!"NOT PORTED"});
             else/if {StringUtil::has_suffix(cmd.rest.get(), ".font")} then
 // FONT
-                _assert(not "NOT PORTED");
+                _ceu_dbg_assert({!"NOT PORTED"});
             else/if {StringUtil::has_suffix(cmd.rest.get(), ".credits")} then
 // CREDITS
                 do Credits with
@@ -328,7 +327,7 @@ with
                             this.result = &_XXX_PURE(&&_result);
                         end;
                     else
-                        _assert(ret == _WORLDMAP_RETURN_EXIT);
+                        _ceu_dbg_assert(ret == _WORLDMAP_RETURN_EXIT);
                         escape 0;
                     end
                 end
@@ -376,36 +375,36 @@ with
                 end;
             end
         else
+#endif
 // MENU
             loop do
-                var int opt = do PingusMenu;
-                if opt == _PINGUSMENU_STORY then
-                    _assert(not "NOT PORTED");
-                else/if opt == _PINGUSMENU_EDITOR then
-                    _assert(not "NOT PORTED");
-                else/if opt == _PINGUSMENU_LEVELSETS then
-                    do LevelMenu;
-                else/if opt == _PINGUSMENU_EXIT then
+                var int opt = await PingusMenu();
+                if opt == {PINGUSMENU_STORY} then
+                    _ceu_dbg_assert({!"NOT PORTED"});
+                else/if opt == {PINGUSMENU_EDITOR} then
+                    _ceu_dbg_assert({!"NOT PORTED"});
+                else/if opt == {PINGUSMENU_LEVELSETS} then
+                    ///do LevelMenu;
+                else/if opt == {PINGUSMENU_EXIT} then
                     escape 0;
                 else
-                    _assert(not "bug found");
+                    _ceu_dbg_assert({!"bug found"});
                 end
             end
+#if 0
         end
-    end
-#else
-    await FOREVER;
 #endif
+    end
 with
 // OPTIONS
     loop do
-#if 0
         watching go_options do
             loop do
 // TODO
                 var _SDL_KeyboardEvent&& key = await SDL_KEYDOWN;
-                var _u8&& keystate = _XXX_PURE(_SDL_GetKeyState(null));
-                var bool has_ctrl = keystate[_SDLK_LCTRL] or keystate[_SDLK_RCTRL];
+                var _u8&& keystate = _SDL_GetKeyState(null);
+                var bool has_ctrl = (keystate[_SDLK_LCTRL] as bool) or
+                                    (keystate[_SDLK_RCTRL] as bool);
                 if key:keysym.sym == _SDLK_F5
                 or key:keysym.sym == _SDLK_o  and has_ctrl
                 then
@@ -413,10 +412,11 @@ with
                 end
             end
         end
-        emit go_pause => true;
-#endif
+        emit go_pause(true);
+        do finalize with
+            emit go_pause(false);
+        end
         await OptionMenu();
-        ///emit go_pause => false;
     end
 with
 #if 0

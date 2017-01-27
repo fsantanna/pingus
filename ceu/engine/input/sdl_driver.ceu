@@ -5,15 +5,36 @@ input void SDL_QUIT;
 input void SDL_REDRAW;
 input int  SDL_DT;
 
-native/plain _SDL_MouseButtonEvent, _SDL_MouseMotionEvent, _SDL_KeyboardEvent;
-native/plain _SDL_BUTTON_LEFT;
-native/plain _SDLK_p, _SDLK_f, _SDLK_s, _SDLK_a, _SDLK_ESCAPE;
-native/plain _SDL_GRAB_ON, _SDL_GRAB_OFF;
+native/plain
+    _SDL_MouseButtonEvent,
+    _SDL_MouseMotionEvent,
+    _SDL_KeyboardEvent,
+;
+
+native/const
+    _SDL_BUTTON_LEFT,
+    _SDLK_a,
+    _SDLK_F5,
+    _SDLK_f,
+    _SDLK_o,
+    _SDLK_p,
+    _SDLK_s,
+    _SDLK_ESCAPE,
+    _SDLK_LCTRL,
+    _SDLK_RCTRL,
+    _SDL_GRAB_ON,
+    _SDL_GRAB_OFF,
+;
+
+native/nohold
+    _SDL_GetKeyState,
+;
 
 native
     _load_framebuffer_sdl_surface,
     _SDL_WM_GrabInput,
 ;
+
 input _SDL_MouseButtonEvent&& SDL_MOUSEBUTTONDOWN;
 input _SDL_MouseButtonEvent&& SDL_MOUSEBUTTONUP;
 input _SDL_MouseMotionEvent&& SDL_MOUSEMOTION;
