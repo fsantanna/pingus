@@ -107,6 +107,8 @@ end
 #include "pingus/fps_counter.ceu"
 #include "pingus/config_manager.ceu"
 
+event void go_options;
+
 #include "pingus/screens/pingus_menu.ceu"
 #include "pingus/screens/option_menu.ceu"
 
@@ -268,7 +270,6 @@ var GlobalEvent _ with
 end;
 #endif
 
-event void go_options;
 event bool go_pause;
 
 var _CommandLineOptions&& cmd = await MAIN;

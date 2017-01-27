@@ -4,51 +4,45 @@
 #include "../../engine/display/sprite.ceu"
 #include "../../engine/gui/rect_component.ceu"
 
-class MenuButton with
-    var float x, y;
-    var char[] text, hint;
-    event void ok_clicked;
-
-    function (float x, float y, _char&& text, _char&& hint)=>MenuButton build;
+code/await MenuButton (var float x, var float y, var _char_const_ptr text, var _char_const_ptr hint)
+                        -> (event& void ok_clicked)
+                            -> FOREVER
 do
-    function (float x, float y, _char&& text, _char&& hint)=>MenuButton build do
-        this.x    = x;
-        this.y    = y;
-        this.text = []..text;
-        this.hint = []..hint;   // TODO: not used anylonger?
-    end
+    event void ok_clicked_;
+    ok_clicked = &ok_clicked_;
 
-    var Rect r1 = Rect(x, y, 0, 0);
-    var Sprite bg = Sprite.build_name(&r1, "core/menu/menuitem");
+    var Rect r1 = val Rect(x, y, 0, 0);
+    var& Sprite bg;
+    spawn Sprite_from_name(_, &r1, "core/menu/menuitem") -> (&bg);
 
-    var Rect r2 = Rect(x-bg.get_width()/2, y-bg.get_height()/2,
-                       bg.get_width(), bg.get_height());
-    var RectComponent component with
-        this.rect = &r2;
-    end;
+    var Rect r2 = val Rect(x-bg.frame_size.width/2, y-bg.frame_size.height/2,
+                           bg.frame_size.width, bg.frame_size.height);
+
+    var& IRectComponent component;
+    spawn RectComponent(&r2) -> (&component);
 
     par do
         every component.on_click do
-            emit this.ok_clicked;
+            emit ok_clicked_;
         end
     with
         loop do
             await component.on_pointer_enter;
             {Sound::PingusSound::play_sound ("tick");};
             do
-                var Sprite _ = Sprite.build_name(&r1, "core/menu/menuitem_highlight");
+                spawn Sprite_from_name(_, &r1, "core/menu/menuitem_highlight");
                 await component.on_pointer_leave;
             end
         end
     with
-        every REDRAW do
+        every SDL_REDRAW do
             call {Fonts::chalk_large}.render(
                 _origin_top_center,
                 r1.left,
                 r1.top - 28,
-                (_char&&)&&this.text,
+                text,
                 *{Display::s_framebuffer}
-            ) finalize with end;
+            );
         end
     end
 end

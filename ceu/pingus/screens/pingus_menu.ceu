@@ -2,7 +2,7 @@
 #define _PINGUSMENU_CEU
 
 #include "../../engine/display/sprite.ceu"
-//#include "../components/menu_button.ceu"
+#include "../components/menu_button.ceu"
 
 native/pre do
     enum {
@@ -86,55 +86,49 @@ end
 code/await PingusMenu (void) -> int do
     spawn PingusMenuBackground();
 
-#if 1
-    await 1s;
-    escape 0;
-#else
-    var Size size = Size({Display::get_width()}, {Display::get_height()});
-    var Rect rect = Rect(size.width/2, size.height/2, 0, 0);
-    var Sprite logo = Sprite.build_name(&rect, "core/misc/logo");
-        rect.left = rect.left - logo.get_width()/2;
-        rect.top  = rect.top  - 280;
+    var Size size = val Size({Display::get_width()}, {Display::get_height()});
+    var Rect rect = val Rect(size.width/2, size.height/2, 0, 0);
+    var& Sprite logo;
+    spawn Sprite_from_name(_,&rect,"core/misc/logo") -> (&logo);
+    rect.left = rect.left - logo.frame_size.width/2;
+    rect.top  = rect.top  - 280;
 
     {Sound::PingusSound::play_music("pingus-1.it");};
 
-    var MenuButton b_story =
-        MenuButton.build(size.width/2-125, size.height/2-20, "Story", "");
-    var MenuButton b_editor =
-        MenuButton.build(size.width/2+125, size.height/2-20, "Editor", "");
-    var MenuButton b_options =
-        MenuButton.build(size.width/2-125, size.height/2+50, "Options", "");
-    var MenuButton b_levelsets =
-        MenuButton.build(size.width/2+125, size.height/2+50, "Levelsets", "");
-    var MenuButton b_exit =
-        MenuButton.build(size.width/2,     size.height/2+120, "Exit", "");
+    event& void b_story, b_editor, b_options, b_levelsets, b_exit;
+    spawn MenuButton(size.width/2-125, size.height/2-20,  "Story",     "") -> (&b_story);
+    spawn MenuButton(size.width/2+125, size.height/2-20,  "Editor",    "") -> (&b_editor);
+    spawn MenuButton(size.width/2-125, size.height/2+50,  "Options",   "") -> (&b_options);
+    spawn MenuButton(size.width/2+125, size.height/2+50,  "Levelsets", "") -> (&b_levelsets);
+    spawn MenuButton(size.width/2,     size.height/2+120, "Exit",      "") -> (&b_exit);
 
     par do
-        await b_story.ok_clicked;
+        await b_story;
         escape {PINGUSMENU_STORY};
     with
-        await b_editor.ok_clicked;
+        await b_editor;
         {Sound::PingusSound::stop_music();};
         escape {PINGUSMENU_EDITOR};
     with
         loop do
-            await b_options.ok_clicked;
-            emit global:go_options;     // this will pause me
+            await b_options;
+            emit outer.go_options;     // this will pause me
         end
     with
-        await b_levelsets.ok_clicked;
+        await b_levelsets;
         escape {PINGUSMENU_LEVELSETS};
     with
-        await b_exit.ok_clicked;
+        await b_exit;
         escape {PINGUSMENU_EXIT};
     with
-        every REDRAW do
+        every SDL_REDRAW do
             call {Fonts::pingus_small}.render(
                 _origin_top_left,
                 {Display::get_width ()}/2 - 400 + 25,
                 {Display::get_height()}   - 140,
+// TODO: AT -> @
                 {
-"Pingus " VERSION " - Copyright (C) 1998-2011 Ingo Ruhnke <grumbel@gmail.com>\n"
+"Pingus " VERSION " - Copyright (C) 1998-2011 Ingo Ruhnke <grumbelATgmail.com>\n"
 "See the file AUTHORS for a complete list of contributors.\n"
 "Pingus comes with ABSOLUTELY NO WARRANTY. This is free software, and you are\n"
 "welcome to redistribute it under certain conditions; see the file COPYING for details.\n"
@@ -159,7 +153,6 @@ code/await PingusMenu (void) -> int do
             );
         end
     end
-#endif
 end
 
 #if 0

@@ -26,6 +26,7 @@ end
 code/await Sprite_from_name (var Sprite? sprite_in, var& Rect rect, var _char_const_ptr name)
                                 -> (var& Sprite sprite_out)
                                     -> FOREVER do
+// TODO: sprite_in eh necessario?
     var Sprite sprite = _;
     if sprite_in? then
         sprite = sprite_in!;
