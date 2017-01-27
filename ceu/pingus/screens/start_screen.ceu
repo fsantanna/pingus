@@ -5,54 +5,53 @@
 #include "../../engine/gui/surface_button.ceu"
 #include "../components/wood.ceu"
 
-class StartScreen with
-    var _PingusLevel& plf;
+code/await StartScreen (var& _PingusLevel plf) -> bool
 do
-    var char[] description = [] .. (_char&&)
-        {StringFormat::break_line}(__(plf.get_description()),
+    vector[] byte description = [] ..
+        ({StringFormat::break_line(_(@plf.get_description()),
                                    800-200,
-                                   {Fonts::chalk_normal}).c_str();
+                                   Fonts::chalk_normal).c_str()} as _char&&);
 
-    var Rect rect = Rect(
+    var Rect rect = val Rect(
         {Display::get_width()}  / 2,
         {Display::get_height()} / 2,
         0, 0
     );
 
-    var Wood _;
-    var Sprite _ = Sprite.build_name(&rect, "core/menu/blackboard");
+    spawn Wood();
+    spawn Sprite_from_name(_, &rect, "core/menu/blackboard");
 
-    var SurfaceButton start with
-        this.x = {Display::get_width()/2}  + 245;
-        this.y = {Display::get_height()/2} + 150;
-        this.button         = "core/start/ok";
-        this.button_pressed = "core/start/ok_clicked";
-        this.button_over    = "core/start/ok_hover";
-    end;
+    var& IRectComponent start;
+    var Rect start_r = val Rect({Display::get_width()/2}+245, {Display::get_height()/2}+150, _,_);
+    spawn SurfaceButton(&start_r,
+                        "core/start/ok",
+                        "core/start/ok_clicked",
+                        "core/start/ok_hover")
+            -> (&start);
 
-    var SurfaceButton cancel with
-        this.x = {Display::get_width()/2}  - 300;
-        this.y = {Display::get_height()/2} + 200;
-        this.button         = "core/start/back";
-        this.button_pressed = "core/start/back_clicked";
-        this.button_over    = "core/start/back_hover";
-    end;
+    var& IRectComponent cancel;
+    var Rect cancel_r = val Rect({Display::get_width()/2}-300, {Display::get_height()/2}+200, _,_);
+    spawn SurfaceButton(&cancel_r,
+                        "core/start/back",
+                        "core/start/back_clicked",
+                        "core/start/back_hover")
+            -> (&cancel);
 
     par do
-        every cancel.component.on_pointer_enter do
+        every cancel.on_pointer_enter do
             call {Sound::PingusSound::play_sound}("tick");
         end
     with
-        await cancel.component.on_click;
+        await cancel.on_click;
         escape false;
     with
-        every start.component.on_pointer_enter do
+        every start.on_pointer_enter do
             call {Sound::PingusSound::play_sound}("tick");
         end
     with
-        await start.component.on_click;
+        await start.on_click;
         call {Sound::PingusSound::play_sound}("yipee");
-        escape 1;
+        escape true;
     with
         loop do
             var _Input__ButtonEvent&& but = await ON_BUTTON_PRESSED;
@@ -65,7 +64,7 @@ do
             end
         end
     with
-        every REDRAW do
+        every SDL_REDRAW do
             var int left_x  = {Display::get_width()}/2 - 150;
             var int right_x = {Display::get_width()}/2 + 150;
             var int y = {Display::get_height()}/2 + 40;
@@ -73,7 +72,7 @@ do
             // cancel button
             call {Fonts::chalk_normal}.render(
                 _origin_top_center,
-                cancel.x+55, cancel.y,
+                cancel_r.left+55, cancel_r.top,
                 __("Back"),
                 *{Display::s_framebuffer}
             );
@@ -84,12 +83,12 @@ do
                 __(plf.get_levelname()),
                 *{Display::s_framebuffer}
             );
-            call {Fonts::chalk_normal}.render(
+            call ({Fonts::chalk_normal}.render as /nohold)(
                 _origin_top_left,
                 {Display::get_width()}/2-300, {Display::get_height()}/2-170,
-                (_char&&)&&description,
+                "TODO-DESCRIPTION", //&&description[0] as _char&&,
                 *{Display::s_framebuffer}
-            ) finalize with nothing; end;
+            );
 
             y = y+32;
             y = y+45;
@@ -142,7 +141,7 @@ do
                 *{Display::s_framebuffer}
             );
 
-            if {globals::developer_mode} then
+            if {globals::developer_mode} as bool then
                 call {Fonts::chalk_small}.render(
                     _origin_top_center,
                     {Display::get_width()}/2, {Display::get_height()}/2-50,

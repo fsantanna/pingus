@@ -19,6 +19,9 @@ native/pre do
     ##include "pingus/fonts.hpp"
     ##include "engine/display/display.hpp"
     ##include "engine/sound/sound.hpp"
+    ##include "util/string_util.hpp"
+    ##include "pingus/game_time.hpp"
+    ##include "pingus/string_format.hpp"
 
     ##define std__string std::string
     ##define Resource__load_sprite_desc(name) Resource::load_sprite_desc(name)
@@ -27,6 +30,10 @@ native/pre do
     ##define Input__ButtonEvent Input::ButtonEvent
 
     static CommandLineOptions cmd;
+
+    ##include "pingus/result.hpp"
+    static PingusLevel plf;
+    static Result result;
 end
 
 native/pos do
@@ -41,6 +48,7 @@ native/pos do
     //##define XXX_PTR2REF(x) x
     //##define THIS(tp) ((tceu_code_mem_####tp*)_ceu_mem)
     //##define THIS_F(tp) ((tp*)__ceu_this)
+    ##define ID(x) (x)
 end
 native/pure _Resource__load_sprite_desc, _Pathname;
 native/plain _std__string, _Vector3f, _Vector2i, _Color, _Rect, _Size;
@@ -52,6 +60,7 @@ native/plain _PingusLevel, _Result, _Levelset;
 native/pure   _XXX_PURE, _XXX_PTR2REF;
 native/nohold _XXX_NOHOLD;
 native/nohold _delete, _log_error, _log_info, __;
+native _ID;
 
 #define AWAIT_UNTIL_MYSELF(TP,EVT)             \
     do                                         \
@@ -106,6 +115,28 @@ end
 
 #include "pingus/fps_counter.ceu"
 #include "pingus/config_manager.ceu"
+
+// SCREENS
+
+#include "pingus/screens/start_screen.ceu"
+
+code/await Start_Game_Result_Loop (var& _PingusLevel plf, var& _Result result)
+            -> void
+do
+_printf(">2> %s\n", __({@plf.get_description()}.c_str()));
+    var bool go = await StartScreen(&plf);
+    if go then
+        loop do
+            await GameSession(&plf);
+#if 0
+            var bool retry = await ResultScreen(&result);
+            if not retry then
+                break;
+            end
+#endif
+        end
+    end
+end
 
 event void go_options;
 
@@ -229,36 +260,10 @@ var char[] worldmap_return_filename;
 #include "pingus/worldmap/worldmap_screen.ceu"
 #include "pingus/screens/credits.ceu"
 #include "pingus/screens/story_screen.ceu"
-#include "pingus/screens/start_screen.ceu"
 #include "pingus/screens/result_screen.ceu"
 #include "pingus/screens/game_session.ceu"
 
-class Start_Game_Result_Loop with
-    var _PingusLevel& plf;
-    var _Result& result;
-do
-    var bool go = do StartScreen with
-                    this.plf = &outer.plf;
-                  end;
-    if go then
-        loop do
-            do GameSession with
-                this.plf = &outer.plf;
-            end;
-            var bool retry = do ResultScreen with
-                                this.result = &outer.result;
-                             end;
-            if not retry then
-                break;
-            end
-        end
-    end
-end
-
 native/pre do
-    ##include "pingus/result.hpp"
-    static PingusLevel plf;
-    static Result result;
     static Pathname filename, filename_credits;
     static FileReader reader;
 end
