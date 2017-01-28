@@ -377,7 +377,6 @@ code/await LevelsetSelector (void) -> int do
 #endif
         std::sort(levelsets.begin(), levelsets.end(), LevelsetPrioritySorter());
     };
-
     var& ILevelUI ui;
     var int? ret =
         watching LevelUI({levelsets.size()}, LEVELSET_ITEMS_PER_PAGE, LEVELSET_ITEM_HEIGHT)

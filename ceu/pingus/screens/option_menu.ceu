@@ -259,13 +259,13 @@ code/await OptionMenu (void) -> void do
             break;
         end
         {
-            const char* str3;
+            static const char* str3;
             str3 = it3->get_name().c_str();
-// TODO: crashes if removes printf
-printf("str3.1 = %s\n", str3);
-            m_language_map[str3] = *it3;
         }
         spawn ChoiceItem(&r3, {str3}, i, &cb3) in its3;
+        {
+            m_language_map[str3] = *it3;
+        }
 
         if {dictionary_manager.get_language()} == {*it3} then
             cb3.current = {it3 - langs.begin()};

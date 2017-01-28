@@ -20,7 +20,7 @@ do
                     _origin_top_center,
                     rect.left + rect.width/2,
                     rect.top,
-                    &&value_[0] as _char_const_ptr,
+                    &&value_[0] as _char&&,
                     *{Display::s_framebuffer}
                 );
             end

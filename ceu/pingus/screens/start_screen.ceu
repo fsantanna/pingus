@@ -7,10 +7,14 @@
 
 code/await StartScreen (var& _PingusLevel plf) -> bool
 do
-    vector[] byte description = [] ..
-        ({StringFormat::break_line(_(@plf.get_description()),
-                                   800-200,
-                                   Fonts::chalk_normal).c_str()} as _char&&);
+    {
+        static std::string str;
+        str = StringFormat::break_line(@(plf).get_description(),
+                                       800-200,
+                                       Fonts::chalk_normal);
+    }
+
+    vector[] byte description = [] .. ({str.c_str()} as _char&&);
 
     var Rect rect = val Rect(
         {Display::get_width()}  / 2,
@@ -83,10 +87,11 @@ do
                 __(plf.get_levelname()),
                 *{Display::s_framebuffer}
             );
+
             call ({Fonts::chalk_normal}.render as /nohold)(
                 _origin_top_left,
                 {Display::get_width()}/2-300, {Display::get_height()}/2-170,
-                "TODO-DESCRIPTION", //&&description[0] as _char&&,
+                &&description[0] as _char&&,
                 *{Display::s_framebuffer}
             );
 
