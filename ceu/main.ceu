@@ -111,6 +111,15 @@ data Vector3f with
     var float z;
 end
 
+data PingusCounter with
+    var int number_of_exited;
+    var int number_of_killed;
+    var int number_of_alive;
+    var int number_of_released;
+    var int number_of_allowed;
+    var int number_to_save;
+end
+
 #include "engine/input/sdl_driver.ceu"
 
 #include "pingus/fps_counter.ceu"
@@ -125,7 +134,6 @@ end
 code/await Start_Game_Result_Loop (var& _PingusLevel plf, var& _Result result)
             -> void
 do
-_printf(">2> %s\n", __({@plf.get_description()}.c_str()));
     var bool go = await StartScreen(&plf);
     if go then
         loop do
@@ -187,15 +195,6 @@ output:
 
     function (void)         => int          get_id;
     function (void)         => int          get_owner;
-end
-
-data PingusCounter with
-    var int number_of_exited;
-    var int number_of_killed;
-    var int number_of_alive;
-    var int number_of_released;
-    var int number_of_allowed;
-    var int number_to_save;
 end
 
 interface IPinguAction with
@@ -283,8 +282,8 @@ par/or do
     await SDL_QUIT;
 with
     pause/if go_pause do
+        if {cmd.rest.is_set()} as bool then
 #if 0
-        if _cmd.rest.is_set() then
             _filename = _Pathname(_cmd.rest.get(), {Pathname::SYSTEM_PATH});
             if {StringUtil::has_suffix(cmd.rest.get(), ".pingus-demo")} then
 // DEMO
@@ -342,43 +341,35 @@ with
                 do StoryScreen with
                     this.reader = &&_reader;
                 end;
-            else/if {StringUtil::has_suffix(cmd.rest.get(), ".levelset")} then
+#endif
+            if false then
+            else/if {StringUtil::has_suffix(cmd.rest.get(), ".levelset")} as bool then
 // LEVELSET
                 {
                     static std::shared_ptr<Levelset> levelset;
                     levelset = Levelset::from_file(Pathname(cmd.rest.get(), Pathname::SYSTEM_PATH));
                 };
-                var _Levelset&? levelset;
-                finalize
-                    levelset = &_XXX_NOHOLD(_levelset.get());
-                with
-                    // TODO
-                end
+                var&? _Levelset levelset = &_ID({levelset.get()})
+                                            finalize (levelset) with
+                                                // TODO
+                                            end;
                 loop do
-                    var int v = do LevelSelector with
-                                    this.levelset = &levelset!;
-                                end;
+                    var int v = await LevelSelector(&levelset!);
                     if v == -1 then
                         break;
                     end
-                    do Start_Game_Result_Loop with
-                        this.plf    = &_XXX_PURE(&&levelset!.get_level(v):plf);
-                        this.result = &_XXX_PURE(&&_result);
-                    end;
+                    var&? _PingusLevel plf    = &_ID(&&{@levelset!.get_level(@v)}:plf) finalize (plf) with end;
+                    var&? _Result      result = &_ID({&result}) finalize (result) with end;
+                    await Start_Game_Result_Loop(&plf, &result);
                 end
             else
 // LEVEL
-                finalize
-                    _plf = {PLFResMgr::load_plf_from_filename}(
-                            _Pathname(_cmd.rest.get(), {Pathname::SYSTEM_PATH}));
-                with end
-                do Start_Game_Result_Loop with
-                    this.plf    = &_XXX_PURE(&&_plf);
-                    this.result = &_XXX_PURE(&&_result);
-                end;
+                { plf = PLFResMgr::load_plf_from_filename(Pathname(cmd.rest.get(), Pathname::SYSTEM_PATH)); }
+                var&? _PingusLevel plf    = &_ID({&plf}) finalize (plf) with end;
+                var&? _Result      result = &_ID({&result}) finalize (result) with end;
+                await Start_Game_Result_Loop(&plf, &result);
             end
         else
-#endif
 // MENU
             loop do
                 var int opt = await PingusMenu();
@@ -394,9 +385,7 @@ with
                     _ceu_dbg_assert({!"bug found"});
                 end
             end
-#if 0
         end
-#endif
     end
 with
 // OPTIONS
