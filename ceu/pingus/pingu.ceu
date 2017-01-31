@@ -1,12 +1,23 @@
 #ifndef _PINGU_CEU
 #define _PINGU_CEU
 
-native do
+native/pre do
+    ##define ActionName__Enum ActionName::Enum
+    ##define Pingu__PinguStatus Pingu::PinguStatus
+    ##define PinguAction_shared_ptr std::shared_ptr<PinguAction>
+    enum {
+        PS_ALIVE, PS_EXITED, PS_DEAD
+    };
+end
+native/plain _ActionName__Enum, _Pingu__PinguStatus;
+
+native/pre do
     ##include "pingus/collision_map.hpp"
-    ##define GC_COLOR_DRAW(gc,x,y) gc->color().draw(x,y)
+    ##include "pingus/pingu_enums.hpp"
+    ///##define GC_COLOR_DRAW(gc,x,y) gc->color().draw(x,y)
     enum Dir { LEFT = -1, NONE = 0, RIGHT = +1 };
 end
-native @nohold _GC_COLOR_DRAW();
+///native @nohold _GC_COLOR_DRAW();
 
 native/pre do
     class Vector3f;
@@ -22,6 +33,7 @@ native/pre do
     ##include "../src/pingus/action_name.hpp"
 end
 
+#if 0
 #include "../engine/display/sprite.ceu"
 #include "actions/basher.ceu"
 #include "actions/blocker.ceu"
@@ -39,33 +51,82 @@ end
 #include "actions/splashed.ceu"
 #include "actions/slider.ceu"
 #include "actions/waiter.ceu"
-#include "actions/walker.ceu"
+#endif
 
-native/pre do
-    ##define ActionName__Enum ActionName::Enum
-    ##define Pingu__PinguStatus Pingu::PinguStatus
-    ##define PinguAction_shared_ptr std::shared_ptr<PinguAction>
-    enum {
-        PS_ALIVE, PS_EXITED, PS_DEAD
-    };
+data IPingu with
+    var& int      owner_id;
+    var& Rect     rect;
+    var& s8       direction;
+    var& Vector3f velocity;
+
+    var _ActionName__Enum wall_action = {ActionName::NONE};
+    var _ActionName__Enum fall_action = {ActionName::NONE};
 end
-native @plain _ActionName__Enum, _Pingu__PinguStatus;
 
-class Pingu with
+#if 0
+code/tight Pingu_Rel_Getpixel (var& IPingu pingu, var int x, var int y) -> int do
+    escape outer.global:world!:get_colmap():getpixel(
+            (int)(this.rect.left + (float)(x * this.direction)),
+            (int)(this.rect.top - (float)(y)));
+end
+#endif
+
+#include "right_left_sprites.ceu"
+
+code/await Pingu (pool&[] Pingu  pingus,
+                  var     uint   id,
+                  var     int    owner_id,
+                  var     Rect   rect,
+                  var     s8?    direction_)
+                    -> (vector&[] byte name)
+                        -> int
+#if 0
     interface IPingu;
+#endif
+do
+    var s8 direction = do
+        if direction_? then
+            escape direction_!;
+        else
+            escape {LEFT};
+        end
+    end;
 
-    var  uint id;
-    var  int  owner_id;
-    var  s8   direction = _LEFT;
+    var Vector3f velocity = val Vector3f(0, 0, 0);
+
+    vector[] byte name_;
+    name = &name_;
 
     var _ActionName__Enum current_action = {ActionName::FALLER};
-    var _ActionName__Enum wall_action    = {ActionName::NONE};
-    var _ActionName__Enum fall_action    = {ActionName::NONE};
-do
-    var Vector3f velocity = Vector3f(0, 0, 0);
-    var char[] name_;
-    this.name = &name_;
 
+    code/tight Get_Owner_Str (void) -> _char&& do
+        {
+            static std::ostringstream ostr;
+            ostr << "alo"; ///@outer.pingu.owner_id;
+        };
+        escape {ostr.str().c_str()} as _char&&;
+    end
+
+    code/tight Set_Velocity (var Vector3f velocity) -> void do
+        // crude terminal velocity
+        velocity.x = {(float)Math::clamp(-terminal_velocity, @velocity.x, terminal_velocity)};
+        velocity.y = {(float)Math::clamp(-terminal_velocity, @velocity.y, terminal_velocity)};
+        outer.velocity = velocity;
+    end
+
+    code/tight Get_Pos (void) -> Vector3f do
+        var Vector3f vec = val Vector3f(outer.rect.left, outer.rect.top, 0);
+        escape vec;
+    end
+
+    #include "actions/walker.ceu"
+
+    watching 5s do
+        await Walker(current_action);
+    end
+    emit outer.world.ok_pingu({PS_DEAD});
+
+#if 0
     var int ret =
     do
         event _ActionName__Enum e_set_action;
@@ -209,10 +270,6 @@ do
     function (void)=>int get_yi do
         return (int)this.rect.top;
     end
-    function (void)=>Vector3f get_pos do
-        var Vector3f vec = Vector3f(this.rect.left, this.rect.top, 0);
-        return vec;
-    end
 
     function (float x)=>void set_x do
         this.rect.left = x;
@@ -235,16 +292,6 @@ do
         return this.velocity;
     end
 
-    function (Vector3f velocity_)=>void set_velocity do
-        this.velocity = velocity_;
-
-        // crude terminal velocity
-        this.velocity.x =
-            (float){Math::clamp}(-_terminal_velocity, this.velocity.x, _terminal_velocity);
-        this.velocity.y =
-            (float){Math::clamp}(-_terminal_velocity, this.velocity.y, _terminal_velocity);
-    end
-
     function (s8 d)=>void set_direction do
         this.direction = d;
     end
@@ -255,12 +302,6 @@ do
         else
             this.direction = _LEFT;
         end
-    end
-
-    function (int x, int y)=>int rel_getpixel do
-        return global:world!:get_colmap():getpixel(
-                (int)(this.rect.left + (float)(x * this.direction)),
-                (int)(this.rect.top - (float)(y)));
     end
 
     function (int x, int y)=>bool head_collision_on_walk do
@@ -309,14 +350,6 @@ do
         return this.owner_id;
     end
 
-    function (void)=>_std__string get_owner_str do
-        {
-            std::ostringstream ostr;
-            ostr << THIS_F(CEU_Pingu)->owner_id;
-        };
-        return _ostr.str();
-    end
-
     function (_ActionName__Enum new_action)=>bool check_action do
         var int mode = {ActionName::ACTIVATION_MODE}[new_action];
 
@@ -341,6 +374,7 @@ do
       // FIXME: this should be handled by a state-machine
       --rect.top;
     }
+#endif
 #endif
 end
 

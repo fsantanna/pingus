@@ -148,7 +148,7 @@ do
         pause/if pse do
             par do
 /// TODO
-                if {@levelset.get_level(i)}:accessible as bool then
+                if levelset.get_level(i):accessible as bool then
                     par do
                         every component.on_click do
                             emit ui.ok(i);
@@ -168,9 +168,9 @@ do
             with
                 // load checkbox
                 var _char&& name;
-                if not ({@levelset.get_level(i)}:accessible as bool) then
+                if not (levelset.get_level(i):accessible as bool) then
                     name = "core/menu/locked_small";
-                else/if {@levelset.get_level(i)}:finished as bool then
+                else/if levelset.get_level(i):finished as bool then
                     name = "core/menu/checkbox_marked_small";
                 else
                     name = "core/menu/checkbox_small";
@@ -191,14 +191,14 @@ do
                         call {Fonts::chalk_normal}.render(
                             _origin_top_left,
                             x+40, y+4,
-                            __({@levelset.get_level(i)}:plf.get_resname()),
+                            __(levelset.get_level(i):plf.get_resname()),
                             *{Display::s_framebuffer}
                         );
                     else
                         call {Fonts::chalk_normal}.render(
                             _origin_top_left,
                             x+40, y+4,
-                            __({@levelset.get_level(i)}:plf.get_levelname()),
+                            __(levelset.get_level(i):plf.get_levelname()),
                             *{Display::s_framebuffer}
                         );
                     end
@@ -225,8 +225,8 @@ end
 
 code/await LevelSelector (var& _Levelset levelset) -> int
 do
-    vector[] byte title = [] .. ({@levelset.get_title()}.c_str() as _char&&);
-    vector[] byte image = [] .. ({@levelset.get_image()}.c_str() as _char&&);
+    vector[] byte title = [] .. (levelset.get_title().c_str() as _char&&);
+    vector[] byte image = [] .. (levelset.get_image().c_str() as _char&&);
     var int count = levelset.get_level_count();
 
     //levelset.refresh();
@@ -238,11 +238,11 @@ do
             var int yy  = 50+15;
 
             var Rect r1 = val Rect(0, yy, 0, 0);
-            spawn Sprite_from_name(_, &r1, {@levelset.get_image()}.c_str());
+            spawn Sprite_from_name(_, &r1, levelset.get_image().c_str());
                 r1.left = 60 + 680/2 - r1.width/2 - 275;
 
             var Rect r2 = val Rect(0, yy, 0, 0);
-            spawn Sprite_from_name(_, &r2, {@levelset.get_image()}.c_str());
+            spawn Sprite_from_name(_, &r2, levelset.get_image().c_str());
                 r2.left = 60 + 680/2 - r2.width/2 + 275;
 
             pool[] Level levels;
@@ -422,7 +422,7 @@ code/await LevelMenu (void) -> void do
             if j == -1 then
                 break;
             end
-            var&? _PingusLevel plf    = &_ID(&&{@levelset!.get_level(j)}:plf) finalize (plf) with end;
+            var&? _PingusLevel plf    = &_ID(&&levelset!.get_level(j):plf) finalize (plf) with end;
             var&? _Result      result = &_ID({&result}) finalize (result) with end;
             await Start_Game_Result_Loop(&plf!, &result!);
         end

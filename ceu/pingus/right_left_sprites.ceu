@@ -5,55 +5,53 @@
 
 // TODO: get by ref
 
-class RightLeftSprites with
-    var IPositionDirection& parent;
-    var char[]& left;
-    var char[]& right;
-    var char[] none;
-    var bool is_world = true;
-    pool Sprite[1] sprites;
-    function (void)=>Sprite&& get;
+#if 0
+    /* PUBLIC */
+
+    function (void)=>Sprite&& get do
+        loop s in sprites do
+            return s;
+        end
+        _assert(0);
+    end
+#endif
+
+code/await RightLeftSprites (var&      Rect rect,
+                             var&      s8   direction,
+                             vector&[] byte left,
+                             vector&[] byte right,
+                             var       bool is_world)
+                                -> void
 do
+    vector[] byte none;     // TODO: always empty?
     event void e_change;
     par do
-        var int dir = this.parent.direction;
-        every DELTA do
-            if this.parent.direction != dir then
-                dir = this.parent.direction;
+        var s8 dir = direction;
+        every SDL_DT do
+            if direction != dir then
+                dir = direction;
                 emit e_change;
             end
         end
     with
         loop do
-            var Sprite&&? sprite =
-                spawn Sprite in this.sprites with
-                    this.is_world = outer.is_world;
-                    this.rect = &outer.parent.rect;
-                    if outer.parent.direction == _NONE then
-                        this.name = (_char&&)&&outer.none;
-                    else/if outer.parent.direction == _LEFT then
-                        this.name = (_char&&)&&outer.left;
-                    else
-                        this.name = (_char&&)&&outer.right;
-                    end;
-                end;
             par/or do
-                await *sprite!;
-                escape 0;
+                var _char_const_ptr name = do
+                    if direction == {NONE} then
+                        escape &&none[0] as _char_const_ptr;
+                    else/if direction == {LEFT} then
+                        escape &&left[0] as _char_const_ptr;
+                    else
+                        escape &&right[0] as _char_const_ptr;
+                    end
+                end;
+                await Sprite_from_name(_, &rect, name);
+                        ///is_world = outer.is_world;
+                escape;
             with
                 await e_change;
             end
-            kill *sprite!;
         end
-    end
-
-    /* PUBLIC */
-
-    function (void)=>Sprite&& get do
-        loop s in this.sprites do
-            return s;
-        end
-        _assert(0);
     end
 end
 

@@ -13,8 +13,8 @@ end
 
 #if 0
 #include "../goal_manager.ceu"
-#include "../world.ceu"
 #endif
+#include "../world.ceu"
 
 code/await GameSession (var& _PingusLevel plf) -> void
 do
@@ -31,22 +31,20 @@ do
     if {globals::developer_mode} as bool then
         _log_info("Starting Music: %1%", plf.get_music());
     end
-    if plf.get_music()=="none" or ({@plf.get_music().empty()} as bool) then
+    if plf.get_music()=="none" or (plf.get_music().empty() as bool) then
         {Sound::PingusSound::stop_music();};
     else
         call {Sound::PingusSound::play_music}(plf.get_music());
     end
 
-await 1s;
-#if 0
-    var PingusCounter counter = PingusCounter(0,0,0,0,
-                                    plf.get_number_of_pingus(),
-                                    plf.get_number_to_save());
+    var PingusCounter counter = val PingusCounter(0,0,0,0,
+                                                  plf.get_number_of_pingus(),
+                                                  plf.get_number_to_save());
 
-    var World world with
-        plf = &plf;
-        counter = &counter;
-    end;
+    watching World(&plf, &counter) do
+        await FOREVER;
+    end
+#if 0
 
     par/or do
         await world;

@@ -3,44 +3,36 @@
 
 #define WALKER_MAX_STEPS 5  // max nr. of pixels that pingu can walk up/down
 
-class Walker with
-    interface IPinguAction;
+code/await Walker (var _ActionName__Enum previous_action)
+                    -> int
 do
-    var char[] left1  = [] .. "pingus/player"
-                           .. (_char&&)this.pingu.get_owner_str().c_str()
+    vector[] byte left1  = [] .. "pingus/player"
+                           .. (call Get_Owner_Str() as _char&&)
                            .. "/walker/left";
-    var char[] right1 = [] .. "pingus/player"
-                           .. (_char&&)this.pingu.get_owner_str().c_str()
+    vector[] byte right1 = [] .. "pingus/player"
+                           .. (call Get_Owner_Str() as _char&&)
                            .. "/walker/right";
-    var RightLeftSprites _ with
-        this.parent = &outer.pingu;
-        this.left   = &left1;
-        this.right  = &right1;
-    end;
+
+    spawn RightLeftSprites(&outer.rect, &outer.direction, &left1, &right1, true);
 
     // Reset the velocity
-    var Vector3f v = Vector3f(0, 0, 0);
-    this.pingu.set_velocity(v);
+    var Vector3f v = val Vector3f(0, 0, 0);
+    call Set_Velocity(v);
 
     /* UPDATE */
     par do
         await WORLD_UPDATE
-        until (this.pingu.fall_action == {ActionName::FLOATER});
-        do
-            var char[] left2  = [] .. "other/floaterlayer/left";
-            var char[] right2 = [] .. "other/floaterlayer/right";
-            var RightLeftSprites _ with
-                this.parent = &outer.pingu;
-                this.left   = &left2;
-                this.right  = &right2;
-            end;
-            await FOREVER;
-        end
+        until (outer.fall_action == {ActionName::FLOATER});
+        vector[] byte left2  = [] .. "other/floaterlayer/left";
+        vector[] byte right2 = [] .. "other/floaterlayer/right";
+        spawn RightLeftSprites(&outer.rect, &outer.direction, &left2, &right2, true);
+        await FOREVER;
     with
+#if 0
         loop do
             await WORLD_UPDATE;
 
-            var Vector3f last_pos = this.pingu.get_pos();
+            var Vector3f last_pos = pingu.get_pos();
 
               /* How should this code work?
 
@@ -156,6 +148,7 @@ do
                 end
             end
         end
+#endif
     end
 end
 

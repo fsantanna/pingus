@@ -1,43 +1,37 @@
 #ifndef _PINGUHOLDER_CEU
 #define _PINGUHOLDER_CEU
 
-#include "pingu.ceu"
-
-class PinguHolder with
-    pool IPingu[]& pingus;
-    var PingusCounter& counter;
+code/await PinguHolder (pool&[] Pingu pingus, var& PingusCounter counter) -> FOREVER
 do
     par do
         var int id_total = 0;
-        every (x_,y_,dir_,owner_id_) in global:go_create_pingu do
+        var int x_,y_;
+        var s8 dir_;
+        var int owner_id_;
+        every (x_,y_,dir_,owner_id_) in outer.world.go_create_pingu do
             if counter.number_of_released < counter.number_of_allowed then
                 id_total = id_total+1;
                 counter.number_of_released = counter.number_of_released + 1;
                 counter.number_of_alive    = counter.number_of_alive    + 1;
-                var Rect r = Rect(x_,y_,0,0);
-                spawn Pingu in this.pingus with
-                    this.pingus    = &outer.pingus;
-                    this.id        = id_total;
-                    this.owner_id  = owner_id_;
-                    this.rect      = r;
-                    this.direction = dir_;
-                end;
+                var Rect r = val Rect(x_,y_,0,0);
+                spawn Pingu(&pingus,id_total,owner_id_,r,dir_) in pingus;
             end
         end
     with
-        every status in global:ok_pingu do
-            if status == _PS_DEAD then
+        var int status;
+        every status in outer.world.ok_pingu do
+            if status == {PS_DEAD} then
 //_assert(0);
                 counter.number_of_killed = counter.number_of_killed + 1;
-            else/if status == _PS_EXITED then
+            else/if status == {PS_EXITED} then
                 counter.number_of_exited = counter.number_of_exited + 1;
             else
-                _assert(status != _PS_ALIVE);
+                _ceu_dbg_assert(status != {PS_ALIVE});
             end
             counter.number_of_alive = counter.number_of_alive - 1;
-            _assert(counter.number_of_released == counter.number_of_alive  +
-                                                  counter.number_of_killed +
-                                                  counter.number_of_exited);
+            _ceu_dbg_assert(counter.number_of_released == counter.number_of_alive  +
+                                                          counter.number_of_killed +
+                                                          counter.number_of_exited);
         end
     end
 end

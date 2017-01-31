@@ -1,3 +1,4 @@
+- documentar nested code/data
 - recolocar option_menu, languages
 - TODO: names in bridger?
 - TODO: pause p/ world pause

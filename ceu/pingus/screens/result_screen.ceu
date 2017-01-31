@@ -24,7 +24,12 @@ do
             GameTime::ticks_to_realtime_string(std::max(0, @result.max_time - @result.used_time));}
     end
 
-    vector[] byte level_name = [] .. ({_(@result.plf.get_levelname())}.c_str() as _char&&);
+    {
+        static std::string str;
+        str = _(@result.plf.get_levelname());
+    }
+    vector[] byte level_name = [] .. ({str.c_str()} as _char&&);
+
     vector[] byte message;
     if has_succeeded then
         if (result.killed == 0 and result.saved == result.total) then
@@ -67,6 +72,7 @@ do
     spawn Wood();
     spawn Sprite_from_name(_, &rect, "core/menu/blackboard");
 
+/// TODO: only two
     var& IRectComponent ok;
     var Rect ok_r = val Rect({Display::get_width()/2}+245,
                              {Display::get_height()/2}-150, /// TODO: +

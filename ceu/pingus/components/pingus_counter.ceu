@@ -1,37 +1,30 @@
 #ifndef _PINGUSCOUNTER_CEU
 #define _PINGUSCOUNTER_CEU
 
-class CPingusCounter with
-    var PingusCounter& counter;
-    function (PingusCounter& counter)=>CPingusCounter build;
+code/await PingusCounter (var& PingusCounter counter) -> FOREVER
 do
-    function (PingusCounter& counter)=>CPingusCounter build do
-        this.counter = &counter;
-    end
-
     //var _Font font = {Fonts::pingus_small_fixnum};
 
     var Rect rect = Rect({Display::get_size}().width/2,0, 0,0);
     var Sprite _ = Sprite.build_nameX(&rect, "core/buttons/info");
 
-    every REDRAW do
+    every SDL_REDRAW do
         var _char[128] str = [];
 
-        _snprintf(&&str, 128,
+        _snprintf(&&str[0], 128,
             __("Released:%3d/%d   Out:%3d   Saved:%3d/%d").c_str(),
-           this.counter.number_of_released,
-           this.counter.number_of_allowed,
-           this.counter.number_of_alive,
-           this.counter.number_of_exited,
-           this.counter.number_to_save)
-            finalize with nothing; end;
+           counter.number_of_released,
+           counter.number_of_allowed,
+           counter.number_of_alive,
+           counter.number_of_exited,
+           counter.number_to_save);
 
         call {Fonts::pingus_small_fixnum}.render(
             _origin_top_center,
             {Display::get_size}().width/2, -2,
-            &&str,
+            &&str[0],
             *{Display::s_framebuffer}
-        ) finalize with nothing; end;
+        );
     end
 end
 
