@@ -40,21 +40,16 @@ do
     var PingusCounter counter = val PingusCounter(0,0,0,0,
                                                   plf.get_number_of_pingus(),
                                                   plf.get_number_to_save());
-
-    watching World(&plf, &counter) do
-        await FOREVER;
-    end
-#if 0
+    var int game_time = _;
 
     par/or do
-        await world;
+        await World(&plf, &counter, &game_time);
     with
         var int world_delay = 0; // the world is initially on time
-        every v in DELTA do
-            var float dt = ((float)v)/1000;
-
+        loop do
+            var int dt = await SDL_DT;
             // how much time we have to account for while doing world updates
-            var int time_passed = dt*1000 + world_delay;
+            var int time_passed = dt + world_delay;
             // how much time each world update represents
             var int update_time = {globals::game_speed};
 
@@ -72,13 +67,14 @@ do
                 if (not is_paused) or do_single_step then
                     do_single_step = false;
                     if is_fast_forwarded then
-                        loop i in {globals::fast_forward_time_scale} do
-                            async do
+                        var int i;
+                        loop i in [0 -> {globals::fast_forward_time_scale}[ do
+                            await async do
                                 emit WORLD_UPDATE;
                             end
                         end
                     else
-                        async do
+                        await async do
                             emit WORLD_UPDATE;
                         end
                     end
@@ -90,58 +86,63 @@ do
             world_delay = time_passed - (world_updates*update_time);
         end
     with
-        every but in ON_BUTTON_PRESSED do
+        loop do
+            var _Input__ButtonEvent&& but = await ON_BUTTON_PRESSED;
             if but:name == {Input::PAUSE_BUTTON} then
-                emit global:go_pause_toggle;
+                emit outer.go_pause_toggle;
             else/if but:name == {Input::SINGLE_STEP_BUTTON} then
                 if not is_paused then
-                    emit global:go_pause_toggle;
+                    emit outer.go_pause_toggle;
                 end
                 do_single_step = true;
             else/if but:name == {Input::FAST_FORWARD_BUTTON} then
-                emit global:go_forward => true;
+                emit outer.go_forward(true);
             else/if but:name == {Input::ARMAGEDDON_BUTTON} then
-                emit global:go_armageddon;
+                emit outer.go_armageddon;
             else/if but:name == {Input::ESCAPE_BUTTON} then
-                kill world;  // aborts everything
+                break;
             end
         end
     with
+        var _Input__ButtonEvent&& but;
         every but in ON_BUTTON_RELEASED do
             if but:name == {Input::FAST_FORWARD_BUTTON} then
-                emit global:go_forward => false;
+                emit outer.go_forward(false);
             end
         end
     with
-        every global:go_pause_toggle do
+        every outer.go_pause_toggle do
             is_paused = not is_paused;
-            emit global:go_forward => false;
+            emit outer.go_forward(false);
         end
     with
-        every v in global:go_forward do
+        var bool v;
+        every v in outer.go_forward do
             is_fast_forwarded = v;
             if v==true and is_paused then
-                emit global:go_pause_toggle;
+                emit outer.go_pause_toggle;
             end
         end
     end
 
-    _result.saved     = counter.number_of_exited;
-    _result.killed    = counter.number_of_killed;
-    _result.total     = (int)_result.plf.get_number_of_pingus();
-    _result.needed    = (int)_result.plf.get_number_to_save();
-    _result.max_time  = (int)_result.plf.get_time();
-    _result.used_time = world.game_time;
+    {
+        result.saved     = @counter.number_of_exited;
+        result.killed    = @counter.number_of_killed;
+        result.total     = result.plf.get_number_of_pingus();
+        result.needed    = result.plf.get_number_to_save();
+        result.max_time  = result.plf.get_time();
+        result.used_time = @game_time;
 
-    { // Write the savegame
-        Savegame savegame(result.plf.get_resname(),
-                        (result.saved >= result.needed) ?  Savegame::FINISHED : 
-                        Savegame::ACCESSIBLE,
-                        result.used_time,
-                        result.saved);
-        SavegameManager::instance()->store(savegame);
+        // Write the savegame
+        {
+            Savegame savegame(result.plf.get_resname(),
+                            (result.saved >= result.needed) ?  Savegame::FINISHED : 
+                            Savegame::ACCESSIBLE,
+                            result.used_time,
+                            result.saved);
+            SavegameManager::instance()->store(savegame);
+        }
     };
-#endif
 end
 
 #endif

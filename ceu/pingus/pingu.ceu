@@ -53,24 +53,6 @@ end
 #include "actions/waiter.ceu"
 #endif
 
-data IPingu with
-    var& int      owner_id;
-    var& Rect     rect;
-    var& s8       direction;
-    var& Vector3f velocity;
-
-    var _ActionName__Enum wall_action = {ActionName::NONE};
-    var _ActionName__Enum fall_action = {ActionName::NONE};
-end
-
-#if 0
-code/tight Pingu_Rel_Getpixel (var& IPingu pingu, var int x, var int y) -> int do
-    escape outer.global:world!:get_colmap():getpixel(
-            (int)(this.rect.left + (float)(x * this.direction)),
-            (int)(this.rect.top - (float)(y)));
-end
-#endif
-
 #include "right_left_sprites.ceu"
 
 code/await Pingu (pool&[] Pingu  pingus,
@@ -98,27 +80,10 @@ do
     name = &name_;
 
     var _ActionName__Enum current_action = {ActionName::FALLER};
+    var _ActionName__Enum wall_action    = {ActionName::NONE};
+    var _ActionName__Enum fall_action    = {ActionName::NONE};
 
-    code/tight Get_Owner_Str (void) -> _char&& do
-        {
-            static std::ostringstream ostr;
-            ostr << "alo"; ///@outer.pingu.owner_id;
-        };
-        escape {ostr.str().c_str()} as _char&&;
-    end
-
-    code/tight Set_Velocity (var Vector3f velocity) -> void do
-        // crude terminal velocity
-        velocity.x = {(float)Math::clamp(-terminal_velocity, @velocity.x, terminal_velocity)};
-        velocity.y = {(float)Math::clamp(-terminal_velocity, @velocity.y, terminal_velocity)};
-        outer.velocity = velocity;
-    end
-
-    code/tight Get_Pos (void) -> Vector3f do
-        var Vector3f vec = val Vector3f(outer.rect.left, outer.rect.top, 0);
-        escape vec;
-    end
-
+    #include "pingu_tights.ceu"
     #include "actions/walker.ceu"
 
     watching 5s do
@@ -258,29 +223,11 @@ do
 
     /* PUBLIC */
 
-    function (void)=>float get_x do
-        return this.rect.left;
-    end
-    function (void)=>float get_y do
-        return this.rect.top;
-    end
     function (void)=>int get_xi do
         return (int)this.rect.left;
     end
     function (void)=>int get_yi do
         return (int)this.rect.top;
-    end
-
-    function (float x)=>void set_x do
-        this.rect.left = x;
-    end
-
-    function (float y)=>void set_y do
-        this.rect.top = y;
-    end
-    function (float x, float y)=>void set_pos do
-        this.set_x(x);
-        this.set_y(y);
     end
 
     function (void)=>Vector3f get_center_pos do
@@ -294,25 +241,6 @@ do
 
     function (s8 d)=>void set_direction do
         this.direction = d;
-    end
-
-    function (void)=>void change_direction do
-        if this.direction == _LEFT then
-            this.direction = _RIGHT;
-        else
-            this.direction = _LEFT;
-        end
-    end
-
-    function (int x, int y)=>bool head_collision_on_walk do
-        var int pixel = this.rel_getpixel(x, y + _pingu_height);
-        if (     pixel != {Groundtype::GP_NOTHING} and
-            not (pixel &  {Groundtype::GP_BRIDGE}))
-        then
-            return true;
-        else
-            return false;
-        end
     end
 
     // Returns true if the given koordinates are above the pingu

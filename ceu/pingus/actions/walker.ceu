@@ -28,11 +28,10 @@ do
         spawn RightLeftSprites(&outer.rect, &outer.direction, &left2, &right2, true);
         await FOREVER;
     with
-#if 0
         loop do
             await WORLD_UPDATE;
 
-            var Vector3f last_pos = pingu.get_pos();
+            var Vector3f last_pos = call Get_Pos();
 
               /* How should this code work?
 
@@ -49,36 +48,35 @@ do
 
               */
 
-            if this.pingu.rel_getpixel(0, -1) == {Groundtype::GP_NOTHING} then
+            if call Rel_Getpixel(0,-1) == {Groundtype::GP_NOTHING} then
                 // The Pingu stands no longer on ground, the cause for this could 
                 // be a digger, miner or a bomber
                 // We search for the nearest ground below the pingu, if we can't 
                 // find anything within a few pixels, we will turn into a faller
-                var bool found_ground = false;
-                var int i = 0;
-                loop ii in 2 do   // [-2 .. -4]
-                    i = -ii - 2;
-                    if not (this.pingu.rel_getpixel(0, i) == {Groundtype::GP_NOTHING}) then
-                        found_ground = true;
-                        break;
+                var int i = _;
+                var bool? found_ground = do
+                    loop i in [-4 <- -2] do
+                        if not (call Rel_Getpixel(0,i) == {Groundtype::GP_NOTHING}) then
+                            escape true;
+                        end
                     end
-                end
-                if found_ground then
-                    this.pingu.set_y(this.pingu.get_y() - (float)(i));
+                end;
+                if found_ground? then
+                    call Set_Y(call Get_Y()-i);
                 else
                     escape {ActionName::FALLER};
                 end
             end
 
             // FIXME: here we could/should scan more pixels
-            if this.pingu.rel_getpixel(1, 0) == {Groundtype::GP_BRIDGE} and
-               not this.pingu.head_collision_on_walk(1, 1)
+            if call Rel_Getpixel(1, 0) == {Groundtype::GP_BRIDGE} and
+               not call Head_Collision_On_Walk(1, 1)
             then // bridge
                 // simple, stupid, but working bridge code
                 // FIXME: We don't check if we 'drift' into a solid ground block
-                this.pingu.set_pos(
-                    this.pingu.get_x() + (float)(this.pingu.direction),
-                    this.pingu.get_y() - 1.0); // pingus 'float' through bridges
+                call Set_Pos(
+                    call Get_X() + (outer.direction as int),
+                    call Get_Y() - 1.0); // pingus 'float' through bridges
             else
                 // Non of the trivial moves worked, so we do up-hill or down-hill 
                 // walking
@@ -90,17 +88,16 @@ do
 
                 // if infront is a pixel Pingu is walking up the mountain
                 // we can continue walking up. search for the correct y_pos
-                var int y_inc = 0;
                 var int possible_y_step = 0;
                 var bool found_next_step = false;
-                loop i in 2*WALKER_MAX_STEPS+1 do // [-max_steps ..  max_steps]
-                    y_inc = i-WALKER_MAX_STEPS;
+                var int y_inc;
+                loop y_inc in [-WALKER_MAX_STEPS -> +WALKER_MAX_STEPS] do
                     // up/down-hill scan
-                    if (this.pingu.rel_getpixel(1, y_inc)=={Groundtype::GP_NOTHING} or
-                        this.pingu.rel_getpixel(1, y_inc)=={Groundtype::GP_BRIDGE})
+                    if (call Rel_Getpixel(1, y_inc)=={Groundtype::GP_NOTHING} or
+                        call Rel_Getpixel(1, y_inc)=={Groundtype::GP_BRIDGE})
                     and
                         // FIXME: This causes a rather huge step
-                        this.pingu.rel_getpixel(1, y_inc - 1) != {Groundtype::GP_NOTHING}
+                        call Rel_Getpixel(1, y_inc - 1) != {Groundtype::GP_NOTHING}
                     then
                         // FIXME:
                         found_next_step = true;
@@ -113,23 +110,24 @@ do
 
                 if found_next_step then
                     // pos.y has a reversed co-system to rel_getpixel()?
-                    this.pingu.set_pos(
-                        this.pingu.get_x() + (float)(this.pingu.direction),
-                        this.pingu.get_y() - (float)(possible_y_step));
+                    call Set_Pos(
+                        call Get_X() + (outer.direction as int),
+                        call Get_Y() - possible_y_step,
+                    );
                 else
-                    if this.pingu.rel_getpixel(1, 0) != {Groundtype::GP_NOTHING} then
+                    if call Rel_Getpixel(1,0) != {Groundtype::GP_NOTHING} then
                         // We reached a wall
-                        var int wall_action = this.pingu.wall_action;
+                        var int wall_action = outer.wall_action;
                         if wall_action != {ActionName::NONE} then
                             _log_debug("Pingu: We are in front of a wall, setting persistant action");
                             escape wall_action;
                         end
 
                         // No persitent action found, so change the direction
-                        this.pingu.change_direction();
+                        call Change_Direction();
                     else
                         // We take the step, so that we are in the air
-                        this.pingu.set_x(this.pingu.get_x() + (float)(this.pingu.direction));
+                        call Set_X(call Get_X() + (outer.direction as int));
                         // We reached a cliff
                         escape {ActionName::FALLER};
                     end
@@ -138,17 +136,16 @@ do
                 // This is moved here to fix the bug where pingu stuck turning both 
                 // sides indefinetely when a head collision occured. the fix needs 
                 // the above downhill walk being done before head collision check.
-                if this.pingu.head_collision_on_walk(0, 0) then
+                if call Head_Collision_On_Walk(0, 0) then
                     _log_debug("Pingu: Head collision");
 
                     //if the new position causes a head collision, we are already 
                     //stuck in a wall, so lets go back to the old position
-                    this.pingu.change_direction();
-                    this.pingu.set_pos(last_pos.x,last_pos.y);
+                    call Change_Direction();
+                    call Set_Pos(last_pos.x,last_pos.y);
                 end
             end
         end
-#endif
     end
 end
 

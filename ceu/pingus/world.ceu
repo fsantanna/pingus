@@ -84,20 +84,21 @@ end
     end
 #endif
 
-code/await World (var& _PingusLevel plf, var& PingusCounter counter) -> void
+code/await World (var& _PingusLevel plf, var& PingusCounter counter, var& int game_time) -> void
 do
     ///interface IWorld;
-    var int game_time = 0;
+    game_time = 0;
     ///global:world = &&this;
 
     var int width  = {@plf.get_size().width};
     var int height = {@plf.get_size().height};
 
-    var&? _GroundMap gfx_map =
+    var&? _GroundMap gfx_map_ =
         &{new GroundMap}(width, height)
-            finalize (gfx_map) with
-                _delete(&&gfx_map!);
+            finalize (gfx_map_) with
+                _delete(&&gfx_map_!);
             end;
+    var& _GroundMap gfx_map = &gfx_map_!;
 
     var&? _GraphicContextState state =
         &{new GraphicContextState}({Math::min}({Display::get_width()},  width),
@@ -152,7 +153,7 @@ do
     spawn do
         every SDL_REDRAW do             // groundpiece
             var Vector2i off = world.offset;
-            gfx_map!.draw({Vector2i(-@off.x,-@off.y)});
+            gfx_map.draw({Vector2i(-@off.x,-@off.y)});
         end
     end
     pool[] Visible layer_bg_1;          // liquid, hotspot

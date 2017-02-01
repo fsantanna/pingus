@@ -59,7 +59,7 @@ native/plain _ResourceModifier__Enum;
 native/plain _PingusLevel, _Result, _Levelset;
 native/pure   _XXX_PURE, _XXX_PTR2REF;
 native/nohold _XXX_NOHOLD;
-native/nohold _delete, _log_error, _log_info, __;
+native/nohold _delete, _log_error, _log_info, _log_debug, __;
 native/nohold _ID;
 
 #define AWAIT_UNTIL_MYSELF(TP,EVT)             \
@@ -116,6 +116,11 @@ end
 #include "pingus/fps_counter.ceu"
 #include "pingus/config_manager.ceu"
 
+event void go_options;
+event void go_pause_toggle;
+event bool go_forward;
+event void go_armageddon;
+
 // SCREENS
 
 #include "pingus/screens/start_screen.ceu"
@@ -136,8 +141,6 @@ do
         end
     end
 end
-
-event void go_options;
 
 #include "pingus/screens/pingus_menu.ceu"
 #include "pingus/screens/level_menu.ceu"
@@ -205,9 +208,6 @@ interface IWorldMap with
     function (void)=>Vector2i get_offset;
 end
 
-event void go_pause_toggle;
-event bool go_forward;
-event void go_armageddon;
 event int  ok_pingu;
 event (float,float,s8,int)      go_create_pingu;
 event (float,float)             go_create_pingu_particles;
