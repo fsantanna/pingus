@@ -227,12 +227,12 @@ code/await LevelSelector (var& _Levelset levelset) -> int
 do
     vector[] byte title = [] .. (levelset.get_title().c_str() as _char&&);
     vector[] byte image = [] .. (levelset.get_image().c_str() as _char&&);
-    var int count = levelset.get_level_count();
+    var int count = levelset.get_level_count() as int;
 
     //levelset.refresh();
     var& ILevelUI ui;
     var int? ret =
-        watching LevelUI(levelset.get_level_count(), LEVEL_ITEMS_PER_PAGE, LEVEL_ITEM_HEIGHT)
+        watching LevelUI(levelset.get_level_count() as int, LEVEL_ITEMS_PER_PAGE, LEVEL_ITEM_HEIGHT)
                     -> (&ui)
         do
             var int yy  = 50+15;
@@ -248,7 +248,7 @@ do
             pool[] Level levels;
             var Rect rect = val Rect(60+50, 50+112, 680-90, LEVEL_ITEM_HEIGHT-1);
             var int i;
-            loop i in [0->levelset.get_level_count()[ do
+            loop i in [0->levelset.get_level_count() as int[ do
                 spawn Level(&levelset, &ui, i, rect) in levels;
                 rect.top = rect.top + LEVEL_ITEM_HEIGHT;
             end
@@ -379,7 +379,7 @@ code/await LevelsetSelector (void) -> int do
     };
     var& ILevelUI ui;
     var int? ret =
-        watching LevelUI({levelsets.size()}, LEVELSET_ITEMS_PER_PAGE, LEVELSET_ITEM_HEIGHT)
+        watching LevelUI({levelsets.size()} as int, LEVELSET_ITEMS_PER_PAGE, LEVELSET_ITEM_HEIGHT)
                     -> (&ui)
         do
             pool[] Levelset sets;

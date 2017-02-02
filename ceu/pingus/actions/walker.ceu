@@ -75,7 +75,7 @@ do
                 // FIXME: We don't check if we 'drift' into a solid ground block
                 call Set_Pos(
                     call Get_X() + (outer.direction as int),
-                    call Get_Y() - 1.0); // pingus 'float' through bridges
+                    call Get_Y() - 1); // pingus 'float' through bridges
             else
                 // Non of the trivial moves worked, so we do up-hill or down-hill 
                 // walking

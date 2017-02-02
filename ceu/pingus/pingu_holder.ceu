@@ -4,7 +4,7 @@
 code/await PinguHolder (pool&[] Pingu pingus, var& PingusCounter counter) -> FOREVER
 do
     par do
-        var int id_total = 0;
+        var uint id_total = 0;
         var int x_,y_;
         var s8 dir_;
         var int owner_id_;

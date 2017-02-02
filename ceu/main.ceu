@@ -216,7 +216,6 @@ event (float,float,float,float) go_create_smoke_particles;
 
 var IWorldMap&&? worldmap;
 var IWorld&&? world;
-var float gravity = 0.2;
 var Vector2i offset = Vector2i(0,0);
 
 var char[] worldmap_return_filename;

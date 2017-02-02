@@ -1,9 +1,15 @@
 code/tight Get_Owner_Str (void) -> _char&& do
     {
         static std::ostringstream ostr;
+        static std::string        str;
+        static const char*        chr;
+        ostr.clear();
+        ostr.str("");
         ostr << @outer.owner_id;
+        str = ostr.str();
+        chr = str.c_str();
     };
-    escape {ostr.str().c_str()} as _char&&;
+    escape {chr} as _char&&;
 end
 
 code/tight Get_Velocity (void) -> Vector3f do
@@ -34,7 +40,7 @@ code/tight Set_X (var float x) -> void do
 end
 
 code/tight Get_Pos (void) -> Vector3f do
-    var Vector3f vec = val Vector3f(outer.rect.left, outer.rect.top, 0);
+    var Vector3f vec = val Vector3f(outer.rect.left as float, outer.rect.top as float, 0);
     escape vec;
 end
 
