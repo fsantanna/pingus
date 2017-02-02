@@ -158,7 +158,6 @@ interface IPingu with
 output:
     var char[]& name;
 
-    event    _ActionName__Enum           go_action;
     function (_ActionName__Enum) => bool check_action;
 
     function (void)         => float        get_x;

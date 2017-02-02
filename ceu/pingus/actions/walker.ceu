@@ -3,7 +3,7 @@
 
 #define WALKER_MAX_STEPS 5  // max nr. of pixels that pingu can walk up/down
 
-code/await Walker (var _ActionName__Enum previous_action) -> int
+code/await Walker (void) -> _ActionName__Enum
 do
     vector[] byte left1  = [] .. "pingus/player"
                            .. (call Get_Owner_Str() as _char&&)
@@ -116,7 +116,7 @@ do
                 else
                     if call Rel_Getpixel(1,0) != {Groundtype::GP_NOTHING} then
                         // We reached a wall
-                        var int wall_action = outer.wall_action;
+                        var _ActionName__Enum wall_action = outer.wall_action;
                         if wall_action != {ActionName::NONE} then
                             _log_debug("Pingu: We are in front of a wall, setting persistant action");
                             escape wall_action;

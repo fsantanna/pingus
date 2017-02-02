@@ -61,9 +61,6 @@ code/await Pingu (pool&[] Pingu  pingus,
                   var     s8?    direction_)
                     -> (vector&[] byte name)
                         -> int
-#if 0
-    interface IPingu;
-#endif
 do
     var s8 direction = do
         if direction_? then
@@ -78,6 +75,7 @@ do
     vector[] byte name_;
     name = &name_;
 
+    event _ActionName__Enum go_action;
     var _ActionName__Enum current_action = {ActionName::FALLER};
     var _ActionName__Enum wall_action    = {ActionName::NONE};
     var _ActionName__Enum fall_action    = {ActionName::NONE};
@@ -87,13 +85,6 @@ do
     #include "actions/walker.ceu"
     #include "actions/faller.ceu"
 
-    watching 5s do
-        //await Walker(current_action);
-        await Faller(current_action);
-    end
-    emit outer.world.ok_pingu({PS_DEAD});
-
-#if 0
     var int ret =
     do
         event _ActionName__Enum e_set_action;
@@ -105,112 +96,107 @@ do
                 /* The Pingu has hit the edge of the screen, a good time to let
                    him die.
                  */
-                if this.rel_getpixel(0,-1) == {Groundtype::GP_OUTOFSCREEN} then
+                if call Rel_Getpixel(0,-1) == {Groundtype::GP_OUTOFSCREEN} then
                     //Sound::PingusSound::play_sound("die");
     // TODO: copied from walker.ceu
-                    this.set_x(this.get_x() + (float)(this.direction));
-                    escape _PS_DEAD;
+                    call Set_X(call Get_X() + (direction as int));
+                    escape {PS_DEAD};
                 end
 
-                if this.rel_getpixel(0,-1) == {Groundtype::GP_WATER} or
-                   this.rel_getpixel(0,-1) == {Groundtype::GP_LAVA}
+                if call Rel_Getpixel(0,-1) == {Groundtype::GP_WATER} or
+                   call Rel_Getpixel(0,-1) == {Groundtype::GP_LAVA}
                 then
-                    emit e_set_action => {ActionName::DROWN};
+                    emit e_set_action({ActionName::DROWN});
                     break;  // no more checks, will die
                 end
 
 
                 // if it has hit the ground too quickly
-                if this.rel_getpixel(0,-1) != {Groundtype::GP_NOTHING} and
-                        this.velocity.y > _deadly_velocity
+                if call Rel_Getpixel(0,-1) != {Groundtype::GP_NOTHING} and
+                        velocity.y > {deadly_velocity}
                 then
-                    emit e_set_action => {ActionName::SPLASHED};
+                    emit e_set_action({ActionName::SPLASHED});
                     break;  // no more checks, will die
                 end
             end
             await FOREVER;
         with
-            every new_action in this.go_action do
+            var _ActionName__Enum new_action;
+            every new_action in go_action do
                 if new_action!={ActionName::EXITER} and new_action!={ActionName::LASERKILL} then
-                    _assert(this.check_action(new_action));
+                    _ceu_dbg_assert(call Check_Action(new_action));
                 end
-                if not this.check_action(new_action) then
+                if not call Check_Action(new_action) then
                     continue;
                 end
 
                 var int mode = {ActionName::ACTIVATION_MODE}[new_action];
 
                 if mode == {ActionType::INSTANT} then
-                    if new_action != this.current_action and
-                       {ActionName::CHANGE_ALLOWED}
-                            [this.current_action][new_action]
+                    if new_action != current_action and
+                       ({ActionName::CHANGE_ALLOWED}
+                            [current_action][new_action] as bool)
                     then
-                        emit e_set_action => new_action;
+                        emit e_set_action(new_action);
                     end
                 else/if mode == {ActionType::WALL_TRIGGERED} then
-                    this.wall_action = new_action;
+                    wall_action = new_action;
                 else/if mode == {ActionType::FALL_TRIGGERED} then
-                    this.fall_action = new_action;
+                    fall_action = new_action;
                 end
             end
         with
             loop do
-                name = [] .. (_char&&){ActionName::to_screenname}
-                                (this.current_action);
+                name_ = [] .. {ActionName::to_screenname}(current_action) as _char&&;
                 par/or do
-                    this.current_action = await e_set_action;
+                    current_action = await e_set_action;
                 with
-                    #define DO_PINGU_ACTION(T)                              \
-                    do                                                      \
-                        var int a = do T with                               \
-                            this.pingus = &outer.pingus;                    \
-                            this.pingu = &outer;                            \
-                            this.previous_action = outer.current_action;    \
-                        end;                                                \
-                        escape (_ActionName__Enum)a;                        \
-                    end
-                    if this.current_action == {ActionName::NONE} then
-                        _assert(not "invalid action");
+                    if current_action == {ActionName::NONE} then
+                        _ceu_dbg_assert({!"invalid action"});
                         await FOREVER;
-                    else/if this.current_action == {ActionName::DEAD} then
-                        escape _PS_DEAD;
-                    else/if this.current_action == {ActionName::BASHER} then
-                        this.current_action = DO_PINGU_ACTION(Basher);
-                    else/if this.current_action == {ActionName::BLOCKER} then
-                        this.current_action = DO_PINGU_ACTION(Blocker);
-                    else/if this.current_action == {ActionName::BOMBER} then
-                        this.current_action = DO_PINGU_ACTION(Bomber);
-                    else/if this.current_action == {ActionName::BRIDGER} then
-                        this.current_action = DO_PINGU_ACTION(Bridger);
-                    else/if this.current_action == {ActionName::CLIMBER} then
-                        this.current_action = DO_PINGU_ACTION(Climber);
-                    else/if this.current_action == {ActionName::DIGGER} then
-                        this.current_action = DO_PINGU_ACTION(Digger);
-                    else/if this.current_action == {ActionName::DROWN} then
-                        this.current_action = DO_PINGU_ACTION(Drown);
-                    else/if this.current_action == {ActionName::EXITER} then
-                        this.current_action = DO_PINGU_ACTION(Exiter);
+                    else/if current_action == {ActionName::DEAD} then
+                        escape {PS_DEAD};
+#if 0
+                    else/if current_action == {ActionName::BASHER} then
+                        current_action = DO_PINGU_ACTION(Basher);
+                    else/if current_action == {ActionName::BLOCKER} then
+                        current_action = DO_PINGU_ACTION(Blocker);
+                    else/if current_action == {ActionName::BOMBER} then
+                        current_action = DO_PINGU_ACTION(Bomber);
+                    else/if current_action == {ActionName::BRIDGER} then
+                        current_action = DO_PINGU_ACTION(Bridger);
+                    else/if current_action == {ActionName::CLIMBER} then
+                        current_action = DO_PINGU_ACTION(Climber);
+                    else/if current_action == {ActionName::DIGGER} then
+                        current_action = DO_PINGU_ACTION(Digger);
+                    else/if current_action == {ActionName::DROWN} then
+                        current_action = DO_PINGU_ACTION(Drown);
+                    else/if current_action == {ActionName::EXITER} then
+                        current_action = DO_PINGU_ACTION(Exiter);
                         escape _PS_EXITED;
-                    else/if this.current_action == {ActionName::FALLER} then
-                        this.current_action = DO_PINGU_ACTION(Faller);
-                    else/if this.current_action == {ActionName::FLOATER} then
-                        this.current_action = DO_PINGU_ACTION(Floater);
-                    else/if this.current_action == {ActionName::JUMPER} then
-                        this.current_action = DO_PINGU_ACTION(Jumper);
-                    else/if this.current_action == {ActionName::LASERKILL} then
-                        this.current_action = DO_PINGU_ACTION(LaserKill);
-                    else/if this.current_action == {ActionName::MINER} then
-                        this.current_action = DO_PINGU_ACTION(Miner);
-                    else/if this.current_action == {ActionName::SLIDER} then
-                        this.current_action = DO_PINGU_ACTION(Slider);
-                    else/if this.current_action == {ActionName::SPLASHED} then
-                        this.current_action = DO_PINGU_ACTION(Splashed);
-                    else/if this.current_action == {ActionName::WAITER} then
-                        this.current_action = DO_PINGU_ACTION(Waiter);
-                    else/if this.current_action == {ActionName::WALKER} then
-                        this.current_action = DO_PINGU_ACTION(Walker);
+#endif
+                    else/if current_action == {ActionName::FALLER} then
+                        current_action = await Faller();
+#if 0
+                    else/if current_action == {ActionName::FLOATER} then
+                        current_action = DO_PINGU_ACTION(Floater);
+                    else/if current_action == {ActionName::JUMPER} then
+                        current_action = DO_PINGU_ACTION(Jumper);
+                    else/if current_action == {ActionName::LASERKILL} then
+                        current_action = DO_PINGU_ACTION(LaserKill);
+                    else/if current_action == {ActionName::MINER} then
+                        current_action = DO_PINGU_ACTION(Miner);
+                    else/if current_action == {ActionName::SLIDER} then
+                        current_action = DO_PINGU_ACTION(Slider);
+                    else/if current_action == {ActionName::SPLASHED} then
+                        current_action = DO_PINGU_ACTION(Splashed);
+                    else/if current_action == {ActionName::WAITER} then
+                        current_action = DO_PINGU_ACTION(Waiter);
+#endif
+                    else/if current_action == {ActionName::WALKER} then
+                        current_action = await Faller();
                     else
-                        _assert({!"Invalid action name provied"});
+                        _ceu_dbg_assert({!"Invalid action name provied"});
                         await FOREVER;
                     end
                 end
@@ -218,9 +204,10 @@ do
         end
     end;
 
-    _assert(ret != _PS_ALIVE);
-    emit global:ok_pingu => ret;
+    _ceu_dbg_assert(ret != {PS_ALIVE});
+    emit outer.world.ok_pingu(ret);
 
+#if 0
     /* END-OF-BODY */
 
     /* PUBLIC */
@@ -276,22 +263,6 @@ do
         return this.owner_id;
     end
 
-    function (_ActionName__Enum new_action)=>bool check_action do
-        var int mode = {ActionName::ACTIVATION_MODE}[new_action];
-
-        if mode == {ActionType::INSTANT} then
-            return (new_action!=this.current_action) and
-                   {ActionName::CHANGE_ALLOWED}[this.current_action][new_action];
-        else/if mode == {ActionType::WALL_TRIGGERED} then
-            return (this.wall_action != new_action);
-        else/if mode == {ActionType::FALL_TRIGGERED} then
-            return (this.fall_action != new_action);
-        else //if mode == {ActionType::COUNTDOWN_TRIGGERED} then
-            _assert(not "DEAD CODE???");
-        end
-    end
-
-#if 0
     void
     Pingu::apply_force (Vector3f arg_v)
     {

@@ -74,3 +74,18 @@ code/tight Head_Collision_On_Walk (var int x, var int y) -> bool do
         escape false;
     end
 end
+
+code/tight Check_Action (var _ActionName__Enum new_action) -> bool do
+    var int mode = {ActionName::ACTIVATION_MODE}[new_action];
+
+    if mode == {ActionType::INSTANT} then
+        escape (new_action!=outer.current_action) and
+               ({ActionName::CHANGE_ALLOWED}[outer.current_action][new_action] as bool);
+    else/if mode == {ActionType::WALL_TRIGGERED} then
+        escape (outer.wall_action != new_action);
+    else/if mode == {ActionType::FALL_TRIGGERED} then
+        escape (outer.fall_action != new_action);
+    else //if mode == {ActionType::COUNTDOWN_TRIGGERED} then
+        _ceu_dbg_assert({!"DEAD CODE???"});
+    end
+end

@@ -3,8 +3,10 @@
 
 #include "../right_left_sprites.ceu"
 
-code/await Faller (var _ActionName__Enum previous_action) -> int
+code/await Faller (void) -> _ActionName__Enum
 do
+    var _ActionName__Enum previous_action = outer.current_action;
+
     code/tight Is_Tumbling (void) -> bool do
         // If we are going fast enough to get smashed, start tumbling
         escape {Math::abs(@(call Get_Velocity()).x) > deadly_velocity ||
@@ -21,7 +23,7 @@ do
             // FIXME: animation for the floater might also help
             var Vector3f velocity = call Get_Velocity();
             if (velocity.y > 5.0) then
-                var int fall_action = outer.fall_action;
+                var _ActionName__Enum fall_action = outer.fall_action;
                 if fall_action != {ActionName::NONE} then
                     escape fall_action;
                 end
