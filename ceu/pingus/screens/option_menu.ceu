@@ -161,27 +161,29 @@ code/await OptionMenu (void) -> void do
         it1 = resolutions.begin();
     };
     cb1.current = {resolutions.size()} - 1;
-    var int i;
-    loop i do
-        if {it1} == {resolutions.end()} then
-            break;
-        end
+    do
+        var int i;
+        loop i do
+            if {it1} == {resolutions.end()} then
+                break;
+            end
 
-        // add resolution to the box
-        var _char_const_ptr str1 = _;
-        {
+            // add resolution to the box
+            var _char_const_ptr str1 = _;
             {
-                std::ostringstream ostr;
-                ostr << it1->width << "x" << it1->height;
-                @str1 = ostr.str().c_str();
-            }
-        };
-        spawn ChoiceItem(&r1, str1, i, &cb1) in its1;
+                {
+                    std::ostringstream ostr;
+                    ostr << it1->width << "x" << it1->height;
+                    @str1 = ostr.str().c_str();
+                }
+            };
+            spawn ChoiceItem(&r1, str1, i, &cb1) in its1;
 
-        if {fullscreen} == {*it1} then
-            cb1.current = {it1 - resolutions.begin()};
+            if {fullscreen} == {*it1} then
+                cb1.current = {it1 - resolutions.begin()};
+            end
+            {it1++;};
         end
-        {it1++;};
     end
     spawn ChoiceBox(&r1, &its1, &cb1);
     spawn do
@@ -253,24 +255,26 @@ code/await OptionMenu (void) -> void do
         static auto it3 = langs.begin();
         it3 = langs.begin();
     };
-    var int i;
-    loop i do
-        if {it3} == {langs.end()} then
-            break;
-        end
-        {
-            static const char* str3;
-            str3 = it3->get_name().c_str();
-        }
-        spawn ChoiceItem(&r3, {str3}, i, &cb3) in its3;
-        {
-            m_language_map[str3] = *it3;
-        }
+    do
+        var int i;
+        loop i do
+            if {it3} == {langs.end()} then
+                break;
+            end
+            {
+                static const char* str3;
+                str3 = it3->get_name().c_str();
+            }
+            spawn ChoiceItem(&r3, {str3}, i, &cb3) in its3;
+            {
+                m_language_map[str3] = *it3;
+            }
 
-        if {dictionary_manager.get_language()} == {*it3} then
-            cb3.current = {it3 - langs.begin()};
+            if {dictionary_manager.get_language()} == {*it3} then
+                cb3.current = {it3 - langs.begin()};
+            end
+            {it3++;};
         end
-        {it3++;};
     end
     spawn ChoiceBox(&r3, &its3, &cb3);
     spawn do

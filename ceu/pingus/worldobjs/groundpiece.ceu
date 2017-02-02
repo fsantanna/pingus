@@ -1,44 +1,32 @@
 #ifndef _GROUNDPIECE_CEU
 #define _GROUNDPIECE_CEU
 
-native/pre do
-    ##define Groundtype__GPType     Groundtype::GPType
-    ##define ResourceModifier__Enum ResourceModifier::Enum
-end
+code/await Groundpiece (void) -> FOREVER do
+    {{
+        static Vector3f p;
+        WORLDOBJ_FACTORY_READER.read_vector("position", p);
 
-native @plain _Groundtype__GPType, _ResourceModifier__Enum;
+        static ResDescriptor desc;
+        WORLDOBJ_FACTORY_READER.read_desc("surface", desc);
 
-class Groundpiece with
-    var _FileReader&& reader;
+        Groundtype::GPType gptype = Groundtype::GP_GROUND;
+        WORLDOBJ_FACTORY_READER.read_enum("type", gptype, &Groundtype::string_to_type);
+        CollisionMask mask(desc);
 
+        // FIXME: overdrawing of bridges and similar things aren't handled here
+        if (gptype == Groundtype::GP_REMOVE) {
+            @(call Remove({&mask}, {p.x} as int, {p.y} as int));
+        } else {
+            @call Put({&mask}, {p.x} as int, {p.y} as int, {gptype});
+        }
+    }}
+    await FOREVER;
+
+#if 0
+    /* PUBLIC */
     function (void)       =>float     get_z_pos;
     function (_Vector3f&&)=>void      set_pos;
     function (void)       =>_Vector3f get_pos;
-do
-    var Vector3f pos;
-    { static Vector3f p; };
-    this.reader:read_vector("position", _p);
-    this.pos = Vector3f(_p.x,_p.y,_p.z);
-
-    do
-        { static ResDescriptor desc; };
-        this.reader:read_desc("surface", _desc);
-
-        var _Groundtype__GPType gptype = {Groundtype::GP_GROUND};
-        this.reader:read_enum("type", gptype, {&Groundtype::string_to_type});
-
-        { CollisionMask mask(desc); };
-        // FIXME: overdrawing of bridges and similar things aren't handled here
-        if (gptype == {Groundtype::GP_REMOVE}) then
-            global:world!:remove(&&_mask, (int)(pos.x), (int)(pos.y));
-        else
-            global:world!:put(&&_mask, (int)(pos.x), (int)(pos.y), gptype);
-        end
-    end
-
-    await FOREVER;
-
-    /* PUBLIC */
 
     function (void)=>float get_z_pos do
         return this.pos.z;
@@ -49,6 +37,7 @@ do
     function (void)=>_Vector3f get_pos do
         return _Vector3f(this.pos.x, this.pos.y, this.pos.z);
     end
+#endif
 end
 
 #endif

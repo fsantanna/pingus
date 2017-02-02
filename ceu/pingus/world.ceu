@@ -5,8 +5,10 @@ native/pre do
     ///struct CEU_World;
     ##include "engine/display/graphic_context_state.hpp"
     ##include "pingus/ground_map.hpp"
+    ##define Groundtype__GPType     Groundtype::GPType
 end
-native/plain _SmallMap, _SceneContext, _GroundMap;
+
+native/plain _Groundtype__GPType, _SmallMap, _SceneContext, _GroundMap, _CollisionMask;
 
 data PingusCounter with
     var int number_of_exited;
@@ -61,16 +63,13 @@ end
 
 #include "worldobjs/entrance.ceu"
 #include "worldobjs/exit.ceu"
-#include "worldobjs/groundpiece.ceu"
 #include "worldobjs/guillotine.ceu"
 #include "worldobjs/hotspot.ceu"
 #include "worldobjs/laser_exit.ceu"
 #include "worldobjs/liquid.ceu"
 #include "worldobjs/smasher.ceu"
 #include "worldobjs/spike.ceu"
-#include "worldobjs/surface_background.ceu"
 
-#include "worldobj_factory.ceu"
 #endif
 
 #if 0
@@ -114,12 +113,29 @@ do
 
     world.state.set_limit({Rect(Vector2i(0,0), Size(@width,@height))});
 
+    code/tight Get_Width (void) -> int do
+        escape outer.width;
+    end
+    code/tight Get_Height (void) -> int do
+        escape outer.height;
+    end
+
     code/tight Get_Offset (void) -> Vector2i do
         var Vector2i ret = val Vector2i(
                                 (outer.world.state.get_pos().x - outer.world.state.get_width()/2),
                                 (outer.world.state.get_pos().y - outer.world.state.get_height()/2),
                            );
         escape ret;
+    end
+
+    code/tight Put (var _CollisionMask&& mask,var int x,var int y,var _Groundtype__GPType type) -> void do
+        outer.gfx_map.put(mask:get_surface(), x, y);
+        outer.gfx_map.get_colmap():put(*mask, x, y, type);
+    end
+
+    code/tight Remove (var _CollisionMask&& mask,var int x,var int y) -> void do
+        outer.gfx_map.remove(mask:get_surface(), x, y);
+        outer.gfx_map.get_colmap():remove(*mask, x, y);
     end
 
     #include "pingu.ceu"
@@ -163,13 +179,13 @@ do
 
     spawn PinguHolder(&pingus, &counter);
 
-
+#if 0
     watching 5s do
         every 1s do
             emit world.go_create_pingu(100,100, {LEFT}, 0);
         end
     end
-#if 0
+
     pool PinguParticle[] pingu_particles;
     pool SmokeParticle[] smoke_particles;
 
@@ -205,19 +221,17 @@ do
     end;
 
     var CaptureRectangle _ = CaptureRectangle.build(&playfield);
+#endif
 
-    var WorldObjFactory objs with
-        this.plf = &plf;
-        this.layer_bg_0 = &layer_bg_0;
-        this.layer_bg_1 = &layer_bg_1;
-        this.pingus = &pingus;
-        this.game_time = &game_time;
-        this.smallmap = &smallmap;
-    end;
+    var Vector2i pos_start = _;
+    #include "worldobj_factory.ceu"
+    await WorldObj_Factory();
 
-    this.state.set_pos(_Vector2i(objs.pos_start.x,objs.pos_start.y));
-    this.rect.left = objs.pos_start.x;
-    this.rect.top  = objs.pos_start.y;
+    await FOREVER;
+#if 0
+    this.state.set_pos(_Vector2i(pos_start.x,pos_start.y));
+    this.rect.left = pos_start.x;
+    this.rect.top  = pos_start.y;
 
     par/or do
         do GoalManager with
@@ -274,24 +288,8 @@ do
 
     /* PUBLIC */
 
-    function (void)=>int get_width do
-        return this.width;
-    end
-    function (void)=>int get_height do
-        return this.height;
-    end
-
     function (void)=>_CollisionMap&& get_colmap do
         return _XXX_PURE(this.gfx_map!.get_colmap());
-    end
-
-    function (_CollisionMask&& mask,int x,int y,_Groundtype__GPType type)=>void put do
-        this.gfx_map!.put(mask:get_surface(), x, y);
-        this.gfx_map!.get_colmap():put(*mask, x, y, type);
-    end
-    function (_CollisionMask&& mask,int x,int y)=>void remove do
-        this.gfx_map!.remove(mask:get_surface(), x, y);
-        this.gfx_map!.get_colmap():remove(*mask, x, y);
     end
 #endif
 end

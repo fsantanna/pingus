@@ -1,15 +1,16 @@
 #ifndef _WORLDOBJ_FACTORY_CEU
 #define _WORLDOBJ_FACTORY_CEU
 
+#include "worldobjs/surface_background.ceu"
+#include "worldobjs/groundpiece.ceu"
+
 // TODO: use spawn directly instead of ceu_sys_go
 //          - requires flatmap or traverse
 
 native/pre do
     static std::vector<std::pair<FileReader,Vector3f>> WORLDOBJ_FACTORY_VECTOR;
     static FileReader                                  WORLDOBJ_FACTORY_READER;
-end
 
-native do
     ##include "src/pingus/prefab_file.hpp"
     ##include "src/util/overrride_file_reader.hpp"
     Vector3f WORLDOBJ_FACTORY_pos = Vector3f(0,0,0);
@@ -48,45 +49,36 @@ native do
     }
 end
 
-class WorldObjFactory with
-    var _PingusLevel& plf;  // TODO: private
-
-    pool IVisible[]& layer_bg_0;
-    pool IVisible[]& layer_bg_1;
-    pool IPingu[]& pingus;
-
-    var int& game_time;
-    var SmallMap& smallmap;
-    var Vector2i pos_start = Vector2i(0,0);
+code/await WorldObj_Factory (void) -> void
 do
-    loop i in this.plf.get_objects().size() do
-        _WORLDOBJ_FACTORY_create(this.plf.get_objects().at(i));
+    do
+        var usize i;
+        loop i in [0 -> outer.plf.get_objects().size()[ do
+            {WORLDOBJ_FACTORY_create(@outer.plf.get_objects().at(i));}
+        end
     end
 
-    #define id_     _WORLDOBJ_FACTORY_VECTOR.at(i).first.get_name()
-    #define reader_ &&_WORLDOBJ_FACTORY_READER
+    ///pool[] Entrance entrances;
 
-    pool Entrance[] entrances;
-
-    loop i in _WORLDOBJ_FACTORY_VECTOR.size() do
-        _WORLDOBJ_FACTORY_READER = _XXX_PURE(_WORLDOBJ_FACTORY_VECTOR.at(i).first);
-        var Vector3f pos_offset = Vector3f(_WORLDOBJ_FACTORY_VECTOR.at(i).second.x,
-                                           _WORLDOBJ_FACTORY_VECTOR.at(i).second.y,
-                                           _WORLDOBJ_FACTORY_VECTOR.at(i).second.z);
+    var usize i;
+    loop i in [0 -> {WORLDOBJ_FACTORY_VECTOR.size()}[ do
+        {WORLDOBJ_FACTORY_READER = WORLDOBJ_FACTORY_VECTOR.at(@i).first;};
+        var Vector3f pos_offset = val Vector3f({WORLDOBJ_FACTORY_VECTOR}.at(i).second.x,
+                                               {WORLDOBJ_FACTORY_VECTOR}.at(i).second.y,
+                                               {WORLDOBJ_FACTORY_VECTOR}.at(i).second.z);
+        #define id_ {WORLDOBJ_FACTORY_VECTOR}.at(i).first.get_name()
         if id_ == "surface-background" then
-            spawn SurfaceBackground in this.layer_bg_0 with
-                this.reader = reader_;
-            end;
+            spawn SurfaceBackground() in outer.layer_bg_0;
         else/if id_ == "groundpiece" then
-            spawn Groundpiece with  // drawn in world.ceu
-                this.reader = reader_;
-            end;
+            spawn Groundpiece();  // drawn in world.ceu
+        end
+#if 0
         else/if id_ == "liquid" then
             spawn Liquid in this.layer_bg_1 with
                 this.reader = reader_;
             end;
         else/if id_ == "hotspot" then
-// TODO: entrance "+100"
+    // TODO: entrance "+100"
             spawn Hotspot in this.layer_bg_1 with
                 this.reader     = reader_;
                 this.pos_offset = pos_offset;
@@ -125,24 +117,25 @@ do
                 this.reader = reader_;
             end;
         end
+#endif
     end
 
+#if 0
     // FIXME: Workaround for lack of start-pos
     var int num_entrances = 0;
     loop e in entrances do
         num_entrances = num_entrances + 1;
         var _Vector3f pos_ = e:get_pos();
-        pos_start.x = pos_start.x + (int)pos_.x;
-        pos_start.y = pos_start.y + (int)pos_.y;
+        outer.pos_start.x = outer.pos_start.x + (int)pos_.x;
+        outer.pos_start.y = outer.pos_start.y + (int)pos_.y;
     end
 
     if (num_entrances > 0) then
-        pos_start.x = pos_start.x / num_entrances;
-        pos_start.y = pos_start.y / num_entrances;
-        pos_start.y = pos_start.y + 100;
+        outer.pos_start.x = outer.pos_start.x / num_entrances;
+        outer.pos_start.y = outer.pos_start.y / num_entrances;
+        outer.pos_start.y = outer.pos_start.y + 100;
     end
-
-    await FOREVER;
+#endif
 
 #if 0
     {
@@ -154,7 +147,6 @@ do
             WorldObjFactory::instance()->create(*i);
     };
 #endif
-
 end
 
 #endif

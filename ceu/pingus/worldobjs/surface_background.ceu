@@ -1,18 +1,13 @@
 #ifndef _SURFACEBACKGROUND_CEU
 #define _SURFACEBACKGROUND_CEU
 
-class SurfaceBackground with
-    var _FileReader&& reader;
-
-    function (void)       =>float     get_z_pos;
-    function (_Vector3f&&)=>void      set_pos;
-    function (void)       =>_Vector3f get_pos;
+code/await SurfaceBackground (void) -> FOREVER
 do
     var float para_x = 0.5;
     var float para_y = 0.5;
 
     /* Position of the background, only the z_pos is really used. */
-    var Vector3f pos;
+    var Vector3f pst;
 
     /* The amount of pixel the background is scrolled each frame in x
             direction. */
@@ -25,7 +20,7 @@ do
     /* fill_rect() components
             An fill_rect() can be drawn over the background, the following
             for components are passed to the fill_rect() call. */
-    var Color color = Color(0,0,0,0);
+    var Color color = val Color(0,0,0,0);
 
     /* Stretch the background to the full screen size in x direction */
     var bool stretch_x = false;
@@ -44,29 +39,31 @@ do
 
     //do
         { static Vector3f p; };
-        if this.reader:read_vector("position", _p) then
-            this.pos = Vector3f(_p.x,_p.y,_p.z);
+        if {WORLDOBJ_FACTORY_READER.read_vector("position",p)} as bool then
+            pst = val Vector3f({p.x},{p.y},{p.z});
         else
-            this.pos = Vector3f(0,0,-150);
+            pst = val Vector3f(0,0,-150);
         end
 
         { static Color c; };
-        if this.reader:read_colori("colori",_c) or
-           this.reader:read_colorf("color",_c)
+        if ({WORLDOBJ_FACTORY_READER.read_colori("colori",c) ||
+            WORLDOBJ_FACTORY_READER.read_colorf("color",c)}) as bool
         then
-            this.color = Color(_c.r, _c.g, _c.b, _c.a);
+            color = val Color({c.r}, {c.g}, {c.b}, {c.a});
         end
 
-        this.reader:read_float("para-x", this.para_x);
-        this.reader:read_float("para-y", this.para_y);
+        {
+            WORLDOBJ_FACTORY_READER.read_float("para-x", @para_x);
+            WORLDOBJ_FACTORY_READER.read_float("para-y", @para_y);
 
-        this.reader:read_float("scroll-x", this.scroll_x);
-        this.reader:read_float("scroll-y", this.scroll_y);
+            WORLDOBJ_FACTORY_READER.read_float("scroll-x", @scroll_x);
+            WORLDOBJ_FACTORY_READER.read_float("scroll-y", @scroll_y);
 
-        this.reader:read_bool("stretch-x", this.stretch_x);
-        this.reader:read_bool("stretch-y", this.stretch_y);
+            WORLDOBJ_FACTORY_READER.read_bool("stretch-x", @stretch_x);
+            WORLDOBJ_FACTORY_READER.read_bool("stretch-y", @stretch_y);
 
-        this.reader:read_bool("keep-aspect", this.keep_aspect);
+            WORLDOBJ_FACTORY_READER.read_bool("keep-aspect", @keep_aspect);
+        }
 
         //_assert((not stretch_x) and (not stretch_y) and (color.a == 0));
     //end
@@ -74,80 +71,83 @@ do
     /* Background image */
     // FIXME: would be nice to allow surface manipulation with
     // animated sprites, but it's not that easy to do
-    { static ResDescriptor desc; };
-    this.reader:read_desc("surface", _desc);
-    var _SpriteDescription&& desc = _XXX_PURE({Resource::load_sprite_desc}(_desc.res_name));
-    var Surface bg_sfc with
-        this.desc = desc;
-    end;
+    {
+        static ResDescriptor desc;
+        WORLDOBJ_FACTORY_READER.read_desc("surface", desc);
+    }
+    var& Surface bg_sfc;
+    spawn Surface_from_desc({Resource::load_sprite_desc(desc.res_name)}, _)
+            -> (&bg_sfc);
+
+    var int w = bg_sfc.framebuffer.get_width();
+    var int h = bg_sfc.framebuffer.get_height();
 
     par do
         every WORLD_UPDATE do
-            if {globals::static_graphics} then
+            if {globals::static_graphics} as bool then
                 continue;
             end
             //this.bg_sprite.update();
 
-            if (this.scroll_x) then
-                this.scroll_ox = this.scroll_ox + this.scroll_x;
-                if (this.scroll_ox > bg_sfc.get_width()) then
-                    this.scroll_ox = this.scroll_ox -
-                                            (float)(bg_sfc.get_width());
-                else/if (-this.scroll_ox > bg_sfc.get_width()) then
-                    this.scroll_ox = this.scroll_ox +
-                                            (float)(bg_sfc.get_width());
+            if scroll_x != 0 then
+                scroll_ox = scroll_ox + scroll_x;
+                if (scroll_ox > w) then
+                    scroll_ox = scroll_ox - w;
+                else/if (-scroll_ox > w) then
+                    scroll_ox = scroll_ox + w;
                 end
             end
 
-            if (this.scroll_y) then
-                this.scroll_oy = this.scroll_oy + this.scroll_y;
-                if (this.scroll_oy > bg_sfc.get_height()) then
-                    this.scroll_oy = this.scroll_oy -
-                                            (float)(bg_sfc.get_height());
-                else/if (-this.scroll_oy > bg_sfc.get_height()) then
-                    this.scroll_oy = this.scroll_oy +
-                                            (float)(bg_sfc.get_height());
+            if scroll_y != 0 then
+                scroll_oy = scroll_oy + scroll_y;
+                if (scroll_oy > h) then
+                    scroll_oy = scroll_oy - h;
+                else/if (-scroll_oy > h) then
+                    scroll_oy = scroll_oy + h;
                 end
             end
         end
     with
-        every REDRAW do
-            var Vector2i off = global:world!:get_offset();
-            var int start_x = (off.x * this.para_x) + this.scroll_ox;
-            var int start_y = (off.y * this.para_y) + this.scroll_oy;
+        every SDL_REDRAW do
+            var Vector2i off = call Get_Offset();
+            var int start_x = ((off.x * para_x) + scroll_ox) as int;
+            var int start_y = ((off.y * para_y) + scroll_oy) as int;
 
             if (start_x > 0) then
-                start_x = (start_x % bg_sfc.get_width()) - bg_sfc.get_width();
+                start_x = (start_x % w) - w;
             end
 
             if (start_y > 0) then
-                start_y = (start_y % bg_sfc.get_height()) - bg_sfc.get_height();
+                start_y = (start_y % h) - h;
             end
 
             var int y = start_y;
+            var int i;
             loop i do
-                if y >= global:world!:get_height() then
+                if y >= call Get_Height() then
                     break;
                 end
 
                 var int x = start_x;
+                var int j;
                 loop j do
-                    if x >= global:world!:get_width() then
+                    if x >= call Get_Width() then
                         break;
                     end
                     call {Display::s_framebuffer}:draw_surface(
-                        bg_sfc.framebuffer_surface,
+                        bg_sfc.framebuffer,
                         _Vector2i(x-off.x,y-off.y)
                     );
-                    x = x + bg_sfc.get_width();
+                    x = x + w;
                 end
-                y = y + bg_sfc.get_height();
+                y = y + h;
             end
         end
     end
 
     /* PUBLIC */
 
+#if 0
     function (void)=>float get_z_pos do
         return this.pos.z;
     end
@@ -157,6 +157,7 @@ do
     function (void)=>_Vector3f get_pos do
         return _Vector3f(this.pos.x, this.pos.y, this.pos.z);
     end
+#endif
 end
 
 #endif
