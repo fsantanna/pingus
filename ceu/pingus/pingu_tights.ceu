@@ -6,6 +6,10 @@ code/tight Get_Owner_Str (void) -> _char&& do
     escape {ostr.str().c_str()} as _char&&;
 end
 
+code/tight Get_Velocity (void) -> Vector3f do
+    escape outer.velocity;
+end
+
 code/tight Set_Velocity (var Vector3f velocity) -> void do
     // crude terminal velocity
     velocity.x = {(float)Math::clamp(-terminal_velocity, @velocity.x, terminal_velocity)};

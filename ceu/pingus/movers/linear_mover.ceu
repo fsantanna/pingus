@@ -1,53 +1,60 @@
 #ifndef _LINEARMOVER_CEU
 #define _LINEARMOVER_CEU
 
-class LinearMover with
-    var IPingu& pingu;
-    event void  ok_collided;
+native/pre do
+    ##include "../src/pingus/colliders/pingu_collider.hpp"
+end
+
+code/await LinearMover (void) -> (event& void ok_collided) -> FOREVER
 do
+    event void ok_collided_;
+    ok_collided = &ok_collided_;
+
     every WORLD_UPDATE do
         var bool collided = false;
 
-        // enclosing block for the C++ declarations
-        do
-            {
-                Vector3f pos, move;
-            };
-            _pos.x = this.pingu.get_pos().x;
-            _pos.y = this.pingu.get_pos().y;
+        var Vector3f vel = call Get_Velocity();
+        var Vector3f pst = _;
 
-            var Vector3f vel = this.pingu.get_velocity();
-            _move = (_Vector3f) _Vector3f(vel.x,vel.y,vel.z);
-            {
-                Vector3f target_pos = pos + move;
-                Vector3f step_vector = move;
-            };
+        // enclosing block for the C++ declarations
+        {{
+            Vector3f pst, move;
+            pst.x = @(call Get_X());
+            pst.y = @(call Get_Y());
+
+            move = Vector3f(@vel.x,@vel.y,@vel.z);
+
+            Vector3f target_pos = pst + move;
+            Vector3f step_vector = move;
 
             // Static cast to stop warning
-            var int move_length = (int)(_move.length());
+            int move_length = (int)(move.length());
 
             // Make the step vector (i.e. change to a unit vector)
-            _step_vector.normalize();
+            step_vector.normalize();
 
             // Move to the destination one unit vector at a time
-            loop i in move_length do
-                collided = {Colliders::PinguCollider()}(global:world!:get_colmap(),_pos, _step_vector);
-                _pos = _pos + _step_vector;
-                if collided then
+            for (int i=0; i<move_length; i++) {
+                @collided = Colliders::PinguCollider()(@outer.gfx_map.get_colmap(), pst, step_vector);
+                pst = pst + step_vector;
+                if (@collided) {
                     break;
-                end
-            end
+                }
+            }
 
             // If on a collision pixel, back away from it.
-            if collided then
-                _pos = _pos - _step_vector;
-            end
+            if (@collided) {
+                pst = pst - step_vector;
+            }
 
-            this.pingu.set_pos(_pos.x, _pos.y);
-         end
+            @pst.x = pst.x;
+            @pst.y = pst.y;
+            @pst.z = pst.z;
+        }};
 
+        call Set_Pos(pst.x, pst.y);
         if collided then
-            emit this.ok_collided;
+            emit ok_collided_;
         end
     end
 end

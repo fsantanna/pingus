@@ -43,7 +43,6 @@ end
 #include "actions/digger.ceu"
 #include "actions/drown.ceu"
 #include "actions/exiter.ceu"
-#include "actions/faller.ceu"
 #include "actions/floater.ceu"
 #include "actions/jumper.ceu"
 #include "actions/laser_kill.ceu"
@@ -84,10 +83,13 @@ do
     var _ActionName__Enum fall_action    = {ActionName::NONE};
 
     #include "pingu_tights.ceu"
+    #include "movers/linear_mover.ceu"
     #include "actions/walker.ceu"
+    #include "actions/faller.ceu"
 
     watching 5s do
-        await Walker(current_action);
+        //await Walker(current_action);
+        await Faller(current_action);
     end
     emit outer.world.ok_pingu({PS_DEAD});
 
@@ -233,10 +235,6 @@ do
     function (void)=>Vector3f get_center_pos do
         var Vector3f vec = Vector3f(this.rect.left, this.rect.top-16, 0);
         return vec;
-    end
-
-    function (void)=>Vector3f get_velocity do
-        return this.velocity;
     end
 
     function (s8 d)=>void set_direction do

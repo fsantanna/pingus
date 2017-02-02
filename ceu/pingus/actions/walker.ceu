@@ -3,8 +3,7 @@
 
 #define WALKER_MAX_STEPS 5  // max nr. of pixels that pingu can walk up/down
 
-code/await Walker (var _ActionName__Enum previous_action)
-                    -> int
+code/await Walker (var _ActionName__Enum previous_action) -> int
 do
     vector[] byte left1  = [] .. "pingus/player"
                            .. (call Get_Owner_Str() as _char&&)

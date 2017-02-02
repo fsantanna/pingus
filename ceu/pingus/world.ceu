@@ -93,6 +93,8 @@ do
     var int width  = {@plf.get_size().width};
     var int height = {@plf.get_size().height};
 
+    var float gravity = 0.2;
+
     var&? _GroundMap gfx_map_ =
         &{new GroundMap}(width, height)
             finalize (gfx_map_) with
