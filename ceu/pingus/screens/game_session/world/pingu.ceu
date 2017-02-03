@@ -54,23 +54,25 @@ end
 
 #include "pingus/right_left_sprites.ceu"
 
+data IPingu with
+    var Rect     rect;
+    var s8       direction;
+    var Vector3f velocity = val Vector3f(0, 0, 0);
+end
+
 code/await Pingu (pool&[] Pingu  pingus,
                   var     uint   id,
                   var     int    owner_id,
-                  var     Rect   rect,
+                  var     Rect   rect_,
                   var     s8?    direction_)
                     -> (vector&[] byte name)
                         -> void
 do
-    var s8 direction = do
-        if direction_? then
-            escape direction_!;
-        else
-            escape {LEFT};
-        end
-    end;
+    if not direction_? then
+        direction_ = {LEFT};
+    end
 
-    var Vector3f velocity = val Vector3f(0, 0, 0);
+    var IPingu pingu = val IPingu(rect_, direction_!, _);
 
     vector[] byte name_;
     name = &name_;
@@ -97,15 +99,15 @@ do
                 /* The Pingu has hit the edge of the screen, a good time to let
                    him die.
                  */
-                if call Rel_Getpixel(0,-1) == {Groundtype::GP_OUTOFSCREEN} then
+                if call Pingu_Rel_Getpixel(0,-1) == {Groundtype::GP_OUTOFSCREEN} then
                     //Sound::PingusSound::play_sound("die");
     // TODO: copied from walker.ceu
-                    call Set_X(call Get_X() + (direction as int));
+                    pingu.rect.left = (pingu.rect.left + (pingu.direction as int));
                     escape {PS_DEAD};
                 end
 
-                if call Rel_Getpixel(0,-1) == {Groundtype::GP_WATER} or
-                   call Rel_Getpixel(0,-1) == {Groundtype::GP_LAVA}
+                if call Pingu_Rel_Getpixel(0,-1) == {Groundtype::GP_WATER} or
+                   call Pingu_Rel_Getpixel(0,-1) == {Groundtype::GP_LAVA}
                 then
                     emit e_set_action({ActionName::DROWN});
                     break;  // no more checks, will die
@@ -113,8 +115,8 @@ do
 
 
                 // if it has hit the ground too quickly
-                if call Rel_Getpixel(0,-1) != {Groundtype::GP_NOTHING} and
-                        velocity.y > {deadly_velocity}
+                if call Pingu_Rel_Getpixel(0,-1) != {Groundtype::GP_NOTHING} and
+                        pingu.velocity.y > {deadly_velocity}
                 then
                     emit e_set_action({ActionName::SPLASHED});
                     break;  // no more checks, will die
@@ -125,9 +127,9 @@ do
             var _ActionName__Enum new_action;
             every new_action in go_action do
                 if new_action!={ActionName::EXITER} and new_action!={ActionName::LASERKILL} then
-                    _ceu_dbg_assert(call Check_Action(new_action));
+                    _ceu_dbg_assert(call Pingu_Check_Action(new_action));
                 end
-                if not call Check_Action(new_action) then
+                if not call Pingu_Check_Action(new_action) then
                     continue;
                 end
 

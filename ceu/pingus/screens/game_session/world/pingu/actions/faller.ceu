@@ -9,8 +9,8 @@ do
 
     code/tight Is_Tumbling (void) -> bool do
         // If we are going fast enough to get smashed, start tumbling
-        escape {Math::abs(@(call Get_Velocity()).x) > deadly_velocity ||
-                Math::abs(@(call Get_Velocity()).y) > deadly_velocity} as bool;
+        escape {Math::abs(@outer.pingu.velocity.x) > deadly_velocity ||
+                Math::abs(@outer.pingu.velocity.y) > deadly_velocity} as bool;
     end
 
     /* UPDATE */
@@ -21,8 +21,7 @@ do
             // FIXME: This should be triggered at a later point, when close to
             // FIXME: deadly_velocity or something like that. A translation
             // FIXME: animation for the floater might also help
-            var Vector3f velocity = call Get_Velocity();
-            if (velocity.y > 5.0) then
+            if (outer.pingu.velocity.y > 5.0) then
                 var _ActionName__Enum fall_action = outer.fall_action;
                 if fall_action != {ActionName::NONE} then
                     escape fall_action;
@@ -30,8 +29,7 @@ do
             end
 
             // Apply gravity
-            velocity.y = velocity.y + outer.gravity;
-            call Set_Velocity(velocity);
+            outer.pingu.velocity.y = outer.pingu.velocity.y + outer.gravity;
         end
     with
         event& void ok_collided;
@@ -48,28 +46,25 @@ await WORLD_UPDATE;
 
             // If the Pingu collided with something...
 
-            var Vector3f velocity = call Get_Velocity();
-
-            if call Rel_Getpixel(0,-1) == {Groundtype::GP_NOTHING} and
-               call Rel_Getpixel(0,-2) == {Groundtype::GP_NOTHING} and
-               call Rel_Getpixel(0,-3) == {Groundtype::GP_NOTHING} and
-               call Rel_Getpixel(1, 0) != {Groundtype::GP_NOTHING} and
-               call Rel_Getpixel(1, 0) != {Groundtype::GP_BRIDGE}
+            if call Pingu_Rel_Getpixel(0,-1) == {Groundtype::GP_NOTHING} and
+               call Pingu_Rel_Getpixel(0,-2) == {Groundtype::GP_NOTHING} and
+               call Pingu_Rel_Getpixel(0,-3) == {Groundtype::GP_NOTHING} and
+               call Pingu_Rel_Getpixel(1, 0) != {Groundtype::GP_NOTHING} and
+               call Pingu_Rel_Getpixel(1, 0) != {Groundtype::GP_BRIDGE}
             then
                 // Make Pingu bounce off wall
-                velocity.x = -(velocity.x / 3.0);
+                outer.pingu.velocity.x = -(outer.pingu.velocity.x / 3.0);
 
                 // Make the Pingu face the correct direction.  NB: Pingu 
                 // may previously have been facing in the opposite direction of its
                 // velocity because of an explosion.
-                if (velocity.x > 0.0) then
-                    outer.direction = {RIGHT};
+                if (outer.pingu.velocity.x > 0.0) then
+                    outer.pingu.direction = {RIGHT};
                 else
-                    outer.direction = {LEFT};
+                    outer.pingu.direction = {LEFT};
                 end
-                call Set_Velocity(velocity);
 
-            else/if (velocity.y > 0.0) then
+            else/if (outer.pingu.velocity.y > 0.0) then
                 // If the Pingu collided into something while moving 
                 // down...
                 // Not lava/water because they are handled in pingu.ceu
@@ -85,30 +80,29 @@ await WORLD_UPDATE;
             else // if (velocity.y < 0.0f)
                 // If the Pingu collided into something while moving up...
                 // Don't make the Pingu go up any further.
-                velocity.y = 0;
-                velocity.x = (velocity.x / 3.0);
-                call Set_Velocity(velocity);
+                outer.pingu.velocity.y = 0;
+                outer.pingu.velocity.x = (outer.pingu.velocity.x / 3.0);
             end
         end
     with
         do
             vector[] byte left  = [] .. "pingus/player"
-                                     .. call Get_Owner_Str() as _char&&
+                                     .. call Pingu_Get_Owner_Str() as _char&&
                                      .. "/faller/left";
             vector[] byte right = [] .. "pingus/player"
-                                     .. call Get_Owner_Str() as _char&&
+                                     .. call Pingu_Get_Owner_Str() as _char&&
                                      .. "/faller/right";
-            spawn RightLeftSprites(&outer.rect, &outer.direction, &left, &right, true);
+            spawn RightLeftSprites(&outer.pingu.rect, &outer.pingu.direction, &left, &right, true);
             await WORLD_UPDATE until call Is_Tumbling();
         end
         do
             vector[] byte left  = [] .. "pingus/player"
-                                  .. call Get_Owner_Str() as _char&&
+                                  .. call Pingu_Get_Owner_Str() as _char&&
                                   .. "/tumbler/left";
             vector[] byte right = [] .. "pingus/player"
-                                  .. call Get_Owner_Str() as _char&&
+                                  .. call Pingu_Get_Owner_Str() as _char&&
                                   .. "/tumbler/right";
-            await RightLeftSprites(&outer.rect, &outer.direction, &left, &right, true);
+            await RightLeftSprites(&outer.pingu.rect, &outer.pingu.direction, &left, &right, true);
             _ceu_dbg_assert(0);     // sprite has loop
         end
     end

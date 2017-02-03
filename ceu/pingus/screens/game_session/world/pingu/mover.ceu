@@ -13,16 +13,15 @@ do
     every WORLD_UPDATE do
         var bool collided = false;
 
-        var Vector3f vel = call Get_Velocity();
         var Vector3f pst = _;
 
         // enclosing block for the C++ declarations
         {{
             Vector3f pst, move;
-            pst.x = @(call Get_X());
-            pst.y = @(call Get_Y());
+            pst.x = @(outer.pingu.rect.left);
+            pst.y = @(outer.pingu.rect.top);
 
-            move = Vector3f(@vel.x,@vel.y,@vel.z);
+            move = Vector3f(@outer.pingu.velocity.x,@outer.pingu.velocity.y,@outer.pingu.velocity.z);
 
             Vector3f target_pos = pst + move;
             Vector3f step_vector = move;
@@ -52,7 +51,9 @@ do
             @pst.z = pst.z;
         }};
 
-        call Set_Pos(pst.x, pst.y);
+        outer.pingu.rect.left = pst.x as int;
+        outer.pingu.rect.top  = pst.y as int;
+
         if collided then
             emit ok_collided_;
         end

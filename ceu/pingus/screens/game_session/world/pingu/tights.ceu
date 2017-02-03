@@ -1,4 +1,4 @@
-code/tight Get_Owner_Str (void) -> _char&& do
+code/tight Pingu_Get_Owner_Str (void) -> _char&& do
     {
         static std::ostringstream ostr;
         static std::string        str;
@@ -12,60 +12,30 @@ code/tight Get_Owner_Str (void) -> _char&& do
     escape {chr} as _char&&;
 end
 
-code/tight Get_Velocity (void) -> Vector3f do
-    escape outer.velocity;
-end
-
 code/tight Set_Velocity (var Vector3f velocity) -> void do
     // crude terminal velocity
     velocity.x = {(float)Math::clamp(-terminal_velocity, @velocity.x, terminal_velocity)};
     velocity.y = {(float)Math::clamp(-terminal_velocity, @velocity.y, terminal_velocity)};
-    outer.velocity = velocity;
+    outer.pingu.velocity = velocity;
 end
 
-code/tight Get_Y (void) -> float do
-    escape outer.rect.top;
-end
-
-code/tight Get_X (void) -> float do
-    escape outer.rect.left;
-end
-
-code/tight Set_Y (var float y) -> void do
-    outer.rect.top = y as int;
-end
-
-code/tight Set_X (var float x) -> void do
-    outer.rect.left = x as int;
-end
-
-code/tight Get_Pos (void) -> Vector3f do
-    var Vector3f vec = val Vector3f(outer.rect.left as float, outer.rect.top as float, 0);
-    escape vec;
-end
-
-code/tight Set_Pos (var float x, var float y) -> void do
-    call Set_X(x);
-    call Set_Y(y);
-end
-
-code/tight Change_Direction (void) -> void do
-    if outer.direction == {LEFT} then
-        outer.direction = {RIGHT};
+code/tight Pingu_Toggle_Direction (void) -> void do
+    if outer.pingu.direction == {LEFT} then
+        outer.pingu.direction = {RIGHT};
     else
-        outer.direction = {LEFT};
+        outer.pingu.direction = {LEFT};
     end
 end
 
-code/tight Rel_Getpixel (var int x, var int y) -> int do
+code/tight Pingu_Rel_Getpixel (var int x, var int y) -> int do
     escape outer.gfx_map.get_colmap():getpixel(
-                (outer.rect.left + (x * outer.direction)),
-                (outer.rect.top - y)
+                (outer.pingu.rect.left + (x * outer.pingu.direction)),
+                (outer.pingu.rect.top - y)
             );
 end
 
-code/tight Head_Collision_On_Walk (var int x, var int y) -> bool do
-    var int pixel = call Rel_Getpixel(x, y + {pingu_height});
+code/tight Pingu_Head_Collision_On_Walk (var int x, var int y) -> bool do
+    var int pixel = call Pingu_Rel_Getpixel(x, y + {pingu_height});
     if (     pixel != {Groundtype::GP_NOTHING} and
         not ((pixel &  {Groundtype::GP_BRIDGE}) as bool))
     then
@@ -75,7 +45,7 @@ code/tight Head_Collision_On_Walk (var int x, var int y) -> bool do
     end
 end
 
-code/tight Check_Action (var _ActionName__Enum new_action) -> bool do
+code/tight Pingu_Check_Action (var _ActionName__Enum new_action) -> bool do
     var int mode = {ActionName::ACTIVATION_MODE}[new_action];
 
     if mode == {ActionType::INSTANT} then
