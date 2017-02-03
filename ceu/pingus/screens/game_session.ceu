@@ -14,36 +14,53 @@ end
 #if 0
 #include "../goal_manager.ceu"
 #endif
-#include "../world.ceu"
 
-code/await GameSession (var& _PingusLevel plf) -> void
+data PingusCounter with
+    var int number_of_exited;
+    var int number_of_killed;
+    var int number_of_alive;
+    var int number_of_released;
+    var int number_of_allowed;
+    var int number_to_save;
+end
+
+data IGameSession with
+    var& _PingusLevel plf;
+    var  int          game_time;
+    var PingusCounter counter;
+end
+
+code/await GameSession (var& _PingusLevel plf_) -> void
 do
     var bool is_paused         = false;
     var bool is_fast_forwarded = false;
     var bool do_single_step    = false;
 
     {
-        GLOBAL_ACTIONHOLDER = new ActionHolder(@plf);
-        result.plf = @plf;
+        GLOBAL_ACTIONHOLDER = new ActionHolder(@plf_);
+        result.plf = @plf_;
     }
 
     /// TODO: from "on_startup", called on creation and when popped back
     if {globals::developer_mode} as bool then
-        _log_info("Starting Music: %1%", plf.get_music());
+        _log_info("Starting Music: %1%", plf_.get_music());
     end
-    if plf.get_music()=="none" or (plf.get_music().empty() as bool) then
+    if plf_.get_music()=="none" or (plf_.get_music().empty() as bool) then
         {Sound::PingusSound::stop_music();};
     else
-        call {Sound::PingusSound::play_music}(plf.get_music());
+        call {Sound::PingusSound::play_music}(plf_.get_music());
     end
 
-    var PingusCounter counter = val PingusCounter(0,0,0,0,
-                                                  plf.get_number_of_pingus(),
-                                                  plf.get_number_to_save());
-    var int game_time = _;
+    var IGameSession game_session =
+        val IGameSession(&plf_, 0,
+                         PingusCounter(0,0,0,0,
+                                       plf_.get_number_of_pingus(),
+                                       plf_.get_number_to_save()));
+
+    #include "../world.ceu"
 
     par/or do
-        await World(&plf, &counter, &game_time);
+        await World();
     with
         var int world_delay = 0; // the world is initially on time
         loop do
@@ -126,12 +143,12 @@ do
     end
 
     {
-        result.saved     = @counter.number_of_exited;
-        result.killed    = @counter.number_of_killed;
+        result.saved     = @game_session.counter.number_of_exited;
+        result.killed    = @game_session.counter.number_of_killed;
         result.total     = result.plf.get_number_of_pingus();
         result.needed    = result.plf.get_number_to_save();
         result.max_time  = result.plf.get_time();
-        result.used_time = @game_time;
+        result.used_time = @game_session.game_time;
 
         // Write the savegame
         {

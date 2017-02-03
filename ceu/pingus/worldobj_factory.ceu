@@ -54,8 +54,8 @@ code/await WorldObj_Factory (void) -> void
 do
     do
         var usize i;
-        loop i in [0 -> outer.plf.get_objects().size()[ do
-            {WORLDOBJ_FACTORY_create(@outer.plf.get_objects().at(i));}
+        loop i in [0 -> outer.game_session.plf.get_objects().size()[ do
+            {WORLDOBJ_FACTORY_create(@outer.game_session.plf.get_objects().at(i));}
         end
     end
 

@@ -10,15 +10,6 @@ end
 
 native/plain _Groundtype__GPType, _SmallMap, _SceneContext, _GroundMap, _CollisionMask;
 
-data PingusCounter with
-    var int number_of_exited;
-    var int number_of_killed;
-    var int number_of_alive;
-    var int number_of_released;
-    var int number_of_allowed;
-    var int number_to_save;
-end
-
 data IWorld with
     var  Rect                 rect;
     var& _GraphicContextState state;
@@ -84,10 +75,10 @@ end
 
 #include "components/action_button.ceu"
 
-code/await World (var& _PingusLevel plf, var& PingusCounter counter, var& int game_time_) -> void
+code/await World (void) -> void
 do
-    var int width  = {@plf.get_size().width};
-    var int height = {@plf.get_size().height};
+    var int width  = {@outer.game_session.plf.get_size().width};
+    var int height = {@outer.game_session.plf.get_size().height};
 
     var float gravity = 0.2;
 
@@ -105,7 +96,7 @@ do
                 _delete(&&state!);
             end;
 
-    var IWorld world = val IWorld(Rect(0,0,width,height), &state!, _, &game_time_,
+    var IWorld world = val IWorld(Rect(0,0,width,height), &state!, _, &outer.game_session.game_time,
                                   _,_);
     world.game_time = 0;
 
@@ -149,10 +140,10 @@ do
                 world.game_time = world.game_time + 1;
             end
         with
-            var Color ambient_light = val Color({@plf.get_ambient_light()}.r,
-                                                {@plf.get_ambient_light()}.g,
-                                                {@plf.get_ambient_light()}.b,
-                                                {@plf.get_ambient_light()}.a);
+            var Color ambient_light = val Color({@outer.game_session.plf.get_ambient_light()}.r,
+                                                {@outer.game_session.plf.get_ambient_light()}.g,
+                                                {@outer.game_session.plf.get_ambient_light()}.b,
+                                                {@outer.game_session.plf.get_ambient_light()}.a);
             every SDL_REDRAW do
                 call {Display::s_framebuffer}:fill_rect(
                     _Rect(0,0, {Display::get_width()},{Display::get_height()}),
@@ -175,7 +166,7 @@ do
     pool[] Visible layer_bg_1;          // liquid, hotspot
     pool[] Pingu pingus;
 
-    spawn PinguHolder(&pingus, &counter);
+    spawn PinguHolder(&pingus, &outer.game_session.counter);
 
 #if 0
     pool PinguParticle[] pingu_particles;
