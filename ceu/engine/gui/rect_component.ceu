@@ -3,6 +3,7 @@
 
 data IRectComponent with
     event (int,int) on_primary_button_pressed;
+    event (int,int) on_primary_button_released;
     event void      on_pointer_enter;
     event void      on_pointer_leave;
     event void      on_click;
@@ -17,7 +18,7 @@ code/await RectComponent (var& Rect rect)
                             -> (var& IRectComponent component)
                                 -> FOREVER
 do
-    var IRectComponent component_ = val IRectComponent(_,_,_,_);
+    var IRectComponent component_ = val IRectComponent(_,_,_,_,_);
     component = &component_;
 
     par do
@@ -30,6 +31,7 @@ do
             if call Rect_is_at(&rect,x,y) then
                 emit component_.on_click;
             end
+            emit component_.on_primary_button_released(x,y);
         end
     with
         var bool is_on = false;

@@ -1,7 +1,7 @@
 #ifndef _ACTIONBUTTON_CEU
 #define _ACTIONBUTTON_CEU
 
-#include "../../engine/gui/rect_component.ceu"
+#include "engine/gui/rect_component.ceu"
 
 code/await ArmageddonButton (var int x, var int y) -> FOREVER
 do
@@ -46,15 +46,22 @@ do
         loop do
             do
                 spawn Sprite_from_name(&rect, "core/buttons/hbuttonbgb", false);
-                await component.on_primary_button_pressed;
+                par/or do
+                    var bool v = await outer.main.go_forward until v;
+                with
+                    await component.on_primary_button_pressed;
+                    emit outer.main.go_forward(true);
+                end
             end
-            spawn Sprite_from_name(&rect, "core/buttons/hbuttonbg", false);
-            emit outer.main.go_forward(true);
-            watching ON_PRIMARY_BUTTON_RELEASED do
-                var bool v = await outer.main.go_forward
-                             until v == false;
+            do
+                spawn Sprite_from_name(&rect, "core/buttons/hbuttonbg", false);
+                par/or do
+                    var bool v = await outer.main.go_forward until (not v);
+                with
+                    await component.on_primary_button_released;
+                    emit outer.main.go_forward(false);
+                end
             end
-            emit outer.main.go_forward(false);
         end
     end
 
@@ -72,7 +79,6 @@ do
     spawn do
         loop do
             var bool from_out = true;
-
             do
                 spawn Sprite_from_name(&rect, "core/buttons/hbuttonbgb", false);
                 par/or do
@@ -83,15 +89,16 @@ do
                     emit outer.main.go_pause_toggle;
                 end
             end
-
-            spawn Sprite_from_name(&rect, "core/buttons/hbuttonbg", false);
-            from_out = true;
-            par/or do
-                await outer.main.go_pause_toggle until from_out;
-            with
-                await component.on_primary_button_pressed;
-                from_out = false;
-                emit outer.main.go_pause_toggle;
+            do
+                spawn Sprite_from_name(&rect, "core/buttons/hbuttonbg", false);
+                from_out = true;
+                par/or do
+                    await outer.main.go_pause_toggle until from_out;
+                with
+                    await component.on_primary_button_pressed;
+                    from_out = false;
+                    emit outer.main.go_pause_toggle;
+                end
             end
         end
     end
