@@ -60,7 +60,7 @@ code/await Pingu (pool&[] Pingu  pingus,
                   var     Rect   rect,
                   var     s8?    direction_)
                     -> (vector&[] byte name)
-                        -> int
+                        -> void
 do
     var s8 direction = do
         if direction_? then

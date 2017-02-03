@@ -57,7 +57,6 @@ end
 #include "components/button_panel.ceu"
 #include "components/time_display.ceu"
 #include "components/pingus_counter.ceu"
-#include "components/action_button.ceu"
 #include "capture_rectangle.ceu"
 #include "smallmap_image.ceu"
 
@@ -81,6 +80,8 @@ end
         return ret;
     end
 #endif
+
+#include "components/action_button.ceu"
 
 code/await World (var& _PingusLevel plf, var& PingusCounter counter, var& int game_time) -> void
 do
@@ -179,22 +180,17 @@ do
     spawn PinguHolder(&pingus, &counter);
 
 #if 0
-    watching 5s do
-        every 1s do
-            emit world.go_create_pingu(100,100, {LEFT}, 0);
-        end
-    end
-
     pool PinguParticle[] pingu_particles;
     pool SmokeParticle[] smoke_particles;
 
     var TimeDisplay      _ = TimeDisplay.build(plf.get_time(), &game_time);
     var CPingusCounter   _ = CPingusCounter.build(&counter);
+#endif
 
     var int dwidth  = {Display::get_width()};
     var int dheight = {Display::get_height()};
-    var Rect r = Rect(dwidth-40*1, dheight-62, 0,0);
-    var ArmageddonButton _ = ArmageddonButton.build(&r);
+    spawn ArmageddonButton(Rect(dwidth-40*1, dheight-62, _,_));
+#if 0
     var ForwardButton    _ = ForwardButton.build   (dwidth-40*2, dheight-62);
     var PauseButton      _ = PauseButton.build     (dwidth-40*3, dheight-62);
     var ButtonPanel button_panel;

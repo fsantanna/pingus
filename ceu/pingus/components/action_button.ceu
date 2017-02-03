@@ -3,23 +3,22 @@
 
 #include "../../engine/gui/rect_component.ceu"
 
-class ArmageddonButton with
-    var Rect& rect;
-    function (Rect& rect)=>ArmageddonButton build;
+code/await ArmageddonButton (var Rect rect) -> FOREVER
 do
-    function (Rect& rect)=>ArmageddonButton build do
-        this.rect = &rect;
-    end
+    rect.width  = 38;
+    rect.height = 60;
 
-    this.rect.width  = 38;
-    this.rect.height = 60;
-    var RectComponent component = RectComponent.build(&outer.rect);
+    var& IRectComponent component;
+    spawn RectComponent(&rect) -> (&component);
 
     do
-        var Sprite _ = Sprite.build_nameX(&outer.rect, "core/buttons/hbuttonbgb");
-        var Sprite s = Sprite.build_nameX(&outer.rect, "core/buttons/armageddon_anim");
+        spawn Sprite_from_name(_, &rect, "core/buttons/hbuttonbgb");        /// TODO: is_world=false
+
+        var& Sprite s;
+        spawn Sprite_from_name(_, &rect, "core/buttons/armageddon_anim")    /// TODO: is_world=false
+                -> (&s);
         s.frame_delay = 0;
-        s.set_frame(7);
+        s.frame = 7;
 
         loop do
             await component.on_primary_button_pressed;
@@ -31,13 +30,14 @@ do
     end
 
     do
-        var Sprite _ = Sprite.build_nameX(&outer.rect, "core/buttons/hbuttonbgb");
-        var Sprite _ = Sprite.build_nameX(&outer.rect, "core/buttons/armageddon_anim");
-        emit global:go_armageddon;
+        spawn Sprite_from_name(_, &rect, "core/buttons/hbuttonbgb");        /// TODO: is_world=false
+        spawn Sprite_from_name(_, &rect, "core/buttons/armageddon_anim");   /// TODO: is_world=false
+        emit outer.go_armageddon;
         await FOREVER;
     end
 end
 
+#if 0
 class ForwardButton with
     var int x;
     var int y;
@@ -123,5 +123,6 @@ do
     var Sprite _ = Sprite.build_nameX(&r3, "core/buttons/pause");
     await FOREVER;
 end
+#endif
 
 #endif
