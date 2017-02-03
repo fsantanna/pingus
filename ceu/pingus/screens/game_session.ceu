@@ -89,16 +89,16 @@ do
         loop do
             var _Input__ButtonEvent&& but = await ON_BUTTON_PRESSED;
             if but:name == {Input::PAUSE_BUTTON} then
-                emit outer.go_pause_toggle;
+                emit outer.main.go_pause_toggle;
             else/if but:name == {Input::SINGLE_STEP_BUTTON} then
                 if not is_paused then
-                    emit outer.go_pause_toggle;
+                    emit outer.main.go_pause_toggle;
                 end
                 do_single_step = true;
             else/if but:name == {Input::FAST_FORWARD_BUTTON} then
-                emit outer.go_forward(true);
+                emit outer.main.go_forward(true);
             else/if but:name == {Input::ARMAGEDDON_BUTTON} then
-                emit outer.go_armageddon;
+                emit outer.main.go_armageddon;
             else/if but:name == {Input::ESCAPE_BUTTON} then
                 break;
             end
@@ -107,20 +107,20 @@ do
         var _Input__ButtonEvent&& but;
         every but in ON_BUTTON_RELEASED do
             if but:name == {Input::FAST_FORWARD_BUTTON} then
-                emit outer.go_forward(false);
+                emit outer.main.go_forward(false);
             end
         end
     with
-        every outer.go_pause_toggle do
+        every outer.main.go_pause_toggle do
             is_paused = not is_paused;
-            emit outer.go_forward(false);
+            emit outer.main.go_forward(false);
         end
     with
         var bool v;
-        every v in outer.go_forward do
+        every v in outer.main.go_forward do
             is_fast_forwarded = v;
             if v==true and is_paused then
-                emit outer.go_pause_toggle;
+                emit outer.main.go_pause_toggle;
             end
         end
     end

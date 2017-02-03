@@ -32,7 +32,7 @@ do
     do
         spawn Sprite_from_name(&rect, "core/buttons/hbuttonbgb", false);
         spawn Sprite_from_name(&rect, "core/buttons/armageddon_anim", false);
-        emit outer.go_armageddon;
+        emit outer.main.go_armageddon;
         await FOREVER;
     end
 end

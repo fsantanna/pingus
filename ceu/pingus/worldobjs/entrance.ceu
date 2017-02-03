@@ -53,11 +53,11 @@ do
 
     var bool last_was_right = false;
 
-    watching outer.go_armageddon do
+    watching outer.main.go_armageddon do
         loop do
             await WORLD_UPDATE
-            until outer.game_time >= last_release+release_rate;
-            last_release = outer.game_time;
+            until outer.world.game_time >= last_release+release_rate;
+            last_release = outer.world.game_time;
 
             var s8 dir;
             if direction == {ENTRANCE_LEFT} then
@@ -79,6 +79,8 @@ do
             emit outer.world.go_create_pingu(pst_.x as int, pst_.y as int, dir, owner_id);
         end
     end
+
+    await FOREVER;
 
 #if 0
     /* PUBLIC */

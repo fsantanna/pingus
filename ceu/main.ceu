@@ -116,10 +116,13 @@ end
 #include "pingus/fps_counter.ceu"
 #include "pingus/config_manager.ceu"
 
-event void go_options;
-event void go_pause_toggle;
-event bool go_forward;
-event void go_armageddon;
+data IMain with
+    event void go_options;
+    event void go_pause_toggle;
+    event bool go_forward;
+    event void go_armageddon;
+end
+var IMain main = _;
 
 // SCREENS
 
@@ -354,7 +357,7 @@ with
 with
 // OPTIONS
     loop do
-        watching go_options do
+        watching main.go_options do
             loop do
 // TODO
                 var _SDL_KeyboardEvent&& key = await SDL_KEYDOWN;

@@ -112,7 +112,7 @@ code/await PingusMenu (void) -> int do
     with
         loop do
             await b_options;
-            emit outer.go_options;     // this will pause me
+            emit outer.main.go_options;     // this will pause me
         end
     with
         await b_levelsets;
