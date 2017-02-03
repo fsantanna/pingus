@@ -15,9 +15,9 @@ code/await Groundpiece (void) -> FOREVER do
 
         // FIXME: overdrawing of bridges and similar things aren't handled here
         if (gptype == Groundtype::GP_REMOVE) {
-            @(call Remove({&mask}, {p.x} as int, {p.y} as int));
+            @(call World_Remove({&mask}, {p.x} as int, {p.y} as int));
         } else {
-            @call Put({&mask}, {p.x} as int, {p.y} as int, {gptype});
+            @call World_Put({&mask}, {p.x} as int, {p.y} as int, {gptype});
         }
     }}
     await FOREVER;

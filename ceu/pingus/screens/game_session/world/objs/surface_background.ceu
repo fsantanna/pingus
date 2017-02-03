@@ -109,7 +109,7 @@ do
         end
     with
         every SDL_REDRAW do
-            var Vector2i off = call Get_Offset();
+            var Vector2i off = call World_Get_Offset();
             var int start_x = ((off.x * para_x) + scroll_ox) as int;
             var int start_y = ((off.y * para_y) + scroll_oy) as int;
 
@@ -124,14 +124,14 @@ do
             var int y = start_y;
             var int i;
             loop i do
-                if y >= call Get_Height() then
+                if y >= outer.world.rect.height then
                     break;
                 end
 
                 var int x = start_x;
                 var int j;
                 loop j do
-                    if x >= call Get_Width() then
+                    if x >= outer.world.rect.width then
                         break;
                     end
                     call {Display::s_framebuffer}:draw_surface(

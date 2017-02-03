@@ -77,39 +77,32 @@ end
 
 code/await World (void) -> void
 do
-    var int width  = {@outer.game_session.plf.get_size().width};
-    var int height = {@outer.game_session.plf.get_size().height};
+    var int w = {@outer.game_session.plf.get_size().width};
+    var int h = {@outer.game_session.plf.get_size().height};
 
     var float gravity = 0.2;
 
     var&? _GroundMap gfx_map_ =
-        &{new GroundMap}(width, height)
+        &{new GroundMap}(w, h)
             finalize (gfx_map_) with
                 _delete(&&gfx_map_!);
             end;
     var& _GroundMap gfx_map = &gfx_map_!;
 
     var&? _GraphicContextState state =
-        &{new GraphicContextState}({Math::min}({Display::get_width()},  width),
-                                   {Math::min}({Display::get_height()}, height))
+        &{new GraphicContextState}({Math::min}({Display::get_width()},  w),
+                                   {Math::min}({Display::get_height()}, h))
             finalize (state) with
                 _delete(&&state!);
             end;
 
-    var IWorld world = val IWorld(Rect(0,0,width,height), &state!, _, &outer.game_session.game_time,
+    var IWorld world = val IWorld(Rect(0,0,w,h), &state!, _, &outer.game_session.game_time,
                                   _,_);
     world.game_time = 0;
 
-    world.state.set_limit({Rect(Vector2i(0,0), Size(@width,@height))});
+    world.state.set_limit({Rect(Vector2i(0,0), Size(@w,@h))});
 
-    code/tight Get_Width (void) -> int do
-        escape outer.width;
-    end
-    code/tight Get_Height (void) -> int do
-        escape outer.height;
-    end
-
-    code/tight Get_Offset (void) -> Vector2i do
+    code/tight World_Get_Offset (void) -> Vector2i do
         var Vector2i ret = val Vector2i(
                                 (outer.world.state.get_pos().x - outer.world.state.get_width()/2),
                                 (outer.world.state.get_pos().y - outer.world.state.get_height()/2),
@@ -117,12 +110,12 @@ do
         escape ret;
     end
 
-    code/tight Put (var _CollisionMask&& mask,var int x,var int y,var _Groundtype__GPType type) -> void do
+    code/tight World_Put (var _CollisionMask&& mask,var int x,var int y,var _Groundtype__GPType type) -> void do
         outer.gfx_map.put(mask:get_surface(), x, y);
         outer.gfx_map.get_colmap():put(*mask, x, y, type);
     end
 
-    code/tight Remove (var _CollisionMask&& mask,var int x,var int y) -> void do
+    code/tight World_Remove (var _CollisionMask&& mask,var int x,var int y) -> void do
         outer.gfx_map.remove(mask:get_surface(), x, y);
         outer.gfx_map.get_colmap():remove(*mask, x, y);
     end
@@ -133,7 +126,7 @@ do
     spawn do
         par do
             every SDL_REDRAW do
-                world.offset = call Get_Offset();
+                world.offset = call World_Get_Offset();
             end
         with
             every WORLD_UPDATE do
