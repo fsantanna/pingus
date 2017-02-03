@@ -36,7 +36,7 @@ clean:
 	scons -c
 
 ceu:
-	ceu --pre --pre-args="-I$(CEU_DIR)/include -I./include"      \
+	ceu --pre --pre-args="-I$(CEU_DIR)/include -I./include -I./ceu" \
 	    --pre-input=ceu/main.ceu                                 \
 	    --ceu --ceu-err-unused=pass --ceu-err-uninitialized=pass \
 	    --ceu-features-lua=false --ceu-features-thread=false     \
@@ -44,7 +44,7 @@ ceu:
 	          --env-output=src/_ceu_app.c.h
 
 ceu-cpp:
-	ceu --pre --pre-args="-I$(CEU_DIR)/include -I./include"      \
+	ceu --pre --pre-args="-I$(CEU_DIR)/include -I./include -I./ceu" \
 	    --pre-input=ceu/main.ceu                                 \
 	    --ceu --ceu-err-unused=pass --ceu-err-uninitialized=pass \
 	    --ceu-features-lua=false --ceu-features-thread=false     \

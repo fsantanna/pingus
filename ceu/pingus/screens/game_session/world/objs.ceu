@@ -1,9 +1,9 @@
 #ifndef _WORLDOBJ_FACTORY_CEU
 #define _WORLDOBJ_FACTORY_CEU
 
-#include "worldobjs/surface_background.ceu"
-#include "worldobjs/groundpiece.ceu"
-#include "worldobjs/entrance.ceu"
+#include "objs/surface_background.ceu"
+#include "objs/groundpiece.ceu"
+#include "objs/entrance.ceu"
 
 // TODO: use spawn directly instead of ceu_sys_go
 //          - requires flatmap or traverse

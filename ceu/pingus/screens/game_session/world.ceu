@@ -73,7 +73,7 @@ end
     end
 #endif
 
-#include "components/action_button.ceu"
+#include "pingus/components/action_button.ceu"
 
 code/await World (void) -> void
 do
@@ -127,8 +127,8 @@ do
         outer.gfx_map.get_colmap():remove(*mask, x, y);
     end
 
-    #include "pingu.ceu"
-    #include "pingu_holder.ceu"
+    #include "world/pingu.ceu"
+    #include "world/pingu_holder.ceu"
 
     spawn do
         par do
@@ -208,7 +208,7 @@ do
 #endif
 
     var Vector2i pos_start = _;
-    #include "worldobj_factory.ceu"
+    #include "world/objs.ceu"
     spawn WorldObj_Factory();
 
     await FOREVER;

@@ -52,7 +52,7 @@ end
 #include "actions/waiter.ceu"
 #endif
 
-#include "right_left_sprites.ceu"
+#include "pingus/right_left_sprites.ceu"
 
 code/await Pingu (pool&[] Pingu  pingus,
                   var     uint   id,
@@ -80,11 +80,11 @@ do
     var _ActionName__Enum wall_action    = {ActionName::NONE};
     var _ActionName__Enum fall_action    = {ActionName::NONE};
 
-    #include "pingu_tights.ceu"
-    #include "movers/linear_mover.ceu"
-    #include "actions/walker.ceu"
-    #include "actions/faller.ceu"
-    #include "actions/splashed.ceu"
+    #include "pingu/tights.ceu"
+    #include "pingus/movers/linear_mover.ceu"
+    #include "pingu/walker.ceu"
+    #include "pingu/faller.ceu"
+    #include "pingu/splashed.ceu"
 
     var int ret =
     do

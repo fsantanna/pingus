@@ -1,7 +1,7 @@
 #ifndef _ENTRANCE_CEU
 #define _ENTRANCE_CEU
 
-#include "../../engine/display/sprite.ceu"
+#include "engine/display/sprite.ceu"
 
 native/pre do
     enum EntranceDirection { ENTRANCE_LEFT, ENTRANCE_RIGHT, ENTRANCE_MISC };

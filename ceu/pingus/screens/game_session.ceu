@@ -57,7 +57,7 @@ do
                                        plf_.get_number_of_pingus(),
                                        plf_.get_number_to_save()));
 
-    #include "../world.ceu"
+    #include "game_session/world.ceu"
 
     par/or do
         await World();
