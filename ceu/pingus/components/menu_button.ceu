@@ -12,11 +12,11 @@ do
     ok_clicked = &ok_clicked_;
 
     var Rect r1 = val Rect(x, y, 0, 0);
-    var& ISprite bg;
+    var&? ISprite bg;
     spawn Sprite_from_name(&r1, "core/menu/menuitem", false) -> (&bg);
 
-    var Rect r2 = val Rect(x-bg.frame_size.width/2, y-bg.frame_size.height/2,
-                           bg.frame_size.width, bg.frame_size.height);
+    var Rect r2 = val Rect(x-bg!.frame_size.width/2, y-bg!.frame_size.height/2,
+                           bg!.frame_size.width, bg!.frame_size.height);
 
     var& IRectComponent component;
     spawn RectComponent(&r2) -> (&component);

@@ -11,14 +11,14 @@ do
     var& IRectComponent component;
     spawn RectComponent(&rect) -> (&component);
 
-    do
-        spawn Sprite_from_name(&rect, "core/buttons/hbuttonbgb", false);
+    spawn Sprite_from_name(&rect, "core/buttons/hbuttonbgb", false);
 
-        var& ISprite s;
+    do
+        var&? ISprite s;
         spawn Sprite_from_name(&rect, "core/buttons/armageddon_anim", false)
                 -> (&s);
-        s.frame_delay = 0;
-        s.frame = 7;
+        s!.frame_delay = 0;
+        s!.frame = 7;
 
         loop do
             await component.on_primary_button_pressed;
@@ -30,7 +30,6 @@ do
     end
 
     do
-        spawn Sprite_from_name(&rect, "core/buttons/hbuttonbgb", false);
         spawn Sprite_from_name(&rect, "core/buttons/armageddon_anim", false);
         emit outer.main.go_armageddon;
         await FOREVER;

@@ -24,8 +24,9 @@ data ISprite with
 end
 
 code/await Sprite_from_name (var& Rect rect, var _char_const_ptr name, var bool is_world)
-                                -> (var& ISprite sprite)
-                                    -> FOREVER do
+                                -> (var&? ISprite sprite)
+                                    -> void
+do
     var& Surface sfc;
     spawn Surface_from_name(name, {ResourceModifier::ROT0}) -> (&sfc);
 
@@ -39,6 +40,11 @@ code/await Sprite_from_name (var& Rect rect, var _char_const_ptr name, var bool 
         _,
     );
     sprite = &sprite_;
+
+    sprite_.frame_pos   = val Vector2i(sfc.desc:frame_pos.x, sfc.desc:frame_pos.y);
+    sprite_.array       = val Size(sfc.desc:array.width, sfc.desc:array.height);
+    sprite_.frame_delay = sfc.desc:speed;
+    sprite_.is_loop     = sfc.desc:loop_ as bool;
 
     if sfc.desc:frame_size.width  == -1 then
         sprite_.frame_size.width  = sfc.framebuffer.get_width()  / sprite_.array.width;
@@ -60,108 +66,10 @@ code/await Sprite_from_name (var& Rect rect, var _char_const_ptr name, var bool 
     };
     sprite_.offset = val Vector2i(_vec.x, _vec.y);
 
-    /* DRAW */
-    every SDL_REDRAW do
-        var float x, y;
-        x = rect.left;
-        y = rect.top;
+    var int total_time = sprite_.frame_delay *
+                         (sprite_.array.width * sprite_.array.height);
 
-        var int xx=0, yy=0;
-#if 0
-        call {Display::s_framebuffer}:draw_surface(
-                                        sfc.framebuffer,
-                                        _Vector2i(x,y),
-        );
-#endif
-        call {Display::s_framebuffer}:draw_surface(
-            sfc.framebuffer,
-            _Rect(
-                _Vector2i(sprite_.frame_pos.x,sprite_.frame_pos.y) +
-                    _Vector2i(sprite_.frame_size.width  * (sprite_.frame%sprite_.array.width),
-                              sprite_.frame_size.height * (sprite_.frame/sprite_.array.width)),
-                _Size(sprite_.frame_size.width,sprite_.frame_size.height)),
-            _Vector2i(-xx + x - sprite_.offset.x,
-                      -yy + y - sprite_.offset.y)
-        );
-    end
-#if 0
-    function (void)=>int get_current_frame;
-    function (int)=>void set_frame;
-    function (void)=>int get_frame_count;
-    function (void)=>int get_width;
-    function (void)=>int get_height;
-
-    var bool is_world = true;   // TODO: rename to is_relative
-
-    var Rect&? small_map;   // TODO
-
-    var Vector2i offset      = Vector2i(0, 0);
-    var Vector2i frame_pos   = Vector2i(0, 0);
-    var Size     frame_size  = Size(0,0);
-    var int      frame_delay = 0;
-    var Size     array       = Size(0,0);
-    var bool     is_loop     = false;
-    var int      frame       = 0;
-
-    // constructor
-    var _Surface&&              surface = null;
-    var _SpriteDescription&&    desc    = null;
-    var _ResourceModifier__Enum mod     = {ResourceModifier::ROT0};
-
-    function (Rect& rect, char&& name)=>Sprite build_name;
-    function (Rect& rect, char&& name)=>Sprite build_nameX;
-    function (int x, int y)=>void draw;
-    function (Rect& rect, char&& name)=>Sprite build_name do
-        this.rect = &rect;
-        this.name = _XXX_PURE(name);
-    end
-    function (Rect& rect, char&& name)=>Sprite build_nameX do
-        this.rect = &rect;
-        this.name = _XXX_PURE(name);
-        this.is_world = false;
-    end
-
-    var Surface sfc with
-        this.surface = surface;
-        this.desc    = outer.desc;
-        this.mod     = outer.mod;
-        this.name    = name;
-    end;
-
-    if surface != null then
-        this.frame_pos   = Vector2i(0, 0);
-        this.offset      = Vector2i(0, 0);
-        this.array       = Size(sfc.get_width(), sfc.get_height());
-        this.frame_delay = 0;
-        this.frame_size  = this.array;
-    else
-        this.frame_pos   = Vector2i(sfc.desc:frame_pos.x, sfc.desc:frame_pos.y);
-        this.array       = Size(sfc.desc:array.width, sfc.desc:array.height);
-        this.frame_delay = sfc.desc:speed;
-        this.is_loop     = sfc.desc:loop_;
-
-        if sfc.desc:frame_size.width  == -1 then
-            this.frame_size.width  = sfc.get_width()/array.width;
-            this.frame_size.height = sfc.get_height()/array.height;
-        else
-            this.frame_size.width  = sfc.desc:frame_size.width;
-            this.frame_size.height = sfc.desc:frame_size.height;
-        end
-
-        {
-            Vector2i vec = calc_origin(THIS(CEU_Sprite)->sfc.desc->origin,
-                                       Size(THIS(CEU_Sprite)->frame_size.width,
-                                            THIS(CEU_Sprite)->frame_size.height))
-                            - THIS(CEU_Sprite)->sfc.desc->offset;
-        };
-        this.offset = Vector2i(_vec.x, _vec.y);
-    end
-    //end
-
-    var int total_time = this.frame_delay *
-                         (this.array.width * this.array.height);
-
-    this.frame = 0;
+    sprite_.frame = 0;
 
     var int tick_count = 0;
 
@@ -169,37 +77,37 @@ code/await Sprite_from_name (var& Rect rect, var _char_const_ptr name, var bool 
         /* UPDATE */
         loop do
             loop do
-                var float dt;
-                if this.is_world and global:world? then
+                var int dt = _;
+                if is_world then
                     await WORLD_UPDATE;
-                    dt = 0.033;   // TODO
+                    dt = 330;   // TODO
                 else
-                    var int v = await DELTA;
-                    dt = ((float)v)/1000;
+                    dt = await SDL_DT;
                 end
-                if this.frame_delay == 0 then
+                if sprite_.frame_delay == 0 then
                     await FOREVER;
                 end
 
-                tick_count = tick_count + (int)(dt * 1000);
+                tick_count = tick_count + dt;
 
                 if tick_count >= total_time then
-                    if this.is_loop then
+                    if sprite_.is_loop then
                         tick_count = tick_count % total_time;
-                        this.frame = tick_count / this.frame_delay;
+                        sprite_.frame = tick_count / sprite_.frame_delay;
                     end
                     break;
                 else
-                    this.frame = tick_count / this.frame_delay;
+                    sprite_.frame = tick_count / sprite_.frame_delay;
                 end
 
             end
-            if not this.is_loop then
-                escape 0;
+            if not sprite_.is_loop then
+                escape;
             end
         end
     with
         /* DRAW */
+#if 0
         every REDRAW do
             var float x, y;
             if this.small_map? then
@@ -216,7 +124,51 @@ code/await Sprite_from_name (var& Rect rect, var _char_const_ptr name, var bool 
 
             this.draw(x, y);
         end
+#else
+        /* DRAW */
+        every SDL_REDRAW do
+            var float x, y;
+            x = rect.left;
+            y = rect.top;
+
+            var int xx=0, yy=0;
+#if 0
+            call {Display::s_framebuffer}:draw_surface(
+                                            sfc.framebuffer,
+                                            _Vector2i(x,y),
+            );
+#endif
+            call {Display::s_framebuffer}:draw_surface(
+                sfc.framebuffer,
+                _Rect(
+                    _Vector2i(sprite_.frame_pos.x,sprite_.frame_pos.y) +
+                        _Vector2i(sprite_.frame_size.width  * (sprite_.frame%sprite_.array.width),
+                                  sprite_.frame_size.height * (sprite_.frame/sprite_.array.width)),
+                    _Size(sprite_.frame_size.width,sprite_.frame_size.height)),
+                _Vector2i(-xx + x - sprite_.offset.x,
+                          -yy + y - sprite_.offset.y)
+            );
+        end
+#endif
     end
+#if 0
+    var bool is_world = true;   // TODO: rename to is_relative
+    var Rect&? small_map;   // TODO
+    // constructor
+    var _Surface&&              surface = null;
+    var _SpriteDescription&&    desc    = null;
+    var _ResourceModifier__Enum mod     = {ResourceModifier::ROT0};
+
+    if surface != null then
+        this.frame_pos   = Vector2i(0, 0);
+        this.offset      = Vector2i(0, 0);
+        this.array       = Size(sfc.get_width(), sfc.get_height());
+        this.frame_delay = 0;
+        this.frame_size  = this.array;
+    else
+...
+    end
+    //end
 
     /* PUBLIC */
 
