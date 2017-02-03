@@ -3,6 +3,7 @@
 
 #include "worldobjs/surface_background.ceu"
 #include "worldobjs/groundpiece.ceu"
+#include "worldobjs/entrance.ceu"
 
 // TODO: use spawn directly instead of ceu_sys_go
 //          - requires flatmap or traverse
@@ -58,7 +59,7 @@ do
         end
     end
 
-    ///pool[] Entrance entrances;
+    pool[] Entrance entrances;
 
     var usize i;
     loop i in [0 -> {WORLDOBJ_FACTORY_VECTOR.size()}[ do
@@ -71,7 +72,6 @@ do
             spawn SurfaceBackground() in outer.layer_bg_0;
         else/if id_ == "groundpiece" then
             spawn Groundpiece();  // drawn in world.ceu
-        end
 #if 0
         else/if id_ == "liquid" then
             spawn Liquid in this.layer_bg_1 with
@@ -83,13 +83,10 @@ do
                 this.reader     = reader_;
                 this.pos_offset = pos_offset;
             end;
+#endif
         else/if id_ == "entrance" then
-            spawn Entrance in entrances with
-                this.reader     = reader_;
-                this.pos_offset = pos_offset;
-                this.game_time  = &game_time;
-                this.smallmap   = &outer.smallmap;
-            end;
+            spawn Entrance(pos_offset) in entrances;
+#if 0
         else/if id_ == "exit" then
             spawn Exit with
                 this.pingus   = &outer.pingus;
@@ -116,18 +113,17 @@ do
                 this.pingus = &outer.pingus;
                 this.reader = reader_;
             end;
-        end
 #endif
+        end
     end
 
-#if 0
     // FIXME: Workaround for lack of start-pos
     var int num_entrances = 0;
-    loop e in entrances do
+    var& Vector3f pst;
+    loop (pst) in entrances do
         num_entrances = num_entrances + 1;
-        var _Vector3f pos_ = e:get_pos();
-        outer.pos_start.x = outer.pos_start.x + (int)pos_.x;
-        outer.pos_start.y = outer.pos_start.y + (int)pos_.y;
+        outer.pos_start.x = outer.pos_start.x + (pst.x as int);
+        outer.pos_start.y = outer.pos_start.y + (pst.y as int);
     end
 
     if (num_entrances > 0) then
@@ -135,7 +131,8 @@ do
         outer.pos_start.y = outer.pos_start.y / num_entrances;
         outer.pos_start.y = outer.pos_start.y + 100;
     end
-#endif
+
+    await FOREVER;
 
 #if 0
     {
