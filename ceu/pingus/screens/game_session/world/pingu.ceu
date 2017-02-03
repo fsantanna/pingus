@@ -9,7 +9,7 @@ native/pre do
         PS_ALIVE, PS_EXITED, PS_DEAD
     };
 end
-native/plain _ActionName__Enum, _Pingu__PinguStatus;
+native/plain _Pingu__PinguStatus;
 
 native/pre do
     ##include "pingus/collision_map.hpp"

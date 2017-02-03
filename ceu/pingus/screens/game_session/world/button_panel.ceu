@@ -1,21 +1,19 @@
 #ifndef _BUTTONPANEL_CEU
 #define _BUTTONPANEL_CEU
 
-native do
+native/pre do
     ##include "pingus/game_time.hpp"
 end
 
-class ActionButtonE with
-    event int e;
-    var int n = 0;
-    var int max;
+code/await ActionButtonE (var int max, var& int n, event& int e) -> FOREVER
 do
+    var _Input__ButtonEvent&& but;
     every but in ON_BUTTON_PRESSED do
         var int inc = 0;
         if but:name >= {Input::ACTION_1_BUTTON} and
            but:name <= {Input::ACTION_10_BUTTON}
         then
-            emit this.e => but:name - {Input::ACTION_1_BUTTON};
+            emit e(but:name - {Input::ACTION_1_BUTTON});
         else
             if but:name == {Input::ACTION_DOWN_BUTTON} then
                 inc = 1;
@@ -23,71 +21,82 @@ do
                 inc = -1;
             end
             if inc != 0 then
-                this.n = (this.n+inc) % this.max;
-                if this.n < 0 then
-                    this.n = this.n + this.max;
+                n = (n+inc) % max;
+                if n < 0 then
+                    n = n + max;
                 end
-                emit this.e => this.n;
+                emit e(n);
             end
         end
     end
 end
 
-class ActionButton with
-    var int x;
-    var int y;
-    var int n;
-    var _ActionName__Enum  id_me;
-    var _ActionName__Enum& id_out;
-    var ActionButtonE&     out;
+code/await ActionButton (var    int x,
+                         var    int y,
+                         var    int i,
+                         var    _ActionName__Enum id_me,
+                         var&   _ActionName__Enum id_out,
+                         var&   int n,
+                         event& int e)
+            -> FOREVER
 do
-    var Rect rect = Rect(this.x,this.y, 60,38);
-    var RectComponent component with
-        this.rect  = &rect;
-    end;
+    var Rect r1 = val Rect(x,y, 60,38);
 
-    var char[] name = []
+    var& IRectComponent component;
+    spawn RectComponent(&r1) -> (&component);
+
+    vector[] byte name = []
         .. "pingus/player0/"
-        ..  (_char&&)({ActionName::to_string}(this.id_me).c_str())
+        ..  ({ActionName::to_string}(id_me).c_str()) as _char&&
         .. "/right";
 
     par do
-        var Rect r1 = Rect(this.x,this.y, 0,0);
-        var Rect r2 = Rect(this.x+20,this.y+31, 0,0);   // TODO
+        var Rect r2 = val Rect(x+20,y+31, 0,0);   // TODO
 
-        if n == 0 then
-            var Sprite _ = Sprite.build_nameX(&r1, "core/buttons/buttonbackgroundhl");
-            var Sprite sprite = Sprite.build_nameX(&r2, (_char&&)&&name);
-            sprite.is_loop = true;
-            this.id_out = this.id_me;
-            await out.e;
+        if i == 0 then
+            spawn Sprite_from_name(&r1, "core/buttons/buttonbackgroundhl", false);
+
+            var&? ISprite sprite;
+            spawn Sprite_from_name(&r2, &&name[0] as _char&&, false)
+                    -> (&sprite);
+            sprite!.is_loop = true;
+
+            id_out = id_me;
+            await e;
         end
 
         loop do
             do
-                var Sprite _ = Sprite.build_nameX(&r1, "core/buttons/buttonbackground");
-                var Sprite sprite = Sprite.build_nameX(&r2, (_char&&)&&name);
-                sprite.frame_delay = 0;
+                spawn Sprite_from_name(&r1, "core/buttons/buttonbackground", false);
+
+                var&? ISprite sprite;
+                spawn Sprite_from_name(&r2, &&name[0] as _char&&, false)
+                        -> (&sprite);
+                sprite!.frame_delay = 0;
 
                 par/or do
                     await component.on_primary_button_pressed;
                 with
-                    var int n = await out.e until n==this.n;
+                    var int ii = await e until ii==i;
                 end
-                this.id_out = this.id_me;
-                out.n = this.n;
-                emit out.e => this.n;
+                id_out = id_me;
+                n = i;
+                emit e(i);
             end
             do
-                var Sprite _ = Sprite.build_nameX(&r1, "core/buttons/buttonbackgroundhl");
-                var Sprite sprite = Sprite.build_nameX(&r2, (_char&&)&&name);
-                sprite.is_loop = true;
-                await out.e;
+                spawn Sprite_from_name(&r1, "core/buttons/buttonbackgroundhl", false);
+
+                var&? ISprite sprite;
+                spawn Sprite_from_name(&r2, &&name[0] as _char&&, false)
+                        -> (&sprite);
+                sprite!.is_loop = true;
+
+                await e;
             end
         end
     with
-        every REDRAW do
-            if {globals::developer_mode} then
+        every SDL_REDRAW do
+            if {globals::developer_mode} as bool then
 #if 0
                 {
                     std::ostringstream out;
@@ -101,8 +110,8 @@ do
             else
                 call {Fonts::pingus_small}.render(
                     _origin_top_center,
-                    this.x+46, this.y+5,
-                    {StringUtil::to_string}(_GLOBAL_ACTIONHOLDER:get_available(this.id_me)),
+                    x+46, y+5,
+                    {StringUtil::to_string(GLOBAL_ACTIONHOLDER->get_available(@id_me))},
                     *{Display::s_framebuffer}
                 );
             end
@@ -111,11 +120,11 @@ do
         loop do
             await component.on_pointer_enter;
             watching component.on_pointer_leave do
-                every REDRAW do
+                every SDL_REDRAW do
                     call {Fonts::pingus_small}.render(
                         _origin_top_left,
-                        this.x+65, this.y+5,
-                        {ActionName::to_screenname}(this.id_me),
+                        x+65, y+5,
+                        {ActionName::to_screenname}(id_me),
                         *{Display::s_framebuffer}
                     );
                 end
@@ -124,7 +133,7 @@ do
     end
 end
 
-native do
+native/pre do
     std::vector<ActionName::Enum> ButtonPanel_actions;
     void ButtonPanel_load_actions (void) {
         ButtonPanel_actions = GLOBAL_ACTIONHOLDER->get_available_actions();
@@ -132,28 +141,29 @@ native do
     }
 end
 
-class ButtonPanel with
-    var _ActionName__Enum action = {ActionName::WALKER};
+code/await ButtonPanel (void)
+                        -> (var& _ActionName__Enum action)
+                            -> FOREVER
 do
-    _ButtonPanel_load_actions();
+    var _ActionName__Enum action_ = {ActionName::WALKER};
+    action = &action_;
 
-    var ActionButtonE out with
-        this.max = _ButtonPanel_actions.size();
-    end;
+    { ButtonPanel_load_actions(); }
 
-    var float x = 0;
-    var float y = ({Display::get_height()}-150)/2 - /// TODO: screen.size
-                    (_ButtonPanel_actions.size()*38/2);
+    var   int max = {ButtonPanel_actions.size()};
+    var   int n = 0;
+    event int e;
 
-    loop i in _ButtonPanel_actions.size() do
-        spawn ActionButton with
-            this.x      = x;
-            this.y      = y + 38*i;
-            this.n      = i;
-            this.id_me  = _ButtonPanel_actions[i];
-            this.id_out = &outer.action;
-            this.out    = &out;
-        end;
+    spawn ActionButtonE(max, &n, &e);
+
+    var int x = 0;
+    var int y = ({Display::get_height()}-150)/2 - /// TODO: screen.size
+                    (max*38/2);
+
+    pool[] ActionButton abs;
+    var int i;
+    loop i in [0 -> max[ do
+        spawn ActionButton(x, y+38*i, i, {ButtonPanel_actions[@i]}, &action_, &n, &e) in abs;
     end
 
     await FOREVER;

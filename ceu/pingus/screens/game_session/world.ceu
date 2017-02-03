@@ -9,6 +9,7 @@ native/pre do
 end
 
 native/plain _Groundtype__GPType, _SmallMap, _SceneContext, _GroundMap, _CollisionMask;
+native/plain _ActionName__Enum;
 
 data IWorld with
     var  Rect                 rect;
@@ -73,7 +74,7 @@ end
 #endif
 
 #include "world/action_button.ceu"
-//#include "world/button_panel.ceu"
+#include "world/button_panel.ceu"
 
 code/await World (void) -> void
 do
@@ -174,8 +175,9 @@ do
     spawn ArmageddonButton(dwidth-40*1, dheight-62);
     spawn ForwardButton   (dwidth-40*2, dheight-62);
     spawn PauseButton     (dwidth-40*3, dheight-62);
-    //spawn ButtonPanel();
-            //-> button_panel;
+
+    var& _ActionName__Enum buttonpanel_action;
+    spawn ButtonPanel() -> (&buttonpanel_action);
 #if 0
 
     var Rect rect_big = Rect(
