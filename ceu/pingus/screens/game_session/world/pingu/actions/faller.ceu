@@ -1,7 +1,7 @@
 #ifndef _FALLER_CEU
 #define _FALLER_CEU
 
-#include "../../../../right_left_sprites.ceu"
+#include "pingus/right_left_sprites.ceu"
 
 code/await Faller (void) -> _ActionName__Enum
 do
@@ -35,7 +35,7 @@ do
         end
     with
         event& void ok_collided;
-        spawn LinearMover() -> (&ok_collided);
+        spawn Mover() -> (&ok_collided);
         loop do
             await ok_collided;
 

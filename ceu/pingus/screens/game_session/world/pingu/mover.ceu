@@ -5,7 +5,7 @@ native/pre do
     ##include "../src/pingus/colliders/pingu_collider.hpp"
 end
 
-code/await LinearMover (void) -> (event& void ok_collided) -> FOREVER
+code/await Mover (void) -> (event& void ok_collided) -> FOREVER
 do
     event void ok_collided_;
     ok_collided = &ok_collided_;

@@ -81,10 +81,10 @@ do
     var _ActionName__Enum fall_action    = {ActionName::NONE};
 
     #include "pingu/tights.ceu"
-    #include "pingus/movers/linear_mover.ceu"
-    #include "pingu/walker.ceu"
-    #include "pingu/faller.ceu"
-    #include "pingu/splashed.ceu"
+    #include "pingu/mover.ceu"
+    #include "pingu/actions/walker.ceu"
+    #include "pingu/actions/faller.ceu"
+    #include "pingu/actions/splashed.ceu"
 
     var int ret =
     do
