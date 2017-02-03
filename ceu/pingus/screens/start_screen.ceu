@@ -23,7 +23,7 @@ do
     );
 
     spawn Wood();
-    spawn Sprite_from_name(_, &rect, "core/menu/blackboard");
+    spawn Sprite_from_name(&rect, "core/menu/blackboard", false);
 
     var& IRectComponent start;
     var Rect start_r = val Rect({Display::get_width()/2}+245, {Display::get_height()/2}+150, _,_);

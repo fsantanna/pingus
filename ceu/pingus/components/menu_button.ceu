@@ -12,8 +12,8 @@ do
     ok_clicked = &ok_clicked_;
 
     var Rect r1 = val Rect(x, y, 0, 0);
-    var& Sprite bg;
-    spawn Sprite_from_name(_, &r1, "core/menu/menuitem") -> (&bg);
+    var& ISprite bg;
+    spawn Sprite_from_name(&r1, "core/menu/menuitem", false) -> (&bg);
 
     var Rect r2 = val Rect(x-bg.frame_size.width/2, y-bg.frame_size.height/2,
                            bg.frame_size.width, bg.frame_size.height);
@@ -30,7 +30,7 @@ do
             await component.on_pointer_enter;
             {Sound::PingusSound::play_sound ("tick");};
             do
-                spawn Sprite_from_name(_, &r1, "core/menu/menuitem_highlight");
+                spawn Sprite_from_name(&r1, "core/menu/menuitem_highlight", false);
                 await component.on_pointer_leave;
             end
         end

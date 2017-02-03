@@ -12,10 +12,10 @@ do
     spawn RectComponent(&rect) -> (&component);
 
     do
-        spawn Sprite_from_name(_, &rect, "core/buttons/hbuttonbgb");        /// TODO: is_world=false
+        spawn Sprite_from_name(&rect, "core/buttons/hbuttonbgb", false);
 
-        var& Sprite s;
-        spawn Sprite_from_name(_, &rect, "core/buttons/armageddon_anim")    /// TODO: is_world=false
+        var& ISprite s;
+        spawn Sprite_from_name(&rect, "core/buttons/armageddon_anim", false)
                 -> (&s);
         s.frame_delay = 0;
         s.frame = 7;
@@ -30,8 +30,8 @@ do
     end
 
     do
-        spawn Sprite_from_name(_, &rect, "core/buttons/hbuttonbgb");        /// TODO: is_world=false
-        spawn Sprite_from_name(_, &rect, "core/buttons/armageddon_anim");   /// TODO: is_world=false
+        spawn Sprite_from_name(&rect, "core/buttons/hbuttonbgb", false);
+        spawn Sprite_from_name(&rect, "core/buttons/armageddon_anim", false);
         emit outer.go_armageddon;
         await FOREVER;
     end

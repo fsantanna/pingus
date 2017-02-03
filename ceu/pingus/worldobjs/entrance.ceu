@@ -46,8 +46,7 @@ do
     };
 
     var Rect r = val Rect(pst_.x as int,pst_.y as int, 0,0);
-    spawn Sprite_from_name(_, &r, "core/misc/smallmap_entrance");
-        ///this.is_world = false;
+    spawn Sprite_from_name(&r, "core/misc/smallmap_entrance", false);
 
     var int last_release = 150 - release_rate;
         // wait ~2sec at startup to allow a 'lets go' sound

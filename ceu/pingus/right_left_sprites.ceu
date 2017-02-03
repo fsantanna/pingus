@@ -45,8 +45,7 @@ do
                         escape &&right[0] as _char_const_ptr;
                     end
                 end;
-                await Sprite_from_name(_, &rect, name);
-                        ///is_world = outer.is_world;
+                await Sprite_from_name(&rect, name, is_world);
                 escape;
             with
                 await e_change;

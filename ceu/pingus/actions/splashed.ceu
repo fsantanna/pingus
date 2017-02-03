@@ -11,7 +11,7 @@ do
     vector[] byte str = [] .. "pingus/player"
                            .. call Get_Owner_Str() as _char&&
                            .. "/splat";
-    spawn Sprite_from_name(_, &outer.rect, &&str[0] as _char_const_ptr);
+    spawn Sprite_from_name(&outer.rect, &&str[0] as _char_const_ptr, true);
 
     await WORLD_UPDATE;
     await WORLD_UPDATE;

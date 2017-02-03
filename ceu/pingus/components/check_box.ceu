@@ -30,7 +30,7 @@ do
             else
                 file = "core/menu/checkbox_small";
             end
-            spawn Sprite_from_name(_, &rect, file);
+            spawn Sprite_from_name(&rect, file, false);
             checkbox_.is_on = await checkbox_.go_click;
         end
     end

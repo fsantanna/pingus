@@ -13,7 +13,7 @@ native/plain _FramebufferSurface;
 
 #include "surface.ceu"
 
-data Sprite with
+data ISprite with
     var Vector2i offset      = val Vector2i(0, 0);
     var Vector2i frame_pos   = val Vector2i(0, 0);
     var Size     frame_size  = val Size(0,0);
@@ -23,43 +23,42 @@ data Sprite with
     var int      frame       = 0;
 end
 
-code/await Sprite_from_name (var Sprite? sprite_in, var& Rect rect, var _char_const_ptr name)
-                                -> (var& Sprite sprite_out)
+code/await Sprite_from_name (var& Rect rect, var _char_const_ptr name, var bool is_world)
+                                -> (var& ISprite sprite)
                                     -> FOREVER do
-// TODO: sprite_in eh necessario?
-    var Sprite sprite = _;
-    if sprite_in? then
-        sprite = sprite_in!;
-    end
-    sprite_out = &sprite;
-
     var& Surface sfc;
     spawn Surface_from_name(name, {ResourceModifier::ROT0}) -> (&sfc);
 
-    sprite.frame_pos   = val Vector2i(sfc.desc:frame_pos.x, sfc.desc:frame_pos.y);
-    sprite.array       = val Size(sfc.desc:array.width, sfc.desc:array.height);
-    sprite.frame_delay = sfc.desc:speed;
-    sprite.is_loop     = (sfc.desc:loop_ as bool);
+    var ISprite sprite_ = val ISprite(
+        _,
+        Vector2i(sfc.desc:frame_pos.x, sfc.desc:frame_pos.y),
+        _,
+        sfc.desc:speed,
+        Size(sfc.desc:array.width, sfc.desc:array.height),
+        (sfc.desc:loop_ as bool),
+        _,
+    );
+    sprite = &sprite_;
 
     if sfc.desc:frame_size.width  == -1 then
-        sprite.frame_size.width  = sfc.framebuffer.get_width()  / sprite.array.width;
-        sprite.frame_size.height = sfc.framebuffer.get_height() / sprite.array.height;
+        sprite_.frame_size.width  = sfc.framebuffer.get_width()  / sprite_.array.width;
+        sprite_.frame_size.height = sfc.framebuffer.get_height() / sprite_.array.height;
     else
-        sprite.frame_size.width  = sfc.desc:frame_size.width;
-        sprite.frame_size.height = sfc.desc:frame_size.height;
+        sprite_.frame_size.width  = sfc.desc:frame_size.width;
+        sprite_.frame_size.height = sfc.desc:frame_size.height;
     end
-    rect.width  = sprite.frame_size.width;
-    rect.height = sprite.frame_size.height;
+    rect.width  = sprite_.frame_size.width;
+    rect.height = sprite_.frame_size.height;
 
     native _vec;
     {
         static Vector2i vec;
         vec = calc_origin(@(sfc.desc:origin),
-                          Size(@(sprite.frame_size.width),
-                               @(sprite.frame_size.height)))
+                          Size(@(sprite_.frame_size.width),
+                               @(sprite_.frame_size.height)))
                 - @(sfc.desc:offset);
     };
-    sprite.offset = val Vector2i(_vec.x, _vec.y);
+    sprite_.offset = val Vector2i(_vec.x, _vec.y);
 
     /* DRAW */
     every SDL_REDRAW do
@@ -77,12 +76,12 @@ code/await Sprite_from_name (var Sprite? sprite_in, var& Rect rect, var _char_co
         call {Display::s_framebuffer}:draw_surface(
             sfc.framebuffer,
             _Rect(
-                _Vector2i(sprite.frame_pos.x,sprite.frame_pos.y) +
-                    _Vector2i(sprite.frame_size.width  * (sprite.frame%sprite.array.width),
-                              sprite.frame_size.height * (sprite.frame/sprite.array.width)),
-                _Size(sprite.frame_size.width,sprite.frame_size.height)),
-            _Vector2i(-xx + x - sprite.offset.x,
-                      -yy + y - sprite.offset.y)
+                _Vector2i(sprite_.frame_pos.x,sprite_.frame_pos.y) +
+                    _Vector2i(sprite_.frame_size.width  * (sprite_.frame%sprite_.array.width),
+                              sprite_.frame_size.height * (sprite_.frame/sprite_.array.width)),
+                _Size(sprite_.frame_size.width,sprite_.frame_size.height)),
+            _Vector2i(-xx + x - sprite_.offset.x,
+                      -yy + y - sprite_.offset.y)
         );
     end
 #if 0

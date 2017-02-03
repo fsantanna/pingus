@@ -70,7 +70,7 @@ do
     );
 
     spawn Wood();
-    spawn Sprite_from_name(_, &rect, "core/menu/blackboard");
+    spawn Sprite_from_name(&rect, "core/menu/blackboard", false);
 
 /// TODO: only two
     var& IRectComponent ok;
