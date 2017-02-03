@@ -3,10 +3,9 @@
 
 #include "../../engine/gui/rect_component.ceu"
 
-code/await ArmageddonButton (var Rect rect) -> FOREVER
+code/await ArmageddonButton (var int x, var int y) -> FOREVER
 do
-    rect.width  = 38;
-    rect.height = 60;
+    var Rect rect = val Rect(x, y, 38, 60);
 
     var& IRectComponent component;
     spawn RectComponent(&rect) -> (&component);
@@ -36,92 +35,69 @@ do
     end
 end
 
-#if 0
-class ForwardButton with
-    var int x;
-    var int y;
-    function (int x, int y)=>ForwardButton build;
+code/await ForwardButton (var int x, var int y) -> FOREVER
 do
-    function (int x, int y)=>ForwardButton build do
-        this.x = x;
-        this.y = y;
-    end
+    var Rect rect = val Rect(x,y, 38,60);
 
-    var Rect r1 = Rect(this.x,this.y, 38,60);
-    var RectComponent component with
-        this.rect  = &r1;
-    end;
+    var& IRectComponent component;
+    spawn RectComponent(&rect) -> (&component);
 
     spawn do
-        var Rect r2 = Rect(this.x, this.y, 0, 0);
         loop do
             do
-                var Sprite _ = Sprite.build_nameX(&r2, "core/buttons/hbuttonbgb");
+                spawn Sprite_from_name(&rect, "core/buttons/hbuttonbgb", false);
                 await component.on_primary_button_pressed;
             end
-            emit global:go_forward => true;
-            do
-                var Sprite _ = Sprite.build_nameX(&r2, "core/buttons/hbuttonbg");
-                par/or do
-                    await ON_PRIMARY_BUTTON_RELEASED;
-                with
-                    var int v = await global:go_forward
-                                until v == false;
-                end
+            spawn Sprite_from_name(&rect, "core/buttons/hbuttonbg", false);
+            emit outer.main.go_forward(true);
+            watching ON_PRIMARY_BUTTON_RELEASED do
+                var bool v = await outer.main.go_forward
+                             until v == false;
             end
-            emit global:go_forward => false;
+            emit outer.main.go_forward(false);
         end
     end
 
-    var Rect r3 = Rect(this.x,this.y, 0,0);
-    var Sprite _ = Sprite.build_nameX(&r3, "core/buttons/fast_forward");
+    spawn Sprite_from_name(&rect, "core/buttons/fast_forward", false);
     await FOREVER;
 end
 
-class PauseButton with
-    var int x;
-    var int y;
-    function (int x, int y)=>PauseButton build;
+code/await PauseButton (var int x, var int y) -> FOREVER
 do
-    function (int x, int y)=>PauseButton build do
-        this.x = x;
-        this.y = y;
-    end
+    var Rect rect = val Rect(x,y, 38,60);
 
-    var Rect r1 = Rect(this.x,this.y, 38,60);
-    var RectComponent component with
-        this.rect  = &r1;
-    end;
+    var& IRectComponent component;
+    spawn RectComponent(&rect) -> (&component);
 
     spawn do
-        var Rect r2 = Rect(this.x, this.y, 0, 0);
         loop do
             var bool from_out = true;
-            par/or do
-                await global:go_pause_toggle until from_out;
-            with
-                var Sprite _ = Sprite.build_nameX(&r2, "core/buttons/hbuttonbgb");
-                await component.on_primary_button_pressed;
-                from_out = false;
-                emit global:go_pause_toggle;
+
+            do
+                spawn Sprite_from_name(&rect, "core/buttons/hbuttonbgb", false);
+                par/or do
+                    await outer.main.go_pause_toggle until from_out;
+                with
+                    await component.on_primary_button_pressed;
+                    from_out = false;
+                    emit outer.main.go_pause_toggle;
+                end
             end
 
+            spawn Sprite_from_name(&rect, "core/buttons/hbuttonbg", false);
             from_out = true;
             par/or do
-                await global:go_pause_toggle until from_out;
+                await outer.main.go_pause_toggle until from_out;
             with
-                var Sprite _ = Sprite.build_nameX(&r2, "core/buttons/hbuttonbg");
                 await component.on_primary_button_pressed;
                 from_out = false;
-                emit global:go_pause_toggle;
+                emit outer.main.go_pause_toggle;
             end
         end
     end
 
-    var Rect r3 = Rect(this.x, this.y, 0, 0);
-    var Sprite _ = Sprite.build_nameX(&r3, "core/buttons/pause");
+    spawn Sprite_from_name(&rect, "core/buttons/pause", false);
     await FOREVER;
 end
-#endif
 
 #endif

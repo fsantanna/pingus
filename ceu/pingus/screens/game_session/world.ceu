@@ -171,10 +171,10 @@ do
 
     var int dwidth  = {Display::get_width()};
     var int dheight = {Display::get_height()};
-    spawn ArmageddonButton(Rect(dwidth-40*1, dheight-62, _,_));
+    spawn ArmageddonButton(dwidth-40*1, dheight-62);
+    spawn ForwardButton   (dwidth-40*2, dheight-62);
+    spawn PauseButton     (dwidth-40*3, dheight-62);
 #if 0
-    var ForwardButton    _ = ForwardButton.build   (dwidth-40*2, dheight-62);
-    var PauseButton      _ = PauseButton.build     (dwidth-40*3, dheight-62);
     var ButtonPanel button_panel;
 
     var Rect rect_big = Rect(
