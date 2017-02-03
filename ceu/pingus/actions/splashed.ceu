@@ -3,22 +3,16 @@
 
 #include "../right_left_sprites.ceu"
 
-class Splashed with
-    interface IPinguAction;
+code/await Splashed (void) -> _ActionName__Enum
 do
-    {
-        static Vector3f vec;
-    };
-    _vec.x = this.pingu.get_pos().x;
-    _vec.y = this.pingu.get_pos().y;
-
     //global:world!:play_sound("splash", _vec, 0.5);
     call {Sound::PingusSound::play_sound}("splash", 0.5, 0.0);
 
-    var char[] str = [] .. "pingus/player"
-                        .. (_char&&)this.pingu.get_owner_str().c_str()
-                        .. "/splat";
-    var Sprite _ = Sprite.build_name(&outer.pingu.rect, (_char&&)&&str);
+    vector[] byte str = [] .. "pingus/player"
+                           .. call Get_Owner_Str() as _char&&
+                           .. "/splat";
+    spawn Sprite_from_name(_, &outer.rect, &&str[0] as _char_const_ptr);
+    await WORLD_UPDATE;
 
     escape {ActionName::DEAD};
 end

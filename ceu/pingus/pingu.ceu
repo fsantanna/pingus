@@ -84,6 +84,7 @@ do
     #include "movers/linear_mover.ceu"
     #include "actions/walker.ceu"
     #include "actions/faller.ceu"
+    #include "actions/splashed.ceu"
 
     var int ret =
     do
@@ -188,14 +189,17 @@ do
                         current_action = DO_PINGU_ACTION(Miner);
                     else/if current_action == {ActionName::SLIDER} then
                         current_action = DO_PINGU_ACTION(Slider);
+#endif
                     else/if current_action == {ActionName::SPLASHED} then
-                        current_action = DO_PINGU_ACTION(Splashed);
+                        current_action = await Splashed();
+#if 0
                     else/if current_action == {ActionName::WAITER} then
                         current_action = DO_PINGU_ACTION(Waiter);
 #endif
                     else/if current_action == {ActionName::WALKER} then
                         current_action = await Faller();
                     else
+_printf(">>> %d\n", current_action);
                         _ceu_dbg_assert({!"Invalid action name provied"});
                         await FOREVER;
                     end
