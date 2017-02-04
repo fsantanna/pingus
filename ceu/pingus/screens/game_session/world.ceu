@@ -45,7 +45,6 @@ end
 #include "particles/smoke_particle_holder.ceu"
 
 #include "components/smallmap.ceu"
-#include "components/time_display.ceu"
 #include "components/pingus_counter.ceu"
 #include "capture_rectangle.ceu"
 #include "smallmap_image.ceu"
@@ -163,8 +162,12 @@ do
 #if 0
     pool PinguParticle[] pingu_particles;
     pool SmokeParticle[] smoke_particles;
+#endif
 
-    var TimeDisplay      _ = TimeDisplay.build(plf.get_time(), &game_time);
+    #include "world/time_display.ceu"
+    spawn TimeDisplay();
+
+#if 0
     var CPingusCounter   _ = CPingusCounter.build(&counter);
 #endif
 

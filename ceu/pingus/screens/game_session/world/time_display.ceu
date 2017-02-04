@@ -1,0 +1,31 @@
+#ifndef _TIMEDISPLAY_CEU
+#define _TIMEDISPLAY_CEU
+
+native/pre do
+    ##include "pingus/game_time.hpp"
+end
+
+code/await TimeDisplay (void) -> FOREVER
+do
+    var int time_level = outer.game_session.plf.get_time();
+
+    every SDL_REDRAW do
+        if time_level>=0 or ({globals::developer_mode} as bool) then
+            // get elapsed time from server
+            var int time_world = outer.world.game_time;
+
+            if not ({globals::developer_mode} as bool) then
+                time_world = {std::max}(0, time_level - time_world);
+            end
+
+            call {Fonts::pingus_small_fixnum}.render(
+                _origin_top_right,
+                {Display::get_width()} - 30, 3,
+                {GameTime::ticks_to_realtime_string}(time_world),
+                *{Display::s_framebuffer}
+            );
+        end
+    end
+end
+
+#endif
