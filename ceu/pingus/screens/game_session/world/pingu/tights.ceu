@@ -80,3 +80,14 @@ code/tight Pingu_Dist (var int x, var int y) -> float do
     escape {Math::sqrt}(((p.x - x) * (p.x - x) +
                          (p.y - y) * (p.y - y)));
 end
+
+code/tight Is_Inside (var int x1, var int y1, var int x2, var int y2) -> bool
+do
+    _ceu_dbg_assert(x1 < x2);
+    _ceu_dbg_assert(y1 < y2);
+
+    escape (outer.pingu.rect.left > x1 and
+            outer.pingu.rect.left < x2 and
+            outer.pingu.rect.top  > y1 and
+            outer.pingu.rect.top  < y2);
+end

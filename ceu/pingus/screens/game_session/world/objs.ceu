@@ -4,6 +4,7 @@
 #include "objs/surface_background.ceu"
 #include "objs/groundpiece.ceu"
 #include "objs/entrance.ceu"
+#include "objs/smasher.ceu"
 
 // TODO: use spawn directly instead of ceu_sys_go
 //          - requires flatmap or traverse
@@ -60,6 +61,7 @@ do
     end
 
     pool[] Entrance entrances;
+    pool[] Smasher  smashers;
 
     var usize i;
     loop i in [0 -> {WORLDOBJ_FACTORY_VECTOR.size()}[ do
@@ -103,11 +105,10 @@ do
                 this.pingus = &outer.pingus;
                 this.reader = reader_;
             end;
+#endif
         else/if id_ == "smasher" then
-            spawn Smasher with
-                this.pingus = &outer.pingus;
-                this.reader = reader_;
-            end;
+            spawn Smasher() in smashers;
+#if 0
         else/if id_ == "spike" then
             spawn Spike with
                 this.pingus = &outer.pingus;

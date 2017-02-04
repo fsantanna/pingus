@@ -23,6 +23,10 @@ data ISprite with
     var int      frame       = 0;
 end
 
+code/tight Get_Frame_Count (var& ISprite sprite) -> int do
+    escape sprite.array.width * sprite.array.height;
+end
+
 code/await Sprite_from_name (var& Rect rect, var _char_const_ptr name, var bool is_world)
                                 -> (var&? ISprite sprite)
                                     -> void
@@ -155,10 +159,6 @@ do
     //end
 
     /* PUBLIC */
-
-    function (void)=>int get_frame_count do
-        return this.array.width * this.array.height;
-    end
 
     function (void)=>int get_current_frame do
         return this.frame;

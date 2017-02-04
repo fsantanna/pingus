@@ -26,24 +26,16 @@ do
                 -> (&sprite)
     do
         spawn Mover();
-spawn do
-    every WORLD_UPDATE do
-        _printf("> %d\n", sprite!.frame);
-    end
-end
 
         /* UPDATE */
 
         // SOUND
-_printf("1111\n");
         await WORLD_UPDATE until sprite!.frame == 10;
         call {Sound::PingusSound::play_sound}("plop", 0.5, 0.0);
-_printf("2222\n");
 
         // PARTICLES, TERRAIN, EXPLOSION
 
         await WORLD_UPDATE until sprite!.frame == 13;
-_printf("3333\n");
         emit outer.world.go_create_pingu_particles(outer.pingu.rect.left,
                                                    outer.pingu.rect.top-5);
 
@@ -61,17 +53,8 @@ _printf("3333\n");
             s!.offset.x = 32;
             s!.offset.y = 48;
             await WORLD_UPDATE;
-await WORLD_UPDATE;
-await WORLD_UPDATE;
-await WORLD_UPDATE;
-await WORLD_UPDATE;
-await WORLD_UPDATE;
-await WORLD_UPDATE;
-await WORLD_UPDATE;
-await WORLD_UPDATE;
         end
     end
-_printf("out\n");
 
     escape {ActionName::DEAD};
 end

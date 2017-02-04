@@ -1,49 +1,48 @@
 #ifndef _SMASHER_CEU
 #define _SMASHER_CEU
 
-class Smasher with
-    pool IPingu[]& pingus;
-    var _FileReader&& reader;
-
-    function (void)       =>float     get_z_pos;
-    function (_Vector3f&&)=>void      set_pos;
-    function (void)       =>_Vector3f get_pos;
+code/await Smasher (void) -> FOREVER
 do
-    var Vector3f pos;
-    { static Vector3f p; };
-    this.reader:read_vector("position", _p);
-    this.pos = Vector3f(_p.x,_p.y,_p.z);
-
+    {
+        static Vector3f p;
+        WORLDOBJ_FACTORY_READER.read_vector("position", p);
+    }
+    var Vector3f pst = val Vector3f({p.x}, {p.y}, {p.z});
     do
         _log_info("Drawing colmap entry");
-        { CollisionMask buf("traps/smasher_cmap"); };
-        global:world!:put(&&_buf,
-                          (int)(this.pos.x),
-                          (int)(this.pos.y),
-                          {Groundtype::GP_SOLID});
+        {
+            DO
+                CollisionMask buf("traps/smasher_cmap");
+        }
+        call World_Put({&buf}, pst.x as int, pst.y as int, {Groundtype::GP_SOLID});
+        {
+            END
+        }
     end
 
-    var Rect r = Rect(pos.x,pos.y, 0,0);
+    var Rect rect = val Rect(pst.x as int,pst.y as int, 0,0);
     loop do
         var int ok = do
-            var Sprite sprite = Sprite.build_name(&r, "traps/smasher");
-            _assert(sprite.get_frame_count() == 6);
-            sprite.frame_delay = 0;
+            var&? ISprite sprite;
+            spawn Sprite_from_name(&rect,"traps/smasher",true) -> (&sprite);
+            _ceu_dbg_assert(call Get_Frame_Count(&sprite!) == 6);
+            sprite!.frame_delay = 0;
 
             loop do
                 await WORLD_UPDATE;
 
-                loop pingu in this.pingus do
+                var&? IPingu pingu;
+                loop (pingu) in outer.pingus do
                     // Activate the smasher if a Pingu is under it
-                    if ((pingu:direction == _LEFT             and
-                         pingu:get_pos().x > this.pos.x + 65  and
-                         pingu:get_pos().x < this.pos.x + 85)
+                    if ((pingu!.direction == {LEFT}    and
+                         pingu!.rect.left > pst.x + 65 and
+                         pingu!.rect.left < pst.x + 85)
                     or
-                        (pingu:direction == _RIGHT            and
-                         pingu:get_pos().x > this.pos.x + 190 and
-                         pingu:get_pos().x < this.pos.x + 210))
+                        (pingu!.direction == {RIGHT}    and
+                         pingu!.rect.left > pst.x + 190 and
+                         pingu!.rect.left < pst.x + 210))
                     then
-                        if (pingu:current_action != {ActionName::SPLASHED}) then
+                        if (pingu!.current_action != {ActionName::SPLASHED}) then
                             escape 1;
                         end
                     end
@@ -52,49 +51,56 @@ do
         end;
 
         do
-            var Sprite sprite = Sprite.build_name(&r, "traps/smasher");
+            var&? ISprite sprite;
+            spawn Sprite_from_name(&rect,"traps/smasher",true) -> (&sprite);
 
-            loop i in 6 do
-                await WORLD_UPDATE;
-                sprite.set_frame(i);
+            do
+                var int i;
+                loop i in [0 -> 6[ do
+                    await WORLD_UPDATE;
+                    sprite!.frame = i;
+                end
             end
 
             // SMASH!!! The thing hitten earth and kills the pingus
             call {Sound::PingusSound::play_sound}("tenton");
 
-            loop i in 20 do
-                emit global:go_create_smoke_particles => (
-                        this.pos.x + 20 + _float(_rand() % 260),
-                        this.pos.y + 180,
-                        {Math::frand()-0.5f},
-                        {Math::frand()-0.5f}
-                );
-            end
-
-            var IPingu&&?[] pingus;
-            loop pingu in this.pingus do
-                pingus = [] .. pingus .. [pingu];
-            end
-            loop i in $pingus do
-                var IPingu&&? pingu = pingus[i]!;
-                if pingu!:is_inside((int)(this.pos.x + 30),
-                                    (int)(this.pos.y + 90),
-                                    (int)(this.pos.x + 250),
-                                    (int)(this.pos.y + 190))
-                then
-                    emit pingu!:go_action => {ActionName::SPLASHED};
+            do
+                var int i;
+                loop i in [0 -> 20[ do
+                    emit outer.world.go_create_smoke_particles(
+                            (pst.x + 20 + (_rand() % 260)) as int,
+                            (pst.y + 180) as int,
+                            {Math::frand()-0.5f},
+                            {Math::frand()-0.5f}
+                    );
                 end
             end
 
-            loop i in 6 do
-                await WORLD_UPDATE;
-                sprite.set_frame(5-i);
+            var&? IPingu pingu;
+            loop (pingu) in outer.pingus do
+                if (call Is_Inside((pst.x +  30) as int,
+                                   (pst.y +  90) as int,
+                                   (pst.x + 250) as int,
+                                   (pst.y + 190) as int) in outer.pingus)
+                then
+                    emit pingu!.go_action({ActionName::SPLASHED});
+                end
+            end
+
+            do
+                var int i;
+                loop i in [0 <- 5] do
+                    await WORLD_UPDATE;
+                    sprite!.frame = i;
+                end
             end
         end
     end
 
     /* PUBLIC */
 
+#if 0
     function (void)=>float get_z_pos do
         return this.pos.z;
     end
@@ -104,6 +110,7 @@ do
     function (void)=>_Vector3f get_pos do
         return _Vector3f(this.pos.x, this.pos.y, this.pos.z);
     end
+#endif
 end
 
 #endif

@@ -233,16 +233,6 @@ _printf(">>> %d\n", pingu.current_action);
         this.direction = d;
     end
 
-    function (int x1, int y1, int x2, int y2)=>bool is_inside do
-        _assert (x1 < x2);
-        _assert (y1 < y2);
-
-        return (this.rect.left > x1 and
-                this.rect.left < x2 and
-                this.rect.top > y1 and
-                this.rect.top < y2);
-    end
-
     function (void)=>int get_id do
         return this.id;
     end

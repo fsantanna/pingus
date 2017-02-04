@@ -10,6 +10,8 @@ native
 native/pre do
     ##define private public
     ##define protected public
+    ##define DO {
+    ##define END }
 
     ##define typeof(x) __typeof__(x)
     typedef const char* char_const_ptr;

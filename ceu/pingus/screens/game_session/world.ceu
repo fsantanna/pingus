@@ -14,20 +14,20 @@ native/plain _Groundtype__GPType, _SmallMap, _SceneContext, _GroundMap, _Collisi
 native/plain _ActionName__Enum;
 
 data IWorld with
-    var  Rect                 rect;
-    var& _GraphicContextState state;
-    var& int                  game_time;
-    var  float                gravity;
+    var  Rect                   rect;
+    var& _GraphicContextState   state;
+    var& int                    game_time;
+    var  float                  gravity;
 
-    event int                 ok_pingu;
-    event (int,int,s8,int)    go_create_pingu;
-    event (int,int)           go_create_pingu_particles;
+    event int                   ok_pingu;
+    event (int,int,s8,int)      go_create_pingu;
+    event (int,int)             go_create_pingu_particles;
+    event (int,int,float,float) go_create_smoke_particles;
 #if 0
     event void go_options;
     event void go_pause_toggle;
     event bool go_forward;
     event void go_armageddon;
-    event (float,float,float,float) go_create_smoke_particles;
 
     //var IWorldMap&&? worldmap;
     //var IWorld&&? world;
@@ -53,7 +53,6 @@ end
 #include "worldobjs/hotspot.ceu"
 #include "worldobjs/laser_exit.ceu"
 #include "worldobjs/liquid.ceu"
-#include "worldobjs/smasher.ceu"
 #include "worldobjs/spike.ceu"
 
 #endif
@@ -92,7 +91,7 @@ do
             end;
 
     var IWorld world = val IWorld(Rect(0,0,w,h), &state!, &outer.game_session.game_time,
-                                  0.2, _,_,_);
+                                  0.2, _,_,_,_);
     world.game_time = 0;
 
     world.state.set_limit({Rect(Vector2i(0,0), Size(@w,@h))});
@@ -105,7 +104,7 @@ do
         escape ret;
     end
 
-    code/tight World_Put (var _CollisionMask&& mask,var int x,var int y,var _Groundtype__GPType type) -> void do
+    code/tight World_Put (var _CollisionMask&& mask,var int x, var int y, var _Groundtype__GPType type) -> void do
         outer.gfx_map.put(mask:get_surface(), x, y);
         outer.gfx_map.get_colmap():put(*mask, x, y, type);
     end
@@ -162,9 +161,9 @@ do
 
     #include "world/pingu_particle_holder.ceu"
     pool[] PinguParticle pingu_particles;
-#if 0
-    pool SmokeParticle[] smoke_particles;
-#endif
+
+    #include "world/smoke_particle_holder.ceu"
+    pool[] SmokeParticle smoke_particles;
 
     #include "world/time_display.ceu"
     spawn TimeDisplay();
@@ -197,24 +196,18 @@ do
         par do
             var int x,y;
             every (x,y) in world.go_create_pingu_particles do
-_printf("oioioi\n");
                 var int i;
                 loop i in [0 -> 50[ do
                     spawn PinguParticle(x,y) in pingu_particles;
                 end
             end
         with
-    #if 0
-            every (x_,y_,vel_x_,vel_y_) in global:go_create_smoke_particles do
-                spawn SmokeParticle in smoke_particles with
-                    this.x     = x_;
-                    this.y     = y_;
-                    this.vel_x = vel_x_;
-                    this.vel_y = vel_y_;
-                end;
+            var int   x,y;
+            var float vel_x,vel_y;
+            every (x,y,vel_x,vel_y) in world.go_create_smoke_particles do
+                spawn SmokeParticle(x,y, vel_x,vel_y) in smoke_particles;
             end
         with
-    #endif
             await outer.main.go_armageddon;
 
             {Sound::PingusSound::play_sound("goodidea");};
