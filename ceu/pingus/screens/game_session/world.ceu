@@ -167,9 +167,8 @@ do
     #include "world/time_display.ceu"
     spawn TimeDisplay();
 
-#if 0
-    var CPingusCounter   _ = CPingusCounter.build(&counter);
-#endif
+    #include "world/pingus_counter.ceu"
+    spawn PingusCounter();
 
     var int dwidth  = {Display::get_width()};
     var int dheight = {Display::get_height()};

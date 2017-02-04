@@ -60,7 +60,7 @@ native/plain _PingusLevel, _Result, _Levelset;
 native/pure   _XXX_PURE, _XXX_PTR2REF;
 native/nohold _XXX_NOHOLD;
 native/nohold _delete, _log_error, _log_info, _log_debug, __;
-native/nohold _ID;
+native/nohold _ID, _snprintf;
 
 #define AWAIT_UNTIL_MYSELF(TP,EVT)             \
     do                                         \

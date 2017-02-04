@@ -1,0 +1,31 @@
+#ifndef _PINGUSCOUNTER_CEU
+#define _PINGUSCOUNTER_CEU
+
+code/await PingusCounter (void) -> FOREVER
+do
+    //var _Font font = {Fonts::pingus_small_fixnum};
+
+    var Rect rect = val Rect({Display::get_size}().width/2,0, 0,0);
+    spawn Sprite_from_name(&rect, "core/buttons/info", false);
+
+    every SDL_REDRAW do
+        vector[128] byte str = [];
+
+        _snprintf(&&str[0] as _char&&, 128,
+            __("Released:%3d/%d   Out:%3d   Saved:%3d/%d").c_str(),
+           outer.game_session.counter.number_of_released,
+           outer.game_session.counter.number_of_allowed,
+           outer.game_session.counter.number_of_alive,
+           outer.game_session.counter.number_of_exited,
+           outer.game_session.counter.number_to_save);
+
+        call {Fonts::pingus_small_fixnum}.render(
+            _origin_top_center,
+            {Display::get_size}().width/2, -2,
+            &&str[0] as _char_const_ptr,
+            *{Display::s_framebuffer}
+        );
+    end
+end
+
+#endif
