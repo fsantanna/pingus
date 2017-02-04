@@ -12,11 +12,23 @@ code/await Playfield (var& _ActionName__Enum action_next) -> FOREVER
     var Rect& rect;
 
     function (void)=>Vector2i get_pos;
-    function (int x, int y)=>void set_viewpoint;
     function (int x, int y)=>void scroll;
     function (void)=>void update_layout;
 #endif
 do
+    code/tight Playfield_Get_Pos (void) -> Vector2i do
+        var Vector2i ret = val Vector2i(outer.world.state.get_pos().x,
+                                        outer.world.state.get_pos().y);
+        escape ret;
+    end
+
+    code/tight Playfield_Set_Viewpoint (var int x, var int y) -> void do
+        outer.world.state.set_pos(_Vector2i(x, y));
+        outer.world.rect.left = x;
+        outer.world.rect.top  = y;
+    end
+
+
     #define POS2VEC(m) _Vector2i(m.x,m.y)
 
     var Rect rect = val Rect(
@@ -205,23 +217,15 @@ do
             end
         end
 #endif
+    with
+        var Rect rect = val Rect(6,{Display::get_size}().height-105, 175,100);
+        #include "smallmap.ceu"
+        await SmallMap();
     end
 
     /* PUBLIC */
 
 #if 0
-    function (void)=>Vector2i get_pos do
-        var Vector2i ret = Vector2i((int)(outer.world.state.get_pos().x),
-                                    (int)(outer.world.state.get_pos().y));
-        return ret;
-    end
-
-    function (int x, int y)=>void set_viewpoint do
-        outer.world.state.set_pos(_Vector2i(x, y));
-        outer.world.rect.left = x;
-        outer.world.rect.top  = y;
-    end
-
     function (int x, int y)=>void scroll do
         outer.world.state.set_pos(outer.world.state.get_pos() + _Vector2i(x, y));
         outer.world.rect.left = outer.world.rect.left + x;

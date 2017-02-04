@@ -1,24 +1,16 @@
 #ifndef _SMALLMAP_IMAGE_CEU
 #define _SMALLMAP_IMAGE_CEU
 
-class SmallMapImage with
-    var Rect& rect;
-    function (Rect& rect)=>SmallMapImage build;
+code/tight SmallMapImage (void) -> FOREVER
 do
-    function (Rect& rect)=>SmallMapImage build do
-        this.rect = &rect;
-    end
-
     function @rec (void)=>void update_surface;
 
     var uint colmap_serial = 0;
 
-    var _Surface&? canvas;
-    finalize
-        canvas = &{new Surface}(this.rect.width, this.rect.height);
-    with
-        _delete(&&this.canvas!);
-    end
+    var _Surface&? canvas = &{new Surface}(outer.rect.width, outer.rect.height)
+        finalize with
+            _delete(&&this.canvas!);
+        end;
 
     var float smallmap_update_time = 1.0;
     loop do
@@ -45,9 +37,8 @@ do
         end;
 
         loop do
-            var int v    = await DELTA;
-            var float dt = ((float)v)/1000;
-            update_count = update_count + dt;
+            var int dt = await SDL_DT;
+            update_count = update_count + dt/1000;
             if update_count > smallmap_update_time then
                 break;
             end

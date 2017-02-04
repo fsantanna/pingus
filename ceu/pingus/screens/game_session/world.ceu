@@ -44,7 +44,6 @@ end
 #include "particles/pingu_particle_holder.ceu"
 #include "particles/smoke_particle_holder.ceu"
 
-#include "components/smallmap.ceu"
 #include "components/pingus_counter.ceu"
 #include "capture_rectangle.ceu"
 #include "smallmap_image.ceu"
@@ -183,14 +182,6 @@ do
     spawn Playfield(&buttonpanel_action);
 
 #if 0
-    var Rect rect_small = Rect(6,{Display::get_size}().height-105, 175,100);
-    var SmallMapImage _ = SmallMapImage.build(&rect_small);
-    var SmallMap smallmap with
-        this.rect      = &rect_small;
-        this.pingus    = &pingus;
-        this.playfield = &playfield;
-    end;
-
     var CaptureRectangle _ = CaptureRectangle.build(&playfield);
 #endif
 
