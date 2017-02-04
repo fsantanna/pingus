@@ -6,19 +6,15 @@ native/pre do
     ##include "../src/pingus/pingu_enums.hpp"
 end
 
-#include "../movers/linear_mover.ceu"
-
-class Bomber with
-    interface IPinguAction;
+code/await Bomber (void) -> _ActionName__Enum
 do
-    var char[] bomber = [] .. "pingus/player"
-                           .. (_char&&)this.pingu.get_owner_str().c_str()
-                           .. "/bomber/left";
-    var Sprite sprite = Sprite.build_name(&outer.pingu.rect, (_char&&)&&bomber);
+    vector[] byte bomber = [] .. "pingus/player"
+                              .. (call Pingu_Get_Owner_Str() as _char&&)
+                              .. "/bomber/left";
 
-    var char[] explo = [] .. "pingus/player"
-                          ..  (_char&&)this.pingu.get_owner_str().c_str()
-                          .. "/explo";
+    vector[] byte explo = [] .. "pingus/player"
+                              .. (call Pingu_Get_Owner_Str() as _char&&)
+                             .. "/explo";
     {
         ##include "../../../src/pingus/collision_mask.hpp"
         static CollisionMask bomber_radius(
@@ -29,41 +25,39 @@ do
 
     call {Sound::PingusSound::play_sound}("ohno", 0.5, 0.0);
 
-    par do
-        // TODO: does it make any difference??
-        do LinearMover with
-            this.pingu = &outer.pingu;
-        end;
-    with
+    var&? ISprite sprite;
+    watching Sprite_from_name(&outer.pingu.rect, &&bomber[0] as _char&&, true)
+                -> (&sprite)
+    do
+        spawn Mover();
+
         /* UPDATE */
 
         // SOUND
-        await WORLD_UPDATE until sprite.get_current_frame() == 10;
+        await WORLD_UPDATE until sprite!.frame == 10;
         call {Sound::PingusSound::play_sound}("plop", 0.5, 0.0);
 
         // PARTICLES, TERRAIN, EXPLOSION
 
-        await WORLD_UPDATE until sprite.get_current_frame() == 13;
-        emit global:go_create_pingu_particles => (this.pingu.get_x(),
-                                                  this.pingu.get_y()-5);
+        await WORLD_UPDATE until sprite!.frame == 13;
+        emit outer.world.go_create_pingu_particles(outer.pingu.rect.left,
+                                                   outer.pingu.rect.top-5);
 
-        global:world!:remove(
-            &&_bomber_radius,
-            this.pingu.get_x() - _bomber_radius.get_width()/2,
-            this.pingu.get_y() - _bomber_radius.get_width()/2 - 16
-        );
+        call World_Remove({&bomber_radius},
+                          outer.pingu.rect.left - {bomber_radius.get_width()/2},
+                          outer.pingu.rect.top  - {bomber_radius.get_width()/2} - 16);
 
         do
-            var Sprite s = Sprite.build_name(&outer.pingu.rect, (_char&&)&&explo);
-            s.offset.x = 32;
-            s.offset.y = 48;
+            var&? ISprite s;
+            spawn Sprite_from_name(&outer.pingu.rect, &&explo[0] as _char&&, true)
+                    -> (&s);
+            s!.offset.x = 32;
+            s!.offset.y = 48;
             await WORLD_UPDATE;
         end
-
-        // ANIMATION END
-        await sprite;
-        escape {ActionName::DEAD};
     end
+
+    escape {ActionName::DEAD};
 end
 
 #endif

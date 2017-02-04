@@ -37,7 +37,6 @@ end
 #include "../engine/display/sprite.ceu"
 #include "actions/basher.ceu"
 #include "actions/blocker.ceu"
-#include "actions/bomber.ceu"
 #include "actions/bridger.ceu"
 #include "actions/climber.ceu"
 #include "actions/digger.ceu"
@@ -58,6 +57,7 @@ data IPingu with
     var Rect     rect;
     var s8       direction;
     var Vector3f velocity = val Vector3f(0, 0, 0);
+    var _ActionName__Enum current_action = {ActionName::FALLER};
 
     vector[] byte name;
 
@@ -76,19 +76,19 @@ do
         direction_ = {LEFT};
     end
 
-    var IPingu pingu = val IPingu(rect_, direction_!, _,_,_);
+    var IPingu pingu = val IPingu(rect_, direction_!, _,_,_,_);
     pingu_ = &pingu;
 
-    var _ActionName__Enum current_action = {ActionName::FALLER};
     var _ActionName__Enum wall_action    = {ActionName::NONE};
     var _ActionName__Enum fall_action    = {ActionName::NONE};
 
     #include "pingu/tights.ceu"
     #include "pingu/mover.ceu"
-    #include "pingu/actions/walker.ceu"
+    #include "pingu/actions/bomber.ceu"
     #include "pingu/actions/faller.ceu"
     #include "pingu/actions/floater.ceu"
     #include "pingu/actions/splashed.ceu"
+    #include "pingu/actions/walker.ceu"
 
     var int ret =
     do
@@ -138,9 +138,9 @@ do
                 var int mode = {ActionName::ACTIVATION_MODE}[new_action];
 
                 if mode == {ActionType::INSTANT} then
-                    if new_action != current_action and
+                    if new_action != pingu.current_action and
                        ({ActionName::CHANGE_ALLOWED}
-                            [current_action][new_action] as bool)
+                            [pingu.current_action][new_action] as bool)
                     then
                         emit e_set_action(new_action);
                     end
@@ -152,58 +152,60 @@ do
             end
         with
             loop do
-                pingu.name = [] .. {ActionName::to_screenname}(current_action) as _char&&;
+                pingu.name = [] .. {ActionName::to_screenname}(pingu.current_action) as _char&&;
                 par/or do
-                    current_action = await e_set_action;
+                    pingu.current_action = await e_set_action;
                 with
-                    if current_action == {ActionName::NONE} then
+                    if pingu.current_action == {ActionName::NONE} then
                         _ceu_dbg_assert({!"invalid action"});
                         await FOREVER;
-                    else/if current_action == {ActionName::DEAD} then
+                    else/if pingu.current_action == {ActionName::DEAD} then
                         escape {PS_DEAD};
 #if 0
-                    else/if current_action == {ActionName::BASHER} then
-                        current_action = DO_PINGU_ACTION(Basher);
-                    else/if current_action == {ActionName::BLOCKER} then
-                        current_action = DO_PINGU_ACTION(Blocker);
-                    else/if current_action == {ActionName::BOMBER} then
-                        current_action = DO_PINGU_ACTION(Bomber);
-                    else/if current_action == {ActionName::BRIDGER} then
-                        current_action = DO_PINGU_ACTION(Bridger);
-                    else/if current_action == {ActionName::CLIMBER} then
-                        current_action = DO_PINGU_ACTION(Climber);
-                    else/if current_action == {ActionName::DIGGER} then
-                        current_action = DO_PINGU_ACTION(Digger);
+                    else/if pingu.current_action == {ActionName::BASHER} then
+                        pingu.current_action = DO_PINGU_ACTION(Basher);
+                    else/if pingu.current_action == {ActionName::BLOCKER} then
+                        pingu.current_action = DO_PINGU_ACTION(Blocker);
+#endif
+                    else/if pingu.current_action == {ActionName::BOMBER} then
+                        pingu.current_action = await Bomber();
+#if 0
+                    else/if pingu.current_action == {ActionName::BRIDGER} then
+                        pingu.current_action = DO_PINGU_ACTION(Bridger);
+                    else/if pingu.current_action == {ActionName::CLIMBER} then
+                        pingu.current_action = DO_PINGU_ACTION(Climber);
+                    else/if pingu.current_action == {ActionName::DIGGER} then
+                        pingu.current_action = DO_PINGU_ACTION(Digger);
                     else/if current_action == {ActionName::DROWN} then
-                        current_action = DO_PINGU_ACTION(Drown);
-                    else/if current_action == {ActionName::EXITER} then
-                        current_action = DO_PINGU_ACTION(Exiter);
+                        pingu.current_action = DO_PINGU_ACTION(Drown);
+                    else/if pingu.current_action == {ActionName::EXITER} then
+                        pingu.current_action = DO_PINGU_ACTION(Exiter);
                         escape _PS_EXITED;
 #endif
-                    else/if current_action == {ActionName::FALLER} then
-                        current_action = await Faller();
-                    else/if current_action == {ActionName::FLOATER} then
-                        current_action = await Floater();
+                    else/if pingu.current_action == {ActionName::FALLER} then
+                        pingu.current_action = await Faller();
+                    else/if pingu.current_action == {ActionName::FLOATER} then
+                        pingu.current_action = await Floater();
 #if 0
-                    else/if current_action == {ActionName::JUMPER} then
-                        current_action = DO_PINGU_ACTION(Jumper);
-                    else/if current_action == {ActionName::LASERKILL} then
-                        current_action = DO_PINGU_ACTION(LaserKill);
-                    else/if current_action == {ActionName::MINER} then
-                        current_action = DO_PINGU_ACTION(Miner);
-                    else/if current_action == {ActionName::SLIDER} then
-                        current_action = DO_PINGU_ACTION(Slider);
+                    else/if pingu.current_action == {ActionName::JUMPER} then
+                        pingu.current_action = DO_PINGU_ACTION(Jumper);
+                    else/if pingu.current_action == {ActionName::LASERKILL} then
+                        pingu.current_action = DO_PINGU_ACTION(LaserKill);
+                    else/if pingu.current_action == {ActionName::MINER} then
+                        pingu.current_action = DO_PINGU_ACTION(Miner);
+                    else/if pingu.current_action == {ActionName::SLIDER} then
+                        pingu.current_action = DO_PINGU_ACTION(Slider);
 #endif
-                    else/if current_action == {ActionName::SPLASHED} then
-                        current_action = await Splashed();
+                    else/if pingu.current_action == {ActionName::SPLASHED} then
+                        pingu.current_action = await Splashed();
 #if 0
-                    else/if current_action == {ActionName::WAITER} then
-                        current_action = DO_PINGU_ACTION(Waiter);
+                    else/if pingu.current_action == {ActionName::WAITER} then
+                        pingu.current_action = DO_PINGU_ACTION(Waiter);
 #endif
-                    else/if current_action == {ActionName::WALKER} then
-                        current_action = await Walker();
+                    else/if pingu.current_action == {ActionName::WALKER} then
+                        pingu.current_action = await Walker();
                     else
-_printf(">>> %d\n", current_action);
+_printf(">>> %d\n", pingu.current_action);
                         _ceu_dbg_assert({!"Invalid action name provied"});
                         await FOREVER;
                     end

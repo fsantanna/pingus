@@ -20,13 +20,13 @@ data IWorld with
 
     event int                 ok_pingu;
     event (int,int,s8,int)    go_create_pingu;
+    event (int,int)           go_create_pingu_particles;
 #if 0
     var  float                gravity;
     event void go_options;
     event void go_pause_toggle;
     event bool go_forward;
     event void go_armageddon;
-    event (float,float)             go_create_pingu_particles;
     event (float,float,float,float) go_create_smoke_particles;
 
     //var IWorldMap&&? worldmap;
@@ -95,7 +95,7 @@ do
             end;
 
     var IWorld world = val IWorld(Rect(0,0,w,h), &state!, &outer.game_session.game_time,
-                                  _,_);
+                                  _,_,_);
     world.game_time = 0;
 
     world.state.set_limit({Rect(Vector2i(0,0), Size(@w,@h))});
@@ -190,13 +190,12 @@ do
     #include "world/objs.ceu"
     spawn WorldObj_Factory();
 
-    await FOREVER;
-#if 0
-    this.state.set_pos(_Vector2i(pos_start.x,pos_start.y));
-    this.rect.left = pos_start.x;
-    this.rect.top  = pos_start.y;
+    world.state.set_pos(_Vector2i(pos_start.x,pos_start.y));
+    world.rect.left = pos_start.x;
+    world.rect.top  = pos_start.y;
 
     par/or do
+#if 0
         do GoalManager with
             this.plf = &plf;
             this.counter = &outer.counter;
@@ -221,36 +220,28 @@ do
             end;
         end
     with
-        await global:go_armageddon;
+#endif
+        await outer.main.go_armageddon;
 
         {Sound::PingusSound::play_sound("goodidea");};
 
-        loop do
-            loop i in 4 do
-                await WORLD_UPDATE;
-            end
-
-            var IPingu&&? pingu;
-            loop p in pingus do
-                if p:current_action != {ActionName::BOMBER} then
-                    pingu = p;
-                    break;
-                end
-            end
-            if pingu? then
-                emit pingu!:go_action => {ActionName::BOMBER};
-            else
-                await FOREVER;
+        var&? IPingu pingu;
+        loop (pingu) in pingus do
+            await WORLD_UPDATE;
+            await WORLD_UPDATE;
+            await WORLD_UPDATE;
+            await WORLD_UPDATE;
+            if pingu!.current_action != {ActionName::BOMBER} then
+                emit pingu!.go_action({ActionName::BOMBER});
             end
         end
+
+        await FOREVER;
     with
-        every REDRAW do
-            global:offset = Vector2i(0,0);
+        every SDL_REDRAW do
+            outer.main.offset = val Vector2i(0,0);
         end
     end
-
-    /* PUBLIC */
-#endif
 end
 
 #endif
