@@ -59,3 +59,24 @@ code/tight Pingu_Check_Action (var _ActionName__Enum new_action) -> bool do
         _ceu_dbg_assert({!"DEAD CODE???"});
     end
 end
+
+code/tight Pingu_Get_Center_Pos (void) -> Vector3f do
+    var Vector3f vec = val Vector3f(outer.pingu.rect.left, outer.pingu.rect.top-16, 0);
+    escape vec;
+end
+
+// Returns true if the given koordinates are above the pingu
+code/tight Pingu_Is_Over (var int x, var int y) -> bool do
+    var Vector3f center = call Pingu_Get_Center_Pos();
+    escape (center.x+16 > x and
+            center.x-16 < x and
+            center.y+16 > y and
+            center.y-16 < y);
+end
+
+// Returns the distance between the Pingu and a given coordinate
+code/tight Pingu_Dist (var int x, var int y) -> float do
+    var Vector3f p = call Pingu_Get_Center_Pos();
+    escape {Math::sqrt}(((p.x - x) * (p.x - x) +
+                         (p.y - y) * (p.y - y)));
+end

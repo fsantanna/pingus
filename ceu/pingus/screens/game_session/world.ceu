@@ -45,7 +45,6 @@ end
 #include "particles/pingu_particle_holder.ceu"
 #include "particles/smoke_particle_holder.ceu"
 
-#include "components/playfield.ceu"
 #include "components/smallmap.ceu"
 #include "components/time_display.ceu"
 #include "components/pingus_counter.ceu"
@@ -178,20 +177,11 @@ do
 
     var& _ActionName__Enum buttonpanel_action;
     spawn ButtonPanel() -> (&buttonpanel_action);
+
+    #include "world/playfield.ceu"
+    spawn Playfield(&buttonpanel_action);
+
 #if 0
-
-    var Rect rect_big = Rect(
-        {Math::max}(({Display::get_width()}-width)/2, 0),
-        {Math::max}(({Display::get_height()}-height)/2, 0),
-        {Math::min}({Display::get_width()},  width),
-        {Math::min}({Display::get_height()}, height)
-    );
-    var Playfield playfield with
-        this.action_next = &button_panel.action;
-        this.pingus      = &pingus;
-        this.rect        = &rect_big;
-    end;
-
     var Rect rect_small = Rect(6,{Display::get_size}().height-105, 175,100);
     var SmallMapImage _ = SmallMapImage.build(&rect_small);
     var SmallMap smallmap with

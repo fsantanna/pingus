@@ -58,6 +58,10 @@ data IPingu with
     var Rect     rect;
     var s8       direction;
     var Vector3f velocity = val Vector3f(0, 0, 0);
+
+    vector[] byte name;
+
+    event _ActionName__Enum go_action;
 end
 
 code/await Pingu (pool&[] Pingu  pingus,
@@ -65,19 +69,16 @@ code/await Pingu (pool&[] Pingu  pingus,
                   var     int    owner_id,
                   var     Rect   rect_,
                   var     s8?    direction_)
-                    -> (vector&[] byte name)
+                    -> (var&? IPingu pingu_)
                         -> void
 do
     if not direction_? then
         direction_ = {LEFT};
     end
 
-    var IPingu pingu = val IPingu(rect_, direction_!, _);
+    var IPingu pingu = val IPingu(rect_, direction_!, _,_,_);
+    pingu_ = &pingu;
 
-    vector[] byte name_;
-    name = &name_;
-
-    event _ActionName__Enum go_action;
     var _ActionName__Enum current_action = {ActionName::FALLER};
     var _ActionName__Enum wall_action    = {ActionName::NONE};
     var _ActionName__Enum fall_action    = {ActionName::NONE};
@@ -125,7 +126,7 @@ do
             await FOREVER;
         with
             var _ActionName__Enum new_action;
-            every new_action in go_action do
+            every new_action in pingu.go_action do
                 if new_action!={ActionName::EXITER} and new_action!={ActionName::LASERKILL} then
                     _ceu_dbg_assert(call Pingu_Check_Action(new_action));
                 end
@@ -150,7 +151,7 @@ do
             end
         with
             loop do
-                name_ = [] .. {ActionName::to_screenname}(current_action) as _char&&;
+                pingu.name = [] .. {ActionName::to_screenname}(current_action) as _char&&;
                 par/or do
                     current_action = await e_set_action;
                 with
@@ -180,9 +181,9 @@ do
 #endif
                     else/if current_action == {ActionName::FALLER} then
                         current_action = await Faller();
-#if 0
                     else/if current_action == {ActionName::FLOATER} then
                         current_action = DO_PINGU_ACTION(Floater);
+#if 0
                     else/if current_action == {ActionName::JUMPER} then
                         current_action = DO_PINGU_ACTION(Jumper);
                     else/if current_action == {ActionName::LASERKILL} then
@@ -225,22 +226,8 @@ _printf(">>> %d\n", current_action);
         return (int)this.rect.top;
     end
 
-    function (void)=>Vector3f get_center_pos do
-        var Vector3f vec = Vector3f(this.rect.left, this.rect.top-16, 0);
-        return vec;
-    end
-
     function (s8 d)=>void set_direction do
         this.direction = d;
-    end
-
-    // Returns true if the given koordinates are above the pingu
-    function (int x, int y)=>bool is_over do
-        var Vector3f center = this.get_center_pos();
-        return (center.x+16 > x and
-                center.x-16 < x and
-                center.y+16 > y and
-                center.y-16 < y);
     end
 
     function (int x1, int y1, int x2, int y2)=>bool is_inside do
@@ -251,14 +238,6 @@ _printf(">>> %d\n", current_action);
                 this.rect.left < x2 and
                 this.rect.top > y1 and
                 this.rect.top < y2);
-    end
-
-    // Returns the distance between the Pingu and a given coordinate
-    function (int x, int y)=>float dist do
-        var Vector3f p = this.get_center_pos();
-
-        return {Math::sqrt}(((p.x - (float)(x)) * (p.x - (float)(x)) +
-                             (p.y - (float)(y)) * (p.y - (float)(y))));
     end
 
     function (void)=>int get_id do
