@@ -16,7 +16,7 @@ do
 
     // Reset the velocity
     var Vector3f v = val Vector3f(0, 0, 0);
-    call Set_Velocity(v);
+    call Pingu_Set_Velocity(v);
 
     /* UPDATE */
     par do

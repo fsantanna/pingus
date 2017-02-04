@@ -12,7 +12,7 @@ code/tight Pingu_Get_Owner_Str (void) -> _char&& do
     escape {chr} as _char&&;
 end
 
-code/tight Set_Velocity (var Vector3f velocity) -> void do
+code/tight Pingu_Set_Velocity (var Vector3f velocity) -> void do
     // crude terminal velocity
     velocity.x = {(float)Math::clamp(-terminal_velocity, @velocity.x, terminal_velocity)};
     velocity.y = {(float)Math::clamp(-terminal_velocity, @velocity.y, terminal_velocity)};
@@ -61,7 +61,7 @@ code/tight Pingu_Check_Action (var _ActionName__Enum new_action) -> bool do
 end
 
 code/tight Pingu_Get_Center_Pos (void) -> Vector3f do
-    var Vector3f vec = val Vector3f(outer.pingu.rect.left, outer.pingu.rect.top-16, 0);
+    var Vector3f vec = val Vector3f(outer.pingu.rect.left as float, (outer.pingu.rect.top-16) as float, 0);
     escape vec;
 end
 

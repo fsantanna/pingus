@@ -87,6 +87,7 @@ do
     #include "pingu/mover.ceu"
     #include "pingu/actions/walker.ceu"
     #include "pingu/actions/faller.ceu"
+    #include "pingu/actions/floater.ceu"
     #include "pingu/actions/splashed.ceu"
 
     var int ret =
@@ -182,7 +183,7 @@ do
                     else/if current_action == {ActionName::FALLER} then
                         current_action = await Faller();
                     else/if current_action == {ActionName::FLOATER} then
-                        current_action = DO_PINGU_ACTION(Floater);
+                        current_action = await Floater();
 #if 0
                     else/if current_action == {ActionName::JUMPER} then
                         current_action = DO_PINGU_ACTION(Jumper);
@@ -200,7 +201,7 @@ do
                         current_action = DO_PINGU_ACTION(Waiter);
 #endif
                     else/if current_action == {ActionName::WALKER} then
-                        current_action = await Faller();
+                        current_action = await Walker();
                     else
 _printf(">>> %d\n", current_action);
                         _ceu_dbg_assert({!"Invalid action name provied"});
