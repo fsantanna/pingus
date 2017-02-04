@@ -10,10 +10,8 @@ do
                 y < outer.rect.top + outer.rect.height);
     end
 
-#if 0
     #include "smallmap_image.ceu"
     spawn SmallMapImage();
-#endif
 
     par do
         loop do
@@ -72,46 +70,6 @@ do
                 var int y = outer.rect.top + (pingu!.rect.top * outer.rect.height / outer.world.rect.height);
                 {Display::s_framebuffer->draw_line(Vector2i(@x, @y), Vector2i(@x, @y-2), Color(255,255,0));}
             end
-
-#if 0
-        every SDL_REDRAW do
-            var Vector2i vec = call Playfield_Get_Pos();
-            var Rect view_rect = _;
-
-            if (outer.world.rect.width > {Display::get_width()}) then
-                var int rwidth = {Display::get_width()} * outer.rect.width / outer.world.rect.width;
-                view_rect.left = outer.rect.left + (vec.x * outer.rect.width / outer.world.rect.width) - rwidth/2;
-                view_rect.width = rwidth;
-            else
-                view_rect.left = outer.rect.left;
-                view_rect.width = outer.rect.width;
-            end
-
-            if (outer.world.rect.height > {Display::get_height()}) then
-                var int rheight = {Display::get_height()} * outer.rect.height / outer.world.rect.height;
-                view_rect.top = outer.rect.top + (vec.y * outer.rect.height / outer.world.rect.height) - rheight/2;
-                view_rect.height = rheight;
-            else
-                view_rect.top    = outer.rect.top;
-                view_rect.height = outer.rect.height;
-            end
-
-            call {Display::s_framebuffer}:draw_rect(
-                _Rect(view_rect.left,view_rect.top,view_rect.left+view_rect.width,view_rect.left+view_rect.height),
-                _Color(255,255,0)
-            );
-
-            // Draw Pingus
-            var&? IPingu pingu;
-            loop (pingu) in outer.pingus do
-                var int x = outer.rect.left + (pingu!.rect.left * outer.rect.width / outer.world.rect.width);
-                var int y = outer.rect.top + (pingu!.rect.top * outer.rect.height / outer.world.rect.height);
-                call {Display::s_framebuffer}:draw_line(
-                    _Vector2i(x, y), _Vector2i(x, y-2),
-                    _Color(255,255,0)
-                );
-            end
-#endif
         end
     end
 end

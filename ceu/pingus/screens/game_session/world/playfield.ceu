@@ -219,8 +219,16 @@ do
 #endif
     with
         var Rect rect = val Rect(6,{Display::get_size}().height-105, 175,100);
+
         #include "smallmap.ceu"
-        await SmallMap();
+        spawn SmallMap();
+
+#if 0
+        #include "capture_rectangle.ceu"
+        spawn CaptureRectangle();
+#endif
+
+        await FOREVER;
     end
 
     /* PUBLIC */

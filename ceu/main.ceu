@@ -55,7 +55,7 @@ native/plain _std__string, _Vector3f, _Vector2i, _Color, _Rect, _Size;
 native/plain _origin_top_center;
 native/plain _cmd, _CommandLineOptions;
 native/plain _Input__Event, _Input__ButtonEvent;
-native/plain _ResourceModifier__Enum;
+native/plain _ResourceModifier__Enum, _CollisionMap, _CollisionMap_ptr;
 native/plain _PingusLevel, _Result, _Levelset;
 native/pure   _XXX_PURE, _XXX_PTR2REF;
 native/nohold _XXX_NOHOLD;

@@ -6,22 +6,15 @@ native do
     ##include "pingus/fonts.hpp"
 end
 
-class CaptureRectangle with
-    var Playfield& playfield;
-
-    function (Playfield& playfield)=>CaptureRectangle build;
+code/await CaptureRectangle (void) -> FOREVER
 do
-    function (Playfield& playfield)=>CaptureRectangle build do
-        this.playfield = &playfield;
-    end
-
     pool Sprite[1] good_or_bad;
     pool Sprite[1] left_or_right;
 
-    var char[] action_str;
+    vector[] byte action_str;
 
-    var Rect rect_gb = Rect(0,0,0,0);
-    var Rect rect_lr = Rect(0,0,0,0);
+    var Rect rect_gb = val Rect(0,0,0,0);
+    var Rect rect_lr = val Rect(0,0,0,0);
 
     par do
         every WORLD_UPDATE do

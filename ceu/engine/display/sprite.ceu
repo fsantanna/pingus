@@ -107,25 +107,6 @@ do
         end
     with
         /* DRAW */
-#if 0
-        every REDRAW do
-            var float x, y;
-            if this.small_map? then
-                x = (float)(this.small_map!.left) +
-                        (this.rect.left * (float)(this.small_map!.width) /
-                            (float)global:world!:get_width());
-                y = (float)(this.small_map!.top) +
-                        (this.rect.top * (float)(this.small_map!.height) /
-                            (float)global:world!:get_height());
-            else
-                x = this.rect.left;
-                y = this.rect.top;
-            end
-
-            this.draw(x, y);
-        end
-#else
-        /* DRAW */
         every SDL_REDRAW do
             var float x, y;
             x = rect.left;
@@ -154,7 +135,6 @@ do
                           -yy + y - sprite_.offset.y)
             );
         end
-#endif
     end
 #if 0
     var bool is_world = true;   // TODO: rename to is_relative

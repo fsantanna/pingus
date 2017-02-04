@@ -6,6 +6,8 @@ native/pre do
     ##include "engine/display/graphic_context_state.hpp"
     ##include "pingus/ground_map.hpp"
     ##define Groundtype__GPType     Groundtype::GPType
+
+    typedef CollisionMap* CollisionMap_ptr;
 end
 
 native/plain _Groundtype__GPType, _SmallMap, _SceneContext, _GroundMap, _CollisionMask;
@@ -45,7 +47,6 @@ end
 #include "particles/smoke_particle_holder.ceu"
 
 #include "components/pingus_counter.ceu"
-#include "capture_rectangle.ceu"
 #include "smallmap_image.ceu"
 
 #include "worldobjs/exit.ceu"
@@ -117,6 +118,10 @@ do
         outer.gfx_map.get_colmap():remove(*mask, x, y);
     end
 
+    code/tight World_Get_Colmap (void) -> _CollisionMap_ptr do
+        escape outer.gfx_map.get_colmap();
+    end
+
     #include "world/pingu.ceu"
     #include "world/pingu_holder.ceu"
 
@@ -180,10 +185,6 @@ do
 
     #include "world/playfield.ceu"
     spawn Playfield(&buttonpanel_action);
-
-#if 0
-    var CaptureRectangle _ = CaptureRectangle.build(&playfield);
-#endif
 
     var Vector2i pos_start = _;
     #include "world/objs.ceu"
@@ -249,10 +250,6 @@ do
     end
 
     /* PUBLIC */
-
-    function (void)=>_CollisionMap&& get_colmap do
-        return _XXX_PURE(this.gfx_map!.get_colmap());
-    end
 #endif
 end
 
