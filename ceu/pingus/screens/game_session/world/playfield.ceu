@@ -69,7 +69,6 @@ do
             end
         end
     with
-#if 0
         loop do
             var int x,y;
             (x,y) = await ON_SECONDARY_BUTTON_PRESSED;
@@ -82,45 +81,36 @@ do
 
             watching ON_SECONDARY_BUTTON_RELEASED do
                 par do
-                    every DELTA do
+                    every SDL_DT do
                         // FIXME: This should be delta dependant
-                        if {globals::drag_drop_scrolling} then
+                        if {globals::drag_drop_scrolling} as bool then
                             outer.world.state.set_pos(
                                 _Vector2i(old_state_pos.x,old_state_pos.y)
                                     + (_Vector2i(scroll.x,scroll.y)
                                         - POS2VEC(mouse_pos)));
                             outer.world.rect.left =
-                                old_state_pos.x + scroll.x - mouse_pos.x;
+                                (old_state_pos.x + scroll.x - mouse_pos.x) as int;
                             outer.world.rect.top =
-                                old_state_pos.y + scroll.y - mouse_pos.y;
+                                (old_state_pos.y + scroll.y - mouse_pos.y) as int;
                         else
                             outer.world.state.set_pos(
                                 _Vector2i(outer.world.state.get_pos().x
-                                            - (int)((float)(scroll.x - 
-                                              mouse_pos.x) * 0.2),
+                                            - (scroll.x - mouse_pos.x) * 0.2,
                                           outer.world.state.get_pos().y
-                                            - (int)((float)(scroll.y - 
-                                              mouse_pos.y) * 0.2)
+                                            - (scroll.y - mouse_pos.y) * 0.2
                                 )
                             );
                             outer.world.rect.left =
-                                outer.world.rect.left -
-                                    ((float)(scroll.x - mouse_pos.x) * 0.2);
+                                (outer.world.rect.left - (scroll.x - mouse_pos.x) * 0.2) as int;
                             outer.world.rect.top =
-                                outer.world.rect.top -
-                                    ((float)(scroll.y - mouse_pos.y) * 0.2);
+                                (outer.world.rect.top - (scroll.y - mouse_pos.y) * 0.2) as int;
                         end
                     end
                 with
-                    every REDRAW do
-                        if {globals::drag_drop_scrolling} then
+                    every SDL_REDRAW do
+                        if {globals::drag_drop_scrolling} as bool then
                             continue;
                         end
-                        call {Display::s_framebuffer}:draw_line(
-                            _Vector2i(10,10),
-                            _Vector2i(300,300),
-                            _Color(0, 255, 0)
-                        );
                         call {Display::s_framebuffer}:draw_line(
                             POS2VEC(mouse_pos),
                             _Vector2i(scroll.x, scroll.y-15),
@@ -151,11 +141,12 @@ do
             end
         end
     with
+#if 0
         var bool was_empty = true;
             // having current_pingu&&? is not enough because it can die and 
             // clear the variable
 
-        every DELTA do
+        every SDL_DT do
             var Position pos = Position(
                                 outer.world.state.screen2world(POS2VEC(mouse_pos)).x,
                                 outer.world.state.screen2world(POS2VEC(mouse_pos)).y
@@ -188,7 +179,7 @@ do
             end
         end
     with
-        every v in DELTA do
+        every v in SDL_DT do
             var float dt = ((float)v)/1000;
             if ({globals::auto_scrolling} and
                 ({Display::is_fullscreen()} or 

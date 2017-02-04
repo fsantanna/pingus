@@ -14,7 +14,6 @@ native/plain _ActionName__Enum;
 data IWorld with
     var  Rect                 rect;
     var& _GraphicContextState state;
-    var  Vector2i             offset;
     var& int                  game_time;
 
     event int                 ok_pingu;
@@ -96,7 +95,7 @@ do
                 _delete(&&state!);
             end;
 
-    var IWorld world = val IWorld(Rect(0,0,w,h), &state!, _, &outer.game_session.game_time,
+    var IWorld world = val IWorld(Rect(0,0,w,h), &state!, &outer.game_session.game_time,
                                   _,_);
     world.game_time = 0;
 
@@ -126,7 +125,7 @@ do
     spawn do
         par do
             every SDL_REDRAW do
-                world.offset = call World_Get_Offset();
+                outer.main.offset = call World_Get_Offset();
             end
         with
             every WORLD_UPDATE do
@@ -152,7 +151,7 @@ do
     pool[] Visible layer_bg_0;          // background
     spawn do
         every SDL_REDRAW do             // groundpiece
-            var Vector2i off = world.offset;
+            var Vector2i off = outer.main.offset;
             gfx_map.draw({Vector2i(-@off.x,-@off.y)});
         end
     end

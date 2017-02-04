@@ -132,6 +132,11 @@ do
             y = rect.top;
 
             var int xx=0, yy=0;
+            if is_world then
+                xx = outer.main.offset.x;
+                yy = outer.main.offset.y;
+            end
+
 #if 0
             call {Display::s_framebuffer}:draw_surface(
                                             sfc.framebuffer,

@@ -117,6 +117,7 @@ end
 #include "pingus/config_manager.ceu"
 
 data IMain with
+    var Vector2i offset;
     event void go_options;
     event void go_pause_toggle;
     event bool go_forward;
