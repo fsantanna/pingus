@@ -17,12 +17,12 @@ data IWorld with
     var  Rect                 rect;
     var& _GraphicContextState state;
     var& int                  game_time;
+    var  float                gravity;
 
     event int                 ok_pingu;
     event (int,int,s8,int)    go_create_pingu;
     event (int,int)           go_create_pingu_particles;
 #if 0
-    var  float                gravity;
     event void go_options;
     event void go_pause_toggle;
     event bool go_forward;
@@ -43,7 +43,6 @@ code/await Visible (var& IVisible vis) -> FOREVER do
 end
 
 #if 0
-#include "particles/pingu_particle_holder.ceu"
 #include "particles/smoke_particle_holder.ceu"
 
 #include "components/pingus_counter.ceu"
@@ -78,8 +77,6 @@ do
     var int w = {@outer.game_session.plf.get_size().width};
     var int h = {@outer.game_session.plf.get_size().height};
 
-    var float gravity = 0.2;
-
     var&? _GroundMap gfx_map_ =
         &{new GroundMap}(w, h)
             finalize (gfx_map_) with
@@ -95,7 +92,7 @@ do
             end;
 
     var IWorld world = val IWorld(Rect(0,0,w,h), &state!, &outer.game_session.game_time,
-                                  _,_,_);
+                                  0.2, _,_,_);
     world.game_time = 0;
 
     world.state.set_limit({Rect(Vector2i(0,0), Size(@w,@h))});
@@ -163,8 +160,9 @@ do
 
     spawn PinguHolder(&pingus, &outer.game_session.counter);
 
+    #include "world/pingu_particle_holder.ceu"
+    pool[] PinguParticle pingu_particles;
 #if 0
-    pool PinguParticle[] pingu_particles;
     pool SmokeParticle[] smoke_particles;
 #endif
 
@@ -197,16 +195,16 @@ do
     #include "world/goal_manager.ceu"
     watching GoalManager() do
         par do
-    #if 0
-            every (x_,y_) in global:go_create_pingu_particles do
-                loop i in 50 do
-                    spawn PinguParticle in pingu_particles with
-                        this.x = x_;
-                        this.y = y_;
-                    end;
+            var int x,y;
+            every (x,y) in world.go_create_pingu_particles do
+_printf("oioioi\n");
+                var int i;
+                loop i in [0 -> 50[ do
+                    spawn PinguParticle(x,y) in pingu_particles;
                 end
             end
         with
+    #if 0
             every (x_,y_,vel_x_,vel_y_) in global:go_create_smoke_particles do
                 spawn SmokeParticle in smoke_particles with
                     this.x     = x_;

@@ -4,36 +4,40 @@
 #define x_collision_decrease 0.3
 #define y_collision_decrease 0.6
 
-#include "../../engine/display/sprite.ceu"
-
-class PinguParticle with
-    var float x, y;
+code/await PinguParticle (var int x, var int y) -> void
 do
     var int livetime = (50 + _rand()%75);
-    var Vector3f velocity = Vector3f({Math::frand}() * 7 - 3.5,
-                                     {Math::frand}() * -9,
-                                     0);
+    var Vector3f velocity = val Vector3f({Math::frand}() * 7 - 3.5,
+                                         {Math::frand}() * -9,
+                                         0);
 
-    var Rect rect = Rect(x,y, 0,0);
-    var Sprite _ = Sprite.build_name(&rect, "particles/pingu_explo");
+    var Rect rect = val Rect(x,y, 0,0);
+    spawn Sprite_from_name(&rect, "particles/pingu_explo", true);
 
-    loop i in this.livetime do
+    var bool has_pixel = do
+        var _CollisionMap_ptr ptr = call World_Get_Colmap();
+        escape ptr:getpixel(rect.left,rect.top) as bool;
+    end;
+
+    var int i;
+    loop i in [0 -> livetime[ do
         await WORLD_UPDATE;
 
         var float tmp_x_add = 0.0;
         var float tmp_y_add = 0.0;
+_printf("> %d %d\n", rect.left, rect.top);
 
         // Simulated gravity
-        this.velocity.y = this.velocity.y + global:gravity;
+        velocity.y = velocity.y + outer.world.gravity;
 
-        if (this.velocity.y > 0) then
-            tmp_y_add = this.velocity.y;
+        if velocity.y > 0 then
+            tmp_y_add = velocity.y;
             loop do
                 if tmp_y_add < 1.0 then
                     break;
                 end
-                if (global:world!:get_colmap():getpixel((int)(rect.left), (int)(rect.top))) then
-                    this.velocity.y = this.velocity.y * -y_collision_decrease;
+                if has_pixel then
+                    velocity.y = velocity.y * -y_collision_decrease;
                     tmp_y_add = -tmp_y_add;
                     rect.top = rect.top - 1;
                     break;
@@ -41,15 +45,15 @@ do
                 rect.top = rect.top + 1;
                 tmp_y_add = tmp_y_add - 1;
             end
-            rect.top = rect.top + tmp_y_add;
+            rect.top = rect.top + (tmp_y_add as int);
         else
-            tmp_y_add = this.velocity.y;
+            tmp_y_add = velocity.y;
             loop do
                 if tmp_y_add > -1.0 then
                     break;
                 end
-                if (global:world!:get_colmap():getpixel((int)(rect.left), (int)(rect.top))) then
-                    this.velocity.y = this.velocity.y * -y_collision_decrease;
+                if has_pixel then
+                    velocity.y = velocity.y * -y_collision_decrease;
                     tmp_y_add = -tmp_y_add;
                     rect.top = rect.top + 1;
                     break;
@@ -57,17 +61,17 @@ do
                 rect.top = rect.top - 1;
                 tmp_y_add = tmp_y_add + 1;
             end
-            rect.top = rect.top + tmp_y_add;
+            rect.top = rect.top + (tmp_y_add as int);
         end
 
-        if (this.velocity.x > 0) then
-            tmp_x_add = this.velocity.x;
+        if velocity.x > 0 then
+            tmp_x_add = velocity.x;
             loop do
                 if tmp_x_add < 1.0 then
                     break;
                 end
-                if (global:world!:get_colmap():getpixel((int)(rect.left), (int)(rect.top))) then
-                    this.velocity.x = this.velocity.x * -x_collision_decrease;
+                if has_pixel then
+                    velocity.x = velocity.x * -x_collision_decrease;
                     tmp_x_add = -tmp_x_add;
                     rect.left = rect.left - 1;
                     break;
@@ -75,15 +79,15 @@ do
                 rect.left = rect.left + 1;
                 tmp_x_add = tmp_x_add - 1;
             end
-            rect.left = rect.left + tmp_x_add;
+            rect.left = rect.left + (tmp_x_add as int);
         else
-            tmp_x_add = this.velocity.x;
+            tmp_x_add = velocity.x;
             loop do
                 if tmp_x_add > -1.0 then
                     break;
                 end
-                if (global:world!:get_colmap():getpixel((int)(rect.left), (int)(rect.top))) then
-                    this.velocity.x = this.velocity.x * -x_collision_decrease;
+                if has_pixel then
+                    velocity.x = velocity.x * -x_collision_decrease;
                     tmp_x_add = -tmp_x_add;
                     rect.left = rect.left + 1;
                     break;
@@ -91,7 +95,7 @@ do
                 rect.left = rect.left - 1;
                 tmp_x_add = tmp_x_add + 1;
             end
-            rect.left = rect.left + tmp_x_add;
+            rect.left = rect.left + (tmp_x_add as int);
         end
     end
 end

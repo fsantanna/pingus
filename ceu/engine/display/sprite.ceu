@@ -80,7 +80,7 @@ do
                 var int dt = _;
                 if is_world then
                     await WORLD_UPDATE;
-                    dt = 330;   // TODO
+                    dt = 33;   // TODO
                 else
                     dt = await SDL_DT;
                 end
@@ -99,7 +99,6 @@ do
                 else
                     sprite_.frame = tick_count / sprite_.frame_delay;
                 end
-
             end
             if not sprite_.is_loop then
                 escape;
