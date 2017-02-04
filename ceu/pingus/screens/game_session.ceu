@@ -11,10 +11,6 @@ native/pre do
     static ActionHolder* GLOBAL_ACTIONHOLDER = NULL;
 end
 
-#if 0
-#include "../goal_manager.ceu"
-#endif
-
 data PingusCounter with
     var int number_of_exited;
     var int number_of_killed;
