@@ -53,11 +53,11 @@ do
 
     var bool last_was_right = false;
 
-    watching outer.game_session.go_armageddon do
+    watching outer.game.go_armageddon do
         loop do
             await WORLD_UPDATE
-            until outer.game_session.game_time >= last_release+release_rate;
-            last_release = outer.game_session.game_time;
+            until outer.game.game_time >= last_release+release_rate;
+            last_release = outer.game.game_time;
 
             var s8 dir;
             if direction == {ENTRANCE_LEFT} then

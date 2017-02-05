@@ -36,7 +36,7 @@ par do                                                      // ARMAGEDDON
 
     do
         spawn Sprite_from_name(&rect, "core/buttons/armageddon_anim", false);
-        emit outer.game_session.go_armageddon;
+        emit outer.game.go_armageddon;
         await FOREVER;
     end
 with                                                        // FORWARD

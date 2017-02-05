@@ -9,11 +9,11 @@ every SDL_REDRAW do
 
     _snprintf(&&str[0] as _char&&, 128,
         __("Released:%3d/%d   Out:%3d   Saved:%3d/%d").c_str(),
-       outer.game_session.counter.number_of_released,
-       outer.game_session.counter.number_of_allowed,
-       outer.game_session.counter.number_of_alive,
-       outer.game_session.counter.number_of_exited,
-       outer.game_session.counter.number_to_save);
+       outer.game.counter.number_of_released,
+       outer.game.counter.number_of_allowed,
+       outer.game.counter.number_of_alive,
+       outer.game.counter.number_of_exited,
+       outer.game.counter.number_to_save);
 
     call {Fonts::pingus_small_fixnum}.render(
         _origin_top_center,

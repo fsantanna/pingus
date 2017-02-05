@@ -64,8 +64,8 @@ pool[] Smasher  smashers;
 
 do
     var usize i;
-    loop i in [0 -> outer.game_session.plf.get_objects().size()[ do
-        {WORLDOBJ_FACTORY_create(@outer.game_session.plf.get_objects().at(i));}
+    loop i in [0 -> outer.game.plf.get_objects().size()[ do
+        {WORLDOBJ_FACTORY_create(@outer.game.plf.get_objects().at(i));}
     end
 end
 

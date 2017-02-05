@@ -222,7 +222,7 @@ _printf(">>> %d\n", pingu.current_action);
 
     _ceu_dbg_assert(ret != {PS_ALIVE});
 
-    call GameSession_Pingu_Out(ret);
+    call Game_Pingu_Out(ret);
 end
 
 #endif
