@@ -57,7 +57,7 @@ do
 
     par/or do
         do ()
-            #include "game_session/world.ceu"
+            #include "world.ceu"
         end
     with
         var int world_delay = 0; // the world is initially on time

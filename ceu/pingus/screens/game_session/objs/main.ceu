@@ -1,10 +1,10 @@
 #ifndef _WORLDOBJ_FACTORY_CEU
 #define _WORLDOBJ_FACTORY_CEU
 
-#include "objs/surface_background.ceu"
-#include "objs/groundpiece.ceu"
-#include "objs/entrance.ceu"
-#include "objs/smasher.ceu"
+#include "surface_background.ceu"
+#include "groundpiece.ceu"
+#include "entrance.ceu"
+#include "smasher.ceu"
 
 // TODO: use spawn directly instead of ceu_sys_go
 //          - requires flatmap or traverse

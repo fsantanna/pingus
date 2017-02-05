@@ -136,11 +136,11 @@ with
         {Math::min}({Display::get_height()}, world.rect.height)
     );
 
-    #include "world/pingu.ceu"
+    #include "pingu/main.ceu"
 
     par do
         do ()
-            #include "world/goal_manager.ceu"
+            #include "goal_manager.ceu"
         end
         escape;
     with
@@ -154,19 +154,19 @@ with
         pool[] Visible layer_bg_1;          // liquid, hotspot
         pool[] Pingu pingus;
 
-        #include "world/pingu_particle_holder.ceu"
+        #include "pingu_particle_holder.ceu"
         pool[] PinguParticle pingu_particles;
 
-        #include "world/smoke_particle_holder.ceu"
+        #include "smoke_particle_holder.ceu"
         pool[] SmokeParticle smoke_particles;
 
         par do
             do ()
-                #include "world/objs.ceu"
+                #include "objs/main.ceu"
             end
         with
             do ()
-                #include "world/pingu_holder.ceu"
+                #include "pingu_holder.ceu"
             end
         with
             var int x,y;
@@ -201,7 +201,7 @@ with
             await FOREVER;
         with
             do ()
-                #include "world/smallmap.ceu"
+                #include "smallmap.ceu"
             end
 #if 0
         with
@@ -211,23 +211,23 @@ with
 #endif
         with
             do ()
-                #include "world/time_display.ceu"
+                #include "time_display.ceu"
             end
         with
             do ()
-                #include "world/pingus_counter.ceu"
+                #include "pingus_counter.ceu"
             end
         with
             do ()
-                #include "world/action_button.ceu"
+                #include "action_button.ceu"
             end
         with
             do ()
-                #include "world/button_panel.ceu"
+                #include "button_panel.ceu"
             end
         with
             do ()
-                #include "world/playfield.ceu"
+                #include "playfield.ceu"
             end
         end
     end

@@ -82,13 +82,13 @@ do
     var _ActionName__Enum wall_action    = {ActionName::NONE};
     var _ActionName__Enum fall_action    = {ActionName::NONE};
 
-    #include "pingu/tights.ceu"
-    #include "pingu/mover.ceu"
-    #include "pingu/actions/bomber.ceu"
-    #include "pingu/actions/faller.ceu"
-    #include "pingu/actions/floater.ceu"
-    #include "pingu/actions/splashed.ceu"
-    #include "pingu/actions/walker.ceu"
+    #include "tights.ceu"
+    #include "mover.ceu"
+    #include "actions/bomber.ceu"
+    #include "actions/faller.ceu"
+    #include "actions/floater.ceu"
+    #include "actions/splashed.ceu"
+    #include "actions/walker.ceu"
 
     var int ret =
     do
