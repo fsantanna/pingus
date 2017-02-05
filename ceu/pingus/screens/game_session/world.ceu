@@ -134,8 +134,6 @@ with
         {Math::min}({Display::get_height()}, world.rect.height)
     );
 
-    #include "pingu/main.ceu"
-
     par do
         do ()
             #include "goal_manager.ceu"
@@ -150,6 +148,8 @@ with
             end
         end
         pool[] Visible layer_bg_1;          // liquid, hotspot
+
+        #include "pingu/main.ceu"
         pool[] Pingu pingus;
 
         par do
