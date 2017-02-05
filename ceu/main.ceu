@@ -123,7 +123,6 @@ data IMain with
     event void go_options;
     event void go_pause_toggle;
     event bool go_forward;
-    event void go_armageddon;
 end
 var IMain main = _;
 

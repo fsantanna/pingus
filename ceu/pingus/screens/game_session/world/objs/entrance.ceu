@@ -53,7 +53,7 @@ do
 
     var bool last_was_right = false;
 
-    watching outer.main.go_armageddon do
+    watching outer.game_session.go_armageddon do
         loop do
             await WORLD_UPDATE
             until outer.world.game_time >= last_release+release_rate;

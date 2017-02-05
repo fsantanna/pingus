@@ -1,0 +1,28 @@
+#ifndef _SMOKE_PARTICLE_HOLDER
+#define _SMOKE_PARTICLE_HOLDER
+
+code/await SmokeParticle (var int x, var int y, var float vel_x, var float vel_y) -> void
+do
+    var int livetime = (25 + _rand()%10);
+    var Vector3f velocity = val Vector3f(vel_x, vel_y, 0);
+
+    var Rect rect = val Rect(x,y, 0,0);
+    var _char&& name = do
+        if (_rand()%2) as bool then
+            escape "particles/smoke";
+        else
+            escape "particles/smoke2";
+        end
+    end;
+
+    spawn Sprite_from_name(&rect, name, true);
+
+    var int i;
+    loop i in [0 -> livetime[ do
+        await WORLD_UPDATE;
+        x = (x + velocity.x) as int;
+        y = (y + velocity.y) as int;
+    end
+end
+
+#endif

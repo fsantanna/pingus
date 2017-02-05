@@ -30,7 +30,7 @@ do
 
     do
         spawn Sprite_from_name(&rect, "core/buttons/armageddon_anim", false);
-        emit outer.main.go_armageddon;
+        emit outer.game_session.go_armageddon;
         await FOREVER;
     end
 end

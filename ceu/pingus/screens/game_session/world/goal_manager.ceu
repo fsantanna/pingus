@@ -7,7 +7,7 @@ do
 
     var bool in_armageddon = false;
     spawn do
-        await outer.main.go_armageddon;
+        await outer.game_session.go_armageddon;
         in_armageddon = true;
         await FOREVER;
     end

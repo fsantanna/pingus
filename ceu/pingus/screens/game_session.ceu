@@ -21,9 +21,10 @@ data PingusCounter with
 end
 
 data IGameSession with
-    var& _PingusLevel plf;
-    var  int          game_time;
-    var PingusCounter counter;
+    var&  _PingusLevel  plf;
+    var   int           game_time;
+    var   PingusCounter counter;
+    event void          go_armageddon;
 end
 
 code/await GameSession (var& _PingusLevel plf_) -> void
@@ -51,7 +52,8 @@ do
         val IGameSession(&plf_, 0,
                          PingusCounter(0,0,0,0,
                                        plf_.get_number_of_pingus(),
-                                       plf_.get_number_to_save()));
+                                       plf_.get_number_to_save()),
+                         _);
 
     #include "game_session/world.ceu"
 
@@ -111,7 +113,7 @@ do
             else/if but:name == {Input::FAST_FORWARD_BUTTON} then
                 emit outer.main.go_forward(true);
             else/if but:name == {Input::ARMAGEDDON_BUTTON} then
-                emit outer.main.go_armageddon;
+                emit game_session.go_armageddon;
             else/if but:name == {Input::ESCAPE_BUTTON} then
                 break;
             end

@@ -2,7 +2,6 @@
 #define _WORLD_CEU
 
 native/pre do
-    ///struct CEU_World;
     ##include "engine/display/graphic_context_state.hpp"
     ##include "pingus/ground_map.hpp"
     ##define Groundtype__GPType     Groundtype::GPType
@@ -23,17 +22,6 @@ data IWorld with
     event (int,int,s8,int)      go_create_pingu;
     event (int,int)             go_create_pingu_particles;
     event (int,int,float,float) go_create_smoke_particles;
-#if 0
-    event void go_options;
-    event void go_pause_toggle;
-    event bool go_forward;
-    event void go_armageddon;
-
-    //var IWorldMap&&? worldmap;
-    //var IWorld&&? world;
-
-    //var char[] worldmap_return_filename;
-#endif
 end
 
 data IVisible;
@@ -43,11 +31,6 @@ code/await Visible (var& IVisible vis) -> FOREVER do
 end
 
 #if 0
-#include "particles/smoke_particle_holder.ceu"
-
-#include "components/pingus_counter.ceu"
-#include "smallmap_image.ceu"
-
 #include "worldobjs/exit.ceu"
 #include "worldobjs/guillotine.ceu"
 #include "worldobjs/hotspot.ceu"
@@ -55,9 +38,6 @@ end
 #include "worldobjs/liquid.ceu"
 #include "worldobjs/spike.ceu"
 
-#endif
-
-#if 0
     function (void)=>Vector2i get_offset do
         var Vector2i ret =
             Vector2i(
@@ -208,7 +188,7 @@ do
                 spawn SmokeParticle(x,y, vel_x,vel_y) in smoke_particles;
             end
         with
-            await outer.main.go_armageddon;
+            await outer.game_session.go_armageddon;
 
             {Sound::PingusSound::play_sound("goodidea");};
 
