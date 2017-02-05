@@ -108,109 +108,106 @@ do
         outer.world.rect.top  = y;
     end
 
-    #include "world/pingu.ceu"
-    #include "world/pingu_holder.ceu"
-
-    spawn do
-        par do
-            every SDL_REDRAW do
-                outer.main.offset = call World_Get_Offset();
-            end
-        with
-            every WORLD_UPDATE do
-                world.game_time = world.game_time + 1;
-            end
-        with
-            var Color ambient_light = val Color({@outer.game_session.plf.get_ambient_light()}.r,
-                                                {@outer.game_session.plf.get_ambient_light()}.g,
-                                                {@outer.game_session.plf.get_ambient_light()}.b,
-                                                {@outer.game_session.plf.get_ambient_light()}.a);
-            every SDL_REDRAW do
-                call {Display::s_framebuffer}:fill_rect(
-                    _Rect(0,0, {Display::get_width()},{Display::get_height()}),
-                    _Color(ambient_light.r,
-                           ambient_light.g,
-                           ambient_light.b,
-                           ambient_light.a)
-                );
-            end
-        end
-    end
-
-    pool[] Visible layer_bg_0;          // background
-    spawn do
-        every SDL_REDRAW do             // groundpiece
-            var Vector2i off = outer.main.offset;
-            gfx_map.draw({Vector2i(-@off.x,-@off.y)});
-        end
-    end
-    pool[] Visible layer_bg_1;          // liquid, hotspot
-    pool[] Pingu pingus;
-
-    spawn PinguHolder(&pingus, &outer.game_session.counter);
-
-    #include "world/pingu_particle_holder.ceu"
-    pool[] PinguParticle pingu_particles;
-
-    #include "world/smoke_particle_holder.ceu"
-    pool[] SmokeParticle smoke_particles;
-
     par do
-        do/_ ()
-            par do
-                #include "world/goal_manager.ceu"
-                escape;
-            with
-                #include "world/time_display.ceu"
-            with
-                #include "world/pingus_counter.ceu"
-            with
-                #include "world/action_button.ceu"
-            with
-                #include "world/button_panel.ceu"
-            with
-                #include "world/playfield.ceu"
-            with
-                #include "world/smallmap.ceu"
+        every SDL_REDRAW do
+            outer.main.offset = call World_Get_Offset();
+        end
+    with
+        every WORLD_UPDATE do
+            world.game_time = world.game_time + 1;
+        end
+    with
+        var Color ambient_light = val Color({@outer.game_session.plf.get_ambient_light()}.r,
+                                            {@outer.game_session.plf.get_ambient_light()}.g,
+                                            {@outer.game_session.plf.get_ambient_light()}.b,
+                                            {@outer.game_session.plf.get_ambient_light()}.a);
+        every SDL_REDRAW do
+            call {Display::s_framebuffer}:fill_rect(
+                _Rect(0,0, {Display::get_width()},{Display::get_height()}),
+                _Color(ambient_light.r,
+                       ambient_light.g,
+                       ambient_light.b,
+                       ambient_light.a)
+            );
+        end
+    with
+        #include "world/pingu.ceu"
+
+        pool[] Visible layer_bg_0;          // background
+        spawn do
+            every SDL_REDRAW do             // groundpiece
+                var Vector2i off = outer.main.offset;
+                gfx_map.draw({Vector2i(-@off.x,-@off.y)});
+            end
+        end
+        pool[] Visible layer_bg_1;          // liquid, hotspot
+        pool[] Pingu pingus;
+
+        #include "world/pingu_particle_holder.ceu"
+        pool[] PinguParticle pingu_particles;
+
+        #include "world/smoke_particle_holder.ceu"
+        pool[] SmokeParticle smoke_particles;
+
+        par do
+            do/_ ()
+                par do
+                    #include "world/goal_manager.ceu"
+                    escape;
+                with
+                    #include "world/pingu_holder.ceu"
+                with
+                    #include "world/objs.ceu"
+                with
+                    #include "world/time_display.ceu"
+                with
+                    #include "world/pingus_counter.ceu"
+                with
+                    #include "world/action_button.ceu"
+                with
+                    #include "world/button_panel.ceu"
+                with
+                    #include "world/playfield.ceu"
+                with
+                    #include "world/smallmap.ceu"
 #if 0
-            with
-                #include "capture_rectangle.ceu"
+                with
+                    #include "capture_rectangle.ceu"
 #endif
-            with
-                #include "world/objs.ceu"
+                end
             end
-        end
-    with
-        var int x,y;
-        every (x,y) in world.go_create_pingu_particles do
-            var int i;
-            loop i in [0 -> 50[ do
-                spawn PinguParticle(x,y) in pingu_particles;
+        with
+            var int x,y;
+            every (x,y) in world.go_create_pingu_particles do
+                var int i;
+                loop i in [0 -> 50[ do
+                    spawn PinguParticle(x,y) in pingu_particles;
+                end
             end
-        end
-    with
-        var int   x,y;
-        var float vel_x,vel_y;
-        every (x,y,vel_x,vel_y) in world.go_create_smoke_particles do
-            spawn SmokeParticle(x,y, vel_x,vel_y) in smoke_particles;
-        end
-    with
-        await outer.game_session.go_armageddon;
-
-        {Sound::PingusSound::play_sound("goodidea");};
-
-        var&? IPingu pingu;
-        loop (pingu) in pingus do
-            await WORLD_UPDATE;
-            await WORLD_UPDATE;
-            await WORLD_UPDATE;
-            await WORLD_UPDATE;
-            if pingu!.current_action != {ActionName::BOMBER} then
-                emit pingu!.go_action({ActionName::BOMBER});
+        with
+            var int   x,y;
+            var float vel_x,vel_y;
+            every (x,y,vel_x,vel_y) in world.go_create_smoke_particles do
+                spawn SmokeParticle(x,y, vel_x,vel_y) in smoke_particles;
             end
-        end
+        with
+            await outer.game_session.go_armageddon;
 
-        await FOREVER;
+            {Sound::PingusSound::play_sound("goodidea");};
+
+            var&? IPingu pingu;
+            loop (pingu) in pingus do
+                await WORLD_UPDATE;
+                await WORLD_UPDATE;
+                await WORLD_UPDATE;
+                await WORLD_UPDATE;
+                if pingu!.current_action != {ActionName::BOMBER} then
+                    emit pingu!.go_action({ActionName::BOMBER});
+                end
+            end
+
+            await FOREVER;
+        end
     with
         every SDL_REDRAW do
             outer.main.offset = val Vector2i(0,0);
