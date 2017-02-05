@@ -88,7 +88,7 @@ do
     var _ActionName__Enum wall_action    = {ActionName::NONE};
     var _ActionName__Enum fall_action    = {ActionName::NONE};
 
-    #include "tights.ceu"
+    #include "codes.ceu"
     #include "mover.ceu"
     #include "actions/bomber.ceu"
     #include "actions/faller.ceu"
