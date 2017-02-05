@@ -212,8 +212,6 @@ interface IWorldMap with
     function (void)=>Vector2i get_offset;
 end
 
-event int  ok_pingu;
-event (float,float,s8,int)      go_create_pingu;
 event (float,float)             go_create_pingu_particles;
 event (float,float,float,float) go_create_smoke_particles;
 

@@ -20,12 +20,12 @@ loop do
         //goal = GT_ARMAGEDDON;
         break;
     end
-    if time!=-1 and time<=outer.world.game_time then
+    if time!=-1 and time<=outer.game_session.game_time then
         //goal = GT_OUT_OF_TIME;
         break;
     end
 end
-var int exit_time = outer.world.game_time + 125;
-await SDL_DT until exit_time < outer.world.game_time;
+var int exit_time = outer.game_session.game_time + 125;
+await SDL_DT until exit_time < outer.game_session.game_time;
 
 #endif

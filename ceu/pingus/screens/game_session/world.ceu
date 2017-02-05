@@ -15,12 +15,8 @@ native/plain _ActionName__Enum;
 data IWorld with
     var  Rect                   rect;
     var& _GraphicContextState   state;
-    var& int                    game_time;
     var  float                  gravity     = 0.2;
     var  _ActionName__Enum      action_next = {ActionName::WALKER};
-
-    event int                   ok_pingu;
-    event (int,int,s8,int)      go_create_pingu;
 end
 
 data IVisible;
@@ -64,9 +60,7 @@ var&? _GraphicContextState state =
             _delete(&&state!);
         end;
 
-var IWorld world = val IWorld(Rect(0,0,w,h), &state!, &outer.game_session.game_time,
-                              _,_,_,_);
-world.game_time = 0;
+var IWorld world = val IWorld(Rect(0,0,w,h), &state!, _,_);
 
 world.state.set_limit({Rect(Vector2i(0,0), Size(@w,@h))});
 
@@ -110,7 +104,7 @@ par do
     end
 with
     every WORLD_UPDATE do
-        world.game_time = world.game_time + 1;
+        outer.game_session.game_time = outer.game_session.game_time + 1;
     end
 with
     var Color ambient_light = val Color({@outer.game_session.plf.get_ambient_light()}.r,
@@ -151,6 +145,16 @@ with
 
         #include "pingu/main.ceu"
         pool[] Pingu pingus;
+
+        var uint id = 0;
+        code/await Pingu_Spawn (var int owner_id, var int x, var int y, var s8 dir) -> void
+        do
+            if call GameSession_Pingu_In() then
+                outer.id = outer.id+1;
+                var Rect r = val Rect(x,y,0,0);
+                spawn Pingu(&outer.pingus,outer.id,owner_id,r,dir) in outer.pingus;
+            end
+        end
 
         par do
             do ()

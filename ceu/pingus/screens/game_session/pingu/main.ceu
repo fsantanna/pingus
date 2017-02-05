@@ -221,41 +221,8 @@ _printf(">>> %d\n", pingu.current_action);
     end;
 
     _ceu_dbg_assert(ret != {PS_ALIVE});
-    emit outer.world.ok_pingu(ret);
 
-#if 0
-    /* END-OF-BODY */
-
-    /* PUBLIC */
-
-    function (void)=>int get_xi do
-        return (int)this.rect.left;
-    end
-    function (void)=>int get_yi do
-        return (int)this.rect.top;
-    end
-
-    function (s8 d)=>void set_direction do
-        this.direction = d;
-    end
-
-    function (void)=>int get_id do
-        return this.id;
-    end
-
-    function (void)=>int get_owner do
-        return this.owner_id;
-    end
-
-    void
-    Pingu::apply_force (Vector3f arg_v)
-    {
-      velocity += arg_v;
-      // Moving the pingu on pixel up, so that the force can take effect
-      // FIXME: this should be handled by a state-machine
-      --rect.top;
-    }
-#endif
+    call GameSession_Pingu_Out(ret);
 end
 
 #endif

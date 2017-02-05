@@ -1,36 +1,4 @@
 #ifndef _PINGUHOLDER_CEU
 #define _PINGUHOLDER_CEU
 
-par do
-    var uint id_total = 0;
-    var int x_,y_;
-    var s8 dir_;
-    var int owner_id_;
-    every (x_,y_,dir_,owner_id_) in outer.world.go_create_pingu do
-        if outer.game_session.counter.number_of_released < outer.game_session.counter.number_of_allowed then
-            id_total = id_total+1;
-            outer.game_session.counter.number_of_released = outer.game_session.counter.number_of_released + 1;
-            outer.game_session.counter.number_of_alive    = outer.game_session.counter.number_of_alive    + 1;
-            var Rect r = val Rect(x_,y_,0,0);
-            spawn Pingu(&outer.pingus,id_total,owner_id_,r,dir_) in outer.pingus;
-        end
-    end
-with
-    var int status;
-    every status in outer.world.ok_pingu do
-        if status == {PS_DEAD} then
-//_assert(0);
-            outer.game_session.counter.number_of_killed = outer.game_session.counter.number_of_killed + 1;
-        else/if status == {PS_EXITED} then
-            outer.game_session.counter.number_of_exited = outer.game_session.counter.number_of_exited + 1;
-        else
-            _ceu_dbg_assert(status != {PS_ALIVE});
-        end
-        outer.game_session.counter.number_of_alive = outer.game_session.counter.number_of_alive - 1;
-        _ceu_dbg_assert(outer.game_session.counter.number_of_released == outer.game_session.counter.number_of_alive  +
-                                                      outer.game_session.counter.number_of_killed +
-                                                      outer.game_session.counter.number_of_exited);
-    end
-end
-
 #endif

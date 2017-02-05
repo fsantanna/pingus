@@ -55,6 +55,32 @@ do
                                        plf_.get_number_to_save()),
                          _);
 
+    code/tight GameSession_Pingu_In (void) -> bool
+    do
+        if outer.game_session.counter.number_of_released < outer.game_session.counter.number_of_allowed then
+            outer.game_session.counter.number_of_released = outer.game_session.counter.number_of_released + 1;
+            outer.game_session.counter.number_of_alive    = outer.game_session.counter.number_of_alive    + 1;
+            escape true;
+        else
+            escape false;
+        end
+    end
+
+    code/tight GameSession_Pingu_Out (var int status) -> void do
+        if status == {PS_DEAD} then
+//_assert(0);
+            outer.game_session.counter.number_of_killed = outer.game_session.counter.number_of_killed + 1;
+        else/if status == {PS_EXITED} then
+            outer.game_session.counter.number_of_exited = outer.game_session.counter.number_of_exited + 1;
+        else
+            _ceu_dbg_assert(status != {PS_ALIVE});
+        end
+        outer.game_session.counter.number_of_alive = outer.game_session.counter.number_of_alive - 1;
+        _ceu_dbg_assert(outer.game_session.counter.number_of_released == outer.game_session.counter.number_of_alive  +
+                                                      outer.game_session.counter.number_of_killed +
+                                                      outer.game_session.counter.number_of_exited);
+    end
+
     par/or do
         do ()
             #include "world.ceu"

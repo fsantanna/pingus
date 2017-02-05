@@ -56,8 +56,8 @@ do
     watching outer.game_session.go_armageddon do
         loop do
             await WORLD_UPDATE
-            until outer.world.game_time >= last_release+release_rate;
-            last_release = outer.world.game_time;
+            until outer.game_session.game_time >= last_release+release_rate;
+            last_release = outer.game_session.game_time;
 
             var s8 dir;
             if direction == {ENTRANCE_LEFT} then
@@ -76,7 +76,7 @@ do
                 dir = {RIGHT};
             end
 
-            emit outer.world.go_create_pingu(pst_.x as int, pst_.y as int, dir, owner_id);
+            await Pingu_Spawn(owner_id, pst_.x as int, pst_.y as int, dir);
         end
     end
 
