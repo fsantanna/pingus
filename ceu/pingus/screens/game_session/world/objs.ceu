@@ -51,18 +51,17 @@ native/pre do
     }
 end
 
-code/await WorldObj_Factory (void) -> void
+pool[] Entrance entrances;
+pool[] Smasher  smashers;
+
 do
-    do
-        var usize i;
-        loop i in [0 -> outer.game_session.plf.get_objects().size()[ do
-            {WORLDOBJ_FACTORY_create(@outer.game_session.plf.get_objects().at(i));}
-        end
+    var usize i;
+    loop i in [0 -> outer.game_session.plf.get_objects().size()[ do
+        {WORLDOBJ_FACTORY_create(@outer.game_session.plf.get_objects().at(i));}
     end
+end
 
-    pool[] Entrance entrances;
-    pool[] Smasher  smashers;
-
+do
     var usize i;
     loop i in [0 -> {WORLDOBJ_FACTORY_VECTOR.size()}[ do
         {WORLDOBJ_FACTORY_READER = WORLDOBJ_FACTORY_VECTOR.at(@i).first;};
@@ -80,7 +79,7 @@ do
                 this.reader = reader_;
             end;
         else/if id_ == "hotspot" then
-    // TODO: entrance "+100"
+// TODO: entrance "+100"
             spawn Hotspot in this.layer_bg_1 with
                 this.reader     = reader_;
                 this.pos_offset = pos_offset;
@@ -117,23 +116,31 @@ do
 #endif
         end
     end
+end
 
+do
     // FIXME: Workaround for lack of start-pos
+    var Vector2i pos_start = val Vector2i(0,0);
     var int num_entrances = 0;
     var& Vector3f pst;
     loop (pst) in entrances do
         num_entrances = num_entrances + 1;
-        outer.pos_start.x = outer.pos_start.x + (pst.x as int);
-        outer.pos_start.y = outer.pos_start.y + (pst.y as int);
+        pos_start.x = pos_start.x + (pst.x as int);
+        pos_start.y = pos_start.y + (pst.y as int);
     end
 
     if (num_entrances > 0) then
-        outer.pos_start.x = outer.pos_start.x / num_entrances;
-        outer.pos_start.y = outer.pos_start.y / num_entrances;
-        outer.pos_start.y = outer.pos_start.y + 100;
+        pos_start.x = pos_start.x / num_entrances;
+        pos_start.y = pos_start.y / num_entrances;
+        pos_start.y = pos_start.y + 100;
     end
 
-    await FOREVER;
+    outer.world.state.set_pos(_Vector2i(pos_start.x,pos_start.y));
+    outer.world.rect.left = pos_start.x;
+    outer.world.rect.top  = pos_start.y;
+end
+
+await FOREVER;
 
 #if 0
     {
@@ -145,6 +152,5 @@ do
             WorldObjFactory::instance()->create(*i);
     };
 #endif
-end
 
 #endif

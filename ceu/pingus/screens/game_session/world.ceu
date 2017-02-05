@@ -172,16 +172,10 @@ do
     #include "capture_rectangle.ceu"
     spawn CaptureRectangle();
 #endif
+        with
+            #include "world/objs.ceu"
         end
     end
-
-    var Vector2i pos_start = _;
-    #include "world/objs.ceu"
-    spawn WorldObj_Factory();
-
-    world.state.set_pos(_Vector2i(pos_start.x,pos_start.y));
-    world.rect.left = pos_start.x;
-    world.rect.top  = pos_start.y;
 
     #include "world/goal_manager.ceu"
     watching GoalManager() do
