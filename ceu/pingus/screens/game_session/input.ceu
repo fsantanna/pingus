@@ -1,3 +1,7 @@
+var bool is_paused         = false;
+var bool is_fast_forwarded = false;
+var bool do_single_step    = false;
+
 par do
     var int world_delay = 0; // the world is initially on time
     loop do
@@ -52,7 +56,7 @@ with
         else/if but:name == {Input::FAST_FORWARD_BUTTON} then
             emit outer.main.go_forward(true);
         else/if but:name == {Input::ARMAGEDDON_BUTTON} then
-            emit game_session.go_armageddon;
+            emit outer.game_session.go_armageddon;
         else/if but:name == {Input::ESCAPE_BUTTON} then
             break;
         end
