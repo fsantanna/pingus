@@ -68,12 +68,11 @@ do
             do
                 var int i;
                 loop i in [0 -> 20[ do
-                    emit outer.world.go_create_smoke_particles(
-                            (pst.x + 20 + (_rand() % 260)) as int,
-                            (pst.y + 180) as int,
-                            {Math::frand()-0.5f},
-                            {Math::frand()-0.5f}
-                    );
+                    spawn SmokeParticle((pst.x + 20 + (_rand() % 260)) as int,
+                                        (pst.y + 180) as int,
+                                        {Math::frand()-0.5f},
+                                        {Math::frand()-0.5f})
+                            in outer.smoke_particles;
                 end
             end
 

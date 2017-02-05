@@ -36,8 +36,10 @@ do
         // PARTICLES, TERRAIN, EXPLOSION
 
         await WORLD_UPDATE until sprite!.frame == 13;
-        emit outer.world.go_create_pingu_particles(outer.pingu.rect.left,
-                                                   outer.pingu.rect.top-5);
+        var int i;
+        loop i in [0 -> 50[ do
+            spawn PinguParticle(outer.pingu.rect.left,outer.pingu.rect.top-5) in outer.pingu_particles;
+        end
 
         call World_Remove({&bomber_radius},
                           outer.pingu.rect.left - {bomber_radius.get_width()/2},

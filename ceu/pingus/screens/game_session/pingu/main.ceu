@@ -53,6 +53,12 @@ end
 
 #include "pingus/right_left_sprites.ceu"
 
+#include "pingu_particle.ceu"
+pool[] PinguParticle pingu_particles;
+
+#include "smoke_particle.ceu"
+pool[] SmokeParticle smoke_particles;
+
 data IPingu with
     var Rect     rect;
     var s8       direction;

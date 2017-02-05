@@ -21,8 +21,6 @@ data IWorld with
 
     event int                   ok_pingu;
     event (int,int,s8,int)      go_create_pingu;
-    event (int,int)             go_create_pingu_particles;
-    event (int,int,float,float) go_create_smoke_particles;
 end
 
 data IVisible;
@@ -67,7 +65,7 @@ var&? _GraphicContextState state =
         end;
 
 var IWorld world = val IWorld(Rect(0,0,w,h), &state!, &outer.game_session.game_time,
-                              _,_,_,_,_,_);
+                              _,_,_,_);
 world.game_time = 0;
 
 world.state.set_limit({Rect(Vector2i(0,0), Size(@w,@h))});
@@ -154,12 +152,6 @@ with
         pool[] Visible layer_bg_1;          // liquid, hotspot
         pool[] Pingu pingus;
 
-        #include "pingu_particle_holder.ceu"
-        pool[] PinguParticle pingu_particles;
-
-        #include "smoke_particle_holder.ceu"
-        pool[] SmokeParticle smoke_particles;
-
         par do
             do ()
                 #include "objs/main.ceu"
@@ -167,20 +159,6 @@ with
         with
             do ()
                 #include "pingu_holder.ceu"
-            end
-        with
-            var int x,y;
-            every (x,y) in world.go_create_pingu_particles do
-                var int i;
-                loop i in [0 -> 50[ do
-                    spawn PinguParticle(x,y) in pingu_particles;
-                end
-            end
-        with
-            var int   x,y;
-            var float vel_x,vel_y;
-            every (x,y,vel_x,vel_y) in world.go_create_smoke_particles do
-                spawn SmokeParticle(x,y, vel_x,vel_y) in smoke_particles;
             end
         with
             await outer.game_session.go_armageddon;
