@@ -143,9 +143,9 @@ do
         pos_start.y = pos_start.y + 100;
     end
 
-    outer.world.state.set_pos(_Vector2i(pos_start.x,pos_start.y));
-    outer.world.rect.left = pos_start.x;
-    outer.world.rect.top  = pos_start.y;
+    outer.game.state.set_pos(_Vector2i(pos_start.x,pos_start.y));
+    outer.game.rect.left = pos_start.x;
+    outer.game.rect.top  = pos_start.y;
 end
 
 await FOREVER;

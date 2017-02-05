@@ -14,7 +14,7 @@ do
             DO
                 CollisionMask buf("traps/smasher_cmap");
         }
-        call World_Put({&buf}, pst.x as int, pst.y as int, {Groundtype::GP_SOLID});
+        call Game_Put({&buf}, pst.x as int, pst.y as int, {Groundtype::GP_SOLID});
         {
             END
         }

@@ -42,7 +42,7 @@ do
                     -> (&sprite);
             sprite!.is_loop = true;
 
-            outer.world.action_next = id_me;
+            outer.game.action_next = id_me;
             await e;
         end
 
@@ -60,7 +60,7 @@ do
                 with
                     var int ii = await e until ii==i;
                 end
-                outer.world.action_next = id_me;
+                outer.game.action_next = id_me;
                 n = i;
                 emit e(i);
             end

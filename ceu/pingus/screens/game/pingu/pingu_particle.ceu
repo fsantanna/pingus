@@ -15,7 +15,7 @@ do
     spawn Sprite_from_name(&rect, "particles/pingu_explo", true);
 
     var bool has_pixel = do
-        var _CollisionMap_ptr ptr = call World_Get_Colmap();
+        var _CollisionMap_ptr ptr = call Game_Get_Colmap();
         escape ptr:getpixel(rect.left,rect.top) as bool;
     end;
 
@@ -27,7 +27,7 @@ do
         var float tmp_y_add = 0.0;
 
         // Simulated gravity
-        velocity.y = velocity.y + outer.world.gravity;
+        velocity.y = velocity.y + outer.game.gravity;
 
         if velocity.y > 0 then
             tmp_y_add = velocity.y;

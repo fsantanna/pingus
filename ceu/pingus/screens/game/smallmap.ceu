@@ -22,24 +22,24 @@ with
             loop do
                 // set view to the given COs
                 var int cx, cy;
-                cx = (x - rect.left) * outer.world.rect.width / rect.width;
-                cy = (y - rect.top) * outer.world.rect.height / rect.height;
-                call World_Set_Viewpoint(cx, cy);
+                cx = (x - rect.left) * outer.game.rect.width / rect.width;
+                cy = (y - rect.top) * outer.game.rect.height / rect.height;
+                call Game_Set_Viewpoint(cx, cy);
                 (x,y) = await ON_POINTER_MOVE until call Is_At(x,y);
             end
         end
     end
 with
     every SDL_REDRAW do
-        var Vector2i vec = call World_Get_Pos();
+        var Vector2i vec = call Game_Get_Pos();
         {
             static Rect view_rect;
         };
 
-        if (outer.world.rect.width > {Display::get_width()}) then
-            var int rwidth = {Display::get_width()} * rect.width / outer.world.rect.width;
+        if (outer.game.rect.width > {Display::get_width()}) then
+            var int rwidth = {Display::get_width()} * rect.width / outer.game.rect.width;
             {
-                view_rect.left = @(rect.left + (vec.x * rect.width / outer.world.rect.width) - rwidth/2);
+                view_rect.left = @(rect.left + (vec.x * rect.width / outer.game.rect.width) - rwidth/2);
                 view_rect.right = view_rect.left + @rwidth;
             }
         else
@@ -49,10 +49,10 @@ with
             }
         end
 
-        if (outer.world.rect.height > {Display::get_height()}) then
-            var int rheight = {Display::get_height()} * rect.height / outer.world.rect.height;
+        if (outer.game.rect.height > {Display::get_height()}) then
+            var int rheight = {Display::get_height()} * rect.height / outer.game.rect.height;
             {
-                view_rect.top = @(rect.top + (vec.y * rect.height / outer.world.rect.height) - rheight/2);
+                view_rect.top = @(rect.top + (vec.y * rect.height / outer.game.rect.height) - rheight/2);
                 view_rect.bottom = view_rect.top + @rheight;
             }
         else
@@ -67,8 +67,8 @@ with
         // Draw Pingus
         var&? IPingu pingu;
         loop (pingu) in outer.pingus do
-            var int x = rect.left + (pingu!.rect.left * rect.width  / outer.world.rect.width);
-            var int y = rect.top  + (pingu!.rect.top  * rect.height / outer.world.rect.height);
+            var int x = rect.left + (pingu!.rect.left * rect.width  / outer.game.rect.width);
+            var int y = rect.top  + (pingu!.rect.top  * rect.height / outer.game.rect.height);
             {Display::s_framebuffer->draw_line(Vector2i(@x, @y), Vector2i(@x, @y-2), Color(255,255,0));}
         end
     end

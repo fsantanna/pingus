@@ -10,7 +10,7 @@ var&? _Surface canvas_ = &{new Surface}(outer.rect.width, outer.rect.height)
 var& _Surface canvas = &canvas_!;
 
 code/tight Update_Surface (void) -> void do
-    var _CollisionMap_ptr colmap = call World_Get_Colmap();
+    var _CollisionMap_ptr colmap = call Game_Get_Colmap();
 
     outer.colmap_serial = colmap:get_serial();
 
@@ -90,7 +90,7 @@ loop do
     // FIXME: surface -> clone -> displayFormat leaves room for
     // optimizations, clone isn't really needed
 
-    var _CollisionMap&& colmap = call World_Get_Colmap();
+    var _CollisionMap&& colmap = call Game_Get_Colmap();
     //if (colmap_serial != colmap:get_serial()) then
         call Update_Surface();
     //end

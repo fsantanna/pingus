@@ -29,7 +29,7 @@ do
             end
 
             // Apply gravity
-            outer.pingu.velocity.y = outer.pingu.velocity.y + outer.world.gravity;
+            outer.pingu.velocity.y = outer.pingu.velocity.y + outer.game.gravity;
         end
     with
         event& void ok_collided;

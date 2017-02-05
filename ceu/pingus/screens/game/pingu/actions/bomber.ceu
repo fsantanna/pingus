@@ -41,9 +41,9 @@ do
             spawn PinguParticle(outer.pingu.rect.left,outer.pingu.rect.top-5) in outer.pingu_particles;
         end
 
-        call World_Remove({&bomber_radius},
-                          outer.pingu.rect.left - {bomber_radius.get_width()/2},
-                          outer.pingu.rect.top  - {bomber_radius.get_width()/2} - 16);
+        call Game_Remove({&bomber_radius},
+                         outer.pingu.rect.left - {bomber_radius.get_width()/2},
+                         outer.pingu.rect.top  - {bomber_radius.get_width()/2} - 16);
 
         do
             vector[] byte explo = [] .. "pingus/player"
