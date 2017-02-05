@@ -1,122 +1,119 @@
 #ifndef _SMALLMAP_IMAGE_CEU
 #define _SMALLMAP_IMAGE_CEU
 
-code/await SmallMapImage (void) -> FOREVER
-do
-    var uint colmap_serial = 0;
+var uint colmap_serial = 0;
 
-    var&? _Surface canvas_ = &{new Surface}(outer.rect.width, outer.rect.height)
-        finalize (canvas_) with
-            _delete(&&canvas_!);
-        end;
-    var& _Surface canvas = &canvas_!;
+var&? _Surface canvas_ = &{new Surface}(outer.rect.width, outer.rect.height)
+    finalize (canvas_) with
+        _delete(&&canvas_!);
+    end;
+var& _Surface canvas = &canvas_!;
 
-    code/tight Update_Surface (void) -> void do
-        var _CollisionMap_ptr colmap = call World_Get_Colmap();
+code/tight Update_Surface (void) -> void do
+    var _CollisionMap_ptr colmap = call World_Get_Colmap();
 
-        outer.colmap_serial = colmap:get_serial();
+    outer.colmap_serial = colmap:get_serial();
 
-        outer.canvas._lock();
+    outer.canvas._lock();
 
-        native/plain _u8_ptr;
-        native/pre do
-            typedef u8* u8_ptr;
-        end
-        var _u8_ptr cbuffer = outer.canvas.get_data();
+    native/plain _u8_ptr;
+    native/pre do
+        typedef u8* u8_ptr;
+    end
+    var _u8_ptr cbuffer = outer.canvas.get_data();
 
-        var int cmap_width  = colmap:get_width();
-        var int cmap_height = colmap:get_height();
+    var int cmap_width  = colmap:get_width();
+    var int cmap_height = colmap:get_height();
 
-        var int width  = outer.canvas.get_width();
-        var int height = outer.canvas.get_height();
-        var int pitch  = outer.canvas.get_pitch();
+    var int width  = outer.canvas.get_width();
+    var int height = outer.canvas.get_height();
+    var int pitch  = outer.canvas.get_pitch();
 
-        _assert(width < cmap_width and height < cmap_height);
+    _assert(width < cmap_width and height < cmap_height);
 
-        var int red   = 0;
-        var int green = 1;
-        var int blue  = 2;
-        var int alpha = 3;
+    var int red   = 0;
+    var int green = 1;
+    var int blue  = 2;
+    var int alpha = 3;
 
-        var int y;
-        loop y in [0 -> height[ do
-            var int x;
-            loop x in [0 -> width[ do
-                // Index on the smallmap canvas
-                var int i = y * pitch + 4 * x;
+    var int y;
+    loop y in [0 -> height[ do
+        var int x;
+        loop x in [0 -> width[ do
+            // Index on the smallmap canvas
+            var int i = y * pitch + 4 * x;
 
-                var int v = (colmap:getpixel_fast(x * cmap_width  / width,
-                                                  y * cmap_height / height));
-                if v == {Groundtype::GP_NOTHING} then
-                    cbuffer[i + red]   = 0;
-                    cbuffer[i + green] = 0;
-                    cbuffer[i + blue]  = 0;
-                    cbuffer[i + alpha] = 255;
+            var int v = (colmap:getpixel_fast(x * cmap_width  / width,
+                                              y * cmap_height / height));
+            if v == {Groundtype::GP_NOTHING} then
+                cbuffer[i + red]   = 0;
+                cbuffer[i + green] = 0;
+                cbuffer[i + blue]  = 0;
+                cbuffer[i + alpha] = 255;
 
-                else/if v == {Groundtype::GP_BRIDGE} then
-                    cbuffer[i + red]   =     0;
-                    cbuffer[i + green] = 255;
-                    cbuffer[i + blue]  = 100;
-                    cbuffer[i + alpha] = 255;
+            else/if v == {Groundtype::GP_BRIDGE} then
+                cbuffer[i + red]   =     0;
+                cbuffer[i + green] = 255;
+                cbuffer[i + blue]  = 100;
+                cbuffer[i + alpha] = 255;
 
-                else/if v == {Groundtype::GP_SOLID} then
-                    cbuffer[i + red]   = 100;
-                    cbuffer[i + green] = 100;
-                    cbuffer[i + blue]  = 125;
-                    cbuffer[i + alpha] = 255;
+            else/if v == {Groundtype::GP_SOLID} then
+                cbuffer[i + red]   = 100;
+                cbuffer[i + green] = 100;
+                cbuffer[i + blue]  = 125;
+                cbuffer[i + alpha] = 255;
 
-                else/if v=={Groundtype::GP_WATER} or
-                        v=={Groundtype::GP_LAVA}
-                then
-                    cbuffer[i + red]   = 0;
-                    cbuffer[i + green] = 0;
-                    cbuffer[i + blue]  = 200;
-                    cbuffer[i + alpha] = 255;
+            else/if v=={Groundtype::GP_WATER} or
+                    v=={Groundtype::GP_LAVA}
+            then
+                cbuffer[i + red]   = 0;
+                cbuffer[i + green] = 0;
+                cbuffer[i + blue]  = 200;
+                cbuffer[i + alpha] = 255;
 
-                else
-                    cbuffer[i + red]   = 200;
-                    cbuffer[i + green] = 200;
-                    cbuffer[i + blue]  = 200;
-                    cbuffer[i + alpha] = 255;
-                end
+            else
+                cbuffer[i + red]   = 200;
+                cbuffer[i + green] = 200;
+                cbuffer[i + blue]  = 200;
+                cbuffer[i + alpha] = 255;
             end
         end
-
-        outer.canvas.unlock();
     end
 
-    var float smallmap_update_time = 1.0;
-    loop do
-        var float update_count = 0;
+    outer.canvas.unlock();
+end
 
-        // FIXME: surface -> clone -> displayFormat leaves room for
-        // optimizations, clone isn't really needed
+var float smallmap_update_time = 1.0;
+loop do
+    var float update_count = 0;
 
-        var _CollisionMap&& colmap = call World_Get_Colmap();
-        //if (colmap_serial != colmap:get_serial()) then
-            call Update_Surface();
-        //end
+    // FIXME: surface -> clone -> displayFormat leaves room for
+    // optimizations, clone isn't really needed
 
-        {
-            static FramebufferSurface SMALLMAP_IMAGE_sfc;
-            SMALLMAP_IMAGE_sfc = Display::get_framebuffer()->create_surface(@canvas.clone());
-        }
+    var _CollisionMap&& colmap = call World_Get_Colmap();
+    //if (colmap_serial != colmap:get_serial()) then
+        call Update_Surface();
+    //end
 
-        spawn do
-            every SDL_REDRAW do
-                {
-                    Display::s_framebuffer->draw_surface(SMALLMAP_IMAGE_sfc,
-                                                         Vector2i(@outer.rect.left, @outer.rect.top));
-                }
-            end
+    {
+        static FramebufferSurface SMALLMAP_IMAGE_sfc;
+        SMALLMAP_IMAGE_sfc = Display::get_framebuffer()->create_surface(@canvas.clone());
+    }
+
+    spawn do
+        every SDL_REDRAW do
+            {
+                Display::s_framebuffer->draw_surface(SMALLMAP_IMAGE_sfc,
+                                                     Vector2i(@outer.rect.left, @outer.rect.top));
+            }
         end
+    end
 
-        loop do
-            var int dt = await SDL_DT;
-            update_count = update_count + (dt as float)/1000;
-            if update_count > smallmap_update_time then
-                break;
-            end
+    loop do
+        var int dt = await SDL_DT;
+        update_count = update_count + (dt as float)/1000;
+        if update_count > smallmap_update_time then
+            break;
         end
     end
 end

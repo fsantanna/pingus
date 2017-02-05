@@ -3,9 +3,15 @@
 
 #include "engine/gui/rect_component.ceu"
 
-code/await ArmageddonButton (var int x, var int y) -> FOREVER
-do
-    var Rect rect = val Rect(x, y, 38, 60);
+var int dwidth  = {Display::get_width()};
+var int dheight = {Display::get_height()};
+
+var int arm_x=dwidth-40*1, arm_y=dheight-62;
+var int fwd_x=dwidth-40*2, fwd_y=dheight-62;
+var int pse_x=dwidth-40*3, pse_y=dheight-62;
+
+par do                                                      // ARMAGEDDON
+    var Rect rect = val Rect(arm_x, arm_y, 38, 60);
 
     var& IRectComponent component;
     spawn RectComponent(&rect) -> (&component);
@@ -33,11 +39,8 @@ do
         emit outer.game_session.go_armageddon;
         await FOREVER;
     end
-end
-
-code/await ForwardButton (var int x, var int y) -> FOREVER
-do
-    var Rect rect = val Rect(x,y, 38,60);
+with                                                        // FORWARD
+    var Rect rect = val Rect(fwd_x,fwd_y, 38,60);
 
     var& IRectComponent component;
     spawn RectComponent(&rect) -> (&component);
@@ -67,11 +70,8 @@ do
 
     spawn Sprite_from_name(&rect, "core/buttons/fast_forward", false);
     await FOREVER;
-end
-
-code/await PauseButton (var int x, var int y) -> FOREVER
-do
-    var Rect rect = val Rect(x,y, 38,60);
+with                                                        // PAUSE
+    var Rect rect = val Rect(pse_x,pse_y, 38,60);
 
     var& IRectComponent component;
     spawn RectComponent(&rect) -> (&component);

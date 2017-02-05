@@ -5,37 +5,18 @@ native/pre do
     ##include "pingus/game_time.hpp"
 end
 
-code/await ActionButtonE (var int max, var& int n, event& int e) -> FOREVER
-do
-    var _Input__ButtonEvent&& but;
-    every but in ON_BUTTON_PRESSED do
-        var int inc = 0;
-        if but:name >= {Input::ACTION_1_BUTTON} and
-           but:name <= {Input::ACTION_10_BUTTON}
-        then
-            emit e(but:name - {Input::ACTION_1_BUTTON});
-        else
-            if but:name == {Input::ACTION_DOWN_BUTTON} then
-                inc = 1;
-            else/if but:name == {Input::ACTION_UP_BUTTON} then
-                inc = -1;
-            end
-            if inc != 0 then
-                n = (n+inc) % max;
-                if n < 0 then
-                    n = n + max;
-                end
-                emit e(n);
-            end
-        end
-    end
+native/pre do
+    std::vector<ActionName::Enum> ButtonPanel_actions;
+    void ButtonPanel_load_actions (void) {
+        ButtonPanel_actions = GLOBAL_ACTIONHOLDER->get_available_actions();
+        std::sort(ButtonPanel_actions.begin(), ButtonPanel_actions.end());
+    }
 end
 
 code/await ActionButton (var    int x,
                          var    int y,
                          var    int i,
                          var    _ActionName__Enum id_me,
-                         var&   _ActionName__Enum id_out,
                          var&   int n,
                          event& int e)
             -> FOREVER
@@ -61,7 +42,7 @@ do
                     -> (&sprite);
             sprite!.is_loop = true;
 
-            id_out = id_me;
+            outer.world.action_next = id_me;
             await e;
         end
 
@@ -79,7 +60,7 @@ do
                 with
                     var int ii = await e until ii==i;
                 end
-                id_out = id_me;
+                outer.world.action_next = id_me;
                 n = i;
                 emit e(i);
             end
@@ -133,40 +114,43 @@ do
     end
 end
 
-native/pre do
-    std::vector<ActionName::Enum> ButtonPanel_actions;
-    void ButtonPanel_load_actions (void) {
-        ButtonPanel_actions = GLOBAL_ACTIONHOLDER->get_available_actions();
-        std::sort(ButtonPanel_actions.begin(), ButtonPanel_actions.end());
-    }
+{ ButtonPanel_load_actions(); }
+
+var   int max = {ButtonPanel_actions.size()};
+var   int n = 0;
+event int e;
+
+var int x = 0;
+var int y = ({Display::get_height()}-150)/2 - /// TODO: screen.size
+                (max*38/2);
+
+pool[] ActionButton abs;
+var int i;
+loop i in [0 -> max[ do
+    spawn ActionButton(x, y+38*i, i, {ButtonPanel_actions[@i]}, &n, &e) in abs;
 end
 
-code/await ButtonPanel (void)
-                        -> (var& _ActionName__Enum action)
-                            -> FOREVER
-do
-    var _ActionName__Enum action_ = {ActionName::WALKER};
-    action = &action_;
-
-    { ButtonPanel_load_actions(); }
-
-    var   int max = {ButtonPanel_actions.size()};
-    var   int n = 0;
-    event int e;
-
-    spawn ActionButtonE(max, &n, &e);
-
-    var int x = 0;
-    var int y = ({Display::get_height()}-150)/2 - /// TODO: screen.size
-                    (max*38/2);
-
-    pool[] ActionButton abs;
-    var int i;
-    loop i in [0 -> max[ do
-        spawn ActionButton(x, y+38*i, i, {ButtonPanel_actions[@i]}, &action_, &n, &e) in abs;
+var _Input__ButtonEvent&& but;
+every but in ON_BUTTON_PRESSED do
+    var int inc = 0;
+    if but:name >= {Input::ACTION_1_BUTTON} and
+       but:name <= {Input::ACTION_10_BUTTON}
+    then
+        emit e(but:name - {Input::ACTION_1_BUTTON});
+    else
+        if but:name == {Input::ACTION_DOWN_BUTTON} then
+            inc = 1;
+        else/if but:name == {Input::ACTION_UP_BUTTON} then
+            inc = -1;
+        end
+        if inc != 0 then
+            n = (n+inc) % max;
+            if n < 0 then
+                n = n + max;
+            end
+            emit e(n);
+        end
     end
-
-    await FOREVER;
 end
 
 #endif

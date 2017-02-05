@@ -16,7 +16,8 @@ data IWorld with
     var  Rect                   rect;
     var& _GraphicContextState   state;
     var& int                    game_time;
-    var  float                  gravity;
+    var  float                  gravity     = 0.2;
+    var  _ActionName__Enum      action_next = {ActionName::WALKER};
 
     event int                   ok_pingu;
     event (int,int,s8,int)      go_create_pingu;
@@ -48,9 +49,6 @@ end
     end
 #endif
 
-#include "world/action_button.ceu"
-#include "world/button_panel.ceu"
-
 code/await World (void) -> void
 do
     var int w = {@outer.game_session.plf.get_size().width};
@@ -71,7 +69,7 @@ do
             end;
 
     var IWorld world = val IWorld(Rect(0,0,w,h), &state!, &outer.game_session.game_time,
-                                  0.2, _,_,_,_);
+                                  _,_,_,_,_,_);
     world.game_time = 0;
 
     world.state.set_limit({Rect(Vector2i(0,0), Size(@w,@h))});
@@ -96,6 +94,18 @@ do
 
     code/tight World_Get_Colmap (void) -> _CollisionMap_ptr do
         escape outer.gfx_map.get_colmap();
+    end
+
+    code/tight World_Get_Pos (void) -> Vector2i do
+        var Vector2i ret = val Vector2i(outer.world.state.get_pos().x,
+                                        outer.world.state.get_pos().y);
+        escape ret;
+    end
+
+    code/tight World_Set_Viewpoint (var int x, var int y) -> void do
+        outer.world.state.set_pos(_Vector2i(x, y));
+        outer.world.rect.left = x;
+        outer.world.rect.top  = y;
     end
 
     #include "world/pingu.ceu"
@@ -145,23 +155,25 @@ do
     #include "world/smoke_particle_holder.ceu"
     pool[] SmokeParticle smoke_particles;
 
-    #include "world/time_display.ceu"
-    spawn TimeDisplay();
-
-    #include "world/pingus_counter.ceu"
-    spawn PingusCounter();
-
-    var int dwidth  = {Display::get_width()};
-    var int dheight = {Display::get_height()};
-    spawn ArmageddonButton(dwidth-40*1, dheight-62);
-    spawn ForwardButton   (dwidth-40*2, dheight-62);
-    spawn PauseButton     (dwidth-40*3, dheight-62);
-
-    var& _ActionName__Enum buttonpanel_action;
-    spawn ButtonPanel() -> (&buttonpanel_action);
-
-    #include "world/playfield.ceu"
-    spawn Playfield(&buttonpanel_action);
+    spawn () do
+        par do
+            #include "world/time_display.ceu"
+        with
+            #include "world/pingus_counter.ceu"
+        with
+            #include "world/action_button.ceu"
+        with
+            #include "world/button_panel.ceu"
+        with
+            #include "world/playfield.ceu"
+        with
+            #include "world/smallmap.ceu"
+#if 0
+    #include "capture_rectangle.ceu"
+    spawn CaptureRectangle();
+#endif
+        end
+    end
 
     var Vector2i pos_start = _;
     #include "world/objs.ceu"

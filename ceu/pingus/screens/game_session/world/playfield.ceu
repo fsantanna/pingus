@@ -3,247 +3,208 @@
 
 #include "engine/gui/rect_component.ceu"
 
-code/await Playfield (var& _ActionName__Enum action_next) -> FOREVER
-#if 0
-    var   IPingu&&? current_pingu;
-    event void      ok_pingu;
-    pool IPingu[]& pingus;
+#define POS2VEC(m) _Vector2i(m.x,m.y)
 
-    var Rect& rect;
+var Rect rect = val Rect(
+    {Math::max}(({Display::get_width()}-outer.world.rect.width)/2, 0),
+    {Math::max}(({Display::get_height()}-outer.world.rect.height)/2, 0),
+    {Math::min}({Display::get_width()},  outer.world.rect.width),
+    {Math::min}({Display::get_height()}, outer.world.rect.height)
+);
 
-    function (void)=>Vector2i get_pos;
-    function (int x, int y)=>void scroll;
-    function (void)=>void update_layout;
-#endif
-do
-    code/tight Playfield_Get_Pos (void) -> Vector2i do
-        var Vector2i ret = val Vector2i(outer.world.state.get_pos().x,
-                                        outer.world.state.get_pos().y);
-        escape ret;
+var& IRectComponent component;
+spawn RectComponent(&rect) -> (&component);
+
+var Position mouse_pos = val Position(0,0);
+spawn do
+    var int x, y;
+    every (x,y) in ON_POINTER_MOVE do
+        mouse_pos.x = x - rect.left;
+        mouse_pos.y = y - rect.top;
     end
+end
 
-    code/tight Playfield_Set_Viewpoint (var int x, var int y) -> void do
-        outer.world.state.set_pos(_Vector2i(x, y));
-        outer.world.rect.left = x;
-        outer.world.rect.top  = y;
-    end
+par do
+    var int x, y;
+    every (x,y) in component.on_primary_button_pressed do
+        x = x - rect.left;
+        y = y - rect.top;
+        x = outer.world.state.screen2world(_Vector2i(x,y)).x;
+        y = outer.world.state.screen2world(_Vector2i(x,y)).y;
 
-
-    #define POS2VEC(m) _Vector2i(m.x,m.y)
-
-    var Rect rect = val Rect(
-        {Math::max}(({Display::get_width()}-outer.world.rect.width)/2, 0),
-        {Math::max}(({Display::get_height()}-outer.world.rect.height)/2, 0),
-        {Math::min}({Display::get_width()},  outer.world.rect.width),
-        {Math::min}({Display::get_height()}, outer.world.rect.height)
-    );
-
-    var& IRectComponent component;
-    spawn RectComponent(&rect) -> (&component);
-
-    var Position mouse_pos = val Position(0,0);
-    spawn do
-        var int x, y;
-        every (x,y) in ON_POINTER_MOVE do
-            mouse_pos.x = x - rect.left;
-            mouse_pos.y = y - rect.top;
-        end
-    end
-
-    par do
-        var int x, y;
-        every (x,y) in component.on_primary_button_pressed do
-            x = x - rect.left;
-            y = y - rect.top;
-            x = outer.world.state.screen2world(_Vector2i(x,y)).x;
-            y = outer.world.state.screen2world(_Vector2i(x,y)).y;
-
-            var float min_dist = 500.0;
-            var bool? check;
-            var&? IPingu pingu = do
-                var&? IPingu p;
-                loop (p) in outer.pingus do
-                    if (call Pingu_Is_Over(x,y) in outer.pingus) then
-                        var float dist = (call Pingu_Dist(x,y) in outer.pingus);
-                        if (dist < min_dist) then
-                            min_dist = dist;
-                            check = (call Pingu_Check_Action(action_next) in outer.pingus);
-                            escape &p;
-                        end
-                    end
-                end
-            end;
-
-            if pingu? and check! then
-                if {GLOBAL_ACTIONHOLDER->pop_action(@action_next)} as bool then
-                    emit pingu!.go_action(action_next);
-                end
-            end
-        end
-    with
-        loop do
-            var int x,y;
-            (x,y) = await ON_SECONDARY_BUTTON_PRESSED;
-
-            var Vector2i old_state_pos = val Vector2i(outer.world.state.get_pos().x,
-                                                      outer.world.state.get_pos().y);
-
-            var Vector2i scroll = val Vector2i(x - rect.left,
-                                               y - rect.top);
-
-            watching ON_SECONDARY_BUTTON_RELEASED do
-                par do
-                    every SDL_DT do
-                        // FIXME: This should be delta dependant
-                        if {globals::drag_drop_scrolling} as bool then
-                            outer.world.state.set_pos(
-                                _Vector2i(old_state_pos.x,old_state_pos.y)
-                                    + (_Vector2i(scroll.x,scroll.y)
-                                        - POS2VEC(mouse_pos)));
-                            outer.world.rect.left =
-                                (old_state_pos.x + scroll.x - mouse_pos.x) as int;
-                            outer.world.rect.top =
-                                (old_state_pos.y + scroll.y - mouse_pos.y) as int;
-                        else
-                            outer.world.state.set_pos(
-                                _Vector2i(outer.world.state.get_pos().x
-                                            - (scroll.x - mouse_pos.x) * 0.2,
-                                          outer.world.state.get_pos().y
-                                            - (scroll.y - mouse_pos.y) * 0.2
-                                )
-                            );
-                            outer.world.rect.left =
-                                (outer.world.rect.left - (scroll.x - mouse_pos.x) * 0.2) as int;
-                            outer.world.rect.top =
-                                (outer.world.rect.top - (scroll.y - mouse_pos.y) * 0.2) as int;
-                        end
-                    end
-                with
-                    every SDL_REDRAW do
-                        if {globals::drag_drop_scrolling} as bool then
-                            continue;
-                        end
-                        call {Display::s_framebuffer}:draw_line(
-                            POS2VEC(mouse_pos),
-                            _Vector2i(scroll.x, scroll.y-15),
-                            _Color(0, 255, 0)
-                        );
-                        call {Display::s_framebuffer}:draw_line(
-                            POS2VEC(mouse_pos),
-                            _Vector2i(scroll.x, scroll.y+15),
-                            _Color(0, 0, 255)
-                        );
-                        call {Display::s_framebuffer}:draw_line(
-                            POS2VEC(mouse_pos),
-                            _Vector2i(scroll.x+15, scroll.y),
-                            _Color(0, 255, 255)
-                        );
-                        call {Display::s_framebuffer}:draw_line(
-                            POS2VEC(mouse_pos),
-                            _Vector2i(scroll.x-15, scroll.y),
-                            _Color(255, 255, 0)
-                        );
-                        call {Display::s_framebuffer}:draw_line(
-                            POS2VEC(mouse_pos),
-                            _Vector2i(scroll.x, scroll.y),
-                            _Color(255, 0, 0)
-                        );
-                    end
-                end
-            end
-        end
-    with
-#if 0
-        var bool was_empty = true;
-            // having current_pingu&&? is not enough because it can die and 
-            // clear the variable
-
-        every SDL_DT do
-            var Position pos = Position(
-                                outer.world.state.screen2world(POS2VEC(mouse_pos)).x,
-                                outer.world.state.screen2world(POS2VEC(mouse_pos)).y
-                               );
-
-            var float min_dist = 500.0;
-            var IPingu&&? cur;
-            loop p in pingus do
-                if p:is_over((int)pos.x, (int)pos.y) then
-                    var float dist = p:dist((int)pos.x, (int)pos.y);
+        var float min_dist = 500.0;
+        var bool? check;
+        var&? IPingu pingu = do
+            var&? IPingu p;
+            loop (p) in outer.pingus do
+                if (call Pingu_Is_Over(x,y) in outer.pingus) then
+                    var float dist = (call Pingu_Dist(x,y) in outer.pingus);
                     if (dist < min_dist) then
                         min_dist = dist;
-                        cur = p;
+                        check = (call Pingu_Check_Action(outer.world.action_next) in outer.pingus);
+                        escape &p;
                     end
                 end
             end
+        end;
 
-            var bool has_changed;
-            if cur? then
-                has_changed = was_empty or
-                              (current_pingu? and (cur! != current_pingu!));
-            else
-                has_changed = (not was_empty);
-            end
-
-            current_pingu = cur;
-            was_empty = (not cur?);
-            if has_changed then
-                emit ok_pingu;
+        if pingu? and check! then
+            if {GLOBAL_ACTIONHOLDER->pop_action(@outer.world.action_next)} as bool then
+                emit pingu!.go_action(outer.world.action_next);
             end
         end
-    with
-        every v in SDL_DT do
-            var float dt = ((float)v)/1000;
-            if ({globals::auto_scrolling} and
-                ({Display::is_fullscreen()} or 
-                    _SDL_WM_GrabInput(_SDL_GRAB_QUERY) == _SDL_GRAB_ON))
-            then
-                var int scroll_speed = (int)(800 * dt);
+    end
+with
+    loop do
+        var int x,y;
+        (x,y) = await ON_SECONDARY_BUTTON_PRESSED;
 
-                if (mouse_pos.x < 10) then
-                    outer.world.state.set_pos(outer.world.state.get_pos() - _Vector2i(scroll_speed, 0));
-                    outer.world.rect.left = outer.world.rect.left - scroll_speed;
-                else/if (mouse_pos.x > {Display::get_width()} - 10) then
-                    outer.world.state.set_pos(outer.world.state.get_pos() + _Vector2i(scroll_speed, 0));
-                    outer.world.rect.left = outer.world.rect.left + scroll_speed;
+        var Vector2i old_state_pos = val Vector2i(outer.world.state.get_pos().x,
+                                                  outer.world.state.get_pos().y);
+
+        var Vector2i scroll = val Vector2i(x - rect.left,
+                                           y - rect.top);
+
+        watching ON_SECONDARY_BUTTON_RELEASED do
+            par do
+                every SDL_DT do
+                    // FIXME: This should be delta dependant
+                    if {globals::drag_drop_scrolling} as bool then
+                        outer.world.state.set_pos(
+                            _Vector2i(old_state_pos.x,old_state_pos.y)
+                                + (_Vector2i(scroll.x,scroll.y)
+                                    - POS2VEC(mouse_pos)));
+                        outer.world.rect.left =
+                            (old_state_pos.x + scroll.x - mouse_pos.x) as int;
+                        outer.world.rect.top =
+                            (old_state_pos.y + scroll.y - mouse_pos.y) as int;
+                    else
+                        outer.world.state.set_pos(
+                            _Vector2i(outer.world.state.get_pos().x
+                                        - (scroll.x - mouse_pos.x) * 0.2,
+                                      outer.world.state.get_pos().y
+                                        - (scroll.y - mouse_pos.y) * 0.2
+                            )
+                        );
+                        outer.world.rect.left =
+                            (outer.world.rect.left - (scroll.x - mouse_pos.x) * 0.2) as int;
+                        outer.world.rect.top =
+                            (outer.world.rect.top - (scroll.y - mouse_pos.y) * 0.2) as int;
+                    end
                 end
-
-                if (mouse_pos.y < 10) then
-                    outer.world.state.set_pos(outer.world.state.get_pos() - _Vector2i(0, scroll_speed));
-                    outer.world.rect.top = outer.world.rect.top - scroll_speed;
-                else/if (mouse_pos.y > {Display::get_height()} - 10) then
-                    outer.world.state.set_pos(outer.world.state.get_pos() + _Vector2i(0, scroll_speed));
-                    outer.world.rect.top = outer.world.rect.top + scroll_speed;
+            with
+                every SDL_REDRAW do
+                    if {globals::drag_drop_scrolling} as bool then
+                        continue;
+                    end
+                    call {Display::s_framebuffer}:draw_line(
+                        POS2VEC(mouse_pos),
+                        _Vector2i(scroll.x, scroll.y-15),
+                        _Color(0, 255, 0)
+                    );
+                    call {Display::s_framebuffer}:draw_line(
+                        POS2VEC(mouse_pos),
+                        _Vector2i(scroll.x, scroll.y+15),
+                        _Color(0, 0, 255)
+                    );
+                    call {Display::s_framebuffer}:draw_line(
+                        POS2VEC(mouse_pos),
+                        _Vector2i(scroll.x+15, scroll.y),
+                        _Color(0, 255, 255)
+                    );
+                    call {Display::s_framebuffer}:draw_line(
+                        POS2VEC(mouse_pos),
+                        _Vector2i(scroll.x-15, scroll.y),
+                        _Color(255, 255, 0)
+                    );
+                    call {Display::s_framebuffer}:draw_line(
+                        POS2VEC(mouse_pos),
+                        _Vector2i(scroll.x, scroll.y),
+                        _Color(255, 0, 0)
+                    );
                 end
             end
         end
-#endif
-    with
-        var Rect rect = val Rect(6,{Display::get_size}().height-105, 175,100);
-
-        #include "smallmap.ceu"
-        spawn SmallMap();
-
-#if 0
-        #include "capture_rectangle.ceu"
-        spawn CaptureRectangle();
-#endif
-
-        await FOREVER;
     end
-
-    /* PUBLIC */
-
+with
 #if 0
-    function (int x, int y)=>void scroll do
-        outer.world.state.set_pos(outer.world.state.get_pos() + _Vector2i(x, y));
-        outer.world.rect.left = outer.world.rect.left + x;
-        outer.world.rect.top  = outer.world.rect.top  + y;
-    end
+    var bool was_empty = true;
+        // having current_pingu&&? is not enough because it can die and 
+        // clear the variable
 
-    function (void)=>void update_layout do
-        outer.world.state.set_size(outer.rect.width, outer.rect.height);
+    every SDL_DT do
+        var Position pos = Position(
+                            outer.world.state.screen2world(POS2VEC(mouse_pos)).x,
+                            outer.world.state.screen2world(POS2VEC(mouse_pos)).y
+                           );
+
+        var float min_dist = 500.0;
+        var IPingu&&? cur;
+        loop p in pingus do
+            if p:is_over((int)pos.x, (int)pos.y) then
+                var float dist = p:dist((int)pos.x, (int)pos.y);
+                if (dist < min_dist) then
+                    min_dist = dist;
+                    cur = p;
+                end
+            end
+        end
+
+        var bool has_changed;
+        if cur? then
+            has_changed = was_empty or
+                          (current_pingu? and (cur! != current_pingu!));
+        else
+            has_changed = (not was_empty);
+        end
+
+        current_pingu = cur;
+        was_empty = (not cur?);
+        if has_changed then
+            emit ok_pingu;
+        end
+    end
+with
+    every v in SDL_DT do
+        var float dt = ((float)v)/1000;
+        if ({globals::auto_scrolling} and
+            ({Display::is_fullscreen()} or 
+                _SDL_WM_GrabInput(_SDL_GRAB_QUERY) == _SDL_GRAB_ON))
+        then
+            var int scroll_speed = (int)(800 * dt);
+
+            if (mouse_pos.x < 10) then
+                outer.world.state.set_pos(outer.world.state.get_pos() - _Vector2i(scroll_speed, 0));
+                outer.world.rect.left = outer.world.rect.left - scroll_speed;
+            else/if (mouse_pos.x > {Display::get_width()} - 10) then
+                outer.world.state.set_pos(outer.world.state.get_pos() + _Vector2i(scroll_speed, 0));
+                outer.world.rect.left = outer.world.rect.left + scroll_speed;
+            end
+
+            if (mouse_pos.y < 10) then
+                outer.world.state.set_pos(outer.world.state.get_pos() - _Vector2i(0, scroll_speed));
+                outer.world.rect.top = outer.world.rect.top - scroll_speed;
+            else/if (mouse_pos.y > {Display::get_height()} - 10) then
+                outer.world.state.set_pos(outer.world.state.get_pos() + _Vector2i(0, scroll_speed));
+                outer.world.rect.top = outer.world.rect.top + scroll_speed;
+            end
+        end
     end
 #endif
 end
+
+/* PUBLIC */
+
+#if 0
+function (int x, int y)=>void scroll do
+    outer.world.state.set_pos(outer.world.state.get_pos() + _Vector2i(x, y));
+    outer.world.rect.left = outer.world.rect.left + x;
+    outer.world.rect.top  = outer.world.rect.top  + y;
+end
+
+function (void)=>void update_layout do
+    outer.world.state.set_size(outer.rect.width, outer.rect.height);
+end
+#endif
 
 #endif
