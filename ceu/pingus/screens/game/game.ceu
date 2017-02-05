@@ -84,17 +84,29 @@ do
 
     #include "codes.ceu"
 
-    var Rect rect_play = val Rect(
-        {Math::max}(({Display::get_width()}-game.rect.width)/2, 0),
-        {Math::max}(({Display::get_height()}-game.rect.height)/2, 0),
-        {Math::min}({Display::get_width()},  game.rect.width),
-        {Math::min}({Display::get_height()}, game.rect.height)
-    );
-
-    par/or do
+    par do
         do ()
             #include "goal_manager.ceu"
         end
+        {
+            result.saved     = @game.counter.number_of_exited;
+            result.killed    = @game.counter.number_of_killed;
+            result.total     = result.plf.get_number_of_pingus();
+            result.needed    = result.plf.get_number_to_save();
+            result.max_time  = result.plf.get_time();
+            result.used_time = @game.game_time;
+
+            // Write the savegame
+            {
+                Savegame savegame(result.plf.get_resname(),
+                                (result.saved >= result.needed) ?  Savegame::FINISHED : 
+                                Savegame::ACCESSIBLE,
+                                result.used_time,
+                                result.saved);
+                SavegameManager::instance()->store(savegame);
+            }
+        };
+        escape;
     with
         every WORLD_UPDATE do
             game.game_time = game.game_time + 1;
@@ -207,25 +219,6 @@ do
             outer.main.offset = val Vector2i(0,0);
         end
     end
-
-    {
-        result.saved     = @game.counter.number_of_exited;
-        result.killed    = @game.counter.number_of_killed;
-        result.total     = result.plf.get_number_of_pingus();
-        result.needed    = result.plf.get_number_to_save();
-        result.max_time  = result.plf.get_time();
-        result.used_time = @game.game_time;
-
-        // Write the savegame
-        {
-            Savegame savegame(result.plf.get_resname(),
-                            (result.saved >= result.needed) ?  Savegame::FINISHED : 
-                            Savegame::ACCESSIBLE,
-                            result.used_time,
-                            result.saved);
-            SavegameManager::instance()->store(savegame);
-        }
-    };
 end
 
 #endif
