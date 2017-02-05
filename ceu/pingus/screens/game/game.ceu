@@ -37,183 +37,180 @@ data IGame with
     event void                 go_armageddon;
 end
 
-code/await Game (var& _PingusLevel plf_) -> void
-do
+{
+    GLOBAL_ACTIONHOLDER = new ActionHolder(@outer.plf);
+    result.plf = @outer.plf;
+}
+
+/// TODO: from "on_startup", called on creation and when popped back
+if {globals::developer_mode} as bool then
+    _log_info("Starting Music: %1%", outer.plf.get_music());
+end
+if outer.plf.get_music()=="none" or (outer.plf.get_music().empty() as bool) then
+    {Sound::PingusSound::stop_music();};
+else
+    call {Sound::PingusSound::play_music}(outer.plf.get_music());
+end
+
+var int w = {@outer.plf.get_size().width};
+var int h = {@outer.plf.get_size().height};
+
+var&? _GroundMap gfx_map_ =
+    &{new GroundMap}(w, h)
+        finalize (gfx_map_) with
+            _delete(&&gfx_map_!);
+        end;
+var& _GroundMap gfx_map = &gfx_map_!;
+
+var&? _GraphicContextState state =
+    &{new GraphicContextState}({Math::min}({Display::get_width()},  w),
+                               {Math::min}({Display::get_height()}, h))
+        finalize (state) with
+            _delete(&&state!);
+        end;
+
+var IGame game =
+    val IGame(&outer.plf, 0,
+                     PingusCounter(0,0,0,0,
+                                   outer.plf.get_number_of_pingus(),
+                                   outer.plf.get_number_to_save()),
+                     Rect(0,0,w,h),
+                     &state!,
+                     _, _, _);
+
+game.state.set_limit({Rect(Vector2i(0,0), Size(@w,@h))});
+
+#include "codes.ceu"
+
+par do
+    do ()
+        #include "goal_manager.ceu"
+    end
     {
-        GLOBAL_ACTIONHOLDER = new ActionHolder(@plf_);
-        result.plf = @plf_;
-    }
+        result.saved     = @game.counter.number_of_exited;
+        result.killed    = @game.counter.number_of_killed;
+        result.total     = result.plf.get_number_of_pingus();
+        result.needed    = result.plf.get_number_to_save();
+        result.max_time  = result.plf.get_time();
+        result.used_time = @game.game_time;
 
-    /// TODO: from "on_startup", called on creation and when popped back
-    if {globals::developer_mode} as bool then
-        _log_info("Starting Music: %1%", plf_.get_music());
+        // Write the savegame
+        {
+            Savegame savegame(result.plf.get_resname(),
+                            (result.saved >= result.needed) ?  Savegame::FINISHED : 
+                            Savegame::ACCESSIBLE,
+                            result.used_time,
+                            result.saved);
+            SavegameManager::instance()->store(savegame);
+        }
+    };
+    escape;
+with
+    every WORLD_UPDATE do
+        game.game_time = game.game_time + 1;
     end
-    if plf_.get_music()=="none" or (plf_.get_music().empty() as bool) then
-        {Sound::PingusSound::stop_music();};
-    else
-        call {Sound::PingusSound::play_music}(plf_.get_music());
+with
+    every SDL_REDRAW do
+        outer.main.offset = call Game_Get_Offset();
+    end
+with
+    var Color ambient_light = val Color({@game.plf.get_ambient_light()}.r,
+                                        {@game.plf.get_ambient_light()}.g,
+                                        {@game.plf.get_ambient_light()}.b,
+                                        {@game.plf.get_ambient_light()}.a);
+    every SDL_REDRAW do
+        call {Display::s_framebuffer}:fill_rect(
+            _Rect(0,0, {Display::get_width()},{Display::get_height()}),
+            _Color(ambient_light.r,
+                   ambient_light.g,
+                   ambient_light.b,
+                   ambient_light.a)
+        );
+    end
+with
+    data IVisible;
+    data IVisible.Aa;
+    code/await Visible (var& IVisible vis) -> FOREVER do
+        await FOREVER;
     end
 
-    var int w = {@plf_.get_size().width};
-    var int h = {@plf_.get_size().height};
+    pool[] Visible layer_bg_0;          // background
+    spawn do
+        every SDL_REDRAW do             // groundpiece
+            var Vector2i off = outer.main.offset;
+            gfx_map.draw({Vector2i(-@off.x,-@off.y)});
+        end
+    end
+    pool[] Visible layer_bg_1;          // liquid, hotspot
 
-    var&? _GroundMap gfx_map_ =
-        &{new GroundMap}(w, h)
-            finalize (gfx_map_) with
-                _delete(&&gfx_map_!);
-            end;
-    var& _GroundMap gfx_map = &gfx_map_!;
+    #include "pingu/pingu.ceu"
+    pool[] Pingu pingus;
 
-    var&? _GraphicContextState state =
-        &{new GraphicContextState}({Math::min}({Display::get_width()},  w),
-                                   {Math::min}({Display::get_height()}, h))
-            finalize (state) with
-                _delete(&&state!);
-            end;
-
-    var IGame game =
-        val IGame(&plf_, 0,
-                         PingusCounter(0,0,0,0,
-                                       plf_.get_number_of_pingus(),
-                                       plf_.get_number_to_save()),
-                         Rect(0,0,w,h),
-                         &state!,
-                         _, _, _);
-
-    game.state.set_limit({Rect(Vector2i(0,0), Size(@w,@h))});
-
-    #include "codes.ceu"
+    var uint id = 0;
+    code/await Pingu_Spawn (var int owner_id, var int x, var int y, var s8 dir) -> void
+    do
+        if call Game_Pingu_In() then
+            outer.id = outer.id+1;
+            var Rect r = val Rect(x,y,0,0);
+            spawn Pingu(&outer.pingus,outer.id,owner_id,r,dir) in outer.pingus;
+        end
+    end
 
     par do
         do ()
-            #include "goal_manager.ceu"
-        end
-        {
-            result.saved     = @game.counter.number_of_exited;
-            result.killed    = @game.counter.number_of_killed;
-            result.total     = result.plf.get_number_of_pingus();
-            result.needed    = result.plf.get_number_to_save();
-            result.max_time  = result.plf.get_time();
-            result.used_time = @game.game_time;
-
-            // Write the savegame
-            {
-                Savegame savegame(result.plf.get_resname(),
-                                (result.saved >= result.needed) ?  Savegame::FINISHED : 
-                                Savegame::ACCESSIBLE,
-                                result.used_time,
-                                result.saved);
-                SavegameManager::instance()->store(savegame);
-            }
-        };
-        escape;
-    with
-        every WORLD_UPDATE do
-            game.game_time = game.game_time + 1;
+            #include "objs/objs.ceu"
         end
     with
-        every SDL_REDRAW do
-            outer.main.offset = call Game_Get_Offset();
+        await game.go_armageddon;
+
+        {Sound::PingusSound::play_sound("goodidea");};
+
+        var&? IPingu pingu;
+        loop (pingu) in pingus do
+            await WORLD_UPDATE;
+            await WORLD_UPDATE;
+            await WORLD_UPDATE;
+            await WORLD_UPDATE;
+            if pingu!.current_action != {ActionName::BOMBER} then
+                emit pingu!.go_action({ActionName::BOMBER});
+            end
         end
+
+        await FOREVER;
     with
-        var Color ambient_light = val Color({@game.plf.get_ambient_light()}.r,
-                                            {@game.plf.get_ambient_light()}.g,
-                                            {@game.plf.get_ambient_light()}.b,
-                                            {@game.plf.get_ambient_light()}.a);
-        every SDL_REDRAW do
-            call {Display::s_framebuffer}:fill_rect(
-                _Rect(0,0, {Display::get_width()},{Display::get_height()}),
-                _Color(ambient_light.r,
-                       ambient_light.g,
-                       ambient_light.b,
-                       ambient_light.a)
-            );
+        do ()
+            #include "smallmap.ceu"
         end
-    with
-        data IVisible;
-        data IVisible.Aa;
-        code/await Visible (var& IVisible vis) -> FOREVER do
-            await FOREVER;
-        end
-
-        pool[] Visible layer_bg_0;          // background
-        spawn do
-            every SDL_REDRAW do             // groundpiece
-                var Vector2i off = outer.main.offset;
-                gfx_map.draw({Vector2i(-@off.x,-@off.y)});
-            end
-        end
-        pool[] Visible layer_bg_1;          // liquid, hotspot
-
-        #include "pingu/pingu.ceu"
-        pool[] Pingu pingus;
-
-        var uint id = 0;
-        code/await Pingu_Spawn (var int owner_id, var int x, var int y, var s8 dir) -> void
-        do
-            if call Game_Pingu_In() then
-                outer.id = outer.id+1;
-                var Rect r = val Rect(x,y,0,0);
-                spawn Pingu(&outer.pingus,outer.id,owner_id,r,dir) in outer.pingus;
-            end
-        end
-
-        par do
-            do ()
-                #include "objs/objs.ceu"
-            end
-        with
-            await game.go_armageddon;
-
-            {Sound::PingusSound::play_sound("goodidea");};
-
-            var&? IPingu pingu;
-            loop (pingu) in pingus do
-                await WORLD_UPDATE;
-                await WORLD_UPDATE;
-                await WORLD_UPDATE;
-                await WORLD_UPDATE;
-                if pingu!.current_action != {ActionName::BOMBER} then
-                    emit pingu!.go_action({ActionName::BOMBER});
-                end
-            end
-
-            await FOREVER;
-        with
-            do ()
-                #include "smallmap.ceu"
-            end
 #if 0
-        with
-            do ()
-                #include "capture_rectangle.ceu"
-            end
+    with
+        do ()
+            #include "capture_rectangle.ceu"
+        end
 #endif
-        with
-            do ()
-                #include "time_display.ceu"
-            end
-        with
-            do ()
-                #include "pingus_counter.ceu"
-            end
-        with
-            do ()
-                #include "input.ceu"
-            end
-        with
-            do ()
-                #include "actions.ceu"
-            end
-        with
-            do ()
-                #include "playfield.ceu"
-            end
+    with
+        do ()
+            #include "time_display.ceu"
         end
     with
-        every SDL_REDRAW do
-            outer.main.offset = val Vector2i(0,0);
+        do ()
+            #include "pingus_counter.ceu"
         end
+    with
+        do ()
+            #include "input.ceu"
+        end
+    with
+        do ()
+            #include "actions.ceu"
+        end
+    with
+        do ()
+            #include "playfield.ceu"
+        end
+    end
+with
+    every SDL_REDRAW do
+        outer.main.offset = val Vector2i(0,0);
     end
 end
 
