@@ -129,7 +129,7 @@ var IMain main = _;
 // SCREENS
 
 #include "pingus/screens/start_screen.ceu"
-#include "pingus/screens/game_session/main.ceu"
+#include "pingus/screens/game_session/game_session.ceu"
 #include "pingus/screens/result_screen.ceu"
 
 code/await Start_Game_Result_Loop (var& _PingusLevel plf, var& _Result result)

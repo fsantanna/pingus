@@ -143,7 +143,7 @@ with
         end
         pool[] Visible layer_bg_1;          // liquid, hotspot
 
-        #include "pingu/main.ceu"
+        #include "pingu/pingu.ceu"
         pool[] Pingu pingus;
 
         var uint id = 0;
@@ -158,7 +158,7 @@ with
 
         par do
             do ()
-                #include "objs/main.ceu"
+                #include "objs/objs.ceu"
             end
         with
             do ()
