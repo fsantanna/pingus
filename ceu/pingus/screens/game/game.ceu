@@ -112,10 +112,6 @@ do
             game.game_time = game.game_time + 1;
         end
     with
-        do ()
-            #include "input.ceu"
-        end
-    with
         every SDL_REDRAW do
             outer.main.offset = call Game_Get_Offset();
         end
@@ -203,11 +199,11 @@ do
             end
         with
             do ()
-                #include "action_button.ceu"
+                #include "input.ceu"
             end
         with
             do ()
-                #include "button_panel.ceu"
+                #include "actions.ceu"
             end
         with
             do ()

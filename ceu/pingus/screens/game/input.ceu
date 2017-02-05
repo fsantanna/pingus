@@ -1,84 +1,200 @@
-var bool is_paused         = false;
-var bool is_fast_forwarded = false;
-var bool do_single_step    = false;
+#ifndef _INPUT_CEU
+#define _INPUT_CEU
 
-par do
-    var int world_delay = 0; // the world is initially on time
-    loop do
-        var int dt = await SDL_DT;
-        // how much time we have to account for while doing world updates
-        var int time_passed = dt + world_delay;
-        // how much time each world update represents
-        var int update_time = {globals::game_speed};
+event void go_pause_toggle;
+event bool go_forward;
 
-        // update the world (and the objects in it) in constant steps 
-        // to account for the time the previous frame took
+par do                                                      // INPUT
+    var bool is_paused         = false;
+    var bool is_fast_forwarded = false;
+    var bool do_single_step    = false;
 
-        // invariant: world_updates - the number of times the world
-        // has been updated during this frame
-        var int world_updates = 0;
-
+    par do
+        var int world_delay = 0; // the world is initially on time
         loop do
-            if ((world_updates+1)*update_time > time_passed) then
-                break;
-            end
-            if (not is_paused) or do_single_step then
-                do_single_step = false;
-                if is_fast_forwarded then
-                    var int i;
-                    loop i in [0 -> {globals::fast_forward_time_scale}[ do
+            var int dt = await SDL_DT;
+            // how much time we have to account for while doing world updates
+            var int time_passed = dt + world_delay;
+            // how much time each world update represents
+            var int update_time = {globals::game_speed};
+
+            // update the world (and the objects in it) in constant steps 
+            // to account for the time the previous frame took
+
+            // invariant: world_updates - the number of times the world
+            // has been updated during this frame
+            var int world_updates = 0;
+
+            loop do
+                if ((world_updates+1)*update_time > time_passed) then
+                    break;
+                end
+                if (not is_paused) or do_single_step then
+                    do_single_step = false;
+                    if is_fast_forwarded then
+                        var int i;
+                        loop i in [0 -> {globals::fast_forward_time_scale}[ do
+                            await async do
+                                emit WORLD_UPDATE;
+                            end
+                        end
+                    else
                         await async do
                             emit WORLD_UPDATE;
                         end
                     end
-                else
-                    await async do
-                        emit WORLD_UPDATE;
+                end
+                world_updates = world_updates + 1;
+            end
+            // save how far behind is the world compared to the actual time
+            // so that we can account for that while updating in the next frame
+            world_delay = time_passed - (world_updates*update_time);
+        end
+    with
+        loop do
+            var _Input__ButtonEvent&& but = await ON_BUTTON_PRESSED;
+            if but:name == {Input::PAUSE_BUTTON} then
+                emit go_pause_toggle;
+            else/if but:name == {Input::SINGLE_STEP_BUTTON} then
+                if not is_paused then
+                    emit go_pause_toggle;
+                end
+                do_single_step = true;
+            else/if but:name == {Input::FAST_FORWARD_BUTTON} then
+                emit go_forward(true);
+            else/if but:name == {Input::ARMAGEDDON_BUTTON} then
+                emit outer.game.go_armageddon;
+            else/if but:name == {Input::ESCAPE_BUTTON} then
+                break;
+            end
+        end
+    with
+        var _Input__ButtonEvent&& but;
+        every but in ON_BUTTON_RELEASED do
+            if but:name == {Input::FAST_FORWARD_BUTTON} then
+                emit go_forward(false);
+            end
+        end
+    with
+        every go_pause_toggle do
+            is_paused = not is_paused;
+            emit go_forward(false);
+        end
+    with
+        var bool v;
+        every v in go_forward do
+            is_fast_forwarded = v;
+            if v==true and is_paused then
+                emit go_pause_toggle;
+            end
+        end
+    end
+with                                                        // UI
+    #include "engine/gui/rect_component.ceu"
+
+    var int dwidth  = {Display::get_width()};
+    var int dheight = {Display::get_height()};
+
+    var int arm_x=dwidth-40*1, arm_y=dheight-62;
+    var int fwd_x=dwidth-40*2, fwd_y=dheight-62;
+    var int pse_x=dwidth-40*3, pse_y=dheight-62;
+
+    par do                                                      // ARMAGEDDON
+        var Rect rect = val Rect(arm_x, arm_y, 38, 60);
+
+        var& IRectComponent component;
+        spawn RectComponent(&rect) -> (&component);
+
+        spawn Sprite_from_name(&rect, "core/buttons/hbuttonbgb", false);
+
+        do
+            var&? ISprite s;
+            spawn Sprite_from_name(&rect, "core/buttons/armageddon_anim", false)
+                    -> (&s);
+            s!.frame_delay = 0;
+            s!.frame = 7;
+
+            loop do
+                await component.on_primary_button_pressed;
+                watching 1s do
+                    await component.on_primary_button_pressed;
+                    break;
+                end
+            end
+        end
+
+        do
+            spawn Sprite_from_name(&rect, "core/buttons/armageddon_anim", false);
+            emit outer.game.go_armageddon;
+            await FOREVER;
+        end
+    with                                                        // FORWARD
+        var Rect rect = val Rect(fwd_x,fwd_y, 38,60);
+
+        var& IRectComponent component;
+        spawn RectComponent(&rect) -> (&component);
+
+        spawn do
+            loop do
+                do
+                    spawn Sprite_from_name(&rect, "core/buttons/hbuttonbgb", false);
+                    par/or do
+                        var bool v = await go_forward until v;
+                    with
+                        await component.on_primary_button_pressed;
+                        emit go_forward(true);
+                    end
+                end
+                do
+                    spawn Sprite_from_name(&rect, "core/buttons/hbuttonbg", false);
+                    par/or do
+                        var bool v = await go_forward until (not v);
+                    with
+                        await component.on_primary_button_released;
+                        emit go_forward(false);
                     end
                 end
             end
-            world_updates = world_updates + 1;
         end
-        // save how far behind is the world compared to the actual time
-        // so that we can account for that while updating in the next frame
-        world_delay = time_passed - (world_updates*update_time);
-    end
-with
-    loop do
-        var _Input__ButtonEvent&& but = await ON_BUTTON_PRESSED;
-        if but:name == {Input::PAUSE_BUTTON} then
-            emit outer.main.go_pause_toggle;
-        else/if but:name == {Input::SINGLE_STEP_BUTTON} then
-            if not is_paused then
-                emit outer.main.go_pause_toggle;
+
+        spawn Sprite_from_name(&rect, "core/buttons/fast_forward", false);
+        await FOREVER;
+    with                                                        // PAUSE
+        var Rect rect = val Rect(pse_x,pse_y, 38,60);
+
+        var& IRectComponent component;
+        spawn RectComponent(&rect) -> (&component);
+
+        spawn do
+            loop do
+                var bool from_out = true;
+                do
+                    spawn Sprite_from_name(&rect, "core/buttons/hbuttonbgb", false);
+                    par/or do
+                        await go_pause_toggle until from_out;
+                    with
+                        await component.on_primary_button_pressed;
+                        from_out = false;
+                        emit go_pause_toggle;
+                    end
+                end
+                do
+                    spawn Sprite_from_name(&rect, "core/buttons/hbuttonbg", false);
+                    from_out = true;
+                    par/or do
+                        await go_pause_toggle until from_out;
+                    with
+                        await component.on_primary_button_pressed;
+                        from_out = false;
+                        emit go_pause_toggle;
+                    end
+                end
             end
-            do_single_step = true;
-        else/if but:name == {Input::FAST_FORWARD_BUTTON} then
-            emit outer.main.go_forward(true);
-        else/if but:name == {Input::ARMAGEDDON_BUTTON} then
-            emit outer.game.go_armageddon;
-        else/if but:name == {Input::ESCAPE_BUTTON} then
-            break;
         end
-    end
-with
-    var _Input__ButtonEvent&& but;
-    every but in ON_BUTTON_RELEASED do
-        if but:name == {Input::FAST_FORWARD_BUTTON} then
-            emit outer.main.go_forward(false);
-        end
-    end
-with
-    every outer.main.go_pause_toggle do
-        is_paused = not is_paused;
-        emit outer.main.go_forward(false);
-    end
-with
-    var bool v;
-    every v in outer.main.go_forward do
-        is_fast_forwarded = v;
-        if v==true and is_paused then
-            emit outer.main.go_pause_toggle;
-        end
+
+        spawn Sprite_from_name(&rect, "core/buttons/pause", false);
+        await FOREVER;
     end
 end
+
+#endif

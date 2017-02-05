@@ -13,12 +13,12 @@ native/pre do
     }
 end
 
-code/await ActionButton (var    int x,
-                         var    int y,
-                         var    int i,
-                         var    _ActionName__Enum id_me,
-                         var&   int n,
-                         event& int e)
+code/await Button (var    int x,
+                   var    int y,
+                   var    int i,
+                   var    _ActionName__Enum id_me,
+                   var&   int n,
+                   event& int e)
             -> FOREVER
 do
     var Rect r1 = val Rect(x,y, 60,38);
@@ -124,10 +124,10 @@ var int x = 0;
 var int y = ({Display::get_height()}-150)/2 - /// TODO: screen.size
                 (max*38/2);
 
-pool[] ActionButton abs;
+pool[] Button abs;
 var int i;
 loop i in [0 -> max[ do
-    spawn ActionButton(x, y+38*i, i, {ButtonPanel_actions[@i]}, &n, &e) in abs;
+    spawn Button(x, y+38*i, i, {ButtonPanel_actions[@i]}, &n, &e) in abs;
 end
 
 var _Input__ButtonEvent&& but;
