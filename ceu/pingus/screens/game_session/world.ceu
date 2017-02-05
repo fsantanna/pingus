@@ -155,65 +155,65 @@ do
     #include "world/smoke_particle_holder.ceu"
     pool[] SmokeParticle smoke_particles;
 
-    spawn () do
-        par do
-            #include "world/time_display.ceu"
-        with
-            #include "world/pingus_counter.ceu"
-        with
-            #include "world/action_button.ceu"
-        with
-            #include "world/button_panel.ceu"
-        with
-            #include "world/playfield.ceu"
-        with
-            #include "world/smallmap.ceu"
+    par do
+        do/_ ()
+            par do
+                #include "world/goal_manager.ceu"
+                escape;
+            with
+                #include "world/time_display.ceu"
+            with
+                #include "world/pingus_counter.ceu"
+            with
+                #include "world/action_button.ceu"
+            with
+                #include "world/button_panel.ceu"
+            with
+                #include "world/playfield.ceu"
+            with
+                #include "world/smallmap.ceu"
 #if 0
-    #include "capture_rectangle.ceu"
-    spawn CaptureRectangle();
+            with
+                #include "capture_rectangle.ceu"
 #endif
-        with
-            #include "world/objs.ceu"
+            with
+                #include "world/objs.ceu"
+            end
         end
-    end
-
-    #include "world/goal_manager.ceu"
-    watching GoalManager() do
-        par do
-            var int x,y;
-            every (x,y) in world.go_create_pingu_particles do
-                var int i;
-                loop i in [0 -> 50[ do
-                    spawn PinguParticle(x,y) in pingu_particles;
-                end
+    with
+        var int x,y;
+        every (x,y) in world.go_create_pingu_particles do
+            var int i;
+            loop i in [0 -> 50[ do
+                spawn PinguParticle(x,y) in pingu_particles;
             end
-        with
-            var int   x,y;
-            var float vel_x,vel_y;
-            every (x,y,vel_x,vel_y) in world.go_create_smoke_particles do
-                spawn SmokeParticle(x,y, vel_x,vel_y) in smoke_particles;
-            end
-        with
-            await outer.game_session.go_armageddon;
+        end
+    with
+        var int   x,y;
+        var float vel_x,vel_y;
+        every (x,y,vel_x,vel_y) in world.go_create_smoke_particles do
+            spawn SmokeParticle(x,y, vel_x,vel_y) in smoke_particles;
+        end
+    with
+        await outer.game_session.go_armageddon;
 
-            {Sound::PingusSound::play_sound("goodidea");};
+        {Sound::PingusSound::play_sound("goodidea");};
 
-            var&? IPingu pingu;
-            loop (pingu) in pingus do
-                await WORLD_UPDATE;
-                await WORLD_UPDATE;
-                await WORLD_UPDATE;
-                await WORLD_UPDATE;
-                if pingu!.current_action != {ActionName::BOMBER} then
-                    emit pingu!.go_action({ActionName::BOMBER});
-                end
+        var&? IPingu pingu;
+        loop (pingu) in pingus do
+            await WORLD_UPDATE;
+            await WORLD_UPDATE;
+            await WORLD_UPDATE;
+            await WORLD_UPDATE;
+            if pingu!.current_action != {ActionName::BOMBER} then
+                emit pingu!.go_action({ActionName::BOMBER});
             end
+        end
 
-            await FOREVER;
-        with
-            every SDL_REDRAW do
-                outer.main.offset = val Vector2i(0,0);
-            end
+        await FOREVER;
+    with
+        every SDL_REDRAW do
+            outer.main.offset = val Vector2i(0,0);
         end
     end
 end

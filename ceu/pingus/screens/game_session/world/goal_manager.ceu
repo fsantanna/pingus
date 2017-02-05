@@ -1,34 +1,31 @@
 #ifndef _GOALMANAGER_CEU
 #define _GOALMANAGER_CEU
 
-code/await GoalManager (void) -> void
-do
-    var int time = outer.game_session.plf.get_time();
+var int time = outer.game_session.plf.get_time();
 
-    var bool in_armageddon = false;
-    spawn do
-        await outer.game_session.go_armageddon;
-        in_armageddon = true;
-        await FOREVER;
-    end
-
-    loop do
-        await SDL_DT;
-        if outer.game_session.counter.number_of_allowed==outer.game_session.counter.number_of_released and outer.game_session.counter.number_of_alive==0 then
-            //goal = GT_NO_PINGUS_IN_WORLD;
-            break;
-        end
-        if outer.game_session.counter.number_of_alive==0 and in_armageddon then
-            //goal = GT_ARMAGEDDON;
-            break;
-        end
-        if time!=-1 and time<=outer.world.game_time then
-            //goal = GT_OUT_OF_TIME;
-            break;
-        end
-    end
-    var int exit_time = outer.world.game_time + 125;
-    await SDL_DT until exit_time < outer.world.game_time;
+var bool in_armageddon = false;
+spawn do
+    await outer.game_session.go_armageddon;
+    in_armageddon = true;
+    await FOREVER;
 end
+
+loop do
+    await SDL_DT;
+    if outer.game_session.counter.number_of_allowed==outer.game_session.counter.number_of_released and outer.game_session.counter.number_of_alive==0 then
+        //goal = GT_NO_PINGUS_IN_WORLD;
+        break;
+    end
+    if outer.game_session.counter.number_of_alive==0 and in_armageddon then
+        //goal = GT_ARMAGEDDON;
+        break;
+    end
+    if time!=-1 and time<=outer.world.game_time then
+        //goal = GT_OUT_OF_TIME;
+        break;
+    end
+end
+var int exit_time = outer.world.game_time + 125;
+await SDL_DT until exit_time < outer.world.game_time;
 
 #endif
