@@ -1,48 +1,6 @@
 #ifndef _WORLD_CEU
 #define _WORLD_CEU
 
-native/pre do
-    ##include "engine/display/graphic_context_state.hpp"
-    ##include "pingus/ground_map.hpp"
-    ##define Groundtype__GPType     Groundtype::GPType
-
-    typedef CollisionMap* CollisionMap_ptr;
-end
-
-native/plain _Groundtype__GPType, _SmallMap, _SceneContext, _GroundMap, _CollisionMask;
-native/plain _ActionName__Enum;
-
-data IWorld with
-    var  Rect                   rect;
-    var& _GraphicContextState   state;
-    var  float                  gravity     = 0.2;
-    var  _ActionName__Enum      action_next = {ActionName::WALKER};
-end
-
-data IVisible;
-data IVisible.Aa;
-code/await Visible (var& IVisible vis) -> FOREVER do
-    await FOREVER;
-end
-
-#if 0
-#include "worldobjs/exit.ceu"
-#include "worldobjs/guillotine.ceu"
-#include "worldobjs/hotspot.ceu"
-#include "worldobjs/laser_exit.ceu"
-#include "worldobjs/liquid.ceu"
-#include "worldobjs/spike.ceu"
-
-    function (void)=>Vector2i get_offset do
-        var Vector2i ret =
-            Vector2i(
-                -(this.rect.left - this.rect.width/2),
-                -(this.rect.top  - this.rect.height/2)
-            );
-        return ret;
-    end
-#endif
-
 var int w = {@outer.game_session.plf.get_size().width};
 var int h = {@outer.game_session.plf.get_size().height};
 
@@ -103,10 +61,6 @@ par do
         outer.main.offset = call World_Get_Offset();
     end
 with
-    every WORLD_UPDATE do
-        outer.game_session.game_time = outer.game_session.game_time + 1;
-    end
-with
     var Color ambient_light = val Color({@outer.game_session.plf.get_ambient_light()}.r,
                                         {@outer.game_session.plf.get_ambient_light()}.g,
                                         {@outer.game_session.plf.get_ambient_light()}.b,
@@ -134,6 +88,12 @@ with
         end
         escape;
     with
+        data IVisible;
+        data IVisible.Aa;
+        code/await Visible (var& IVisible vis) -> FOREVER do
+            await FOREVER;
+        end
+
         pool[] Visible layer_bg_0;          // background
         spawn do
             every SDL_REDRAW do             // groundpiece
@@ -159,10 +119,6 @@ with
         par do
             do ()
                 #include "objs/objs.ceu"
-            end
-        with
-            do ()
-                #include "pingu_holder.ceu"
             end
         with
             await outer.game_session.go_armageddon;
