@@ -49,194 +49,191 @@ end
     end
 #endif
 
-code/await World (void) -> void
-do
-    var int w = {@outer.game_session.plf.get_size().width};
-    var int h = {@outer.game_session.plf.get_size().height};
+var int w = {@outer.game_session.plf.get_size().width};
+var int h = {@outer.game_session.plf.get_size().height};
 
-    var&? _GroundMap gfx_map_ =
-        &{new GroundMap}(w, h)
-            finalize (gfx_map_) with
-                _delete(&&gfx_map_!);
-            end;
-    var& _GroundMap gfx_map = &gfx_map_!;
+var&? _GroundMap gfx_map_ =
+    &{new GroundMap}(w, h)
+        finalize (gfx_map_) with
+            _delete(&&gfx_map_!);
+        end;
+var& _GroundMap gfx_map = &gfx_map_!;
 
-    var&? _GraphicContextState state =
-        &{new GraphicContextState}({Math::min}({Display::get_width()},  w),
-                                   {Math::min}({Display::get_height()}, h))
-            finalize (state) with
-                _delete(&&state!);
-            end;
+var&? _GraphicContextState state =
+    &{new GraphicContextState}({Math::min}({Display::get_width()},  w),
+                               {Math::min}({Display::get_height()}, h))
+        finalize (state) with
+            _delete(&&state!);
+        end;
 
-    var IWorld world = val IWorld(Rect(0,0,w,h), &state!, &outer.game_session.game_time,
-                                  _,_,_,_,_,_);
-    world.game_time = 0;
+var IWorld world = val IWorld(Rect(0,0,w,h), &state!, &outer.game_session.game_time,
+                              _,_,_,_,_,_);
+world.game_time = 0;
 
-    world.state.set_limit({Rect(Vector2i(0,0), Size(@w,@h))});
+world.state.set_limit({Rect(Vector2i(0,0), Size(@w,@h))});
 
-    code/tight World_Get_Offset (void) -> Vector2i do
-        var Vector2i ret = val Vector2i(
-                                (outer.world.state.get_pos().x - outer.world.state.get_width()/2),
-                                (outer.world.state.get_pos().y - outer.world.state.get_height()/2),
-                           );
-        escape ret;
+code/tight World_Get_Offset (void) -> Vector2i do
+    var Vector2i ret = val Vector2i(
+                            (outer.world.state.get_pos().x - outer.world.state.get_width()/2),
+                            (outer.world.state.get_pos().y - outer.world.state.get_height()/2),
+                       );
+    escape ret;
+end
+
+code/tight World_Put (var _CollisionMask&& mask,var int x, var int y, var _Groundtype__GPType type) -> void do
+    outer.gfx_map.put(mask:get_surface(), x, y);
+    outer.gfx_map.get_colmap():put(*mask, x, y, type);
+end
+
+code/tight World_Remove (var _CollisionMask&& mask,var int x,var int y) -> void do
+    outer.gfx_map.remove(mask:get_surface(), x, y);
+    outer.gfx_map.get_colmap():remove(*mask, x, y);
+end
+
+code/tight World_Get_Colmap (void) -> _CollisionMap_ptr do
+    escape outer.gfx_map.get_colmap();
+end
+
+code/tight World_Get_Pos (void) -> Vector2i do
+    var Vector2i ret = val Vector2i(outer.world.state.get_pos().x,
+                                    outer.world.state.get_pos().y);
+    escape ret;
+end
+
+code/tight World_Set_Viewpoint (var int x, var int y) -> void do
+    outer.world.state.set_pos(_Vector2i(x, y));
+    outer.world.rect.left = x;
+    outer.world.rect.top  = y;
+end
+
+par do
+    every SDL_REDRAW do
+        outer.main.offset = call World_Get_Offset();
     end
-
-    code/tight World_Put (var _CollisionMask&& mask,var int x, var int y, var _Groundtype__GPType type) -> void do
-        outer.gfx_map.put(mask:get_surface(), x, y);
-        outer.gfx_map.get_colmap():put(*mask, x, y, type);
+with
+    every WORLD_UPDATE do
+        world.game_time = world.game_time + 1;
     end
-
-    code/tight World_Remove (var _CollisionMask&& mask,var int x,var int y) -> void do
-        outer.gfx_map.remove(mask:get_surface(), x, y);
-        outer.gfx_map.get_colmap():remove(*mask, x, y);
+with
+    var Color ambient_light = val Color({@outer.game_session.plf.get_ambient_light()}.r,
+                                        {@outer.game_session.plf.get_ambient_light()}.g,
+                                        {@outer.game_session.plf.get_ambient_light()}.b,
+                                        {@outer.game_session.plf.get_ambient_light()}.a);
+    every SDL_REDRAW do
+        call {Display::s_framebuffer}:fill_rect(
+            _Rect(0,0, {Display::get_width()},{Display::get_height()}),
+            _Color(ambient_light.r,
+                   ambient_light.g,
+                   ambient_light.b,
+                   ambient_light.a)
+        );
     end
+with
+    var Rect rect_play = val Rect(
+        {Math::max}(({Display::get_width()}-world.rect.width)/2, 0),
+        {Math::max}(({Display::get_height()}-world.rect.height)/2, 0),
+        {Math::min}({Display::get_width()},  world.rect.width),
+        {Math::min}({Display::get_height()}, world.rect.height)
+    );
 
-    code/tight World_Get_Colmap (void) -> _CollisionMap_ptr do
-        escape outer.gfx_map.get_colmap();
-    end
-
-    code/tight World_Get_Pos (void) -> Vector2i do
-        var Vector2i ret = val Vector2i(outer.world.state.get_pos().x,
-                                        outer.world.state.get_pos().y);
-        escape ret;
-    end
-
-    code/tight World_Set_Viewpoint (var int x, var int y) -> void do
-        outer.world.state.set_pos(_Vector2i(x, y));
-        outer.world.rect.left = x;
-        outer.world.rect.top  = y;
-    end
+    #include "world/pingu.ceu"
 
     par do
-        every SDL_REDRAW do
-            outer.main.offset = call World_Get_Offset();
+        do ()
+            #include "world/goal_manager.ceu"
         end
+        escape;
     with
-        every WORLD_UPDATE do
-            world.game_time = world.game_time + 1;
+        pool[] Visible layer_bg_0;          // background
+        spawn do
+            every SDL_REDRAW do             // groundpiece
+                var Vector2i off = outer.main.offset;
+                gfx_map.draw({Vector2i(-@off.x,-@off.y)});
+            end
         end
-    with
-        var Color ambient_light = val Color({@outer.game_session.plf.get_ambient_light()}.r,
-                                            {@outer.game_session.plf.get_ambient_light()}.g,
-                                            {@outer.game_session.plf.get_ambient_light()}.b,
-                                            {@outer.game_session.plf.get_ambient_light()}.a);
-        every SDL_REDRAW do
-            call {Display::s_framebuffer}:fill_rect(
-                _Rect(0,0, {Display::get_width()},{Display::get_height()}),
-                _Color(ambient_light.r,
-                       ambient_light.g,
-                       ambient_light.b,
-                       ambient_light.a)
-            );
-        end
-    with
-        var Rect rect_play = val Rect(
-            {Math::max}(({Display::get_width()}-world.rect.width)/2, 0),
-            {Math::max}(({Display::get_height()}-world.rect.height)/2, 0),
-            {Math::min}({Display::get_width()},  world.rect.width),
-            {Math::min}({Display::get_height()}, world.rect.height)
-        );
+        pool[] Visible layer_bg_1;          // liquid, hotspot
+        pool[] Pingu pingus;
 
-        #include "world/pingu.ceu"
+        #include "world/pingu_particle_holder.ceu"
+        pool[] PinguParticle pingu_particles;
+
+        #include "world/smoke_particle_holder.ceu"
+        pool[] SmokeParticle smoke_particles;
 
         par do
             do ()
-                #include "world/goal_manager.ceu"
+                #include "world/objs.ceu"
             end
-            escape;
         with
-            pool[] Visible layer_bg_0;          // background
-            spawn do
-                every SDL_REDRAW do             // groundpiece
-                    var Vector2i off = outer.main.offset;
-                    gfx_map.draw({Vector2i(-@off.x,-@off.y)});
+            do ()
+                #include "world/pingu_holder.ceu"
+            end
+        with
+            var int x,y;
+            every (x,y) in world.go_create_pingu_particles do
+                var int i;
+                loop i in [0 -> 50[ do
+                    spawn PinguParticle(x,y) in pingu_particles;
                 end
             end
-            pool[] Visible layer_bg_1;          // liquid, hotspot
-            pool[] Pingu pingus;
+        with
+            var int   x,y;
+            var float vel_x,vel_y;
+            every (x,y,vel_x,vel_y) in world.go_create_smoke_particles do
+                spawn SmokeParticle(x,y, vel_x,vel_y) in smoke_particles;
+            end
+        with
+            await outer.game_session.go_armageddon;
 
-            #include "world/pingu_particle_holder.ceu"
-            pool[] PinguParticle pingu_particles;
+            {Sound::PingusSound::play_sound("goodidea");};
 
-            #include "world/smoke_particle_holder.ceu"
-            pool[] SmokeParticle smoke_particles;
+            var&? IPingu pingu;
+            loop (pingu) in pingus do
+                await WORLD_UPDATE;
+                await WORLD_UPDATE;
+                await WORLD_UPDATE;
+                await WORLD_UPDATE;
+                if pingu!.current_action != {ActionName::BOMBER} then
+                    emit pingu!.go_action({ActionName::BOMBER});
+                end
+            end
 
-            par do
-                do ()
-                    #include "world/objs.ceu"
-                end
-            with
-                do ()
-                    #include "world/pingu_holder.ceu"
-                end
-            with
-                var int x,y;
-                every (x,y) in world.go_create_pingu_particles do
-                    var int i;
-                    loop i in [0 -> 50[ do
-                        spawn PinguParticle(x,y) in pingu_particles;
-                    end
-                end
-            with
-                var int   x,y;
-                var float vel_x,vel_y;
-                every (x,y,vel_x,vel_y) in world.go_create_smoke_particles do
-                    spawn SmokeParticle(x,y, vel_x,vel_y) in smoke_particles;
-                end
-            with
-                await outer.game_session.go_armageddon;
-
-                {Sound::PingusSound::play_sound("goodidea");};
-
-                var&? IPingu pingu;
-                loop (pingu) in pingus do
-                    await WORLD_UPDATE;
-                    await WORLD_UPDATE;
-                    await WORLD_UPDATE;
-                    await WORLD_UPDATE;
-                    if pingu!.current_action != {ActionName::BOMBER} then
-                        emit pingu!.go_action({ActionName::BOMBER});
-                    end
-                end
-
-                await FOREVER;
-            with
-                do ()
-                    #include "world/smallmap.ceu"
-                end
+            await FOREVER;
+        with
+            do ()
+                #include "world/smallmap.ceu"
+            end
 #if 0
-            with
-                do ()
-                    #include "capture_rectangle.ceu"
-                end
+        with
+            do ()
+                #include "capture_rectangle.ceu"
+            end
 #endif
-            with
-                do ()
-                    #include "world/time_display.ceu"
-                end
-            with
-                do ()
-                    #include "world/pingus_counter.ceu"
-                end
-            with
-                do ()
-                    #include "world/action_button.ceu"
-                end
-            with
-                do ()
-                    #include "world/button_panel.ceu"
-                end
-            with
-                do ()
-                    #include "world/playfield.ceu"
-                end
+        with
+            do ()
+                #include "world/time_display.ceu"
+            end
+        with
+            do ()
+                #include "world/pingus_counter.ceu"
+            end
+        with
+            do ()
+                #include "world/action_button.ceu"
+            end
+        with
+            do ()
+                #include "world/button_panel.ceu"
+            end
+        with
+            do ()
+                #include "world/playfield.ceu"
             end
         end
-    with
-        every SDL_REDRAW do
-            outer.main.offset = val Vector2i(0,0);
-        end
+    end
+with
+    every SDL_REDRAW do
+        outer.main.offset = val Vector2i(0,0);
     end
 end
 

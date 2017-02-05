@@ -55,10 +55,10 @@ do
                                        plf_.get_number_to_save()),
                          _);
 
-    #include "game_session/world.ceu"
-
     par/or do
-        await World();
+        do ()
+            #include "game_session/world.ceu"
+        end
     with
         var int world_delay = 0; // the world is initially on time
         loop do
