@@ -1,5 +1,7 @@
-#ifndef _SPRITE_PINGUS_CEU
-#define _SPRITE_PINGUS_CEU
+#ifdef _SPRITE_CEU
+#error multiple include
+#else
+#define _SPRITE_CEU __FILE__
 
 native/pre do
     ##include "engine/display/display.hpp"
@@ -9,7 +11,6 @@ native/pre do
     ##define loop_ loop
     extern FramebufferSurface* load_framebuffer_sdl_surface(const Pathname& filename, ResourceModifier::Enum modifier);
 end
-native/plain _FramebufferSurface;
 
 #include "surface.ceu"
 

@@ -1,7 +1,6 @@
 #ifndef _MENUBUTTON_CEU
 #define _MENUBUTTON_CEU
 
-#include "../../engine/display/sprite.ceu"
 #include "../../engine/gui/rect_component.ceu"
 
 code/await MenuButton (var int x, var int y, var _char_const_ptr text, var _char_const_ptr hint)

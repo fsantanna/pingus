@@ -63,6 +63,7 @@ native/pure   _XXX_PURE, _XXX_PTR2REF;
 native/nohold _XXX_NOHOLD;
 native/nohold _delete, _log_error, _log_info, _log_debug, __;
 native/nohold _ID, _snprintf;
+native/plain _FramebufferSurface;
 
 #define AWAIT_UNTIL_MYSELF(TP,EVT)             \
     do                                         \
@@ -114,9 +115,11 @@ data Vector3f with
 end
 
 #include "engine/input/sdl_driver.ceu"
+#include "engine/gui/rect_component.ceu"
 
 #include "pingus/fps_counter.ceu"
 #include "pingus/config_manager.ceu"
+#include "pingus/components/wood.ceu"
 
 data IMain with
     var Vector2i offset;
@@ -124,21 +127,25 @@ data IMain with
 end
 var IMain main = _;
 
-// SCREENS
+#include "engine/display/sprite.ceu"
+#include "engine/gui/surface_button.ceu"
 
-#include "pingus/screens/start_screen.ceu"
-#include "pingus/screens/result_screen.ceu"
+// SCREENS
 
 code/await Start_Game_Result_Loop (var& _PingusLevel plf, var& _Result result)
             -> void
 do
-    var bool go = await StartScreen(&plf);
+    var bool go = do ()
+        #include "pingus/screens/start.ceu"
+    end;
     if go then
         loop do
             do ()
                 #include "pingus/screens/game/game.ceu"
             end
-            var bool retry = await ResultScreen(&result);
+            var bool retry = do ()
+                #include "pingus/screens/result.ceu"
+            end;
             if not retry then
                 break;
             end
@@ -146,9 +153,9 @@ do
     end
 end
 
-#include "pingus/screens/pingus_menu.ceu"
-#include "pingus/screens/level_menu.ceu"
-#include "pingus/screens/option_menu.ceu"
+#include "pingus/screens/menu.ceu"
+#include "pingus/screens/levels.ceu"
+#include "pingus/screens/options.ceu"
 
 #if 0
 interface IPingu with

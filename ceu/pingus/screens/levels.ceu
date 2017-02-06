@@ -1,7 +1,6 @@
 #ifndef _LEVELMENU_CEU
 #define _LEVELMENU_CEU
 
-#include "../../engine/display/sprite.ceu"
 #include "../../engine/gui/surface_button.ceu"
 #include "../components/wood.ceu"
 

@@ -18,7 +18,6 @@ native/pos do
     static tinygettext::Language m_language = dictionary_manager.get_language();
 end
 
-#include "../../engine/display/sprite.ceu"
 #include "../components/wood.ceu"
 #include "../components/check_box.ceu"
 #include "../components/label.ceu"

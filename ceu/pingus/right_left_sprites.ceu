@@ -1,8 +1,6 @@
 #ifndef _RIGHT_LEFT_SPRITES_CEU
 #define _RIGHT_LEFT_SPRITES_CEU
 
-#include "../engine/display/sprite.ceu"
-
 // TODO: get by ref
 
 #if 0

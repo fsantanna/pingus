@@ -1,7 +1,6 @@
 #ifndef _SURFACE_BUTTON_CEU
 #define _SURFACE_BUTTON_CEU
 
-#include "../display/sprite.ceu"
 #include "rect_component.ceu"
 
 code/await SurfaceButton (var& Rect rect,
