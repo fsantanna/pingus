@@ -3,10 +3,6 @@
 #else
 #define _RESULT_SCREEN
 
-native/pre do
-    ##include "pingus/string_format.hpp"
-end
-
 var bool has_succeeded = outer.result.success() as bool;
 var int n_killed = outer.result.killed;
 

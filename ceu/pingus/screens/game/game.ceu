@@ -4,20 +4,8 @@
 #define _GAME_SESSION
 
 native/pre do
-    ##include "pingus/result.hpp"
-    ##include "pingus/savegame.hpp"
-    ##include "pingus/savegame_manager.hpp"
-    ##include "engine/screen/screen_manager.hpp"
-    ##include "pingus/action_holder.hpp"
-    ##include "engine/display/graphic_context_state.hpp"
-    ##include "pingus/ground_map.hpp"
-    ##define Groundtype__GPType     Groundtype::GPType
-    typedef CollisionMap* CollisionMap_ptr;
     static ActionHolder* GLOBAL_ACTIONHOLDER = NULL;
 end
-
-native/plain _Groundtype__GPType, _SmallMap, _SceneContext, _GroundMap, _CollisionMask;
-native/plain _ActionName__Enum;
 
 data PingusCounter with
     var int number_of_exited;

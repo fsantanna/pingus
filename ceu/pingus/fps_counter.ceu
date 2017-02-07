@@ -4,7 +4,6 @@
 #define _FPS_COUNTER_CEU
 
 native/pre do
-    ##include <string>
     static std::string fps_string;
 end
 

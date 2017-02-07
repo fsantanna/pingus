@@ -5,15 +5,6 @@
 
 #include "button.ceu"
 
-native/pre do
-    enum {
-        PINGUSMENU_STORY,
-        PINGUSMENU_EDITOR,
-        PINGUSMENU_LEVELSETS,
-        PINGUSMENU_EXIT
-    };
-end
-
 code/await PingusMenuBackground (void) -> FOREVER do
     var float x1=0, y1=0;
     var float x2=0, y2=150;

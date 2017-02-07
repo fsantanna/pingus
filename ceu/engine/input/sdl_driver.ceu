@@ -14,7 +14,6 @@ input _SDL_KeyboardEvent&& SDL_KEYDOWN;
 input _SDL_KeyboardEvent&& SDL_KEYUP;
 
 native/pos do
-
 void SDL_Driver_update (float delta) {
   SDL_Event event;
   while (SDL_PollEvent(&event))
@@ -113,29 +112,28 @@ code/await SDL_Driver (void) -> FOREVER do
             var _SDL_KeyboardEvent key = *e!;
             await async (is_down,key) do
                 var bool ok = true;
-                native _but;
 // TODO: problem of initialization
 {
                 Input__ButtonEvent but;
 };
                 if key.keysym.sym == _SDLK_p then
-                    _but.name = {Input::PAUSE_BUTTON};
+                    {but.name = Input::PAUSE_BUTTON;}
                 else/if key.keysym.sym == _SDLK_f then
-                    _but.name = {Input::FAST_FORWARD_BUTTON};
+                    {but.name = Input::FAST_FORWARD_BUTTON;}
                 else/if key.keysym.sym == _SDLK_s then
-                    _but.name = {Input::SINGLE_STEP_BUTTON};
+                    {but.name = Input::SINGLE_STEP_BUTTON;}
                 else/if key.keysym.sym == _SDLK_a then
-                    _but.name = {Input::ARMAGEDDON_BUTTON};
+                    {but.name = Input::ARMAGEDDON_BUTTON;}
                 else/if key.keysym.sym == _SDLK_ESCAPE then
-                    _but.name = {Input::ESCAPE_BUTTON};
+                    {but.name = Input::ESCAPE_BUTTON;}
                 else
                     ok = false;
                 end
                 if ok then
                     if is_down then
-                        emit ON_BUTTON_PRESSED(&&_but);
+                        emit ON_BUTTON_PRESSED({&but});
                     else
-                        emit ON_BUTTON_RELEASED(&&_but);
+                        emit ON_BUTTON_RELEASED({&but});
                     end
                 end
             end

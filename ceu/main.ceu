@@ -1,18 +1,22 @@
 #include "c.ceu"
 
-native/plain _Sprite, _Surface, _SpriteDescription, _GraphicContextState;
-native/plain _SpriteDescription_ptr;
-native/plain _char_const_ptr, _u8;
-native/plain _Pingu__PinguStatus;
-native
-    _framebuffer_type_from_string,
-    _origin_top_left,
-    _origin_top_right,
-;
 native/plain
     _SDL_MouseButtonEvent,
     _SDL_MouseMotionEvent,
     _SDL_KeyboardEvent,
+    _Groundtype__GPType, _SmallMap, _SceneContext, _GroundMap, _CollisionMask,
+    _ActionName__Enum,
+    _Sprite, _Surface, _SpriteDescription, _GraphicContextState,
+    _SpriteDescription_ptr,
+    _char_const_ptr, _u8,
+    _Pingu__PinguStatus,
+    _std__string, _Vector3f, _Vector2i, _Color, _Rect, _Size,
+    _origin_top_center,
+    _cmd, _CommandLineOptions,
+    _Input__Event, _Input__ButtonEvent,
+    _ResourceModifier__Enum, _CollisionMap, _CollisionMap_ptr,
+    _PingusLevel, _Result, _Levelset,
+    _FramebufferSurface,
 ;
 
 native/const
@@ -32,22 +36,33 @@ native/const
 
 native/nohold
     _SDL_GetKeyState,
+    _XXX_NOHOLD,
+    _delete, _log_error, _log_info, _log_debug, __,
+    _ID, _snprintf,
+;
+
+native/pure
+    _Resource__load_sprite_desc, _Pathname,
+    _XXX_PURE, _XXX_PTR2REF,
 ;
 
 native
     _load_framebuffer_sdl_surface,
     _SDL_WM_GrabInput,
+    _config_manager,
+    _framebuffer_type_from_string,
+    _origin_top_left,
+    _origin_top_right,
 ;
-
 
 native/pre do
     ##define private public
     ##define protected public
     ##define DO {
     ##define END }
+    ##define ID(x) (x)
 
     ##define typeof(x) __typeof__(x)
-    typedef const char* char_const_ptr;
 
     class Vector3f;
     class GroundMap;
@@ -58,90 +73,91 @@ native/pre do
     class SmallMap;
     class SceneContext;
 
-    ##include "pingus/collision_mask.hpp"
-    ##include "../src/pingus/groundtype.hpp"
-    ##include "../src/pingus/action_name.hpp"
+    ##include <assert.h>
+    ##include <string>
+    ##include <fstream>
+    ##include "engine/display/display.hpp"
+    ##include "engine/display/framebuffer.hpp"
+    ##include "engine/display/graphic_context_state.hpp"
+    ##include "engine/display/sdl_framebuffer_surface_impl.hpp"
+    ##include "engine/display/sprite_description.hpp"
     ##include "engine/input/event.hpp"
-    ##include "pingus/globals.hpp"
-    ##include "pingus/fonts.hpp"
-    ##include "engine/display/display.hpp"
+    ##include "engine/screen/screen_manager.hpp"
     ##include "engine/sound/sound.hpp"
-    ##include "util/string_util.hpp"
-    ##include "pingus/game_time.hpp"
-    ##include "pingus/string_format.hpp"
+    ##include "external/logmich/include/logmich/log.hpp"
+    ##include "math/vector3f.hpp"
+    ##include "pingus/action_holder.hpp"
+    ##include "pingus/action_name.hpp"
+    ##include "pingus/colliders/pingu_collider.hpp"
     ##include "pingus/collision_map.hpp"
+    ##include "pingus/collision_mask.hpp"
+    ##include "pingus/config_manager.hpp"
+    ##include "pingus/fonts.hpp"
+    ##include "pingus/game_time.hpp"
+    ##include "pingus/gettext.h"
+    ##include "pingus/globals.hpp"
+    ##include "pingus/ground_map.hpp"
+    ##include "pingus/groundtype.hpp"
+    ##include "pingus/levelset.hpp"
     ##include "pingus/pingu_enums.hpp"
-    ##include "engine/display/display.hpp"
-    ##include "engine/display/framebuffer.hpp"
-    ##include "engine/display/sdl_framebuffer_surface_impl.hpp"
-    ##include "engine/display/sprite_description.hpp"
-    ##include "engine/display/display.hpp"
-    ##include "engine/display/framebuffer.hpp"
-    ##include "engine/display/sdl_framebuffer_surface_impl.hpp"
-    ##include "engine/display/sprite_description.hpp"
+    ##include "pingus/plf_res_mgr.hpp"
+    ##include "pingus/prefab_file.hpp"
+    ##include "pingus/resource.hpp"
+    ##include "pingus/result.hpp"
+    ##include "pingus/savegame.hpp"
+    ##include "pingus/savegame_manager.hpp"
+    ##include "pingus/stat_manager.hpp"
+    ##include "pingus/string_format.hpp"
+    ##include "pingus/worldmap/pathfinder.hpp"
+    ##include "pingus/worldmap/path_graph.hpp"
+    ##include "pingus/worldmap/path.hpp"
+    ##include "pingus/worldmap/worldmap_story.hpp"
+    ##include "tinygettext/dictionary_manager.hpp"
+    ##include "tinygettext/language.hpp"
+    ##include "util/overrride_file_reader.hpp"
+    ##include "util/string_util.hpp"
+    ##include "util/system.hpp"
+    ##include "util/utf8.hpp"
+
+    typedef const char* char_const_ptr;
+    typedef CollisionMap* CollisionMap_ptr;
     typedef SpriteDescription* SpriteDescription_ptr;
 
+    enum EntranceDirection { ENTRANCE_LEFT, ENTRANCE_RIGHT, ENTRANCE_MISC };
+    enum { BRIDGER_WALKING, BRIDGER_BUILDING };
+    enum { BRIDGER_MAX_BRICKS = 15 };
+    enum { BRIDGER_brick_length = 16 };
+    enum Dir { LEFT = -1, NONE = 0, RIGHT = +1 };
+    enum { PS_ALIVE, PS_EXITED, PS_DEAD };
+    enum {
+        PINGUSMENU_STORY,
+        PINGUSMENU_EDITOR,
+        PINGUSMENU_LEVELSETS,
+        PINGUSMENU_EXIT
+    };
 
     extern FramebufferSurface* load_framebuffer_sdl_surface(const Pathname& filename, ResourceModifier::Enum modifier);
 
-    ///##define GC_COLOR_DRAW(gc,x,y) gc->color().draw(x,y)
-    enum Dir { LEFT = -1, NONE = 0, RIGHT = +1 };
-
+    ##define Groundtype__GPType     Groundtype::GPType
     ##define std__string std::string
     ##define Resource__load_sprite_desc(name) Resource::load_sprite_desc(name)
     ##define ResourceModifier__Enum ResourceModifier::Enum
     ##define Input__Event Input::Event
     ##define Input__ButtonEvent Input::ButtonEvent
-
-    static CommandLineOptions cmd;
-
-    ##include "pingus/result.hpp"
-    static PingusLevel plf;
-    static Result result;
-
+    ##define WorldmapNS__NoNode           WorldmapNS::NoNode
+    ##define WorldmapNS__PathGraph        WorldmapNS::PathGraph
+    ##define WorldmapNS__Path             WorldmapNS::Path
+    ##define WorldmapNS__PathfinderResult WorldmapNS::PathfinderResult
     ##define ActionName__Enum ActionName::Enum
     ##define Pingu__PinguStatus Pingu::PinguStatus
     ##define PinguAction_shared_ptr std::shared_ptr<PinguAction>
-    enum {
-        PS_ALIVE, PS_EXITED, PS_DEAD
-    };
+
+    static CommandLineOptions cmd;
+    static PingusLevel plf;
+    static Result result;
 end
-
-native/pos do
-    ##include <assert.h>
-
-    ##include "external/logmich/include/logmich/log.hpp"
-    ##include "pingus/resource.hpp"
-    ##include "pingus/plf_res_mgr.hpp"
-
-    //##define XXX_PURE(x) x
-    //##define XXX_NOHOLD(x) x
-    //##define XXX_PTR2REF(x) x
-    //##define THIS(tp) ((tceu_code_mem_####tp*)_ceu_mem)
-    //##define THIS_F(tp) ((tp*)__ceu_this)
-    ##define ID(x) (x)
-end
-native/pure _Resource__load_sprite_desc, _Pathname;
-native/plain _std__string, _Vector3f, _Vector2i, _Color, _Rect, _Size;
-native/plain _origin_top_center;
-native/plain _cmd, _CommandLineOptions;
-native/plain _Input__Event, _Input__ButtonEvent;
-native/plain _ResourceModifier__Enum, _CollisionMap, _CollisionMap_ptr;
-native/plain _PingusLevel, _Result, _Levelset;
-native/pure   _XXX_PURE, _XXX_PTR2REF;
-native/nohold _XXX_NOHOLD;
-native/nohold _delete, _log_error, _log_info, _log_debug, __;
-native/nohold _ID, _snprintf;
-native/plain _FramebufferSurface;
-
-#define AWAIT_UNTIL_MYSELF(TP,EVT)             \
-    do                                         \
-        var TP&& ptr = await EVT               \
-                       until ptr == &&this.me; \
-    end
 
 input _CommandLineOptions&& MAIN;
-
 input (int,int) ON_POINTER_MOVE;
 input _Input__ButtonEvent&& ON_BUTTON_PRESSED;
 input _Input__ButtonEvent&& ON_BUTTON_RELEASED;

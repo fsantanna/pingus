@@ -3,8 +3,6 @@
 #else
 #define _CONFIG_MANAGER_CEU
 
-native _config_manager;
-
 data ConfigManager with
     event bool go_mouse_grab;
 end

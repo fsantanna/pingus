@@ -3,11 +3,6 @@
 #else
 #define _CAPTURERECTANGLE_CEU
 
-native do
-    ##include "pingus/globals.hpp"
-    ##include "pingus/fonts.hpp"
-end
-
 code/await CaptureRectangle (void) -> FOREVER
 do
     pool Sprite[1] good_or_bad;

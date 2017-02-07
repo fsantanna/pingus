@@ -3,11 +3,6 @@
 #else
 #define _BOMBER_CEU
 
-native/pre do
-    ##include "../src/pingus/colliders/pingu_collider.hpp"
-    ##include "../src/pingus/pingu_enums.hpp"
-end
-
 code/await Bomber (void) -> _ActionName__Enum
 do
     vector[] byte bomber = [] .. "pingus/player"

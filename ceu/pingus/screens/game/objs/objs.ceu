@@ -22,9 +22,6 @@
 native/pre do
     static std::vector<std::pair<FileReader,Vector3f>> WORLDOBJ_FACTORY_VECTOR;
     static FileReader                                  WORLDOBJ_FACTORY_READER;
-
-    ##include "src/pingus/prefab_file.hpp"
-    ##include "src/util/overrride_file_reader.hpp"
     Vector3f WORLDOBJ_FACTORY_pos = Vector3f(0,0,0);
 
     void WORLDOBJ_FACTORY_create (const FileReader& reader) {

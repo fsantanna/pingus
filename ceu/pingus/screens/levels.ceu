@@ -4,7 +4,6 @@
 #define _LEVELMENU_CEU
 
 native/pre do
-    ##include "pingus/levelset.hpp"
     typedef std::vector<std::shared_ptr<Levelset>> Levelsets;
     struct LevelsetPrioritySorter {
         bool operator()(std::shared_ptr<Levelset> lhs, std::shared_ptr<Levelset> rhs) const {

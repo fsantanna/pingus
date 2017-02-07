@@ -3,10 +3,6 @@
 #else
 #define _TIMEDISPLAY_CEU
 
-native/pre do
-    ##include "pingus/game_time.hpp"
-end
-
 var int time_level = outer.game.plf.get_time();
 
 every SDL_REDRAW do

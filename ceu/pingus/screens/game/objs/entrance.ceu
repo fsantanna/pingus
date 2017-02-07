@@ -3,10 +3,6 @@
 #else
 #define _ENTRANCE_CEU
 
-native/pre do
-    enum EntranceDirection { ENTRANCE_LEFT, ENTRANCE_RIGHT, ENTRANCE_MISC };
-end
-
 code/await Entrance (var Vector3f pos_offset)
                         -> (var& Vector3f pst)
                             -> FOREVER

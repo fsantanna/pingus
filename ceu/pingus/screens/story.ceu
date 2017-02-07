@@ -8,11 +8,6 @@
 #include "../../engine/gui/label_button.ceu"
 #include "../components/wood.ceu"
 
-native do
-    ##include "util/utf8.hpp"
-    ##include "pingus/worldmap/worldmap_story.hpp"
-end
-
 class StoryScreen with
     var _FileReader&& reader;
 do

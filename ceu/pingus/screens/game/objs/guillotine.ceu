@@ -3,8 +3,6 @@
 #else
 #define _GUILLOTINE_CEU
 
-#include "../../engine/display/sprite.ceu"
-
 class Guillotine with
     pool IPingu[]& pingus;
     var _FileReader&& reader;

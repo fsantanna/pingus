@@ -3,8 +3,6 @@
 #else
 #define _SPIKE_CEU
 
-#include "../../engine/display/sprite.ceu"
-
 class Spike with
     pool IPingu[]& pingus;
     var _FileReader&& reader;

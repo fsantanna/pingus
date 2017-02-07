@@ -3,17 +3,6 @@
 #else
 #define _BRIDGER_CEU
 
-native do
-    ##include "../../src/math/vector3f.hpp"
-    ##include "../../src/pingus/gettext.h"
-end
-
-native do
-    enum { BRIDGER_WALKING, BRIDGER_BUILDING };
-    enum { BRIDGER_MAX_BRICKS = 15 };
-    enum { BRIDGER_brick_length = 16 };
-end
-
 class Bridger with
     interface IPinguAction;
 do

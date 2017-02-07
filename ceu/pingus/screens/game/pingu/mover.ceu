@@ -3,10 +3,6 @@
 #else
 #define _LINEARMOVER_CEU
 
-native/pre do
-    ##include "../src/pingus/colliders/pingu_collider.hpp"
-end
-
 code/await Mover (void) -> (event& void ok_collided) -> FOREVER
 do
     event void ok_collided_;
