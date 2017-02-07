@@ -1,4 +1,6 @@
-#ifndef _RECT_COMPONENT_CEU
+#ifdef _RECT_COMPONENT_CEU
+#error multiple include
+#else
 #define _RECT_COMPONENT_CEU
 
 data IRectComponent with

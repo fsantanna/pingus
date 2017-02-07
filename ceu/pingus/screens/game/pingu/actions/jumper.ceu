@@ -1,7 +1,7 @@
-#ifndef _JUMPER_CEU
+#ifdef _JUMPER_CEU
+#error multiple include
+#else
 #define _JUMPER_CEU
-
-#include "../right_left_sprites.ceu"
 
 class Jumper with
     interface IPinguAction;

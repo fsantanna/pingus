@@ -1,4 +1,6 @@
-#ifndef _DIGGER_CEU
+#ifdef _DIGGER_CEU
+#error multiple include
+#else
 #define _DIGGER_CEU
 
 class Digger with

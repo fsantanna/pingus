@@ -1,4 +1,6 @@
-#ifndef _SMALLMAP_IMAGE_CEU
+#ifdef _SMALLMAP_IMAGE_CEU
+#error multiple include
+#else
 #define _SMALLMAP_IMAGE_CEU
 
 var uint colmap_serial = 0;

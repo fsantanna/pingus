@@ -1,7 +1,7 @@
-#ifndef _DROWN_CEU
+#ifdef _DROWN_CEU
+#error multiple include
+#else
 #define _DROWN_CEU
-
-#include "../right_left_sprites.ceu"
 
 class Drown with
     interface IPinguAction;

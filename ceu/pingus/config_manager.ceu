@@ -1,4 +1,6 @@
-#ifndef _CONFIG_MANAGER_CEU
+#ifdef _CONFIG_MANAGER_CEU
+#error multiple include
+#else
 #define _CONFIG_MANAGER_CEU
 
 native _config_manager;

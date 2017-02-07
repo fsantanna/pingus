@@ -1,4 +1,6 @@
-#ifndef _LINEARMOVER_CEU
+#ifdef _LINEARMOVER_CEU
+#error multiple include
+#else
 #define _LINEARMOVER_CEU
 
 native/pre do

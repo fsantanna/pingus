@@ -1,7 +1,7 @@
-#ifndef _LASER_KILL_CEU
+#ifdef _LASER_KILL_CEU
+#error multiple include
+#else
 #define _LASERKILL_CEU
-
-#include "../right_left_sprites.ceu"
 
 class LaserKill with
     interface IPinguAction;

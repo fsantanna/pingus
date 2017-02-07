@@ -1,4 +1,6 @@
-#ifndef _WOOD_CEU
+#ifdef _WOOD_CEU
+#error multiple include
+#else
 #define _WOOD_CEU
 
 #include "../../engine/display/surface.ceu"

@@ -3,17 +3,6 @@
 #else
 #define _SPRITE_CEU __FILE__
 
-native/pre do
-    ##include "engine/display/display.hpp"
-    ##include "engine/display/framebuffer.hpp"
-    ##include "engine/display/sdl_framebuffer_surface_impl.hpp"
-    ##include "engine/display/sprite_description.hpp"
-    ##define loop_ loop
-    extern FramebufferSurface* load_framebuffer_sdl_surface(const Pathname& filename, ResourceModifier::Enum modifier);
-end
-
-#include "surface.ceu"
-
 data ISprite with
     var Vector2i offset      = val Vector2i(0, 0);
     var Vector2i frame_pos   = val Vector2i(0, 0);
@@ -41,7 +30,7 @@ do
         _,
         sfc.desc:speed,
         Size(sfc.desc:array.width, sfc.desc:array.height),
-        (sfc.desc:loop_ as bool),
+        (sfc.desc:_loop as bool),
         _,
     );
     sprite = &sprite_;
@@ -49,7 +38,7 @@ do
     sprite_.frame_pos   = val Vector2i(sfc.desc:frame_pos.x, sfc.desc:frame_pos.y);
     sprite_.array       = val Size(sfc.desc:array.width, sfc.desc:array.height);
     sprite_.frame_delay = sfc.desc:speed;
-    sprite_.is_loop     = sfc.desc:loop_ as bool;
+    sprite_.is_loop     = sfc.desc:_loop as bool;
 
     if sfc.desc:frame_size.width  == -1 then
         sprite_.frame_size.width  = sfc.framebuffer.get_width()  / sprite_.array.width;

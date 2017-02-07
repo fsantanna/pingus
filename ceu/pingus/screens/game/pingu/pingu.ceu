@@ -1,37 +1,7 @@
-#ifndef _PINGU_CEU
+#ifdef _PINGU_CEU
+#error multiple include
+#else
 #define _PINGU_CEU
-
-native/pre do
-    ##define ActionName__Enum ActionName::Enum
-    ##define Pingu__PinguStatus Pingu::PinguStatus
-    ##define PinguAction_shared_ptr std::shared_ptr<PinguAction>
-    enum {
-        PS_ALIVE, PS_EXITED, PS_DEAD
-    };
-end
-native/plain _Pingu__PinguStatus;
-
-native/pre do
-    ##include "pingus/collision_map.hpp"
-    ##include "pingus/pingu_enums.hpp"
-    ///##define GC_COLOR_DRAW(gc,x,y) gc->color().draw(x,y)
-    enum Dir { LEFT = -1, NONE = 0, RIGHT = +1 };
-end
-///native @nohold _GC_COLOR_DRAW();
-
-native/pre do
-    class Vector3f;
-    class GroundMap;
-    class PinguHolder;
-    class PingusLevel;
-    class CollisionMap;
-    class Pingu;
-    class SmallMap;
-    class SceneContext;
-    ##include "pingus/collision_mask.hpp"
-    ##include "../src/pingus/groundtype.hpp"
-    ##include "../src/pingus/action_name.hpp"
-end
 
 #if 0
 #include "../engine/display/sprite.ceu"

@@ -1,11 +1,11 @@
-#ifndef _BASHER_CEU
+#ifdef _BASHER_CEU
+#error multiple include
+#else
 #define _BASHER_CEU
 
 native do
     ##include "../../../src/engine/sound/sound.hpp"
 end
-
-#include "../right_left_sprites.ceu"
 
 /* Defines the minimum "wall" height needed for a bash to happen. */
 #define BASHER_MIN_BASH_HEIGHT 5

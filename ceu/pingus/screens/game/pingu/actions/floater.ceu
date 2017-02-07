@@ -1,4 +1,6 @@
-#ifndef _FLOATER_CEU
+#ifdef _FLOATER_CEU
+#error multiple include
+#else
 #define _FLOATER_CEU
 
 code/await Floater (void) -> _ActionName__Enum

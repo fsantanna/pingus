@@ -1,7 +1,7 @@
-#ifndef _SLIDER_CEU
+#ifdef _SLIDER_CEU
+#error multiple include
+#else
 #define _SLIDER_CEU
-
-#include "../right_left_sprites.ceu"
 
 class Slider with
     interface IPinguAction;

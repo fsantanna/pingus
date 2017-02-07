@@ -1,7 +1,7 @@
-#ifndef _EXITER_CEU
+#ifdef _EXITER_CEU
+#error multiple include
+#else
 #define _EXITER_CEU
-
-#include "../right_left_sprites.ceu"
 
 class Exiter with
     interface IPinguAction;

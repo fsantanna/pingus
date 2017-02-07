@@ -1,7 +1,7 @@
-#ifndef _LABEL_BUTTON_CEU
+#ifdef _LABEL_BUTTON_CEU
+#error multiple include
+#else
 #define _LABEL_BUTTON_CEU
-
-#include "rect_component.ceu"
 
 class LabelButton with
     var float  x;

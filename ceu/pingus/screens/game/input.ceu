@@ -1,4 +1,6 @@
-#ifndef _INPUT_CEU
+#ifdef _INPUT_CEU
+#error multiple include
+#else
 #define _INPUT_CEU
 
 event void go_pause_toggle;
@@ -90,8 +92,6 @@ par do                                                      // INPUT
         end
     end
 with                                                        // UI
-    #include "engine/gui/rect_component.ceu"
-
     var int dwidth  = {Display::get_width()};
     var int dheight = {Display::get_height()};
 

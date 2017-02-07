@@ -1,4 +1,6 @@
-#ifndef _WORLDOBJ_FACTORY_CEU
+#ifdef _WORLDOBJ_FACTORY_CEU
+#error multiple include
+#else
 #define _WORLDOBJ_FACTORY_CEU
 
 #include "surface_background.ceu"

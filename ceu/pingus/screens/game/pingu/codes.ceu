@@ -1,3 +1,8 @@
+#ifdef _GAME_PINGU_CODES_CEU
+#error multiple include
+#else
+#define _GAME_PINGU_CODES_CEU
+
 code/tight Pingu_Get_Owner_Str (void) -> _char&& do
     {
         static std::ostringstream ostr;
@@ -91,3 +96,5 @@ do
             outer.pingu.rect.top  > y1 and
             outer.pingu.rect.top  < y2);
 end
+
+#endif

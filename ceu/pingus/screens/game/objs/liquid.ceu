@@ -1,4 +1,6 @@
-#ifndef _LIQUID_CEU
+#ifdef _LIQUID_CEU
+#error multiple include
+#else
 #define _LIQUID_CEU
 
 class Liquid with

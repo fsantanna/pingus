@@ -1,4 +1,6 @@
-#ifndef _SMASHER_CEU
+#ifdef _SMASHER_CEU
+#error multiple include
+#else
 #define _SMASHER_CEU
 
 code/await Smasher (void) -> FOREVER

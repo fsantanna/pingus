@@ -1,7 +1,7 @@
-#ifndef _MINER_CEU
+#ifdef _MINER_CEU
+#error multiple include
+#else
 #define _MINER_CEU
-
-#include "../right_left_sprites.ceu"
 
 class Miner with
     interface IPinguAction;

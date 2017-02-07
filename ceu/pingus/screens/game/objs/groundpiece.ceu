@@ -1,4 +1,6 @@
-#ifndef _GROUNDPIECE_CEU
+#ifdef _GROUNDPIECE_CEU
+#error multiple include
+#else
 #define _GROUNDPIECE_CEU
 
 code/await Groundpiece (void) -> FOREVER do

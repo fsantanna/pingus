@@ -1,4 +1,6 @@
-#ifndef _SLIDERBOX_CEU
+#ifdef _SLIDERBOX_CEU
+#error multiple include
+#else
 #define _SLIDERBOX_CEU
 
 code/await SliderBox (var& Rect rect, var int max, var int current)

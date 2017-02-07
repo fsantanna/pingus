@@ -1,7 +1,7 @@
-#ifndef _CLIMBER_CEU
+#ifdef _CLIMBER_CEU
+#error multiple include
+#else
 #define _CLIMBER_CEU
-
-#include "../right_left_sprites.ceu"
 
 class Climber with
     interface IPinguAction;

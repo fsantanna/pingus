@@ -1,7 +1,7 @@
-#ifndef _CHECKBOX_CEU
+#ifdef _CHECKBOX_CEU
+#error multiple include
+#else
 #define _CHECKBOX_CEU
-
-#include "../../engine/gui/rect_component.ceu"
 
 data ICheckBox with
     var   bool is_on;

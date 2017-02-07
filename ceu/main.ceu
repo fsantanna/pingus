@@ -1,11 +1,44 @@
 #include "c.ceu"
 
+native/plain _Sprite, _Surface, _SpriteDescription, _GraphicContextState;
+native/plain _SpriteDescription_ptr;
 native/plain _char_const_ptr, _u8;
+native/plain _Pingu__PinguStatus;
 native
     _framebuffer_type_from_string,
     _origin_top_left,
     _origin_top_right,
 ;
+native/plain
+    _SDL_MouseButtonEvent,
+    _SDL_MouseMotionEvent,
+    _SDL_KeyboardEvent,
+;
+
+native/const
+    _SDL_BUTTON_LEFT,
+    _SDLK_a,
+    _SDLK_F5,
+    _SDLK_f,
+    _SDLK_o,
+    _SDLK_p,
+    _SDLK_s,
+    _SDLK_ESCAPE,
+    _SDLK_LCTRL,
+    _SDLK_RCTRL,
+    _SDL_GRAB_ON,
+    _SDL_GRAB_OFF,
+;
+
+native/nohold
+    _SDL_GetKeyState,
+;
+
+native
+    _load_framebuffer_sdl_surface,
+    _SDL_WM_GrabInput,
+;
+
 
 native/pre do
     ##define private public
@@ -16,6 +49,18 @@ native/pre do
     ##define typeof(x) __typeof__(x)
     typedef const char* char_const_ptr;
 
+    class Vector3f;
+    class GroundMap;
+    class PinguHolder;
+    class PingusLevel;
+    class CollisionMap;
+    class Pingu;
+    class SmallMap;
+    class SceneContext;
+
+    ##include "pingus/collision_mask.hpp"
+    ##include "../src/pingus/groundtype.hpp"
+    ##include "../src/pingus/action_name.hpp"
     ##include "engine/input/event.hpp"
     ##include "pingus/globals.hpp"
     ##include "pingus/fonts.hpp"
@@ -24,6 +69,23 @@ native/pre do
     ##include "util/string_util.hpp"
     ##include "pingus/game_time.hpp"
     ##include "pingus/string_format.hpp"
+    ##include "pingus/collision_map.hpp"
+    ##include "pingus/pingu_enums.hpp"
+    ##include "engine/display/display.hpp"
+    ##include "engine/display/framebuffer.hpp"
+    ##include "engine/display/sdl_framebuffer_surface_impl.hpp"
+    ##include "engine/display/sprite_description.hpp"
+    ##include "engine/display/display.hpp"
+    ##include "engine/display/framebuffer.hpp"
+    ##include "engine/display/sdl_framebuffer_surface_impl.hpp"
+    ##include "engine/display/sprite_description.hpp"
+    typedef SpriteDescription* SpriteDescription_ptr;
+
+
+    extern FramebufferSurface* load_framebuffer_sdl_surface(const Pathname& filename, ResourceModifier::Enum modifier);
+
+    ///##define GC_COLOR_DRAW(gc,x,y) gc->color().draw(x,y)
+    enum Dir { LEFT = -1, NONE = 0, RIGHT = +1 };
 
     ##define std__string std::string
     ##define Resource__load_sprite_desc(name) Resource::load_sprite_desc(name)
@@ -36,6 +98,13 @@ native/pre do
     ##include "pingus/result.hpp"
     static PingusLevel plf;
     static Result result;
+
+    ##define ActionName__Enum ActionName::Enum
+    ##define Pingu__PinguStatus Pingu::PinguStatus
+    ##define PinguAction_shared_ptr std::shared_ptr<PinguAction>
+    enum {
+        PS_ALIVE, PS_EXITED, PS_DEAD
+    };
 end
 
 native/pos do
@@ -117,7 +186,6 @@ end
 #include "engine/input/sdl_driver.ceu"
 #include "engine/gui/rect_component.ceu"
 
-#include "pingus/fps_counter.ceu"
 #include "pingus/config_manager.ceu"
 #include "pingus/components/wood.ceu"
 
@@ -406,7 +474,11 @@ void ScreenManager::show_software_cursor(bool visible) {
 #endif
 
     {globals::print_fps = 1;};
-    spawn FPS_Counter();
+
+    spawn () do
+        #include "pingus/fps_counter.ceu"
+    end
+
     every SDL_REDRAW do
         if {globals::developer_mode} != 0 then
             var int height;

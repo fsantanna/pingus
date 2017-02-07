@@ -1,4 +1,6 @@
-#ifndef _GAME_SESSION
+#ifdef _GAME_SESSION
+#error multiple include
+#else
 #define _GAME_SESSION
 
 native/pre do

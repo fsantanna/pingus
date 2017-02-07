@@ -1,4 +1,6 @@
-#ifndef _PINGU_PARTICLE_HOLDER
+#ifdef _PINGU_PARTICLE_HOLDER
+#error multiple include
+#else
 #define _PINGU_PARTICLE_HOLDER
 
 #define x_collision_decrease 0.3

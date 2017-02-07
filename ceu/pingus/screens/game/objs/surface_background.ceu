@@ -1,4 +1,6 @@
-#ifndef _SURFACEBACKGROUND_CEU
+#ifdef _SURFACEBACKGROUND_CEU
+#error multiple include
+#else
 #define _SURFACEBACKGROUND_CEU
 
 code/await SurfaceBackground (void) -> FOREVER

@@ -1,16 +1,7 @@
-#ifndef _SURFACE_CEU
+#ifdef _SURFACE_CEU
+#error multiple include
+#else
 #define _SURFACE_CEU
-
-native/plain _Sprite, _Surface, _SpriteDescription, _GraphicContextState;
-native/plain _SpriteDescription_ptr;
-native/pre do
-    ##include "engine/display/display.hpp"
-    ##include "engine/display/framebuffer.hpp"
-    ##include "engine/display/sdl_framebuffer_surface_impl.hpp"
-    ##include "engine/display/sprite_description.hpp"
-    ##define loop_ loop
-    typedef SpriteDescription* SpriteDescription_ptr;
-end
 
 data Surface with
     var& _FramebufferSurface    framebuffer;

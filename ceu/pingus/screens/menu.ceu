@@ -1,4 +1,6 @@
-#ifndef _PINGUSMENU_CEU
+#ifdef _PINGUSMENU_CEU
+#error multiple include
+#else
 #define _PINGUSMENU_CEU
 
 #include "../components/menu_button.ceu"

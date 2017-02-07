@@ -1,4 +1,6 @@
-#ifndef _GLOBAL_EVENT_CEU
+#ifdef _GLOBAL_EVENT_CEU
+#error multiple include
+#else
 #define _GLOBAL_EVENT_CEU
 
 #include "config_manager.ceu"

@@ -1,8 +1,7 @@
-#ifndef _START_SCREEN
+#ifdef _START_SCREEN
+#error multiple include
+#else
 #define _START_SCREEN
-
-#include "../../engine/gui/surface_button.ceu"
-#include "../components/wood.ceu"
 
 {
     static std::string str;

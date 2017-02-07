@@ -1,7 +1,7 @@
-#ifndef _FALLER_CEU
+#ifdef _FALLER_CEU
+#error multiple include
+#else
 #define _FALLER_CEU
-
-#include "pingus/right_left_sprites.ceu"
 
 code/await Faller (void) -> _ActionName__Enum
 do

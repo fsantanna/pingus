@@ -1,4 +1,6 @@
-#ifndef _BRIDGER_CEU
+#ifdef _BRIDGER_CEU
+#error multiple include
+#else
 #define _BRIDGER_CEU
 
 native do

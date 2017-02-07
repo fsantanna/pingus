@@ -1,4 +1,6 @@
-#ifndef _OPTIONMENU_CEU
+#ifdef _OPTIONMENU_CEU
+#error multiple include
+#else
 #define _OPTIONMENU_CEU
 
 native/pos do
@@ -18,12 +20,10 @@ native/pos do
     static tinygettext::Language m_language = dictionary_manager.get_language();
 end
 
-#include "../components/wood.ceu"
-#include "../components/check_box.ceu"
 #include "../components/label.ceu"
+#include "../components/check_box.ceu"
 #include "../components/choice_box.ceu"
 #include "../components/slider_box.ceu"
-#include "../../engine/gui/surface_button.ceu"
 
 code/await OptionMenu (void) -> void do
     var Rect rect = val Rect({Display::get_width()}  / 2,

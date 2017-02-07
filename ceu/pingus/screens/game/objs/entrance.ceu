@@ -1,4 +1,6 @@
-#ifndef _ENTRANCE_CEU
+#ifdef _ENTRANCE_CEU
+#error multiple include
+#else
 #define _ENTRANCE_CEU
 
 native/pre do

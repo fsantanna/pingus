@@ -1,4 +1,6 @@
-#ifndef _SPIKE_CEU
+#ifdef _SPIKE_CEU
+#error multiple include
+#else
 #define _SPIKE_CEU
 
 #include "../../engine/display/sprite.ceu"

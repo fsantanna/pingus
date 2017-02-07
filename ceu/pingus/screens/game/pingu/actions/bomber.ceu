@@ -1,4 +1,6 @@
-#ifndef _BOMBER_CEU
+#ifdef _BOMBER_CEU
+#error multiple include
+#else
 #define _BOMBER_CEU
 
 native/pre do

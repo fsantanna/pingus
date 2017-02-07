@@ -1,7 +1,7 @@
-#ifndef _PLAYFIELD_CEU
+#ifdef _PLAYFIELD_CEU
+#error multiple include
+#else
 #define _PLAYFIELD_CEU
-
-#include "engine/gui/rect_component.ceu"
 
 #define POS2VEC(m) _Vector2i(m.x,m.y)
 

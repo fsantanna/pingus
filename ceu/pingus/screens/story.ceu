@@ -1,4 +1,6 @@
-#ifndef _STORYSCREEN_CEU
+#ifdef _STORYSCREEN_CEU
+#error multiple include
+#else
 #define _STROYSCREEN_CEU
 
 #include "../../engine/display/sprite.ceu"

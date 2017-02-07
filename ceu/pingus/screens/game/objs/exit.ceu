@@ -1,4 +1,6 @@
-#ifndef _EXIT_CEU
+#ifdef _EXIT_CEU
+#error multiple include
+#else
 #define _EXIT_CEU
 
 class Exit with

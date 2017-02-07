@@ -1,4 +1,6 @@
-#ifndef _CHOICEBOX_CEU
+#ifdef _CHOICEBOX_CEU
+#error multiple include
+#else
 #define _CHOICEBOX_CEU
 
 data IChoiceBox with

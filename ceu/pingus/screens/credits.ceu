@@ -1,4 +1,6 @@
-#ifndef _CREDITS_CEU
+#ifdef _CREDITS_CEU
+#error multiple include
+#else
 #define _CREDITS_CEU
 
 native do

@@ -1,4 +1,6 @@
-#ifndef _BUTTONPANEL_CEU
+#ifdef _BUTTONPANEL_CEU
+#error multiple include
+#else
 #define _BUTTONPANEL_CEU
 
 native/pre do

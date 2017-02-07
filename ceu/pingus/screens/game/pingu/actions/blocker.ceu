@@ -1,7 +1,7 @@
-#ifndef _BLOCKER_CEU
+#ifdef _BLOCKER_CEU
+#error multiple include
+#else
 #define _BLOCKER_CEU
-
-#include "../right_left_sprites.ceu"
 
 class Blocker with
     interface IPinguAction;

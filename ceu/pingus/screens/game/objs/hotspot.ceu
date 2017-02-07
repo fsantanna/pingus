@@ -1,4 +1,6 @@
-#ifndef _HOTSPOT_CEU
+#ifdef _HOTSPOT_CEU
+#error multiple include
+#else
 #define _HOTSPOT_CEU
 
 class Hotspot with

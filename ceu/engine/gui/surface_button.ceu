@@ -1,7 +1,7 @@
-#ifndef _SURFACE_BUTTON_CEU
+#ifdef _SURFACE_BUTTON_CEU
+#error multiple include
+#else
 #define _SURFACE_BUTTON_CEU
-
-#include "rect_component.ceu"
 
 code/await SurfaceButton (var& Rect rect,
                           var _char_const_ptr button,

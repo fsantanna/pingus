@@ -1,4 +1,6 @@
-#ifndef _GUILLOTINE_CEU
+#ifdef _GUILLOTINE_CEU
+#error multiple include
+#else
 #define _GUILLOTINE_CEU
 
 #include "../../engine/display/sprite.ceu"

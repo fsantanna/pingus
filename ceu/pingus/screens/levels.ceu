@@ -1,8 +1,7 @@
-#ifndef _LEVELMENU_CEU
+#ifdef _LEVELMENU_CEU
+#error multiple include
+#else
 #define _LEVELMENU_CEU
-
-#include "../../engine/gui/surface_button.ceu"
-#include "../components/wood.ceu"
 
 native/pre do
     ##include "pingus/levelset.hpp"

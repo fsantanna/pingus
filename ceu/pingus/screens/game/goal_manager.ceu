@@ -1,4 +1,6 @@
-#ifndef _GOALMANAGER_CEU
+#ifdef _GOALMANAGER_CEU
+#error multiple include
+#else
 #define _GOALMANAGER_CEU
 
 var int time = outer.game.plf.get_time();

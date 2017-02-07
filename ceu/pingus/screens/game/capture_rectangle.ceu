@@ -1,4 +1,6 @@
-#ifndef _CAPTURERECTANGLE_CEU
+#ifdef _CAPTURERECTANGLE_CEU
+#error multiple include
+#else
 #define _CAPTURERECTANGLE_CEU
 
 native do

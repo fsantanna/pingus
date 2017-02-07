@@ -1,4 +1,6 @@
-#ifndef _SMALLMAP_CEU
+#ifdef _SMALLMAP_CEU
+#error multiple include
+#else
 #define _SMALLMAP_CEU
 
 var Rect rect = val Rect(6,{Display::get_size}().height-105, 175,100);

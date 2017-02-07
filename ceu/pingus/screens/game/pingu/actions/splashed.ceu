@@ -1,7 +1,7 @@
-#ifndef _SPLASHED_CEU
+#ifdef _SPLASHED_CEU
+#error multiple include
+#else
 #define _SPLASHED_CEU
-
-#include "pingus/right_left_sprites.ceu"
 
 code/await Splashed (void) -> _ActionName__Enum
 do

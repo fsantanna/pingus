@@ -1,4 +1,6 @@
-#ifndef _RIGHT_LEFT_SPRITES_CEU
+#ifdef _RIGHT_LEFT_SPRITES_CEU
+#error multiple include
+#else
 #define _RIGHT_LEFT_SPRITES_CEU
 
 // TODO: get by ref

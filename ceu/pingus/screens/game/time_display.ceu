@@ -1,4 +1,6 @@
-#ifndef _TIMEDISPLAY_CEU
+#ifdef _TIMEDISPLAY_CEU
+#error multiple include
+#else
 #define _TIMEDISPLAY_CEU
 
 native/pre do

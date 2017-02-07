@@ -1,7 +1,7 @@
-#ifndef _WAITER_CEU
+#ifdef _WAITER_CEU
+#error multiple include
+#else
 #define _WAITER_CEU
-
-#include "../right_left_sprites.ceu"
 
 class Waiter with
     interface IPinguAction;

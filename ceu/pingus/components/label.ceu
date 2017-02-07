@@ -1,4 +1,6 @@
-#ifndef _LABEL_CEU
+#ifdef _LABEL_CEU
+#error multiple include
+#else
 #define _LABEL_CEU
 
 code/await Label (var _char_const_ptr label, var& Rect rect) -> FOREVER

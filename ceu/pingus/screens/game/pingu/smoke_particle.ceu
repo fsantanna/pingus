@@ -1,4 +1,6 @@
-#ifndef _SMOKE_PARTICLE_HOLDER
+#ifdef _SMOKE_PARTICLE_HOLDER
+#error multiple include
+#else
 #define _SMOKE_PARTICLE_HOLDER
 
 code/await SmokeParticle (var int x, var int y, var float vel_x, var float vel_y) -> void

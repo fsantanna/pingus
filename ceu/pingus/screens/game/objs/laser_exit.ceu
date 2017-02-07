@@ -1,4 +1,6 @@
-#ifndef _LASEREXIT_CEU
+#ifdef _LASEREXIT_CEU
+#error multiple include
+#else
 #define _LASEREXIT_CEU
 
 class LaserExit with
