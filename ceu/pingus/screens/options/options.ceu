@@ -20,10 +20,10 @@ native/pos do
     static tinygettext::Language m_language = dictionary_manager.get_language();
 end
 
-#include "../components/label.ceu"
-#include "../components/check_box.ceu"
-#include "../components/choice_box.ceu"
-#include "../components/slider_box.ceu"
+#include "label.ceu"
+#include "check_box.ceu"
+#include "choice_box.ceu"
+#include "slider_box.ceu"
 
 code/await OptionMenu (void) -> void do
     var Rect rect = val Rect({Display::get_width()}  / 2,

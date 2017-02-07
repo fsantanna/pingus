@@ -223,7 +223,7 @@ end
 
 #include "pingus/screens/menu.ceu"
 #include "pingus/screens/levels.ceu"
-#include "pingus/screens/options.ceu"
+#include "pingus/screens/options/options.ceu"
 
 #if 0
 interface IPingu with
