@@ -3,7 +3,7 @@
 #else
 #define _PINGUSMENU_CEU
 
-#include "../components/menu_button.ceu"
+#include "button.ceu"
 
 native/pre do
     enum {

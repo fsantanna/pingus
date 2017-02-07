@@ -3,8 +3,6 @@
 #else
 #define _WOOD_CEU
 
-#include "../../engine/display/surface.ceu"
-
 code/await Wood (void) -> FOREVER do
     var& Surface sfc;
     spawn Surface_from_name("core/menu/wood",_) -> (&sfc);

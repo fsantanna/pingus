@@ -187,7 +187,6 @@ end
 #include "engine/gui/rect_component.ceu"
 
 #include "pingus/config_manager.ceu"
-#include "pingus/components/wood.ceu"
 
 data IMain with
     var Vector2i offset;
@@ -195,10 +194,13 @@ data IMain with
 end
 var IMain main = _;
 
+#include "engine/display/surface.ceu"
 #include "engine/display/sprite.ceu"
 #include "engine/gui/surface_button.ceu"
 
 // SCREENS
+
+#include "pingus/screens/wood.ceu"
 
 code/await Start_Game_Result_Loop (var& _PingusLevel plf, var& _Result result)
             -> void
@@ -221,7 +223,7 @@ do
     end
 end
 
-#include "pingus/screens/menu.ceu"
+#include "pingus/screens/menu/menu.ceu"
 #include "pingus/screens/levels.ceu"
 #include "pingus/screens/options/options.ceu"
 
