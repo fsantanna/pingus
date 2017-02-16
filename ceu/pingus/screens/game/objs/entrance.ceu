@@ -4,17 +4,16 @@
 #define _ENTRANCE_CEU
 
 code/await Entrance (var Vector3f pos_offset)
-                        -> (var& Vector3f pst)
+                        -> (var Vector3f pst)
                             -> FOREVER
 do
     {
         static Vector3f p;
         WORLDOBJ_FACTORY_READER.read_vector("position", p);
     }
-    var Vector3f pst_ = val Vector3f(pos_offset.x + {p.x},
-                                     pos_offset.y + {p.y},
-                                     pos_offset.z + {p.z});
-    pst = &pst_;
+    pst = val Vector3f(pos_offset.x + {p.x},
+                       pos_offset.y + {p.y},
+                       pos_offset.z + {p.z});
 
     var int owner_id = 0;
     { WORLDOBJ_FACTORY_READER.read_int("owner-id", @owner_id); }
@@ -41,7 +40,7 @@ do
             log_error("unknown direction: '%1%'", direction_str);
     };
 
-    var Rect r = val Rect(pst_.x as int,pst_.y as int, 0,0);
+    var Rect r = val Rect(pst.x as int,pst.y as int, 0,0);
     spawn Sprite_from_name(&r, "core/misc/smallmap_entrance", false);
 
     var int last_release = 150 - release_rate;
@@ -72,7 +71,7 @@ do
                 dir = {RIGHT};
             end
 
-            await Pingu_Spawn(owner_id, pst_.x as int, pst_.y as int, dir);
+            await Pingu_Spawn(owner_id, pst.x as int, pst.y as int, dir);
         end
     end
 

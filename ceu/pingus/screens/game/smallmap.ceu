@@ -18,14 +18,14 @@ par do
     end
 with
     loop do
-        var int x,y;
+        var int x;
+        var int y;
         (x,y) = await ON_PRIMARY_BUTTON_PRESSED until call Is_At(x,y);
         watching ON_PRIMARY_BUTTON_RELEASED do
             loop do
                 // set view to the given COs
-                var int cx, cy;
-                cx = (x - rect.left) * outer.game.rect.width / rect.width;
-                cy = (y - rect.top) * outer.game.rect.height / rect.height;
+                var int cx = (x - rect.left) * outer.game.rect.width / rect.width;
+                var int cy = (y - rect.top) * outer.game.rect.height / rect.height;
                 call Game_Set_Viewpoint(cx, cy);
                 (x,y) = await ON_POINTER_MOVE until call Is_At(x,y);
             end
@@ -67,10 +67,10 @@ with
         {Display::s_framebuffer->draw_rect(view_rect, Color(255,255,0));}
 
         // Draw Pingus
-        var&? IPingu pingu;
-        loop (pingu) in outer.pingus do
-            var int x = rect.left + (pingu!.rect.left * rect.width  / outer.game.rect.width);
-            var int y = rect.top  + (pingu!.rect.top  * rect.height / outer.game.rect.height);
+        var&? Pingu pingu;
+        loop pingu in outer.pingus do
+            var int x = rect.left + (pingu!.pingu.rect.left * rect.width  / outer.game.rect.width);
+            var int y = rect.top  + (pingu!.pingu.rect.top  * rect.height / outer.game.rect.height);
             {Display::s_framebuffer->draw_line(Vector2i(@x, @y), Vector2i(@x, @y-2), Color(255,255,0));}
         end
     end

@@ -4,9 +4,7 @@
 #define _WOOD_CEU
 
 code/await Wood (void) -> FOREVER do
-    var& Surface sfc;
-    spawn Surface_from_name("core/menu/wood",_) -> (&sfc);
-
+    var&? Surface_from_name sfc = spawn Surface_from_name("core/menu/wood",_);
     every SDL_REDRAW do
         var int y = 0;
         loop do
@@ -19,12 +17,12 @@ code/await Wood (void) -> FOREVER do
                     break;
                 end
                 call {Display::s_framebuffer}:draw_surface(
-                    sfc.framebuffer,
+                    sfc!.surface.framebuffer,
                     _Vector2i(x, y)
                 );
-                x = x + sfc.framebuffer.get_width();
+                x = x + sfc!.surface.framebuffer.get_width();
             end
-            y = y + sfc.framebuffer.get_height();
+            y = y + sfc!.surface.framebuffer.get_height();
         end
     end
 end

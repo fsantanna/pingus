@@ -10,23 +10,24 @@ code/await SurfaceButton (var& Rect rect,
                             -> (var& IRectComponent component)
                                 -> FOREVER
 do
-    var& IRectComponent component_;
-    spawn RectComponent(&rect) -> (&component_);
-    component = &component_;
+    var&? RectComponent component_ = spawn RectComponent(&rect);
+    watching component_ do
+        component = &component_!.component;
 
-    loop do
-        do
-            spawn Sprite_from_name(&rect, button, _);
-            await component_.on_pointer_enter;
-        end
-        watching component_.on_pointer_leave do
-            loop do
-                do
-                    spawn Sprite_from_name(&rect, button_over, _);
-                    await component_.on_primary_button_pressed;
+        loop do
+            do
+                spawn Sprite_from_name(&rect, button, _);
+                await component.on_pointer_enter;
+            end
+            watching component.on_pointer_leave do
+                loop do
+                    do
+                        spawn Sprite_from_name(&rect, button_over, _);
+                        await component.on_primary_button_pressed;
+                    end
+                    spawn Sprite_from_name(&rect, button_pressed, false);
+                    await ON_PRIMARY_BUTTON_RELEASED;
                 end
-                spawn Sprite_from_name(&rect, button_pressed, false);
-                await ON_PRIMARY_BUTTON_RELEASED;
             end
         end
     end

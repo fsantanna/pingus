@@ -155,14 +155,14 @@ with
 
         {Sound::PingusSound::play_sound("goodidea");};
 
-        var&? IPingu pingu;
-        loop (pingu) in pingus do
+        var&? Pingu pingu;
+        loop pingu in pingus do
             await WORLD_UPDATE;
             await WORLD_UPDATE;
             await WORLD_UPDATE;
             await WORLD_UPDATE;
-            if pingu!.current_action != {ActionName::BOMBER} then
-                emit pingu!.go_action({ActionName::BOMBER});
+            if pingu!.pingu.current_action != {ActionName::BOMBER} then
+                emit pingu!.pingu.go_action({ActionName::BOMBER});
             end
         end
 

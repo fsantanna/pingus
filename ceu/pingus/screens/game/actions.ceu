@@ -21,8 +21,7 @@ code/await Button (var    int x,
 do
     var Rect r1 = val Rect(x,y, 60,38);
 
-    var& IRectComponent component;
-    spawn RectComponent(&r1) -> (&component);
+    var&? RectComponent component = spawn RectComponent(&r1);
 
     vector[] byte name = []
         .. "pingus/player0/"
@@ -35,10 +34,8 @@ do
         if i == 0 then
             spawn Sprite_from_name(&r1, "core/buttons/buttonbackgroundhl", false);
 
-            var&? ISprite sprite;
-            spawn Sprite_from_name(&r2, &&name[0] as _char&&, false)
-                    -> (&sprite);
-            sprite!.is_loop = true;
+            var&? Sprite_from_name s = spawn Sprite_from_name(&r2, &&name[0] as _char&&, false);
+            s!.sprite.is_loop = true;
 
             outer.game.action_next = id_me;
             await e;
@@ -48,13 +45,11 @@ do
             do
                 spawn Sprite_from_name(&r1, "core/buttons/buttonbackground", false);
 
-                var&? ISprite sprite;
-                spawn Sprite_from_name(&r2, &&name[0] as _char&&, false)
-                        -> (&sprite);
-                sprite!.frame_delay = 0;
+                var&? Sprite_from_name s = spawn Sprite_from_name(&r2, &&name[0] as _char&&, false);
+                s!.sprite.frame_delay = 0;
 
                 par/or do
-                    await component.on_primary_button_pressed;
+                    await component!.component.on_primary_button_pressed;
                 with
                     var int ii = await e until ii==i;
                 end
@@ -65,10 +60,8 @@ do
             do
                 spawn Sprite_from_name(&r1, "core/buttons/buttonbackgroundhl", false);
 
-                var&? ISprite sprite;
-                spawn Sprite_from_name(&r2, &&name[0] as _char&&, false)
-                        -> (&sprite);
-                sprite!.is_loop = true;
+                var&? Sprite_from_name s = spawn Sprite_from_name(&r2, &&name[0] as _char&&, false);
+                s!.sprite.is_loop = true;
 
                 await e;
             end
@@ -97,8 +90,8 @@ do
         end
     with
         loop do
-            await component.on_pointer_enter;
-            watching component.on_pointer_leave do
+            await component!.component.on_pointer_enter;
+            watching component!.component.on_pointer_leave do
                 every SDL_REDRAW do
                     call {Fonts::pingus_small}.render(
                         _origin_top_left,

@@ -18,21 +18,21 @@ do
 
     call {Sound::PingusSound::play_sound}("ohno", 0.5, 0.0);
 
-    var&? ISprite sprite;
-    watching Sprite_from_name(&outer.pingu.rect, &&bomber[0] as _char&&, true)
-                -> (&sprite)
-    do
+    var&? Sprite_from_name sprite =
+        spawn Sprite_from_name(&outer.pingu.rect, &&bomber[0] as _char&&, true);
+
+    watching sprite do
         spawn Mover();
 
         /* UPDATE */
 
         // SOUND
-        await WORLD_UPDATE until sprite!.frame == 10;
+        await WORLD_UPDATE until sprite!.sprite.frame == 10;
         call {Sound::PingusSound::play_sound}("plop", 0.5, 0.0);
 
         // PARTICLES, TERRAIN, EXPLOSION
 
-        await WORLD_UPDATE until sprite!.frame == 13;
+        await WORLD_UPDATE until sprite!.sprite.frame == 13;
         var int i;
         loop i in [0 -> 50[ do
             spawn PinguParticle(outer.pingu.rect.left,outer.pingu.rect.top-5) in outer.pingu_particles;
@@ -46,11 +46,10 @@ do
             vector[] byte explo = [] .. "pingus/player"
                                      .. (call Pingu_Get_Owner_Str() as _char&&)
                                      .. "/explo";
-            var&? ISprite s;
-            spawn Sprite_from_name(&outer.pingu.rect, &&explo[0] as _char&&, true)
-                    -> (&s);
-            s!.offset.x = 32;
-            s!.offset.y = 48;
+            var&? Sprite_from_name s =
+                spawn Sprite_from_name(&outer.pingu.rect, &&explo[0] as _char&&, true);
+            s!.sprite.offset.x = 32;
+            s!.sprite.offset.y = 48;
             await WORLD_UPDATE;
         end
     end

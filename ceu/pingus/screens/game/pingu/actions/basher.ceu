@@ -15,29 +15,35 @@
    stops being a Basher and turns into a Faller. */
 #define BASHER_MAX_STEPS_DOWN 3
 
-class Basher with
-    interface IPinguAction;
+code/await Basher (void) -> _ActionName__Enum
 do
-    function (void)=>void bash;
-    function (void)=>bool walk_forward;
-    function (void)=>bool have_something_to_dig;
-
-    var char[] left  = [] .. "pingus/player"
-                          .. (_char&&)this.pingu.get_owner_str().c_str()
+    vector[] byte left  = [] .. "pingus/player"
+                          .. (call Pingu_Get_Owner_Str() as _char&&)
                           .. "/basher/left";
-    var char[] right = [] .. "pingus/player"
-                          .. (_char&&)this.pingu.get_owner_str().c_str()
+    vector[] byte right = [] .. "pingus/player"
+                          .. (call Pingu_Get_Owner_Str() as _char&&)
                           .. "/basher/right";
-    var RightLeftSprites sprites with
-        this.parent = &outer.pingu;
-        this.left   = &left;
-        this.right  = &right;
-    end;
 
-    // Start a bash even so the action will stops instantly after the
-    // first bash
-    this.bash();
+    spawn RightLeftSprites(&outer.pingu.rect, &outer.pingu.direction, &left, &right, true);
+
     var int? bash_reach; // set in bash
+
+    code/tight Bash (void) -> void do
+        {
+            static CollisionMask bash_radius(
+                    "pingus/common/bash_radius_gfx",
+                    "pingus/common/bash_radius");
+            ceu_dbg_assert(bash_radius.get_width() % 2 == 0);
+        };
+        outer.bash_reach = {bash_radius.get_width()};
+
+        call Game_Remove({&bash_radius},
+                         outer.pingu.rect.left - {bash_radius.get_width() / 2},
+                         outer.pingu.rect.top  - {bash_radius.get_height()} + 1);
+    end
+
+    // Start a bash even so the action will stops instantly after the first bash
+    call Bash();
 
     /* UPDATE */
     var bool is_first_bash = true;
@@ -79,23 +85,6 @@ do
     end
 
     /* PRIVATE */
-
-    function (void)=>void bash do
-        {
-            ##include "../../../src/pingus/collision_mask.hpp"
-            static CollisionMask bash_radius(
-                    "pingus/common/bash_radius_gfx",
-                    "pingus/common/bash_radius");
-            assert(bash_radius.get_width() % 2 == 0);
-        };
-        this.bash_reach = _bash_radius.get_width();
-
-        global:world!:remove(
-                &&_bash_radius,
-                this.pingu.get_xi() - _bash_radius.get_width() / 2,
-                this.pingu.get_yi() - _bash_radius.get_height() + 1
-        );
-    end
 
     function (void)=>bool walk_forward do
         var int y_inc = 0;

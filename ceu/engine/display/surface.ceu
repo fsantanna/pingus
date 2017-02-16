@@ -28,7 +28,7 @@ end
 
 code/await Surface_from_desc (var _SpriteDescription_ptr   desc,
                               var _ResourceModifier__Enum? mod)
-                                -> (var& Surface surface)
+                                -> (var Surface surface)
                                     -> FOREVER
 do
     var _ResourceModifier__Enum mod_;
@@ -44,8 +44,7 @@ do
                 _delete(&&framebuffer!);
             end;
 
-    var Surface surface_ = val Surface(&framebuffer!, &desc);
-    surface = &surface_;
+    surface = val Surface(&framebuffer!, &desc);
 
     await FOREVER;
 end
@@ -61,7 +60,11 @@ do
     end
     _assert(desc != null);
 
-    await Surface_from_desc(desc,mod) -> (&surface);
+    var&? Surface_from_desc sfc = spawn Surface_from_desc(desc,mod);
+    watching sfc do
+        surface = &sfc!.surface;
+        await FOREVER;
+    end
 end
 
 #endif

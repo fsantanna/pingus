@@ -17,15 +17,15 @@ code/tight Rect_is_at (var& Rect rect, var int x, var int y) -> bool do
 end
 
 code/await RectComponent (var& Rect rect)
-                            -> (var& IRectComponent component)
+                            -> (var IRectComponent component)
                                 -> FOREVER
 do
-    var IRectComponent component_ = val IRectComponent(_,_,_,_,_);
-    component = &component_;
+    component = val IRectComponent(_,_,_,_,_);
 
     par do
         loop do
-            var int x, y;
+            var int x;
+            var int y;
             (x,y) = await ON_PRIMARY_BUTTON_PRESSED
                     until call Rect_is_at(&rect,x,y);
             emit component_.on_primary_button_pressed(x,y);
@@ -37,7 +37,8 @@ do
         end
     with
         var bool is_on = false;
-        var int x,y;
+        var int x;
+        var int y;
         every (x,y) in ON_POINTER_MOVE do
             if call Rect_is_at(&rect,x,y) != is_on then
                 is_on = not is_on;

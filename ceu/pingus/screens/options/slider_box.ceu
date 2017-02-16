@@ -4,19 +4,16 @@
 #define _SLIDERBOX_CEU
 
 code/await SliderBox (var& Rect rect, var int max, var int current)
-                        -> (event& int go)
+                        -> (event int go)
                             -> FOREVER
 do
-    event int go_;
-    go = &go_;
-
-    var& IRectComponent component;
-    spawn RectComponent(&rect) -> (&component);
+    var&? RectComponent component = spawn RectComponent(&rect);
 
     par do
-        var int x=0,y=0;
+        var int x=0;
+        var int y=0;
         loop do
-            (x,y) = await component.on_primary_button_pressed;
+            (x,y) = await component!.component.on_primary_button_pressed;
             watching ON_PRIMARY_BUTTON_RELEASED do
                 loop do
                     var int old = current;
@@ -26,7 +23,7 @@ do
                     current = {Math::clamp}(0, current, max);
 
                     if current != old then
-                        emit go_(current*5); // scale to [0,100]
+                        emit go(current*5); // scale to [0,100]
                     end
 
                     (x,y) = await ON_POINTER_MOVE;

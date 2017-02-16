@@ -168,7 +168,10 @@ input (int,int) ON_SECONDARY_BUTTON_RELEASED;
 input void WORLD_UPDATE;
 
 data Color with
-    var u8 r, g, b, a;
+    var u8 r;
+    var u8 g;
+    var u8 b;
+    var u8 a;
 end
 
 data Position with
@@ -229,10 +232,10 @@ do
             do ()
                 #include "pingus/screens/game/game.ceu"
             end
-            var bool retry = do ()
+            var bool r = do ()
                 #include "pingus/screens/result.ceu"
             end;
-            if not retry then
+            if not r then
                 break;
             end
         end
@@ -244,76 +247,6 @@ end
 #include "pingus/screens/options/options.ceu"
 
 #if 0
-interface IPingu with
-    pool IPingu[]& pingus;
-
-    var  Rect               rect;
-    var   s8                direction;
-    var   _ActionName__Enum current_action;
-    var   _ActionName__Enum wall_action;
-
-output:
-    var char[]& name;
-
-    function (_ActionName__Enum) => bool check_action;
-
-    function (void)         => float        get_x;
-    function (void)         => float        get_y;
-    function (void)         => int          get_xi;
-    function (void)         => int          get_yi;
-    function (void)         => Vector3f     get_pos;
-    function (float)        => void         set_x;
-    function (float)        => void         set_y;
-    function (float,float)  => void         set_pos;
-    function (void)         => Vector3f     get_velocity;
-    function (Vector3f)     => void         set_velocity;
-    function (void)         => _std__string get_owner_str;
-    function (s8)           => void         set_direction;
-    function (void)         => void         change_direction;
-    function (int,int)      => bool         head_collision_on_walk;
-    function (int,int)      => int          rel_getpixel;
-    function (void)         => Vector3f     get_center_pos;
-    function (int,int)      => bool         is_over;
-    function (int,int)      => float        dist;
-    function (int,int,int,int) => bool      is_inside;
-
-    function (void)         => int          get_id;
-    function (void)         => int          get_owner;
-end
-
-interface IPinguAction with
-    pool IPingu[]& pingus;
-    var IPingu& pingu;
-    var _ActionName__Enum previous_action;
-end
-
-interface IWorld with
-    var Rect rect;
-output:
-    var _GraphicContextState& state;
-
-    function (void)=>int get_width;
-    function (void)=>int get_height;
-    function (void)=>_CollisionMap&& get_colmap;
-    function (_CollisionMask&& mask,int x,int y,_Groundtype__GPType type)=>void put;
-    function (_CollisionMask&& mask,int x,int y)=>void remove;
-    function (void)=>Vector2i get_offset;
-end
-
-interface IWorldMap with
-    function (void)=>Vector2i get_offset;
-end
-
-event (float,float)             go_create_pingu_particles;
-event (float,float,float,float) go_create_smoke_particles;
-
-
-var IWorldMap&&? worldmap;
-var IWorld&&? world;
-var Vector2i offset = Vector2i(0,0);
-
-var char[] worldmap_return_filename;
-
 #include "pingus/global_event.ceu"
 #include "pingus/worldmap/worldmap_screen.ceu"
 #include "pingus/screens/credits.ceu"

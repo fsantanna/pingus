@@ -32,10 +32,9 @@ do
             outer.pingu.velocity.y = outer.pingu.velocity.y + outer.game.gravity;
         end
     with
-        event& void ok_collided;
-        spawn Mover() -> (&ok_collided);
+        var&? Mover mover = spawn Mover();
         loop do
-            await ok_collided;
+            await mover!.ok_collided;
 
 /// TODO: FIX (from original version in C++)
 // For some reasone, the LinearMover detects the collision before the Pingu 

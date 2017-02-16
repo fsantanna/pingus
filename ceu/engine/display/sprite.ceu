@@ -18,135 +18,141 @@ code/tight Get_Frame_Count (var& ISprite sprite) -> int do
 end
 
 code/await Sprite_from_name (var& Rect rect, var _char_const_ptr name, var bool is_world)
-                                -> (var&? ISprite sprite)
+                                -> (var ISprite sprite)
                                     -> void
 do
-    var& Surface sfc;
-    spawn Surface_from_name(name, {ResourceModifier::ROT0}) -> (&sfc);
+    var&? Surface_from_name sfc_from_name =
+        spawn Surface_from_name(name, {ResourceModifier::ROT0});
 
-    var ISprite sprite_ = val ISprite(
-        _,
-        Vector2i(sfc.desc:frame_pos.x, sfc.desc:frame_pos.y),
-        _,
-        sfc.desc:speed,
-        Size(sfc.desc:array.width, sfc.desc:array.height),
-        (sfc.desc:_loop as bool),
-        _,
-    );
-    sprite = &sprite_;
+    watching sfc_from_name do
+        var& Surface sfc = &sfc_from_name!.surface;
 
-    sprite_.frame_pos   = val Vector2i(sfc.desc:frame_pos.x, sfc.desc:frame_pos.y);
-    sprite_.array       = val Size(sfc.desc:array.width, sfc.desc:array.height);
-    sprite_.frame_delay = sfc.desc:speed;
-    sprite_.is_loop     = sfc.desc:_loop as bool;
+        sprite = val ISprite(
+            _,
+            Vector2i(sfc.desc:frame_pos.x, sfc.desc:frame_pos.y),
+            _,
+            sfc.desc:speed,
+            Size(sfc.desc:array.width, sfc.desc:array.height),
+            (sfc.desc:_loop as bool),
+            _,
+        );
 
-    if sfc.desc:frame_size.width  == -1 then
-        sprite_.frame_size.width  = sfc.framebuffer.get_width()  / sprite_.array.width;
-        sprite_.frame_size.height = sfc.framebuffer.get_height() / sprite_.array.height;
-    else
-        sprite_.frame_size.width  = sfc.desc:frame_size.width;
-        sprite_.frame_size.height = sfc.desc:frame_size.height;
-    end
-    rect.width  = sprite_.frame_size.width;
-    rect.height = sprite_.frame_size.height;
+        sprite.frame_pos   = val Vector2i(sfc.desc:frame_pos.x, sfc.desc:frame_pos.y);
+        sprite.array       = val Size(sfc.desc:array.width, sfc.desc:array.height);
+        sprite.frame_delay = sfc.desc:speed;
+        sprite.is_loop     = sfc.desc:_loop as bool;
 
-    native _vec;
-    {
-        static Vector2i vec;
-        vec = calc_origin(@(sfc.desc:origin),
-                          Size(@(sprite_.frame_size.width),
-                               @(sprite_.frame_size.height)))
-                - @(sfc.desc:offset);
-    };
-    sprite_.offset = val Vector2i(_vec.x, _vec.y);
+        if sfc.desc:frame_size.width  == -1 then
+            sprite.frame_size.width  = sfc.framebuffer.get_width()  / sprite.array.width;
+            sprite.frame_size.height = sfc.framebuffer.get_height() / sprite.array.height;
+        else
+            sprite.frame_size.width  = sfc.desc:frame_size.width;
+            sprite.frame_size.height = sfc.desc:frame_size.height;
+        end
+        rect.width  = sprite.frame_size.width;
+        rect.height = sprite.frame_size.height;
 
-    var int total_time = sprite_.frame_delay *
-                         (sprite_.array.width * sprite_.array.height);
+        native _vec;
+        {
+            static Vector2i vec;
+            vec = calc_origin(@(sfc.desc:origin),
+                              Size(@(sprite.frame_size.width),
+                                   @(sprite.frame_size.height)))
+                    - @(sfc.desc:offset);
+        };
+        sprite.offset = val Vector2i(_vec.x, _vec.y);
 
-    sprite_.frame = 0;
+        var int total_time = sprite.frame_delay *
+                             (sprite.array.width * sprite.array.height);
 
-    var int tick_count = 0;
+        sprite.frame = 0;
 
-    par do
-        /* UPDATE */
-        loop do
+        var int tick_count = 0;
+
+        par do
+            /* UPDATE */
             loop do
-                var int dt = _;
-                if is_world then
-                    await WORLD_UPDATE;
-                    dt = 33;   // TODO
-                else
-                    dt = await SDL_DT;
-                end
-                if sprite_.frame_delay == 0 then
-                    await FOREVER;
-                end
-
-                tick_count = tick_count + dt;
-
-                if tick_count >= total_time then
-                    if sprite_.is_loop then
-                        tick_count = tick_count % total_time;
-                        sprite_.frame = tick_count / sprite_.frame_delay;
+                loop do
+                    var int dt = _;
+                    if is_world then
+                        await WORLD_UPDATE;
+                        dt = 33;   // TODO
+                    else
+                        dt = await SDL_DT;
                     end
-                    break;
-                else
-                    sprite_.frame = tick_count / sprite_.frame_delay;
+                    if sprite.frame_delay == 0 then
+                        await FOREVER;
+                    end
+
+                    tick_count = tick_count + dt;
+
+                    if tick_count >= total_time then
+                        if sprite.is_loop then
+                            tick_count = tick_count % total_time;
+                            sprite.frame = tick_count / sprite.frame_delay;
+                        end
+                        break;
+                    else
+                        sprite.frame = tick_count / sprite.frame_delay;
+                    end
+                end
+                if not sprite.is_loop then
+                    escape;
                 end
             end
-            if not sprite_.is_loop then
-                escape;
-            end
-        end
-    with
-        /* DRAW */
-        every SDL_REDRAW do
-            var float x, y;
-            x = rect.left;
-            y = rect.top;
+        with
+            /* DRAW */
+            every SDL_REDRAW do
+                var float x;
+                var float y;
+                x = rect.left;
+                y = rect.top;
 
-            var int xx=0, yy=0;
-            if is_world then
-                xx = outer.main.offset.x;
-                yy = outer.main.offset.y;
-            end
+                var int xx=0;
+                var int yy=0;
+                if is_world then
+                    xx = outer.main.offset.x;
+                    yy = outer.main.offset.y;
+                end
 
 #if 0
-            call {Display::s_framebuffer}:draw_surface(
-                                            sfc.framebuffer,
-                                            _Vector2i(x,y),
-            );
+                call {Display::s_framebuffer}:draw_surface(
+                                                sfc.framebuffer,
+                                                _Vector2i(x,y),
+                );
 #endif
-            call {Display::s_framebuffer}:draw_surface(
-                sfc.framebuffer,
-                _Rect(
-                    _Vector2i(sprite_.frame_pos.x,sprite_.frame_pos.y) +
-                        _Vector2i(sprite_.frame_size.width  * (sprite_.frame%sprite_.array.width),
-                                  sprite_.frame_size.height * (sprite_.frame/sprite_.array.width)),
-                    _Size(sprite_.frame_size.width,sprite_.frame_size.height)),
-                _Vector2i(-xx + x - sprite_.offset.x,
-                          -yy + y - sprite_.offset.y)
-            );
+                call {Display::s_framebuffer}:draw_surface(
+                    sfc.framebuffer,
+                    _Rect(
+                        _Vector2i(sprite.frame_pos.x,sprite.frame_pos.y) +
+                            _Vector2i(sprite.frame_size.width  * (sprite.frame%sprite.array.width),
+                                      sprite.frame_size.height * (sprite.frame/sprite.array.width)),
+                        _Size(sprite.frame_size.width,sprite.frame_size.height)),
+                    _Vector2i(-xx + x - sprite.offset.x,
+                              -yy + y - sprite.offset.y)
+                );
+            end
         end
     end
-#if 0
-    var bool is_world = true;   // TODO: rename to is_relative
-    var Rect&? small_map;   // TODO
-    // constructor
-    var _Surface&&              surface = null;
-    var _SpriteDescription&&    desc    = null;
-    var _ResourceModifier__Enum mod     = {ResourceModifier::ROT0};
 
-    if surface != null then
-        this.frame_pos   = Vector2i(0, 0);
-        this.offset      = Vector2i(0, 0);
-        this.array       = Size(sfc.get_width(), sfc.get_height());
-        this.frame_delay = 0;
-        this.frame_size  = this.array;
-    else
-...
-    end
-    //end
+    #if 0
+        var bool is_world = true;   // TODO: rename to is_relative
+        var Rect&? small_map;   // TODO
+        // constructor
+        var _Surface&&              surface = null;
+        var _SpriteDescription&&    desc    = null;
+        var _ResourceModifier__Enum mod     = {ResourceModifier::ROT0};
+
+        if surface != null then
+            this.frame_pos   = Vector2i(0, 0);
+            this.offset      = Vector2i(0, 0);
+            this.array       = Size(sfc.get_width(), sfc.get_height());
+            this.frame_delay = 0;
+            this.frame_size  = this.array;
+        else
+    ...
+        end
+        //end
 
     /* PUBLIC */
 

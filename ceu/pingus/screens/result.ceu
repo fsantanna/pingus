@@ -65,35 +65,32 @@ spawn Wood();
 spawn Sprite_from_name(&rect, "core/menu/blackboard", false);
 
 /// TODO: only two
-var& IRectComponent ok;
 var Rect ok_r = val Rect({Display::get_width()/2}+245,
                          {Display::get_height()/2}-150, /// TODO: +
                          _,_);
-spawn SurfaceButton(&ok_r,
-                    "core/start/ok",
-                    "core/start/ok_clicked",
-                    "core/start/ok_hover")
-        -> (&ok);
+var&? SurfaceButton ok = 
+    spawn SurfaceButton(&ok_r,
+                        "core/start/ok",
+                        "core/start/ok_clicked",
+                        "core/start/ok_hover");
 
-var& IRectComponent abort;
 var Rect abort_r = val Rect({Display::get_width()/2}-300,
                             {Display::get_height()/2}+200,
                             _,_);
-spawn SurfaceButton(&abort_r,
-                    "core/start/back",
-                    "core/start/back_clicked",
-                    "core/start/back_hover")
-        -> (&abort);
+var&? SurfaceButton abort =
+    spawn SurfaceButton(&abort_r,
+                        "core/start/back",
+                        "core/start/back_clicked",
+                        "core/start/back_hover");
 
-var& IRectComponent retry;
 var Rect retry_r = val Rect({Display::get_width()/2}+245,
                             {Display::get_height()/2}+150,
                             _,_);
-spawn SurfaceButton(&retry_r,
-                    "core/start/ok",
-                    "core/start/ok_clicked",
-                    "core/start/ok_hover")
-        -> (&retry);
+var&? SurfaceButton retry =
+    spawn SurfaceButton(&retry_r,
+                        "core/start/ok",
+                        "core/start/ok_clicked",
+                        "core/start/ok_hover");
 
 if has_succeeded then
     ///kill abort;
@@ -105,25 +102,25 @@ else
 end
 
 par do
-    every abort.on_pointer_enter do
+    every abort!.component.on_pointer_enter do
         call {Sound::PingusSound::play_sound}("tick");
     end
 with
-    await abort.on_click;
+    await abort!.component.on_click;
     escape false;
 with
-    every retry.on_pointer_enter do
+    every retry!.component.on_pointer_enter do
         call {Sound::PingusSound::play_sound}("tick");
     end
 with
-    await retry.on_click;
+    await retry!.component.on_click;
     escape true;
 with
-    every ok.on_pointer_enter do
+    every ok!.component.on_pointer_enter do
         call {Sound::PingusSound::play_sound}("tick");
     end
 with
-    await ok.on_click;
+    await ok!.component.on_click;
     call {Sound::PingusSound::play_sound}("yipee");
     escape false;
 with

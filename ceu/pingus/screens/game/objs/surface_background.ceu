@@ -77,12 +77,11 @@ do
         static ResDescriptor desc;
         WORLDOBJ_FACTORY_READER.read_desc("surface", desc);
     }
-    var& Surface bg_sfc;
-    spawn Surface_from_desc({Resource::load_sprite_desc(desc.res_name)}, _)
-            -> (&bg_sfc);
+    var&? Surface_from_desc bg =
+        spawn Surface_from_desc({Resource::load_sprite_desc(desc.res_name)}, _);
 
-    var int w = bg_sfc.framebuffer.get_width();
-    var int h = bg_sfc.framebuffer.get_height();
+    var int w = bg!.surface.framebuffer.get_width();
+    var int h = bg!.surface.framebuffer.get_height();
 
     par do
         every WORLD_UPDATE do
@@ -137,7 +136,7 @@ do
                         break;
                     end
                     call {Display::s_framebuffer}:draw_surface(
-                        bg_sfc.framebuffer,
+                        bg!.surface.framebuffer,
                         _Vector2i(x-off.x,y-off.y)
                     );
                     x = x + w;

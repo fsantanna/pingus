@@ -21,35 +21,33 @@ var Rect rect = val Rect(
 spawn Wood();
 spawn Sprite_from_name(&rect, "core/menu/blackboard", false);
 
-var& IRectComponent start;
 var Rect start_r = val Rect({Display::get_width()/2}+245, {Display::get_height()/2}+150, _,_);
-spawn SurfaceButton(&start_r,
-                    "core/start/ok",
-                    "core/start/ok_clicked",
-                    "core/start/ok_hover")
-        -> (&start);
+var&? SurfaceButton start =
+    spawn SurfaceButton(&start_r,
+                        "core/start/ok",
+                        "core/start/ok_clicked",
+                        "core/start/ok_hover");
 
-var& IRectComponent cancel;
 var Rect cancel_r = val Rect({Display::get_width()/2}-300, {Display::get_height()/2}+200, _,_);
-spawn SurfaceButton(&cancel_r,
-                    "core/start/back",
-                    "core/start/back_clicked",
-                    "core/start/back_hover")
-        -> (&cancel);
+var&? SurfaceButton cancel =
+    spawn SurfaceButton(&cancel_r,
+                        "core/start/back",
+                        "core/start/back_clicked",
+                        "core/start/back_hover");
 
 par do
-    every cancel.on_pointer_enter do
+    every cancel!.component.on_pointer_enter do
         call {Sound::PingusSound::play_sound}("tick");
     end
 with
-    await cancel.on_click;
+    await cancel!.component.on_click;
     escape false;
 with
-    every start.on_pointer_enter do
+    every start!.component.on_pointer_enter do
         call {Sound::PingusSound::play_sound}("tick");
     end
 with
-    await start.on_click;
+    await start!.component.on_click;
     call {Sound::PingusSound::play_sound}("yipee");
     escape true;
 with

@@ -29,11 +29,10 @@ data ILevelUI with
 end
 
 code/await LevelUI (var int items_total, var int items_per_page, var int item_height)
-                    -> (var& ILevelUI levelui)
+                    -> (var ILevelUI ui)
                         -> int
 do
-    var ILevelUI levelui_ = _;
-    levelui = &levelui_;
+    ui = _;
 
     var int xc = {Display::get_width()}  / 2;
     var int yc = {Display::get_height()} / 2;
@@ -43,13 +42,12 @@ do
     var Rect rect = val Rect(xc, yc, _,_);
     spawn Sprite_from_name(&rect, "core/menu/blackboard", false);
 
-    var& IRectComponent cancel;
     var Rect cancel_r = val Rect(xc-300, yc+200, 0, 0);
-    spawn SurfaceButton(&cancel_r,
-                        "core/start/back",
-                        "core/start/back_clicked",
-                        "core/start/back_hover")
-                            -> (&cancel);
+    var&? SurfaceButton cancel =
+        spawn SurfaceButton(&cancel_r,
+                            "core/start/back",
+                            "core/start/back_clicked",
+                            "core/start/back_hover");
     spawn do
         every SDL_REDRAW do
             call {Fonts::chalk_normal}.render(
@@ -61,61 +59,59 @@ do
         end
     end
 
-    var& IRectComponent prv;
     var Rect prv_r = val Rect(xc+280, yc-48-12, _,_);
-    spawn SurfaceButton(&prv_r,
-                        "core/menu/arrow_up",
-                        "core/menu/arrow_up_pressed",
-                        "core/menu/arrow_up_hover")
-                            -> (&prv);
+    var&? SurfaceButton prv =
+        spawn SurfaceButton(&prv_r,
+                            "core/menu/arrow_up",
+                            "core/menu/arrow_up_pressed",
+                            "core/menu/arrow_up_hover");
 
-    var& IRectComponent nxt;
     var Rect nxt_r = val Rect(xc+280, yc+12, _,_);
-    spawn SurfaceButton(&nxt_r,
-                        "core/menu/arrow_down",
-                        "core/menu/arrow_down_pressed",
-                        "core/menu/arrow_down_hover")
-                            -> (&nxt);
+    var&? SurfaceButton nxt =
+        spawn SurfaceButton(&nxt_r,
+                            "core/menu/arrow_down",
+                            "core/menu/arrow_down_pressed",
+                            "core/menu/arrow_down_hover");
 
     // terminate on ESCAPE or cancel click
 
     par do
-        every cancel.on_pointer_enter do
+        every cancel!.component.on_pointer_enter do
             call {Sound::PingusSound::play_sound}("tick");
         end
     with
-        await cancel.on_click;
+        await cancel!.component.on_click;
         escape -1;
     with
-        every prv.on_pointer_enter do
+        every prv!.component.on_pointer_enter do
             call {Sound::PingusSound::play_sound}("tick");
         end
     with
-        every nxt.on_pointer_enter do
+        every nxt!.component.on_pointer_enter do
             call {Sound::PingusSound::play_sound}("tick");
         end
     with
         par do
-            every prv.on_click do
-                if levelui_.item_at_top > 0 then
-                    levelui_.item_at_top = levelui_.item_at_top - 1;
-                    emit levelui_.go(item_height);
+            every prv!.component.on_click do
+                if ui.item_at_top > 0 then
+                    ui.item_at_top = ui.item_at_top - 1;
+                    emit ui.go(item_height);
                 end
             end
         with
-            every nxt.on_click do
-                if levelui_.item_at_top < items_total-items_per_page then
-                    levelui_.item_at_top = levelui_.item_at_top + 1;
-                    emit levelui_.go(-item_height);
+            every nxt!.component.on_click do
+                if ui.item_at_top < items_total-items_per_page then
+                    ui.item_at_top = ui.item_at_top + 1;
+                    emit ui.go(-item_height);
                 end
             end
         with
             var _Input__ButtonEvent&& but;
             every but in ON_BUTTON_PRESSED do
                 if but:name == {Input::ACTION_DOWN_BUTTON} then
-                    emit nxt.on_click;
+                    emit nxt!.component.on_click;
                 else/if but:name == {Input::ACTION_UP_BUTTON} then
-                    emit prv.on_click;
+                    emit prv!.component.on_click;
                 end
             end
         end
@@ -134,8 +130,7 @@ end
 code/await Level (var& _Levelset levelset, var& ILevelUI ui, var int i, var Rect rect)
                     -> FOREVER
 do
-    var& IRectComponent component;
-    spawn RectComponent(&rect) -> (&component);
+    var&? RectComponent component = spawn RectComponent(&rect);
 
     var int x = rect.left;
     var int y = rect.top;
@@ -147,16 +142,16 @@ do
 /// TODO
                 if levelset.get_level(i):accessible as bool then
                     par do
-                        every component.on_click do
+                        every component!.component.on_click do
                             emit ui.ok(i);
                         end
                     with
                         // draw background highlight mark
                         loop do
-                            await component.on_pointer_enter;
+                            await component!.component.on_pointer_enter;
                             var Rect r = val Rect(60+20, y, 0, 0);
                             spawn Sprite_from_name(&r, "core/menu/marker2", false);
-                            await component.on_pointer_leave;
+                            await component!.component.on_pointer_leave;
                         end
                     end
                 else
@@ -172,14 +167,12 @@ do
                 else
                     name = "core/menu/checkbox_small";
                 end
-                var& Surface sfc;
-                spawn Surface_from_name(name, _)
-                        -> (&sfc);
+                var&? Surface_from_name sfc = spawn Surface_from_name(name, _);
 
                 every SDL_REDRAW do
                     // draw checkbox
                     call {Display::s_framebuffer}:draw_surface(
-                        sfc.framebuffer,
+                        sfc!.surface.framebuffer,
                         _Vector2i(x, y)
                     );
 
@@ -227,11 +220,9 @@ do
     var int count = levelset.get_level_count() as int;
 
     //levelset.refresh();
-    var& ILevelUI ui;
+    var&? LevelUI ui = spawn LevelUI(levelset.get_level_count() as int, LEVEL_ITEMS_PER_PAGE, LEVEL_ITEM_HEIGHT);
     var int? ret =
-        watching LevelUI(levelset.get_level_count() as int, LEVEL_ITEMS_PER_PAGE, LEVEL_ITEM_HEIGHT)
-                    -> (&ui)
-        do
+        watching ui do
             var int yy  = 50+15;
 
             var Rect r1 = val Rect(0, yy, 0, 0);
@@ -246,12 +237,12 @@ do
             var Rect rect = val Rect(60+50, 50+112, 680-90, LEVEL_ITEM_HEIGHT-1);
             var int i;
             loop i in [0->levelset.get_level_count() as int[ do
-                spawn Level(&levelset, &ui, i, rect) in levels;
+                spawn Level(&levelset, &ui!.ui, i, rect) in levels;
                 rect.top = rect.top + LEVEL_ITEM_HEIGHT;
             end
 
             par do
-                var int v = await ui.ok;
+                var int v = await ui!.ui.ok;
                 escape v;   // always >= 0
             with
                 every SDL_REDRAW do
@@ -271,8 +262,7 @@ end
 
 code/await Levelset (var& ILevelUI ui, var int i, var Rect rect) -> FOREVER
 do
-    var& IRectComponent component;
-    spawn RectComponent(&rect) -> (&component);
+    var&? RectComponent component = spawn RectComponent(&rect);
 
     var int x = rect.left;
     var int y = rect.top;
@@ -281,24 +271,23 @@ do
     par do
         pause/if pse do
             par do
-                every component.on_click do
+                every component!.component.on_click do
                     emit ui.ok(i);
                 end
             with
                 // draw background highlight mark
                 loop do
-                    await component.on_pointer_enter;
+                    await component!.component.on_pointer_enter;
                     var Rect r = val Rect(60+15, y-5, _,_);
                     spawn Sprite_from_name(&r, "core/menu/marker", _);
-                    await component.on_pointer_leave;
+                    await component!.component.on_pointer_leave;
                 end
             with
-                var& Surface sfc;
-                spawn Surface_from_name({levelsets[@i]->get_image().c_str()}, _)
-                        -> (&sfc);
+                var&? Surface_from_name sfc =
+                    spawn Surface_from_name({levelsets[@i]->get_image().c_str()}, _);
                 every SDL_REDRAW do
                     call {Display::s_framebuffer}:draw_surface(
-                        sfc.framebuffer,
+                        sfc!.surface.framebuffer,
                         _Vector2i(x+10, y)
                     );
 
@@ -374,21 +363,20 @@ code/await LevelsetSelector (void) -> int do
 #endif
         std::sort(levelsets.begin(), levelsets.end(), LevelsetPrioritySorter());
     };
-    var& ILevelUI ui;
+    var&? LevelUI ui =
+        spawn LevelUI({levelsets.size()} as int, LEVELSET_ITEMS_PER_PAGE, LEVELSET_ITEM_HEIGHT);
     var int? ret =
-        watching LevelUI({levelsets.size()} as int, LEVELSET_ITEMS_PER_PAGE, LEVELSET_ITEM_HEIGHT)
-                    -> (&ui)
-        do
+        watching ui do
             pool[] Levelset sets;
             var Rect rect = val Rect(60+30, 50+70, 680-90, LEVELSET_ITEM_HEIGHT-1);
             var int i;
             loop i in [0 -> {levelsets.size()}[ do
-                spawn Levelset(&ui, i, rect) in sets;
+                spawn Levelset(&ui!.ui, i, rect) in sets;
                 rect.top = rect.top + LEVELSET_ITEM_HEIGHT;
             end
 
             par do
-                var int v = await ui.ok;
+                var int v = await ui!.ui.ok;
                 escape v;   // always >= 0
             with
                 every SDL_REDRAW do

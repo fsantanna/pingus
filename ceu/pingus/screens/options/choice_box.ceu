@@ -42,21 +42,21 @@ end
 code/await ChoiceBox (var& Rect rect, pool&[] ChoiceItem items, var& IChoiceBox choicebox)
                         -> FOREVER
 do
-    var& IRectComponent component;
-    spawn RectComponent(&rect) -> (&component);
+    var&? RectComponent component = spawn RectComponent(&rect);
 
     emit choicebox.go;
 
     // TODO: $items
     var int tot = 0;
-    loop in items do
+    loop _ in items do
         tot = tot + 1;
     end
     _ceu_dbg_assert(tot > 0);
 
     par do
-        var int x,y;
-        every (x,y) in component.on_primary_button_pressed do
+        var int x;
+        var int y;
+        every (x,y) in component!.component.on_primary_button_pressed do
             var int old = choicebox.current;
             x = x - (rect.left as int);
             if x > rect.width/2 then
