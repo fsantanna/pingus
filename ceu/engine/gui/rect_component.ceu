@@ -28,12 +28,12 @@ do
             var int y;
             (x,y) = await ON_PRIMARY_BUTTON_PRESSED
                     until call Rect_is_at(&rect,x,y);
-            emit component_.on_primary_button_pressed(x,y);
+            emit component.on_primary_button_pressed(x,y);
             (x,y) = await ON_PRIMARY_BUTTON_RELEASED;
             if call Rect_is_at(&rect,x,y) then
-                emit component_.on_click;
+                emit component.on_click;
             end
-            emit component_.on_primary_button_released(x,y);
+            emit component.on_primary_button_released(x,y);
         end
     with
         var bool is_on = false;
@@ -43,9 +43,9 @@ do
             if call Rect_is_at(&rect,x,y) != is_on then
                 is_on = not is_on;
                 if is_on then
-                    emit component_.on_pointer_enter;
+                    emit component.on_pointer_enter;
                 else
-                    emit component_.on_pointer_leave;
+                    emit component.on_pointer_leave;
                 end
             end
         end
