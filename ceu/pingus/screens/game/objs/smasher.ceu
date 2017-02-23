@@ -80,10 +80,10 @@ do
 
             var&? Pingu pingu;
             loop pingu in outer.pingus do
-                if (call Is_Inside((pst.x +  30) as int,
-                                   (pst.y +  90) as int,
-                                   (pst.x + 250) as int,
-                                   (pst.y + 190) as int) in pingu)
+                if (call pingu!.Is_Inside((pst.x +  30) as int,
+                                          (pst.y +  90) as int,
+                                          (pst.x + 250) as int,
+                                          (pst.y + 190) as int))
                 then
                     emit pingu!.pingu.go_action({ActionName::SPLASHED});
                 end

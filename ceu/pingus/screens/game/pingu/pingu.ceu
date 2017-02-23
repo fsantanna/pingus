@@ -58,9 +58,7 @@ do
 
     #include "codes.ceu"
     #include "mover.ceu"
-#if 0
     #include "actions/basher.ceu"
-#endif
     #include "actions/bomber.ceu"
     #include "actions/faller.ceu"
     #include "actions/floater.ceu"
@@ -138,9 +136,9 @@ do
                         await FOREVER;
                     else/if pingu.current_action == {ActionName::DEAD} then
                         escape {PS_DEAD};
-#if 0
                     else/if pingu.current_action == {ActionName::BASHER} then
-                        pingu.current_action = DO_PINGU_ACTION(Basher);
+                        pingu.current_action = await Basher();
+#if 0
                     else/if pingu.current_action == {ActionName::BLOCKER} then
                         pingu.current_action = DO_PINGU_ACTION(Blocker);
 #endif

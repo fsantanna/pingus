@@ -21,10 +21,14 @@ code/await RightLeftSprites (var&      Rect rect,
                              vector&[] byte left,
                              vector&[] byte right,
                              var       bool is_world)
-                                -> void
+                                -> (pool[1] Sprite_from_name sprites)
+                                    -> void
 do
     vector[] byte none;     // TODO: always empty?
     event void e_change;
+
+    //pool[1] Sprite_from_name sprites;
+
     par do
         var s8 dir = direction;
         every SDL_DT do
@@ -45,10 +49,14 @@ do
                         escape &&right[0] as _char_const_ptr;
                     end
                 end;
-                await Sprite_from_name(&rect, name, is_world);
-                escape;
+                spawn Sprite_from_name(&rect, name, is_world) in sprites;
+                await FOREVER;
             with
                 await e_change;
+                var&? Sprite_from_name s;
+                loop s in sprites do
+                    kill s;
+                end
             end
         end
     end
