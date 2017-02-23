@@ -3,42 +3,27 @@
 #else
 #define _DIGGER_CEU
 
-class Digger with
-    interface IPinguAction;
+code/await Digger (void) -> _ActionName__Enum
 do
-    function (void)=>bool have_something_to_dig;
-    function (bool final)=>void dig;
+    vector[] byte str = [] .. "pingus/player"
+                           .. (call Pingu_Get_Owner_Str() as _char&&)
+                           .. "/digger/left";
 
-    var char[] str = [] .. "pingus/player"
-                        .. (_char&&)this.pingu.get_owner_str().c_str()
-                        .. "/digger/left";
-    var Sprite _ = Sprite.build_name(&outer.pingu.rect, (_char&&)&&str);
+    spawn Sprite_from_name(&outer.pingu.rect, &&str[0] as _char&&, true);
 
-    /* UPDATE */
-    loop i do
-        await WORLD_UPDATE;
-        if not this.have_something_to_dig() then
-            this.dig(true);
-            escape {ActionName::WALKER};
-        else/if i%4 == 0 then
-            this.dig(false);
-        end
-    end
-
-    function (void)=>bool have_something_to_dig do
-        if (this.pingu.rel_getpixel(0,-1) !=  {Groundtype::GP_NOTHING}) then
-            if (this.pingu.rel_getpixel(0,-1) ==  {Groundtype::GP_SOLID}) then
-                call { Sound::PingusSound::play_sound }("chink");
-                return false;
-            else
-                return true;
-            end
+    code/tight Have_Something_To_Dig (void) -> bool do
+        if call Pingu_Rel_Getpixel(0,-1) == {Groundtype::GP_NOTHING} then
+            escape false;
+        else/if call Pingu_Rel_Getpixel(0,-1) == {Groundtype::GP_SOLID} then
+            call { Sound::PingusSound::play_sound }("chink");
+            escape false;
         else
-            return false;
+            escape true;
         end
     end
 
-    function (bool final)=>void dig do
+
+    code/tight Dig (var bool final) -> void do
         {
             ##include "../../../src/pingus/collision_mask.hpp"
             static CollisionMask digger_radius(
@@ -51,18 +36,29 @@ do
             );
         };
 
-        if (not final) then
-            global:world!:remove(
-                    &&_digger_radius,
-                    this.pingu.get_xi() - _digger_radius.get_width()/2,
-                    this.pingu.get_yi() - _digger_radius.get_height() + 2);
+        if not final then
+            call Game_Remove({&digger_radius},
+                             outer.pingu.rect.left - {digger_radius.get_width()}/2,
+                             outer.pingu.rect.top  - {digger_radius.get_height()} + 2);
         else
-            global:world!:remove(
-                    &&_digger_radius_final,
-                    this.pingu.get_xi() - _digger_radius.get_width()/2,
-                    this.pingu.get_yi() - _digger_radius.get_height() + 2);
+            call Game_Remove({&digger_radius_final},
+                             outer.pingu.rect.left - {digger_radius.get_width()}/2,
+                             outer.pingu.rect.top  - {digger_radius.get_height()} + 2);
         end
-        this.pingu.set_pos(this.pingu.get_xi(), this.pingu.get_yi()+1);
+        outer.pingu.rect.top = outer.pingu.rect.top + 1;
+    end
+
+    /* UPDATE */
+
+    var int i;
+    loop i do
+        await WORLD_UPDATE;
+        if not call Have_Something_To_Dig() then
+            call Dig(true);
+            escape {ActionName::WALKER};
+        else/if i%4 == 0 then
+            call Dig(false);
+        end
     end
 end
 

@@ -8,7 +8,6 @@
 #include "actions/blocker.ceu"
 #include "actions/bridger.ceu"
 #include "actions/climber.ceu"
-#include "actions/digger.ceu"
 #include "actions/drown.ceu"
 #include "actions/exiter.ceu"
 #include "actions/floater.ceu"
@@ -60,6 +59,7 @@ do
     #include "mover.ceu"
     #include "actions/basher.ceu"
     #include "actions/bomber.ceu"
+    #include "actions/digger.ceu"
     #include "actions/faller.ceu"
     #include "actions/floater.ceu"
     #include "actions/splashed.ceu"
@@ -149,8 +149,10 @@ do
                         pingu.current_action = DO_PINGU_ACTION(Bridger);
                     else/if pingu.current_action == {ActionName::CLIMBER} then
                         pingu.current_action = DO_PINGU_ACTION(Climber);
+#endif
                     else/if pingu.current_action == {ActionName::DIGGER} then
-                        pingu.current_action = DO_PINGU_ACTION(Digger);
+                        pingu.current_action = await Digger();
+#if 0
                     else/if current_action == {ActionName::DROWN} then
                         pingu.current_action = DO_PINGU_ACTION(Drown);
                     else/if pingu.current_action == {ActionName::EXITER} then
