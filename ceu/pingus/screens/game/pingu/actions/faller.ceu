@@ -5,8 +5,6 @@
 
 code/await Faller (void) -> _ActionName__Enum
 do
-    var _ActionName__Enum previous_action = outer.pingu.current_action;
-
     code/tight Is_Tumbling (void) -> bool do
         // If we are going fast enough to get smashed, start tumbling
         escape {Math::abs(@outer.pingu.velocity.x) > deadly_velocity ||
@@ -70,7 +68,7 @@ await WORLD_UPDATE;
                 // This is where the jumper bug happens
                 //log_info("Reached the unreachable: " << 
                 //me.pingu:get_velocity().y);
-                if previous_action == {ActionName::BLOCKER} then
+                if outer.pingu.previous_action == {ActionName::BLOCKER} then
                     escape {ActionName::BLOCKER};
                 else
                     escape {ActionName::WALKER};

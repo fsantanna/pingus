@@ -3,43 +3,39 @@
 #else
 #define _JUMPER_CEU
 
-class Jumper with
-    interface IPinguAction;
+code/await Jumper (void) -> _ActionName__Enum
 do
-    var char[] left  = [] .. "pingus/player"
-                          .. (_char&&)this.pingu.get_owner_str().c_str()
+    vector[] byte left  = [] .. "pingus/player"
+                          .. (call Pingu_Get_Owner_Str() as _char&&)
                           .. "/jumper/left";
-    var char[] right = [] .. "pingus/player"
-                          .. (_char&&)this.pingu.get_owner_str().c_str()
+    vector[] byte right = [] .. "pingus/player"
+                          .. (call Pingu_Get_Owner_Str() as _char&&)
                           .. "/jumper/right";
-    var RightLeftSprites _ with
-        this.parent = &outer.pingu;
-        this.left   = &left;
-        this.right  = &right;
-    end;
+
+    var&? RightLeftSprites sprites =
+        spawn RightLeftSprites(&outer.pingu.rect, &outer.pingu.direction, &left, &right, true);
 
     await WORLD_UPDATE;
 
     // if climber, do a wall-jump, else just jump forward
-    if this.previous_action == {ActionName::CLIMBER} then
-        this.pingu.change_direction();
+    if outer.pingu.previous_action == {ActionName::CLIMBER} then
+        call Pingu_Toggle_Direction();
     end
 
-    var float dx, dy;
-    if this.pingu.direction == _LEFT then
-        dx = -4.58;
-        dy = -4.58;
-    else // if (this.pingu.direction == _LEFT)
-        dx =  4.58;
-        dy = -4.58;
-    end
-    var Vector3f velocity = this.pingu.get_velocity();
-    velocity.x = velocity.x + dx;
-    velocity.y = velocity.y + dy;
-    this.pingu.set_velocity(velocity);
+    var float dy = -4.58;
+    var float dx = do
+        if outer.pingu.direction == {LEFT} then
+            escape -4.58;
+        else
+            escape  4.58;
+        end
+    end;
+
+    outer.pingu.velocity.x = outer.pingu.velocity.x + dx;
+    outer.pingu.velocity.y = outer.pingu.velocity.y + dy;
 
     // Move the me.pingu:n the air, so that it can start 'falling'
-    this.pingu.set_y(this.pingu.get_y() - 1);
+    outer.pingu.rect.top = outer.pingu.rect.top - 1;
 
     escape {ActionName::FALLER};
 end
