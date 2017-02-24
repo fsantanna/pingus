@@ -18,7 +18,7 @@ do
         escape (call Pingu_Rel_Getpixel(0,-1) != {Groundtype::GP_NOTHING});
     end
 
-    code/tight (var& IPingu target)=>void catch_pingu do
+    code/tight Catch_Pingu (var& IPingu target) -> void do
         if &&target != &&outer.pingu then // avoid 'self' catch
             if ( target.rect.left > outer.pingu.rect.left-16
             and  target.rect.left < outer.pingu.rect.left+16
@@ -44,7 +44,7 @@ do
         // FIXME: PinguHolder iterations should be handled otherwise
         var&? Pingu p;
         loop p in outer.pingus do
-            call Catch_Pingu(&p);
+            call Catch_Pingu(&p!.pingu);
         end
     end
 end
