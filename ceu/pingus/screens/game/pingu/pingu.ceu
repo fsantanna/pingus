@@ -5,7 +5,6 @@
 
 #if 0
 #include "../engine/display/sprite.ceu"
-#include "actions/blocker.ceu"
 #include "actions/bridger.ceu"
 #include "actions/climber.ceu"
 #include "actions/drown.ceu"
@@ -13,7 +12,6 @@
 #include "actions/laser_kill.ceu"
 #include "actions/splashed.ceu"
 #include "actions/slider.ceu"
-#include "actions/waiter.ceu"
 #endif
 
 #include "pingus/right_left_sprites.ceu"
@@ -56,6 +54,7 @@ do
     #include "codes.ceu"
     #include "mover.ceu"
     #include "actions/basher.ceu"
+    #include "actions/blocker.ceu"
     #include "actions/bomber.ceu"
     #include "actions/digger.ceu"
     #include "actions/faller.ceu"
@@ -63,6 +62,7 @@ do
     #include "actions/jumper.ceu"
     #include "actions/miner.ceu"
     #include "actions/splashed.ceu"
+    #include "actions/waiter.ceu"
     #include "actions/walker.ceu"
 
     var int ret =
@@ -139,10 +139,8 @@ do
                         escape {PS_DEAD};
                     else/if pingu.current_action == {ActionName::BASHER} then
                         next_action = await Basher();
-#if 0
                     else/if pingu.current_action == {ActionName::BLOCKER} then
-                        next_action = DO_PINGU_ACTION(Blocker);
-#endif
+                        next_action = await Blocker();
                     else/if pingu.current_action == {ActionName::BOMBER} then
                         next_action = await Bomber();
 #if 0
@@ -178,10 +176,8 @@ do
 #endif
                     else/if pingu.current_action == {ActionName::SPLASHED} then
                         next_action = await Splashed();
-#if 0
                     else/if pingu.current_action == {ActionName::WAITER} then
-                        next_action = DO_PINGU_ACTION(Waiter);
-#endif
+                        next_action = await Waiter();
                     else/if pingu.current_action == {ActionName::WALKER} then
                         next_action = await Walker();
                     else

@@ -3,56 +3,48 @@
 #else
 #define _BLOCKER_CEU
 
-class Blocker with
-    interface IPinguAction;
+code/await Blocker (void) -> _ActionName__Enum
 do
-    function (void)=>bool standing_on_ground;
-    function (IPingu&& target)=>void catch_pingu;
-
-    var char[] left  = [] .. "pingus/player"
-                          .. (_char&&)this.pingu.get_owner_str().c_str()
+    vector[] byte left  = [] .. "pingus/player"
+                          .. (call Pingu_Get_Owner_Str() as _char&&)
                           .. "/blocker/left";
-    var char[] right = [] .. "pingus/player"
-                          .. (_char&&)this.pingu.get_owner_str().c_str()
+    vector[] byte right = [] .. "pingus/player"
+                          .. (call Pingu_Get_Owner_Str() as _char&&)
                           .. "/blocker/right";
-    var RightLeftSprites _ with
-        this.parent = &outer.pingu;
-        this.left   = &left;
-        this.right  = &right;
-    end;
+
+    spawn RightLeftSprites(&outer.pingu.rect, &outer.pingu.direction, &left, &right, true);
+
+    code/tight Standing_On_Ground (void) -> bool do
+        escape (call Pingu_Rel_Getpixel(0,-1) != {Groundtype::GP_NOTHING});
+    end
+
+    code/tight (var& IPingu target)=>void catch_pingu do
+        if &&target != &&outer.pingu then // avoid 'self' catch
+            if ( target.rect.left > outer.pingu.rect.left-16
+            and  target.rect.left < outer.pingu.rect.left+16
+            and  target.rect.top  > outer.pingu.rect.top-32
+            and  target.rect.top  < outer.pingu.rect.top+5 )
+            then
+                if (target.rect.left > outer.pingu.rect.left) then
+                    target.direction = {RIGHT};
+                else
+                    target.direction = {LEFT};
+                end
+            end
+        end
+    end
 
     /* UPDATE */
     loop do
         await WORLD_UPDATE;
-        if not this.standing_on_ground() then
+        if not call Standing_On_Ground() then
             escape {ActionName::FALLER};
         end
 
         // FIXME: PinguHolder iterations should be handled otherwise
-        loop p in this.pingus do
-            this.catch_pingu(p);
-        end
-    end
-
-    /* PRIVATE */
-
-    function (void)=>bool standing_on_ground do
-        return (this.pingu.rel_getpixel(0,-1) != {Groundtype::GP_NOTHING});
-    end
-
-    function (IPingu&& target)=>void catch_pingu do
-        if (target != &&this.pingu) then // avoid 'self' catch
-            if ( target:get_x() > this.pingu.get_x()-16
-            and  target:get_x() < this.pingu.get_x()+16
-            and  target:get_y() > this.pingu.get_y()-32
-            and  target:get_y() < this.pingu.get_y()+5 )
-            then
-                if (target:get_x() > this.pingu.get_x()) then
-                    target:direction = _RIGHT;
-                else
-                    target:direction = _LEFT;
-                end
-            end
+        var&? Pingu p;
+        loop p in outer.pingus do
+            call Catch_Pingu(&p);
         end
     end
 end
