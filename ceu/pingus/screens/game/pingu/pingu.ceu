@@ -11,7 +11,6 @@
 #include "actions/drown.ceu"
 #include "actions/exiter.ceu"
 #include "actions/laser_kill.ceu"
-#include "actions/miner.ceu"
 #include "actions/splashed.ceu"
 #include "actions/slider.ceu"
 #include "actions/waiter.ceu"
@@ -62,6 +61,7 @@ do
     #include "actions/faller.ceu"
     #include "actions/floater.ceu"
     #include "actions/jumper.ceu"
+    #include "actions/miner.ceu"
     #include "actions/splashed.ceu"
     #include "actions/walker.ceu"
 
@@ -169,8 +169,10 @@ do
 #if 0
                     else/if pingu.current_action == {ActionName::LASERKILL} then
                         next_action = DO_PINGU_ACTION(LaserKill);
+#endif
                     else/if pingu.current_action == {ActionName::MINER} then
-                        next_action = DO_PINGU_ACTION(Miner);
+                        next_action = await Miner();
+#if 0
                     else/if pingu.current_action == {ActionName::SLIDER} then
                         next_action = DO_PINGU_ACTION(Slider);
 #endif
