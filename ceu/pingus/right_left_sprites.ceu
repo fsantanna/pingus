@@ -39,25 +39,25 @@ do
         end
     with
         loop do
-            par/or do
-                var _char_const_ptr name = do
-                    if direction == {NONE} then
-                        escape &&none[0] as _char_const_ptr;
-                    else/if direction == {LEFT} then
-                        escape &&left[0] as _char_const_ptr;
-                    else
-                        escape &&right[0] as _char_const_ptr;
-                    end
-                end;
+            var _char_const_ptr name = do
+                if direction == {NONE} then
+                    escape &&none[0] as _char_const_ptr;
+                else/if direction == {LEFT} then
+                    escape &&left[0] as _char_const_ptr;
+                else
+                    escape &&right[0] as _char_const_ptr;
+                end
+            end;
+            var&? Sprite_from_name s =
                 spawn Sprite_from_name(&rect, name, is_world) in sprites;
-                await FOREVER;
+
+            par/or do
+                await s;
+                escape;
             with
                 await e_change;
-                var&? Sprite_from_name s;
-                loop s in sprites do
-                    kill s;
-                end
             end
+            kill s;
         end
     end
 end

@@ -5,7 +5,6 @@
 
 #if 0
 #include "../engine/display/sprite.ceu"
-#include "actions/bridger.ceu"
 #include "actions/drown.ceu"
 #include "actions/exiter.ceu"
 #include "actions/laser_kill.ceu"
@@ -55,6 +54,7 @@ do
     #include "actions/basher.ceu"
     #include "actions/blocker.ceu"
     #include "actions/bomber.ceu"
+    #include "actions/bridger.ceu"
     #include "actions/climber.ceu"
     #include "actions/digger.ceu"
     #include "actions/faller.ceu"
@@ -143,10 +143,8 @@ do
                         next_action = await Blocker();
                     else/if pingu.current_action == {ActionName::BOMBER} then
                         next_action = await Bomber();
-#if 0
                     else/if pingu.current_action == {ActionName::BRIDGER} then
-                        next_action = DO_PINGU_ACTION(Bridger);
-#endif
+                        next_action = await Bridger();
                     else/if pingu.current_action == {ActionName::CLIMBER} then
                         next_action = await Climber();
                     else/if pingu.current_action == {ActionName::DIGGER} then
