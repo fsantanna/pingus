@@ -5,13 +5,10 @@
 
 code/await Faller (void) -> _ActionName__Enum
 do
-    code/tight Is_Tumbling (void) -> bool do
-        // If we are going fast enough to get smashed, start tumbling
-        escape {Math::abs(@outer.pingu.velocity.x) > deadly_velocity ||
-                Math::abs(@outer.pingu.velocity.y) > deadly_velocity} as bool;
-    end
+    code/tight Is_Tumbling (void) -> bool;
 
     /* UPDATE */
+
     par do
         loop do
             await WORLD_UPDATE;
@@ -102,6 +99,14 @@ await WORLD_UPDATE;
             await RightLeftSprites(&outer.pingu.rect, &outer.pingu.direction, &left, &right, true);
             _ceu_dbg_assert(0);     // sprite has loop
         end
+    end
+
+    /* PRIVATE */
+
+    code/tight Is_Tumbling (void) -> bool do
+        // If we are going fast enough to get smashed, start tumbling
+        escape {Math::abs(@outer.pingu.velocity.x) > deadly_velocity ||
+                Math::abs(@outer.pingu.velocity.y) > deadly_velocity} as bool;
     end
 end
 

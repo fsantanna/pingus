@@ -13,73 +13,10 @@ do
            (({StringUtil::to_string}(bricks).c_str()) as _char&&) ..
            ")";
 
-    /* PRIVATE */
-
-    // Way_Is_Free() needs to stop BRIDGERS from getting stuck between a brick
-    // and the ceiling.  The routine also stops cases of Bridgers building up but
-    // then not being able to walk all the way down the bridge the it has built.
-    // Even though the routine may be the same as brick_placement_allowed(), it is
-    // best to keep them apart as they may need to be independent of each other if
-    // there needs to be a patch.
-    code/tight Way_Is_Free (void) -> bool do
-        var bool way_free = true;
-        var int x_inc;
-        loop x_inc in [1 -> 4] do
-            if call Pingu_Rel_Getpixel(x_inc, 2) != {Groundtype::GP_NOTHING}
-            or call Pingu_Head_Collision_On_Walk(x_inc, 2)
-            then
-                way_free = false;
-                break;
-            end
-        end
-        escape way_free;
-    end
-
-    // brick_placement_allowed() is mainly for stopping WALKERS from getting 
-    // stuck
-    // between a brick and the ceiling.  Even though the routine may be the same,
-    // as Way_Is_Free() it is best to keep them apart as they may need to be
-    // independent of each other if there needs to be a patch.
-    code/tight Brick_Placement_Allowed (void) -> bool do
-        escape not call Pingu_Head_Collision_On_Walk(0, 2);
-    end
-
-    code/tight Place_A_Brick (void) -> void do
-        outer.bricks = outer.bricks - 1;
-
-// TODO: ???
-        outer.pingu.name = [] .. "Bridger (" ..
-                            ({StringUtil::to_string}(outer.bricks).c_str()) as _char&& ..
-                            ")";
-
-        if outer.bricks < 4 then
-            { Sound::PingusSound::play_sound("ting"); };
-        end
-
-        {
-            static CollisionMask brick_l("other/brick_left");
-            static CollisionMask brick_r("other/brick_right");
-        };
-
-        if outer.pingu.direction == {RIGHT} then
-            call Game_Put({&brick_r},
-                          outer.pingu.rect.left + 10 - {brick_r.get_width()},
-                          outer.pingu.rect.top,
-                          {Groundtype::GP_BRIDGE}
-            );
-        else
-            call Game_Put({&brick_l},
-                          outer.pingu.rect.left - 10,
-                          outer.pingu.rect.top,
-                          {Groundtype::GP_BRIDGE}
-            );
-        end
-    end
-
-    code/tight Walk_One_Step_Up (void) -> void do
-        outer.pingu.rect.left = outer.pingu.rect.left + (4*(outer.pingu.direction as int));
-        outer.pingu.rect.top  = outer.pingu.rect.top - 2;
-    end
+    code/tight Way_Is_Free             (void) -> bool;
+    code/tight Brick_Placement_Allowed (void) -> bool;
+    code/tight Place_A_Brick           (void) -> void;
+    code/tight Walk_One_Step_Up        (void) -> void;
 
     /* UPDATE */
     var int i;
@@ -177,6 +114,74 @@ do
             end
         end
 #endif
+
+    /* PRIVATE */
+
+    // Way_Is_Free() needs to stop BRIDGERS from getting stuck between a brick
+    // and the ceiling.  The routine also stops cases of Bridgers building up but
+    // then not being able to walk all the way down the bridge the it has built.
+    // Even though the routine may be the same as brick_placement_allowed(), it is
+    // best to keep them apart as they may need to be independent of each other if
+    // there needs to be a patch.
+    code/tight Way_Is_Free (void) -> bool do
+        var bool way_free = true;
+        var int x_inc;
+        loop x_inc in [1 -> 4] do
+            if call Pingu_Rel_Getpixel(x_inc, 2) != {Groundtype::GP_NOTHING}
+            or call Pingu_Head_Collision_On_Walk(x_inc, 2)
+            then
+                way_free = false;
+                break;
+            end
+        end
+        escape way_free;
+    end
+
+    // brick_placement_allowed() is mainly for stopping WALKERS from getting 
+    // stuck
+    // between a brick and the ceiling.  Even though the routine may be the same,
+    // as Way_Is_Free() it is best to keep them apart as they may need to be
+    // independent of each other if there needs to be a patch.
+    code/tight Brick_Placement_Allowed (void) -> bool do
+        escape not call Pingu_Head_Collision_On_Walk(0, 2);
+    end
+
+    code/tight Place_A_Brick (void) -> void do
+        outer.bricks = outer.bricks - 1;
+
+// TODO: ???
+        outer.pingu.name = [] .. "Bridger (" ..
+                            ({StringUtil::to_string}(outer.bricks).c_str()) as _char&& ..
+                            ")";
+
+        if outer.bricks < 4 then
+            { Sound::PingusSound::play_sound("ting"); };
+        end
+
+        {
+            static CollisionMask brick_l("other/brick_left");
+            static CollisionMask brick_r("other/brick_right");
+        };
+
+        if outer.pingu.direction == {RIGHT} then
+            call Game_Put({&brick_r},
+                          outer.pingu.rect.left + 10 - {brick_r.get_width()},
+                          outer.pingu.rect.top,
+                          {Groundtype::GP_BRIDGE}
+            );
+        else
+            call Game_Put({&brick_l},
+                          outer.pingu.rect.left - 10,
+                          outer.pingu.rect.top,
+                          {Groundtype::GP_BRIDGE}
+            );
+        end
+    end
+
+    code/tight Walk_One_Step_Up (void) -> void do
+        outer.pingu.rect.left = outer.pingu.rect.left + (4*(outer.pingu.direction as int));
+        outer.pingu.rect.top  = outer.pingu.rect.top - 2;
+    end
 end
 
 #endif

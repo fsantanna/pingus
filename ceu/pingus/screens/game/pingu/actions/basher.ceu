@@ -29,6 +29,62 @@ do
 
     var int? bash_reach; // set in bash
 
+    code/tight Bash                  (void) -> void;
+    code/tight Walk_Forward          (void) -> bool;
+    code/tight Have_Something_To_Dig (void) -> bool;
+
+    // Start a bash even so the action will stops instantly after the first bash
+    call Bash();
+
+    /* UPDATE */
+    var bool is_first_bash = true;
+    var int i;
+    loop i do
+        await WORLD_UPDATE;
+        await WORLD_UPDATE;
+        await WORLD_UPDATE;
+
+        if not call Walk_Forward() then
+            escape {ActionName::FALLER};
+        end
+
+        // If walking on to something (i.e. hasn't fallen)
+        if call Pingu_Rel_Getpixel(0,-1) != {Groundtype::GP_NOTHING} then
+            // If the Basher has walked into something that it won't be 
+            // able to bash
+            if call Pingu_Rel_Getpixel(0,0)              == {Groundtype::GP_SOLID} or
+               call Pingu_Rel_Getpixel(0,{pingu_height}) == {Groundtype::GP_SOLID}
+            then
+                // Change direction and let walk code walk forward/up to get out.
+                { Sound::PingusSound::play_sound("chink"); };
+                call Pingu_Toggle_Direction();
+                escape {ActionName::WALKER};
+            else/if is_first_bash or call Have_Something_To_Dig() then
+                is_first_bash = false;
+                // We only bash every second step, cause the Pingus would
+                // get trapped otherwise in the bashing area.
+                if i%2 == 1 then
+                    call Bash();
+                end
+            else
+/// TODO
+                var&? Sprite_from_name s;
+                loop s in sprites!.sprites do
+                    break;
+                end
+                if ((s!.sprite.frame as float) /
+                     (call Get_Frame_Count(&s!.sprite))) > 0.6
+                // FIXME: Game logic must be separate from Sprite
+                // FIXME: EVIL! Engine must not relay on graphic
+                then
+                    escape {ActionName::WALKER};
+                end
+            end
+        end
+    end
+
+    /* PRIVATE */
+
     code/tight Bash (void) -> void do
         {
             static CollisionMask bash_radius(
@@ -83,56 +139,6 @@ do
             end
         end
         escape false;
-    end
-
-    // Start a bash even so the action will stops instantly after the first bash
-    call Bash();
-
-    /* UPDATE */
-    var bool is_first_bash = true;
-    var int i;
-    loop i do
-        await WORLD_UPDATE;
-        await WORLD_UPDATE;
-        await WORLD_UPDATE;
-
-        if not call Walk_Forward() then
-            escape {ActionName::FALLER};
-        end
-
-        // If walking on to something (i.e. hasn't fallen)
-        if call Pingu_Rel_Getpixel(0,-1) != {Groundtype::GP_NOTHING} then
-            // If the Basher has walked into something that it won't be 
-            // able to bash
-            if call Pingu_Rel_Getpixel(0,0)              == {Groundtype::GP_SOLID} or
-               call Pingu_Rel_Getpixel(0,{pingu_height}) == {Groundtype::GP_SOLID}
-            then
-                // Change direction and let walk code walk forward/up to get out.
-                { Sound::PingusSound::play_sound("chink"); };
-                call Pingu_Toggle_Direction();
-                escape {ActionName::WALKER};
-            else/if is_first_bash or call Have_Something_To_Dig() then
-                is_first_bash = false;
-                // We only bash every second step, cause the Pingus would
-                // get trapped otherwise in the bashing area.
-                if i%2 == 1 then
-                    call Bash();
-                end
-            else
-/// TODO
-                var&? Sprite_from_name s;
-                loop s in sprites!.sprites do
-                    break;
-                end
-                if ((s!.sprite.frame as float) /
-                     (call Get_Frame_Count(&s!.sprite))) > 0.6
-                // FIXME: Game logic must be separate from Sprite
-                // FIXME: EVIL! Engine must not relay on graphic
-                then
-                    escape {ActionName::WALKER};
-                end
-            end
-        end
     end
 end
 

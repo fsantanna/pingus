@@ -14,39 +14,7 @@ do
 
     spawn RightLeftSprites(&outer.pingu.rect, &outer.pingu.direction, &left, &right, true);
 
-    code/tight Mine (var bool final, var int delay_count) -> void do
-        {
-            ##include "../../../src/pingus/collision_mask.hpp"
-            static CollisionMask miner_radius(
-                    "pingus/common/miner_radius_gfx",
-                    "pingus/common/miner_radius");
-            static CollisionMask miner_radius_left(
-                    "pingus/common/miner_radius_left_gfx",
-                    "pingus/common/miner_radius_left");
-            static CollisionMask miner_radius_right(
-                    "pingus/common/miner_radius_right_gfx",
-                    "pingus/common/miner_radius_right");
-        };
-
-        if not final then
-            if delay_count%2 == 0 then
-                // regular mine action
-                call Game_Remove({&miner_radius},
-                                 outer.pingu.rect.left - {miner_radius.get_width()/2} + (outer.pingu.direction as int),
-                                 outer.pingu.rect.top  - {miner_radius.get_height()} + 2);
-            end
-
-        // the last mine action before switching to another action
-        else/if outer.pingu.direction == {LEFT} then
-            call Game_Remove({&miner_radius_left},
-                             outer.pingu.rect.left - {miner_radius_left.get_width()/2} + (outer.pingu.direction as int),
-                             outer.pingu.rect.top  - {miner_radius_left.get_height()} + 2);
-        else    // RIGHT
-            call Game_Remove({&miner_radius_right},
-                             outer.pingu.rect.left - {miner_radius_right.get_width()/2} + (outer.pingu.direction as int),
-                             outer.pingu.rect.top  - {miner_radius_right.get_height()} + 2);
-        end
-    end
+    code/tight Mine (var bool final, var int delay_count) -> void;
 
     /* UPDATE */
     var int delay_count;
@@ -78,6 +46,42 @@ do
             call Mine(false, delay_count);
             outer.pingu.rect.left = outer.pingu.rect.left + (outer.pingu.direction as int);
             outer.pingu.rect.top  = outer.pingu.rect.top  + 1;
+        end
+    end
+
+    /* PRIVATE */
+
+    code/tight Mine (var bool final, var int delay_count) -> void do
+        {
+            ##include "../../../src/pingus/collision_mask.hpp"
+            static CollisionMask miner_radius(
+                    "pingus/common/miner_radius_gfx",
+                    "pingus/common/miner_radius");
+            static CollisionMask miner_radius_left(
+                    "pingus/common/miner_radius_left_gfx",
+                    "pingus/common/miner_radius_left");
+            static CollisionMask miner_radius_right(
+                    "pingus/common/miner_radius_right_gfx",
+                    "pingus/common/miner_radius_right");
+        };
+
+        if not final then
+            if delay_count%2 == 0 then
+                // regular mine action
+                call Game_Remove({&miner_radius},
+                                 outer.pingu.rect.left - {miner_radius.get_width()/2} + (outer.pingu.direction as int),
+                                 outer.pingu.rect.top  - {miner_radius.get_height()} + 2);
+            end
+
+        // the last mine action before switching to another action
+        else/if outer.pingu.direction == {LEFT} then
+            call Game_Remove({&miner_radius_left},
+                             outer.pingu.rect.left - {miner_radius_left.get_width()/2} + (outer.pingu.direction as int),
+                             outer.pingu.rect.top  - {miner_radius_left.get_height()} + 2);
+        else    // RIGHT
+            call Game_Remove({&miner_radius_right},
+                             outer.pingu.rect.left - {miner_radius_right.get_width()/2} + (outer.pingu.direction as int),
+                             outer.pingu.rect.top  - {miner_radius_right.get_height()} + 2);
         end
     end
 end

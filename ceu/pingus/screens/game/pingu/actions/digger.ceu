@@ -11,6 +11,24 @@ do
 
     spawn Sprite_from_name(&outer.pingu.rect, &&str[0] as _char&&, true);
 
+    code/tight Have_Something_To_Dig (void)           -> bool;
+    code/tight Dig                   (var bool final) -> void;
+
+    /* UPDATE */
+
+    var int i;
+    loop i do
+        await WORLD_UPDATE;
+        if not call Have_Something_To_Dig() then
+            call Dig(true);
+            escape {ActionName::WALKER};
+        else/if i%4 == 0 then
+            call Dig(false);
+        end
+    end
+
+    /* PRIVATE */
+
     code/tight Have_Something_To_Dig (void) -> bool do
         if call Pingu_Rel_Getpixel(0,-1) == {Groundtype::GP_NOTHING} then
             escape false;
@@ -46,19 +64,6 @@ do
                              outer.pingu.rect.top  - {digger_radius.get_height()} + 2);
         end
         outer.pingu.rect.top = outer.pingu.rect.top + 1;
-    end
-
-    /* UPDATE */
-
-    var int i;
-    loop i do
-        await WORLD_UPDATE;
-        if not call Have_Something_To_Dig() then
-            call Dig(true);
-            escape {ActionName::WALKER};
-        else/if i%4 == 0 then
-            call Dig(false);
-        end
     end
 end
 
