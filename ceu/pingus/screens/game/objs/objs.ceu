@@ -6,13 +6,13 @@
 #include "surface_background.ceu"
 #include "groundpiece.ceu"
 #include "entrance.ceu"
+#include "liquid.ceu"
 #include "smasher.ceu"
 #if 0
 #include "worldobjs/exit.ceu"
 #include "worldobjs/guillotine.ceu"
 #include "worldobjs/hotspot.ceu"
 #include "worldobjs/laser_exit.ceu"
-#include "worldobjs/liquid.ceu"
 #include "worldobjs/spike.ceu"
 #endif
 
@@ -80,11 +80,9 @@ do
             spawn SurfaceBackground() in outer.layer_bg_0;
         else/if id_ == "groundpiece" then
             spawn Groundpiece();  // drawn in world.ceu
-#if 0
         else/if id_ == "liquid" then
-            spawn Liquid in this.layer_bg_1 with
-                this.reader = reader_;
-            end;
+            spawn Liquid() in outer.layer_bg_1;
+#if 0
         else/if id_ == "hotspot" then
 // TODO: entrance "+100"
             spawn Hotspot in this.layer_bg_1 with

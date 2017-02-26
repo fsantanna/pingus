@@ -5,7 +5,6 @@
 
 #if 0
 #include "../engine/display/sprite.ceu"
-#include "actions/drown.ceu"
 #include "actions/exiter.ceu"
 #include "actions/laser_kill.ceu"
 #include "actions/splashed.ceu"
@@ -49,7 +48,18 @@ do
     var _ActionName__Enum wall_action    = {ActionName::NONE};
     var _ActionName__Enum fall_action    = {ActionName::NONE};
 
+    code/tight Pingu_Get_Owner_Str          (void)                  -> _char&&;
+    code/tight Pingu_Set_Velocity           (var Vector3f velocity) -> void;
+    code/tight Pingu_Toggle_Direction       (void)                  -> void;
+    code/tight Pingu_Rel_Getpixel           (var int x, var int y)  -> int;
+    code/tight Pingu_Head_Collision_On_Walk (var int x, var int y)  -> bool;
+    code/tight Pingu_Check_Action           (var _ActionName__Enum new_action) -> bool;
+    code/tight Pingu_Get_Center_Pos         (void)                  -> Vector3f;
+    code/tight Pingu_Is_Over                (var int x, var int y)  -> bool;
+    code/tight Pingu_Dist                   (var int x, var int y)  -> float;
+    code/tight Is_Inside                    (var int x1, var int y1, var int x2, var int y2) -> bool;
     #include "codes.ceu"
+
     #include "mover.ceu"
     #include "actions/basher.ceu"
     #include "actions/blocker.ceu"
@@ -57,6 +67,7 @@ do
     #include "actions/bridger.ceu"
     #include "actions/climber.ceu"
     #include "actions/digger.ceu"
+    #include "actions/drown.ceu"
     #include "actions/faller.ceu"
     #include "actions/floater.ceu"
     #include "actions/jumper.ceu"
@@ -149,9 +160,9 @@ do
                         next_action = await Climber();
                     else/if pingu.current_action == {ActionName::DIGGER} then
                         next_action = await Digger();
+                    else/if pingu.current_action == {ActionName::DROWN} then
+                        next_action = await Drown();
 #if 0
-                    else/if current_action == {ActionName::DROWN} then
-                        next_action = DO_PINGU_ACTION(Drown);
                     else/if pingu.current_action == {ActionName::EXITER} then
                         next_action = DO_PINGU_ACTION(Exiter);
                         escape _PS_EXITED;

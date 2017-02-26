@@ -3,20 +3,16 @@
 #else
 #define _DROWN_CEU
 
-class Drown with
-    interface IPinguAction;
+code/await Drown (void) -> _ActionName__Enum
 do
-    var char[] left  = [] .. "pingus/player"
-                          .. (_char&&)this.pingu.get_owner_str().c_str()
+    vector[] byte left  = [] .. "pingus/player"
+                          .. (call Pingu_Get_Owner_Str() as _char&&)
                           .. "/drownfall/left";
-    var char[] right = [] .. "pingus/player"
-                          .. (_char&&)this.pingu.get_owner_str().c_str()
+    vector[] byte right = [] .. "pingus/player"
+                          .. (call Pingu_Get_Owner_Str() as _char&&)
                           .. "/drownfall/right";
-    do RightLeftSprites with
-        this.parent = &outer.pingu;
-        this.left   = &left;
-        this.right  = &right;
-    end;
+
+    await RightLeftSprites(&outer.pingu.rect, &outer.pingu.direction, &left, &right, true);
     escape {ActionName::DEAD};
 end
 
