@@ -64,9 +64,8 @@ var Rect rect = val Rect(
 spawn Wood();
 spawn Sprite_from_name(&rect, "core/menu/blackboard", false);
 
-/// TODO: only two
 var Rect ok_r = val Rect({Display::get_width()/2}+245,
-                         {Display::get_height()/2}-150, /// TODO: +
+                         {Display::get_height()/2}+150,
                          _,_);
 var&? SurfaceButton ok = 
     spawn SurfaceButton(&ok_r,
@@ -92,15 +91,6 @@ var&? SurfaceButton retry =
                         "core/start/ok_clicked",
                         "core/start/ok_hover");
 
-if has_succeeded then
-    ///kill abort;
-    ///kill retry;
-    {Sound::PingusSound::play_music("success_1.it", 1.f, false);};
-else
-    ///kill ok;
-    {Sound::PingusSound::play_music("pingus-2.it", 1.f, false);};
-end
-
 par do
     every abort!.component.on_pointer_enter do
         call {Sound::PingusSound::play_sound}("tick");
@@ -123,6 +113,15 @@ with
     await ok!.component.on_click;
     call {Sound::PingusSound::play_sound}("yipee");
     escape false;
+with
+    if has_succeeded then
+        kill abort;
+        kill retry;
+        {Sound::PingusSound::play_music("success_1.it", 1.f, false);};
+    else
+        kill ok;
+        {Sound::PingusSound::play_music("pingus-2.it", 1.f, false);};
+    end
 with
     loop do
         var _Input__ButtonEvent&& but = await ON_BUTTON_PRESSED;

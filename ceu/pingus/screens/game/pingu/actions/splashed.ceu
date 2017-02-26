@@ -13,10 +13,10 @@ do
                            .. "/splat";
     spawn Sprite_from_name(&outer.pingu.rect, &&str[0] as _char_const_ptr, true);
 
-    await WORLD_UPDATE;
-    await WORLD_UPDATE;
-    await WORLD_UPDATE;
-    await WORLD_UPDATE;
+    var int i;
+    loop i in [1->12] do
+        await WORLD_UPDATE;
+    end
 
     escape {ActionName::DEAD};
 end
