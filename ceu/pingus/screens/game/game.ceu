@@ -131,7 +131,7 @@ with
             gfx_map.draw({Vector2i(-@off.x,-@off.y)});
         end
     end
-    pool[] Visible layer_bg_1;          // liquid, hotspot
+    pool[] Visible layer_bg_1;          // liquid, hotspot, exit
 
     #include "pingu/pingu.ceu"
     pool[] Pingu pingus;

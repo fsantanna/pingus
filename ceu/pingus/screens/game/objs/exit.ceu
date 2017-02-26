@@ -47,6 +47,12 @@ do
 /// TODO
     var Rect r3 = val Rect(pst.x,pst.y, 0,0);
     spawn Sprite_from_name(&r3, "core/misc/smallmap_exit", false);
+                x = (float)(this.small_map!.left) +                             
+                        (this.rect.left * (float)(this.small_map!.width) /      
+                            (float)global:world!:get_width());                  
+                y = (float)(this.small_map!.top) +                              
+                        (this.rect.top * (float)(this.small_map!.height) /      
+                            (float)global:world!:get_height());                 
 #endif
 
     every WORLD_UPDATE do
