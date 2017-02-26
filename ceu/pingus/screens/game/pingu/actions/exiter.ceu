@@ -3,22 +3,18 @@
 #else
 #define _EXITER_CEU
 
-class Exiter with
-    interface IPinguAction;
+code/await Exiter (void) -> _ActionName__Enum
 do
+    vector[] byte left  = [] .. "pingus/player"
+                          .. (call Pingu_Get_Owner_Str() as _char&&)
+                          .. "/exit/left";
+    vector[] byte right = [] .. "pingus/player"
+                          .. (call Pingu_Get_Owner_Str() as _char&&)
+                          .. "/exit/right";
+
     { Sound::PingusSound::play_sound("yipee"); };
 
-    var char[] left  = [] .. "pingus/player"
-                          .. (_char&&)this.pingu.get_owner_str().c_str()
-                          .. "/exit/left";
-    var char[] right = [] .. "pingus/player"
-                          .. (_char&&)this.pingu.get_owner_str().c_str()
-                          .. "/exit/right";
-    do RightLeftSprites with
-        this.parent = &outer.pingu;
-        this.left   = &left;
-        this.right  = &right;
-    end;
+    await RightLeftSprites(&outer.pingu.rect, &outer.pingu.direction, &left, &right, true);
 
     escape {ActionName::NONE};
 end

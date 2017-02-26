@@ -6,10 +6,10 @@
 #include "surface_background.ceu"
 #include "groundpiece.ceu"
 #include "entrance.ceu"
+#include "exit.ceu"
 #include "liquid.ceu"
 #include "smasher.ceu"
 #if 0
-#include "worldobjs/exit.ceu"
 #include "worldobjs/guillotine.ceu"
 #include "worldobjs/hotspot.ceu"
 #include "worldobjs/laser_exit.ceu"
@@ -92,13 +92,9 @@ do
 #endif
         else/if id_ == "entrance" then
             spawn Entrance(pos_offset) in entrances;
-#if 0
         else/if id_ == "exit" then
-            spawn Exit with
-                this.pingus   = &outer.pingus;
-                this.reader   = reader_;
-                this.smallmap = &outer.smallmap;
-            end;
+            spawn Exit() in outer.layer_bg_1;
+#if 0
         else/if id_ == "guillotine" then
             spawn Guillotine with
                 this.pingus = &outer.pingus;

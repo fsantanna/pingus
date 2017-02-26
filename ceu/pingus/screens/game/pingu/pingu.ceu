@@ -3,11 +3,6 @@
 #else
 #define _PINGU_CEU
 
-#if 0
-#include "actions/exiter.ceu"
-#include "actions/laser_kill.ceu"
-#endif
-
 #include "pingus/right_left_sprites.ceu"
 
 #include "pingu_particle.ceu"
@@ -65,6 +60,7 @@ do
     #include "actions/climber.ceu"
     #include "actions/digger.ceu"
     #include "actions/drown.ceu"
+    #include "actions/exiter.ceu"
     #include "actions/faller.ceu"
     #include "actions/floater.ceu"
     #include "actions/jumper.ceu"
@@ -160,21 +156,15 @@ do
                         next_action = await Digger();
                     else/if pingu.current_action == {ActionName::DROWN} then
                         next_action = await Drown();
-#if 0
                     else/if pingu.current_action == {ActionName::EXITER} then
-                        next_action = DO_PINGU_ACTION(Exiter);
-                        escape _PS_EXITED;
-#endif
+                        next_action = await Exiter();
+                        escape {PS_EXITED};
                     else/if pingu.current_action == {ActionName::FALLER} then
                         next_action = await Faller();
                     else/if pingu.current_action == {ActionName::FLOATER} then
                         next_action = await Floater();
                     else/if pingu.current_action == {ActionName::JUMPER} then
                         next_action = await Jumper();
-#if 0
-                    else/if pingu.current_action == {ActionName::LASERKILL} then
-                        next_action = DO_PINGU_ACTION(LaserKill);
-#endif
                     else/if pingu.current_action == {ActionName::MINER} then
                         next_action = await Miner();
                     else/if pingu.current_action == {ActionName::SLIDER} then
