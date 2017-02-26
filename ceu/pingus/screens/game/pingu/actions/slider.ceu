@@ -3,20 +3,16 @@
 #else
 #define _SLIDER_CEU
 
-class Slider with
-    interface IPinguAction;
+code/await Slider (void) -> _ActionName__Enum
 do
-    var char[] left  = [] .. "pingus/player"
-                          .. (_char&&)this.pingu.get_owner_str().c_str()
+    vector[] byte left  = [] .. "pingus/player"
+                          .. (call Pingu_Get_Owner_Str() as _char&&)
                           .. "/slider/left";
-    var char[] right = [] .. "pingus/player"
-                          .. (_char&&)this.pingu.get_owner_str().c_str()
+    vector[] byte right = [] .. "pingus/player"
+                          .. (call Pingu_Get_Owner_Str() as _char&&)
                           .. "/slider/right";
-    var RightLeftSprites _ with
-        this.parent = &outer.pingu;
-        this.left   = &left;
-        this.right  = &right;
-    end;
+
+    spawn RightLeftSprites(&outer.pingu.rect, &outer.pingu.direction, &left, &right, true);
 
     #define SLIDER_SPEED 10
     var float speed = SLIDER_SPEED;
@@ -24,25 +20,22 @@ do
     loop do
         await WORLD_UPDATE;
 
-        loop/SLIDER_SPEED i in speed do
-            if this.pingu.rel_getpixel(1,0) != {Groundtype::GP_NOTHING} then
+        loop/SLIDER_SPEED _ in [0 -> (speed as int)[ do
+            if call Pingu_Rel_Getpixel(1,0) != {Groundtype::GP_NOTHING} then
                 break;
             end
 
-            this.pingu.set_x(this.pingu.get_x() + (float)(this.pingu.direction));
+            outer.pingu.rect.left = outer.pingu.rect.left + (outer.pingu.direction as int);
 
-            if (this.pingu.rel_getpixel(0,-1) == {Groundtype::GP_NOTHING}) then
+            if (call Pingu_Rel_Getpixel(0,-1) == {Groundtype::GP_NOTHING}) then
                 if speed <= 5 then
                     speed = 5;
                 end
 
-                var Vector3f cur = this.pingu.get_velocity();
-                if (this.pingu.direction == _RIGHT) then
-                    cur.x = cur.x + speed;
-                    this.pingu.set_velocity(cur);
+                if (outer.pingu.direction == {RIGHT}) then
+                    outer.pingu.velocity.x = outer.pingu.velocity.x + speed;
                 else
-                    cur.x = cur.x - speed;
-                    this.pingu.set_velocity(cur);
+                    outer.pingu.velocity.x = outer.pingu.velocity.x - speed;
                 end
 
                 escape {ActionName::FALLER};

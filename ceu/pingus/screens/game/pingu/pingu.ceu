@@ -4,11 +4,8 @@
 #define _PINGU_CEU
 
 #if 0
-#include "../engine/display/sprite.ceu"
 #include "actions/exiter.ceu"
 #include "actions/laser_kill.ceu"
-#include "actions/splashed.ceu"
-#include "actions/slider.ceu"
 #endif
 
 #include "pingus/right_left_sprites.ceu"
@@ -72,6 +69,7 @@ do
     #include "actions/floater.ceu"
     #include "actions/jumper.ceu"
     #include "actions/miner.ceu"
+    #include "actions/slider.ceu"
     #include "actions/splashed.ceu"
     #include "actions/waiter.ceu"
     #include "actions/walker.ceu"
@@ -179,10 +177,8 @@ do
 #endif
                     else/if pingu.current_action == {ActionName::MINER} then
                         next_action = await Miner();
-#if 0
                     else/if pingu.current_action == {ActionName::SLIDER} then
-                        next_action = DO_PINGU_ACTION(Slider);
-#endif
+                        next_action = await Slider();
                     else/if pingu.current_action == {ActionName::SPLASHED} then
                         next_action = await Splashed();
                     else/if pingu.current_action == {ActionName::WAITER} then
