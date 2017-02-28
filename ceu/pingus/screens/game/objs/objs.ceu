@@ -10,10 +10,10 @@
 #include "exit.ceu"
 #include "liquid.ceu"
 #include "smasher.ceu"
+#include "spike.ceu"
 #if 0
 #include "worldobjs/hotspot.ceu"
 #include "worldobjs/laser_exit.ceu"
-#include "worldobjs/spike.ceu"
 #endif
 
 // TODO: use spawn directly instead of ceu_sys_go
@@ -61,6 +61,7 @@ end
 pool[] Entrance   entrances;
 pool[] Smasher    smashers;
 pool[] Guillotine guillotines;
+pool[] Spike      spikes;
 
 do
     var usize i;
@@ -106,13 +107,8 @@ do
 #endif
         else/if id_ == "smasher" then
             spawn Smasher() in smashers;
-#if 0
         else/if id_ == "spike" then
-            spawn Spike with
-                this.pingus = &outer.pingus;
-                this.reader = reader_;
-            end;
-#endif
+            spawn Spike() in spikes;
         end
     end
 end

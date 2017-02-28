@@ -3,71 +3,59 @@
 #else
 #define _SPIKE_CEU
 
-class Spike with
-    pool IPingu[]& pingus;
-    var _FileReader&& reader;
-
-    function (void)       =>float     get_z_pos;
-    function (_Vector3f&&)=>void      set_pos;
-    function (void)       =>_Vector3f get_pos;
+code/await Spike (void) -> FOREVER
 do
-    var Vector3f pos;
-    { static Vector3f p; };
-    this.reader:read_vector("position", _p);
-    this.pos = Vector3f(_p.x,_p.y,_p.z);
+    {
+        static Vector3f p;
+        WORLDOBJ_FACTORY_READER.read_vector("position", p);
+    }
+    var Vector2i pst = val Vector2i({p.x}, {p.y});
 
     loop do
-        var IPingu&& pingu =
-            do
-                loop do
-                    await WORLD_UPDATE;
-                    var IPingu&&? pingu;
-                    loop p in this.pingus do
-                        if (p:get_pos().x > this.pos.x+16-5 and
-                            p:get_pos().x < this.pos.x+16+5 and
-                            p:get_pos().y > this.pos.y      and
-                            p:get_pos().y < this.pos.y + 32)
-                        then
-                            escape p;
+        loop do
+            await WORLD_UPDATE;
+            var&? Pingu p;
+            loop p in outer.pingus do
+                if (p!.pingu.rect.left > pst.x+16-5 and
+                    p!.pingu.rect.left < pst.x+16+5 and
+                    p!.pingu.rect.top  > pst.y      and
+                    p!.pingu.rect.top  < pst.y + 32)
+                then
+                    var Rect r = val Rect(pst.x,pst.y, 0,0);
+                    var&? Sprite_from_name s = spawn Sprite_from_name(&r, "traps/spike", true);
+                    watching s, p do
+                        loop do
+                            await WORLD_UPDATE;
+                            if (s!.sprite.frame == 3 and
+                                p!.pingu.rect.left > pst.x+16-12 and
+                                p!.pingu.rect.left < pst.x+16+12 and
+                                p!.pingu.rect.top  > pst.y       and
+                                p!.pingu.rect.top  < pst.y+32)
+                            then
+                                break;
+                            end
                         end
+                        emit p!.pingu.go_action({ActionName::DEAD});
+                        await FOREVER;
                     end
                 end
-            end;
-
-        do
-            var Rect r = Rect(pos.x,pos.y, 0,0);
-            var Sprite sprite = Sprite.build_name(&r, "traps/spike");
-            watching sprite do
-                watching *pingu do
-                    loop do
-                        await WORLD_UPDATE;
-                        if (sprite.frame == 3 and
-                            pingu:get_pos().x > this.pos.x+16-12 and
-                            pingu:get_pos().x < this.pos.x+16+12 and
-                            pingu:get_pos().y > this.pos.y       and
-                            pingu:get_pos().y < this.pos.y+32)
-                        then
-                            break;
-                        end
-                    end
-                    emit pingu:go_action => {ActionName::DEAD};
-                end
-                await FOREVER;
             end
         end
     end
 
+#if 0
     /* PUBLIC */
 
     function (void)=>float get_z_pos do
-        return this.pos.z;
+        return pst.z;
     end
     function (_Vector3f&& p)=>void set_pos do
-        this.pos = Vector3f(p:x, p:y, p:z);
+        pst = Vector3f(p:x, p:y, p:z);
     end
     function (void)=>_Vector3f get_pos do
-        return _Vector3f(this.pos.x, this.pos.y, this.pos.z);
+        return _Vector3f(pst.x, pst.y, pst.z);
     end
+#endif
 end
 
 #endif
