@@ -31,7 +31,7 @@ do
 
     par do
         var s8 dir = direction;
-        every SDL_DT do
+        every outer.main.dt do
             if direction != dir then
                 dir = direction;
                 emit e_change;

@@ -11,7 +11,7 @@ var int count = 0;
 par do
     loop do
         watching 1s do
-            every SDL_DT do
+            every outer.main.dt do
                 count = count + 1;
             end
         end

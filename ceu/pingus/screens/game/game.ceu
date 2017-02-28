@@ -69,7 +69,7 @@ var IGame game =
                      Rect(0,0,w,h),
                      Rect(6,{Display::get_size}().height-105, 175,100),
                      &state!,
-                     _, _, _);
+                     _, _, _, _);
 
 game.state.set_limit({Rect(Vector2i(0,0), Size(@w,@h))});
 

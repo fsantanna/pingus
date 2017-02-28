@@ -13,7 +13,7 @@ spawn do
 end
 
 loop do
-    await SDL_DT;
+    await outer.main.dt;
     if outer.game.counter.number_of_allowed==outer.game.counter.number_of_released and outer.game.counter.number_of_alive==0 then
         //goal = GT_NO_PINGUS_IN_WORLD;
         break;
@@ -28,6 +28,6 @@ loop do
     end
 end
 var int exit_time = outer.game.game_time + 125;
-await SDL_DT until exit_time < outer.game.game_time;
+await outer.main.dt until exit_time < outer.game.game_time;
 
 #endif

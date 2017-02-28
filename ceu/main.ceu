@@ -209,6 +209,7 @@ end
 data IMain with
     var Vector2i offset;
     event void go_options;
+    event int dt;
 end
 var IMain main = _;
 
@@ -271,6 +272,11 @@ spawn SDL_Driver();
 
 par/or do
     await SDL_QUIT;
+with
+    var int dt;
+    every SDL_DT do
+        emit main.dt(dt);
+    end
 with
     pause/if go_pause do
         if {cmd.rest.is_set()} as bool then

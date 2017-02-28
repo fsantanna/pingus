@@ -112,7 +112,7 @@ loop do
     end
 
     loop do
-        var int dt = await SDL_DT;
+        var int dt = await outer.main.dt;
         update_count = update_count + (dt as float)/1000;
         if update_count > smallmap_update_time then
             break;

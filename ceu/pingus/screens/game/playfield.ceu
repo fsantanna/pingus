@@ -69,7 +69,7 @@ with
 
         watching ON_SECONDARY_BUTTON_RELEASED do
             par do
-                every SDL_DT do
+                every outer.main.dt do
                     // FIXME: This should be delta dependant
                     if {globals::drag_drop_scrolling} as bool then
                         outer.game.state.set_pos(
@@ -134,7 +134,7 @@ with
         // having current_pingu&&? is not enough because it can die and 
         // clear the variable
 
-    every SDL_DT do
+    every outer.main.dt do
         var Position pos = Position(
                             outer.game.state.screen2world(POS2VEC(mouse_pos)).x,
                             outer.game.state.screen2world(POS2VEC(mouse_pos)).y
@@ -167,7 +167,7 @@ with
         end
     end
 with
-    every v in SDL_DT do
+    every v in outer.main.dt do
         var float dt = ((float)v)/1000;
         if ({globals::auto_scrolling} and
             ({Display::is_fullscreen()} or 

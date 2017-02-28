@@ -29,7 +29,7 @@ code/await PingusMenuBackground (void) -> FOREVER do
 
     par do
         var int v;
-        every v in SDL_DT do
+        every v in outer.main.dt do
             var float dt = (v as float)/1000;
             x1 = {Math::mod}(x1+ 12*dt, {Display::get_width()});
             x2 = {Math::mod}(x2+ 25*dt, {Display::get_width()});
