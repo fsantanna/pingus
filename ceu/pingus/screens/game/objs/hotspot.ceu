@@ -3,49 +3,41 @@
 #else
 #define _HOTSPOT_CEU
 
-class Hotspot with
-    var _FileReader&& reader;
-    var Vector3f      pos_offset;
-
-    function (void)       =>float     get_z_pos;
-    function (_Vector3f&&)=>void      set_pos;
-    function (void)       =>_Vector3f get_pos;
+code/await Hotspot (var Vector3f pst_offset) -> FOREVER
 do
-    var Vector3f pos;
-    { static Vector3f p; };
-    this.reader:read_vector("position", _p);
-    this.pos = Vector3f(pos_offset.x + _p.x,
-                        pos_offset.y + _p.y,
-                        pos_offset.z + _p.z);
+    var float para = 0;
+    {
+        static Vector3f p;
+        WORLDOBJ_FACTORY_READER.read_vector("position", p);
+        WORLDOBJ_FACTORY_READER.read_float("parallax", @para);
 
-    var float para=0;
-    this.reader:read_float("parallax", para);
+        static ResDescriptor desc;
+        WORLDOBJ_FACTORY_READER.read_desc("surface", desc);
+    }
+    var Vector2i pst = val Vector2i((pst_offset.x+{p.x}) as int, (pst_offset.y+{p.y}) as int);
+
 
     /* Background image */
     // FIXME: would be nice to allow surface manipulation with
     // animated sprites, but it's not that easy to do
-    var Rect r = Rect(pos.x,pos.y, 0,0);
-    var Sprite _ with
-        this.rect = &r;
-
-        { static ResDescriptor desc; };
-        outer.reader:read_desc("surface", _desc);
-        this.desc = _XXX_PURE({Resource::load_sprite_desc}(_desc.res_name));
-    end;
+    var Rect r = val Rect(pst.x,pst.y, 0,0);
+    spawn Sprite_from_desc(&r, {Resource::load_sprite_desc(desc.res_name)}, true);
 
     await FOREVER;
 
+#if 0
     /* PUBLIC */
 
     function (void)=>float get_z_pos do
-        return this.pos.z;
+        return this.pst.z;
     end
     function (_Vector3f&& p)=>void set_pos do
-        this.pos = Vector3f(p:x, p:y, p:z);
+        this.pst = Vector3f(p:x, p:y, p:z);
     end
     function (void)=>_Vector3f get_pos do
-        return _Vector3f(this.pos.x, this.pos.y, this.pos.z);
+        return _Vector3f(this.pst.x, this.pst.y, this.pst.z);
     end
+#endif
 end
 
 #endif
