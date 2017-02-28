@@ -13,7 +13,7 @@ do
 
     var float countdown = 2.0;
     loop do
-        await WORLD_UPDATE;
+        await outer.game.dt;
         if countdown < 0 then
             escape {ActionName::WALKER};
         end

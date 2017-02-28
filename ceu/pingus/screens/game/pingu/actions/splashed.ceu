@@ -15,7 +15,7 @@ do
 
     var int i;
     loop i in [1->12] do
-        await WORLD_UPDATE;
+        await outer.game.dt;
     end
 
     escape {ActionName::DEAD};

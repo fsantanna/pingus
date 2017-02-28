@@ -20,7 +20,7 @@ do
     /* UPDATE */
 
     loop do
-        await WORLD_UPDATE;
+        await outer.game.dt;
         if not call Standing_On_Ground() then
             escape {ActionName::FALLER};
         end

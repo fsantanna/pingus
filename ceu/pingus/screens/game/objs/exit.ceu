@@ -47,7 +47,7 @@ do
     var Rect r3 = val Rect(pst3.x,pst3.y-100, 0,0);
     spawn Sprite_from_name(&r3, "core/misc/smallmap_exit", false);
 
-    every WORLD_UPDATE do
+    every outer.game.dt do
         var&? Pingu p;
         loop p in outer.pingus do
             // Make sure this particular exit is allowed for this pingu

@@ -8,7 +8,7 @@ do
     event void ok_collided_;
     ok_collided = &ok_collided_;
 
-    every WORLD_UPDATE do
+    every outer.game.dt do
         var bool collided = false;
 
         var Vector3f pst = _;

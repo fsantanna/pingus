@@ -18,7 +18,7 @@ do
 
     var int i;
     loop i do
-        await WORLD_UPDATE;
+        await outer.game.dt;
         if not call Have_Something_To_Dig() then
             call Dig(true);
             escape {ActionName::WALKER};

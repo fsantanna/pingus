@@ -13,7 +13,7 @@ do
 
     loop do
         loop do
-            await WORLD_UPDATE;
+            await outer.game.dt;
             var&? Pingu p;
             loop p in outer.pingus do
                 if (p!.pingu.rect.left > pst.x+16-5 and
@@ -25,7 +25,7 @@ do
                     var&? Sprite_from_name s = spawn Sprite_from_name(&r, "traps/spike", true);
                     watching s, p do
                         loop do
-                            await WORLD_UPDATE;
+                            await outer.game.dt;
                             if (s!.sprite.frame == 3 and
                                 p!.pingu.rect.left > pst.x+16-12 and
                                 p!.pingu.rect.left < pst.x+16+12 and

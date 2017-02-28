@@ -21,7 +21,7 @@ do
 
     var int i;
     loop i in [0 -> livetime[ do
-        await WORLD_UPDATE;
+        await outer.game.dt;
         x = (x + velocity.x) as int;
         y = (y + velocity.y) as int;
     end

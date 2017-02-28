@@ -75,7 +75,7 @@ do
         event _ActionName__Enum e_set_action;
         par do
             loop do
-                await WORLD_UPDATE;
+                await outer.game.dt;
 
                 // FIXME: Out of screen check is ugly
                 /* The Pingu has hit the edge of the screen, a good time to let

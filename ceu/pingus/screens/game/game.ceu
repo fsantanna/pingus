@@ -26,6 +26,7 @@ data IGame with
     var   float                gravity     = 0.2;
     var   _ActionName__Enum    action_next = {ActionName::WALKER};
     event void                 go_armageddon;
+    event int                  dt;
 end
 
 {
@@ -98,7 +99,7 @@ par do
     };
     escape;
 with
-    every WORLD_UPDATE do
+    every game.dt do
         game.game_time = game.game_time + 1;
     end
 with
@@ -159,10 +160,10 @@ with
 
         var&? Pingu pingu;
         loop pingu in pingus do
-            await WORLD_UPDATE;
-            await WORLD_UPDATE;
-            await WORLD_UPDATE;
-            await WORLD_UPDATE;
+            await game.dt;
+            await game.dt;
+            await game.dt;
+            await game.dt;
             if pingu!.pingu.current_action != {ActionName::BOMBER} then
                 emit pingu!.pingu.go_action({ActionName::BOMBER});
             end

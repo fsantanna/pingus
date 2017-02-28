@@ -165,7 +165,6 @@ input (int,int) ON_PRIMARY_BUTTON_PRESSED;
 input (int,int) ON_PRIMARY_BUTTON_RELEASED;
 input (int,int) ON_SECONDARY_BUTTON_PRESSED;
 input (int,int) ON_SECONDARY_BUTTON_RELEASED;
-input void WORLD_UPDATE;
 
 data Color with
     var u8 r;

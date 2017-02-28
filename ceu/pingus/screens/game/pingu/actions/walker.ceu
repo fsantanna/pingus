@@ -22,7 +22,7 @@ do
 
     /* UPDATE */
     par do
-        await WORLD_UPDATE
+        await outer.game.dt
         until (outer.fall_action == {ActionName::FLOATER});
         vector[] byte left2  = [] .. "other/floaterlayer/left";
         vector[] byte right2 = [] .. "other/floaterlayer/right";
@@ -30,7 +30,7 @@ do
         await FOREVER;
     with
         loop do
-            await WORLD_UPDATE;
+            await outer.game.dt;
 
             var int old_x = outer.pingu.rect.left;
             var int old_y = outer.pingu.rect.top;

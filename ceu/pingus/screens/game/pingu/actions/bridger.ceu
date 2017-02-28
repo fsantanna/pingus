@@ -40,7 +40,7 @@ do
                 break;
             end
 
-            await WORLD_UPDATE until s!.sprite.frame == 7;
+            await outer.game.dt until s!.sprite.frame == 7;
 
             if call Brick_Placement_Allowed() then
                 call Place_A_Brick(); // me.bricks--;

@@ -11,7 +11,7 @@ do
 
     par do
         loop do
-            await WORLD_UPDATE;
+            await outer.game.dt;
 
             // FIXME: This should be triggered at a later point, when close to
             // FIXME: deadly_velocity or something like that. A translation
@@ -36,7 +36,7 @@ do
 // UPDATE loop. Have to make them detect at the same time, so that the Pingu 
 // loop reacts first.
 // As a workaround, just delaying here one frame.
-await WORLD_UPDATE;
+await outer.game.dt;
 
             // If the Pingu collided with something...
 
@@ -87,7 +87,7 @@ await WORLD_UPDATE;
                                      .. call Pingu_Get_Owner_Str() as _char&&
                                      .. "/faller/right";
             spawn RightLeftSprites(&outer.pingu.rect, &outer.pingu.direction, &left, &right, true);
-            await WORLD_UPDATE until call Is_Tumbling();
+            await outer.game.dt until call Is_Tumbling();
         end
         do
             vector[] byte left  = [] .. "pingus/player"

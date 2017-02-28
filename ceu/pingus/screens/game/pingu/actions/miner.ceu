@@ -19,7 +19,7 @@ do
     /* UPDATE */
     var int delay_count;
     loop delay_count do
-        await WORLD_UPDATE;
+        await outer.game.dt;
 
         if delay_count%4 != 0 then
             continue;

@@ -3,7 +3,7 @@
 #else
 #define _ENTRANCE_CEU
 
-code/await Entrance (var Vector3f pst_offset)
+code/await Entrance (var Vector2i pst_offset)
                         -> (var Vector2i pst)
                             -> FOREVER
 do
@@ -49,7 +49,7 @@ do
 
     watching outer.game.go_armageddon do
         loop do
-            await WORLD_UPDATE
+            await outer.game.dt
             until outer.game.game_time >= last_release+release_rate;
             last_release = outer.game.game_time;
 

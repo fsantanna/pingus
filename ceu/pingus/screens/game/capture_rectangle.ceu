@@ -14,7 +14,7 @@ do
     var Rect rect_lr = val Rect(0,0,0,0);
 
     par do
-        every WORLD_UPDATE do
+        every outer.game.dt do
             if this.playfield.current_pingu? then
                 var IPingu&& pingu = this.playfield.current_pingu!;
                 rect_gb.left = pingu:get_center_pos().x;

@@ -15,7 +15,7 @@ do
     var&? RightLeftSprites sprites =
         spawn RightLeftSprites(&outer.pingu.rect, &outer.pingu.direction, &left, &right, true);
 
-    await WORLD_UPDATE;
+    await outer.game.dt;
 
     // if climber, do a wall-jump, else just jump forward
     if outer.pingu.previous_action == {ActionName::CLIMBER} then

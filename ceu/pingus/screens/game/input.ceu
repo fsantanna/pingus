@@ -36,14 +36,10 @@ par do                                                      // INPUT
                     if is_fast_forwarded then
                         var int i;
                         loop i in [0 -> {globals::fast_forward_time_scale}[ do
-                            await async do
-                                emit WORLD_UPDATE;
-                            end
+                            emit outer.game.update(33);
                         end
                     else
-                        await async do
-                            emit WORLD_UPDATE;
-                        end
+                        emit outer.game.update(33);
                     end
                 end
                 world_updates = world_updates + 1;

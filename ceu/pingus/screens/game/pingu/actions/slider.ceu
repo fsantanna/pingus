@@ -18,7 +18,7 @@ do
     var float speed = SLIDER_SPEED;
 
     loop do
-        await WORLD_UPDATE;
+        await outer.game.dt;
 
         loop/SLIDER_SPEED _ in [0 -> (speed as int)[ do
             if call Pingu_Rel_Getpixel(1,0) != {Groundtype::GP_NOTHING} then

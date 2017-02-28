@@ -31,7 +31,7 @@ do
             sprite!.sprite.frame_delay = 0;
 
             loop do
-                await WORLD_UPDATE;
+                await outer.game.dt;
 
                 var&? Pingu pingu;
                 loop pingu in outer.pingus do
@@ -59,7 +59,7 @@ do
             do
                 var int i;
                 loop i in [0 -> 6[ do
-                    await WORLD_UPDATE;
+                    await outer.game.dt;
                     sprite!.sprite.frame = i;
                 end
             end
@@ -92,7 +92,7 @@ do
             do
                 var int i;
                 loop i in [0 <- 5] do
-                    await WORLD_UPDATE;
+                    await outer.game.dt;
                     sprite!.sprite.frame = i;
                 end
             end

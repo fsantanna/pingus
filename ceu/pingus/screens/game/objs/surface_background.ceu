@@ -84,7 +84,7 @@ do
     var int h = bg!.surface.framebuffer.get_height();
 
     par do
-        every WORLD_UPDATE do
+        every outer.game.dt do
             if {globals::static_graphics} as bool then
                 continue;
             end

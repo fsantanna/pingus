@@ -23,7 +23,7 @@ do
 
     var int i;
     loop i in [0 -> livetime[ do
-        await WORLD_UPDATE;
+        await outer.game.dt;
 
         var float tmp_x_add = 0.0;
         var float tmp_y_add = 0.0;

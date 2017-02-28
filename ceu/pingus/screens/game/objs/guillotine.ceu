@@ -17,7 +17,7 @@ do
 
         var s8 dir = do
             loop do
-                await WORLD_UPDATE;
+                await outer.game.dt;
                 var&? Pingu p;
                 loop p in outer.pingus do
                     if call p!.Is_Inside(pst.x+38, pst.y+90, pst.x+42, pst.y+98) then
@@ -39,7 +39,7 @@ do
             end;
             var&? Sprite_from_name s = spawn Sprite_from_name(&r, name, true);
             watching s do
-                every WORLD_UPDATE do
+                every outer.game.dt do
                     if s!.sprite.frame == 7 then
 #if 0
                         {
