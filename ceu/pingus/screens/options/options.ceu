@@ -360,7 +360,7 @@ code/await OptionMenu (void) -> void do
             await ON_BUTTON_PRESSED
             until but:name  == {Input::ESCAPE_BUTTON};
     with
-        every SDL_REDRAW do
+        every outer.main.redraw do
             call {Fonts::chalk_large}.render(
                 _origin_top_center,
                 {Display::get_width()}/2,

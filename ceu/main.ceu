@@ -440,7 +440,7 @@ void ScreenManager::show_software_cursor(bool visible) {
         #include "pingus/fps_counter.ceu"
     end
 
-    every SDL_REDRAW do
+    every main.redraw do
         if {globals::developer_mode} != 0 then
             var int height;
             if {globals::print_fps} != 0 then

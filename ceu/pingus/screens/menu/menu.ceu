@@ -38,7 +38,7 @@ code/await PingusMenuBackground (void) -> FOREVER do
             x5 = {Math::mod}(x5+200*dt, {Display::get_width()});
         end
     with
-        every SDL_REDRAW do
+        every outer.main.redraw do
             call {Display::s_framebuffer}:draw_surface(
                 s1!.surface.framebuffer,
                 _Vector2i(x1, y1)
@@ -124,7 +124,7 @@ code/await PingusMenu (void) -> int do
         await b_exit!.ok_clicked;
         escape {PINGUSMENU_EXIT};
     with
-        every SDL_REDRAW do
+        every outer.main.redraw do
             call {Fonts::pingus_small}.render(
                 _origin_top_left,
                 {Display::get_width ()}/2 - 400 + 25,

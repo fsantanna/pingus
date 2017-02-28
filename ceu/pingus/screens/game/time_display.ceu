@@ -5,7 +5,7 @@
 
 var int time_level = outer.game.plf.get_time();
 
-every SDL_REDRAW do
+every outer.main.redraw do
     if time_level>=0 or ({globals::developer_mode} as bool) then
         // get elapsed time from server
         var int time_world = outer.game.game_time;

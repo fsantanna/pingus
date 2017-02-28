@@ -109,7 +109,7 @@ do
             end
         end
     with
-        every SDL_REDRAW do
+        every outer.main.redraw do
             var Vector2i off = call Game_Get_Offset();
             var int start_x = ((off.x * para_x) + scroll_ox) as int;
             var int start_y = ((off.y * para_y) + scroll_oy) as int;

@@ -62,7 +62,7 @@ with
         end
     end
 with
-    every SDL_REDRAW do
+    every outer.main.redraw do
         var int left_x  = {Display::get_width()}/2 - 150;
         var int right_x = {Display::get_width()}/2 + 150;
         var int y = {Display::get_height()}/2 + 40;

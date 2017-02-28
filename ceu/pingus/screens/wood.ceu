@@ -5,7 +5,7 @@
 
 code/await Wood (void) -> FOREVER do
     var&? Surface_from_name sfc = spawn Surface_from_name("core/menu/wood",_);
-    every SDL_REDRAW do
+    every outer.main.redraw do
         var int y = 0;
         loop do
             if y >= {Display::get_height()} then

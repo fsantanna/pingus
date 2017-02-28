@@ -6,7 +6,7 @@
 var Rect rect = val Rect({Display::get_size}().width/2,0, 0,0);
 spawn Sprite_from_name(&rect, "core/buttons/info", &outer.main.dt, &outer.main.redraw, false);
 
-every SDL_REDRAW do
+every outer.main.redraw do
     vector[128] byte str = [];
 
     _snprintf(&&str[0] as _char&&, 128,

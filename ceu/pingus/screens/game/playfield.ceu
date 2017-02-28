@@ -95,7 +95,7 @@ with
                     end
                 end
             with
-                every SDL_REDRAW do
+                every outer.main.redraw do
                     if {globals::drag_drop_scrolling} as bool then
                         continue;
                     end

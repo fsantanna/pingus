@@ -67,7 +67,7 @@ do
             end
         end
     with
-        every SDL_REDRAW do
+        every outer.main.redraw do
             if {globals::developer_mode} as bool then
 #if 0
                 {
@@ -92,7 +92,7 @@ do
         loop do
             await component!.component.on_pointer_enter;
             watching component!.component.on_pointer_leave do
-                every SDL_REDRAW do
+                every outer.main.redraw do
                     call {Fonts::pingus_small}.render(
                         _origin_top_left,
                         x+65, y+5,

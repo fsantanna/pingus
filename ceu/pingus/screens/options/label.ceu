@@ -5,7 +5,7 @@
 
 code/await Label (var _char_const_ptr label, var& Rect rect) -> FOREVER
 do
-    every SDL_REDRAW do
+    every outer.main.redraw do
         call {Fonts::chalk_normal}.render(
             _origin_top_left,
             rect.left,

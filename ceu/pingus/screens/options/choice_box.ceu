@@ -17,7 +17,7 @@ do
     event bool go_pause;
     par do
         pause/if go_pause do
-            every SDL_REDRAW do
+            every outer.main.redraw do
                 call ({Fonts::chalk_normal.render} as /nohold)(
                     _origin_top_center,
                     rect.left + rect.width/2,
@@ -70,7 +70,7 @@ do
             emit choicebox.go;
         end
     with
-        every SDL_REDRAW do
+        every outer.main.redraw do
             if {globals::developer_mode} as bool then
                 call {Display::s_framebuffer}:draw_rect(
                     _Rect(rect.left,rect.width,rect.width,rect.height),

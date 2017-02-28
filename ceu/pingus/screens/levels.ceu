@@ -49,7 +49,7 @@ do
                             "core/start/back_clicked",
                             "core/start/back_hover");
     spawn do
-        every SDL_REDRAW do
+        every outer.main.redraw do
             call {Fonts::chalk_normal}.render(
                 _origin_top_center,
                 cancel_r.left + 55, cancel_r.top,
@@ -169,7 +169,7 @@ do
                 end
                 var&? Surface_from_name sfc = spawn Surface_from_name(name, _);
 
-                every SDL_REDRAW do
+                every outer.main.redraw do
                     // draw checkbox
                     call {Display::s_framebuffer}:draw_surface(
                         sfc!.surface.framebuffer,
@@ -245,7 +245,7 @@ do
                 var int v = await ui!.ui.ok;
                 escape v;   // always >= 0
             with
-                every SDL_REDRAW do
+                every outer.main.redraw do
                     call {Fonts::chalk_large}.render(
                         _origin_top_left,
                         680/2, 50+10,
@@ -285,7 +285,7 @@ do
             with
                 var&? Surface_from_name sfc =
                     spawn Surface_from_name({levelsets[@i]->get_image().c_str()}, _);
-                every SDL_REDRAW do
+                every outer.main.redraw do
                     call {Display::s_framebuffer}:draw_surface(
                         sfc!.surface.framebuffer,
                         _Vector2i(x+10, y)
@@ -379,7 +379,7 @@ code/await LevelsetSelector (void) -> int do
                 var int v = await ui!.ui.ok;
                 escape v;   // always >= 0
             with
-                every SDL_REDRAW do
+                every outer.main.redraw do
                     call {Fonts::chalk_large}.render(
                         _origin_top_center,
                         60+680/2, 50+10,

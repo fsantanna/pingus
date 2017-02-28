@@ -104,7 +104,7 @@ with
         game.game_time = game.game_time + 1;
     end
 with
-    every SDL_REDRAW do
+    every outer.main.redraw do
         outer.main.offset = call Game_Get_Offset();
     end
 with
@@ -112,7 +112,7 @@ with
                                         {@game.plf.get_ambient_light()}.g,
                                         {@game.plf.get_ambient_light()}.b,
                                         {@game.plf.get_ambient_light()}.a);
-    every SDL_REDRAW do
+    every outer.main.redraw do
         call {Display::s_framebuffer}:fill_rect(
             _Rect(0,0, {Display::get_width()},{Display::get_height()}),
             _Color(ambient_light.r,
@@ -130,7 +130,7 @@ with
 
     pool[] Visible layer_bg_0;          // background
     spawn do
-        every SDL_REDRAW do             // groundpiece
+        every outer.main.redraw do             // groundpiece
             var Vector2i off = outer.main.offset;
             gfx_map.draw({Vector2i(-@off.x,-@off.y)});
         end
@@ -176,7 +176,7 @@ with
             #include "smallmap.ceu"
         end
     with
-        every SDL_REDRAW do
+        every outer.main.redraw do
             emit game.redraw_smallmap;
         end
 #if 0
@@ -207,7 +207,7 @@ with
         end
     end
 with
-    every SDL_REDRAW do
+    every outer.main.redraw do
         outer.main.offset = val Vector2i(0,0);
     end
 end

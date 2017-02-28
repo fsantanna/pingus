@@ -33,7 +33,7 @@ do
         end
     end
 
-    every SDL_REDRAW do
+    every outer.main.redraw do
         var int x = rect.left;
         loop do
             if x >= rect.left+width then

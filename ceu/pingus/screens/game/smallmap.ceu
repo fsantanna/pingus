@@ -30,7 +30,7 @@ with
         end
     end
 with
-    every SDL_REDRAW do
+    every outer.main.redraw do
         var Vector2i vec = call Game_Get_Pos();
         {
             static Rect view_rect;
