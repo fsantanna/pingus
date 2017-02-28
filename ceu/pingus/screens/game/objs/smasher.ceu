@@ -9,20 +9,20 @@ do
         static Vector3f p;
         WORLDOBJ_FACTORY_READER.read_vector("position", p);
     }
-    var Vector3f pst = val Vector3f({p.x}, {p.y}, {p.z});
+    var Vector2i pst = val Vector2i({p.x}, {p.y});
     do
         _log_info("Drawing colmap entry");
         {
             DO
                 CollisionMask buf("traps/smasher_cmap");
         }
-        call Game_Put({&buf}, pst.x as int, pst.y as int, {Groundtype::GP_SOLID});
+        call Game_Put({&buf}, pst.x, pst.y, {Groundtype::GP_SOLID});
         {
             END
         }
     end
 
-    var Rect rect = val Rect(pst.x as int,pst.y as int, 0,0);
+    var Rect rect = val Rect(pst.x,pst.y, 0,0);
     loop do
         var int ok = do
             var&? Sprite_from_name sprite =
@@ -70,8 +70,8 @@ do
             do
                 var int i;
                 loop i in [0 -> 20[ do
-                    spawn SmokeParticle((pst.x + 20 + (_rand() % 260)) as int,
-                                        (pst.y + 180) as int,
+                    spawn SmokeParticle(pst.x + 20 + (_rand() % 260),
+                                        pst.y + 180,
                                         {Math::frand()-0.5f},
                                         {Math::frand()-0.5f})
                             in outer.smoke_particles;
@@ -80,10 +80,10 @@ do
 
             var&? Pingu pingu;
             loop pingu in outer.pingus do
-                if (call pingu!.Is_Inside((pst.x +  30) as int,
-                                          (pst.y +  90) as int,
-                                          (pst.x + 250) as int,
-                                          (pst.y + 190) as int))
+                if (call pingu!.Is_Inside((pst.x +  30),
+                                          (pst.y +  90),
+                                          (pst.x + 250),
+                                          (pst.y + 190)))
                 then
                     emit pingu!.pingu.go_action({ActionName::SPLASHED});
                 end

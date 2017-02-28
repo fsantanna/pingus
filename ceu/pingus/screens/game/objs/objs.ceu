@@ -5,12 +5,12 @@
 
 #include "surface_background.ceu"
 #include "groundpiece.ceu"
+#include "guillotine.ceu"
 #include "entrance.ceu"
 #include "exit.ceu"
 #include "liquid.ceu"
 #include "smasher.ceu"
 #if 0
-#include "worldobjs/guillotine.ceu"
 #include "worldobjs/hotspot.ceu"
 #include "worldobjs/laser_exit.ceu"
 #include "worldobjs/spike.ceu"
@@ -58,8 +58,9 @@ native/pre do
     }
 end
 
-pool[] Entrance entrances;
-pool[] Smasher  smashers;
+pool[] Entrance   entrances;
+pool[] Smasher    smashers;
+pool[] Guillotine guillotines;
 
 do
     var usize i;
@@ -94,12 +95,9 @@ do
             spawn Entrance(pos_offset) in entrances;
         else/if id_ == "exit" then
             spawn Exit() in outer.layer_bg_1;
-#if 0
         else/if id_ == "guillotine" then
-            spawn Guillotine with
-                this.pingus = &outer.pingus;
-                this.reader = reader_;
-            end;
+            spawn Guillotine() in guillotines;
+#if 0
         else/if id_ == "laser_exit" then
             spawn LaserExit with
                 this.pingus = &outer.pingus;
