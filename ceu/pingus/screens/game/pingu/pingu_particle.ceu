@@ -14,7 +14,7 @@ do
                                          0);
 
     var Rect rect = val Rect(x,y, 0,0);
-    spawn Sprite_from_name(&rect, "particles/pingu_explo", &outer.game.dt, true);
+    spawn Sprite_from_name(&rect, "particles/pingu_explo", &outer.game.dt, &outer.main.redraw, true);
 
     var bool has_pixel = do
         var _CollisionMap_ptr ptr = call Game_Get_Colmap();

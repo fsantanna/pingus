@@ -9,7 +9,7 @@ code/await MenuButton (var int x, var int y, var _char_const_ptr text, var _char
 do
     var Rect r1 = val Rect(x, y, 0, 0);
     var&? Sprite_from_name bg =
-        spawn Sprite_from_name(&r1, "core/menu/menuitem", &outer.main.dt, false);
+        spawn Sprite_from_name(&r1, "core/menu/menuitem", &outer.main.dt, &outer.main.redraw, false);
 
     var Rect r2 = val Rect(x-bg!.sprite.frame_size.width/2, y-bg!.sprite.frame_size.height/2,
                            bg!.sprite.frame_size.width, bg!.sprite.frame_size.height);
@@ -25,7 +25,7 @@ do
             await component!.component.on_pointer_enter;
             {Sound::PingusSound::play_sound ("tick");};
             do
-                spawn Sprite_from_name(&r1, "core/menu/menuitem_highlight", &outer.main.dt, false);
+                spawn Sprite_from_name(&r1, "core/menu/menuitem_highlight", &outer.main.dt, &outer.main.redraw, false);
                 await component!.component.on_pointer_leave;
             end
         end

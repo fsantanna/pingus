@@ -40,7 +40,7 @@ do
 
     var Vector2i pst2 = call Game_Pos_To_Smallmap(Vector2i(pst.x,pst.y));
     var Rect r2 = val Rect(pst2.x,pst2.y-100, 0,0);
-    spawn Sprite_from_name(&r2, "core/misc/smallmap_entrance", &outer.game.dt, false);
+    spawn Sprite_from_name(&r2, "core/misc/smallmap_entrance", &outer.game.dt, &outer.main.redraw, false);
 
     var int last_release = 150 - release_rate;
         // wait ~2sec at startup to allow a 'lets go' sound

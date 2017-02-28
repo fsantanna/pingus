@@ -40,7 +40,7 @@ do
     spawn Wood();
 
     var Rect rect = val Rect(xc, yc, _,_);
-    spawn Sprite_from_name(&rect, "core/menu/blackboard", &outer.main.dt, false);
+    spawn Sprite_from_name(&rect, "core/menu/blackboard", &outer.main.dt, &outer.main.redraw, false);
 
     var Rect cancel_r = val Rect(xc-300, yc+200, 0, 0);
     var&? SurfaceButton cancel =
@@ -150,7 +150,7 @@ do
                         loop do
                             await component!.component.on_pointer_enter;
                             var Rect r = val Rect(60+20, y, 0, 0);
-                            spawn Sprite_from_name(&r, "core/menu/marker2", &outer.main.dt, false);
+                            spawn Sprite_from_name(&r, "core/menu/marker2", &outer.main.dt, &outer.main.redraw, false);
                             await component!.component.on_pointer_leave;
                         end
                     end
@@ -226,11 +226,11 @@ do
             var int yy  = 50+15;
 
             var Rect r1 = val Rect(0, yy, 0, 0);
-            spawn Sprite_from_name(&r1, levelset.get_image().c_str(), &outer.main.dt, false);
+            spawn Sprite_from_name(&r1, levelset.get_image().c_str(), &outer.main.dt, &outer.main.redraw, false);
                 r1.left = 60 + 680/2 - r1.width/2 - 275;
 
             var Rect r2 = val Rect(0, yy, 0, 0);
-            spawn Sprite_from_name(&r2, levelset.get_image().c_str(), &outer.main.dt, false);
+            spawn Sprite_from_name(&r2, levelset.get_image().c_str(), &outer.main.dt, &outer.main.redraw, false);
                 r2.left = 60 + 680/2 - r2.width/2 + 275;
 
             pool[] Level levels;
@@ -279,7 +279,7 @@ do
                 loop do
                     await component!.component.on_pointer_enter;
                     var Rect r = val Rect(60+15, y-5, _,_);
-                    spawn Sprite_from_name(&r, "core/menu/marker", &outer.main.dt, _);
+                    spawn Sprite_from_name(&r, "core/menu/marker", &outer.main.dt, &outer.main.redraw, _);
                     await component!.component.on_pointer_leave;
                 end
             with

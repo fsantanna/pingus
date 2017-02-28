@@ -27,6 +27,7 @@ data IGame with
     var   _ActionName__Enum    action_next = {ActionName::WALKER};
     event void                 go_armageddon;
     event int                  dt;
+    event void                 redraw_smallmap;
 end
 
 {
@@ -69,7 +70,7 @@ var IGame game =
                      Rect(0,0,w,h),
                      Rect(6,{Display::get_size}().height-105, 175,100),
                      &state!,
-                     _, _, _, _);
+                     _, _, _, _, _);
 
 game.state.set_limit({Rect(Vector2i(0,0), Size(@w,@h))});
 
@@ -173,6 +174,10 @@ with
     with
         do ()
             #include "smallmap.ceu"
+        end
+    with
+        every SDL_REDRAW do
+            emit game.redraw_smallmap;
         end
 #if 0
     with

@@ -49,7 +49,7 @@ do
                 end
             end;
             var&? Sprite_from_name s =
-                spawn Sprite_from_name(&rect, name, &outer.main.dt, is_world) in sprites;
+                spawn Sprite_from_name(&rect, name, &outer.main.dt, &outer.main.redraw, is_world) in sprites;
 
             par/or do
                 await s;

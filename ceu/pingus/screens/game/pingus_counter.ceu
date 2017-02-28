@@ -4,7 +4,7 @@
 #define _PINGUSCOUNTER_CEU
 
 var Rect rect = val Rect({Display::get_size}().width/2,0, 0,0);
-spawn Sprite_from_name(&rect, "core/buttons/info", &outer.main.dt, false);
+spawn Sprite_from_name(&rect, "core/buttons/info", &outer.main.dt, &outer.main.redraw, false);
 
 every SDL_REDRAW do
     vector[128] byte str = [];

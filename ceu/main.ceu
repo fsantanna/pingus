@@ -209,7 +209,8 @@ end
 data IMain with
     var Vector2i offset;
     event void go_options;
-    event int dt;
+    event int  dt;
+    event void redraw;
 end
 var IMain main = _;
 
@@ -276,6 +277,10 @@ with
     var int dt;
     every dt in SDL_DT do
         emit main.dt(dt);
+    end
+with
+    every SDL_REDRAW do
+        emit main.redraw;
     end
 with
     pause/if go_pause do

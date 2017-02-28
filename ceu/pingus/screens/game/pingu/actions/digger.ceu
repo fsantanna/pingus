@@ -9,7 +9,7 @@ do
                            .. (call Pingu_Get_Owner_Str() as _char&&)
                            .. "/digger/left";
 
-    spawn Sprite_from_name(&outer.pingu.rect, &&str[0] as _char&&, &outer.game.dt, true);
+    spawn Sprite_from_name(&outer.pingu.rect, &&str[0] as _char&&, &outer.game.dt, &outer.main.redraw, true);
 
     code/tight Have_Something_To_Dig (void)           -> bool;
     code/tight Dig                   (var bool final) -> void;
