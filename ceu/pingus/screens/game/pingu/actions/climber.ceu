@@ -15,7 +15,7 @@ do
     spawn RightLeftSprites(&outer.pingu.rect, &outer.pingu.direction, &left, &right, true);
 
     loop do
-        await outer.game.dgame.dt;
+        await outer.game.dt;
 
         // If above is free
         if (call Pingu_Rel_Getpixel(0,1) == {Groundtype::GP_NOTHING} or

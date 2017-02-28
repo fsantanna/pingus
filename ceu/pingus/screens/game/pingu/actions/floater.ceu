@@ -8,7 +8,7 @@ do
     vector[] byte str = [] .. "pingus/player"
                            .. (call Pingu_Get_Owner_Str() as _char&&)
                            .. "/floater/left";
-    spawn Sprite_from_name(&outer.pingu.rect, &&str[0] as _char&&, true);
+    spawn Sprite_from_name(&outer.pingu.rect, &&str[0] as _char&&, &outer.game.dt, true);
 
     call Pingu_Set_Velocity(Vector3f(0.0, 1.0, 0.0));
 

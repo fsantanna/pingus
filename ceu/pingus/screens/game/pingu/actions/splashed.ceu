@@ -11,7 +11,7 @@ do
     vector[] byte str = [] .. "pingus/player"
                            .. call Pingu_Get_Owner_Str() as _char&&
                            .. "/splat";
-    spawn Sprite_from_name(&outer.pingu.rect, &&str[0] as _char_const_ptr, true);
+    spawn Sprite_from_name(&outer.pingu.rect, &&str[0] as _char_const_ptr, &outer.game.dt, true);
 
     var int i;
     loop i in [1->12] do

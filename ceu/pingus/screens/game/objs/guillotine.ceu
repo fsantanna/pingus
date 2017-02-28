@@ -13,7 +13,7 @@ do
 
     var Rect r = val Rect(pst.x,pst.y, 0,0);
     loop do
-        spawn Sprite_from_name(&r, "traps/guillotineidle", true);
+        spawn Sprite_from_name(&r, "traps/guillotineidle", &outer.game.dt, true);
 
         var s8 dir = do
             loop do
@@ -37,7 +37,7 @@ do
                     escape "traps/guillotinekill/right";
                 end
             end;
-            var&? Sprite_from_name s = spawn Sprite_from_name(&r, name, true);
+            var&? Sprite_from_name s = spawn Sprite_from_name(&r, name, &outer.game.dt, true);
             watching s do
                 every outer.game.dt do
                     if s!.sprite.frame == 7 then

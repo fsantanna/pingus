@@ -17,7 +17,7 @@ code/tight Get_Frame_Count (var& ISprite sprite) -> int do
     escape sprite.array.width * sprite.array.height;
 end
 
-code/await Sprite_from_sfc (var& Rect rect, var& Surface sfc, var bool is_world)
+code/await Sprite_from_sfc (var& Rect rect, var& Surface sfc, event& int dt, var bool is_world)
                                 -> (var ISprite sprite)
                                     -> void
 do
@@ -67,18 +67,12 @@ do
         /* UPDATE */
         loop do
             loop do
-                var int dt = _;
-                if is_world then
-                    await WORLD_UPDATE;
-                    dt = 33;   // TODO
-                else
-                    dt = await SDL_DT;
-                end
+                var int v = await dt;
                 if sprite.frame_delay == 0 then
                     await FOREVER;
                 end
 
-                tick_count = tick_count + dt;
+                tick_count = tick_count + v;
 
                 if tick_count >= total_time then
                     if sprite.is_loop then
@@ -165,7 +159,7 @@ function (void)=>int get_height do
 end
 #endif
 
-code/await Sprite_from_desc (var& Rect rect, var _SpriteDescription_ptr desc, var bool is_world)
+code/await Sprite_from_desc (var& Rect rect, var _SpriteDescription_ptr desc, event& int dt, var bool is_world)
                                 -> (var& ISprite sprite)
                                     -> void
 do
@@ -176,7 +170,7 @@ do
 
     watching sfc_from_desc do
         var& Surface sfc = &sfc_from_desc!.surface;
-        var&? Sprite_from_sfc s = spawn Sprite_from_sfc(&rect, &sfc, is_world);
+        var&? Sprite_from_sfc s = spawn Sprite_from_sfc(&rect, &sfc, &dt, is_world);
         watching s do
             sprite = &s!.sprite;
             await FOREVER;
@@ -204,7 +198,7 @@ do
     end
 end
 
-code/await Sprite_from_name (var& Rect rect, var _char_const_ptr name, var bool is_world)
+code/await Sprite_from_name (var& Rect rect, var _char_const_ptr name, event& int dt, var bool is_world)
                                 -> (var& ISprite sprite)
                                     -> void
 do
@@ -213,7 +207,7 @@ do
 
     watching sfc_from_name do
         var& Surface sfc = &sfc_from_name!.surface;
-        var&? Sprite_from_sfc s = spawn Sprite_from_sfc(&rect, &sfc, is_world);
+        var&? Sprite_from_sfc s = spawn Sprite_from_sfc(&rect, &sfc, &dt, is_world);
         watching s do
             sprite = &s!.sprite;
             await FOREVER;

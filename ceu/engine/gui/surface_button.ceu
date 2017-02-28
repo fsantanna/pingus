@@ -16,16 +16,16 @@ do
 
         loop do
             do
-                spawn Sprite_from_name(&rect, button, _);
+                spawn Sprite_from_name(&rect, button, &outer.main.dt, _);
                 await component.on_pointer_enter;
             end
             watching component.on_pointer_leave do
                 loop do
                     do
-                        spawn Sprite_from_name(&rect, button_over, _);
+                        spawn Sprite_from_name(&rect, button_over, &outer.main.dt, _);
                         await component.on_primary_button_pressed;
                     end
-                    spawn Sprite_from_name(&rect, button_pressed, false);
+                    spawn Sprite_from_name(&rect, button_pressed, &outer.main.dt, false);
                     await ON_PRIMARY_BUTTON_RELEASED;
                 end
             end

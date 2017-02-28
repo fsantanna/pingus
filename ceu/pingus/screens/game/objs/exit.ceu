@@ -25,12 +25,12 @@ do
     };         // TODO: repeated below
 
     var&? Sprite_from_desc sprite =
-        spawn Sprite_from_desc(&r1, {Resource::load_sprite_desc(desc1.res_name)}, true);
+        spawn Sprite_from_desc(&r1, {Resource::load_sprite_desc(desc1.res_name)}, &outer.game.dt, true);
 
     vector[] byte name = [] .. "core/misc/flag" ..
                             {StringUtil::to_string}(owner_id).c_str() as _char&&;
     var Rect r2 = val Rect(pst.x+40,pst.y, 0,0);
-    spawn Sprite_from_name(&r2, &&name[0] as _char&&, true);
+    spawn Sprite_from_name(&r2, &&name[0] as _char&&, &outer.game.dt, true);
 
     do
         {{
@@ -45,7 +45,7 @@ do
 
     var Vector2i pst3 = call Game_Pos_To_Smallmap(Vector2i(pst.x,pst.y));
     var Rect r3 = val Rect(pst3.x,pst3.y-100, 0,0);
-    spawn Sprite_from_name(&r3, "core/misc/smallmap_exit", false);
+    spawn Sprite_from_name(&r3, "core/misc/smallmap_exit", &outer.main.dt, false);
 
     every outer.game.dt do
         var&? Pingu p;

@@ -274,7 +274,7 @@ par/or do
     await SDL_QUIT;
 with
     var int dt;
-    every SDL_DT do
+    every dt in SDL_DT do
         emit main.dt(dt);
     end
 with

@@ -62,7 +62,7 @@ var Rect rect = val Rect(
 );
 
 spawn Wood();
-spawn Sprite_from_name(&rect, "core/menu/blackboard", false);
+spawn Sprite_from_name(&rect, "core/menu/blackboard", &outer.main.dt, false);
 
 var Rect ok_r = val Rect({Display::get_width()/2}+245,
                          {Display::get_height()/2}+150,
