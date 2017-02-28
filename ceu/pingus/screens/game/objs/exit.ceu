@@ -44,8 +44,8 @@ do
     end
 
     var Vector2i pst3 = call Game_Pos_To_Smallmap(Vector2i(pst.x,pst.y));
-    var Rect r3 = val Rect(pst3.x,pst3.y-100, 0,0);
-    spawn Sprite_from_name(&r3, "core/misc/smallmap_exit", &outer.main.dt, &outer.main.redraw, false);
+    var Rect r3 = val Rect(pst3.x,pst3.y, 0,0);
+    spawn Sprite_from_name(&r3, "core/misc/smallmap_exit", &outer.main.dt, &outer.game.redraw_smallmap, false);
 
     every outer.game.dt do
         var&? Pingu p;

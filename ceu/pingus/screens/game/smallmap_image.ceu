@@ -103,7 +103,7 @@ loop do
     }
 
     spawn do
-        every SDL_REDRAW do
+        every outer.main.redraw do
             {
                 Display::s_framebuffer->draw_surface(SMALLMAP_IMAGE_sfc,
                                                      Vector2i(@outer.game.rect_smallmap.left, @outer.game.rect_smallmap.top));
