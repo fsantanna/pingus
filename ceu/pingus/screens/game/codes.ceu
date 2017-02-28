@@ -63,4 +63,15 @@ code/tight Game_Set_Viewpoint (var int x, var int y) -> void do
     outer.game.rect.top  = y;
 end
 
+code/tight Game_Pos_To_Smallmap (var Vector2i pst) -> Vector2i do
+    var int xx = 6;
+    var int yy = {Display::get_size}().height-105;
+    var int ww = 175;
+    var int hh = 100;
+
+    var Vector2i ret = val Vector2i(outer.game.rect_smallmap.left + pst.x*outer.game.rect_smallmap.width/outer.game.rect.width,
+                                    outer.game.rect_smallmap.top  + pst.y*outer.game.rect_smallmap.height/outer.game.rect.height);
+    escape ret;
+end
+
 #endif

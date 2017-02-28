@@ -3,13 +3,11 @@
 #else
 #define _SMALLMAP_CEU
 
-var Rect rect = val Rect(6,{Display::get_size}().height-105, 175,100);
-
 code/tight Is_At (var int x, var int y) -> bool do
-    escape (x > outer.rect.left and
-            x < outer.rect.left + outer.rect.width and
-            y > outer.rect.top and
-            y < outer.rect.top + outer.rect.height);
+    escape (x > outer.game.rect_smallmap.left and
+            x < outer.game.rect_smallmap.left + outer.game.rect_smallmap.width and
+            y > outer.game.rect_smallmap.top and
+            y < outer.game.rect_smallmap.top + outer.game.rect_smallmap.height);
 end
 
 par do
@@ -24,8 +22,8 @@ with
         watching ON_PRIMARY_BUTTON_RELEASED do
             loop do
                 // set view to the given COs
-                var int cx = (x - rect.left) * outer.game.rect.width / rect.width;
-                var int cy = (y - rect.top) * outer.game.rect.height / rect.height;
+                var int cx = (x - outer.game.rect_smallmap.left) * outer.game.rect.width / outer.game.rect_smallmap.width;
+                var int cy = (y - outer.game.rect_smallmap.top) * outer.game.rect.height / outer.game.rect_smallmap.height;
                 call Game_Set_Viewpoint(cx, cy);
                 (x,y) = await ON_POINTER_MOVE until call Is_At(x,y);
             end
@@ -39,28 +37,28 @@ with
         };
 
         if (outer.game.rect.width > {Display::get_width()}) then
-            var int rwidth = {Display::get_width()} * rect.width / outer.game.rect.width;
+            var int rwidth = {Display::get_width()} * outer.game.rect_smallmap.width / outer.game.rect.width;
             {
-                view_rect.left = @(rect.left + (vec.x * rect.width / outer.game.rect.width) - rwidth/2);
+                view_rect.left = @(outer.game.rect_smallmap.left + (vec.x * outer.game.rect_smallmap.width / outer.game.rect.width) - rwidth/2);
                 view_rect.right = view_rect.left + @rwidth;
             }
         else
             {
-                view_rect.left  = @rect.left;
-                view_rect.right = @(rect.left + rect.width);
+                view_rect.left  = @outer.game.rect_smallmap.left;
+                view_rect.right = @(outer.game.rect_smallmap.left + outer.game.rect_smallmap.width);
             }
         end
 
         if (outer.game.rect.height > {Display::get_height()}) then
-            var int rheight = {Display::get_height()} * rect.height / outer.game.rect.height;
+            var int rheight = {Display::get_height()} * outer.game.rect_smallmap.height / outer.game.rect.height;
             {
-                view_rect.top = @(rect.top + (vec.y * rect.height / outer.game.rect.height) - rheight/2);
+                view_rect.top = @(outer.game.rect_smallmap.top + (vec.y * outer.game.rect_smallmap.height / outer.game.rect.height) - rheight/2);
                 view_rect.bottom = view_rect.top + @rheight;
             }
         else
             {
-                view_rect.top    = @rect.top;
-                view_rect.bottom = @(rect.top + rect.height);
+                view_rect.top    = @outer.game.rect_smallmap.top;
+                view_rect.bottom = @(outer.game.rect_smallmap.top + outer.game.rect_smallmap.height);
             }
         end
 
@@ -69,8 +67,8 @@ with
         // Draw Pingus
         var&? Pingu pingu;
         loop pingu in outer.pingus do
-            var int x = rect.left + (pingu!.pingu.rect.left * rect.width  / outer.game.rect.width);
-            var int y = rect.top  + (pingu!.pingu.rect.top  * rect.height / outer.game.rect.height);
+            var int x = outer.game.rect_smallmap.left + (pingu!.pingu.rect.left * outer.game.rect_smallmap.width  / outer.game.rect.width);
+            var int y = outer.game.rect_smallmap.top  + (pingu!.pingu.rect.top  * outer.game.rect_smallmap.height / outer.game.rect.height);
             {Display::s_framebuffer->draw_line(Vector2i(@x, @y), Vector2i(@x, @y-2), Color(255,255,0));}
         end
     end

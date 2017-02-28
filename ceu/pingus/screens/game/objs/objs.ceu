@@ -74,9 +74,8 @@ do
     var usize i;
     loop i in [0 -> {WORLDOBJ_FACTORY_VECTOR.size()}[ do
         {WORLDOBJ_FACTORY_READER = WORLDOBJ_FACTORY_VECTOR.at(@i).first;};
-        var Vector3f pst_offset = val Vector3f({WORLDOBJ_FACTORY_VECTOR}.at(i).second.x,
-                                               {WORLDOBJ_FACTORY_VECTOR}.at(i).second.y,
-                                               {WORLDOBJ_FACTORY_VECTOR}.at(i).second.z);
+        var Vector2i pst_offset = val Vector2i({WORLDOBJ_FACTORY_VECTOR}.at(i).second.x,
+                                               {WORLDOBJ_FACTORY_VECTOR}.at(i).second.y);
         #define id_ {WORLDOBJ_FACTORY_VECTOR}.at(i).first.get_name()
         if id_ == "surface-background" then
             spawn SurfaceBackground() in outer.layer_bg_0;

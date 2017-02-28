@@ -5,7 +5,7 @@
 
 var uint colmap_serial = 0;
 
-var&? _Surface canvas_ = &{new Surface}(outer.rect.width, outer.rect.height)
+var&? _Surface canvas_ = &{new Surface}(outer.game.rect_smallmap.width, outer.game.rect_smallmap.height)
     finalize (canvas_) with
         _delete(&&canvas_!);
     end;
@@ -106,7 +106,7 @@ loop do
         every SDL_REDRAW do
             {
                 Display::s_framebuffer->draw_surface(SMALLMAP_IMAGE_sfc,
-                                                     Vector2i(@outer.rect.left, @outer.rect.top));
+                                                     Vector2i(@outer.game.rect_smallmap.left, @outer.game.rect_smallmap.top));
             }
         end
     end
