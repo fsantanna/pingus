@@ -132,15 +132,14 @@ with
     do ()
         #include "capture_rectangle.ceu"
     end
-#if 0
 with
-    every v in outer.main.dt do
-        var float dt = ((float)v)/1000;
-        if ({globals::auto_scrolling} and
-            ({Display::is_fullscreen()} or 
-                _SDL_WM_GrabInput(_SDL_GRAB_QUERY) == _SDL_GRAB_ON))
+    var int dt;
+    every dt in outer.main.dt do
+        if {globals::auto_scrolling &&
+           (Display::is_fullscreen() || SDL_WM_GrabInput(SDL_GRAB_QUERY)==SDL_GRAB_ON)}
+            as bool
         then
-            var int scroll_speed = (int)(800 * dt);
+            var int scroll_speed = (dt * 0.8) as int;
 
             if (mouse_pos.x < 10) then
                 outer.game.state.set_pos(outer.game.state.get_pos() - _Vector2i(scroll_speed, 0));
@@ -159,7 +158,6 @@ with
             end
         end
     end
-#endif
 end
 
 /* PUBLIC */
