@@ -3,131 +3,44 @@
 #else
 #define _CAPTURERECTANGLE_CEU
 
-code/await CaptureRectangle (void) -> FOREVER
-do
-    pool Sprite[1] good_or_bad;
-    pool Sprite[1] left_or_right;
+var&? Pingu old;
+loop do
+    await outer.main.dt;
 
-    vector[] byte action_str;
+    var float min_dist = 500.0;
+    var&? Pingu nxt;
+    var&? Pingu p;
 
-    var Rect rect_gb = val Rect(0,0,0,0);
-    var Rect rect_lr = val Rect(0,0,0,0);
+    loop p in outer.pingus do
+        var Vector2i pst = val Vector2i(
+                            outer.game.state.screen2world(POS2VEC(outer.mouse_pos)).x,
+                            outer.game.state.screen2world(POS2VEC(outer.mouse_pos)).y,
+                           );
 
-    par do
-        every outer.game.dt do
-            if this.playfield.current_pingu? then
-                var IPingu&& pingu = this.playfield.current_pingu!;
-                rect_gb.left = pingu:get_center_pos().x;
-                rect_gb.top  = pingu:get_center_pos().y;
-                rect_lr.left = pingu:get_center_pos().x;
-                rect_lr.top  = pingu:get_center_pos().y + 2;
-
-                // RESET STRING
-                do
-                    action_str = [] .. pingu:name;
-
-                    if (pingu:wall_action != {ActionName::NONE} or
-                        pingu:fall_action != {ActionName::NONE})
-                    then
-                        action_str = [] .. action_str .. ['['];
-
-                        if (pingu:wall_action != {ActionName::NONE}) then
-                            var char c = {ActionName::PERSISTENT_CHAR}[pingu:wall_action];
-                            _assert(c!='\0' and "This is not a persitent action!");
-                            action_str = [] .. action_str .. [c];
-                        end
-
-                        if (pingu:fall_action != {ActionName::NONE}) then
-                            var char c = {ActionName::PERSISTENT_CHAR}[pingu:fall_action];
-                            _assert(c!='\0' and "This is not a persitent action!");
-                            action_str = [] .. action_str .. [c];
-                        end
-
-                        action_str = [] .. action_str .. [']'];
-                    end
-                end
+        if call p!.Pingu_Is_Over(pst.x,pst.y) then
+            var float dist = call p!.Pingu_Dist(pst.x, pst.y);
+            if dist < min_dist then
+                min_dist = dist;
+                nxt = &p;
             end
         end
-    with
-        var Sprite&&? sprite_gb;
-        var Sprite&&? sprite_lr;
-        every this.playfield.ok_pingu do
+    end
 
-            if sprite_gb? then
-                kill *sprite_gb!;
+    if nxt? then
+        if old? then
+            if (&&nxt! != &&old!) then
+                emit old!.pingu.go_toggle_capture;
+                emit nxt!.pingu.go_toggle_capture;
+            else
+                // still the same pingu
             end
-            if sprite_lr? then
-                kill *sprite_lr!;
-            end
-
-            if not this.playfield.current_pingu? then
-                continue;
-            end
-
-            var IPingu&& pingu = this.playfield.current_pingu!;
-
-            if {globals::developer_mode} then
-                action_str = [] .. action_str .. " Id: ";
-                action_str = [] .. action_str ..
-                    (_char&&)({StringUtil::to_string}(pingu:get_id()).c_str());
-            end
-
-            var int action = pingu:current_action;
-            if not {ActionName::CATCHABLE}[action] then
-                continue;
-            end
-
-            // RESPAWN SPRITES
-            do
-                var bool is_left = pingu:direction == _LEFT;
-
-                sprite_gb =
-                    spawn Sprite in good_or_bad with
-                        this.rect = &rect_gb;
-
-                        if {ActionName::CHANGE_ALLOWED}[action]
-                                                       [(int)playfield.action_next]
-                        then
-                            this.name = "game/cursors/capgood";
-                        else
-                            this.name = "game/cursors/capbad";
-                        end;
-                    end;
-
-                sprite_lr =
-                    spawn Sprite in left_or_right with
-                        this.rect = &rect_lr;
-
-                        if is_left then
-                            this.name = "game/cursors/arrow_left";
-                        else
-                            this.name = "game/cursors/arrow_right";
-                        end
-                    end;
-            end
+        else
+            emit nxt!.pingu.go_toggle_capture;
         end
-    with
-        every REDRAW do
-            if not this.playfield.current_pingu? then
-                continue;
-            end
-            var IPingu&& pingu = this.playfield.current_pingu!;
-
-            if ({ActionName::CATCHABLE}[pingu:current_action]) then
-                var int xx = global:world!:state.get_pos().x -
-                             global:world!:state.get_width()/2;
-                var int yy = global:world!:state.get_pos().y -
-                             global:world!:state.get_height()/2;
-
-                call {Fonts::courier_small}.render(
-                    _origin_top_center,
-                    -xx + pingu:get_center_pos().x,
-                    -yy + pingu:get_center_pos().y - 46,
-                    (_char&&)&&action_str,
-                    *{Display::s_framebuffer}
-                ) finalize with nothing; end;
-            end
-        end
+        old = &nxt;
+    else/if old? then
+        emit old!.pingu.go_toggle_capture;
+        old = nil;
     end
 end
 

@@ -1,0 +1,92 @@
+#ifdef _PINGUS_CAPTURERECTANGLE_CEU
+#error multiple include
+#else
+#define _PINGUS_CAPTURERECTANGLE_CEU
+
+loop do
+    await outer.pingu.go_toggle_capture;
+    watching outer.pingu.go_toggle_capture do
+        vector[] byte action_str = [] .. outer.pingu.name;
+        if outer.wall_action != {ActionName::NONE} or
+           outer.fall_action != {ActionName::NONE}
+        then
+            action_str = action_str .. [{'['}];
+
+            if outer.wall_action != {ActionName::NONE} then
+                var byte c = {ActionName::PERSISTENT_CHAR}[outer.wall_action];
+                _ceu_dbg_assert(c!={'\0'} and ("This is not a persitent action!" as bool));
+                action_str = action_str .. [c];
+            end
+
+            if outer.fall_action != {ActionName::NONE} then
+                var byte c = {ActionName::PERSISTENT_CHAR}[outer.fall_action];
+                _assert(c!={'\0'} and ("This is not a persitent action!" as bool));
+                action_str = action_str .. [c];
+            end
+
+            action_str = action_str .. [{']'}];
+        end
+
+        #if 0
+        if {globals::developer_mode} then
+            action_str = [] .. action_str .. " Id: ";
+            action_str = [] .. action_str ..
+                ({StringUtil::to_string}(pingu:get_id()).c_str() as _char&&);
+        end
+        #endif
+
+        par do
+            if {ActionName::CATCHABLE}[outer.pingu.current_action] as bool then
+                var Rect rect_gb = _;
+                var Rect rect_lr = _;
+                spawn do
+                    every outer.main.dt do
+                        var Vector3f pst = call Pingu_Get_Center_Pos();
+                        rect_gb = val Rect(pst.x as int,pst.y as int,  0,0);
+                        rect_lr = val Rect(pst.x as int,(pst.y+2)as int,0,0);
+                    end
+                end
+
+                var _char&& name1 = do
+                    if {ActionName::CHANGE_ALLOWED}[outer.pingu.current_action][outer.game.action_next] as bool then
+                        escape "game/cursors/capgood";
+                    else
+                        escape "game/cursors/capbad";
+                    end
+                end;
+                spawn Sprite_from_name(&rect_gb, name1, &outer.main.dt, &outer.main.redraw, true);
+
+                var _char&& name2 = do
+                    if outer.pingu.direction == {LEFT} then
+                        escape "game/cursors/arrow_left";
+                    else
+                        escape "game/cursors/arrow_right";
+                    end
+                end;
+                spawn Sprite_from_name(&rect_lr, name2, &outer.main.dt, &outer.main.redraw, true);
+
+                await FOREVER;
+            end
+        with
+            every outer.main.redraw do
+                if {ActionName::CATCHABLE}[outer.pingu.current_action] as bool then
+                    var int xx = outer.game.state.get_pos().x -
+                                 outer.game.state.get_width()/2;
+                    var int yy = outer.game.state.get_pos().y -
+                                 outer.game.state.get_height()/2;
+
+                    var Vector3f pst = call Pingu_Get_Center_Pos();
+                    call ({Fonts::courier_small}.render as /nohold)(
+                        {origin_top_center},
+                        -xx + pst.x,
+                        -yy + pst.y - 46,
+                        &&action_str[0] as _char&&,
+                        *{Display::s_framebuffer}
+                    );
+                end
+            end
+        end
+    end
+end
+
+#endif

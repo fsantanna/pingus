@@ -179,12 +179,6 @@ with
         every outer.main.redraw do
             emit game.redraw_smallmap;
         end
-#if 0
-    with
-        do ()
-            #include "capture_rectangle.ceu"
-        end
-#endif
     with
         do ()
             #include "time_display.ceu"

@@ -21,6 +21,7 @@ data IPingu with
     vector[] byte name;
 
     event _ActionName__Enum go_action;
+    event void              go_toggle_capture;
 end
 
 code/await Pingu (pool&[] Pingu  pingus,
@@ -35,10 +36,10 @@ do
         direction_ = {LEFT};
     end
 
-    pingu = val IPingu(rect_, direction_!, _,_,_,_,_);
+    pingu = val IPingu(rect_, direction_!, _,_,_,_,_,_);
 
-    var _ActionName__Enum wall_action    = {ActionName::NONE};
-    var _ActionName__Enum fall_action    = {ActionName::NONE};
+    var _ActionName__Enum wall_action = {ActionName::NONE};
+    var _ActionName__Enum fall_action = {ActionName::NONE};
 
     code/tight Pingu_Get_Owner_Str          (void)                  -> _char&&;
     code/tight Pingu_Set_Velocity           (var Vector3f velocity) -> void;
@@ -69,6 +70,10 @@ do
     #include "actions/splashed.ceu"
     #include "actions/waiter.ceu"
     #include "actions/walker.ceu"
+
+    spawn () do
+        #include "capture_rectangle.ceu"
+    end
 
     var int ret =
     do
