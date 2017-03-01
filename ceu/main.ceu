@@ -155,6 +155,7 @@ native/pre do
     static CommandLineOptions cmd;
     static PingusLevel plf;
     static Result result;
+    static Pathname filename;
 end
 
 input _CommandLineOptions&& MAIN;
@@ -250,11 +251,10 @@ end
 #if 0
 #include "pingus/global_event.ceu"
 #include "pingus/worldmap/worldmap_screen.ceu"
-#include "pingus/screens/credits.ceu"
 #include "pingus/screens/story_screen.ceu"
 
 native/pre do
-    static Pathname filename, filename_credits;
+    static Pathname filename_credits;
     static FileReader reader;
 end
 
@@ -285,19 +285,21 @@ with
 with
     pause/if go_pause do
         if {cmd.rest.is_set()} as bool then
-#if 0
-            _filename = _Pathname(_cmd.rest.get(), {Pathname::SYSTEM_PATH});
-            if {StringUtil::has_suffix(cmd.rest.get(), ".pingus-demo")} then
+            {
+                filename = Pathname(cmd.rest.get(), Pathname::SYSTEM_PATH);
+            }
+            if {StringUtil::has_suffix(cmd.rest.get(), ".pingus-demo")} as bool then
 // DEMO
                 _ceu_dbg_assert({!"NOT PORTED"});
-            else/if {StringUtil::has_suffix(cmd.rest.get(), ".font")} then
+            else/if {StringUtil::has_suffix(cmd.rest.get(), ".font")} as bool then
 // FONT
                 _ceu_dbg_assert({!"NOT PORTED"});
-            else/if {StringUtil::has_suffix(cmd.rest.get(), ".credits")} then
+            else/if {StringUtil::has_suffix(cmd.rest.get(), ".credits")} as bool then
 // CREDITS
-                do Credits with
-                    this.filename = &&_filename;
-                end;
+                do ()
+                    #include "pingus/screens/credits.ceu"
+                end
+#if 0
             else/if {StringUtil::has_suffix(cmd.rest.get(), ".worldmap")} then
 // WORLDMAP
                 loop do
@@ -344,7 +346,6 @@ with
                     this.reader = &&_reader;
                 end;
 #endif
-            if false then
             else/if {StringUtil::has_suffix(cmd.rest.get(), ".levelset")} as bool then
 // LEVELSET
                 {
