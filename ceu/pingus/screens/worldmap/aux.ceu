@@ -43,7 +43,6 @@ end
 
 ///#include "dots.ceu"
 ///#include "pingus.ceu"
-///#include "sprite_drawable.ceu"
 
 #if 0
 bool Worldmap::is_final_map() {
@@ -122,28 +121,34 @@ par do
         {gc_state.set_pos(Vector2i(@off.x, @off.y));}
     end
 with
-#if 0
+    { static FileReader* file_reader; }
+    #include "sprite_drawable.ceu"
     // Create all objects
-    pool SpriteDrawable[] draws;
+    pool[] SpriteDrawable draws;
     {
         static std::vector<FileReader> object_reader;
         static std::vector<FileReader>::const_iterator i1;
+        object_reader = worldmap.get_objects();
+        i1 = object_reader.begin();
     };
-    _object_reader = _XXX_PURE(_worldmap.get_objects());
-    _i1 = _XXX_PURE(_object_reader.begin());
     loop do
-        if _i1 == _object_reader.end() then
+        if {i1 == object_reader.end()} as bool then
             break;
         end
         //log_info("Worldmap::parse_objects: Parse Error");
-        { const FileReader& file_reader = *i1; };
-        var _FileReader&& reader = (_FileReader&&)&&_file_reader;
-        spawn SpriteDrawable in draws with
-            this.reader = reader;
-            this.pos    = &pst;
-        end;
+        {
+            DO
+                const FileReader& f = *i1;
+                file_reader = (FileReader*) &f;
+        };
+        spawn SpriteDrawable() in draws;
         {i1++;};
+        {
+            END
+        }
     end
+    await FOREVER;
+#if 0
 
     // Create graph
     var DotE dot;
@@ -274,11 +279,11 @@ with
                 _draw_edges(_path_graph.get(), _Vector2i(off.x,off.y)));
         end
     end
-with
-    every REDRAW do
-        global:offset = Vector2i(0,0);
-    end
 #endif
+with
+    every outer.main.redraw do
+        outer.main.offset = val Vector2i(0,0);
+    end
 end
 
 code/tight Get_Offset (void)-> Vector2i do
