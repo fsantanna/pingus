@@ -1,124 +1,124 @@
 #ifndef _DOTS_CEU
 #define _DOTS_CEU
 
-class DotE with
-    event (int,int,bool,bool,int) ok_clicked;
-do
-    await FOREVER;
+data EDot1 with
+    event (int,bool,bool,int) fst;
+    event int                 snd;
 end
 
-interface IDot with
-    var _FileReader&& reader;
-    var int           id;
-    var char[]        filename;
-    var Vector3f&     pos;
-    var int           status;
-    var bool          is_story;
-    var bool          show_credits;
-    var DotE&         e;
+data EDot2 with
+    event bool out;
+    event void fst;
+    event void snd;
 end
 
-class Mouse with
-    var Rect& rect;
-    var IDot& dot;
-    event bool ok_out;
+code/await Mouse (var& Rect rect, var& EDot2 e) -> FOREVER
 do
-    function (int x, int y)=>bool is_inside do
-        var Vector2i off = global:worldmap!:get_offset();
-        var float dx = off.x + x - this.rect.left;
-        var float dy = off.y + y - this.rect.top;
-        return {Math::sqrt}(dx*dx + dy*dy) < 30;
+    code/tight Is_Inside (var int x, var int y) -> bool do
+        var Vector2i off = call Get_Offset();
+        var float dx = off.x + x - outer.rect.left;
+        var float dy = off.y + y - outer.rect.top;
+        escape {Math::sqrt}(dx*dx + dy*dy) < 30;
     end
 
     par do
         var bool is_on = false;
+        var int x;
+        var int y;
         every (x,y) in ON_POINTER_MOVE do
-            var bool v = is_inside(x,y);
+            var bool v = call Is_Inside(x,y);
             if v != is_on then
                 is_on = v;
-                emit this.ok_out => not v;
+                emit e.out(not v);
             end
         end
     with
+        var int x;
+        var int y;
         every (x,y) in ON_PRIMARY_BUTTON_PRESSED do
-            if is_inside(x,y) then
-                if {globals::developer_mode} then
-                    _log_info("Worldmap: Clicked on: %1%", (_char&&)&&dot.filename);
-                end
-                global:worldmap_return_filename = [] .. (_char&&)&&dot.filename;
-                emit this.dot.e.ok_clicked =>
-                    (1,this.dot.id,this.dot.is_story,this.dot.show_credits,this.dot.status);
+            if call Is_Inside(x,y) then
+                emit e.fst;
             end
         end
     with
+        var int x;
+        var int y;
         every (x,y) in ON_SECONDARY_BUTTON_PRESSED do
-            if {globals::developer_mode} then
-                if is_inside(x,y) then
-                    emit this.dot.e.ok_clicked =>
-                        (2,this.dot.id,this.dot.is_story,this.dot.show_credits,this.dot.status);
-                end
+            if call Is_Inside(x,y) then
+                emit e.snd;
             end
         end
     end
 end
 
-class StoryDot with
-    interface IDot;
-    var int  id     = _WorldmapNS__NoNode;
-    var int  status = {Savegame::ACCESSIBLE};
-    var bool show_credits = false;
+code/await StoryDot (var& EDot1 e1) -> FOREVER
 do
     {
         static FileReader  reader;
-        static Vector3f    pos;
+        static Vector3f    pst;
         static std::string name;
+        reader = file_reader->read_section("dot");
+        reader.read_vector("position", pst);
+        reader.read_string("name",     name);
+        ceu_dbg_assert(!name.empty());
     };
-    _reader = _XXX_PURE(this.reader:read_section("dot"));
-    _reader.read_vector("position", _pos);
-    _reader.read_string("name",     _name);
-    _assert(not _name.empty());
 
-    this.id = _path_graph:lookup_node(_name);
+    var int id = {path_graph->lookup_node(name)};
 
     {
         static std::string m_name;
         static std::string m_story;
         static bool        m_credits;
-        static PingusLevel plf;
+        file_reader->read_string("name",  m_name);
+        file_reader->read_string("story", m_story);
+        m_credits = false;
+        file_reader->read_bool  ("credits", m_credits);
     };
-    this.reader:read_string("name",    _m_name);
-    this.reader:read_string("story",   _m_story);
 
-    _m_credits = false;
-    this.reader:read_bool  ("credits", _m_credits);
-    this.show_credits = _m_credits;
+    var bool show_credits = {m_credits} as bool;
 
-    var char[] m_name = [] .. (_char&&)_m_name.c_str();
-    this.filename = [] .. (_char&&)_m_story.c_str();
+    vector[] byte m_name   = [] .. {m_name.c_str()} as _char&&;
+    vector[] byte filename = [] .. {m_story.c_str()} as _char&&;
 
-    var Rect rect = Rect(_pos.x,_pos.y, 0, 0);
-    var Sprite _ = Sprite.build_name(&rect, "core/worldmap/story_dot");
+    var Rect rect = val Rect({pst.x},{pst.y}, 0, 0);
+    spawn Sprite_from_name(&rect, "core/worldmap/story_dot", &outer.main.dt, &outer.main.redraw, true);
 
-    var Mouse mouse with
-        this.rect = &rect;
-        this.dot  = &outer;
-    end;
+    var EDot2 e2 = _;
+    spawn Mouse(&rect, &e2);
 
-    var bool v = await mouse.ok_out until v==false;
-    pause/if mouse.ok_out do
-        var Sprite _ = Sprite.build_name(&rect, "core/worldmap/story_dot_highlight");
-        every REDRAW do
-            call {Fonts::pingus_small}.render(
-                _origin_top_center,
-                -global:offset.x + rect.left,
-                -global:offset.y + rect.top-44,
-                __((_char&&)&&m_name),
-                *{Display::s_framebuffer}
-            );
+    var bool v = await e2.out until v==false;
+    pause/if e2.out do
+        spawn Sprite_from_name(&rect, "core/worldmap/story_dot_highlight", &outer.main.dt, &outer.main.redraw, true);
+
+        par do
+            every outer.main.redraw do
+                call {Fonts::pingus_small}.render(
+                    {origin_top_center},
+                    -outer.main.offset.x + rect.left,
+                    -outer.main.offset.y + rect.top-44,
+                    __(&&m_name[0] as _char&&),
+                    *{Display::s_framebuffer}
+                );
+            end
+        with
+            every e2.fst do
+                if {globals::developer_mode} as bool then
+                    _log_info("Worldmap: Clicked on: %1%", &&filename[0] as _char&&);
+                end
+                ///global:worldmap_return_filename = [] .. &&dot.filename as _char&&;
+                emit e1.fst(id,true,show_credits,{Savegame::ACCESSIBLE});
+            end
+        with
+            every e2.snd do
+                if {globals::developer_mode} as bool then
+                    emit e1.snd(id);
+                end
+            end
         end
     end
 end
 
+#if 0
 class LevelDot with
     interface IDot;
     var int  id     = _WorldmapNS__NoNode;
@@ -222,5 +222,6 @@ do
         end
     end
 end
+#endif
 
 #endif

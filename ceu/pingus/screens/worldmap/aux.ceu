@@ -41,7 +41,6 @@ native/pre do
 
 end
 
-///#include "dots.ceu"
 ///#include "pingus.ceu"
 
 #if 0
@@ -102,9 +101,44 @@ bool Worldmap::is_final_map() {
 var Vector3f pst = val Vector3f({path_graph->get_dot(id)->get_pos().x},
                                 {path_graph->get_dot(id)->get_pos().y},
                                 0); 
-_printf("POS=%f %f\n", pst.x, pst.y);
 
 code/tight Get_Offset (void)-> Vector2i;
+
+code/tight Get_Offset (void)-> Vector2i do
+    var int x = 0;
+    do
+        var int min;
+        var int max;
+        var int width  = {worldmap.get_width()};
+        if width >= {Display::get_width()} then
+            min = {Display::get_width()}/2;
+            max = width - {Display::get_width()}/2;
+        else
+            min = width - {Display::get_width()}/2;
+            max = {Display::get_width()}/2;
+        end
+        x = {Math::clamp}(min, outer.pst.x as int, max);
+    end
+
+    var int y = 0;
+    do
+        var int min;
+        var int max;
+        var int height = {worldmap.get_height()};
+        if height >= {Display::get_height()} then
+            min = {Display::get_height()}/2;
+            max = height - {Display::get_height()}/2;
+        else
+            min = height - {Display::get_height()}/2;
+            max = {Display::get_height()}/2;
+        end
+        y = {Math::clamp}(min, outer.pst.y as int, max);
+    end
+
+    var Vector2i ret = val Vector2i(x - {Display::get_width()}/2,
+                                    y - {Display::get_height()}/2);
+    escape ret;
+end
 
 // TODO
 #if 0
@@ -142,90 +176,102 @@ with
                 file_reader = (FileReader*) &f;
         };
         spawn SpriteDrawable() in draws;
-        {i1++;};
+        {i1++;}
         {
             END
         }
     end
-    await FOREVER;
-#if 0
 
     // Create graph
-    var DotE dot;
-    pool IDot[] dots;
+    #include "dots.ceu"
+    var EDot1 e = _;
+    //pool IDot[] dots;
+    pool[] StoryDot sds;
     {
         static const std::vector<FileReader>& childs =
             worldmap.get_graph().read_section("nodes").get_sections();
         static std::vector<FileReader>::const_iterator i2;
+        i2 = childs.begin();
     };
-    _i2 = _XXX_PURE(_childs.begin());
     loop do
-        if _i2 == _childs.end() then
+        if {i2 == childs.end()} as bool then
             break;
         end
-        { const FileReader& file_reader = *i2; };
-        var _FileReader&& reader = (_FileReader&&)&&_file_reader;
-        if reader:get_name() == "storydot" then
-            spawn StoryDot in dots with
-                this.reader = reader;
-                this.pos    = &pst;
-                this.e      = &dot;
-                this.is_story = true;
-            end;
-        else/if reader:get_name() == "leveldot" then
+        {
+            DO
+                const FileReader& f = *i2;
+                file_reader = (FileReader*) &f;
+        }
+        if {file_reader->get_name() == "storydot"} as bool then
+            spawn StoryDot(&e) in sds;
+                //this.pos    = &pst;
+                //this.e      = &dot;
+                //this.is_story = true;
+        else/if {file_reader->get_name() == "leveldot"} as bool then
+#if 0
             spawn LevelDot in dots with
                 this.reader = reader;
                 this.pos    = &pst;
                 this.e      = &dot;
                 this.is_story = false;
             end;
+#endif
         else
-            _assert(not "DotFactory: unknown tag: ");// <<  reader.get_name());
+            _ceu_dbg_assert({!"DotFactory: unknown tag: "});// <<  reader.get_name());
         end
-        {i2++;};
+        {i2++;}
+        {
+            END
+        }
     end
 
+    spawn () do
+        #include "pingus.ceu"
+    end
+#if 0
     var Pingus pingus with
         this.path = _XXX_PURE(_path_graph.get());
         this.node = id;
         this.pos  = &pst;
     end;
+#endif
 
+await FOREVER;
     //every (but,id_,status) in dot.ok_clicked do
+#if 0
     loop do
-        var int but,id_,status;
-        var bool is_story, show_credits;
-        (but,id_,is_story,show_credits,status) = await dot.ok_clicked;
-        if but == 1 then
-            if id_ == pingus.node then
-                if {globals::developer_mode} then
-                    _log_info("Worldmap: Pingu is on node, issue on_click()");
-                end
-                if is_story then
-                    if show_credits then
-                        escape _WORLDMAP_RETURN_STORY_CREDITS;
-                    else
-                        escape _WORLDMAP_RETURN_STORY_MAP;
-                    end
+        var int  id_;
+        var int  status;
+        var bool is_story;
+        var bool show_credits;
+        (id_,is_story,show_credits,status) = await dot.ok_clicked;
+        if id_ == pingus.node then
+            if {globals::developer_mode} then
+                _log_info("Worldmap: Pingu is on node, issue on_click()");
+            end
+            if is_story then
+                if show_credits then
+                    escape _WORLDMAP_RETURN_STORY_CREDITS;
                 else
-                    escape _WORLDMAP_RETURN_LEVEL;
+                    escape _WORLDMAP_RETURN_STORY_MAP;
                 end
             else
-                if status == {Savegame::NONE} then
-                    call {Sound::PingusSound::play_sound}("chink");
-                else
-                    call {StatManager::instance()}:set_string(
-                        {worldmap.get_short_name() + "-current-node"},
-                        _path_graph:lookup_node(id_)
-                    );
-                    emit pingus.go_walking => id_;
-                end
+                escape _WORLDMAP_RETURN_LEVEL;
             end
         else
-            _assert(but == 2);
-            emit pingus.go_directly => id_;
+            if status == {Savegame::NONE} then
+                call {Sound::PingusSound::play_sound}("chink");
+            else
+                call {StatManager::instance()}:set_string(
+                    {worldmap.get_short_name() + "-current-node"},
+                    _path_graph:lookup_node(id_)
+                );
+                emit pingus.go_walking => id_;
+            end
         end
     end
+#endif
+#if 0
 with
     every (x,y) in ON_PRIMARY_BUTTON_PRESSED do
         var Vector2i off = this.get_offset();
@@ -284,42 +330,6 @@ with
     every outer.main.redraw do
         outer.main.offset = val Vector2i(0,0);
     end
-end
-
-code/tight Get_Offset (void)-> Vector2i do
-    var int x = 0;
-    do
-        var int min;
-        var int max;
-        var int width  = {worldmap.get_width()};
-        if width >= {Display::get_width()} then
-            min = {Display::get_width()}/2;
-            max = width - {Display::get_width()}/2;
-        else
-            min = width - {Display::get_width()}/2;
-            max = {Display::get_width()}/2;
-        end
-        x = {Math::clamp}(min, outer.pst.x as int, max);
-    end
-
-    var int y = 0;
-    do
-        var int min;
-        var int max;
-        var int height = {worldmap.get_height()};
-        if height >= {Display::get_height()} then
-            min = {Display::get_height()}/2;
-            max = height - {Display::get_height()}/2;
-        else
-            min = height - {Display::get_height()}/2;
-            max = {Display::get_height()}/2;
-        end
-        y = {Math::clamp}(min, outer.pst.y as int, max);
-    end
-
-    var Vector2i ret = val Vector2i(x - {Display::get_width()}/2,
-                                    y - {Display::get_height()}/2);
-    escape ret;
 end
 
 #endif
