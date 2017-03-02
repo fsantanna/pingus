@@ -14,7 +14,7 @@ do
 
     { Sound::PingusSound::play_sound("yipee"); };
 
-    await RightLeftSprites(&outer.pingu.rect, &outer.pingu.direction, &left, &right, true);
+    await RightLeftSprites(&outer.pingu.rect, &outer.pingu.direction, &left, &left, &right, true);
 
     escape {ActionName::NONE};
 end

@@ -12,7 +12,7 @@ do
                           .. (call Pingu_Get_Owner_Str() as _char&&)
                           .. "/slider/right";
 
-    spawn RightLeftSprites(&outer.pingu.rect, &outer.pingu.direction, &left, &right, true);
+    spawn RightLeftSprites(&outer.pingu.rect, &outer.pingu.direction, &left, &left, &right, true);
 
     #define SLIDER_SPEED 10
     var float speed = SLIDER_SPEED;

@@ -18,13 +18,13 @@
 
 code/await RightLeftSprites (var&      Rect rect,
                              var&      s8   direction,
+                             vector&[] byte none,
                              vector&[] byte left,
                              vector&[] byte right,
                              var       bool is_world)
                                 -> (pool[1] Sprite_from_name sprites)
                                     -> void
 do
-    vector[] byte none;     // TODO: always empty?
     event void e_change;
 
     //pool[1] Sprite_from_name sprites;

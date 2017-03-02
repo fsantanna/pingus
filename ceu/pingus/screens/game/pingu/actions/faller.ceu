@@ -86,7 +86,7 @@ await outer.game.dt;
             vector[] byte right = [] .. "pingus/player"
                                      .. call Pingu_Get_Owner_Str() as _char&&
                                      .. "/faller/right";
-            spawn RightLeftSprites(&outer.pingu.rect, &outer.pingu.direction, &left, &right, true);
+            spawn RightLeftSprites(&outer.pingu.rect, &outer.pingu.direction, &left, &left, &right, true);
             await outer.game.dt until call Is_Tumbling();
         end
         do
@@ -96,7 +96,7 @@ await outer.game.dt;
             vector[] byte right = [] .. "pingus/player"
                                   .. call Pingu_Get_Owner_Str() as _char&&
                                   .. "/tumbler/right";
-            await RightLeftSprites(&outer.pingu.rect, &outer.pingu.direction, &left, &right, true);
+            await RightLeftSprites(&outer.pingu.rect, &outer.pingu.direction, &left, &left, &right, true);
             _ceu_dbg_assert(0);     // sprite has loop
         end
     end

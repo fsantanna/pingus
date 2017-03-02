@@ -49,11 +49,11 @@ end
     var Rect rect = val Rect(0,0,0,0);
     event _WorldmapNS__NodeId go_directly;
 
-    ///this.none   = [].."core/worldmap/pingus_standing";
+    vector[] byte none  = [].."core/worldmap/pingus_standing";
     vector[] byte left  = [].."core/worldmap/pingus/left";
     vector[] byte right = [].."core/worldmap/pingus/right";
     var&? RightLeftSprites sprites =
-        spawn RightLeftSprites(&rect, &direction, &left, &right, true);
+        spawn RightLeftSprites(&rect, &direction, &none, &left, &right, true);
 
     par do
         every outer.main.dt do

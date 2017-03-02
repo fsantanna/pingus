@@ -14,7 +14,7 @@ do
                            .. (call Pingu_Get_Owner_Str() as _char&&)
                            .. "/walker/right";
 
-    spawn RightLeftSprites(&outer.pingu.rect, &outer.pingu.direction, &left1, &right1, true);
+    spawn RightLeftSprites(&outer.pingu.rect, &outer.pingu.direction, &left1, &left1, &right1, true);
 
     // Reset the velocity
     var Vector3f v = val Vector3f(0, 0, 0);
@@ -26,7 +26,7 @@ do
         until (outer.fall_action == {ActionName::FLOATER});
         vector[] byte left2  = [] .. "other/floaterlayer/left";
         vector[] byte right2 = [] .. "other/floaterlayer/right";
-        spawn RightLeftSprites(&outer.pingu.rect, &outer.pingu.direction, &left2, &right2, true);
+        spawn RightLeftSprites(&outer.pingu.rect, &outer.pingu.direction, &left2, &left2, &right2, true);
         await FOREVER;
     with
         loop do
