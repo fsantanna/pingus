@@ -111,7 +111,7 @@ do
         with
             every e2.snd do
                 if {globals::developer_mode} as bool then
-                    emit e1.snd(id);
+                    emit outer.pingu.go_directly(id);
                 end
             end
         end
@@ -179,31 +179,47 @@ do
     with
         var bool v = await e2.out until v==false;
         pause/if e2.out do
-            every outer.main.redraw do
-                var int x = -outer.main.offset.x;
-                var int y = -outer.main.offset.y;
-                if status == {Savegame::NONE} then
-                    call {Fonts::pingus_small}.render(
-                        _origin_top_center,
-                        x+rect.left, y+rect.top-44,
-                        __("???"),
-                        *{Display::s_framebuffer}
-                    );
-                else
-                    call {Fonts::pingus_small}.render(
-                        _origin_top_center,
-                        x+rect.left, y+rect.top-44,
-                        __(&&lvl_name[0] as _char&&),
-                        *{Display::s_framebuffer}
-                    );
+            par do
+                every outer.main.redraw do
+                    var int x = -outer.main.offset.x;
+                    var int y = -outer.main.offset.y;
+                    if status == {Savegame::NONE} then
+                        call {Fonts::pingus_small}.render(
+                            _origin_top_center,
+                            x+rect.left, y+rect.top-44,
+                            __("???"),
+                            *{Display::s_framebuffer}
+                        );
+                    else
+                        call {Fonts::pingus_small}.render(
+                            _origin_top_center,
+                            x+rect.left, y+rect.top-44,
+                            __(&&lvl_name[0] as _char&&),
+                            *{Display::s_framebuffer}
+                        );
+                    end
+                    if {globals::developer_mode} as bool then
+                        call {Fonts::pingus_small}.render(
+                            _origin_top_center,
+                            x+rect.left, y+rect.top-70,
+                            __(&&res_name[0] as _char&&),
+                            *{Display::s_framebuffer}
+                        );
+                    end
                 end
-                if {globals::developer_mode} as bool then
-                    call {Fonts::pingus_small}.render(
-                        _origin_top_center,
-                        x+rect.left, y+rect.top-70,
-                        __(&&res_name[0] as _char&&),
-                        *{Display::s_framebuffer}
-                    );
+            with
+                every e2.fst do
+                    if {globals::developer_mode} as bool then
+                        _log_info("Worldmap: Clicked on: %1%", &&filename[0] as _char&&);
+                    end
+                    ///global:worldmap_return_filename = [] .. &&dot.filename as _char&&;
+                    //emit e1.fst(id,true,show_credits,{Savegame::ACCESSIBLE});
+                end
+            with
+                every e2.snd do
+                    if {globals::developer_mode} as bool then
+                        emit outer.pingu.go_directly(id);
+                    end
                 end
             end
         end

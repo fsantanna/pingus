@@ -182,6 +182,10 @@ with
         }
     end
 
+    data IPingu with
+        event _WorldmapNS__NodeId go_directly;
+    end
+
     // Create graph
     #include "dots.ceu"
     var EDot1 e = _;
@@ -216,7 +220,8 @@ with
         }
     end
 
-    spawn () do
+    var IPingu pingu = _;
+    spawn (pingu) do
         #include "pingus.ceu"
     end
 #if 0
@@ -293,8 +298,6 @@ await FOREVER;
                 end
             end
         else
-            _assert(but == 2);
-            emit pingus.go_directly => id_;
         end
     end
 #endif
