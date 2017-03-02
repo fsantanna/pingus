@@ -118,84 +118,71 @@ do
     end
 end
 
-#if 0
-class LevelDot with
-    interface IDot;
-    var int  id     = _WorldmapNS__NoNode;
-    var int  status = {Savegame::NONE};
-    var bool show_credits = false;
+code/await LevelDot (var& EDot1 e1) -> FOREVER
 do
     {
         static FileReader  reader;
-        static Vector3f    pos;
+        static Vector3f    pst;
         static std::string name;
-    };
-    _reader = _XXX_PURE(this.reader:read_section("dot"));
-    _reader.read_vector("position", _pos);
-    _reader.read_string("name",     _name);
-    _assert(not _name.empty());
+        reader = file_reader->read_section("dot");
+        reader.read_vector("position", pst);
+        reader.read_string("name",     name);
+        ceu_dbg_assert(!name.empty());
 
-    this.id = _path_graph:lookup_node(_name);
-
-    {
         static std::string resname;
         static PingusLevel plf;
-    };
-    this.reader:read_string("levelname", _resname);
-    { plf = PLFResMgr::load_plf(resname); };
+        file_reader->read_string("levelname", resname);
+        plf = PLFResMgr::load_plf(resname);
+    }
 
-    var char[] res_name = [] .. (_char&&)_resname.c_str();
-    var char[] lvl_name = [] .. (_char&&)_plf.get_levelname().c_str();
+    var int id = {path_graph->lookup_node(name)};
 
-    this.filename = [] .. res_name;
+    vector[] byte res_name = [] .. {resname.c_str()} as _char&&;
+    vector[] byte lvl_name = [] .. {plf.get_levelname().c_str()} as _char&&;
+    vector[] byte filename = [] .. res_name;
 
-    var _Savegame&? savegame;
-    finalize
-        savegame = &_XXX_NOHOLD({SavegameManager::instance()}:get(_resname));
-    with
-        nothing;
+    var int status = {Savegame::NONE};
+    {
+        static Savegame* savegame;
+        savegame = SavegameManager::instance()->get(resname);
+    }
+    if {savegame != NULL} as bool then
+        status = {savegame->get_status()};
     end
-    if savegame? then
-        this.status = savegame!.get_status();
-    end
 
-    var Rect rect = Rect(_pos.x,_pos.y, 0, 0);
-    var Mouse mouse with
-        this.rect = &rect;
-        this.dot  = &outer;
-    end;
+    var Rect rect = val Rect({pst.x},{pst.y}, 0,0);
+    var EDot2 e2 = _;
+    spawn Mouse(&rect, &e2);
 
     par do
-        if this.status == {Savegame::FINISHED}
-        or this.status == {Savegame::ACCESSIBLE}
-        then
-            if this.status == {Savegame::FINISHED} then
-                var Sprite _ = Sprite.build_name(&rect, "core/worldmap/dot_green");
-                var bool v = await mouse.ok_out until v==false;
-                pause/if mouse.ok_out do
-                    var Sprite _ = Sprite.build_name(&rect, "core/worldmap/dot_green_hl");
+        if status=={Savegame::FINISHED} or status=={Savegame::ACCESSIBLE} then
+            if status == {Savegame::FINISHED} then
+                spawn Sprite_from_name(&rect, "core/worldmap/dot_green", &outer.main.dt, &outer.main.redraw, true);
+                var bool v = await e2.out until v==false;
+                pause/if e2.out do
+                    spawn Sprite_from_name(&rect, "core/worldmap/dot_green_hl", &outer.main.dt, &outer.main.redraw, true);
                     await FOREVER;
                 end
             else
-                var Sprite _ = Sprite.build_name(&rect, "core/worldmap/dot_red");
-                var bool v = await mouse.ok_out until v==false;
-                pause/if mouse.ok_out do
-                    var Sprite _ = Sprite.build_name(&rect, "core/worldmap/dot_red_hl");
+                spawn Sprite_from_name(&rect, "core/worldmap/dot_red", &outer.main.dt, &outer.main.redraw, true);
+                var bool v = await e2.out until v==false;
+                pause/if e2.out do
+                    spawn Sprite_from_name(&rect, "core/worldmap/dot_red_hl", &outer.main.dt, &outer.main.redraw, true);
                     await FOREVER;
                 end
                 await FOREVER;
             end
         else
-            var Sprite _ = Sprite.build_name(&rect, "core/worldmap/dot_invalid");
+            spawn Sprite_from_name(&rect, "core/worldmap/dot_invalid", &outer.main.dt, &outer.main.redraw, true);
             await FOREVER;
         end
     with
-        var bool v = await mouse.ok_out until v==false;
-        pause/if mouse.ok_out do
-            every REDRAW do
-                var int x = -global:offset.x;
-                var int y = -global:offset.y;
-                if this.status == {Savegame::NONE} then
+        var bool v = await e2.out until v==false;
+        pause/if e2.out do
+            every outer.main.redraw do
+                var int x = -outer.main.offset.x;
+                var int y = -outer.main.offset.y;
+                if status == {Savegame::NONE} then
                     call {Fonts::pingus_small}.render(
                         _origin_top_center,
                         x+rect.left, y+rect.top-44,
@@ -206,15 +193,15 @@ do
                     call {Fonts::pingus_small}.render(
                         _origin_top_center,
                         x+rect.left, y+rect.top-44,
-                        __((_char&&)&&lvl_name),
+                        __(&&lvl_name[0] as _char&&),
                         *{Display::s_framebuffer}
                     );
                 end
-                if {globals::developer_mode} then
+                if {globals::developer_mode} as bool then
                     call {Fonts::pingus_small}.render(
                         _origin_top_center,
                         x+rect.left, y+rect.top-70,
-                        __((_char&&)&&res_name),
+                        __(&&res_name[0] as _char&&),
                         *{Display::s_framebuffer}
                     );
                 end
@@ -222,6 +209,5 @@ do
         end
     end
 end
-#endif
 
 #endif

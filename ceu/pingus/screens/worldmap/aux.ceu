@@ -187,6 +187,7 @@ with
     var EDot1 e = _;
     //pool IDot[] dots;
     pool[] StoryDot sds;
+    pool[] LevelDot lds;
     {
         static const std::vector<FileReader>& childs =
             worldmap.get_graph().read_section("nodes").get_sections();
@@ -204,18 +205,8 @@ with
         }
         if {file_reader->get_name() == "storydot"} as bool then
             spawn StoryDot(&e) in sds;
-                //this.pos    = &pst;
-                //this.e      = &dot;
-                //this.is_story = true;
         else/if {file_reader->get_name() == "leveldot"} as bool then
-#if 0
-            spawn LevelDot in dots with
-                this.reader = reader;
-                this.pos    = &pst;
-                this.e      = &dot;
-                this.is_story = false;
-            end;
-#endif
+            spawn LevelDot(&e) in lds;
         else
             _ceu_dbg_assert({!"DotFactory: unknown tag: "});// <<  reader.get_name());
         end
@@ -268,6 +259,42 @@ await FOREVER;
                 );
                 emit pingus.go_walking => id_;
             end
+        end
+    end
+    loop do
+        var int  id_;
+        var int  status;
+        var bool is_story;
+        var bool show_credits;
+        (id_,is_story,show_credits,status) = await dot.ok_clicked;
+        if but == 1 then
+            if id_ == pingus.node then
+                if {globals::developer_mode} then
+                    _log_info("Worldmap: Pingu is on node, issue on_click()");
+                end
+                if is_story then
+                    if show_credits then
+                        escape _WORLDMAP_RETURN_STORY_CREDITS;
+                    else
+                        escape _WORLDMAP_RETURN_STORY_MAP;
+                    end
+                else
+                    escape _WORLDMAP_RETURN_LEVEL;
+                end
+            else
+                if status == {Savegame::NONE} then
+                    call {Sound::PingusSound::play_sound}("chink");
+                else
+                    call {StatManager::instance()}:set_string(
+                        {worldmap.get_short_name() + "-current-node"},
+                        _path_graph:lookup_node(id_)
+                    );
+                    emit pingus.go_walking => id_;
+                end
+            end
+        else
+            _assert(but == 2);
+            emit pingus.go_directly => id_;
         end
     end
 #endif
