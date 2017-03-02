@@ -1,0 +1,325 @@
+#ifndef _WORLDMAP_CEU
+#define _WORLDMAP_CEU
+
+native do
+    static std::vector<FileReader> object_reader;
+    std::vector<FileReader>::const_iterator i;
+    static ResDescriptor desc;
+    static SpriteDescription* spr;
+    static Vector3f      pos;
+    static bool          auto_uncover;
+
+    static PingusWorldmap worldmap;
+    static FileReader path_graph_reader;
+    static std::unique_ptr<WorldmapNS::PathGraph> path_graph;
+    static GraphicContextState gc_state;
+
+struct unlock_nodes
+{
+  WorldmapNS::PathGraph* path_graph;
+
+  unlock_nodes(WorldmapNS::PathGraph* g) :
+    path_graph(g)
+  {
+  }
+
+  void operator()(WorldmapNS::Node<WorldmapNS::Dot*>& node)
+  {
+    if (node.data->finished())
+    {
+      //log_info("Unlocking neightbours of: " << node.data);
+      for (std::vector<WorldmapNS::EdgeId>::iterator i = node.next.begin(); i != node.next.end(); ++i)
+      {
+        WorldmapNS::Edge<WorldmapNS::Path*>& edge = path_graph->graph.resolve_edge(*i);
+
+        // FIXME: This should be identical to node.data->unlock(), but not sure
+        path_graph->graph.resolve_node(edge.source).data->unlock();
+        path_graph->graph.resolve_node(edge.destination).data->unlock();
+      }
+    }
+  }
+};
+
+end
+
+#include "../../engine/gui/surface_button.ceu"
+#include "dots.ceu"
+#include "pingus.ceu"
+#include "sprite_drawable.ceu"
+
+#if 0
+bool Worldmap::is_final_map() {
+  return false;
+  // TODO: return pingus->get_node() == final_node;
+}
+#endif
+
+class WorldMap with
+    var _Pathname&& filename;
+    function (void)=>Vector2i get_offset;
+do
+    global:worldmap = &&this;
+
+    _worldmap = _XXX_PURE(_PingusWorldmap(*filename)
+                            finalize with end);
+    _path_graph_reader = _XXX_PURE(_worldmap.get_graph());
+    _path_graph.reset({new WorldmapNS::PathGraph}(_path_graph_reader));
+
+    //void Worldmap::update_locked_nodes()
+    // FIXME: This shouldn't be a polling function
+    //_path_graph:graph.for_each_node(_unlock_nodes(_path_graph.get()));
+#if 0
+  bool credits_unlocked = false;
+  StatManager::instance()->get_bool(worldmap.get_short_name() + "-endstory-seen", credits_unlocked);
+
+  if (!credits_unlocked)
+  {
+    // See if the last level is finished
+    Dot* dot = path_graph->get_dot(final_node);
+    if (dot)
+    {
+      if (dot->finished())
+      {
+        ScreenManager::instance()->push_screen(new StoryScreen(worldmap.get_end_story()));
+      }
+    }
+    else
+    {
+      log_info("Error: Worldmap: Last level missing");
+    }
+  }
+#endif
+
+    _gc_state.set_limit(
+        _Rect(_Vector2i(0, 0),
+        _Size(_worldmap.get_width(), _worldmap.get_height())));
+
+    {Sound::PingusSound::play_music(worldmap.get_music());};
+
+    // Determine starting node
+    // See if the user has played this map before.
+    // If not, use the <default-node> tag from the XML file.
+    var Vector3f pos = Vector3f(0,0,0);
+    var _WorldmapNS__NodeId id =
+        _path_graph:lookup_node(_worldmap.get_default_node());
+    {
+        static std::string node_name;
+    };
+    if {StatManager::instance()->get_string(worldmap.get_short_name() + "-current-node",
+                                            node_name)}
+    then
+        // Just in case that level doesn't exist, look it up.
+        id = _path_graph:lookup_node(_node_name);
+    end
+    pos.x = _path_graph:get_dot(id):get_pos().x;
+    pos.y = _path_graph:get_dot(id):get_pos().y;
+_printf("POS=%f %f\n", pos.x, pos.y);
+
+// TODO
+#if 0
+  LevelDot* leveldot = dynamic_cast<LevelDot*>(path_graph->get_dot(id));
+  if (leveldot) {
+    leveldot->unlock();
+  }
+#endif
+
+    par do
+        every REDRAW do
+            var Vector2i off = this.get_offset();
+            global:offset = this.get_offset();
+            _gc_state.set_pos(_Vector2i(off.x, off.y));
+        end
+    with
+        // Create all objects
+        pool SpriteDrawable[] draws;
+        {
+            static std::vector<FileReader> object_reader;
+            static std::vector<FileReader>::const_iterator i1;
+        };
+        _object_reader = _XXX_PURE(_worldmap.get_objects());
+        _i1 = _XXX_PURE(_object_reader.begin());
+        loop do
+            if _i1 == _object_reader.end() then
+                break;
+            end
+            //log_info("Worldmap::parse_objects: Parse Error");
+            { const FileReader& file_reader = *i1; };
+            var _FileReader&& reader = (_FileReader&&)&&_file_reader;
+            spawn SpriteDrawable in draws with
+                this.reader = reader;
+                this.pos    = &pos;
+            end;
+            {i1++;};
+        end
+
+        // Create graph
+        var DotE dot;
+        pool IDot[] dots;
+        {
+            static const std::vector<FileReader>& childs =
+                worldmap.get_graph().read_section("nodes").get_sections();
+            static std::vector<FileReader>::const_iterator i2;
+        };
+        _i2 = _XXX_PURE(_childs.begin());
+        loop do
+            if _i2 == _childs.end() then
+                break;
+            end
+            { const FileReader& file_reader = *i2; };
+            var _FileReader&& reader = (_FileReader&&)&&_file_reader;
+            if reader:get_name() == "storydot" then
+                spawn StoryDot in dots with
+                    this.reader = reader;
+                    this.pos    = &pos;
+                    this.e      = &dot;
+                    this.is_story = true;
+                end;
+            else/if reader:get_name() == "leveldot" then
+                spawn LevelDot in dots with
+                    this.reader = reader;
+                    this.pos    = &pos;
+                    this.e      = &dot;
+                    this.is_story = false;
+                end;
+            else
+                _assert(not "DotFactory: unknown tag: ");// <<  reader.get_name());
+            end
+            {i2++;};
+        end
+
+        var Pingus pingus with
+            this.path = _XXX_PURE(_path_graph.get());
+            this.node = id;
+            this.pos  = &pos;
+        end;
+
+        //every (but,id_,status) in dot.ok_clicked do
+        loop do
+            var int but,id_,status;
+            var bool is_story, show_credits;
+            (but,id_,is_story,show_credits,status) = await dot.ok_clicked;
+            if but == 1 then
+                if id_ == pingus.node then
+                    if {globals::developer_mode} then
+                        _log_info("Worldmap: Pingu is on node, issue on_click()");
+                    end
+                    if is_story then
+                        if show_credits then
+                            escape _WORLDMAP_RETURN_STORY_CREDITS;
+                        else
+                            escape _WORLDMAP_RETURN_STORY_MAP;
+                        end
+                    else
+                        escape _WORLDMAP_RETURN_LEVEL;
+                    end
+                else
+                    if status == {Savegame::NONE} then
+                        call {Sound::PingusSound::play_sound}("chink");
+                    else
+                        call {StatManager::instance()}:set_string(
+                            {worldmap.get_short_name() + "-current-node"},
+                            _path_graph:lookup_node(id_)
+                        );
+                        emit pingus.go_walking => id_;
+                    end
+                end
+            else
+                _assert(but == 2);
+                emit pingus.go_directly => id_;
+            end
+        end
+    with
+        every (x,y) in ON_PRIMARY_BUTTON_PRESSED do
+            var Vector2i off = this.get_offset();
+//_printf(">> xy=%d,%d, off=%d,%d\n", x,y, off.x,off.y);
+            { static Vector2f click_pos; };
+            _click_pos = _XXX_PURE(_Vector2i(off.x+x,off.y+y));
+            {
+                if (globals::developer_mode)
+                {
+                    SExprFileWriter writer(std::cout);
+                    writer.begin_section("leveldot");
+                    writer.write_string("levelname", "");
+                    writer.begin_section("dot");
+                    writer.write_string("name", "leveldot_X");
+                    writer.write_vector("position", click_pos);
+                    writer.end_section();
+                    writer.end_section();
+                    std::cout << std::endl;
+                    std::cout << std::endl;
+                }
+            };
+        end
+    with
+        native do
+            struct draw_edges
+            {
+                WorldmapNS::PathGraph* graph;
+                Vector2i               off;
+
+                draw_edges (WorldmapNS::PathGraph* graph, Vector2i off) :
+                    off(off), graph(graph)
+                {}
+
+                void operator()(WorldmapNS::Edge<WorldmapNS::Path*>& edge) {
+                    WorldmapNS::Dot* src = graph->get_dot(edge.source);
+                    WorldmapNS::Dot* dst = graph->get_dot(edge.destination);
+                    Display::s_framebuffer->draw_line(
+                        Vector2i(off.x+src->get_pos().x,
+                                 off.y+src->get_pos().y),
+                        Vector2i(off.x+dst->get_pos().x,
+                                 off.y+dst->get_pos().y),
+                        Color(255, 255, 255)
+                    );
+                }
+            };
+        end
+        every REDRAW do
+            if {globals::developer_mode} then
+                var Vector2i off = global:worldmap!:get_offset();
+                _path_graph:graph.for_each_edge(
+                    _draw_edges(_path_graph.get(), _Vector2i(off.x,off.y)));
+            end
+        end
+    with
+        every REDRAW do
+            global:offset = Vector2i(0,0);
+        end
+    end
+
+    function (void)=>Vector2i get_offset do
+        var int x = 0;
+        do
+            var int min, max;
+            var int width  = _worldmap.get_width();
+            if width >= {Display::get_width()} then
+                min = {Display::get_width()}/2;
+                max = width - {Display::get_width()}/2;
+            else
+                min = width - {Display::get_width()}/2;
+                max = {Display::get_width()}/2;
+            end
+            x = {Math::clamp}(min, (int)pos.x, max);
+        end
+
+        var int y = 0;
+        do
+            var int min, max;
+            var int height = _worldmap.get_height();
+            if height >= {Display::get_height()} then
+                min = {Display::get_height()}/2;
+                max = height - {Display::get_height()}/2;
+            else
+                min = height - {Display::get_height()}/2;
+                max = {Display::get_height()}/2;
+            end
+            y = {Math::clamp}(min, (int)pos.y, max);
+        end
+
+        var Vector2i ret = Vector2i(x - {Display::get_width()}/2,
+                                    y - {Display::get_height()}/2);
+        return ret;
+    end
+end
+
+#endif
