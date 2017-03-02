@@ -98,7 +98,7 @@ class Project:
         self.opts.Add('LIBS',       'Additional libraries', [])
         self.opts.Add('CCFLAGS',    'C Compiler flags', [])
         self.opts.Add('CXXFLAGS',   'C++ Compiler flags',
-            ["-O2", "-s", "-g", "-Wno-write-strings","-DCEU_DEBUG"],
+            ["-O0", "-s", "-g", "-Wno-write-strings","-DCEU_DEBUG"],
 #           converter=SCons.Util.CLVar)
 #        self.opts.Add('CXXFLAGS',   'C++ Compiler flags', ["-O2", "-s", 
 #        "-Wno-write-strings"],
