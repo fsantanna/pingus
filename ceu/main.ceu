@@ -1,6 +1,7 @@
 #include "c.ceu"
 
 native/plain
+    _WorldmapNS__NodeId,
     _SDL_MouseButtonEvent,
     _SDL_MouseMotionEvent,
     _SDL_KeyboardEvent,
@@ -118,6 +119,12 @@ native/pre do
     ##include "util/string_util.hpp"
     ##include "util/system.hpp"
     ##include "util/utf8.hpp"
+    ##include "pingus/worldmap/pingus_worldmap.hpp"
+    ##include "pingus/worldmap/path_graph.hpp"
+    ##include "pingus/res_descriptor.hpp"
+    ##include "engine/display/sprite_description.hpp"
+    ##include "pingus/worldmap/dot.hpp"
+    ##include "util/sexpr_file_writer.hpp"
 
     typedef const char* char_const_ptr;
     typedef CollisionMap* CollisionMap_ptr;
@@ -151,6 +158,8 @@ native/pre do
     ##define ActionName__Enum ActionName::Enum
     ##define Pingu__PinguStatus Pingu::PinguStatus
     ##define PinguAction_shared_ptr std::shared_ptr<PinguAction>
+    ##define WorldmapNS__NodeId WorldmapNS::NodeId
+    ##define WorldmapNS__Dot WorldmapNS::Dot
 
     static CommandLineOptions cmd;
     static PingusLevel plf;
@@ -253,7 +262,6 @@ end
 
 #if 0
 #include "pingus/global_event.ceu"
-#include "pingus/worldmap/worldmap_screen.ceu"
 
 var ConfigManager config_manager;
 var GlobalEvent _ with
@@ -295,14 +303,14 @@ with
 // CREDITS
                 { filename_credits = filename; };
                 await Credits();
-#if 0
-            else/if {StringUtil::has_suffix(cmd.rest.get(), ".worldmap")} then
+            else/if {StringUtil::has_suffix(cmd.rest.get(), ".worldmap")} as bool then
 // WORLDMAP
                 loop do
-                    var int ret =
-                        do WorldmapScreen with
-                            this.filename = &&_filename;
-                        end;
+                    var int ret = do ()
+                        #include "pingus/screens/worldmap/worldmap.ceu"
+                    end;
+                    escape 0;
+#if 0
                     if ret == _WORLDMAP_RETURN_STORY_MAP
                     or ret == _WORLDMAP_RETURN_STORY_CREDITS
                     then
@@ -332,8 +340,8 @@ with
                         _ceu_dbg_assert(ret == _WORLDMAP_RETURN_EXIT);
                         escape 0;
                     end
-                end
 #endif
+                end
             else/if {StringUtil::has_suffix(cmd.rest.get(), ".story")} as bool then
 // STORY
                 {

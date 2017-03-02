@@ -10,7 +10,7 @@ native/pre do
     };
 end
 
-#include "worldmap.ceu"
+//#include "aux.ceu"
 
 #if 0
 // TODO: fast_forward
@@ -34,46 +34,46 @@ end
   }
 #endif
 
-class WorldmapScreen with
-    var _Pathname&& filename;
-do
-    par do
-        var int ret =
-            do WorldMap with
-                this.filename = filename;
-            end;
-        escape ret;
-    with
-        var SurfaceButton close with
-            this.x = 0;
-            this.y = {Display::get_height()} -37;
-            this.button         = "core/worldmap/leave_button_normal";
-            this.button_pressed = "core/worldmap/leave_button_pressed";
-            this.button_over    = "core/worldmap/leave_button_hover";
+par do
+#if 0
+    var int ret =
+        do WorldMap with
+            this.filename = filename;
         end;
-        par do
-            every REDRAW do
-                call {Fonts::chalk_small}.render(
-                    _origin_top_center,
-                    44, {Display::get_height()}-25,
-                    __("Leave?"),
-                    *{Display::s_framebuffer}
-                );
-            end
-        with
-            every close.component.on_pointer_enter do
-                call {Sound::PingusSound::play_sound}("tick");
-            end
-        with
-            await close.component.on_click;
-            escape false;
+    escape ret;
+#endif
+with
+    var Rect close_r = val Rect(0,
+                                {Display::get_height() - 37},
+                                _,_);
+    var&? SurfaceButton close = 
+        spawn SurfaceButton(&close_r,
+                            "core/worldmap/leave_button_normal",
+                            "core/worldmap/leave_button_pressed",
+                            "core/worldmap/leave_button_hover");
+
+    par do
+        every outer.main.redraw do
+            call {Fonts::chalk_small}.render(
+                _origin_top_center,
+                44, {Display::get_height()}-25,
+                __("Leave?"),
+                *{Display::s_framebuffer}
+            );
         end
     with
-        loop do
-            var _Input__ButtonEvent&& but = await ON_BUTTON_PRESSED;
-            if but:name == {Input::ESCAPE_BUTTON} then
-                escape _WORLDMAP_RETURN_EXIT;
-            end
+        every close!.component.on_pointer_enter do
+            call {Sound::PingusSound::play_sound}("tick");
+        end
+    with
+        await close!.component.on_click;
+        escape {WORLDMAP_RETURN_EXIT};
+    end
+with
+    loop do
+        var _Input__ButtonEvent&& but = await ON_BUTTON_PRESSED;
+        if but:name == {Input::ESCAPE_BUTTON} then
+            escape {WORLDMAP_RETURN_EXIT};
         end
     end
 end
