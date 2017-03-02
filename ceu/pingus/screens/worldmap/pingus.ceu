@@ -45,7 +45,7 @@ end
 //end
 
 var s8   direction = {NONE};
-var Rect rect = val Rect(0,0,0,0);
+var Rect rect      = _;
 
 vector[] byte none  = [].."core/worldmap/pingus_standing";
 vector[] byte left  = [].."core/worldmap/pingus/left";
@@ -60,12 +60,12 @@ par do
     end
 with
     loop do
+        direction = {NONE};
         par/or do
             var _WorldmapNS__NodeId target = await pingu.go_directly;
             outer.pst.x = {path_graph->get_dot(@target)->get_pos().x};
             outer.pst.y = {path_graph->get_dot(@target)->get_pos().y};
             //this.node = target;
-            //this.direction = _NONE;
         with
             await FOREVER;
 #if 0

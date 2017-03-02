@@ -185,6 +185,7 @@ with
     data IPingu with
         event _WorldmapNS__NodeId go_directly;
     end
+    var IPingu pingu = _;
 
     // Create graph
     #include "dots.ceu"
@@ -220,7 +221,6 @@ with
         }
     end
 
-    var IPingu pingu = _;
     spawn (pingu) do
         #include "pingus.ceu"
     end
