@@ -71,7 +71,7 @@ do
     with
         loop do
             var _Input__ButtonEvent&& but = await ON_BUTTON_PRESSED;
-            if but:name  == {Input::ESCAPE_BUTTON} then
+            if but:name == {Input::ESCAPE_BUTTON} then
                 escape _WORLDMAP_RETURN_EXIT;
             end
         end
