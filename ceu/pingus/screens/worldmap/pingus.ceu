@@ -1,13 +1,11 @@
 #ifndef _PINGUS_CEU
 #define _PINGUS_CEU
 
-#include "../../engine/display/sprite.ceu"
-#include "../right_left_sprites.ceu"
-
-native/pre do
+{
     static WorldmapNS::Path edge_path;
-end
+}
 
+#if 0
 class MovePath with
     var s8&       direction;
     var Vector3f& pos;
@@ -39,49 +37,40 @@ do
         end
     end
 end
+#endif
 
-class Pingus with
-    interface  IPositionDirection;
-    var _WorldmapNS__NodeId node;
-
-    var s8        direction = _NONE;
-    var Rect      rect = Rect(0,0,0,0);
-    var Vector3f& pos;
+data IPingu with
+    var& Vector3f pst;
 
     event _WorldmapNS__NodeId go_walking;
+end
+
+    var s8   direction = {NONE};
+    var Rect rect = val Rect(0,0,0,0);
     event _WorldmapNS__NodeId go_directly;
 
-    var _WorldmapNS__PathGraph&& path;
-do
-    var _WorldmapNS__PathGraph&? path_;
-    finalize
-        path_ = &_XXX_NOHOLD(this.path);
-    with
-    end
-
-    var char[] left  = [].."core/worldmap/pingus/left";
-    var char[] right = [].."core/worldmap/pingus/right";
-    var RightLeftSprites _ with
-        this.none   = [].."core/worldmap/pingus_standing";
-        this.left   = &left;
-        this.right  = &right;
-        this.parent = &outer;
-    end;
+    ///this.none   = [].."core/worldmap/pingus_standing";
+    vector[] byte left  = [].."core/worldmap/pingus/left";
+    vector[] byte right = [].."core/worldmap/pingus/right";
+    var&? RightLeftSprites sprites =
+        spawn RightLeftSprites(&rect, &direction, &left, &right, true);
 
     par do
-        every DELTA do
-            this.rect.left = this.pos.x;
-            this.rect.top = this.pos.y;
+        every outer.main.dt do
+            rect.left = outer.pst.x as int;
+            rect.top  = outer.pst.y as int;
         end
     with
         loop do
             par/or do
                 var _WorldmapNS__NodeId target = await go_directly;
-                this.pos.x = this.path_!.get_dot(target):get_pos().x;
-                this.pos.y = this.path_!.get_dot(target):get_pos().y;
-                this.node = target;
-                this.direction = _NONE;
+                outer.pst.x = {path_graph->get_dot(@target)->get_pos().x};
+                outer.pst.y = {path_graph->get_dot(@target)->get_pos().y};
+                //this.node = target;
+                //this.direction = _NONE;
             with
+                await FOREVER;
+#if 0
                 var _WorldmapNS__NodeId target = await go_walking;
                 var float cur_position = 0;
                 var int   cur_length   = 0;
@@ -169,9 +158,9 @@ do
                         end
                     end
                 end
+#endif
             end
         end
     end
-end
 
 #endif

@@ -3,8 +3,6 @@
 #else
 #define _PINGU_CEU
 
-#include "pingus/right_left_sprites.ceu"
-
 #include "pingu_particle.ceu"
 pool[] PinguParticle pingu_particles;
 

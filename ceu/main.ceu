@@ -54,6 +54,7 @@ native
     _framebuffer_type_from_string,
     _origin_top_left,
     _origin_top_right,
+    _FileReader,
 ;
 
 native/pre do
@@ -228,6 +229,7 @@ var IMain main = _;
 #include "engine/display/surface.ceu"
 #include "engine/display/sprite.ceu"
 #include "engine/gui/surface_button.ceu"
+#include "pingus/right_left_sprites.ceu"
 
 // SCREENS
 
