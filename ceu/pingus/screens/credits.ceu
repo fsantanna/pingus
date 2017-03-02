@@ -3,142 +3,145 @@
 #else
 #define _CREDITS_CEU
 
-do finalize with
-    call {StatManager::instance()->set_bool}("credits-seen", true);
-end
+code/await Credits (void) -> void
+do
+    do finalize with
+        call {StatManager::instance()->set_bool}("credits-seen", true);
+    end
 
-// read credit information from filename
-{
-    static std::vector<std::string> credits;
-    static int end_offset = -static_cast<float>(Display::get_height())/2 - 50; // screen height + grace time
-
+    // read credit information from filename
     {
-        std::ifstream in(filename.get_sys_path());
-        if (!in) {
-            log_error("couldn't open %1%", filename);
+        static std::vector<std::string> credits;
+        static int end_offset = -static_cast<float>(Display::get_height())/2 - 50; // screen height + grace time
 
-            std::ostringstream out;
-            out << "couldn't open " << filename;
-            credits.push_back(out.str());
-        } else {
-            std::string line;
-            while(std::getline(in, line))
-                credits.push_back(line);
-        }
-    }
-
-    for (std::vector<std::string>::iterator i = credits.begin(); i != credits.end(); ++i) {
-        switch ((*i)[0]) {
-            case '-':
-                end_offset += static_cast<float>(Fonts::chalk_normal.get_height() + 5);
-                break;
-            case '_':
-                end_offset += static_cast<float>(Fonts::chalk_large.get_height() + 5);
-                break;
-            case 'n':
-                end_offset += 50;
-                break;
-            default:
-                log_error("Credits: Syntax error: Unknown format: '%1%'", (*i)[0]);
-                break;
-        }
-    }
-    end_offset = -end_offset;
-};
-
-var int xc = ({Display::get_width()}  / 2) as int;
-var int yc = ({Display::get_height()} / 2) as int;
-
-spawn Wood();
-
-var Rect r1 = val Rect(xc, yc, 0, 0);
-spawn Sprite_from_name(&r1, "core/menu/blackboard", &outer.main.dt, &outer.main.redraw, false);
-
-var Rect r2 = val Rect(xc, yc-20, 0, 0);
-spawn Sprite_from_name(&r1, "core/misc/creditpingu", &outer.main.dt, &outer.main.redraw, false);
-
-var Rect ok_r = val Rect({Display::get_width()/2} +260,
-                         {Display::get_height()/2}+170,
-                         _,_);
-var&? SurfaceButton ok = 
-    spawn SurfaceButton(&ok_r,
-                        "core/start/ok",
-                        "core/start/ok_clicked",
-                        "core/start/ok_hover");
-
-var bool is_fast_scrolling = false;
-var float offset = {Display::get_height()} - 50;
-
-par do
-    await ok!.component.on_click;
-    call {Sound::PingusSound::play_sound}("yipee");
-    escape;
-with
-    every ok!.component.on_pointer_enter do
-        call {Sound::PingusSound::play_sound}("tick");
-    end
-with
-    loop do
-        var _Input__ButtonEvent&& but = await ON_BUTTON_PRESSED;
-        if but:name == {Input::FAST_FORWARD_BUTTON} then
-            is_fast_scrolling = not is_fast_scrolling;
-        else/if but:name == {Input::ESCAPE_BUTTON} then
-            escape;
-        end
-    end
-with
-    loop do
-        var int dt = await outer.main.dt;
-        if is_fast_scrolling then
-            offset = offset - dt*0.45;
-        else
-            offset = offset - dt*0.035;
-        end
-        if offset < {end_offset} then
-            break;
-        end
-    end
-    await FOREVER;
-with
-    every outer.main.redraw do
-#if 0
-        scene_context!.set_cliprect(
-            _Rect(gc:get_width()/2 - 685/2, gc:get_height()/2 - 250,
-                  gc:get_width()/2 + 685/2, gc:get_height()/2 + 250));
-#endif
-       var int yof = 0;
         {
-            static std::vector<std::string>::iterator i;
-            i = credits.begin();
-        };
+            std::ifstream in(filename_credits.get_sys_path());
+            if (!in) {
+                log_error("couldn't open %1%", filename_credits);
+
+                std::ostringstream out;
+                out << "couldn't open " << filename_credits;
+                credits.push_back(out.str());
+            } else {
+                std::string line;
+                while(std::getline(in, line))
+                    credits.push_back(line);
+            }
+        }
+
+        for (std::vector<std::string>::iterator i = credits.begin(); i != credits.end(); ++i) {
+            switch ((*i)[0]) {
+                case '-':
+                    end_offset += static_cast<float>(Fonts::chalk_normal.get_height() + 5);
+                    break;
+                case '_':
+                    end_offset += static_cast<float>(Fonts::chalk_large.get_height() + 5);
+                    break;
+                case 'n':
+                    end_offset += 50;
+                    break;
+                default:
+                    log_error("Credits: Syntax error: Unknown format: '%1%'", (*i)[0]);
+                    break;
+            }
+        }
+        end_offset = -end_offset;
+    };
+
+    var int xc = ({Display::get_width()}  / 2) as int;
+    var int yc = ({Display::get_height()} / 2) as int;
+
+    spawn Wood();
+
+    var Rect r1 = val Rect(xc, yc, 0, 0);
+    spawn Sprite_from_name(&r1, "core/menu/blackboard", &outer.main.dt, &outer.main.redraw, false);
+
+    var Rect r2 = val Rect(xc, yc-20, 0, 0);
+    spawn Sprite_from_name(&r1, "core/misc/creditpingu", &outer.main.dt, &outer.main.redraw, false);
+
+    var Rect ok_r = val Rect({Display::get_width()/2} +260,
+                             {Display::get_height()/2}+170,
+                             _,_);
+    var&? SurfaceButton ok = 
+        spawn SurfaceButton(&ok_r,
+                            "core/start/ok",
+                            "core/start/ok_clicked",
+                            "core/start/ok_hover");
+
+    var bool is_fast_scrolling = false;
+    var float offset = {Display::get_height()} - 50;
+
+    par do
+        await ok!.component.on_click;
+        call {Sound::PingusSound::play_sound}("yipee");
+        escape;
+    with
+        every ok!.component.on_pointer_enter do
+            call {Sound::PingusSound::play_sound}("tick");
+        end
+    with
         loop do
-            if {i == credits.end()} as bool then
+            var _Input__ButtonEvent&& but = await ON_BUTTON_PRESSED;
+            if but:name == {Input::FAST_FORWARD_BUTTON} then
+                is_fast_scrolling = not is_fast_scrolling;
+            else/if but:name == {Input::ESCAPE_BUTTON} then
+                escape;
+            end
+        end
+    with
+        loop do
+            var int dt = await outer.main.dt;
+            if is_fast_scrolling then
+                offset = offset - dt*0.45;
+            else
+                offset = offset - dt*0.035;
+            end
+            if offset < {end_offset} then
                 break;
             end
+        end
+        await FOREVER;
+    with
+        every outer.main.redraw do
+    #if 0
+            scene_context!.set_cliprect(
+                _Rect(gc:get_width()/2 - 685/2, gc:get_height()/2 - 250,
+                      gc:get_width()/2 + 685/2, gc:get_height()/2 + 250));
+    #endif
+           var int yof = 0;
+            {
+                static std::vector<std::string>::iterator i;
+                i = credits.begin();
+            };
+            loop do
+                if {i == credits.end()} as bool then
+                    break;
+                end
 
-            if {(*i)[0] == '-'} as bool then
-                call {Fonts::chalk_normal}.render(
-                    _origin_top_center,
-                    xc, (offset + yof),
-                    {i->substr(1)},
-                    *{Display::s_framebuffer}
-                );
-                yof = yof + {Fonts::chalk_normal}.get_height() + 5;
-            else/if {(*i)[0] == '_'} as bool then
-                call {Fonts::chalk_large}.render(
-                    _origin_top_center,
-                    xc, (offset + yof),
-                    {i->substr(1)},
-                    *{Display::s_framebuffer}
-                );
-                yof = yof + {Fonts::chalk_large}.get_height() + 5;
-            else/if {(*i)[0] == 'n'} as bool then
-                yof = yof + 50;
-            else
-                _log_error("Credits: Syntax error: Unknown format: '%1%'", {(*i)[0]});
+                if {(*i)[0] == '-'} as bool then
+                    call {Fonts::chalk_normal}.render(
+                        _origin_top_center,
+                        xc, (offset + yof),
+                        {i->substr(1)},
+                        *{Display::s_framebuffer}
+                    );
+                    yof = yof + {Fonts::chalk_normal}.get_height() + 5;
+                else/if {(*i)[0] == '_'} as bool then
+                    call {Fonts::chalk_large}.render(
+                        _origin_top_center,
+                        xc, (offset + yof),
+                        {i->substr(1)},
+                        *{Display::s_framebuffer}
+                    );
+                    yof = yof + {Fonts::chalk_large}.get_height() + 5;
+                else/if {(*i)[0] == 'n'} as bool then
+                    yof = yof + 50;
+                else
+                    _log_error("Credits: Syntax error: Unknown format: '%1%'", {(*i)[0]});
+                end
+
+                {i++;};
             end
-
-            {i++;};
         end
     end
 end

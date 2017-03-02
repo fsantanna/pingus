@@ -155,7 +155,8 @@ native/pre do
     static CommandLineOptions cmd;
     static PingusLevel plf;
     static Result result;
-    static Pathname filename;
+    static Pathname filename, filename_credits;
+    static FileReader reader;
 end
 
 input _CommandLineOptions&& MAIN;
@@ -247,16 +248,12 @@ end
 #include "pingus/screens/menu/menu.ceu"
 #include "pingus/screens/levels.ceu"
 #include "pingus/screens/options/options.ceu"
+#include "pingus/screens/credits.ceu"
+#include "pingus/screens/story.ceu"
 
 #if 0
 #include "pingus/global_event.ceu"
 #include "pingus/worldmap/worldmap_screen.ceu"
-#include "pingus/screens/story_screen.ceu"
-
-native/pre do
-    static Pathname filename_credits;
-    static FileReader reader;
-end
 
 var ConfigManager config_manager;
 var GlobalEvent _ with
@@ -296,9 +293,8 @@ with
                 _ceu_dbg_assert({!"NOT PORTED"});
             else/if {StringUtil::has_suffix(cmd.rest.get(), ".credits")} as bool then
 // CREDITS
-                do ()
-                    #include "pingus/screens/credits.ceu"
-                end
+                { filename_credits = filename; };
+                await Credits();
 #if 0
             else/if {StringUtil::has_suffix(cmd.rest.get(), ".worldmap")} then
 // WORLDMAP
@@ -337,15 +333,13 @@ with
                         escape 0;
                     end
                 end
-            else/if {StringUtil::has_suffix(cmd.rest.get(), ".story")} then
-// STORY
-                finalize
-                    _reader = {FileReader::parse}(_Pathname(_cmd.rest.get(), {Pathname::SYSTEM_PATH}));
-                with end
-                do StoryScreen with
-                    this.reader = &&_reader;
-                end;
 #endif
+            else/if {StringUtil::has_suffix(cmd.rest.get(), ".story")} as bool then
+// STORY
+                {
+                    reader = FileReader::parse(Pathname(cmd.rest.get(), Pathname::SYSTEM_PATH));
+                }
+                await Story();
             else/if {StringUtil::has_suffix(cmd.rest.get(), ".levelset")} as bool then
 // LEVELSET
                 {

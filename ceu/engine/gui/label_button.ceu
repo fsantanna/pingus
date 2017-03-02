@@ -3,38 +3,28 @@
 #else
 #define _LABEL_BUTTON_CEU
 
-class LabelButton with
-    var float  x;
-    var float  y;
-    var char[] label;
-
-output:
-    var RectComponent& component;
-
-    function (float x, float y, _char&& label)=>LabelButton build;
+code/await LabelButton (var int x, var int y, var _char_const_ptr label)
+                            -> (var& IRectComponent component)
+                                -> FOREVER
 do
-    function (float x, float y, _char&& label)=>LabelButton build do
-        this.x = x;
-        this.y = y;
-        this.label = []..label;
-    end
+    vector[] byte label_ = [] .. (label as _char&&);
 
-    var Rect rect = Rect(x, y,
-                         {Fonts::chalk_small}.get_width((_char&&)&&this.label)
-                            finalize with end,
-                         {Fonts::chalk_small}.get_height());
-    var RectComponent component_ with
-        this.rect = &rect;
-    end;
-    this.component = &component_;
+    var Rect rect = val Rect(x, y,
+                             {Fonts::chalk_small.get_width(@(&&label[0] as _char&&))},
+                             {Fonts::chalk_small.get_height()});
 
-    every REDRAW do
-        call {Fonts::chalk_small}.render(
-            _origin_top_left,
-            x, y,
-            (_char&&)&&this.label,
-            *{Display::s_framebuffer}
-        ) finalize with nothing; end;
+    var&? RectComponent rc = spawn RectComponent(&rect);
+    watching rc do
+        component = &rc!.component;
+
+        every outer.main.redraw do
+            call ({Fonts::chalk_small}.render as /nohold)(
+                {origin_top_left},
+                x, y,
+                &&label[0] as _char&&,
+                *{Display::s_framebuffer}
+            );
+        end
     end
 end
 

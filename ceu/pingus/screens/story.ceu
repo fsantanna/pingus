@@ -1,131 +1,138 @@
-#ifdef _STORYSCREEN_CEU
+#ifdef _STORY_CEU
 #error multiple include
 #else
-#define _STROYSCREEN_CEU
+#define _STORY_CEU
 
-#include "../../engine/display/sprite.ceu"
-#include "../../engine/gui/surface_button.ceu"
-#include "../../engine/gui/label_button.ceu"
-#include "../components/wood.ceu"
+#include "engine/gui/label_button.ceu"
 
-class StoryScreen with
-    var _FileReader&& reader;
+code/await Story (void) -> bool
 do
-    var float xc = {Display::get_width()}  / 2;
-    var float yc = {Display::get_height()} / 2;
+    var int xc = ({Display::get_width()}  / 2) as int;
+    var int yc = ({Display::get_height()} / 2) as int;
 
-    var Wood _;
+    spawn Wood();
 
-    var Rect r = Rect(xc,yc, 0,0);
-    var Sprite _ = Sprite.build_name(&r, "core/menu/blackboard");
+    var Rect r = val Rect(xc,yc, 0,0);
+    spawn Sprite_from_name(&r, "core/menu/blackboard", &outer.main.dt, &outer.main.redraw, false);
 
-    var SurfaceButton next with
-        this.x = xc + 220 + 40;
-        this.y = yc + 180 + 32;
-        this.button         = "core/misc/next";
-        this.button_pressed = "core/misc/next";
-        this.button_over    = "core/misc/next_hover";
-    end;
+    var Rect next_r = val Rect(xc + 220 + 40,
+                               yc + 180 + 32,
+                               _,_);
+    var&? SurfaceButton next = 
+        spawn SurfaceButton(&next_r,
+                            "core/misc/next",
+                            "core/misc/next",
+                            "core/misc/next_hover");
 
-    var LabelButton skip = LabelButton.build(
-                            {Display::get_width()}  - 36,
-                            {Display::get_height()} - 26,
-                            "skip");
-    if not {globals::developer_mode} then
+    var&? LabelButton skip = spawn LabelButton({Display::get_width()}  - 36,
+                                               {Display::get_height()} - 26,
+                                               "skip");
+
+    if not ({globals::developer_mode} as bool) then
         //kill skip;
     end
 
-    event void next_text;
-
     {
-        static WorldmapNS::WorldmapStory story = WorldmapNS::WorldmapStory(*THIS(CEU_StoryScreen)->reader);
+        static WorldmapNS::WorldmapStory story = WorldmapNS::WorldmapStory(reader);
         static std::vector<StoryPage> pages;
-    };
-    _story = _XXX_PURE({WorldmapNS::WorldmapStory}(*reader)
-                finalize with end);
-
-    var char[] title = [] .. (_char&&)_story.get_title().c_str();
-    {
+        story = WorldmapNS::WorldmapStory(reader);
         pages = story.get_pages();
-    };
 
-    // FIXME: Load the song from the WorldmapStory
-    call{Sound::PingusSound::play_music}(_story.get_music(), 0.7);
+        static std::string str1;
+        str1 = story.get_title().c_str();
+
+        // FIXME: Load the song from the WorldmapStory
+        Sound::PingusSound::play_music(story.get_music(), 0.7);
+    }
+
+    event void next_text;
+    vector[] byte title = [] .. ({str1.c_str()} as _char&&);
 
     par do
-        loop i in _pages.size() do
-            { static StoryPage page; };
-            _page = _XXX_PURE(_pages.at(i));
-            var char[] text;
-            var char&& image = _XXX_PURE((char&&)_page.image.res_name.c_str());
-            var Rect r2 = Rect(xc,yc-65, 0,0);
-            var Sprite _ = Sprite.build_name(&r2, _XXX_PURE(image));
+        var int i;
+        loop i in [0 <- {pages.size()}[ do
+            {
+                static StoryPage page;
+                page = pages.at(@i);
+            };
+            vector[] byte text = [].."TODO";    // printing "" crashes
+            var Rect r2 = val Rect(xc,yc-65, 0,0);
+            {
+                static std::string str2;
+                str2 = page.image.res_name;
+            }
+            spawn Sprite_from_name(&r2, {str2.c_str()} as _char&&, &outer.main.dt, &outer.main.redraw, false);
             par/or do
                 var float time = 0;
                 watching next_text do
                     loop do
-                        var int v    = await DELTA;
-                        var float dt = ((float)v)/1000;
+                        var int dt = await outer.main.dt;
                         time = time + dt;
-                        var int cur = 20*time;
-                        var int max = {UTF8::length}(_page.text);
-
-                        text = [] .. (_char&&){UTF8::substr}(
-                                        _page.text, 0, {Math::min}(max,cur)
-                                      ).c_str();
+                        var int cur = (time*0.02) as int;
+                        var int max = {UTF8::length(page.text)};
+                        {
+                            static std::string str3;
+                            str3 = UTF8::substr(page.text, 0, Math::min(@max,@cur));
+                        }
+                        text = [] .. ({str3.c_str()} as _char&&);
 
                         if cur >= max then
                             break;
                         end
                     end
                 end
-                text = [] .. (_char&&)_page.text.c_str();
+                {
+                    static std::string str4;
+                    str4 = page.text;
+                }
+                text = [] .. ({str4.c_str()} as _char&&);
                 await next_text;
             with
-                every REDRAW do
-                    call {Fonts::chalk_normal}.render(
-                        _origin_top_left,
+                every outer.main.redraw do
+                    call ({Fonts::chalk_normal}.render as /nohold)(
+                        {origin_top_left},
                         {Display::get_width()} /2 - 280,
                         {Display::get_height()}/2 + 35,
-                        (_char&&)&&text,
+                        &&text[0] as _char&&,
                         *{Display::s_framebuffer}
-                    ) finalize with end;
+                    );
                 end
             end
         end
+        escape true;               // is_click = true
     with
-        every next.component.on_click do
+        every next!.component.on_click do
             emit next_text;
         end
     with
-        every next.component.on_pointer_enter do
+        every next!.component.on_pointer_enter do
             call {Sound::PingusSound::play_sound}("tick");
         end
     with
-        await skip.component.on_click;
-        escape 1;               // is_click = true
+        await skip!.component.on_click;
+        escape true;               // is_click = true
     with
-        every skip.component.on_pointer_enter do
+        every skip!.component.on_pointer_enter do
             call {Sound::PingusSound::play_sound}("tick");
         end
     with
         loop do
             var _Input__ButtonEvent&& but = await ON_BUTTON_PRESSED;
             if but:name == {Input::ESCAPE_BUTTON} then
-                escape 0;       // is_click = false
+                escape false;       // is_click = false
             else/if but:name == {Input::FAST_FORWARD_BUTTON} then
                 emit next_text;
             end
         end
     with
-        every REDRAW do
-            call {Fonts::chalk_large}.render(
-                _origin_top_center,
+        every outer.main.redraw do
+            call ({Fonts::chalk_large}.render as /nohold)(
+                {origin_top_center},
                 {Display::get_width()} /2,
                 {Display::get_height()}/2 - 200,
-                &&(_char&&)title,
+                &&title[0] as _char&&,
                 *{Display::s_framebuffer}
-            ) finalize with end;
+            );
         end
     end
 end
