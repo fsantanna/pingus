@@ -10,8 +10,6 @@ native/pre do
     };
 end
 
-//#include "aux.ceu"
-
 #if 0
 // TODO: fast_forward
 // TODO:
@@ -35,13 +33,10 @@ end
 #endif
 
 par do
-#if 0
-    var int ret =
-        do WorldMap with
-            this.filename = filename;
-        end;
+    var int ret = do ()
+        #include "aux.ceu"
+    end;
     escape ret;
-#endif
 with
     var Rect close_r = val Rect(0,
                                 {Display::get_height() - 37},
