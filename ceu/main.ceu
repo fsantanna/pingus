@@ -308,41 +308,34 @@ with
             else/if {StringUtil::has_suffix(cmd.rest.get(), ".worldmap")} as bool then
 // WORLDMAP
                 loop do
+                    vector[] byte worldmap_return_filename;
                     var int ret = do ()
                         #include "pingus/screens/worldmap/worldmap.ceu"
                     end;
-                    escape 0;
-#if 0
-                    if ret == _WORLDMAP_RETURN_STORY_MAP
-                    or ret == _WORLDMAP_RETURN_STORY_CREDITS
+                    if ret=={WORLDMAP_RETURN_STORY_MAP} or ret=={WORLDMAP_RETURN_STORY_CREDITS}
                     then
-                        finalize
-                            _reader = {FileReader::parse}(_Pathname((_char&&)&&global:worldmap_return_filename, {Pathname::DATA_PATH}));
-                        with end
-                        var bool is_click =
-                            do StoryScreen with
-                                this.reader = &&_reader;
-                            end;
-                        if is_click and ret==_WORLDMAP_RETURN_STORY_CREDITS then
-                            _filename_credits = _Pathname("credits/pingus.credits",{Pathname::DATA_PATH});
-                            do Credits with
-                                this.filename = &&_filename_credits;
-                            end;
+                        {
+                            reader = FileReader::parse(Pathname(@(&&worldmap_return_filename[0] as _char&&), Pathname::DATA_PATH));
+                        }
+                        var bool is_click = await Story();
+                        if is_click and ret=={WORLDMAP_RETURN_STORY_CREDITS} then
+                            {
+                                filename_credits = Pathname("credits/pingus.credits",Pathname::DATA_PATH);
+                            }
+                            await Credits();
                         end
-                    else/if ret == _WORLDMAP_RETURN_LEVEL then
-                        finalize
-                            _plf = {PLFResMgr::load_plf}({std::string}((_char&&)&&worldmap_return_filename)
-                                    finalize with end);
-                        with end
-                        do Start_Game_Result_Loop with
-                            this.plf    = &_XXX_PURE(&&_plf);
-                            this.result = &_XXX_PURE(&&_result);
-                        end;
+                    else/if ret == {WORLDMAP_RETURN_LEVEL} then
+_printf(">>> %s\n", &&worldmap_return_filename[0]);
+                        {
+                            plf = PLFResMgr::load_plf(std::string(@(&&worldmap_return_filename[0] as _char&&)));
+                        }
+                        var&? _PingusLevel plf    = &_ID({&plf})    finalize (plf) with end;
+                        var&? _Result      result = &_ID({&result}) finalize (result) with end;
+                        await Start_Game_Result_Loop(&plf, &result);
                     else
-                        _ceu_dbg_assert(ret == _WORLDMAP_RETURN_EXIT);
+                        _ceu_dbg_assert(ret == {WORLDMAP_RETURN_EXIT});
                         escape 0;
                     end
-#endif
                 end
             else/if {StringUtil::has_suffix(cmd.rest.get(), ".story")} as bool then
 // STORY

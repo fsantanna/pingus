@@ -279,7 +279,7 @@ do
                 loop do
                     await component!.component.on_pointer_enter;
                     var Rect r = val Rect(60+15, y-5, _,_);
-                    spawn Sprite_from_name(&r, "core/menu/marker", &outer.main.dt, &outer.main.redraw, _);
+                    spawn Sprite_from_name(&r, "core/menu/marker", &outer.main.dt, &outer.main.redraw, false);
                     await component!.component.on_pointer_leave;
                 end
             with
