@@ -184,6 +184,7 @@ with
 
     data IPingu with
         event _WorldmapNS__NodeId go_directly;
+        event _WorldmapNS__NodeId go_walking;
     end
     var IPingu pingu = _;
 
