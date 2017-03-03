@@ -182,11 +182,12 @@ with
         }
     end
 
-    data IPingu with
+    data IPingus with
+        var _WorldmapNS__NodeId   node;
         event _WorldmapNS__NodeId go_directly;
         event _WorldmapNS__NodeId go_walking;
     end
-    var IPingu pingu = _;
+    var IPingus pingus = val IPingus({id},_,_);
 
     // Create graph
     #include "dots.ceu"
@@ -222,7 +223,7 @@ with
         }
     end
 
-    spawn (pingu) do
+    spawn (pingus) do
         #include "pingus.ceu"
     end
 #if 0

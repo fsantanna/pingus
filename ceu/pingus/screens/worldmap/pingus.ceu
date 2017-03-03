@@ -11,7 +11,6 @@
 
 var s8                  direction = {NONE};
 var Rect                rect      = _;
-var _WorldmapNS__NodeId node      = {id};
 
 code/await MovePath (var& float cur) -> void
 do
@@ -26,7 +25,7 @@ do
             break; // target reached
         end
 
-        // Recalc pingu position on the screen
+        // Recalc pingus position on the screen
         var float prv_x = outer.pst.x;
         var float prv_y = outer.pst.y;
         outer.pst.x = {edge_path.at(@cur).x};
@@ -57,15 +56,15 @@ with
     loop do
         direction = {NONE};
         par/or do
-            var _WorldmapNS__NodeId target = await pingu.go_directly;
+            var _WorldmapNS__NodeId target = await pingus.go_directly;
             outer.pst.x = {path_graph->get_dot(@target)->get_pos().x};
             outer.pst.y = {path_graph->get_dot(@target)->get_pos().y};
-            node = target;
+            pingus.node = target;
         with
-            var _WorldmapNS__NodeId target = await pingu.go_walking;
+            var _WorldmapNS__NodeId target = await pingus.go_walking;
             var float cur_position = 0;
             var int   cur_length   = 0;
-            var _WorldmapNS__NodeId cur_node = node;
+            var _WorldmapNS__NodeId cur_node = pingus.node;
             loop do
                 {
                     static WorldmapNS::PathfinderResult res;
@@ -83,7 +82,7 @@ with
                 {node_path.pop_back();}
 
                 var _WorldmapNS__NodeId? target_ =
-                    watching pingu.go_walking do
+                    watching pingus.go_walking do
                         var Rect r = val Rect({path_graph->get_dot(@target)->get_pos().x},
                                               {path_graph->get_dot(@target)->get_pos().y},
                                               0, 0);
@@ -101,11 +100,11 @@ with
                                 edge_path.push_back(path_graph->graph.resolve_node(@dst).data->get_pos());
                             }
                             cur_length = {edge_path.length()};
-                            node = {WorldmapNS__NoNode};
+                            pingus.node = {WorldmapNS__NoNode};
                             await MovePath(&cur_position);
                             cur_position = 0;
                             cur_node = dst;
-                            node = dst;
+                            pingus.node = dst;
 
                             if {node_path.empty()} as bool then
                                 break;

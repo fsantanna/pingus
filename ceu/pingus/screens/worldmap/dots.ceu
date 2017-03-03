@@ -214,6 +214,22 @@ do
                     end
                     ///global:worldmap_return_filename = [] .. &&dot.filename as _char&&;
                     //emit e1.fst(id,true,show_credits,{Savegame::ACCESSIBLE});
+                    if id == outer.pingu.node then
+                        if {globals::developer_mode} as bool then
+                            _log_info("Worldmap: Pingu is on node, issue on_click()");
+                        end
+                        escape _WORLDMAP_RETURN_LEVEL;
+                    else
+                        if status == {Savegame::NONE} then
+                            call {Sound::PingusSound::play_sound}("chink");
+                        else
+                            call {StatManager::instance()}:set_string(
+                                {worldmap.get_short_name() + "-current-node"},
+                                {path_graph->lookup_node(@id)}
+                            );
+                            emit outer.pingu.go_walking(id);
+                        end
+                    end
                 end
             with
                 every e2.snd do
