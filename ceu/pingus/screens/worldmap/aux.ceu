@@ -190,8 +190,8 @@ with
     var IPingus pingus = val IPingus({id},_,_);
 
     // Create graph
+    event int ok_escape;
     #include "dots.ceu"
-    event int ok;
     //pool IDot[] dots;
     pool[] StoryDot sds;
     pool[] LevelDot lds;
@@ -211,9 +211,9 @@ with
                 file_reader = (FileReader*) &f;
         }
         if {file_reader->get_name() == "storydot"} as bool then
-            spawn StoryDot(&ok) in sds;
+            spawn StoryDot() in sds;
         else/if {file_reader->get_name() == "leveldot"} as bool then
-            spawn LevelDot(&ok) in lds;
+            spawn LevelDot() in lds;
         else
             _ceu_dbg_assert({!"DotFactory: unknown tag: "});// <<  reader.get_name());
         end
@@ -227,7 +227,7 @@ with
         #include "pingus.ceu"
     end
 
-    var int to = await ok;
+    var int to = await ok_escape;
     escape to;
 #if 0
 with

@@ -46,7 +46,7 @@ do
     end
 end
 
-code/await StoryDot (event& int ok) -> FOREVER
+code/await StoryDot (void) -> FOREVER
 do
     {
         static FileReader  reader;
@@ -106,9 +106,9 @@ do
                     end
                     outer.worldmap_return_filename = [] .. filename;
                     if show_credits then
-                        emit ok({WORLDMAP_RETURN_STORY_CREDITS});
+                        emit outer.ok_escape({WORLDMAP_RETURN_STORY_CREDITS});
                     else
-                        emit ok({WORLDMAP_RETURN_STORY_MAP});
+                        emit outer.ok_escape({WORLDMAP_RETURN_STORY_MAP});
                     end
                     _ceu_dbg_assert(0);
                 else
@@ -129,7 +129,7 @@ do
     end
 end
 
-code/await LevelDot (event& int ok) -> FOREVER
+code/await LevelDot (void) -> FOREVER
 do
     {
         static FileReader  reader;
@@ -228,7 +228,7 @@ do
                             _log_info("Worldmap: Pingu is on node, issue on_click()");
                         end
                         outer.worldmap_return_filename = [] .. filename;
-                        emit ok({WORLDMAP_RETURN_LEVEL});
+                        emit outer.ok_escape({WORLDMAP_RETURN_LEVEL});
                         _ceu_dbg_assert(0);
                     else
                         if status == {Savegame::NONE} then
