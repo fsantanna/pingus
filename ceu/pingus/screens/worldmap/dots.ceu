@@ -1,18 +1,13 @@
 #ifndef _DOTS_CEU
 #define _DOTS_CEU
 
-data EDot1 with
-    event (int,bool,bool,int) fst;
-    event int                 snd;
-end
-
-data EDot2 with
+data EDot with
     event bool out;
     event void fst;
     event void snd;
 end
 
-code/await Mouse (var& Rect rect, var& EDot2 e) -> FOREVER
+code/await Mouse (var& Rect rect, var& EDot e) -> FOREVER
 do
     code/tight Is_Inside (var int x, var int y) -> bool do
         var Vector2i off = call Get_Offset();
@@ -51,7 +46,7 @@ do
     end
 end
 
-code/await StoryDot (var& EDot1 e1) -> FOREVER
+code/await StoryDot (event& int ok) -> FOREVER
 do
     {
         static FileReader  reader;
@@ -83,7 +78,7 @@ do
     var Rect rect = val Rect({pst.x},{pst.y}, 0, 0);
     spawn Sprite_from_name(&rect, "core/worldmap/story_dot", &outer.main.dt, &outer.main.redraw, true);
 
-    var EDot2 e2 = _;
+    var EDot e2 = _;
     spawn Mouse(&rect, &e2);
 
     var bool v = await e2.out until v==false;
@@ -106,19 +101,35 @@ do
                     _log_info("Worldmap: Clicked on: %1%", &&filename[0] as _char&&);
                 end
                 ///global:worldmap_return_filename = [] .. &&dot.filename as _char&&;
-                emit e1.fst(id,true,show_credits,{Savegame::ACCESSIBLE});
+                if id == outer.pingus.node then
+                    if {globals::developer_mode} as bool then
+                        _log_info("Worldmap: Pingu is on node, issue on_click()");
+                    end
+                    if show_credits then
+                        emit ok({WORLDMAP_RETURN_STORY_CREDITS});
+                    else
+                        emit ok({WORLDMAP_RETURN_STORY_MAP});
+                    end
+                    _ceu_dbg_assert(0);
+                else
+                    call {StatManager::instance()}:set_string(
+                        {worldmap.get_short_name() + "-current-node"},
+                        {path_graph->lookup_node(@id)}
+                    );
+                    emit outer.pingus.go_walking(id);
+                end
             end
         with
             every e2.snd do
                 if {globals::developer_mode} as bool then
-                    emit outer.pingu.go_directly(id);
+                    emit outer.pingus.go_directly(id);
                 end
             end
         end
     end
 end
 
-code/await LevelDot (var& EDot1 e1) -> FOREVER
+code/await LevelDot (event& int ok) -> FOREVER
 do
     {
         static FileReader  reader;
@@ -151,7 +162,7 @@ do
     end
 
     var Rect rect = val Rect({pst.x},{pst.y}, 0,0);
-    var EDot2 e2 = _;
+    var EDot e2 = _;
     spawn Mouse(&rect, &e2);
 
     par do
@@ -213,12 +224,12 @@ do
                         _log_info("Worldmap: Clicked on: %1%", &&filename[0] as _char&&);
                     end
                     ///global:worldmap_return_filename = [] .. &&dot.filename as _char&&;
-                    //emit e1.fst(id,true,show_credits,{Savegame::ACCESSIBLE});
-                    if id == outer.pingu.node then
+                    if id == outer.pingus.node then
                         if {globals::developer_mode} as bool then
                             _log_info("Worldmap: Pingu is on node, issue on_click()");
                         end
-                        escape _WORLDMAP_RETURN_LEVEL;
+                        emit ok({WORLDMAP_RETURN_LEVEL});
+                        _ceu_dbg_assert(0);
                     else
                         if status == {Savegame::NONE} then
                             call {Sound::PingusSound::play_sound}("chink");
@@ -227,14 +238,14 @@ do
                                 {worldmap.get_short_name() + "-current-node"},
                                 {path_graph->lookup_node(@id)}
                             );
-                            emit outer.pingu.go_walking(id);
+                            emit outer.pingus.go_walking(id);
                         end
                     end
                 end
             with
                 every e2.snd do
                     if {globals::developer_mode} as bool then
-                        emit outer.pingu.go_directly(id);
+                        emit outer.pingus.go_directly(id);
                     end
                 end
             end

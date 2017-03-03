@@ -191,7 +191,7 @@ with
 
     // Create graph
     #include "dots.ceu"
-    var EDot1 e = _;
+    event int ok;
     //pool IDot[] dots;
     pool[] StoryDot sds;
     pool[] LevelDot lds;
@@ -211,9 +211,9 @@ with
                 file_reader = (FileReader*) &f;
         }
         if {file_reader->get_name() == "storydot"} as bool then
-            spawn StoryDot(&e) in sds;
+            spawn StoryDot(&ok) in sds;
         else/if {file_reader->get_name() == "leveldot"} as bool then
-            spawn LevelDot(&e) in lds;
+            spawn LevelDot(&ok) in lds;
         else
             _ceu_dbg_assert({!"DotFactory: unknown tag: "});// <<  reader.get_name());
         end
@@ -226,83 +226,9 @@ with
     spawn (pingus) do
         #include "pingus.ceu"
     end
-#if 0
-    var Pingus pingus with
-        this.path = _XXX_PURE(_path_graph.get());
-        this.node = id;
-        this.pos  = &pst;
-    end;
-#endif
 
-await FOREVER;
-    //every (but,id_,status) in dot.ok_clicked do
-#if 0
-    loop do
-        var int  id_;
-        var int  status;
-        var bool is_story;
-        var bool show_credits;
-        (id_,is_story,show_credits,status) = await dot.ok_clicked;
-        if id_ == pingus.node then
-            if {globals::developer_mode} then
-                _log_info("Worldmap: Pingu is on node, issue on_click()");
-            end
-            if is_story then
-                if show_credits then
-                    escape _WORLDMAP_RETURN_STORY_CREDITS;
-                else
-                    escape _WORLDMAP_RETURN_STORY_MAP;
-                end
-            else
-                escape _WORLDMAP_RETURN_LEVEL;
-            end
-        else
-            if status == {Savegame::NONE} then
-                call {Sound::PingusSound::play_sound}("chink");
-            else
-                call {StatManager::instance()}:set_string(
-                    {worldmap.get_short_name() + "-current-node"},
-                    _path_graph:lookup_node(id_)
-                );
-                emit pingus.go_walking => id_;
-            end
-        end
-    end
-    loop do
-        var int  id_;
-        var int  status;
-        var bool is_story;
-        var bool show_credits;
-        (id_,is_story,show_credits,status) = await dot.ok_clicked;
-        if but == 1 then
-            if id_ == pingus.node then
-                if {globals::developer_mode} then
-                    _log_info("Worldmap: Pingu is on node, issue on_click()");
-                end
-                if is_story then
-                    if show_credits then
-                        escape _WORLDMAP_RETURN_STORY_CREDITS;
-                    else
-                        escape _WORLDMAP_RETURN_STORY_MAP;
-                    end
-                else
-                    escape _WORLDMAP_RETURN_LEVEL;
-                end
-            else
-                if status == {Savegame::NONE} then
-                    call {Sound::PingusSound::play_sound}("chink");
-                else
-                    call {StatManager::instance()}:set_string(
-                        {worldmap.get_short_name() + "-current-node"},
-                        _path_graph:lookup_node(id_)
-                    );
-                    emit pingus.go_walking => id_;
-                end
-            end
-        else
-        end
-    end
-#endif
+    var int to = await ok;
+    escape to;
 #if 0
 with
     every (x,y) in ON_PRIMARY_BUTTON_PRESSED do
