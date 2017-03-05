@@ -21,11 +21,11 @@ code/await PingusMenuBackground (void) -> FOREVER do
     var float x5 = 0;
     var float y5 = 500;
 
-    var&? Surface_from_name s1 = spawn Surface_from_name("core/menu/layer1",_);
-    var&? Surface_from_name s2 = spawn Surface_from_name("core/menu/layer2",_);
-    var&? Surface_from_name s3 = spawn Surface_from_name("core/menu/layer3",_);
-    var&? Surface_from_name s4 = spawn Surface_from_name("core/menu/layer4",_);
-    var&? Surface_from_name s5 = spawn Surface_from_name("core/menu/layer5",_);
+    var& Surface_from_name s1 = spawn Surface_from_name("core/menu/layer1",_);
+    var& Surface_from_name s2 = spawn Surface_from_name("core/menu/layer2",_);
+    var& Surface_from_name s3 = spawn Surface_from_name("core/menu/layer3",_);
+    var& Surface_from_name s4 = spawn Surface_from_name("core/menu/layer4",_);
+    var& Surface_from_name s5 = spawn Surface_from_name("core/menu/layer5",_);
 
     par do
         var int v;
@@ -40,43 +40,43 @@ code/await PingusMenuBackground (void) -> FOREVER do
     with
         every outer.main.redraw do
             call {Display::s_framebuffer}:draw_surface(
-                s1!.surface.framebuffer,
+                s1.surface.framebuffer,
                 _Vector2i(x1, y1)
             );
             call {Display::s_framebuffer}:draw_surface(
-                s1!.surface.framebuffer,
+                s1.surface.framebuffer,
                 _Vector2i(x1-{Display::get_width()}, y1)
             );
             call {Display::s_framebuffer}:draw_surface(
-                s2!.surface.framebuffer,
+                s2.surface.framebuffer,
                 _Vector2i(x2, y2)
             );
             call {Display::s_framebuffer}:draw_surface(
-                s2!.surface.framebuffer,
+                s2.surface.framebuffer,
                 _Vector2i(x2-{Display::get_width()}, y2)
             );
             call {Display::s_framebuffer}:draw_surface(
-                s3!.surface.framebuffer,
+                s3.surface.framebuffer,
                 _Vector2i(x3, y3)
             );
             call {Display::s_framebuffer}:draw_surface(
-                s3!.surface.framebuffer,
+                s3.surface.framebuffer,
                 _Vector2i(x3-{Display::get_width()}, y3)
             );
             call {Display::s_framebuffer}:draw_surface(
-                s4!.surface.framebuffer,
+                s4.surface.framebuffer,
                 _Vector2i(x4, y4)
             );
             call {Display::s_framebuffer}:draw_surface(
-                s4!.surface.framebuffer,
+                s4.surface.framebuffer,
                 _Vector2i(x4-{Display::get_width()}, y4)
             );
             call {Display::s_framebuffer}:draw_surface(
-                s5!.surface.framebuffer,
+                s5.surface.framebuffer,
                 _Vector2i(x5, y5)
             );
             call {Display::s_framebuffer}:draw_surface(
-                s5!.surface.framebuffer,
+                s5.surface.framebuffer,
                 _Vector2i(x5-{Display::get_width()}, y5)
             );
         end
@@ -94,34 +94,34 @@ code/await PingusMenu (void) -> int do
 
     {Sound::PingusSound::play_music("pingus-1.it");};
 
-    var&? MenuButton b_story =
+    var& MenuButton b_story =
         spawn MenuButton(size.width/2-125, size.height/2-20,  "Story",     "");
-    var&? MenuButton b_editor =
+    var& MenuButton b_editor =
         spawn MenuButton(size.width/2+125, size.height/2-20,  "Editor",    "");
-    var&? MenuButton b_options =
+    var& MenuButton b_options =
         spawn MenuButton(size.width/2-125, size.height/2+50,  "Options",   "");
-    var&? MenuButton b_levelsets =
+    var& MenuButton b_levelsets =
         spawn MenuButton(size.width/2+125, size.height/2+50,  "Levelsets", "");
-    var&? MenuButton b_exit =
+    var& MenuButton b_exit =
         spawn MenuButton(size.width/2,     size.height/2+120, "Exit",      "");
 
     par do
-        await b_story!.ok_clicked;
+        await b_story.ok_clicked;
         escape {PINGUSMENU_STORY};
     with
-        await b_editor!.ok_clicked;
+        await b_editor.ok_clicked;
         {Sound::PingusSound::stop_music();};
         escape {PINGUSMENU_EDITOR};
     with
         loop do
-            await b_options!.ok_clicked;
+            await b_options.ok_clicked;
             emit outer.main.go_options;     // this will pause me
         end
     with
-        await b_levelsets!.ok_clicked;
+        await b_levelsets.ok_clicked;
         escape {PINGUSMENU_LEVELSETS};
     with
-        await b_exit!.ok_clicked;
+        await b_exit.ok_clicked;
         escape {PINGUSMENU_EXIT};
     with
         every outer.main.redraw do

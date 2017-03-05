@@ -41,7 +41,7 @@ with
     var Rect close_r = val Rect(0,
                                 {Display::get_height() - 37},
                                 _,_);
-    var&? SurfaceButton close = 
+    var& SurfaceButton close = 
         spawn SurfaceButton(&close_r,
                             "core/worldmap/leave_button_normal",
                             "core/worldmap/leave_button_pressed",
@@ -57,11 +57,11 @@ with
             );
         end
     with
-        every close!.component.on_pointer_enter do
+        every close.component.on_pointer_enter do
             call {Sound::PingusSound::play_sound}("tick");
         end
     with
-        await close!.component.on_click;
+        await close.component.on_click;
         escape {WORLDMAP_RETURN_EXIT};
     end
 with

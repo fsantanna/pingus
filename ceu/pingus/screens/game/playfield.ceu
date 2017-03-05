@@ -12,7 +12,7 @@ var Rect rect = val Rect(
     {Math::min}({Display::get_height()}, outer.game.rect.height)
 );
 
-var&? RectComponent component = spawn RectComponent(&rect);
+var& RectComponent component = spawn RectComponent(&rect);
 
 var Position mouse_pos = val Position(0,0);
 spawn do
@@ -27,7 +27,7 @@ end
 par do
     var int x;
     var int y;
-    every (x,y) in component!.component.on_primary_button_pressed do
+    every (x,y) in component.component.on_primary_button_pressed do
         x = x - rect.left;
         y = y - rect.top;
         x = outer.game.state.screen2world(_Vector2i(x,y)).x;

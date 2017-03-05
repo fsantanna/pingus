@@ -103,7 +103,7 @@ with                                                        // UI
     par do                                                      // ARMAGEDDON
         var Rect rect = val Rect(arm_x, arm_y, 38, 60);
 
-        var&? RectComponent component = spawn RectComponent(&rect);
+        var& RectComponent component = spawn RectComponent(&rect);
 
         spawn Sprite_from_name(&rect, "core/buttons/hbuttonbgb", &outer.main.dt, &outer.main.redraw, false);
 
@@ -113,9 +113,9 @@ with                                                        // UI
             s!.sprite.frame = 7;
 
             loop do
-                await component!.component.on_primary_button_pressed;
+                await component.component.on_primary_button_pressed;
                 watching 1s do
-                    await component!.component.on_primary_button_pressed;
+                    await component.component.on_primary_button_pressed;
                     break;
                 end
             end
@@ -129,7 +129,7 @@ with                                                        // UI
     with                                                        // FORWARD
         var Rect rect = val Rect(fwd_x,fwd_y, 38,60);
 
-        var&? RectComponent component = spawn RectComponent(&rect);
+        var& RectComponent component = spawn RectComponent(&rect);
 
         spawn do
             loop do
@@ -138,7 +138,7 @@ with                                                        // UI
                     par/or do
                         var bool v = await go_forward until v;
                     with
-                        await component!.component.on_primary_button_pressed;
+                        await component.component.on_primary_button_pressed;
                         emit go_forward(true);
                     end
                 end
@@ -147,7 +147,7 @@ with                                                        // UI
                     par/or do
                         var bool v = await go_forward until (not v);
                     with
-                        await component!.component.on_primary_button_released;
+                        await component.component.on_primary_button_released;
                         emit go_forward(false);
                     end
                 end
@@ -159,7 +159,7 @@ with                                                        // UI
     with                                                        // PAUSE
         var Rect rect = val Rect(pse_x,pse_y, 38,60);
 
-        var&? RectComponent component = spawn RectComponent(&rect);
+        var& RectComponent component = spawn RectComponent(&rect);
 
         spawn do
             loop do
@@ -169,7 +169,7 @@ with                                                        // UI
                     par/or do
                         await go_pause_toggle until from_out;
                     with
-                        await component!.component.on_primary_button_pressed;
+                        await component.component.on_primary_button_pressed;
                         from_out = false;
                         emit go_pause_toggle;
                     end
@@ -180,7 +180,7 @@ with                                                        // UI
                     par/or do
                         await go_pause_toggle until from_out;
                     with
-                        await component!.component.on_primary_button_pressed;
+                        await component.component.on_primary_button_pressed;
                         from_out = false;
                         emit go_pause_toggle;
                     end

@@ -43,7 +43,7 @@ do
     spawn Sprite_from_name(&rect, "core/menu/blackboard", &outer.main.dt, &outer.main.redraw, false);
 
     var Rect cancel_r = val Rect(xc-300, yc+200, 0, 0);
-    var&? SurfaceButton cancel =
+    var& SurfaceButton cancel =
         spawn SurfaceButton(&cancel_r,
                             "core/start/back",
                             "core/start/back_clicked",
@@ -60,14 +60,14 @@ do
     end
 
     var Rect prv_r = val Rect(xc+280, yc-48-12, _,_);
-    var&? SurfaceButton prv =
+    var& SurfaceButton prv =
         spawn SurfaceButton(&prv_r,
                             "core/menu/arrow_up",
                             "core/menu/arrow_up_pressed",
                             "core/menu/arrow_up_hover");
 
     var Rect nxt_r = val Rect(xc+280, yc+12, _,_);
-    var&? SurfaceButton nxt =
+    var& SurfaceButton nxt =
         spawn SurfaceButton(&nxt_r,
                             "core/menu/arrow_down",
                             "core/menu/arrow_down_pressed",
@@ -76,30 +76,30 @@ do
     // terminate on ESCAPE or cancel click
 
     par do
-        every cancel!.component.on_pointer_enter do
+        every cancel.component.on_pointer_enter do
             call {Sound::PingusSound::play_sound}("tick");
         end
     with
-        await cancel!.component.on_click;
+        await cancel.component.on_click;
         escape -1;
     with
-        every prv!.component.on_pointer_enter do
+        every prv.component.on_pointer_enter do
             call {Sound::PingusSound::play_sound}("tick");
         end
     with
-        every nxt!.component.on_pointer_enter do
+        every nxt.component.on_pointer_enter do
             call {Sound::PingusSound::play_sound}("tick");
         end
     with
         par do
-            every prv!.component.on_click do
+            every prv.component.on_click do
                 if ui.item_at_top > 0 then
                     ui.item_at_top = ui.item_at_top - 1;
                     emit ui.go(item_height);
                 end
             end
         with
-            every nxt!.component.on_click do
+            every nxt.component.on_click do
                 if ui.item_at_top < items_total-items_per_page then
                     ui.item_at_top = ui.item_at_top + 1;
                     emit ui.go(-item_height);
@@ -109,9 +109,9 @@ do
             var _Input__ButtonEvent&& but;
             every but in ON_BUTTON_PRESSED do
                 if but:name == {Input::ACTION_DOWN_BUTTON} then
-                    emit nxt!.component.on_click;
+                    emit nxt.component.on_click;
                 else/if but:name == {Input::ACTION_UP_BUTTON} then
-                    emit prv!.component.on_click;
+                    emit prv.component.on_click;
                 end
             end
         end
@@ -130,7 +130,7 @@ end
 code/await Level (var& _Levelset levelset, var& ILevelUI ui, var int i, var Rect rect)
                     -> FOREVER
 do
-    var&? RectComponent component = spawn RectComponent(&rect);
+    var& RectComponent component = spawn RectComponent(&rect);
 
     var int x = rect.left;
     var int y = rect.top;
@@ -142,16 +142,16 @@ do
 /// TODO
                 if levelset.get_level(i):accessible as bool then
                     par do
-                        every component!.component.on_click do
+                        every component.component.on_click do
                             emit ui.ok(i);
                         end
                     with
                         // draw background highlight mark
                         loop do
-                            await component!.component.on_pointer_enter;
+                            await component.component.on_pointer_enter;
                             var Rect r = val Rect(60+20, y, 0, 0);
                             spawn Sprite_from_name(&r, "core/menu/marker2", &outer.main.dt, &outer.main.redraw, false);
-                            await component!.component.on_pointer_leave;
+                            await component.component.on_pointer_leave;
                         end
                     end
                 else
@@ -167,12 +167,12 @@ do
                 else
                     name = "core/menu/checkbox_small";
                 end
-                var&? Surface_from_name sfc = spawn Surface_from_name(name, _);
+                var& Surface_from_name sfc = spawn Surface_from_name(name, _);
 
                 every outer.main.redraw do
                     // draw checkbox
                     call {Display::s_framebuffer}:draw_surface(
-                        sfc!.surface.framebuffer,
+                        sfc.surface.framebuffer,
                         _Vector2i(x, y)
                     );
 
@@ -262,7 +262,7 @@ end
 
 code/await Levelset (var& ILevelUI ui, var int i, var Rect rect) -> FOREVER
 do
-    var&? RectComponent component = spawn RectComponent(&rect);
+    var& RectComponent component = spawn RectComponent(&rect);
 
     var int x = rect.left;
     var int y = rect.top;
@@ -271,23 +271,23 @@ do
     par do
         pause/if pse do
             par do
-                every component!.component.on_click do
+                every component.component.on_click do
                     emit ui.ok(i);
                 end
             with
                 // draw background highlight mark
                 loop do
-                    await component!.component.on_pointer_enter;
+                    await component.component.on_pointer_enter;
                     var Rect r = val Rect(60+15, y-5, _,_);
                     spawn Sprite_from_name(&r, "core/menu/marker", &outer.main.dt, &outer.main.redraw, false);
-                    await component!.component.on_pointer_leave;
+                    await component.component.on_pointer_leave;
                 end
             with
-                var&? Surface_from_name sfc =
+                var& Surface_from_name sfc =
                     spawn Surface_from_name({levelsets[@i]->get_image().c_str()}, _);
                 every outer.main.redraw do
                     call {Display::s_framebuffer}:draw_surface(
-                        sfc!.surface.framebuffer,
+                        sfc.surface.framebuffer,
                         _Vector2i(x+10, y)
                     );
 

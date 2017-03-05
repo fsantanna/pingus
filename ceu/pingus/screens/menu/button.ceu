@@ -14,19 +14,19 @@ do
     var Rect r2 = val Rect(x-bg!.sprite.frame_size.width/2, y-bg!.sprite.frame_size.height/2,
                            bg!.sprite.frame_size.width, bg!.sprite.frame_size.height);
 
-    var&? RectComponent component = spawn RectComponent(&r2);
+    var& RectComponent component = spawn RectComponent(&r2);
 
     par do
-        every component!.component.on_click do
+        every component.component.on_click do
             emit ok_clicked;
         end
     with
         loop do
-            await component!.component.on_pointer_enter;
+            await component.component.on_pointer_enter;
             {Sound::PingusSound::play_sound ("tick");};
             do
                 spawn Sprite_from_name(&r1, "core/menu/menuitem_highlight", &outer.main.dt, &outer.main.redraw, false);
-                await component!.component.on_pointer_leave;
+                await component.component.on_pointer_leave;
             end
         end
     with

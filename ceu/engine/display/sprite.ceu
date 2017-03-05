@@ -163,18 +163,16 @@ code/await Sprite_from_desc (var& Rect rect, var _SpriteDescription_ptr desc, ev
                                 -> (var& ISprite sprite)
                                     -> void
 do
-    var&? Surface_from_desc sfc_from_desc =
+    var& Surface_from_desc sfc_from_desc =
         spawn Surface_from_desc(desc, {ResourceModifier::ROT0});
 
     code/tight Draw (var int x, var int y) -> void;
 
-    watching sfc_from_desc do
-        var& Surface sfc = &sfc_from_desc!.surface;
-        var&? Sprite_from_sfc s = spawn Sprite_from_sfc(&rect, &sfc, &dt, &redraw, is_world);
-        watching s do
-            sprite = &s!.sprite;
-            await FOREVER;
-        end
+    var& Surface sfc = &sfc_from_desc.surface;
+    var&? Sprite_from_sfc s = spawn Sprite_from_sfc(&rect, &sfc, &dt, &redraw, is_world);
+    watching s do
+        sprite = &s!.sprite;
+        await FOREVER;
     end
 
     code/tight Draw (var int x, var int y) -> void do
@@ -186,7 +184,7 @@ do
         end
 
         call {Display::s_framebuffer}:draw_surface(
-            outer.sfc_from_desc!.surface.framebuffer,
+            outer.sfc_from_desc.surface.framebuffer,
             {Rect}(
                 {Vector2i}(outer.sprite.frame_pos.x,outer.sprite.frame_pos.y) +
                     {Vector2i}(outer.sprite.frame_size.width  * (outer.sprite.frame%outer.sprite.array.width),
@@ -202,16 +200,14 @@ code/await Sprite_from_name (var& Rect rect, var _char_const_ptr name, event& in
                                 -> (var& ISprite sprite)
                                     -> void
 do
-    var&? Surface_from_name sfc_from_name =
+    var& Surface_from_name sfc_from_name =
         spawn Surface_from_name(name, {ResourceModifier::ROT0});
 
-    watching sfc_from_name do
-        var& Surface sfc = &sfc_from_name!.surface;
-        var&? Sprite_from_sfc s = spawn Sprite_from_sfc(&rect, &sfc, &dt, &redraw, is_world);
-        watching s do
-            sprite = &s!.sprite;
-            await FOREVER;
-        end
+    var& Surface sfc = &sfc_from_name.surface;
+    var&? Sprite_from_sfc s = spawn Sprite_from_sfc(&rect, &sfc, &dt, &redraw, is_world);
+    watching s do
+        sprite = &s!.sprite;
+        await FOREVER;
     end
 end
 

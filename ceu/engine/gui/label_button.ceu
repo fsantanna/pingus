@@ -13,18 +13,16 @@ do
                              {Fonts::chalk_small.get_width(@(&&label[0] as _char&&))},
                              {Fonts::chalk_small.get_height()});
 
-    var&? RectComponent rc = spawn RectComponent(&rect);
-    watching rc do
-        component = &rc!.component;
+    var& RectComponent rc = spawn RectComponent(&rect);
+    component = &rc.component;
 
-        every outer.main.redraw do
-            call ({Fonts::chalk_small}.render as /nohold)(
-                {origin_top_left},
-                x, y,
-                &&label[0] as _char&&,
-                *{Display::s_framebuffer}
-            );
-        end
+    every outer.main.redraw do
+        call ({Fonts::chalk_small}.render as /nohold)(
+            {origin_top_left},
+            x, y,
+            &&label[0] as _char&&,
+            *{Display::s_framebuffer}
+        );
     end
 end
 

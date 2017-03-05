@@ -40,12 +40,12 @@ code/await OptionMenu (void) -> void do
     // Fullscreen
     var Rect r11 = val Rect(r0.left,   r0.top, 32,32);
     var Rect r12 = val Rect(r0.left+40,r0.top, 32,32);
-    var&? CheckBox b1 =
+    var& CheckBox b1 =
         spawn CheckBox(&r11, (_config_manager.get_fullscreen() as bool));
     spawn Label("Fullscreen", &r12);
     spawn do
         var bool v;
-        every v in b1!.checkbox.go_click do
+        every v in b1.checkbox.go_click do
             _config_manager.set_fullscreen(v);
         end
     end
@@ -55,18 +55,18 @@ code/await OptionMenu (void) -> void do
     // Mouse Grab
     var Rect r21 = val Rect(r0.left,   r0.top, 32,32);
     var Rect r22 = val Rect(r0.left+40,r0.top, 32,32);
-    var&? CheckBox b2 =
+    var& CheckBox b2 =
         spawn CheckBox(&r21, (_config_manager.get_mouse_grab() as bool));
     spawn Label("Mouse Grab", &r22);
     spawn do
         par do
             var bool v;
             every v in outer.config_manager.go_mouse_grab do
-                emit b2!.checkbox.go_click(v);
+                emit b2.checkbox.go_click(v);
             end
         with
             var bool v;
-            every v in b2!.checkbox.go_click do
+            every v in b2.checkbox.go_click do
                 emit outer.config_manager.go_mouse_grab(v);
             end
         end
@@ -78,12 +78,12 @@ code/await OptionMenu (void) -> void do
     // Software Cursor
     var Rect r31 = val Rect(r0.left,   r0.top, 32,32);
     var Rect r32 = val Rect(r0.left+40,r0.top, 32,32);
-    var&? CheckBox b3 =
+    var& CheckBox b3 =
         spawn CheckBox(&r31, (_config_manager.get_software_cursor() as bool));
     spawn Label("Software Cursor", &r32);
     spawn do
         var bool v;
-        every v in b3!.checkbox.go_click do
+        every v in b3.checkbox.go_click do
             _config_manager.set_software_cursor(v);
         end
     end
@@ -93,12 +93,12 @@ code/await OptionMenu (void) -> void do
     // Auto Scrolling
     var Rect r41 = val Rect(r0.left,   r0.top, 32,32);
     var Rect r42 = val Rect(r0.left+40,r0.top, 32,32);
-    var&? CheckBox b4 =
+    var& CheckBox b4 =
         spawn CheckBox(&r41, (_config_manager.get_auto_scrolling() as bool));
     spawn Label("Autoscrolling", &r42);
     spawn do
         var bool v;
-        every v in b4!.checkbox.go_click do
+        every v in b4.checkbox.go_click do
             _config_manager.set_auto_scrolling(v);
         end
     end
@@ -108,12 +108,12 @@ code/await OptionMenu (void) -> void do
     // Drag & Drop Scrolling
     var Rect r51 = val Rect(r0.left,   r0.top, 32,32);
     var Rect r52 = val Rect(r0.left+40,r0.top, 32,32);
-    var&? CheckBox b5 =
+    var& CheckBox b5 =
         spawn CheckBox(&r51, (_config_manager.get_drag_drop_scrolling() as bool));
     spawn Label("Drag&Drop Scrolling", &r52);
     spawn do
         var bool v;
-        every v in b5!.checkbox.go_click do
+        every v in b5.checkbox.go_click do
             _config_manager.set_drag_drop_scrolling(v);
         end
     end
@@ -124,12 +124,12 @@ code/await OptionMenu (void) -> void do
     // Print FPS
     var Rect r61 = val Rect(r0.left,   r0.top, 32,32);
     var Rect r62 = val Rect(r0.left+40,r0.top, 32,32);
-    var&? CheckBox b6 =
+    var& CheckBox b6 =
         spawn CheckBox(&r61, (_config_manager.get_print_fps() as bool));
     spawn Label("Print FPS", &r62);
     spawn do
         var bool v;
-        every v in b6!.checkbox.go_click do
+        every v in b6.checkbox.go_click do
             _config_manager.set_print_fps(v);
         end
     end
@@ -297,10 +297,10 @@ code/await OptionMenu (void) -> void do
     var Rect l4 = left;
     var Rect r4 = right;
     spawn Label("Master Volume", &l4);
-    var&? SliderBox box4 = spawn SliderBox(&r4, 25, _config_manager.get_master_volume());
+    var& SliderBox box4 = spawn SliderBox(&r4, 25, _config_manager.get_master_volume());
     spawn do
         var int v;
-        every v in box4!.go do
+        every v in box4.go do
             _config_manager.set_master_volume(v);
         end
     end
@@ -312,10 +312,10 @@ code/await OptionMenu (void) -> void do
     var Rect l5 = left;
     var Rect r5 = right;
     spawn Label("Sound Volume", &l5);
-    var&? SliderBox box5 = spawn SliderBox(&r5, 25, _config_manager.get_sound_volume());
+    var& SliderBox box5 = spawn SliderBox(&r5, 25, _config_manager.get_sound_volume());
     spawn do
         var int v;
-        every v in box5!.go do
+        every v in box5.go do
             _config_manager.set_sound_volume(v);
         end
     end
@@ -327,10 +327,10 @@ code/await OptionMenu (void) -> void do
     var Rect l6 = left;
     var Rect r6 = right;
     spawn Label("Music Volume", &l6);
-    var&? SliderBox box6 = spawn SliderBox(&r6, 25, _config_manager.get_music_volume());
+    var& SliderBox box6 = spawn SliderBox(&r6, 25, _config_manager.get_music_volume());
     spawn do
         var int v;
-        every v in box6!.go do
+        every v in box6.go do
             _config_manager.set_music_volume(v);
         end
     end
@@ -343,17 +343,17 @@ code/await OptionMenu (void) -> void do
     var Rect r7 = val Rect({Display::get_width()/2}  + 245,
                            {Display::get_height()/2} + 150,
                            0, 0);
-    var&? SurfaceButton button =
+    var& SurfaceButton button =
         spawn SurfaceButton(&r7, "core/start/ok",
                                  "core/start/ok_clicked",
                                  "core/start/ok_hover");
 
     par/or do
-        every button!.component.on_pointer_enter do
+        every button.component.on_pointer_enter do
             call {Sound::PingusSound::play_sound}("tick");
         end
     with
-        await button!.component.on_click;
+        await button.component.on_click;
         call {Sound::PingusSound::play_sound}("yipee");
     with
         var _Input__ButtonEvent&& but =

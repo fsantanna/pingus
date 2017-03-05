@@ -18,11 +18,10 @@ do
     var Rect next_r = val Rect(xc + 220 + 40,
                                yc + 180 + 32,
                                _,_);
-    var&? SurfaceButton next = 
-        spawn SurfaceButton(&next_r,
-                            "core/misc/next",
-                            "core/misc/next",
-                            "core/misc/next_hover");
+    var& SurfaceButton next = spawn SurfaceButton(&next_r,
+                                                  "core/misc/next",
+                                                  "core/misc/next",
+                                                  "core/misc/next_hover");
 
     var&? LabelButton skip = spawn LabelButton({Display::get_width()}  - 36,
                                                {Display::get_height()} - 26,
@@ -101,11 +100,11 @@ do
         end
         escape true;               // is_click = true
     with
-        every next!.component.on_click do
+        every next.component.on_click do
             emit next_text;
         end
     with
-        every next!.component.on_pointer_enter do
+        every next.component.on_pointer_enter do
             call {Sound::PingusSound::play_sound}("tick");
         end
     with

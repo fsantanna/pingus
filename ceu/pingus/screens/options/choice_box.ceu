@@ -42,7 +42,7 @@ end
 code/await ChoiceBox (var& Rect rect, pool&[] ChoiceItem items, var& IChoiceBox choicebox)
                         -> FOREVER
 do
-    var&? RectComponent component = spawn RectComponent(&rect);
+    var& RectComponent component = spawn RectComponent(&rect);
 
     emit choicebox.go;
 
@@ -56,7 +56,7 @@ do
     par do
         var int x;
         var int y;
-        every (x,y) in component!.component.on_primary_button_pressed do
+        every (x,y) in component.component.on_primary_button_pressed do
             var int old = choicebox.current;
             x = x - (rect.left as int);
             if x > rect.width/2 then

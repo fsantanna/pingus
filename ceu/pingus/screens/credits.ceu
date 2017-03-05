@@ -62,7 +62,7 @@ do
     var Rect ok_r = val Rect({Display::get_width()/2} +260,
                              {Display::get_height()/2}+170,
                              _,_);
-    var&? SurfaceButton ok = 
+    var& SurfaceButton ok = 
         spawn SurfaceButton(&ok_r,
                             "core/start/ok",
                             "core/start/ok_clicked",
@@ -72,11 +72,11 @@ do
     var float offset = {Display::get_height()} - 50;
 
     par do
-        await ok!.component.on_click;
+        await ok.component.on_click;
         call {Sound::PingusSound::play_sound}("yipee");
         escape;
     with
-        every ok!.component.on_pointer_enter do
+        every ok.component.on_pointer_enter do
             call {Sound::PingusSound::play_sound}("tick");
         end
     with

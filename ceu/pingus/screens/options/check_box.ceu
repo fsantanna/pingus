@@ -14,10 +14,10 @@ code/await CheckBox (var& Rect rect, var bool is_on)
 do
     checkbox = val ICheckBox(is_on,_);
 
-    var&? RectComponent component = spawn RectComponent(&rect);
+    var& RectComponent component = spawn RectComponent(&rect);
 
     par do
-        every component!.component.on_primary_button_pressed do
+        every component.component.on_primary_button_pressed do
             emit checkbox.go_click(not checkbox.is_on);
         end
     with

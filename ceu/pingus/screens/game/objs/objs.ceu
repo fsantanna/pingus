@@ -111,11 +111,11 @@ do
     // FIXME: Workaround for lack of start-pos
     var Vector2i pos_start = val Vector2i(0,0);
     var int num_entrances = 0;
-    var&? Entrance e;
+    var& Entrance e;
     loop e in entrances do
         num_entrances = num_entrances + 1;
-        pos_start.x = pos_start.x + (e!.pst.x as int);
-        pos_start.y = pos_start.y + (e!.pst.y as int);
+        pos_start.x = pos_start.x + (e.pst.x as int);
+        pos_start.y = pos_start.y + (e.pst.y as int);
     end
 
     if (num_entrances > 0) then

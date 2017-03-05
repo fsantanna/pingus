@@ -18,16 +18,16 @@ do
     var bool auto_uncover = false;  /// TODO
     var Vector3f pst = val Vector3f({pst.x},{pst.y},{pst.z});
 
-    var&? Surface_from_desc sfc = spawn Surface_from_desc({spr},_);
+    var& Surface_from_desc sfc = spawn Surface_from_desc({spr},_);
 
     every outer.main.redraw do
         if auto_uncover then
             // Pingu is not over the surface
-            if (not (outer.pst.x>pst.x and outer.pst.x<(pst.x + sfc!.surface.framebuffer.get_width()) and
-                     outer.pst.y>pst.y and outer.pst.y<(pst.y + sfc!.surface.framebuffer.get_height())))
+            if (not (outer.pst.x>pst.x and outer.pst.x<(pst.x + sfc.surface.framebuffer.get_width()) and
+                     outer.pst.y>pst.y and outer.pst.y<(pst.y + sfc.surface.framebuffer.get_height())))
             then
                 call {Display::s_framebuffer}:draw_surface(
-                    sfc!.surface.framebuffer,
+                    sfc.surface.framebuffer,
                     _Vector2i(-outer.main.offset.x + pst.x,
                               -outer.main.offset.y + pst.y)
                 );
@@ -35,14 +35,14 @@ do
                 // FIXME: Hack for the 0.6.0 release/tutorial world remove // later
 // TODO
                 call {Display::s_framebuffer}:draw_surface(
-                    sfc!.surface.framebuffer,
+                    sfc.surface.framebuffer,
                     _Vector2i(-outer.main.offset.x + pst.x,
                               -outer.main.offset.y + pst.y)
                 );
             end
         else
             call {Display::s_framebuffer}:draw_surface(
-                sfc!.surface.framebuffer,
+                sfc.surface.framebuffer,
                 _Vector2i(-outer.main.offset.x + pst.x,
                           -outer.main.offset.y + pst.y)
             );
