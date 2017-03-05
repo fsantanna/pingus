@@ -400,16 +400,16 @@ code/await LevelMenu (void) -> void do
         if i == -1 then
             break;
         end
-        var&? _Levelset levelset = &{levelsets[@i]}.get() finalize (levelset) with end;
+        var& _Levelset levelset = &{levelsets[@i]}.get() finalize (levelset) with end;
         {current_levelset = levelsets[@i];}
         loop do
-            var int j = await LevelSelector(&levelset!);
+            var int j = await LevelSelector(&levelset);
             if j == -1 then
                 break;
             end
-            var&? _PingusLevel plf    = &_ID(&&levelset!.get_level(j):plf) finalize (plf) with end;
-            var&? _Result      result = &_ID({&result}) finalize (result) with end;
-            await Start_Game_Result_Loop(&plf!, &result!);
+            var& _PingusLevel plf    = &_ID(&&levelset.get_level(j):plf) finalize (plf) with end;
+            var& _Result      result = &_ID({&result}) finalize (result) with end;
+            await Start_Game_Result_Loop(&plf, &result);
         end
     end
 end

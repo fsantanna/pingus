@@ -329,8 +329,8 @@ _printf(">>> %s\n", &&worldmap_return_filename[0]);
                         {
                             plf = PLFResMgr::load_plf(std::string(@(&&worldmap_return_filename[0] as _char&&)));
                         }
-                        var&? _PingusLevel plf    = &_ID({&plf})    finalize (plf) with end;
-                        var&? _Result      result = &_ID({&result}) finalize (result) with end;
+                        var& _PingusLevel plf    = &_ID({&plf})    finalize (plf) with end;
+                        var& _Result      result = &_ID({&result}) finalize (result) with end;
                         await Start_Game_Result_Loop(&plf, &result);
                     else
                         _ceu_dbg_assert(ret == {WORLDMAP_RETURN_EXIT});
@@ -349,24 +349,24 @@ _printf(">>> %s\n", &&worldmap_return_filename[0]);
                     static std::shared_ptr<Levelset> levelset;
                     levelset = Levelset::from_file(Pathname(cmd.rest.get(), Pathname::SYSTEM_PATH));
                 };
-                var&? _Levelset levelset = &_ID({levelset.get()})
+                var& _Levelset levelset = &_ID({levelset.get()})
                                             finalize (levelset) with
                                                 // TODO
                                             end;
                 loop do
-                    var int v = await LevelSelector(&levelset!);
+                    var int v = await LevelSelector(&levelset);
                     if v == -1 then
                         break;
                     end
-                    var&? _PingusLevel plf    = &_ID(&&{@levelset!.get_level(@v)}:plf) finalize (plf) with end;
-                    var&? _Result      result = &_ID({&result}) finalize (result) with end;
+                    var& _PingusLevel plf    = &_ID(&&{@levelset.get_level(@v)}:plf) finalize (plf) with end;
+                    var& _Result      result = &_ID({&result}) finalize (result) with end;
                     await Start_Game_Result_Loop(&plf, &result);
                 end
             else
 // LEVEL
                 { plf = PLFResMgr::load_plf_from_filename(Pathname(cmd.rest.get(), Pathname::SYSTEM_PATH)); }
-                var&? _PingusLevel plf    = &_ID({&plf}) finalize (plf) with end;
-                var&? _Result      result = &_ID({&result}) finalize (result) with end;
+                var& _PingusLevel plf    = &_ID({&plf}) finalize (plf) with end;
+                var& _Result      result = &_ID({&result}) finalize (result) with end;
                 await Start_Game_Result_Loop(&plf, &result);
             end
         else

@@ -5,11 +5,10 @@
 
 var uint colmap_serial = 0;
 
-var&? _Surface canvas_ = &{new Surface}(outer.game.rect_smallmap.width, outer.game.rect_smallmap.height)
-    finalize (canvas_) with
-        _delete(&&canvas_!);
+var& _Surface canvas = &{new Surface}(outer.game.rect_smallmap.width, outer.game.rect_smallmap.height)
+    finalize (canvas) with
+        _delete(&&canvas);
     end;
-var& _Surface canvas = &canvas_!;
 
 code/tight Update_Surface (void) -> void do
     var _CollisionMap_ptr colmap = call Game_Get_Colmap();

@@ -59,12 +59,12 @@ do
         }
     }
 
-    var&? _FramebufferSurface framebuffer = &_ID({sfc})
+    var& _FramebufferSurface framebuffer = &_ID({sfc})
         finalize (framebuffer) with
-            _delete(&&framebuffer!);
+            _delete(&&framebuffer);
         end;
 
-    surface = val Surface(&framebuffer!, &desc);
+    surface = val Surface(&framebuffer, &desc);
 
     await FOREVER;
 end

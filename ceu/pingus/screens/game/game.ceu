@@ -48,18 +48,17 @@ end
 var int w = {@outer.plf.get_size().width};
 var int h = {@outer.plf.get_size().height};
 
-var&? _GroundMap gfx_map_ =
+var& _GroundMap gfx_map =
     &{new GroundMap}(w, h)
-        finalize (gfx_map_) with
-            _delete(&&gfx_map_!);
+        finalize (gfx_map) with
+            _delete(&&gfx_map);
         end;
-var& _GroundMap gfx_map = &gfx_map_!;
 
-var&? _GraphicContextState state =
+var& _GraphicContextState state =
     &{new GraphicContextState}({Math::min}({Display::get_width()},  w),
                                {Math::min}({Display::get_height()}, h))
         finalize (state) with
-            _delete(&&state!);
+            _delete(&&state);
         end;
 
 var IGame game =
@@ -69,7 +68,7 @@ var IGame game =
                                    outer.plf.get_number_to_save()),
                      Rect(0,0,w,h),
                      Rect(6,{Display::get_size}().height-105, 175,100),
-                     &state!,
+                     &state,
                      _, _, _, _, _);
 
 game.state.set_limit({Rect(Vector2i(0,0), Size(@w,@h))});
