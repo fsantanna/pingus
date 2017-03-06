@@ -4,6 +4,7 @@ native/plain
     _WorldmapNS__NodeId,
     _SDL_MouseButtonEvent,
     _SDL_MouseMotionEvent,
+    _SDL_ResizeEvent,
     _SDL_KeyboardEvent,
     _Groundtype__GPType, _SmallMap, _SceneContext, _GroundMap, _CollisionMask,
     _ActionName__Enum,
@@ -186,8 +187,8 @@ data Color with
 end
 
 data Position with
-    var float x;
-    var float y;
+    var int x;
+    var int y;
 end
 
 data Rect with

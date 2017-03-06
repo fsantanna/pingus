@@ -7,11 +7,12 @@ input void SDL_QUIT;
 input void SDL_REDRAW;
 input int  SDL_DT;
 
+input _SDL_ResizeEvent&&      SDL_RESIZE;
 input _SDL_MouseButtonEvent&& SDL_MOUSEBUTTONDOWN;
 input _SDL_MouseButtonEvent&& SDL_MOUSEBUTTONUP;
 input _SDL_MouseMotionEvent&& SDL_MOUSEMOTION;
-input _SDL_KeyboardEvent&& SDL_KEYDOWN;
-input _SDL_KeyboardEvent&& SDL_KEYUP;
+input _SDL_KeyboardEvent&&    SDL_KEYDOWN;
+input _SDL_KeyboardEvent&&    SDL_KEYUP;
 
 native/pos do
 void SDL_Driver_update (float delta) {
@@ -36,7 +37,8 @@ void SDL_Driver_update (float delta) {
         break;
 
       case SDL_VIDEORESIZE:
-        //Display::resize(Size(event.resize.w, event.resize.h));
+        {Display::resize(Size(event.resize.w, event.resize.h));}
+        ceu_input(CEU_INPUT_SDL_RESIZE, &p);
         break;
 
       case SDL_KEYDOWN:
