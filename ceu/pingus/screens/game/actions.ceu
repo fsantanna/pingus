@@ -32,9 +32,9 @@ do
         var Rect r2 = val Rect(x+20,y+31, 0,0);   // TODO
 
         if i == 0 then
-            spawn Sprite_from_name(&r1, "core/buttons/buttonbackgroundhl", &outer.main.dt, &outer.main.redraw, false);
+            spawn Sprite_from_name(&r1, "core/buttons/buttonbackgroundhl", &outer.main.dt, &outer.main.redraw, _);
 
-            var&? Sprite_from_name s = spawn Sprite_from_name(&r2, &&name[0] as _char&&, &outer.main.dt, &outer.main.redraw, false);
+            var&? Sprite_from_name s = spawn Sprite_from_name(&r2, &&name[0] as _char&&, &outer.main.dt, &outer.main.redraw, _);
             s!.sprite.is_loop = true;
 
             outer.game.action_next = id_me;
@@ -43,9 +43,9 @@ do
 
         loop do
             do
-                spawn Sprite_from_name(&r1, "core/buttons/buttonbackground", &outer.main.dt, &outer.main.redraw, false);
+                spawn Sprite_from_name(&r1, "core/buttons/buttonbackground", &outer.main.dt, &outer.main.redraw, _);
 
-                var&? Sprite_from_name s = spawn Sprite_from_name(&r2, &&name[0] as _char&&, &outer.main.dt, &outer.main.redraw, false);
+                var&? Sprite_from_name s = spawn Sprite_from_name(&r2, &&name[0] as _char&&, &outer.main.dt, &outer.main.redraw, _);
                 s!.sprite.frame_delay = 0;
 
                 par/or do
@@ -58,9 +58,9 @@ do
                 emit e(i);
             end
             do
-                spawn Sprite_from_name(&r1, "core/buttons/buttonbackgroundhl", &outer.main.dt, &outer.main.redraw, false);
+                spawn Sprite_from_name(&r1, "core/buttons/buttonbackgroundhl", &outer.main.dt, &outer.main.redraw, _);
 
-                var&? Sprite_from_name s = spawn Sprite_from_name(&r2, &&name[0] as _char&&, &outer.main.dt, &outer.main.redraw, false);
+                var&? Sprite_from_name s = spawn Sprite_from_name(&r2, &&name[0] as _char&&, &outer.main.dt, &outer.main.redraw, _);
                 s!.sprite.is_loop = true;
 
                 await e;

@@ -25,7 +25,7 @@ do
                           .. "/basher/right";
 
     var&? RightLeftSprites sprites =
-        spawn RightLeftSprites(&outer.pingu.rect, &outer.pingu.direction, &left, &left, &right, true);
+        spawn RightLeftSprites(&outer.pingu.rect, &outer.pingu.direction, &left, &left, &right, &outer.main.offset);
 
     var int? bash_reach; // set in bash
 

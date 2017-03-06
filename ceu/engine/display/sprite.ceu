@@ -17,7 +17,7 @@ code/tight Get_Frame_Count (var& ISprite sprite) -> int do
     escape sprite.array.width * sprite.array.height;
 end
 
-code/await Sprite_from_sfc (var& Rect rect, var& Surface sfc, event& int dt, event& void redraw, var bool is_world)
+code/await Sprite_from_sfc (var& Rect rect, var& Surface sfc, event& int dt, event& void redraw, var&? Vector2i off)
                                 -> (var ISprite sprite)
                                     -> void
 do
@@ -98,9 +98,9 @@ do
 
             var int xx=0;
             var int yy=0;
-            if is_world then
-                xx = outer.main.offset.x;
-                yy = outer.main.offset.y;
+            if off? then
+                xx = off!.x;
+                yy = off!.y;
             end
 
 #if 0
@@ -159,7 +159,7 @@ function (void)=>int get_height do
 end
 #endif
 
-code/await Sprite_from_desc (var& Rect rect, var _SpriteDescription_ptr desc, event& int dt, event& void redraw, var bool is_world)
+code/await Sprite_from_desc (var& Rect rect, var _SpriteDescription_ptr desc, event& int dt, event& void redraw, var&? Vector2i off)
                                 -> (var& ISprite sprite)
                                     -> void
 do
@@ -169,7 +169,7 @@ do
     code/tight Draw (var int x, var int y) -> void;
 
     var& Surface sfc = &sfc_from_desc.surface;
-    var&? Sprite_from_sfc s = spawn Sprite_from_sfc(&rect, &sfc, &dt, &redraw, is_world);
+    var&? Sprite_from_sfc s = spawn Sprite_from_sfc(&rect, &sfc, &dt, &redraw, &off);
     watching s do
         sprite = &s!.sprite;
         await FOREVER;
@@ -178,9 +178,9 @@ do
     code/tight Draw (var int x, var int y) -> void do
         var int xx = 0;
         var int yy = 0;
-        if outer.is_world then
-            xx = outer.main.offset.x;
-            yy = outer.main.offset.y;
+        if outer.off? then
+            xx = outer.off!.x;
+            yy = outer.off!.y;
         end
 
         call {Display::s_framebuffer}:draw_surface(
@@ -196,7 +196,7 @@ do
     end
 end
 
-code/await Sprite_from_name (var& Rect rect, var _char_const_ptr name, event& int dt, event& void redraw, var bool is_world)
+code/await Sprite_from_name (var& Rect rect, var _char_const_ptr name, event& int dt, event& void redraw, var&? Vector2i off)
                                 -> (var& ISprite sprite)
                                     -> void
 do
@@ -204,7 +204,7 @@ do
         spawn Surface_from_name(name, {ResourceModifier::ROT0});
 
     var& Surface sfc = &sfc_from_name.surface;
-    var&? Sprite_from_sfc s = spawn Sprite_from_sfc(&rect, &sfc, &dt, &redraw, is_world);
+    var&? Sprite_from_sfc s = spawn Sprite_from_sfc(&rect, &sfc, &dt, &redraw, &off);
     watching s do
         sprite = &s!.sprite;
         await FOREVER;

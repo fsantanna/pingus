@@ -13,7 +13,7 @@ do
                           .. "/jumper/right";
 
     var&? RightLeftSprites sprites =
-        spawn RightLeftSprites(&outer.pingu.rect, &outer.pingu.direction, &left, &left, &right, true);
+        spawn RightLeftSprites(&outer.pingu.rect, &outer.pingu.direction, &left, &left, &right, &outer.main.offset);
 
     await outer.game.dt;
 

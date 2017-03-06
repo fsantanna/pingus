@@ -105,10 +105,10 @@ with                                                        // UI
 
         var& RectComponent component = spawn RectComponent(&rect);
 
-        spawn Sprite_from_name(&rect, "core/buttons/hbuttonbgb", &outer.main.dt, &outer.main.redraw, false);
+        spawn Sprite_from_name(&rect, "core/buttons/hbuttonbgb", &outer.main.dt, &outer.main.redraw, _);
 
         do
-            var&? Sprite_from_name s = spawn Sprite_from_name(&rect, "core/buttons/armageddon_anim", &outer.main.dt, &outer.main.redraw, false);
+            var&? Sprite_from_name s = spawn Sprite_from_name(&rect, "core/buttons/armageddon_anim", &outer.main.dt, &outer.main.redraw, _);
             s!.sprite.frame_delay = 0;
             s!.sprite.frame = 7;
 
@@ -122,7 +122,7 @@ with                                                        // UI
         end
 
         do
-            spawn Sprite_from_name(&rect, "core/buttons/armageddon_anim", &outer.main.dt, &outer.main.redraw, false);
+            spawn Sprite_from_name(&rect, "core/buttons/armageddon_anim", &outer.main.dt, &outer.main.redraw, _);
             emit outer.game.go_armageddon;
             await FOREVER;
         end
@@ -134,7 +134,7 @@ with                                                        // UI
         spawn do
             loop do
                 do
-                    spawn Sprite_from_name(&rect, "core/buttons/hbuttonbgb", &outer.main.dt, &outer.main.redraw, false);
+                    spawn Sprite_from_name(&rect, "core/buttons/hbuttonbgb", &outer.main.dt, &outer.main.redraw, _);
                     par/or do
                         var bool v = await go_forward until v;
                     with
@@ -143,7 +143,7 @@ with                                                        // UI
                     end
                 end
                 do
-                    spawn Sprite_from_name(&rect, "core/buttons/hbuttonbg", &outer.main.dt, &outer.main.redraw, false);
+                    spawn Sprite_from_name(&rect, "core/buttons/hbuttonbg", &outer.main.dt, &outer.main.redraw, _);
                     par/or do
                         var bool v = await go_forward until (not v);
                     with
@@ -154,7 +154,7 @@ with                                                        // UI
             end
         end
 
-        spawn Sprite_from_name(&rect, "core/buttons/fast_forward", &outer.main.dt, &outer.main.redraw, false);
+        spawn Sprite_from_name(&rect, "core/buttons/fast_forward", &outer.main.dt, &outer.main.redraw, _);
         await FOREVER;
     with                                                        // PAUSE
         var Rect rect = val Rect(pse_x,pse_y, 38,60);
@@ -165,7 +165,7 @@ with                                                        // UI
             loop do
                 var bool from_out = true;
                 do
-                    spawn Sprite_from_name(&rect, "core/buttons/hbuttonbgb", &outer.main.dt, &outer.main.redraw, false);
+                    spawn Sprite_from_name(&rect, "core/buttons/hbuttonbgb", &outer.main.dt, &outer.main.redraw, _);
                     par/or do
                         await go_pause_toggle until from_out;
                     with
@@ -175,7 +175,7 @@ with                                                        // UI
                     end
                 end
                 do
-                    spawn Sprite_from_name(&rect, "core/buttons/hbuttonbg", &outer.main.dt, &outer.main.redraw, false);
+                    spawn Sprite_from_name(&rect, "core/buttons/hbuttonbg", &outer.main.dt, &outer.main.redraw, _);
                     from_out = true;
                     par/or do
                         await go_pause_toggle until from_out;
@@ -188,7 +188,7 @@ with                                                        // UI
             end
         end
 
-        spawn Sprite_from_name(&rect, "core/buttons/pause", &outer.main.dt, &outer.main.redraw, false);
+        spawn Sprite_from_name(&rect, "core/buttons/pause", &outer.main.dt, &outer.main.redraw, _);
         await FOREVER;
     end
 end

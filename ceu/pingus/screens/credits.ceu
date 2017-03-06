@@ -54,10 +54,10 @@ do
     spawn Wood();
 
     var Rect r1 = val Rect(xc, yc, 0, 0);
-    spawn Sprite_from_name(&r1, "core/menu/blackboard", &outer.main.dt, &outer.main.redraw, false);
+    spawn Sprite_from_name(&r1, "core/menu/blackboard", &outer.main.dt, &outer.main.redraw, _);
 
     var Rect r2 = val Rect(xc, yc-20, 0, 0);
-    spawn Sprite_from_name(&r1, "core/misc/creditpingu", &outer.main.dt, &outer.main.redraw, false);
+    spawn Sprite_from_name(&r1, "core/misc/creditpingu", &outer.main.dt, &outer.main.redraw, _);
 
     var Rect ok_r = val Rect({Display::get_width()/2} +260,
                              {Display::get_height()/2}+170,

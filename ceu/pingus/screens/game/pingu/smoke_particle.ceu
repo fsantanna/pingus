@@ -17,7 +17,7 @@ do
         end
     end;
 
-    spawn Sprite_from_name(&rect, name, &outer.game.dt, &outer.main.redraw, true);
+    spawn Sprite_from_name(&rect, name, &outer.game.dt, &outer.main.redraw, &outer.main.offset);
 
     var int i;
     loop i in [0 -> livetime[ do

@@ -54,7 +54,7 @@ loop do
                         escape "game/cursors/capbad";
                     end
                 end;
-                spawn Sprite_from_name(&rect_gb, name1, &outer.main.dt, &outer.main.redraw, true);
+                spawn Sprite_from_name(&rect_gb, name1, &outer.main.dt, &outer.main.redraw, &outer.main.offset);
 
                 var _char&& name2 = do
                     if outer.pingu.direction == {LEFT} then
@@ -63,7 +63,7 @@ loop do
                         escape "game/cursors/arrow_right";
                     end
                 end;
-                spawn Sprite_from_name(&rect_lr, name2, &outer.main.dt, &outer.main.redraw, true);
+                spawn Sprite_from_name(&rect_lr, name2, &outer.main.dt, &outer.main.redraw, &outer.main.offset);
 
                 await FOREVER;
             end

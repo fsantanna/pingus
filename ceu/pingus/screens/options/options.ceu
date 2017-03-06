@@ -27,7 +27,7 @@ code/await OptionMenu (void) -> void do
                             );
 
     spawn Wood();
-    spawn Sprite_from_name(&rect, "core/menu/blackboard", &outer.main.dt, &outer.main.redraw, false);
+    spawn Sprite_from_name(&rect, "core/menu/blackboard", &outer.main.dt, &outer.main.redraw, _);
 
     var int x_offset = ({Display::get_width()}  - 800) / 2;
     var int y_offset = ({Display::get_height()} - 600) / 2;

@@ -13,7 +13,7 @@ do
     spawn Wood();
 
     var Rect r = val Rect(xc,yc, 0,0);
-    spawn Sprite_from_name(&r, "core/menu/blackboard", &outer.main.dt, &outer.main.redraw, false);
+    spawn Sprite_from_name(&r, "core/menu/blackboard", &outer.main.dt, &outer.main.redraw, _);
 
     var Rect next_r = val Rect(xc + 220 + 40,
                                yc + 180 + 32,
@@ -60,7 +60,7 @@ do
                 static std::string str2;
                 str2 = page.image.res_name;
             }
-            spawn Sprite_from_name(&r2, {str2.c_str()} as _char&&, &outer.main.dt, &outer.main.redraw, false);
+            spawn Sprite_from_name(&r2, {str2.c_str()} as _char&&, &outer.main.dt, &outer.main.redraw, _);
             par/or do
                 var float time = 0;
                 watching next_text do
