@@ -32,7 +32,7 @@ end
 code/tight Game_Get_Offset (var& Rect ret) -> void do
     ret = val Rect((outer.game.state.get_pos().x - outer.game.state.get_width()/2),
                    (outer.game.state.get_pos().y - outer.game.state.get_height()/2),
-                   0, 0, _);
+                   0, 0, nil);
 end
 
 code/tight Game_Put (var _CollisionMask&& mask,var int x, var int y, var _Groundtype__GPType type) -> void do

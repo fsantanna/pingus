@@ -210,7 +210,7 @@ code/tight/recursive Rect_Off_ (var& Rect rect, var& Rect ret) -> void do
 end
 
 code/tight/recursive Rect_Off (var& Rect rect, var& Rect ret) -> void do
-    ret = val Rect(0,0,0,0,_);
+    ret = val Rect(0,0,0,0,nil);
     call/recursive Rect_Off_(&rect, &ret);
 end
 
@@ -236,7 +236,7 @@ end
 #include "pingus/config_manager.ceu"
 
 data IMain with
-    var Rect     center;
+    var Rect   center;
     event void go_options;
     event int  dt;
     event void redraw;
@@ -312,7 +312,7 @@ with
         main.center = val Rect({Display::get_width()/2},
                                {Display::get_height()/2},
                                0, 0,
-                               _);
+                               nil);
         await SDL_RESIZE;
     end
 with

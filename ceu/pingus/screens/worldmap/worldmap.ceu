@@ -36,7 +36,7 @@ vector[] byte return_filename;
 
 code/await Worldmap (void) -> int
 do
-    var Rect offset = val Rect(0,0,0,0,_);
+    var Rect offset = val Rect(0,0,0,0,nil);
 
     par do
         var int ret = do ()
@@ -44,10 +44,7 @@ do
         end;
         escape ret;
     with
-        var Rect close_r = val Rect(0,
-                                    {Display::get_height() - 37},
-                                    _,_,
-                                    &outer.main.center);
+        var Rect close_r = val Rect(0, {Display::get_height()-37}, _,_, nil);
         var& SurfaceButton close = 
             spawn SurfaceButton(&close_r,
                                 "core/worldmap/leave_button_normal",
