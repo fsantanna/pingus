@@ -198,6 +198,35 @@ data Rect with
     var int height;
 end
 
+data Pst with
+    var   int x;
+    var   int y;
+    var&? Pst off;
+end
+
+data Rct with
+    var   int x;
+    var   int y;
+    var   int w;
+    var   int h;
+    var&? Rct off;
+end
+
+code/tight/recursive Rct_Off_ (var& Rct rct, var& Rct ret) -> void do
+    if rct.off? then
+        call/recursive Rct_Off_(&rct.off!, &ret);
+    end
+    ret.x = ret.x + rct.x;
+    ret.y = ret.y + rct.y;
+    ret.w = ret.w + rct.w;
+    ret.h = ret.h + rct.h;
+end
+
+code/tight/recursive Rct_Off (var& Rct rct, var& Rct ret) -> void do
+    ret = val Rct(0,0,0,0,_);
+    call/recursive Rct_Off_(&rct, &ret);
+end
+
 data Size with
     var int width;
     var int height;
@@ -221,6 +250,8 @@ end
 
 data IMain with
     var Vector2i offset;
+    var Vector2i center;
+    var Rct      ctr;
     event void go_options;
     event int  dt;
     event void redraw;
@@ -289,6 +320,16 @@ with
 with
     every SDL_REDRAW do
         emit main.redraw;
+    end
+with
+    loop do
+        main.center = val Vector2i(-{Display::get_width()/2},
+                                   -{Display::get_height()/2});
+        main.ctr = val Rct({Display::get_width()/2},
+                           {Display::get_height()/2},
+                           0, 0,
+                           _);
+        await SDL_RESIZE;
     end
 with
     pause/if go_pause do

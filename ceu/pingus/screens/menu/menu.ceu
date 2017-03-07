@@ -88,22 +88,17 @@ code/await PingusMenu (void) -> int do
 
     var Size size = val Size({Display::get_width()}, {Display::get_height()});
     var Rect rect = val Rect(size.width/2, size.height/2, 0, 0);
-    var&? Sprite_from_name logo = spawn Sprite_from_name(&rect,"core/misc/logo",&outer.main.dt, &outer.main.redraw, false);
+    var&? Sprite_from_name logo = spawn Sprite_from_name(&rect,"core/misc/logo",&outer.main.dt, &outer.main.redraw, _);
     rect.left = rect.left - logo!.sprite.frame_size.width/2;
     rect.top  = rect.top  - 280;
 
     {Sound::PingusSound::play_music("pingus-1.it");};
 
-    var& MenuButton b_story =
-        spawn MenuButton(size.width/2-125, size.height/2-20,  "Story",     "");
-    var& MenuButton b_editor =
-        spawn MenuButton(size.width/2+125, size.height/2-20,  "Editor",    "");
-    var& MenuButton b_options =
-        spawn MenuButton(size.width/2-125, size.height/2+50,  "Options",   "");
-    var& MenuButton b_levelsets =
-        spawn MenuButton(size.width/2+125, size.height/2+50,  "Levelsets", "");
-    var& MenuButton b_exit =
-        spawn MenuButton(size.width/2,     size.height/2+120, "Exit",      "");
+    var& MenuButton b_story     = spawn MenuButton(-125, -20, "Story",     "");
+    var& MenuButton b_editor    = spawn MenuButton( 125, -20, "Editor",    "");
+    var& MenuButton b_options   = spawn MenuButton(-125,  50, "Options",   "");
+    var& MenuButton b_levelsets = spawn MenuButton( 125,  50, "Levelsets", "");
+    var& MenuButton b_exit      = spawn MenuButton(   0, 120, "Exit",      "");
 
     par do
         await b_story.ok_clicked;

@@ -3,18 +3,22 @@
 #else
 #define _MENUBUTTON_CEU
 
+#include "engine/display/spr.ceu"
+#include "engine/gui/rct_component.ceu"
+
 code/await MenuButton (var int x, var int y, var _char_const_ptr text, var _char_const_ptr hint)
                         -> (event void ok_clicked)
                             -> FOREVER
 do
-    var Rect r1 = val Rect(x, y, 0, 0);
-    var&? Sprite_from_name bg =
-        spawn Sprite_from_name(&r1, "core/menu/menuitem", &outer.main.dt, &outer.main.redraw, false);
+    var Rct r1 = val Rct(x, y, 0, 0, &outer.main.ctr);
+    var&? Spr_from_name bg =
+        spawn Spr_from_name(&r1, "core/menu/menuitem", &outer.main.dt, &outer.main.redraw);
 
-    var Rect r2 = val Rect(x-bg!.sprite.frame_size.width/2, y-bg!.sprite.frame_size.height/2,
-                           bg!.sprite.frame_size.width, bg!.sprite.frame_size.height);
+    var Rct r2 = val Rct(x-bg!.sprite.frame_size.width/2, y-bg!.sprite.frame_size.height/2,
+                           bg!.sprite.frame_size.width, bg!.sprite.frame_size.height,
+                         &outer.main.ctr);
 
-    var& RectComponent component = spawn RectComponent(&r2);
+    var& RctComponent component = spawn RctComponent(&r2);
 
     par do
         every component.component.on_click do
@@ -25,16 +29,18 @@ do
             await component.component.on_pointer_enter;
             {Sound::PingusSound::play_sound ("tick");};
             do
-                spawn Sprite_from_name(&r1, "core/menu/menuitem_highlight", &outer.main.dt, &outer.main.redraw, false);
+                spawn Spr_from_name(&r1, "core/menu/menuitem_highlight", &outer.main.dt, &outer.main.redraw);
                 await component.component.on_pointer_leave;
             end
         end
     with
         every outer.main.redraw do
+            var Rct r = _;
+            call/recursive Rct_Off(&r1, &r);
             call {Fonts::chalk_large}.render(
                 _origin_top_center,
-                r1.left,
-                r1.top - 28,
+                r.x,
+                r.y - 28,
                 text,
                 *{Display::s_framebuffer}
             );
