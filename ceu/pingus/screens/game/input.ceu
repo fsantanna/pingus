@@ -101,7 +101,7 @@ with                                                        // UI
     var int pse_y = dheight-62;
 
     par do                                                      // ARMAGEDDON
-        var Rect rect = val Rect(arm_x,arm_y, 38,60, &outer.main.center);
+        var Rect rect = val Rect(arm_x,arm_y, 38,60, nil);
 
         var& RectComponent component = spawn RectComponent(&rect);
 
@@ -127,7 +127,7 @@ with                                                        // UI
             await FOREVER;
         end
     with                                                        // FORWARD
-        var Rect rect = val Rect(fwd_x,fwd_y, 38,60, &outer.main.center);
+        var Rect rect = val Rect(fwd_x,fwd_y, 38,60, nil);
 
         var& RectComponent component = spawn RectComponent(&rect);
 
@@ -157,7 +157,7 @@ with                                                        // UI
         spawn Sprite_from_name(&rect, "core/buttons/fast_forward", &outer.main.dt, &outer.main.redraw);
         await FOREVER;
     with                                                        // PAUSE
-        var Rect rect = val Rect(pse_x,pse_y, 38,60, &outer.main.center);
+        var Rect rect = val Rect(pse_x,pse_y, 38,60, nil);
 
         var& RectComponent component = spawn RectComponent(&rect);
 

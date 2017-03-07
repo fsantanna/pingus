@@ -45,9 +45,9 @@ do
     code/tight Pingu_Rel_Getpixel           (var int x, var int y)  -> int;
     code/tight Pingu_Head_Collision_On_Walk (var int x, var int y)  -> bool;
     code/tight Pingu_Check_Action           (var _ActionName__Enum new_action) -> bool;
-    code/tight Pingu_Get_Center_Pos         (void)                  -> Vector3f;
-    code/tight Pingu_Is_Over                (var int x, var int y)  -> bool;
-    code/tight Pingu_Dist                   (var int x, var int y)  -> float;
+    code/tight/recursive Pingu_Get_Center_Pos         (void)                  -> Vector3f;
+    code/tight/recursive Pingu_Is_Over                (var int x, var int y)  -> bool;
+    code/tight/recursive Pingu_Dist                   (var int x, var int y)  -> float;
     code/tight Is_Inside                    (var int x1, var int y1, var int x2, var int y2) -> bool;
     #include "codes.ceu"
 

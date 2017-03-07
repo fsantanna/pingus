@@ -10,7 +10,7 @@ var Rect rect = val Rect(
     {Math::max}(({Display::get_height()}-outer.game.rect.h)/2, 0),
     {Math::min}({Display::get_width()},  outer.game.rect.w),
     {Math::min}({Display::get_height()}, outer.game.rect.h),
-    &outer.main.center
+    nil//&outer.main.center
 );
 
 var& RectComponent component = spawn RectComponent(&rect);
@@ -29,18 +29,18 @@ par do
     var int x;
     var int y;
     every (x,y) in component.component.on_primary_button_pressed do
-        x = x - rect.x;
-        y = y - rect.y;
-        x = outer.game.state.screen2world(_Vector2i(x,y)).x;
-        y = outer.game.state.screen2world(_Vector2i(x,y)).y;
+        //x = x - rect.x;
+        //y = y - rect.y;
+        //x = outer.game.state.screen2world(_Vector2i(x,y)).x;
+        //y = outer.game.state.screen2world(_Vector2i(x,y)).y;
 
         var float min_dist = 500.0;
         var bool? check;
         var&? Pingu pingu = do
             var&? Pingu p;
             loop p in outer.pingus do
-                if (call p!.Pingu_Is_Over(x,y)) then
-                    var float dist = call p!.Pingu_Dist(x,y);
+                if (call/recursive p!.Pingu_Is_Over(mouse_pos.x,mouse_pos.y)) then
+                    var float dist = call/recursive p!.Pingu_Dist(mouse_pos.x,mouse_pos.y);
                     if (dist < min_dist) then
                         min_dist = dist;
                         check = call p!.Pingu_Check_Action(outer.game.action_next);

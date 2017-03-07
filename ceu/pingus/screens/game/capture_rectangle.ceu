@@ -12,13 +12,8 @@ loop do
     var&? Pingu p;
 
     loop p in outer.pingus do
-        var Vector2i pst = val Vector2i(
-                            outer.game.state.screen2world(POS2VEC(outer.mouse_pos)).x,
-                            outer.game.state.screen2world(POS2VEC(outer.mouse_pos)).y,
-                           );
-
-        if call p!.Pingu_Is_Over(pst.x,pst.y) then
-            var float dist = call p!.Pingu_Dist(pst.x, pst.y);
+        if call/recursive p!.Pingu_Is_Over(outer.mouse_pos.x,outer.mouse_pos.y) then
+            var float dist = call/recursive p!.Pingu_Dist(outer.mouse_pos.x, outer.mouse_pos.y);
             if dist < min_dist then
                 min_dist = dist;
                 nxt = &p;

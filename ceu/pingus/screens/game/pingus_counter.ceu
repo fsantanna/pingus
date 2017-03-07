@@ -3,7 +3,7 @@
 #else
 #define _PINGUSCOUNTER_CEU
 
-var Rect rect = val Rect({Display::get_size}().width/2,0, 0,0, &outer.main.center);
+var Rect rect = val Rect(0,0, 0,0, nil);
 spawn Sprite_from_name(&rect, "core/buttons/info", &outer.main.dt, &outer.main.redraw);
 
 every outer.main.redraw do

@@ -30,8 +30,8 @@ code/tight Game_Pingu_Out (var int status) -> void do
 end
 
 code/tight Game_Get_Offset (var& Rect ret) -> void do
-    ret = val Rect((outer.game.state.get_pos().x - outer.game.state.get_width()/2),
-                   (outer.game.state.get_pos().y - outer.game.state.get_height()/2),
+    ret = val Rect((outer.game.state.get_width()/2  - outer.game.state.get_pos().x),
+                   (outer.game.state.get_height()/2 - outer.game.state.get_pos().y),
                    0, 0, nil);
 end
 

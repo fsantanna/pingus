@@ -37,15 +37,8 @@ loop do
 
         par do
             if {ActionName::CATCHABLE}[outer.pingu.current_action] as bool then
-                var Rect rect_gb = _;
-                var Rect rect_lr = _;
-                spawn do
-                    every outer.main.dt do
-                        var Vector3f pst = call Pingu_Get_Center_Pos();
-                        rect_gb = val Rect(pst.x as int,pst.y as int,   0,0, &outer.game.offset);
-                        rect_lr = val Rect(pst.x as int,(pst.y+2)as int,0,0, &outer.game.offset);
-                    end
-                end
+                var Rect rect_gb = val Rect(0,-16, 0,0, &outer.pingu.rect);
+                var Rect rect_lr = val Rect(0,-16, 0,0, &outer.pingu.rect);
 
                 var _char&& name1 = do
                     if {ActionName::CHANGE_ALLOWED}[outer.pingu.current_action][outer.game.action_next] as bool then
@@ -70,16 +63,11 @@ loop do
         with
             every outer.main.redraw do
                 if {ActionName::CATCHABLE}[outer.pingu.current_action] as bool then
-                    var int xx = outer.game.state.get_pos().x -
-                                 outer.game.state.get_width()/2;
-                    var int yy = outer.game.state.get_pos().y -
-                                 outer.game.state.get_height()/2;
-
-                    var Vector3f pst = call Pingu_Get_Center_Pos();
+                    var Vector3f pst = call/recursive Pingu_Get_Center_Pos();
                     call ({Fonts::courier_small}.render as /nohold)(
                         {origin_top_center},
-                        -xx + pst.x,
-                        -yy + pst.y - 46,
+                        pst.x,
+                        pst.y - 46,
                         &&action_str[0] as _char&&,
                         *{Display::s_framebuffer}
                     );

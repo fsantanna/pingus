@@ -104,6 +104,7 @@ with
         game.game_time = game.game_time + 1;
     end
 with
+    call Game_Get_Offset(&game.offset);
     every outer.main.redraw do
 /// TODO: call when setting game.state
         call Game_Get_Offset(&game.offset);
@@ -132,7 +133,7 @@ with
     pool[] Visible layer_bg_0;          // background
     spawn do
         every outer.main.redraw do             // groundpiece
-            gfx_map.draw({Vector2i(-@game.offset.x,-@game.offset.y)});
+            gfx_map.draw({Vector2i(@game.offset.x,@game.offset.y)});
         end
     end
     pool[] Visible layer_bg_1;          // liquid, hotspot, exit

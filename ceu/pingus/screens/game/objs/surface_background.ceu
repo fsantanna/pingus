@@ -112,8 +112,8 @@ do
         every outer.main.redraw do
             var Rect off = _;
             call Game_Get_Offset(&off);
-            var int start_x = ((off.x * para_x) + scroll_ox) as int;
-            var int start_y = ((off.y * para_y) + scroll_oy) as int;
+            var int start_x = ((-off.x * para_x) + scroll_ox) as int;
+            var int start_y = ((-off.y * para_y) + scroll_oy) as int;
 
             if (start_x > 0) then
                 start_x = (start_x % w) - w;
@@ -138,7 +138,7 @@ do
                     end
                     call {Display::s_framebuffer}:draw_surface(
                         bg.surface.framebuffer,
-                        _Vector2i(x-off.x,y-off.y)
+                        _Vector2i(x+off.x,y+off.y)
                     );
                     x = x + w;
                 end
