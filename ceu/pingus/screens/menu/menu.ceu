@@ -96,8 +96,8 @@ code/await PingusMenu (void) -> int do
 
     var& MenuButton b_story     = spawn MenuButton(-125, -20, "Story",     "");
     var& MenuButton b_editor    = spawn MenuButton( 125, -20, "Editor",    "");
-    var& MenuButton b_options   = spawn MenuButton(-125,  50, "Options",   "");
-    var& MenuButton b_levelsets = spawn MenuButton( 125,  50, "Levelsets", "");
+    var& MenuButton b_levelsets = spawn MenuButton(-125,  50, "Levelsets", "");
+    var& MenuButton b_options   = spawn MenuButton( 125,  50, "Options",   "");
     var& MenuButton b_exit      = spawn MenuButton(   0, 120, "Exit",      "");
 
     par do

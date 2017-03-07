@@ -1,0 +1,143 @@
+#ifdef _LEVELSETS_CEU
+#error multiple include
+#else
+#define _LEVELSETS_CEU
+
+#define LEVELSET_ITEMS_PER_PAGE 4
+#define LEVELSET_ITEM_HEIGHT 95
+
+code/await Levelset (var& ILevelUI ui, var int i, var Rect rect) -> FOREVER
+do
+    var& RectComponent component = spawn RectComponent(&rect);
+
+    var int y = rect.y;
+
+    event bool pse;
+    par do
+        pause/if pse do
+            par do
+                every component.component.on_click do
+                    emit ui.ok(i);
+                end
+            with
+                // draw background highlight mark
+                loop do
+                    await component.component.on_pointer_enter;
+                    var Rect r = val Rect(rect.x-20, y-10, _,_, &rect.off);
+                    spawn Sprite_from_name(&r, "core/menu/marker", &outer.main.dt, &outer.main.redraw);
+                    await component.component.on_pointer_leave;
+                end
+            with
+                var& Surface_from_name sfc =
+                    spawn Surface_from_name({levelsets[@i]->get_image().c_str()}, _);
+                every outer.main.redraw do
+                    var Rect r = _;
+                    call/recursive Rect_Off(&rect, &r);
+
+                    call {Display::s_framebuffer}:draw_surface(
+                        sfc.surface.framebuffer,
+                        _Vector2i(r.x+10, r.y)
+                    );
+
+                    call {Fonts::chalk_normal}.render(
+                        _origin_top_left,
+                        r.x+105, 15+r.y,
+                        {_(levelsets[@i]->get_title())},
+                        *{Display::s_framebuffer}
+                    );
+
+                    call {Fonts::chalk_small}.render(
+                        _origin_top_left,
+                        r.x+105, 40+r.y,
+                        {_(levelsets[@i]->get_description())},
+                        *{Display::s_framebuffer}
+                    );
+
+                    call {Fonts::chalk_normal}.render(
+                        _origin_top_right,
+                        60+r.w, 15+r.y,
+                        {(boost::format("%1% %2%%%") % _("Solved:") % levelsets[@i]->get_completion()).str()},
+                        *{Display::s_framebuffer}
+                    );
+
+                    call {Fonts::chalk_normal}.render(
+                        _origin_top_right,
+                        60+r.w, 40+r.y,
+                        {(boost::format("%1% %2%") % levelsets[@i]->get_level_count() % _("levels")).str()},
+                        *{Display::s_framebuffer}
+                    );
+                end
+            end
+        end
+    with
+        loop do
+            if i>=ui.item_at_top and
+               i<ui.item_at_top+LEVELSET_ITEMS_PER_PAGE
+            then
+                emit pse(false);
+            else
+                emit pse(true);
+            end
+            var int v = await ui.go;
+            rect.y = rect.y + v;
+            y = y + v;
+        end
+    end
+end
+
+code/await Levelsets (void) -> int do
+    {
+        static auto directory = Pathname("levelsets", Pathname::DATA_PATH).opendir("*.levelset");
+        directory = Pathname("levelsets", Pathname::DATA_PATH).opendir("*.levelset");
+        levelsets.clear();
+        for(auto i = directory.begin(); i != directory.end(); ++i) {
+            try {
+                std::shared_ptr<Levelset> levelset = Levelset::from_file(*i);
+                //current_levelset = levelset;
+                if (!levelset->get_developer_only() || globals::developer_mode) {
+                    levelsets.push_back(levelset);
+                }
+            } catch(const std::exception& err) {
+                log_error("%1%", err.what());
+            }
+        }
+#if 0
+        if (globals::developer_mode) {
+            levelsets.push_back(Levelset::from_directory(_("Under Construction"),
+                                                   _("Untested, unpolished and broken levels"),
+                                                   "levelsets/underconstruction",
+                                                   Pathname("levels", Pathname::DATA_PATH)).release());
+        }
+#endif
+        std::sort(levelsets.begin(), levelsets.end(), LevelsetPrioritySorter());
+    };
+    var&? LevelUI ui =
+        spawn LevelUI({levelsets.size()} as int, LEVELSET_ITEMS_PER_PAGE, LEVELSET_ITEM_HEIGHT);
+    var int? ret =
+        watching ui do
+            pool[] Levelset sets;
+            var Rect rect = val Rect(-370+70-10, -280+70+35, 680-90, LEVELSET_ITEM_HEIGHT-1, &outer.main.center);
+            var int i;
+            loop i in [0 -> {levelsets.size()}[ do
+                spawn Levelset(&ui!.ui, i, rect) in sets;
+                rect.y = rect.y + LEVELSET_ITEM_HEIGHT;
+            end
+
+            par do
+                var int v = await ui!.ui.ok;
+                escape v;   // always >= 0
+            with
+                every outer.main.redraw do
+                    call {Fonts::chalk_large}.render(
+                        _origin_top_center,
+                        outer.main.center.x, outer.main.center.y-280+40,
+                        __("Levelsets"),
+                        *{Display::s_framebuffer}
+                    );
+                end
+            end
+        end;
+    escape ret!;
+end
+
+#endif

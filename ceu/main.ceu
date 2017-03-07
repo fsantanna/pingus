@@ -274,7 +274,7 @@ do
 end
 
 #include "pingus/screens/menu/menu.ceu"
-#include "pingus/screens/levels.ceu"
+#include "pingus/screens/levels/levels.ceu"
 #include "pingus/screens/options/options.ceu"
 #include "pingus/screens/credits.ceu"
 #include "pingus/screens/story.ceu"
@@ -379,7 +379,7 @@ _printf(">>> %s\n", &&worldmap_return_filename[0]);
                                                 // TODO
                                             end;
                 loop do
-                    var int v = await LevelSelector(&levelset);
+                    var int v = await Levels(&levelset);
                     if v == -1 then
                         break;
                     end
@@ -403,7 +403,9 @@ _printf(">>> %s\n", &&worldmap_return_filename[0]);
                 else/if opt == {PINGUSMENU_EDITOR} then
                     _ceu_dbg_assert({!"NOT PORTED"});
                 else/if opt == {PINGUSMENU_LEVELSETS} then
-                    await LevelMenu();
+                    do ()
+                        #include "pingus/screens/levels/menu.ceu"
+                    end
                 else/if opt == {PINGUSMENU_EXIT} then
                     escape 0;
                 else
