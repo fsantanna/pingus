@@ -32,46 +32,81 @@ end
   }
 #endif
 
-var Rect offset = val Rect(0,0,0,0,_);
+vector[] byte return_filename;
 
-par do
-    var int ret = do ()
-        #include "aux.ceu"
-    end;
-    escape ret;
-with
-    var Rect close_r = val Rect(0,
-                                {Display::get_height() - 37},
-                                _,_,
-                                &outer.main.center);
-    var& SurfaceButton close = 
-        spawn SurfaceButton(&close_r,
-                            "core/worldmap/leave_button_normal",
-                            "core/worldmap/leave_button_pressed",
-                            "core/worldmap/leave_button_hover");
+code/await Worldmap (void) -> int
+do
+    var Rect offset = val Rect(0,0,0,0,_);
 
     par do
-        every outer.main.redraw do
-            call {Fonts::chalk_small}.render(
-                _origin_top_center,
-                44, {Display::get_height()}-25,
-                __("Leave?"),
-                *{Display::s_framebuffer}
-            );
-        end
+        var int ret = do ()
+            #include "aux.ceu"
+        end;
+        escape ret;
     with
-        every close.component.on_pointer_enter do
-            call {Sound::PingusSound::play_sound}("tick");
-        end
-    with
-        await close.component.on_click;
-        escape {WORLDMAP_RETURN_EXIT};
-    end
-with
-    loop do
-        var _Input__ButtonEvent&& but = await ON_BUTTON_PRESSED;
-        if but:name == {Input::ESCAPE_BUTTON} then
+        var Rect close_r = val Rect(0,
+                                    {Display::get_height() - 37},
+                                    _,_,
+                                    &outer.main.center);
+        var& SurfaceButton close = 
+            spawn SurfaceButton(&close_r,
+                                "core/worldmap/leave_button_normal",
+                                "core/worldmap/leave_button_pressed",
+                                "core/worldmap/leave_button_hover");
+
+        par do
+            every outer.main.redraw do
+                call {Fonts::chalk_small}.render(
+                    _origin_top_center,
+                    44, {Display::get_height()}-25,
+                    __("Leave?"),
+                    *{Display::s_framebuffer}
+                );
+            end
+        with
+            every close.component.on_pointer_enter do
+                call {Sound::PingusSound::play_sound}("tick");
+            end
+        with
+            await close.component.on_click;
             escape {WORLDMAP_RETURN_EXIT};
+        end
+    with
+        loop do
+            var _Input__ButtonEvent&& but = await ON_BUTTON_PRESSED;
+            if but:name == {Input::ESCAPE_BUTTON} then
+                escape {WORLDMAP_RETURN_EXIT};
+            end
+        end
+    end
+end
+
+code/await Worldmap_Loop (void) -> void
+do
+    loop do
+        var int ret = await Worldmap();
+        if ret=={WORLDMAP_RETURN_STORY_MAP} or ret=={WORLDMAP_RETURN_STORY_CREDITS}
+        then
+            {
+                reader = FileReader::parse(Pathname(@(&&outer.return_filename[0] as _char&&), Pathname::DATA_PATH));
+            }
+            var bool is_click = await Story();
+            if is_click and ret=={WORLDMAP_RETURN_STORY_CREDITS} then
+                {
+                    filename_credits = Pathname("credits/pingus.credits",Pathname::DATA_PATH);
+                }
+                await Credits();
+            end
+        else/if ret == {WORLDMAP_RETURN_LEVEL} then
+            {
+                plf = PLFResMgr::load_plf(std::string(@(&&outer.return_filename[0] as _char&&)));
+            }
+            var& _PingusLevel plf    = &_ID({&plf})    finalize (plf) with end;
+            var& _Result      result = &_ID({&result}) finalize (result) with end;
+            await Start_Game_Result_Loop(&plf, &result);
+        else
+            _ceu_dbg_assert(ret == {WORLDMAP_RETURN_EXIT});
+            escape;
         end
     end
 end

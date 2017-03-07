@@ -102,8 +102,6 @@ var Vector3f pst = val Vector3f({path_graph->get_dot(id)->get_pos().x},
                                 {path_graph->get_dot(id)->get_pos().y},
                                 0); 
 
-code/tight Get_Offset (void)-> Vector2i;
-
 code/tight Get_Offset (void)-> Vector2i do
     var int x = 0;
     do
@@ -151,7 +149,8 @@ end
 par do
     every outer.main.redraw do
         var Vector2i off = call Get_Offset();
-        outer.main.offset = off;
+        outer.offset.x = off.x;
+        outer.offset.y = off.y;
         {gc_state.set_pos(Vector2i(@off.x, @off.y));}
     end
 with
@@ -229,14 +228,15 @@ with
 
     var int to = await ok_escape;
     escape to;
-#if 0
 with
+    var int x;
+    var int y;
     every (x,y) in ON_PRIMARY_BUTTON_PRESSED do
-        var Vector2i off = this.get_offset();
+        var Vector2i off = call Get_Offset();
 //_printf(">> xy=%d,%d, off=%d,%d\n", x,y, off.x,off.y);
-        { static Vector2f click_pos; };
-        _click_pos = _XXX_PURE(_Vector2i(off.x+x,off.y+y));
         {
+            static Vector2f click_pos;
+            click_pos = Vector2i(@off.x+x,@off.y+y);
             if (globals::developer_mode)
             {
                 SExprFileWriter writer(std::cout);
@@ -253,7 +253,7 @@ with
         };
     end
 with
-    native do
+    native/pre do
         struct draw_edges
         {
             WorldmapNS::PathGraph* graph;
@@ -267,26 +267,31 @@ with
                 WorldmapNS::Dot* src = graph->get_dot(edge.source);
                 WorldmapNS::Dot* dst = graph->get_dot(edge.destination);
                 Display::s_framebuffer->draw_line(
+#if 0
+Vector2i(100,100),
+                                                  Vector2i(300,300),
+                                                  Color(255, 255, 255));
+#else
                     Vector2i(off.x+src->get_pos().x,
                              off.y+src->get_pos().y),
                     Vector2i(off.x+dst->get_pos().x,
                              off.y+dst->get_pos().y),
                     Color(255, 255, 255)
                 );
+#endif
             }
         };
     end
-    every REDRAW do
-        if {globals::developer_mode} then
-            var Vector2i off = global:worldmap!:get_offset();
-            _path_graph:graph.for_each_edge(
-                _draw_edges(_path_graph.get(), _Vector2i(off.x,off.y)));
+    every outer.main.redraw do
+        if {globals::developer_mode} as bool then
+            var Rect off = outer.offset;
+            {path_graph->graph.for_each_edge(
+                draw_edges(path_graph.get(), Vector2i(@off.x,@off.y)));}
         end
     end
-#endif
 with
     every outer.main.redraw do
-        outer.main.offset = val Vector2i(0,0);
+        //outer.offset = val Vector2i(0,0);
     end
 end
 

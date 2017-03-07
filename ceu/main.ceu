@@ -278,6 +278,7 @@ end
 #include "pingus/screens/options/options.ceu"
 #include "pingus/screens/credits.ceu"
 #include "pingus/screens/story.ceu"
+#include "pingus/screens/worldmap/worldmap.ceu"
 
 #if 0
 #include "pingus/global_event.ceu"
@@ -332,36 +333,7 @@ with
                 await Credits();
             else/if {StringUtil::has_suffix(cmd.rest.get(), ".worldmap")} as bool then
 // WORLDMAP
-                loop do
-                    vector[] byte worldmap_return_filename;
-                    var int ret = do ()
-                        #include "pingus/screens/worldmap/worldmap.ceu"
-                    end;
-                    if ret=={WORLDMAP_RETURN_STORY_MAP} or ret=={WORLDMAP_RETURN_STORY_CREDITS}
-                    then
-                        {
-                            reader = FileReader::parse(Pathname(@(&&worldmap_return_filename[0] as _char&&), Pathname::DATA_PATH));
-                        }
-                        var bool is_click = await Story();
-                        if is_click and ret=={WORLDMAP_RETURN_STORY_CREDITS} then
-                            {
-                                filename_credits = Pathname("credits/pingus.credits",Pathname::DATA_PATH);
-                            }
-                            await Credits();
-                        end
-                    else/if ret == {WORLDMAP_RETURN_LEVEL} then
-_printf(">>> %s\n", &&worldmap_return_filename[0]);
-                        {
-                            plf = PLFResMgr::load_plf(std::string(@(&&worldmap_return_filename[0] as _char&&)));
-                        }
-                        var& _PingusLevel plf    = &_ID({&plf})    finalize (plf) with end;
-                        var& _Result      result = &_ID({&result}) finalize (result) with end;
-                        await Start_Game_Result_Loop(&plf, &result);
-                    else
-                        _ceu_dbg_assert(ret == {WORLDMAP_RETURN_EXIT});
-                        escape 0;
-                    end
-                end
+                await Worldmap_Loop();
             else/if {StringUtil::has_suffix(cmd.rest.get(), ".story")} as bool then
 // STORY
                 {
@@ -399,7 +371,8 @@ _printf(">>> %s\n", &&worldmap_return_filename[0]);
             loop do
                 var int opt = await PingusMenu();
                 if opt == {PINGUSMENU_STORY} then
-                    _ceu_dbg_assert({!"NOT PORTED"});
+                    { filename = Pathname("data/worldmaps/tutorial.worldmap", Pathname::SYSTEM_PATH); }
+                    await Worldmap_Loop();
                 else/if opt == {PINGUSMENU_EDITOR} then
                     _ceu_dbg_assert({!"NOT PORTED"});
                 else/if opt == {PINGUSMENU_LEVELSETS} then

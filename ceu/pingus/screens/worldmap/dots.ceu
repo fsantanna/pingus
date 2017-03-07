@@ -104,7 +104,7 @@ do
                     if {globals::developer_mode} as bool then
                         _log_info("Worldmap: Pingu is on node, issue on_click()");
                     end
-                    outer.worldmap_return_filename = [] .. filename;
+                    outer.return_filename = [] .. filename;
                     if show_credits then
                         emit outer.ok_escape({WORLDMAP_RETURN_STORY_CREDITS});
                     else
@@ -227,7 +227,7 @@ do
                         if {globals::developer_mode} as bool then
                             _log_info("Worldmap: Pingu is on node, issue on_click()");
                         end
-                        outer.worldmap_return_filename = [] .. filename;
+                        outer.return_filename = [] .. filename;
                         emit outer.ok_escape({WORLDMAP_RETURN_LEVEL});
                         _ceu_dbg_assert(0);
                     else
