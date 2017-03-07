@@ -18,10 +18,12 @@ do
     par do
         pause/if go_pause do
             every outer.main.redraw do
+                var Rect r = _;
+                call/recursive Rect_Off(&rect, &r);
                 call ({Fonts::chalk_normal.render} as /nohold)(
                     _origin_top_center,
-                    rect.x + rect.w/2,
-                    rect.y,
+                    r.x + r.w/2,
+                    r.y,
                     &&value_[0] as _char&&,
                     *{Display::s_framebuffer}
                 );
@@ -57,9 +59,11 @@ do
         var int x;
         var int y;
         every (x,y) in component.component.on_primary_button_pressed do
+            var Rect r = _;
+            call/recursive Rect_Off(&rect, &r);
             var int old = choicebox.current;
-            x = x - (rect.x as int);
-            if x > rect.w/2 then
+            x = x - (r.x as int);
+            if x > r.w/2 then
                 choicebox.current = (choicebox.current + 1) % tot;
             else
                 choicebox.current = choicebox.current - 1;
@@ -71,23 +75,26 @@ do
         end
     with
         every outer.main.redraw do
+            var Rect r = _;
+            call/recursive Rect_Off(&rect, &r);
+
             if {globals::developer_mode} as bool then
                 call {Display::s_framebuffer}:draw_rect(
-                    _Rect(rect.x,rect.w,rect.w,rect.h),
+                    _Rect(r.x,r.w,r.w,r.h),
                     _Color(0, 255, 255)
                 );
             end
             call {Fonts::chalk_normal}.render(
                 _origin_top_left,
-                rect.x,
-                rect.y,
+                r.x,
+                r.y,
                 "<",
                 *{Display::s_framebuffer}
             );
             call {Fonts::chalk_normal}.render(
                 _origin_top_right,
-                rect.x+rect.w,
-                rect.y,
+                r.x+r.w,
+                r.y,
                 ">",
                 *{Display::s_framebuffer}
             );

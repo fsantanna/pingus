@@ -21,20 +21,15 @@ end
 #include "slider_box.ceu"
 
 code/await OptionMenu (void) -> void do
-    var Rect rect = val Rect({Display::get_width()}  / 2,
-                             {Display::get_height()} / 2,
-                             0, 0,
-                             &outer.main.center,
-                            );
-
     spawn Wood();
+
+    var Rect rect = val Rect(0,0, 0,0, &outer.main.center);
     spawn Sprite_from_name(&rect, "core/menu/blackboard", &outer.main.dt, &outer.main.redraw);
 
-    var int x_offset = ({Display::get_width()}  - 800) / 2;
-    var int y_offset = ({Display::get_height()} - 600) / 2;
+    var int xx = -315;
+    var int yy = -160;
 
-    var int yy = 140 + y_offset;
-    var Rect r0 = val Rect(80+x_offset,yy, 320,32, &outer.main.center);
+    var Rect r0 = val Rect(xx,yy, 320,32, &outer.main.center);
 
     // LEFT OPTIONS //
 
@@ -339,10 +334,7 @@ code/await OptionMenu (void) -> void do
 
     // CLOSE //
 
-    var Rect r7 = val Rect({Display::get_width()/2}  + 245,
-                           {Display::get_height()/2} + 150,
-                           0, 0,
-                           &outer.main.center);
+    var Rect r7 = val Rect(245,150, 0,0, &outer.main.center);
     var& SurfaceButton button =
         spawn SurfaceButton(&r7, "core/start/ok",
                                  "core/start/ok_clicked",
@@ -363,24 +355,24 @@ code/await OptionMenu (void) -> void do
         every outer.main.redraw do
             call {Fonts::chalk_large}.render(
                 _origin_top_center,
-                {Display::get_width()}/2,
-                {Display::get_height()}/2 - 240,
+                outer.main.center.x,
+                outer.main.center.y - 240,
                 __("Option Menu"),
                 *{Display::s_framebuffer}
             );
 
             call {Fonts::chalk_normal}.render(
                 _origin_top_center,
-                {Display::get_width()}/2  + 245 + 30,
-                {Display::get_height()}/2 + 150 - 20,
+                outer.main.center.x + 245 + 30,
+                outer.main.center.y + 150 - 20,
                 __("Close"),
                 *{Display::s_framebuffer}
             );
 
             call {Fonts::chalk_normal}.render(
                 _origin_top_left,
-                {Display::get_width()}/2  - 320,
-                {Display::get_height()}/2 + 200,
+                outer.main.center.x  - 320,
+                outer.main.center.y + 200,
                 __("Some options require a restart of the game to take effect."),
                 *{Display::s_framebuffer}
             );

@@ -16,10 +16,13 @@ do
             (x,y) = await component.component.on_primary_button_pressed;
             watching ON_PRIMARY_BUTTON_RELEASED do
                 loop do
-                    var int old = current;
-                    x = x - (rect.x as int);
+                    var Rect r = _;
+                    call/recursive Rect_Off(&rect, &r);
 
-                    current = (max*x / (rect.w-12)) as int;
+                    var int old = current;
+                    x = x - (r.x as int);
+
+                    current = (max*x / (r.w-12)) as int;
                     current = {Math::clamp}(0, current, max);
 
                     if current != old then
@@ -32,16 +35,19 @@ do
         end
     with
         every outer.main.redraw do
+            var Rect r = _;
+            call/recursive Rect_Off(&rect, &r);
+
             if {globals::developer_mode} as bool then
                 call {Display::s_framebuffer}:draw_rect(
-                    _Rect(rect.x,rect.w,rect.y,rect.h),
+                    _Rect(r.x,r.w,r.y,r.h),
                     _Color(0,255,255)
                 );
             end
             if current == 0 then
                 call {Fonts::chalk_normal}.render(
                     _origin_top_center,
-                    rect.x + rect.w/2, rect.y,
+                    r.x + r.w/2, r.y,
                     "off",
                     *{Display::s_framebuffer}
                 );
@@ -51,7 +57,7 @@ do
                     if i < current then
                         call {Fonts::chalk_normal}.render(
                             _origin_top_left,
-                            rect.x + i*(rect.w-12)/max + 6, rect.y,
+                            r.x + i*(r.w-12)/max + 6, r.y,
                             "|",
                             *{Display::s_framebuffer}
                         );
@@ -60,13 +66,13 @@ do
             end
             call {Fonts::chalk_normal}.render(
                 _origin_top_left,
-               rect.x, rect.y,
+               r.x, r.y,
                 "[",
                 *{Display::s_framebuffer}
             );
             call {Fonts::chalk_normal}.render(
                 _origin_top_right,
-               rect.x+rect.w, rect.y,
+               r.x+r.w, r.y,
                 "]",
                 *{Display::s_framebuffer}
             );
