@@ -20,8 +20,7 @@ code/await RightLeftSprites (var&      Rect     rect,
                              var&      s8       direction,
                              vector&[] byte     none,
                              vector&[] byte     left,
-                             vector&[] byte     right,
-                             var&?     Vector2i off)
+                             vector&[] byte     right)
                                 -> (pool[1] Sprite_from_name sprites)
                                     -> void
 do
@@ -49,7 +48,7 @@ do
                 end
             end;
             var&? Sprite_from_name s =
-                spawn Sprite_from_name(&rect, name, &outer.main.dt, &outer.main.redraw, &off) in sprites;
+                spawn Sprite_from_name(&rect, name, &outer.main.dt, &outer.main.redraw) in sprites;
 
             par/or do
                 await s;

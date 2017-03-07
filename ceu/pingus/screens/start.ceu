@@ -12,23 +12,19 @@
 
 vector[] byte description = [] .. ({str.c_str()} as _char&&);
 
-var Rect rect = val Rect(
-    {Display::get_width()}  / 2,
-    {Display::get_height()} / 2,
-    0, 0
-);
-
 spawn Wood();
-spawn Sprite_from_name(&rect, "core/menu/blackboard", &outer.main.dt, &outer.main.redraw, _);
 
-var Rect start_r = val Rect({Display::get_width()/2}+245, {Display::get_height()/2}+150, _,_);
+var Rect rect = val Rect(0,0, _,_, &outer.main.center);
+spawn Sprite_from_name(&rect, "core/menu/blackboard", &outer.main.dt, &outer.main.redraw);
+
+var Rect start_r = val Rect(245,150, _,_, &outer.main.center);
 var& SurfaceButton start =
     spawn SurfaceButton(&start_r,
                         "core/start/ok",
                         "core/start/ok_clicked",
                         "core/start/ok_hover");
 
-var Rect cancel_r = val Rect({Display::get_width()/2}-300, {Display::get_height()/2}+200, _,_);
+var Rect cancel_r = val Rect(-300,200, _,_, &outer.main.center);
 var& SurfaceButton cancel =
     spawn SurfaceButton(&cancel_r,
                         "core/start/back",
@@ -63,28 +59,28 @@ with
     end
 with
     every outer.main.redraw do
-        var int left_x  = {Display::get_width()}/2 - 150;
-        var int right_x = {Display::get_width()}/2 + 150;
-        var int y = {Display::get_height()}/2 + 40;
+        var int left_x  = outer.main.center.x - 150;
+        var int right_x = outer.main.center.x + 150;
+        var int y = outer.main.center.y + 40;
 
         // cancel button
         call {Fonts::chalk_normal}.render(
             _origin_top_center,
-            cancel_r.left+55, cancel_r.top,
+            cancel_r.x+55, cancel_r.y,
             __("Back"),
             *{Display::s_framebuffer}
         );
 
         call {Fonts::chalk_large}.render(
             _origin_top_center,
-            {Display::get_width()}/2, {Display::get_height()}/2-230,
+            outer.main.center.x, outer.main.center.y-230,
             __(outer.plf.get_levelname()),
             *{Display::s_framebuffer}
         );
 
         call ({Fonts::chalk_normal}.render as /nohold)(
             _origin_top_left,
-            {Display::get_width()}/2-300, {Display::get_height()}/2-170,
+            outer.main.center.x-300, outer.main.center.y-170,
             &&description[0] as _char&&,
             *{Display::s_framebuffer}
         );
@@ -135,7 +131,7 @@ with
 
         call {Fonts::chalk_small}.render(
             _origin_top_center,
-            {Display::get_width()}/2, {Display::get_height()}/2 + 215,
+            outer.main.center.x, outer.main.center.y + 215,
             __("Author: ") + outer.plf.get_author(),
             *{Display::s_framebuffer}
         );
@@ -143,7 +139,7 @@ with
         if {globals::developer_mode} as bool then
             call {Fonts::chalk_small}.render(
                 _origin_top_center,
-                {Display::get_width()}/2, {Display::get_height()}/2-50,
+                outer.main.center.x, outer.main.center.y-50,
                 outer.plf.get_resname(),
                 *{Display::s_framebuffer}
             );

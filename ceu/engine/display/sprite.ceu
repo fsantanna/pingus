@@ -1,7 +1,7 @@
-#ifdef _SPRITE_CEU
+#ifdef _SPR_CEU
 #error multiple include
 #else
-#define _SPRITE_CEU __FILE__
+#define _SPR_CEU __FILE__
 
 data ISprite with
     var Vector2i offset      = val Vector2i(0, 0);
@@ -17,7 +17,7 @@ code/tight Get_Frame_Count (var& ISprite sprite) -> int do
     escape sprite.array.width * sprite.array.height;
 end
 
-code/await Sprite_from_sfc (var& Rect rect, var& Surface sfc, event& int dt, event& void redraw, var&? Vector2i off)
+code/await Sprite_from_sfc (var& Rect rect, var& Surface sfc, event& int dt, event& void redraw)
                                 -> (var ISprite sprite)
                                     -> void
 do
@@ -43,10 +43,9 @@ do
         sprite.frame_size.width  = sfc.desc:frame_size.width;
         sprite.frame_size.height = sfc.desc:frame_size.height;
     end
-    rect.width  = sprite.frame_size.width;
-    rect.height = sprite.frame_size.height;
+    rect.w = sprite.frame_size.width;
+    rect.h = sprite.frame_size.height;
 
-    native _vec;
     {
         static Vector2i vec;
         vec = calc_origin(@(sfc.desc:origin),
@@ -54,7 +53,7 @@ do
                                @(sprite.frame_size.height)))
                 - @(sfc.desc:offset);
     };
-    sprite.offset = val Vector2i(_vec.x, _vec.y);
+    sprite.offset = val Vector2i({vec.x}, {vec.y});
 
     var int total_time = sprite.frame_delay *
                          (sprite.array.width * sprite.array.height);
@@ -91,18 +90,8 @@ do
     with
         /* DRAW */
         every redraw do
-            var float x;
-            var float y;
-            x = rect.left;
-            y = rect.top;
-
-            var int xx=0;
-            var int yy=0;
-            if off? then
-                xx = off!.x;
-                yy = off!.y;
-            end
-
+            var Rect r = _;
+            call/recursive Rect_Off(&rect, &r);
 #if 0
             call {Display::s_framebuffer}:draw_surface(
                                             sfc.framebuffer,
@@ -116,8 +105,8 @@ do
                         _Vector2i(sprite.frame_size.width  * (sprite.frame%sprite.array.width),
                                   sprite.frame_size.height * (sprite.frame/sprite.array.width)),
                     _Size(sprite.frame_size.width,sprite.frame_size.height)),
-                _Vector2i(-xx + x - sprite.offset.x,
-                          -yy + y - sprite.offset.y)
+                _Vector2i(r.x - sprite.offset.x,
+                          r.y - sprite.offset.y)
             );
         end
     end
@@ -159,29 +148,23 @@ function (void)=>int get_height do
 end
 #endif
 
-code/await Sprite_from_desc (var& Rect rect, var _SpriteDescription_ptr desc, event& int dt, event& void redraw, var&? Vector2i off)
+code/await Sprite_from_desc (var& Rect rect, var _SpriteDescription_ptr desc, event& int dt, event& void redraw)
                                 -> (var& ISprite sprite)
                                     -> void
 do
     var& Surface_from_desc sfc_from_desc =
         spawn Surface_from_desc(desc, {ResourceModifier::ROT0});
 
-    code/tight Draw (var int x, var int y) -> void;
-
     var& Surface sfc = &sfc_from_desc.surface;
-    var&? Sprite_from_sfc s = spawn Sprite_from_sfc(&rect, &sfc, &dt, &redraw, &off);
+    var&? Sprite_from_sfc s = spawn Sprite_from_sfc(&rect, &sfc, &dt, &redraw);
     watching s do
         sprite = &s!.sprite;
         await FOREVER;
     end
 
-    code/tight Draw (var int x, var int y) -> void do
-        var int xx = 0;
-        var int yy = 0;
-        if outer.off? then
-            xx = outer.off!.x;
-            yy = outer.off!.y;
-        end
+    code/tight/recursive Draw (var int x, var int y) -> void do
+        var Rect r = _;
+        call/recursive Rect_Off(&outer.rect, &r);
 
         call {Display::s_framebuffer}:draw_surface(
             outer.sfc_from_desc.surface.framebuffer,
@@ -190,13 +173,13 @@ do
                     {Vector2i}(outer.sprite.frame_size.width  * (outer.sprite.frame%outer.sprite.array.width),
                                outer.sprite.frame_size.height * (outer.sprite.frame/outer.sprite.array.width)),
                 {Size}(outer.sprite.frame_size.width,outer.sprite.frame_size.height)),
-            {Vector2i}(-xx + x - outer.sprite.offset.x,
-                       -yy + y - outer.sprite.offset.y)
+            {Vector2i}(r.x - outer.sprite.offset.x,
+                       r.y - outer.sprite.offset.y)
         );
     end
 end
 
-code/await Sprite_from_name (var& Rect rect, var _char_const_ptr name, event& int dt, event& void redraw, var&? Vector2i off)
+code/await Sprite_from_name (var& Rect rect, var _char_const_ptr name, event& int dt, event& void redraw)
                                 -> (var& ISprite sprite)
                                     -> void
 do
@@ -204,7 +187,7 @@ do
         spawn Surface_from_name(name, {ResourceModifier::ROT0});
 
     var& Surface sfc = &sfc_from_name.surface;
-    var&? Sprite_from_sfc s = spawn Sprite_from_sfc(&rect, &sfc, &dt, &redraw, &off);
+    var&? Sprite_from_sfc s = spawn Sprite_from_sfc(&rect, &sfc, &dt, &redraw);
     watching s do
         sprite = &s!.sprite;
         await FOREVER;

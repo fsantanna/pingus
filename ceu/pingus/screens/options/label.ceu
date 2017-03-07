@@ -6,10 +6,13 @@
 code/await Label (var _char_const_ptr label, var& Rect rect) -> FOREVER
 do
     every outer.main.redraw do
+        var Rect r = _;
+        call/recursive Rect_Off(&rect, &r);
+
         call {Fonts::chalk_normal}.render(
             _origin_top_left,
-            rect.left,
-            rect.top,
+            r.x,
+            r.y,
             label,
             *{Display::s_framebuffer}
         );

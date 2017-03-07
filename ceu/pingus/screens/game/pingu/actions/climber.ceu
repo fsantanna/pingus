@@ -12,7 +12,7 @@ do
                           .. (call Pingu_Get_Owner_Str() as _char&&)
                           .. "/climber/right";
 
-    spawn RightLeftSprites(&outer.pingu.rect, &outer.pingu.direction, &left, &left, &right, &outer.main.offset);
+    spawn RightLeftSprites(&outer.pingu.rect, &outer.pingu.direction, &left, &left, &right);
 
     loop do
         await outer.game.dt;
@@ -23,14 +23,14 @@ do
         then
             // and there is still ground to walk on
             if (call Pingu_Rel_Getpixel(1,1) != {Groundtype::GP_NOTHING}) then
-                outer.pingu.rect.top = outer.pingu.rect.top - 1;
+                outer.pingu.rect.y = outer.pingu.rect.y - 1;
             else/if (call Pingu_Rel_Getpixel(1,1) ==  {Groundtype::GP_NOTHING}) then
                 //  log_info("Climber failed, no more wall");
                 // If Pingu able to get to new position without head collision
                 if (not call Pingu_Head_Collision_On_Walk(outer.pingu.direction as int,1)) then
                     // Get ready to walk
-                    outer.pingu.rect.left = outer.pingu.rect.left + (outer.pingu.direction as int);
-                    outer.pingu.rect.top  = outer.pingu.rect.top - 1;
+                    outer.pingu.rect.x = outer.pingu.rect.x + (outer.pingu.direction as int);
+                    outer.pingu.rect.y = outer.pingu.rect.y - 1;
                 else
                     // Get ready to fall
                     call Pingu_Toggle_Direction();

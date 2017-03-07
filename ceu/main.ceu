@@ -192,39 +192,26 @@ data Position with
 end
 
 data Rect with
-    var int left;
-    var int top;
-    var int width;
-    var int height;
-end
-
-data Pst with
-    var   int x;
-    var   int y;
-    var&? Pst off;
-end
-
-data Rct with
     var   int x;
     var   int y;
     var   int w;
     var   int h;
-    var&? Rct off;
+    var&? Rect off;
 end
 
-code/tight/recursive Rct_Off_ (var& Rct rct, var& Rct ret) -> void do
-    if rct.off? then
-        call/recursive Rct_Off_(&rct.off!, &ret);
+code/tight/recursive Rect_Off_ (var& Rect rect, var& Rect ret) -> void do
+    if rect.off? then
+        call/recursive Rect_Off_(&rect.off!, &ret);
     end
-    ret.x = ret.x + rct.x;
-    ret.y = ret.y + rct.y;
-    ret.w = ret.w + rct.w;
-    ret.h = ret.h + rct.h;
+    ret.x = ret.x + rect.x;
+    ret.y = ret.y + rect.y;
+    ret.w = ret.w + rect.w;
+    ret.h = ret.h + rect.h;
 end
 
-code/tight/recursive Rct_Off (var& Rct rct, var& Rct ret) -> void do
-    ret = val Rct(0,0,0,0,_);
-    call/recursive Rct_Off_(&rct, &ret);
+code/tight/recursive Rect_Off (var& Rect rect, var& Rect ret) -> void do
+    ret = val Rect(0,0,0,0,_);
+    call/recursive Rect_Off_(&rect, &ret);
 end
 
 data Size with
@@ -249,9 +236,7 @@ end
 #include "pingus/config_manager.ceu"
 
 data IMain with
-    var Vector2i offset;
-    var Vector2i center;
-    var Rct      ctr;
+    var Rect     center;
     event void go_options;
     event int  dt;
     event void redraw;
@@ -323,12 +308,10 @@ with
     end
 with
     loop do
-        main.center = val Vector2i(-{Display::get_width()/2},
-                                   -{Display::get_height()/2});
-        main.ctr = val Rct({Display::get_width()/2},
-                           {Display::get_height()/2},
-                           0, 0,
-                           _);
+        main.center = val Rect({Display::get_width()/2},
+                               {Display::get_height()/2},
+                               0, 0,
+                               _);
         await SDL_RESIZE;
     end
 with

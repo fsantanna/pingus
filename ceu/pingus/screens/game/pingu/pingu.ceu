@@ -87,7 +87,7 @@ do
                 if call Pingu_Rel_Getpixel(0,-1) == {Groundtype::GP_OUTOFSCREEN} then
                     //Sound::PingusSound::play_sound("die");
     // TODO: copied from walker.ceu
-                    pingu.rect.left = (pingu.rect.left + (pingu.direction as int));
+                    pingu.rect.x = (pingu.rect.x + (pingu.direction as int));
                     escape {PS_DEAD};
                 end
 

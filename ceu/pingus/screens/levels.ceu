@@ -3,8 +3,6 @@
 #else
 #define _LEVELMENU_CEU
 
-#include "engine/gui/sfc_button.ceu"
-
 native/pre do
     typedef std::vector<std::shared_ptr<Levelset>> Levelsets;
     struct LevelsetPrioritySorter {
@@ -38,19 +36,19 @@ do
 
     spawn Wood();
 
-    var Rct rct = val Rct(0, 0, _,_, &outer.main.ctr);
-    spawn Spr_from_name(&rct, "core/menu/blackboard", &outer.main.dt, &outer.main.redraw);
+    var Rect rect = val Rect(0, 0, _,_, &outer.main.center);
+    spawn Sprite_from_name(&rect, "core/menu/blackboard", &outer.main.dt, &outer.main.redraw);
 
-    var Rct cancel_r = val Rct(-300, 200, 0, 0, &outer.main.ctr);
-    var& SfcButton cancel =
-        spawn SfcButton(&cancel_r,
+    var Rect cancel_r = val Rect(-300, 200, 0, 0, &outer.main.center);
+    var& SurfaceButton cancel =
+        spawn SurfaceButton(&cancel_r,
                             "core/start/back",
                             "core/start/back_clicked",
                             "core/start/back_hover");
     spawn do
         every outer.main.redraw do
-            var Rct r = _;
-            call/recursive Rct_Off(&cancel_r, &r);
+            var Rect r = _;
+            call/recursive Rect_Off(&cancel_r, &r);
             call {Fonts::chalk_normal}.render(
                 _origin_top_center,
                 r.x+55, r.y,
@@ -60,16 +58,16 @@ do
         end
     end
 
-    var Rct prv_r = val Rct(280, -48-12, _,_, &outer.main.ctr);
-    var& SfcButton prv =
-        spawn SfcButton(&prv_r,
+    var Rect prv_r = val Rect(280, -48-12, _,_, &outer.main.center);
+    var& SurfaceButton prv =
+        spawn SurfaceButton(&prv_r,
                             "core/menu/arrow_up",
                             "core/menu/arrow_up_pressed",
                             "core/menu/arrow_up_hover");
 
-    var Rct nxt_r = val Rct(280, 12, _,_, &outer.main.ctr);
-    var& SfcButton nxt =
-        spawn SfcButton(&nxt_r,
+    var Rect nxt_r = val Rect(280, 12, _,_, &outer.main.center);
+    var& SurfaceButton nxt =
+        spawn SurfaceButton(&nxt_r,
                             "core/menu/arrow_down",
                             "core/menu/arrow_down_pressed",
                             "core/menu/arrow_down_hover");
@@ -128,12 +126,12 @@ end
 
 ////////////////////////////////////////////////////////////////////////////////
 
-code/await Level (var& _Levelset levelset, var& ILevelUI ui, var int i, var Rct rct)
+code/await Level (var& _Levelset levelset, var& ILevelUI ui, var int i, var Rect rect)
                     -> FOREVER
 do
-    var& RctComponent component = spawn RctComponent(&rct);
+    var& RectComponent component = spawn RectComponent(&rect);
 
-    var int y = rct.y;
+    var int y = rect.y;
 
     event bool pse;
     par do
@@ -149,8 +147,8 @@ do
                         // draw background highlight mark
                         loop do
                             await component.component.on_pointer_enter;
-                            var Rct r = val Rct(rct.x-25, y, _, _, &rct.off);
-                            spawn Spr_from_name(&r, "core/menu/marker2", &outer.main.dt, &outer.main.redraw);
+                            var Rect r = val Rect(rect.x-25, y, _, _, &rect.off);
+                            spawn Sprite_from_name(&r, "core/menu/marker2", &outer.main.dt, &outer.main.redraw);
                             await component.component.on_pointer_leave;
                         end
                     end
@@ -170,8 +168,8 @@ do
                 var& Surface_from_name sfc = spawn Surface_from_name(name, _);
 
                 every outer.main.redraw do
-                    var Rct r = _;
-                    call/recursive Rct_Off(&rct, &r);
+                    var Rect r = _;
+                    call/recursive Rect_Off(&rect, &r);
 
                     // draw checkbox
                     call {Display::s_framebuffer}:draw_surface(
@@ -208,7 +206,7 @@ do
                 emit pse(true);
             end
             var int v = await ui.go;
-            rct.y = rct.y + v;
+            rect.y = rect.y + v;
             y = y + v;
         end
     end
@@ -226,20 +224,20 @@ do
     var&? LevelUI ui = spawn LevelUI(levelset.get_level_count() as int, LEVEL_ITEMS_PER_PAGE, LEVEL_ITEM_HEIGHT);
     var int? ret =
         watching ui do
-            var Rct r1 = val Rct(0, -280+70-20, 0, 0, &outer.main.ctr);
-            spawn Spr_from_name(&r1, levelset.get_image().c_str(), &outer.main.dt, &outer.main.redraw);
+            var Rect r1 = val Rect(0, -280+70-20, 0, 0, &outer.main.center);
+            spawn Sprite_from_name(&r1, levelset.get_image().c_str(), &outer.main.dt, &outer.main.redraw);
                 r1.x = -370 + 35 + r1.w/2;
 
-            var Rct r2 = val Rct(0, -280+70-20, 0, 0, &outer.main.ctr);
-            spawn Spr_from_name(&r2, levelset.get_image().c_str(), &outer.main.dt, &outer.main.redraw);
+            var Rect r2 = val Rect(0, -280+70-20, 0, 0, &outer.main.center);
+            spawn Sprite_from_name(&r2, levelset.get_image().c_str(), &outer.main.dt, &outer.main.redraw);
                 r2.x =  370 - 90 - r2.w/2;
 
             pool[] Level levels;
-            var Rct rct = val Rct(-370+70+10, -280+70+70, 680-90, LEVEL_ITEM_HEIGHT-1, &outer.main.ctr);
+            var Rect rect = val Rect(-370+70+10, -280+70+70, 680-90, LEVEL_ITEM_HEIGHT-1, &outer.main.center);
             var int i;
             loop i in [0->levelset.get_level_count() as int[ do
-                spawn Level(&levelset, &ui!.ui, i, rct) in levels;
-                rct.y = rct.y + LEVEL_ITEM_HEIGHT;
+                spawn Level(&levelset, &ui!.ui, i, rect) in levels;
+                rect.y = rect.y + LEVEL_ITEM_HEIGHT;
             end
 
             par do
@@ -249,7 +247,7 @@ do
                 every outer.main.redraw do
                     call {Fonts::chalk_large}.render(
                         _origin_top_center,
-                        outer.main.ctr.x, outer.main.ctr.y-280+40,
+                        outer.main.center.x, outer.main.center.y-280+40,
                         __(levelset.get_title()),
                         *{Display::s_framebuffer}
                     );
@@ -261,11 +259,11 @@ end
 
 ////////////////////////////////////////////////////////////////////////////////
 
-code/await Levelset (var& ILevelUI ui, var int i, var Rct rct) -> FOREVER
+code/await Levelset (var& ILevelUI ui, var int i, var Rect rect) -> FOREVER
 do
-    var& RctComponent component = spawn RctComponent(&rct);
+    var& RectComponent component = spawn RectComponent(&rect);
 
-    var int y = rct.y;
+    var int y = rect.y;
 
     event bool pse;
     par do
@@ -278,16 +276,16 @@ do
                 // draw background highlight mark
                 loop do
                     await component.component.on_pointer_enter;
-                    var Rct r = val Rct(rct.x-20, y-10, _,_, &rct.off);
-                    spawn Spr_from_name(&r, "core/menu/marker", &outer.main.dt, &outer.main.redraw);
+                    var Rect r = val Rect(rect.x-20, y-10, _,_, &rect.off);
+                    spawn Sprite_from_name(&r, "core/menu/marker", &outer.main.dt, &outer.main.redraw);
                     await component.component.on_pointer_leave;
                 end
             with
                 var& Surface_from_name sfc =
                     spawn Surface_from_name({levelsets[@i]->get_image().c_str()}, _);
                 every outer.main.redraw do
-                    var Rct r = _;
-                    call/recursive Rct_Off(&rct, &r);
+                    var Rect r = _;
+                    call/recursive Rect_Off(&rect, &r);
 
                     call {Display::s_framebuffer}:draw_surface(
                         sfc.surface.framebuffer,
@@ -334,7 +332,7 @@ do
                 emit pse(true);
             end
             var int v = await ui.go;
-            rct.y = rct.y + v;
+            rect.y = rect.y + v;
             y = y + v;
         end
     end
@@ -371,11 +369,11 @@ code/await LevelsetSelector (void) -> int do
     var int? ret =
         watching ui do
             pool[] Levelset sets;
-            var Rct rct = val Rct(-370+70-10, -280+70+35, 680-90, LEVELSET_ITEM_HEIGHT-1, &outer.main.ctr);
+            var Rect rect = val Rect(-370+70-10, -280+70+35, 680-90, LEVELSET_ITEM_HEIGHT-1, &outer.main.center);
             var int i;
             loop i in [0 -> {levelsets.size()}[ do
-                spawn Levelset(&ui!.ui, i, rct) in sets;
-                rct.y = rct.y + LEVELSET_ITEM_HEIGHT;
+                spawn Levelset(&ui!.ui, i, rect) in sets;
+                rect.y = rect.y + LEVELSET_ITEM_HEIGHT;
             end
 
             par do
@@ -385,7 +383,7 @@ code/await LevelsetSelector (void) -> int do
                 every outer.main.redraw do
                     call {Fonts::chalk_large}.render(
                         _origin_top_center,
-                        outer.main.ctr.x, outer.main.ctr.y-280+40,
+                        outer.main.center.x, outer.main.center.y-280+40,
                         __("Levelsets"),
                         *{Display::s_framebuffer}
                     );

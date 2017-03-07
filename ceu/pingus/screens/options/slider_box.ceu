@@ -17,9 +17,9 @@ do
             watching ON_PRIMARY_BUTTON_RELEASED do
                 loop do
                     var int old = current;
-                    x = x - (rect.left as int);
+                    x = x - (rect.x as int);
 
-                    current = (max*x / (rect.width-12)) as int;
+                    current = (max*x / (rect.w-12)) as int;
                     current = {Math::clamp}(0, current, max);
 
                     if current != old then
@@ -34,14 +34,14 @@ do
         every outer.main.redraw do
             if {globals::developer_mode} as bool then
                 call {Display::s_framebuffer}:draw_rect(
-                    _Rect(rect.left,rect.width,rect.top,rect.height),
+                    _Rect(rect.x,rect.w,rect.y,rect.h),
                     _Color(0,255,255)
                 );
             end
             if current == 0 then
                 call {Fonts::chalk_normal}.render(
                     _origin_top_center,
-                    rect.left + rect.width/2, rect.top,
+                    rect.x + rect.w/2, rect.y,
                     "off",
                     *{Display::s_framebuffer}
                 );
@@ -51,7 +51,7 @@ do
                     if i < current then
                         call {Fonts::chalk_normal}.render(
                             _origin_top_left,
-                            rect.left + i*(rect.width-12)/max + 6, rect.top,
+                            rect.x + i*(rect.w-12)/max + 6, rect.y,
                             "|",
                             *{Display::s_framebuffer}
                         );
@@ -60,13 +60,13 @@ do
             end
             call {Fonts::chalk_normal}.render(
                 _origin_top_left,
-               rect.left, rect.top,
+               rect.x, rect.y,
                 "[",
                 *{Display::s_framebuffer}
             );
             call {Fonts::chalk_normal}.render(
                 _origin_top_right,
-               rect.left+rect.width, rect.top,
+               rect.x+rect.w, rect.y,
                 "]",
                 *{Display::s_framebuffer}
             );

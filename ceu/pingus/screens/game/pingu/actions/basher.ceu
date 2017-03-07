@@ -25,7 +25,7 @@ do
                           .. "/basher/right";
 
     var&? RightLeftSprites sprites =
-        spawn RightLeftSprites(&outer.pingu.rect, &outer.pingu.direction, &left, &left, &right, &outer.main.offset);
+        spawn RightLeftSprites(&outer.pingu.rect, &outer.pingu.direction, &left, &left, &right);
 
     var int? bash_reach; // set in bash
 
@@ -95,8 +95,8 @@ do
         outer.bash_reach = {bash_radius.get_width()};
 
         call Game_Remove({&bash_radius},
-                         outer.pingu.rect.left - {bash_radius.get_width() / 2},
-                         outer.pingu.rect.top  - {bash_radius.get_height()} + 1);
+                         outer.pingu.rect.x - {bash_radius.get_width() / 2},
+                         outer.pingu.rect.y - {bash_radius.get_height()} + 1);
     end
 
     code/tight Walk_Forward (void) -> bool do
@@ -120,8 +120,8 @@ do
         else
             // Note that Pingu::set_pos() is the 'reverse' of the y co-ords of
             // rel_getpixel()
-            outer.pingu.rect.left = outer.pingu.rect.left + (outer.pingu.direction as int);
-            outer.pingu.rect.top  = outer.pingu.rect.top  - y_inc;
+            outer.pingu.rect.x = outer.pingu.rect.x + (outer.pingu.direction as int);
+            outer.pingu.rect.y = outer.pingu.rect.y - y_inc;
         end
         escape true;
     end

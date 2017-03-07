@@ -42,8 +42,8 @@ loop do
                 spawn do
                     every outer.main.dt do
                         var Vector3f pst = call Pingu_Get_Center_Pos();
-                        rect_gb = val Rect(pst.x as int,pst.y as int,  0,0);
-                        rect_lr = val Rect(pst.x as int,(pst.y+2)as int,0,0);
+                        rect_gb = val Rect(pst.x as int,pst.y as int,   0,0, &outer.game.offset);
+                        rect_lr = val Rect(pst.x as int,(pst.y+2)as int,0,0, &outer.game.offset);
                     end
                 end
 
@@ -54,7 +54,7 @@ loop do
                         escape "game/cursors/capbad";
                     end
                 end;
-                spawn Sprite_from_name(&rect_gb, name1, &outer.main.dt, &outer.main.redraw, &outer.main.offset);
+                spawn Sprite_from_name(&rect_gb, name1, &outer.main.dt, &outer.main.redraw);
 
                 var _char&& name2 = do
                     if outer.pingu.direction == {LEFT} then
@@ -63,7 +63,7 @@ loop do
                         escape "game/cursors/arrow_right";
                     end
                 end;
-                spawn Sprite_from_name(&rect_lr, name2, &outer.main.dt, &outer.main.redraw, &outer.main.offset);
+                spawn Sprite_from_name(&rect_lr, name2, &outer.main.dt, &outer.main.redraw);
 
                 await FOREVER;
             end

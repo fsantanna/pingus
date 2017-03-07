@@ -11,7 +11,8 @@ do
 
     var Rect rect = val Rect(x, y,
                              {Fonts::chalk_small.get_width(@(&&label[0] as _char&&))},
-                             {Fonts::chalk_small.get_height()});
+                             {Fonts::chalk_small.get_height()},
+                             &outer.main.center);
 
     var& RectComponent rc = spawn RectComponent(&rect);
     component = &rc.component;

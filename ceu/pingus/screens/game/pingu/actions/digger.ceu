@@ -9,7 +9,7 @@ do
                            .. (call Pingu_Get_Owner_Str() as _char&&)
                            .. "/digger/left";
 
-    spawn Sprite_from_name(&outer.pingu.rect, &&str[0] as _char&&, &outer.game.dt, &outer.main.redraw, &outer.main.offset);
+    spawn Sprite_from_name(&outer.pingu.rect, &&str[0] as _char&&, &outer.game.dt, &outer.main.redraw);
 
     code/tight Have_Something_To_Dig (void)           -> bool;
     code/tight Dig                   (var bool final) -> void;
@@ -56,14 +56,14 @@ do
 
         if not final then
             call Game_Remove({&digger_radius},
-                             outer.pingu.rect.left - {digger_radius.get_width()}/2,
-                             outer.pingu.rect.top  - {digger_radius.get_height()} + 2);
+                             outer.pingu.rect.x - {digger_radius.get_width()}/2,
+                             outer.pingu.rect.y - {digger_radius.get_height()} + 2);
         else
             call Game_Remove({&digger_radius_final},
-                             outer.pingu.rect.left - {digger_radius.get_width()}/2,
-                             outer.pingu.rect.top  - {digger_radius.get_height()} + 2);
+                             outer.pingu.rect.x - {digger_radius.get_width()}/2,
+                             outer.pingu.rect.y - {digger_radius.get_height()} + 2);
         end
-        outer.pingu.rect.top = outer.pingu.rect.top + 1;
+        outer.pingu.rect.y = outer.pingu.rect.y + 1;
     end
 end
 

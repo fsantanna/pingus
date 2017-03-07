@@ -13,12 +13,12 @@ do
                                          ({Math::frand}() * -9)      as float,
                                          0);
 
-    var Rect rect = val Rect(x,y, 0,0);
-    spawn Sprite_from_name(&rect, "particles/pingu_explo", &outer.game.dt, &outer.main.redraw, &outer.main.offset);
+    var Rect rect = val Rect(x,y, 0,0, &outer.game.offset);
+    spawn Sprite_from_name(&rect, "particles/pingu_explo", &outer.game.dt, &outer.main.redraw);
 
     var bool has_pixel = do
         var _CollisionMap_ptr ptr = call Game_Get_Colmap();
-        escape ptr:getpixel(rect.left,rect.top) as bool;
+        escape ptr:getpixel(rect.x,rect.y) as bool;
     end;
 
     var int i;
@@ -40,13 +40,13 @@ do
                 if has_pixel then
                     velocity.y = velocity.y * -y_collision_decrease;
                     tmp_y_add = -tmp_y_add;
-                    rect.top = rect.top - 1;
+                    rect.y = rect.y - 1;
                     break;
                 end
-                rect.top = rect.top + 1;
+                rect.y = rect.y + 1;
                 tmp_y_add = tmp_y_add - 1;
             end
-            rect.top = rect.top + (tmp_y_add as int);
+            rect.y = rect.y + (tmp_y_add as int);
         else
             tmp_y_add = velocity.y;
             loop do
@@ -56,13 +56,13 @@ do
                 if has_pixel then
                     velocity.y = velocity.y * -y_collision_decrease;
                     tmp_y_add = -tmp_y_add;
-                    rect.top = rect.top + 1;
+                    rect.y = rect.y + 1;
                     break;
                 end
-                rect.top = rect.top - 1;
+                rect.y = rect.y - 1;
                 tmp_y_add = tmp_y_add + 1;
             end
-            rect.top = rect.top + (tmp_y_add as int);
+            rect.y = rect.y + (tmp_y_add as int);
         end
 
         if velocity.x > 0 then
@@ -74,13 +74,13 @@ do
                 if has_pixel then
                     velocity.x = velocity.x * -x_collision_decrease;
                     tmp_x_add = -tmp_x_add;
-                    rect.left = rect.left - 1;
+                    rect.x = rect.x - 1;
                     break;
                 end
-                rect.left = rect.left + 1;
+                rect.x = rect.x + 1;
                 tmp_x_add = tmp_x_add - 1;
             end
-            rect.left = rect.left + (tmp_x_add as int);
+            rect.x = rect.x + (tmp_x_add as int);
         else
             tmp_x_add = velocity.x;
             loop do
@@ -90,13 +90,13 @@ do
                 if has_pixel then
                     velocity.x = velocity.x * -x_collision_decrease;
                     tmp_x_add = -tmp_x_add;
-                    rect.left = rect.left + 1;
+                    rect.x = rect.x + 1;
                     break;
                 end
-                rect.left = rect.left - 1;
+                rect.x = rect.x - 1;
                 tmp_x_add = tmp_x_add + 1;
             end
-            rect.left = rect.left + (tmp_x_add as int);
+            rect.x = rect.x + (tmp_x_add as int);
         end
     end
 end

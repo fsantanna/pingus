@@ -14,7 +14,7 @@ do
                            .. (call Pingu_Get_Owner_Str() as _char&&)
                            .. "/walker/right";
 
-    spawn RightLeftSprites(&outer.pingu.rect, &outer.pingu.direction, &left1, &left1, &right1, &outer.main.offset);
+    spawn RightLeftSprites(&outer.pingu.rect, &outer.pingu.direction, &left1, &left1, &right1);
 
     // Reset the velocity
     var Vector3f v = val Vector3f(0, 0, 0);
@@ -26,14 +26,14 @@ do
         until (outer.fall_action == {ActionName::FLOATER});
         vector[] byte left2  = [] .. "other/floaterlayer/left";
         vector[] byte right2 = [] .. "other/floaterlayer/right";
-        spawn RightLeftSprites(&outer.pingu.rect, &outer.pingu.direction, &left2, &left2, &right2, &outer.main.offset);
+        spawn RightLeftSprites(&outer.pingu.rect, &outer.pingu.direction, &left2, &left2, &right2);
         await FOREVER;
     with
         loop do
             await outer.game.dt;
 
-            var int old_x = outer.pingu.rect.left;
-            var int old_y = outer.pingu.rect.top;
+            var int old_x = outer.pingu.rect.x;
+            var int old_y = outer.pingu.rect.y;
 
               /* How should this code work?
 
@@ -64,7 +64,7 @@ do
                     end
                 end;
                 if found_ground? then
-                    outer.pingu.rect.top = outer.pingu.rect.top - i;
+                    outer.pingu.rect.y = outer.pingu.rect.y - i;
                 else
                     escape {ActionName::FALLER};
                 end
@@ -76,8 +76,8 @@ do
             then // bridge
                 // simple, stupid, but working bridge code
                 // FIXME: We don't check if we 'drift' into a solid ground block
-                outer.pingu.rect.left = outer.pingu.rect.left + (outer.pingu.direction as int);
-                outer.pingu.rect.top  = outer.pingu.rect.top - 1; // pingus 'float' through bridges
+                outer.pingu.rect.x = outer.pingu.rect.x + (outer.pingu.direction as int);
+                outer.pingu.rect.y = outer.pingu.rect.y - 1; // pingus 'float' through bridges
             else
                 // Non of the trivial moves worked, so we do up-hill or down-hill 
                 // walking
@@ -111,8 +111,8 @@ do
 
                 if found_next_step then
                     // pos.y has a reversed co-system to rel_getpixel()?
-                    outer.pingu.rect.left = outer.pingu.rect.left + (outer.pingu.direction as int);
-                    outer.pingu.rect.top  = outer.pingu.rect.top - possible_y_step;
+                    outer.pingu.rect.x = outer.pingu.rect.x + (outer.pingu.direction as int);
+                    outer.pingu.rect.y = outer.pingu.rect.y - possible_y_step;
                 else
                     if call Pingu_Rel_Getpixel(1,0) != {Groundtype::GP_NOTHING} then
                         // We reached a wall
@@ -126,7 +126,7 @@ do
                         call Pingu_Toggle_Direction();
                     else
                         // We take the step, so that we are in the air
-                        outer.pingu.rect.left = outer.pingu.rect.left + (outer.pingu.direction as int);
+                        outer.pingu.rect.x = outer.pingu.rect.x + (outer.pingu.direction as int);
                         // We reached a cliff
                         escape {ActionName::FALLER};
                     end
@@ -141,8 +141,8 @@ do
                     //if the new position causes a head collision, we are already 
                     //stuck in a wall, so lets go back to the old position
                     call Pingu_Toggle_Direction();
-                    outer.pingu.rect.left = old_x;
-                    outer.pingu.rect.top  = old_y;
+                    outer.pingu.rect.x = old_x;
+                    outer.pingu.rect.y = old_y;
                 end
             end
         end

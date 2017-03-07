@@ -12,7 +12,7 @@ do
                           .. (call Pingu_Get_Owner_Str() as _char&&)
                           .. "/miner/right";
 
-    spawn RightLeftSprites(&outer.pingu.rect, &outer.pingu.direction, &left, &left, &right, &outer.main.offset);
+    spawn RightLeftSprites(&outer.pingu.rect, &outer.pingu.direction, &left, &left, &right);
 
     code/tight Mine (var bool final, var int delay_count) -> void;
 
@@ -44,8 +44,8 @@ do
         else
             // mine and walk forward
             call Mine(false, delay_count);
-            outer.pingu.rect.left = outer.pingu.rect.left + (outer.pingu.direction as int);
-            outer.pingu.rect.top  = outer.pingu.rect.top  + 1;
+            outer.pingu.rect.x = outer.pingu.rect.x + (outer.pingu.direction as int);
+            outer.pingu.rect.y = outer.pingu.rect.y  + 1;
         end
     end
 
@@ -69,19 +69,19 @@ do
             if delay_count%2 == 0 then
                 // regular mine action
                 call Game_Remove({&miner_radius},
-                                 outer.pingu.rect.left - {miner_radius.get_width()/2} + (outer.pingu.direction as int),
-                                 outer.pingu.rect.top  - {miner_radius.get_height()} + 2);
+                                 outer.pingu.rect.x - {miner_radius.get_width()/2} + (outer.pingu.direction as int),
+                                 outer.pingu.rect.y - {miner_radius.get_height()} + 2);
             end
 
         // the last mine action before switching to another action
         else/if outer.pingu.direction == {LEFT} then
             call Game_Remove({&miner_radius_left},
-                             outer.pingu.rect.left - {miner_radius_left.get_width()/2} + (outer.pingu.direction as int),
-                             outer.pingu.rect.top  - {miner_radius_left.get_height()} + 2);
+                             outer.pingu.rect.x - {miner_radius_left.get_width()/2} + (outer.pingu.direction as int),
+                             outer.pingu.rect.y - {miner_radius_left.get_height()} + 2);
         else    // RIGHT
             call Game_Remove({&miner_radius_right},
-                             outer.pingu.rect.left - {miner_radius_right.get_width()/2} + (outer.pingu.direction as int),
-                             outer.pingu.rect.top  - {miner_radius_right.get_height()} + 2);
+                             outer.pingu.rect.x - {miner_radius_right.get_width()/2} + (outer.pingu.direction as int),
+                             outer.pingu.rect.y - {miner_radius_right.get_height()} + 2);
         end
     end
 end

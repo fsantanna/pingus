@@ -8,7 +8,6 @@ do
     var int livetime = (25 + _rand()%10);
     var Vector3f velocity = val Vector3f(vel_x, vel_y, 0);
 
-    var Rect rect = val Rect(x,y, 0,0);
     var _char&& name = do
         if (_rand()%2) as bool then
             escape "particles/smoke";
@@ -17,7 +16,8 @@ do
         end
     end;
 
-    spawn Sprite_from_name(&rect, name, &outer.game.dt, &outer.main.redraw, &outer.main.offset);
+    var Rect rect = val Rect(x,y, 0,0, &outer.game.offset);
+    spawn Sprite_from_name(&rect, name, &outer.game.dt, &outer.main.redraw);
 
     var int i;
     loop i in [0 -> livetime[ do

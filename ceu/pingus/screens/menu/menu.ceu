@@ -87,10 +87,10 @@ code/await PingusMenu (void) -> int do
     spawn PingusMenuBackground();
 
     var Size size = val Size({Display::get_width()}, {Display::get_height()});
-    var Rect rect = val Rect(size.width/2, size.height/2, 0, 0);
-    var&? Sprite_from_name logo = spawn Sprite_from_name(&rect,"core/misc/logo",&outer.main.dt, &outer.main.redraw, _);
-    rect.left = rect.left - logo!.sprite.frame_size.width/2;
-    rect.top  = rect.top  - 280;
+    var Rect rect = val Rect(size.width/2,size.height/2, 0,0, &outer.main.center);
+    var&? Sprite_from_name logo = spawn Sprite_from_name(&rect,"core/misc/logo",&outer.main.dt, &outer.main.redraw);
+    rect.x = rect.x - logo!.sprite.frame_size.width/2;
+    rect.y = rect.y - 280;
 
     {Sound::PingusSound::play_music("pingus-1.it");};
 

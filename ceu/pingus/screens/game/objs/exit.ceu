@@ -18,19 +18,19 @@ do
         owner_id = 0;
     end
 
-    var Rect r1 = val Rect(pst.x,pst.y, 0,0);
+    var Rect r1 = val Rect(pst.x,pst.y, 0,0, &outer.game.offset);
     {
         static ResDescriptor desc1;
         WORLDOBJ_FACTORY_READER.read_desc("surface", desc1);
     };         // TODO: repeated below
 
     var&? Sprite_from_desc sprite =
-        spawn Sprite_from_desc(&r1, {Resource::load_sprite_desc(desc1.res_name)}, &outer.game.dt, &outer.main.redraw, &outer.main.offset);
+        spawn Sprite_from_desc(&r1, {Resource::load_sprite_desc(desc1.res_name)}, &outer.game.dt, &outer.main.redraw);
 
     vector[] byte name = [] .. "core/misc/flag" ..
                             {StringUtil::to_string}(owner_id).c_str() as _char&&;
-    var Rect r2 = val Rect(pst.x+40,pst.y, 0,0);
-    spawn Sprite_from_name(&r2, &&name[0] as _char&&, &outer.game.dt, &outer.main.redraw, &outer.main.offset);
+    var Rect r2 = val Rect(pst.x+40,pst.y, 0,0, &outer.game.offset);
+    spawn Sprite_from_name(&r2, &&name[0] as _char&&, &outer.game.dt, &outer.main.redraw);
 
     do
         {{
@@ -44,8 +44,8 @@ do
     end
 
     var Vector2i pst3 = call Game_Pos_To_Smallmap(Vector2i(pst.x,pst.y));
-    var Rect r3 = val Rect(pst3.x,pst3.y, 0,0);
-    spawn Sprite_from_name(&r3, "core/misc/smallmap_exit", &outer.main.dt, &outer.game.redraw_smallmap, _);
+    var Rect r3 = val Rect(pst3.x,pst3.y, 0,0, &outer.main.center);
+    spawn Sprite_from_name(&r3, "core/misc/smallmap_exit", &outer.main.dt, &outer.game.redraw_smallmap);
 
     every outer.game.dt do
         var&? Pingu p;
@@ -59,10 +59,10 @@ do
 #endif
 
             // Now, make sure the pingu is within range
-            if ( (p!.pingu.rect.left > pst.x-1) and
-                 (p!.pingu.rect.left < pst.x+1) and
-                 (p!.pingu.rect.top  > pst.y-5) and
-                 (p!.pingu.rect.top  < pst.y+5) )
+            if ( (p!.pingu.rect.x > pst.x-1) and
+                 (p!.pingu.rect.x < pst.x+1) and
+                 (p!.pingu.rect.y > pst.y-5) and
+                 (p!.pingu.rect.y < pst.y+5) )
             then
                 // Now, make sure the pingu isn't already exiting, gone, or dead
                 // Pingu actually exits

@@ -29,12 +29,10 @@ code/tight Game_Pingu_Out (var int status) -> void do
                                                   outer.game.counter.number_of_exited);
 end
 
-code/tight Game_Get_Offset (void) -> Vector2i do
-    var Vector2i ret = val Vector2i(
-                            (outer.game.state.get_pos().x - outer.game.state.get_width()/2),
-                            (outer.game.state.get_pos().y - outer.game.state.get_height()/2),
-                       );
-    escape ret;
+code/tight Game_Get_Offset (var& Rect ret) -> void do
+    ret = val Rect((outer.game.state.get_pos().x - outer.game.state.get_width()/2),
+                   (outer.game.state.get_pos().y - outer.game.state.get_height()/2),
+                   0, 0, _);
 end
 
 code/tight Game_Put (var _CollisionMask&& mask,var int x, var int y, var _Groundtype__GPType type) -> void do
@@ -59,8 +57,8 @@ end
 
 code/tight Game_Set_Viewpoint (var int x, var int y) -> void do
     outer.game.state.set_pos(_Vector2i(x, y));
-    outer.game.rect.left = x;
-    outer.game.rect.top  = y;
+    outer.game.rect.x = x;
+    outer.game.rect.y = y;
 end
 
 code/tight Game_Pos_To_Smallmap (var Vector2i pst) -> Vector2i do
@@ -69,8 +67,8 @@ code/tight Game_Pos_To_Smallmap (var Vector2i pst) -> Vector2i do
     var int ww = 175;
     var int hh = 100;
 
-    var Vector2i ret = val Vector2i(outer.game.rect_smallmap.left + pst.x*outer.game.rect_smallmap.width/outer.game.rect.width,
-                                    outer.game.rect_smallmap.top  + pst.y*outer.game.rect_smallmap.height/outer.game.rect.height);
+    var Vector2i ret = val Vector2i(outer.game.rect_smallmap.x + pst.x*outer.game.rect_smallmap.w/outer.game.rect.w,
+                                    outer.game.rect_smallmap.y + pst.y*outer.game.rect_smallmap.h/outer.game.rect.h);
     escape ret;
 end
 

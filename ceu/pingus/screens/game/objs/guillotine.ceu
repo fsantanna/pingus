@@ -11,9 +11,9 @@ do
     }
     var Vector2i pst = val Vector2i({p.x},{p.y});
 
-    var Rect r = val Rect(pst.x,pst.y, 0,0);
+    var Rect r = val Rect(pst.x,pst.y, 0,0, &outer.game.offset);
     loop do
-        spawn Sprite_from_name(&r, "traps/guillotineidle", &outer.game.dt, &outer.main.redraw, &outer.main.offset);
+        spawn Sprite_from_name(&r, "traps/guillotineidle", &outer.game.dt, &outer.main.redraw);
 
         var s8 dir = do
             loop do
@@ -37,7 +37,7 @@ do
                     escape "traps/guillotinekill/right";
                 end
             end;
-            var&? Sprite_from_name s = spawn Sprite_from_name(&r, name, &outer.game.dt, &outer.main.redraw, &outer.main.offset);
+            var&? Sprite_from_name s = spawn Sprite_from_name(&r, name, &outer.game.dt, &outer.main.redraw);
             watching s do
                 every outer.game.dt do
                     if s!.sprite.frame == 7 then

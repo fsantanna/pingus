@@ -12,7 +12,7 @@ do
                           .. (call Pingu_Get_Owner_Str() as _char&&)
                           .. "/slider/right";
 
-    spawn RightLeftSprites(&outer.pingu.rect, &outer.pingu.direction, &left, &left, &right, &outer.main.offset);
+    spawn RightLeftSprites(&outer.pingu.rect, &outer.pingu.direction, &left, &left, &right);
 
     #define SLIDER_SPEED 10
     var float speed = SLIDER_SPEED;
@@ -25,7 +25,7 @@ do
                 break;
             end
 
-            outer.pingu.rect.left = outer.pingu.rect.left + (outer.pingu.direction as int);
+            outer.pingu.rect.x = outer.pingu.rect.x + (outer.pingu.direction as int);
 
             if (call Pingu_Rel_Getpixel(0,-1) == {Groundtype::GP_NOTHING}) then
                 if speed <= 5 then

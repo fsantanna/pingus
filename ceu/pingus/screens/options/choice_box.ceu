@@ -20,8 +20,8 @@ do
             every outer.main.redraw do
                 call ({Fonts::chalk_normal.render} as /nohold)(
                     _origin_top_center,
-                    rect.left + rect.width/2,
-                    rect.top,
+                    rect.x + rect.w/2,
+                    rect.y,
                     &&value_[0] as _char&&,
                     *{Display::s_framebuffer}
                 );
@@ -58,8 +58,8 @@ do
         var int y;
         every (x,y) in component.component.on_primary_button_pressed do
             var int old = choicebox.current;
-            x = x - (rect.left as int);
-            if x > rect.width/2 then
+            x = x - (rect.x as int);
+            if x > rect.w/2 then
                 choicebox.current = (choicebox.current + 1) % tot;
             else
                 choicebox.current = choicebox.current - 1;
@@ -73,21 +73,21 @@ do
         every outer.main.redraw do
             if {globals::developer_mode} as bool then
                 call {Display::s_framebuffer}:draw_rect(
-                    _Rect(rect.left,rect.width,rect.width,rect.height),
+                    _Rect(rect.x,rect.w,rect.w,rect.h),
                     _Color(0, 255, 255)
                 );
             end
             call {Fonts::chalk_normal}.render(
                 _origin_top_left,
-                rect.left,
-                rect.top,
+                rect.x,
+                rect.y,
                 "<",
                 *{Display::s_framebuffer}
             );
             call {Fonts::chalk_normal}.render(
                 _origin_top_right,
-                rect.left+rect.width,
-                rect.top,
+                rect.x+rect.w,
+                rect.y,
                 ">",
                 *{Display::s_framebuffer}
             );

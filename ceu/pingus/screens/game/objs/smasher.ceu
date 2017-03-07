@@ -22,11 +22,11 @@ do
         }
     end
 
-    var Rect rect = val Rect(pst.x,pst.y, 0,0);
+    var Rect rect = val Rect(pst.x,pst.y, 0,0, &outer.game.offset);
     loop do
         var int ok = do
             var&? Sprite_from_name sprite =
-                spawn Sprite_from_name(&rect,"traps/smasher",&outer.game.dt, &outer.main.redraw, &outer.main.offset);
+                spawn Sprite_from_name(&rect,"traps/smasher",&outer.game.dt, &outer.main.redraw);
             _ceu_dbg_assert(call Get_Frame_Count(&sprite!.sprite) == 6);
             sprite!.sprite.frame_delay = 0;
 
@@ -37,12 +37,12 @@ do
                 loop pingu in outer.pingus do
                     // Activate the smasher if a Pingu is under it
                     if ((pingu!.pingu.direction == {LEFT}    and
-                         pingu!.pingu.rect.left > pst.x + 65 and
-                         pingu!.pingu.rect.left < pst.x + 85)
+                         pingu!.pingu.rect.x > pst.x + 65 and
+                         pingu!.pingu.rect.x < pst.x + 85)
                     or
                         (pingu!.pingu.direction == {RIGHT}    and
-                         pingu!.pingu.rect.left > pst.x + 190 and
-                         pingu!.pingu.rect.left < pst.x + 210))
+                         pingu!.pingu.rect.x > pst.x + 190 and
+                         pingu!.pingu.rect.x < pst.x + 210))
                     then
                         if (pingu!.pingu.current_action != {ActionName::SPLASHED}) then
                             escape 1;
@@ -54,7 +54,7 @@ do
 
         do
             var&? Sprite_from_name sprite =
-                spawn Sprite_from_name(&rect,"traps/smasher",&outer.game.dt, &outer.main.redraw, &outer.main.offset);
+                spawn Sprite_from_name(&rect,"traps/smasher",&outer.game.dt, &outer.main.redraw);
 
             do
                 var int i;

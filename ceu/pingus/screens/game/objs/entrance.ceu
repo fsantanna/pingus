@@ -39,8 +39,8 @@ do
     };
 
     var Vector2i pst2 = call Game_Pos_To_Smallmap(Vector2i(pst.x,pst.y));
-    var Rect r2 = val Rect(pst2.x,pst2.y, 0,0);
-    spawn Sprite_from_name(&r2, "core/misc/smallmap_entrance", &outer.game.dt, &outer.game.redraw_smallmap, _);
+    var Rect r2 = val Rect(pst2.x,pst2.y, 0,0, &outer.main.center);
+    spawn Sprite_from_name(&r2, "core/misc/smallmap_entrance", &outer.game.dt, &outer.game.redraw_smallmap);
 
     var int last_release = 150 - release_rate;
         // wait ~2sec at startup to allow a 'lets go' sound

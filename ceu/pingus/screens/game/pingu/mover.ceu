@@ -16,8 +16,8 @@ do
         // enclosing block for the C++ declarations
         {{
             Vector3f pst, move;
-            pst.x = @(outer.pingu.rect.left);
-            pst.y = @(outer.pingu.rect.top);
+            pst.x = @(outer.pingu.rect.x);
+            pst.y = @(outer.pingu.rect.y);
 
             move = Vector3f(@outer.pingu.velocity.x,@outer.pingu.velocity.y,@outer.pingu.velocity.z);
 
@@ -49,8 +49,8 @@ do
             @pst.z = pst.z;
         }};
 
-        outer.pingu.rect.left = pst.x as int;
-        outer.pingu.rect.top  = pst.y as int;
+        outer.pingu.rect.x = pst.x as int;
+        outer.pingu.rect.y = pst.y as int;
 
         if collided then
             emit ok_collided_;

@@ -11,26 +11,28 @@ data IRectComponent with
     event void      on_click;
 end
 
-code/tight Rect_is_at (var& Rect rect, var int x, var int y) -> bool do
-    escape rect.left<=x and x<=rect.left+rect.width
-       and rect.top <=y and y<=rect.top+rect.height;
-end
-
 code/await RectComponent (var& Rect rect)
                             -> (var IRectComponent component)
                                 -> FOREVER
 do
-    component = val IRectComponent(_,_,_,_,_);
+    component = _;
+
+    code/tight/recursive Rect_is_at (var int x, var int y) -> bool do
+        var Rect r = _;
+        call/recursive Rect_Off(&outer.rect, &r);
+        escape r.x<=x and x<=r.x+r.w
+           and r.y<=y and y<=r.y+r.h;
+    end
 
     par do
         loop do
             var int x;
             var int y;
             (x,y) = await ON_PRIMARY_BUTTON_PRESSED
-                    until call Rect_is_at(&rect,x,y);
+                    until call/recursive Rect_is_at(x,y);
             emit component.on_primary_button_pressed(x,y);
             (x,y) = await ON_PRIMARY_BUTTON_RELEASED;
-            if call Rect_is_at(&rect,x,y) then
+            if call/recursive Rect_is_at(x,y) then
                 emit component.on_click;
             end
             emit component.on_primary_button_released(x,y);
@@ -40,7 +42,7 @@ do
         var int x;
         var int y;
         every (x,y) in ON_POINTER_MOVE do
-            if call Rect_is_at(&rect,x,y) != is_on then
+            if call/recursive Rect_is_at(x,y) != is_on then
                 is_on = not is_on;
                 if is_on then
                     emit component.on_pointer_enter;

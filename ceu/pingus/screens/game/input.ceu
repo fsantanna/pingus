@@ -101,14 +101,14 @@ with                                                        // UI
     var int pse_y = dheight-62;
 
     par do                                                      // ARMAGEDDON
-        var Rect rect = val Rect(arm_x, arm_y, 38, 60);
+        var Rect rect = val Rect(arm_x,arm_y, 38,60, &outer.main.center);
 
         var& RectComponent component = spawn RectComponent(&rect);
 
-        spawn Sprite_from_name(&rect, "core/buttons/hbuttonbgb", &outer.main.dt, &outer.main.redraw, _);
+        spawn Sprite_from_name(&rect, "core/buttons/hbuttonbgb", &outer.main.dt, &outer.main.redraw);
 
         do
-            var&? Sprite_from_name s = spawn Sprite_from_name(&rect, "core/buttons/armageddon_anim", &outer.main.dt, &outer.main.redraw, _);
+            var&? Sprite_from_name s = spawn Sprite_from_name(&rect, "core/buttons/armageddon_anim", &outer.main.dt, &outer.main.redraw);
             s!.sprite.frame_delay = 0;
             s!.sprite.frame = 7;
 
@@ -122,19 +122,19 @@ with                                                        // UI
         end
 
         do
-            spawn Sprite_from_name(&rect, "core/buttons/armageddon_anim", &outer.main.dt, &outer.main.redraw, _);
+            spawn Sprite_from_name(&rect, "core/buttons/armageddon_anim", &outer.main.dt, &outer.main.redraw);
             emit outer.game.go_armageddon;
             await FOREVER;
         end
     with                                                        // FORWARD
-        var Rect rect = val Rect(fwd_x,fwd_y, 38,60);
+        var Rect rect = val Rect(fwd_x,fwd_y, 38,60, &outer.main.center);
 
         var& RectComponent component = spawn RectComponent(&rect);
 
         spawn do
             loop do
                 do
-                    spawn Sprite_from_name(&rect, "core/buttons/hbuttonbgb", &outer.main.dt, &outer.main.redraw, _);
+                    spawn Sprite_from_name(&rect, "core/buttons/hbuttonbgb", &outer.main.dt, &outer.main.redraw);
                     par/or do
                         var bool v = await go_forward until v;
                     with
@@ -143,7 +143,7 @@ with                                                        // UI
                     end
                 end
                 do
-                    spawn Sprite_from_name(&rect, "core/buttons/hbuttonbg", &outer.main.dt, &outer.main.redraw, _);
+                    spawn Sprite_from_name(&rect, "core/buttons/hbuttonbg", &outer.main.dt, &outer.main.redraw);
                     par/or do
                         var bool v = await go_forward until (not v);
                     with
@@ -154,10 +154,10 @@ with                                                        // UI
             end
         end
 
-        spawn Sprite_from_name(&rect, "core/buttons/fast_forward", &outer.main.dt, &outer.main.redraw, _);
+        spawn Sprite_from_name(&rect, "core/buttons/fast_forward", &outer.main.dt, &outer.main.redraw);
         await FOREVER;
     with                                                        // PAUSE
-        var Rect rect = val Rect(pse_x,pse_y, 38,60);
+        var Rect rect = val Rect(pse_x,pse_y, 38,60, &outer.main.center);
 
         var& RectComponent component = spawn RectComponent(&rect);
 
@@ -165,7 +165,7 @@ with                                                        // UI
             loop do
                 var bool from_out = true;
                 do
-                    spawn Sprite_from_name(&rect, "core/buttons/hbuttonbgb", &outer.main.dt, &outer.main.redraw, _);
+                    spawn Sprite_from_name(&rect, "core/buttons/hbuttonbgb", &outer.main.dt, &outer.main.redraw);
                     par/or do
                         await go_pause_toggle until from_out;
                     with
@@ -175,7 +175,7 @@ with                                                        // UI
                     end
                 end
                 do
-                    spawn Sprite_from_name(&rect, "core/buttons/hbuttonbg", &outer.main.dt, &outer.main.redraw, _);
+                    spawn Sprite_from_name(&rect, "core/buttons/hbuttonbg", &outer.main.dt, &outer.main.redraw);
                     from_out = true;
                     par/or do
                         await go_pause_toggle until from_out;
@@ -188,7 +188,7 @@ with                                                        // UI
             end
         end
 
-        spawn Sprite_from_name(&rect, "core/buttons/pause", &outer.main.dt, &outer.main.redraw, _);
+        spawn Sprite_from_name(&rect, "core/buttons/pause", &outer.main.dt, &outer.main.redraw);
         await FOREVER;
     end
 end

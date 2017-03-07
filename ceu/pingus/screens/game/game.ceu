@@ -23,6 +23,7 @@ data IGame with
     var   Rect                 rect;
     var   Rect                 rect_smallmap;
     var&  _GraphicContextState state;
+    var   Rect                 offset;
     var   float                gravity     = 0.2;
     var   _ActionName__Enum    action_next = {ActionName::WALKER};
     event void                 go_armageddon;
@@ -66,10 +67,10 @@ var IGame game =
                      PingusCounter(0,0,0,0,
                                    outer.plf.get_number_of_pingus(),
                                    outer.plf.get_number_to_save()),
-                     Rect(0,0,w,h),
-                     Rect(6,{Display::get_size}().height-105, 175,100),
+                     Rect(0,0,w,h,&outer.main.center),
+                     Rect(6,{Display::get_size}().height-105, 175,100,&outer.main.center),
                      &state,
-                     _, _, _, _, _);
+                     _, _, _, _, _, _);
 
 game.state.set_limit({Rect(Vector2i(0,0), Size(@w,@h))});
 
@@ -104,7 +105,8 @@ with
     end
 with
     every outer.main.redraw do
-        outer.main.offset = call Game_Get_Offset();
+/// TODO: call when setting game.state
+        call Game_Get_Offset(&game.offset);
     end
 with
     var Color ambient_light = val Color({@game.plf.get_ambient_light()}.r,
@@ -130,8 +132,7 @@ with
     pool[] Visible layer_bg_0;          // background
     spawn do
         every outer.main.redraw do             // groundpiece
-            var Vector2i off = outer.main.offset;
-            gfx_map.draw({Vector2i(-@off.x,-@off.y)});
+            gfx_map.draw({Vector2i(-@game.offset.x,-@game.offset.y)});
         end
     end
     pool[] Visible layer_bg_1;          // liquid, hotspot, exit
@@ -144,7 +145,7 @@ with
     do
         if call Game_Pingu_In() then
             outer.id = outer.id+1;
-            var Rect r = val Rect(x,y,0,0);
+            var Rect r = val Rect(x,y, 0,0, &outer.game.offset);
             spawn Pingu(&outer.pingus,outer.id,owner_id,r,dir) in outer.pingus;
         end
     end
@@ -198,10 +199,6 @@ with
         do ()
             #include "playfield.ceu"
         end
-    end
-with
-    every outer.main.redraw do
-        outer.main.offset = val Vector2i(0,0);
     end
 end
 

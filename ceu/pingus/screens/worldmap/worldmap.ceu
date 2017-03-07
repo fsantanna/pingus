@@ -32,6 +32,8 @@ end
   }
 #endif
 
+var Rect offset = val Rect(0,0,0,0,_);
+
 par do
     var int ret = do ()
         #include "aux.ceu"
@@ -40,7 +42,8 @@ par do
 with
     var Rect close_r = val Rect(0,
                                 {Display::get_height() - 37},
-                                _,_);
+                                _,_,
+                                &outer.main.center);
     var& SurfaceButton close = 
         spawn SurfaceButton(&close_r,
                             "core/worldmap/leave_button_normal",

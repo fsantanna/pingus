@@ -110,7 +110,8 @@ do
         end
     with
         every outer.main.redraw do
-            var Vector2i off = call Game_Get_Offset();
+            var Rect off = _;
+            call Game_Get_Offset(&off);
             var int start_x = ((off.x * para_x) + scroll_ox) as int;
             var int start_y = ((off.y * para_y) + scroll_oy) as int;
 
@@ -125,14 +126,14 @@ do
             var int y = start_y;
             var int i;
             loop i do
-                if y >= outer.game.rect.height then
+                if y >= outer.game.rect.h then
                     break;
                 end
 
                 var int x = start_x;
                 var int j;
                 loop j do
-                    if x >= outer.game.rect.width then
+                    if x >= outer.game.rect.w then
                         break;
                     end
                     call {Display::s_framebuffer}:draw_surface(

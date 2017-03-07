@@ -34,8 +34,8 @@ end
 
 code/tight Pingu_Rel_Getpixel (var int x, var int y) -> int do
     escape outer.gfx_map.get_colmap():getpixel(
-                (outer.pingu.rect.left + (x * outer.pingu.direction)),
-                (outer.pingu.rect.top - y)
+                (outer.pingu.rect.x + (x * outer.pingu.direction)),
+                (outer.pingu.rect.y - y)
             );
 end
 
@@ -66,7 +66,7 @@ code/tight Pingu_Check_Action (var _ActionName__Enum new_action) -> bool do
 end
 
 code/tight Pingu_Get_Center_Pos (void) -> Vector3f do
-    var Vector3f vec = val Vector3f(outer.pingu.rect.left as float, (outer.pingu.rect.top-16) as float, 0);
+    var Vector3f vec = val Vector3f(outer.pingu.rect.x as float, (outer.pingu.rect.y-16) as float, 0);
     escape vec;
 end
 
@@ -91,10 +91,10 @@ do
     _ceu_dbg_assert(x1 < x2);
     _ceu_dbg_assert(y1 < y2);
 
-    escape (outer.pingu.rect.left > x1 and
-            outer.pingu.rect.left < x2 and
-            outer.pingu.rect.top  > y1 and
-            outer.pingu.rect.top  < y2);
+    escape (outer.pingu.rect.x > x1 and
+            outer.pingu.rect.x < x2 and
+            outer.pingu.rect.y > y1 and
+            outer.pingu.rect.y < y2);
 end
 
 #endif

@@ -12,7 +12,7 @@ do
                           .. (call Pingu_Get_Owner_Str() as _char&&)
                           .. "/blocker/right";
 
-    spawn RightLeftSprites(&outer.pingu.rect, &outer.pingu.direction, &left, &left, &right, &outer.main.offset);
+    spawn RightLeftSprites(&outer.pingu.rect, &outer.pingu.direction, &left, &left, &right);
 
     code/tight Standing_On_Ground (void)               -> bool;
     code/tight Catch_Pingu        (var& IPingu target) -> void;
@@ -40,12 +40,12 @@ do
 
     code/tight Catch_Pingu (var& IPingu target) -> void do
         if &&target != &&outer.pingu then // avoid 'self' catch
-            if ( target.rect.left > outer.pingu.rect.left-16
-            and  target.rect.left < outer.pingu.rect.left+16
-            and  target.rect.top  > outer.pingu.rect.top-32
-            and  target.rect.top  < outer.pingu.rect.top+5 )
+            if ( target.rect.x > outer.pingu.rect.x-16
+            and  target.rect.x < outer.pingu.rect.x+16
+            and  target.rect.y > outer.pingu.rect.y-32
+            and  target.rect.y < outer.pingu.rect.y+5 )
             then
-                if (target.rect.left > outer.pingu.rect.left) then
+                if (target.rect.x > outer.pingu.rect.x) then
                     target.direction = {RIGHT};
                 else
                     target.direction = {LEFT};

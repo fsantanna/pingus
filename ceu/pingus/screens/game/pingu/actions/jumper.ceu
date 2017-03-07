@@ -13,7 +13,7 @@ do
                           .. "/jumper/right";
 
     var&? RightLeftSprites sprites =
-        spawn RightLeftSprites(&outer.pingu.rect, &outer.pingu.direction, &left, &left, &right, &outer.main.offset);
+        spawn RightLeftSprites(&outer.pingu.rect, &outer.pingu.direction, &left, &left, &right);
 
     await outer.game.dt;
 
@@ -35,7 +35,7 @@ do
     outer.pingu.velocity.y = outer.pingu.velocity.y + dy;
 
     // Move the me.pingu:n the air, so that it can start 'falling'
-    outer.pingu.rect.top = outer.pingu.rect.top - 1;
+    outer.pingu.rect.y = outer.pingu.rect.y - 1;
 
     escape {ActionName::FALLER};
 end

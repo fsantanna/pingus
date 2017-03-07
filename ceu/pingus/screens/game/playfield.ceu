@@ -6,10 +6,11 @@
 #define POS2VEC(m) _Vector2i(m.x,m.y)
 
 var Rect rect = val Rect(
-    {Math::max}(({Display::get_width()}-outer.game.rect.width)/2, 0),
-    {Math::max}(({Display::get_height()}-outer.game.rect.height)/2, 0),
-    {Math::min}({Display::get_width()},  outer.game.rect.width),
-    {Math::min}({Display::get_height()}, outer.game.rect.height)
+    {Math::max}(({Display::get_width()}-outer.game.rect.w)/2, 0),
+    {Math::max}(({Display::get_height()}-outer.game.rect.h)/2, 0),
+    {Math::min}({Display::get_width()},  outer.game.rect.w),
+    {Math::min}({Display::get_height()}, outer.game.rect.h),
+    &outer.main.center
 );
 
 var& RectComponent component = spawn RectComponent(&rect);
@@ -19,8 +20,8 @@ spawn do
     var int x;
     var int y;
     every (x,y) in ON_POINTER_MOVE do
-        mouse_pos.x = x - rect.left;
-        mouse_pos.y = y - rect.top;
+        mouse_pos.x = x - rect.x;
+        mouse_pos.y = y - rect.y;
     end
 end
 
@@ -28,8 +29,8 @@ par do
     var int x;
     var int y;
     every (x,y) in component.component.on_primary_button_pressed do
-        x = x - rect.left;
-        y = y - rect.top;
+        x = x - rect.x;
+        y = y - rect.y;
         x = outer.game.state.screen2world(_Vector2i(x,y)).x;
         y = outer.game.state.screen2world(_Vector2i(x,y)).y;
 
@@ -64,8 +65,8 @@ with
         var Vector2i old_state_pos = val Vector2i(outer.game.state.get_pos().x,
                                                   outer.game.state.get_pos().y);
 
-        var Vector2i scroll = val Vector2i(x - rect.left,
-                                           y - rect.top);
+        var Vector2i scroll = val Vector2i(x - rect.x,
+                                           y - rect.y);
 
         watching ON_SECONDARY_BUTTON_RELEASED do
             par do
@@ -76,9 +77,9 @@ with
                             _Vector2i(old_state_pos.x,old_state_pos.y)
                                 + (_Vector2i(scroll.x,scroll.y)
                                     - POS2VEC(mouse_pos)));
-                        outer.game.rect.left =
+                        outer.game.rect.x =
                             (old_state_pos.x + scroll.x - mouse_pos.x) as int;
-                        outer.game.rect.top =
+                        outer.game.rect.y =
                             (old_state_pos.y + scroll.y - mouse_pos.y) as int;
                     else
                         outer.game.state.set_pos(
@@ -88,10 +89,10 @@ with
                                         - (scroll.y - mouse_pos.y) * 0.2
                             )
                         );
-                        outer.game.rect.left =
-                            (outer.game.rect.left - (scroll.x - mouse_pos.x) * 0.2) as int;
-                        outer.game.rect.top =
-                            (outer.game.rect.top - (scroll.y - mouse_pos.y) * 0.2) as int;
+                        outer.game.rect.x =
+                            (outer.game.rect.x - (scroll.x - mouse_pos.x) * 0.2) as int;
+                        outer.game.rect.y =
+                            (outer.game.rect.y - (scroll.y - mouse_pos.y) * 0.2) as int;
                     end
                 end
             with
@@ -143,18 +144,18 @@ with
 
             if (mouse_pos.x < 10) then
                 outer.game.state.set_pos(outer.game.state.get_pos() - _Vector2i(scroll_speed, 0));
-                outer.game.rect.left = outer.game.rect.left - scroll_speed;
+                outer.game.rect.x = outer.game.rect.x - scroll_speed;
             else/if (mouse_pos.x > {Display::get_width()} - 10) then
                 outer.game.state.set_pos(outer.game.state.get_pos() + _Vector2i(scroll_speed, 0));
-                outer.game.rect.left = outer.game.rect.left + scroll_speed;
+                outer.game.rect.x = outer.game.rect.x + scroll_speed;
             end
 
             if (mouse_pos.y < 10) then
                 outer.game.state.set_pos(outer.game.state.get_pos() - _Vector2i(0, scroll_speed));
-                outer.game.rect.top = outer.game.rect.top - scroll_speed;
+                outer.game.rect.y = outer.game.rect.y - scroll_speed;
             else/if (mouse_pos.y > {Display::get_height()} - 10) then
                 outer.game.state.set_pos(outer.game.state.get_pos() + _Vector2i(0, scroll_speed));
-                outer.game.rect.top = outer.game.rect.top + scroll_speed;
+                outer.game.rect.y = outer.game.rect.y + scroll_speed;
             end
         end
     end

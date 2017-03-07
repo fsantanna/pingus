@@ -125,8 +125,8 @@ do
     end
 
     outer.game.state.set_pos(_Vector2i(pos_start.x,pos_start.y));
-    outer.game.rect.left = pos_start.x;
-    outer.game.rect.top  = pos_start.y;
+    outer.game.rect.x = pos_start.x;
+    outer.game.rect.y = pos_start.y;
 end
 
 await FOREVER;

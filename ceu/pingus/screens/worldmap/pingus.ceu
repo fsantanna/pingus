@@ -9,8 +9,8 @@
     //var& Vector3f pst;
 //end
 
-var s8                  direction = {NONE};
-var Rect                rect      = _;
+var s8   direction = {NONE};
+var Rect rect      = val Rect(_,_,_,_, &outer.offset);
 
 code/await MovePath (var& float cur) -> void
 do
@@ -45,12 +45,12 @@ vector[] byte none  = [].."core/worldmap/pingus_standing";
 vector[] byte left  = [].."core/worldmap/pingus/left";
 vector[] byte right = [].."core/worldmap/pingus/right";
 var&? RightLeftSprites sprites =
-    spawn RightLeftSprites(&rect, &direction, &none, &left, &right, &outer.main.offset);
+    spawn RightLeftSprites(&rect, &direction, &none, &left, &right);
 
 par do
     every outer.main.dt do
-        rect.left = outer.pst.x as int;
-        rect.top  = outer.pst.y as int;
+        rect.x = outer.pst.x as int;
+        rect.y = outer.pst.y as int;
     end
 with
     loop do
@@ -85,9 +85,10 @@ with
                     watching pingus.go_walking do
                         var Rect r = val Rect({path_graph->get_dot(@target)->get_pos().x},
                                               {path_graph->get_dot(@target)->get_pos().y},
-                                              0, 0);
+                                              0, 0,
+                                              &outer.offset);
                                                 // TODO + Vector3f(0, 0, 10));
-                        spawn Sprite_from_name(&r, "core/worldmap/arrow", &outer.main.dt, &outer.main.redraw, &outer.main.offset);
+                        spawn Sprite_from_name(&r, "core/worldmap/arrow", &outer.main.dt, &outer.main.redraw);
                         var int i;
                         loop i do
                             {

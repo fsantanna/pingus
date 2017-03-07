@@ -8,14 +8,14 @@ do
     vector[] byte str = [] .. "pingus/player"
                            .. (call Pingu_Get_Owner_Str() as _char&&)
                            .. "/floater/left";
-    spawn Sprite_from_name(&outer.pingu.rect, &&str[0] as _char&&, &outer.game.dt, &outer.main.redraw, &outer.main.offset);
+    spawn Sprite_from_name(&outer.pingu.rect, &&str[0] as _char&&, &outer.game.dt, &outer.main.redraw);
 
     call Pingu_Set_Velocity(Vector3f(0.0, 1.0, 0.0));
 
     loop do
         await outer.game.dt;
         if call Pingu_Rel_Getpixel(0,-1) == {Groundtype::GP_NOTHING} then
-            outer.pingu.rect.top = outer.pingu.rect.top + 1;
+            outer.pingu.rect.y = outer.pingu.rect.y + 1;
         else
             escape {ActionName::WALKER};
         end

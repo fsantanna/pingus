@@ -16,21 +16,21 @@ do
             await outer.game.dt;
             var&? Pingu p;
             loop p in outer.pingus do
-                if (p!.pingu.rect.left > pst.x+16-5 and
-                    p!.pingu.rect.left < pst.x+16+5 and
-                    p!.pingu.rect.top  > pst.y      and
-                    p!.pingu.rect.top  < pst.y + 32)
+                if (p!.pingu.rect.x > pst.x+16-5 and
+                    p!.pingu.rect.x < pst.x+16+5 and
+                    p!.pingu.rect.y > pst.y      and
+                    p!.pingu.rect.y < pst.y + 32)
                 then
-                    var Rect r = val Rect(pst.x,pst.y, 0,0);
-                    var&? Sprite_from_name s = spawn Sprite_from_name(&r, "traps/spike", &outer.game.dt, &outer.main.redraw, &outer.main.offset);
+                    var Rect r = val Rect(pst.x,pst.y, 0,0, &outer.game.offset);
+                    var&? Sprite_from_name s = spawn Sprite_from_name(&r, "traps/spike", &outer.game.dt, &outer.main.redraw);
                     watching s, p do
                         loop do
                             await outer.game.dt;
                             if (s!.sprite.frame == 3 and
-                                p!.pingu.rect.left > pst.x+16-12 and
-                                p!.pingu.rect.left < pst.x+16+12 and
-                                p!.pingu.rect.top  > pst.y       and
-                                p!.pingu.rect.top  < pst.y+32)
+                                p!.pingu.rect.x > pst.x+16-12 and
+                                p!.pingu.rect.x < pst.x+16+12 and
+                                p!.pingu.rect.y > pst.y       and
+                                p!.pingu.rect.y < pst.y+32)
                             then
                                 break;
                             end
