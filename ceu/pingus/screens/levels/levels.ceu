@@ -220,11 +220,15 @@ do
     var int? ret =
         watching ui do
             var Rect r1 = val Rect(0, -280+70-20, 0, 0, &outer.main.center);
-            spawn Sprite_from_name(&r1, levelset.get_image().c_str(), &outer.main.dt, &outer.main.redraw);
+            {
+                static std::string str;
+                str = @levelset.get_image();
+            }
+            spawn Sprite_from_name(&r1, {str.c_str()}, &outer.main.dt, &outer.main.redraw);
                 r1.x = -370 + 35 + r1.w/2;
 
             var Rect r2 = val Rect(0, -280+70-20, 0, 0, &outer.main.center);
-            spawn Sprite_from_name(&r2, levelset.get_image().c_str(), &outer.main.dt, &outer.main.redraw);
+            spawn Sprite_from_name(&r2, {str.c_str()}, &outer.main.dt, &outer.main.redraw);
                 r2.x =  370 - 90 - r2.w/2;
 
             pool[] Level levels;

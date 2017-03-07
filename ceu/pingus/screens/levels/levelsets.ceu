@@ -28,8 +28,12 @@ do
                     await component.component.on_pointer_leave;
                 end
             with
+                {
+                    static std::string str;
+                    str = levelsets[@i]->get_image();
+                }
                 var& Surface_from_name sfc =
-                    spawn Surface_from_name({levelsets[@i]->get_image().c_str()}, _);
+                    spawn Surface_from_name({str.c_str()}, _);
                 every outer.main.redraw do
                     var Rect r = _;
                     call/recursive Rect_Off(&rect, &r);
@@ -55,14 +59,14 @@ do
 
                     call {Fonts::chalk_normal}.render(
                         _origin_top_right,
-                        60+r.w, 15+r.y,
+                        outer.main.center.x+230, 15+r.y,
                         {(boost::format("%1% %2%%%") % _("Solved:") % levelsets[@i]->get_completion()).str()},
                         *{Display::s_framebuffer}
                     );
 
                     call {Fonts::chalk_normal}.render(
                         _origin_top_right,
-                        60+r.w, 40+r.y,
+                        outer.main.center.x+230, 40+r.y,
                         {(boost::format("%1% %2%") % levelsets[@i]->get_level_count() % _("levels")).str()},
                         *{Display::s_framebuffer}
                     );
@@ -116,7 +120,9 @@ code/await Levelsets (void) -> int do
     var int? ret =
         watching ui do
             pool[] Levelset sets;
-            var Rect rect = val Rect(-370+70-10, -280+70+35, 680-90, LEVELSET_ITEM_HEIGHT-1, &outer.main.center);
+            var Rect rect = val Rect(-370+70-10, -280+70+35,
+                                     680-90, LEVELSET_ITEM_HEIGHT-1,
+                                     &outer.main.center);
             var int i;
             loop i in [0 -> {levelsets.size()}[ do
                 spawn Levelset(&ui!.ui, i, rect) in sets;
