@@ -194,4 +194,116 @@ do
     end
 end
 
+///////////////////////////////////////////////////////////////////////////////
+
+code/await Sprite_from_sfc_ (var& IRRect rect, var& Surface sfc, event& int dt, event& void redraw)
+                                -> (var ISprite sprite)
+                                    -> void
+do
+    sprite = val ISprite(
+        _,
+        Vector2i(sfc.desc:frame_pos.x, sfc.desc:frame_pos.y),
+        _,
+        sfc.desc:speed,
+        Size(sfc.desc:array.width, sfc.desc:array.height),
+        (sfc.desc:_loop as bool),
+        _,
+    );
+
+    sprite.frame_pos   = val Vector2i(sfc.desc:frame_pos.x, sfc.desc:frame_pos.y);
+    sprite.array       = val Size(sfc.desc:array.width, sfc.desc:array.height);
+    sprite.frame_delay = sfc.desc:speed;
+    sprite.is_loop     = sfc.desc:_loop as bool;
+
+    if sfc.desc:frame_size.width  == -1 then
+        sprite.frame_size.width  = sfc.framebuffer.get_width()  / sprite.array.width;
+        sprite.frame_size.height = sfc.framebuffer.get_height() / sprite.array.height;
+    else
+        sprite.frame_size.width  = sfc.desc:frame_size.width;
+        sprite.frame_size.height = sfc.desc:frame_size.height;
+    end
+
+    rect.off.w = sprite.frame_size.width;
+    rect.off.h = sprite.frame_size.height;
+    emit rect.changed;
+
+    {
+        static Vector2i vec;
+        vec = calc_origin(@(sfc.desc:origin),
+                          Size(@(sprite.frame_size.width),
+                               @(sprite.frame_size.height)))
+                - @(sfc.desc:offset);
+    };
+    sprite.offset = val Vector2i({vec.x}, {vec.y});
+
+    var int total_time = sprite.frame_delay *
+                         (sprite.array.width * sprite.array.height);
+
+    sprite.frame = 0;
+
+    var int tick_count = 0;
+
+    par do
+        /* UPDATE */
+        loop do
+            loop do
+                var int v = await dt;
+                if sprite.frame_delay == 0 then
+                    await FOREVER;
+                end
+
+                tick_count = tick_count + v;
+
+                if tick_count >= total_time then
+                    if sprite.is_loop then
+                        tick_count = tick_count % total_time;
+                        sprite.frame = tick_count / sprite.frame_delay;
+                    end
+                    break;
+                else
+                    sprite.frame = tick_count / sprite.frame_delay;
+                end
+            end
+            if not sprite.is_loop then
+                escape;
+            end
+        end
+    with
+        /* DRAW */
+        every redraw do
+#if 0
+            call {Display::s_framebuffer}:draw_surface(
+                                            sfc.framebuffer,
+                                            _Vector2i(x,y),
+            );
+#endif
+            call {Display::s_framebuffer}:draw_surface(
+                sfc.framebuffer,
+                _Rect(
+                    _Vector2i(sprite.frame_pos.x,sprite.frame_pos.y) +
+                        _Vector2i(sprite.frame_size.width  * (sprite.frame%sprite.array.width),
+                                  sprite.frame_size.height * (sprite.frame/sprite.array.width)),
+                    _Size(sprite.frame_size.width,sprite.frame_size.height)),
+                _Vector2i(rect.abs.x - sprite.offset.x,
+                          rect.abs.y - sprite.offset.y)
+            );
+        end
+    end
+end
+
+code/await Sprite_from_name_ (var& IRRect rect, var _char_const_ptr name, event& int dt, event& void redraw)
+                                -> (var& ISprite sprite)
+                                    -> void
+do
+    var& Surface_from_name sfc_from_name =
+        spawn Surface_from_name(name, {ResourceModifier::ROT0});
+
+    var& Surface sfc = &sfc_from_name.surface;
+    var&? Sprite_from_sfc_ s = spawn Sprite_from_sfc_(&rect, &sfc, &dt, &redraw);
+    watching s do
+        sprite = &s!.sprite;
+        await FOREVER;
+    end
+end
+
 #endif

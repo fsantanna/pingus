@@ -1,0 +1,81 @@
+#ifdef _RRECT_CEU
+#error multiple include
+#else
+#define _RRECT_CEU
+
+data AnchorX;
+data AnchorX.Left;
+data AnchorX.Center;
+data AnchorX.Right;
+
+data AnchorY;
+data AnchorY.Top;
+data AnchorY.Center;
+data AnchorY.Bottom;
+
+data AnchorXY with
+    var AnchorX x;
+    var AnchorY y;
+end
+
+data IRRect with
+    var   Rect_     off;
+    var   AnchorXY  a_off;
+    var&? IRRect    ref;
+    var   AnchorXY? a_ref;
+    var   Rect_     abs;
+    event void      changed;
+end
+
+code/await RRect (var IRRect rect) -> (var& IRRect pub) -> FOREVER
+do
+    pub = &rect;
+    loop do
+        if pub.ref? then
+            pub.abs.x = pub.ref!.abs.x + pub.off.x;
+            pub.abs.y = pub.ref!.abs.y + pub.off.y;
+            pub.abs.w = pub.off.w;
+            pub.abs.h = pub.off.h;
+
+            if pub.a_ref!.x is AnchorX.Center then
+                pub.abs.x = pub.abs.x + pub.ref!.abs.w/2;
+            else/if pub.a_ref!.x is AnchorX.Right then
+                pub.abs.x = pub.abs.x + pub.ref!.abs.w;
+            end
+
+            if pub.a_ref!.y is AnchorY.Center then
+                pub.abs.y = pub.abs.y + pub.ref!.abs.h/2;
+            else/if pub.a_ref!.y is AnchorY.Bottom then
+                pub.abs.y = pub.abs.y + pub.ref!.abs.h;
+            end
+
+        else
+            pub.abs = pub.off;
+        end
+
+        if pub.a_off.x is AnchorX.Center then
+            pub.abs.x = pub.abs.x - pub.abs.w/2;
+        else/if pub.a_off.x is AnchorX.Right then
+            pub.abs.x = pub.abs.x - pub.abs.w;
+        end
+
+        if pub.a_off.y is AnchorY.Center then
+            pub.abs.y = pub.abs.y - pub.abs.h/2;
+        else/if pub.a_off.y is AnchorY.Bottom then
+            pub.abs.y = pub.abs.y - pub.abs.h;
+        end
+
+        emit pub.changed;
+        par/or do
+            await pub.changed;
+        with
+            if pub.ref? then
+                await pub.ref!.changed;
+            else
+                await FOREVER;
+            end
+        end
+    end
+end
+
+#endif

@@ -199,6 +199,13 @@ data Rect with
     var&? Rect off;
 end
 
+data Rect_ with
+    var int x;
+    var int y;
+    var int w;
+    var int h;
+end
+
 code/tight/recursive Rect_Off_ (var& Rect rect, var& Rect ret) -> void do
     if rect.off? then
         call/recursive Rect_Off_(&rect.off!, &ret);
@@ -230,18 +237,26 @@ data Vector3f with
     var float z;
 end
 
+#include "rrect.ceu"
+
 #include "engine/input/sdl_driver.ceu"
 #include "engine/gui/rect_component.ceu"
 
 #include "pingus/config_manager.ceu"
 
 data IMain with
-    var Rect   center;
-    event void go_options;
-    event int  dt;
-    event void redraw;
+    var Rect     center;
+    var&  RRect  rect;
+    event void   go_options;
+    event int    dt;
+    event void   redraw;
 end
 var IMain main = _;
+
+main.rect = spawn RRect(IRRect(Rect_(0,0, {Display::get_width()},{Display::get_height()}),
+                               AnchorXY(AnchorX.Left(), AnchorY.Top()),
+                               nil, _,
+                               _, _));
 
 #include "engine/display/surface.ceu"
 #include "engine/display/sprite.ceu"
@@ -314,6 +329,9 @@ with
                                0, 0,
                                nil);
         await SDL_RESIZE;
+        main.rect.pub.off.w = {Display::get_width()};
+        main.rect.pub.off.h = {Display::get_height()};
+        emit main.rect.pub.changed;
     end
 with
     pause/if go_pause do
