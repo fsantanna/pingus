@@ -9,7 +9,7 @@ data IChoiceBox with
     event    void go;
 end
 
-code/await ChoiceItem (var& Rect rect, var _char_const_ptr value, var int n, var& IChoiceBox choicebox)
+code/await ChoiceItem (var& IRRect rect, var _char_const_ptr value, var int n, var& IChoiceBox choicebox)
                         -> FOREVER
 do
     vector[] byte value_ = []..(value as _char&&);
@@ -18,12 +18,10 @@ do
     par do
         pause/if go_pause do
             every outer.main.redraw do
-                var Rect r = _;
-                call/recursive Rect_Off(&rect, &r);
                 call ({Fonts::chalk_normal.render} as /nohold)(
                     _origin_top_center,
-                    r.x + r.w/2,
-                    r.y,
+                    rect.abs.x + rect.abs.w/2,
+                    rect.abs.y,
                     &&value_[0] as _char&&,
                     *{Display::s_framebuffer}
                 );
@@ -41,10 +39,10 @@ do
     end
 end
 
-code/await ChoiceBox (var& Rect rect, pool&[] ChoiceItem items, var& IChoiceBox choicebox)
+code/await ChoiceBox (var& IRRect rect, pool&[] ChoiceItem items, var& IChoiceBox choicebox)
                         -> FOREVER
 do
-    var& RectComponent component = spawn RectComponent(&rect);
+    var& RectComponent_ component = spawn RectComponent_(&rect);
 
     emit choicebox.go;
 
@@ -59,11 +57,9 @@ do
         var int x;
         var int y;
         every (x,y) in component.component.on_primary_button_pressed do
-            var Rect r = _;
-            call/recursive Rect_Off(&rect, &r);
             var int old = choicebox.current;
-            x = x - (r.x as int);
-            if x > r.w/2 then
+            x = x - (rect.abs.x as int);
+            if x > rect.abs.w/2 then
                 choicebox.current = (choicebox.current + 1) % tot;
             else
                 choicebox.current = choicebox.current - 1;
@@ -75,26 +71,23 @@ do
         end
     with
         every outer.main.redraw do
-            var Rect r = _;
-            call/recursive Rect_Off(&rect, &r);
-
             if {globals::developer_mode} as bool then
                 call {Display::s_framebuffer}:draw_rect(
-                    _Rect(r.x,r.w,r.w,r.h),
+                    _Rect(rect.abs.x,rect.abs.w,rect.abs.w,rect.abs.h),
                     _Color(0, 255, 255)
                 );
             end
             call {Fonts::chalk_normal}.render(
-                _origin_top_left,
-                r.x,
-                r.y,
+                _origin_top_center,
+                rect.abs.x,
+                rect.abs.y,
                 "<",
                 *{Display::s_framebuffer}
             );
             call {Fonts::chalk_normal}.render(
-                _origin_top_right,
-                r.x+r.w,
-                r.y,
+                _origin_top_center,
+                rect.abs.x+rect.abs.w,
+                rect.abs.y,
                 ">",
                 *{Display::s_framebuffer}
             );

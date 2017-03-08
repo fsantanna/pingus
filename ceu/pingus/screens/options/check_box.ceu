@@ -8,13 +8,13 @@ data ICheckBox with
     event bool go_click;
 end
 
-code/await CheckBox (var& Rect rect, var bool is_on)
+code/await CheckBox (var& IRRect rect, var bool is_on)
                         -> (var ICheckBox checkbox)
                             -> FOREVER
 do
     checkbox = val ICheckBox(is_on,_);
 
-    var& RectComponent component = spawn RectComponent(&rect);
+    var& RectComponent_ component = spawn RectComponent_(&rect);
 
     par do
         every component.component.on_primary_button_pressed do
@@ -28,7 +28,7 @@ do
             else
                 file = "core/menu/checkbox_small";
             end
-            spawn Sprite_from_name(&rect, file, &outer.main.dt, &outer.main.redraw);
+            spawn Sprite_from_name_(&rect, file, &outer.main.dt, &outer.main.redraw);
             checkbox.is_on = await checkbox.go_click;
         end
     end
