@@ -1,7 +1,7 @@
 (pingus-sprite 
   (image "../exit.png")
   (offset -2 2)
-  (origin "bottom_center")
+  ;(origin "bottom_center")
   (speed 60)
   (loop #f)
   (array 9 1)

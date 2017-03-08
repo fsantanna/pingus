@@ -1,7 +1,7 @@
 (pingus-sprite 
   (image "../walker.png")
   (offset 0 2)
-  (origin "bottom_center")
+  ;(origin "bottom_center")
   (position 0 32)
   (speed 80)
   (loop #t)

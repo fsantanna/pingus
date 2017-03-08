@@ -1,7 +1,7 @@
 (pingus-sprite 
   (image "../tumble.png")
   (offset 0 2)
-  (origin "bottom_center")
+  ;(origin "bottom_center")
   (speed 40)
   (loop #t)
   (array 8 1)

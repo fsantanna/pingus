@@ -1,7 +1,7 @@
 (pingus-sprite 
   (image "../basher.png")
   (offset 0 1)
-  (origin "bottom_center")
+  ;(origin "bottom_center")
   (speed 100)
   (loop #t)
   (array 12 1)
