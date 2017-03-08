@@ -11,17 +11,20 @@ native/pre do
     }
 end
 
-code/await Button (var    int x,
-                   var    int y,
-                   var    int i,
+code/await Button (var    int i,
                    var    _ActionName__Enum id_me,
                    var&   int n,
                    event& int e)
             -> FOREVER
 do
-    var Rect r1 = val Rect(x,y, 60,38, nil);
+    var int y = i*38 - ({ButtonPanel_actions.size()}*38/2);
+    var& RRect r1 = spawn RRect(IRRect(Rect_(0,y,60,38),
+                                       AnchorXY(AnchorX.Left(), AnchorY.Center()),
+                                       &outer.main.rect.pub,
+                                       AnchorXY(AnchorX.Left(), AnchorY.Center()),
+                                       _, _));
 
-    var& RectComponent component = spawn RectComponent(&r1);
+    var& RectComponent_ component = spawn RectComponent_(&r1.pub);
 
     vector[] byte name = []
         .. "pingus/player0/"
@@ -29,12 +32,16 @@ do
         .. "/right";
 
     par do
-        var Rect r2 = val Rect(x+20,y+31, 0,0, nil);   // TODO
+        var& RRect r2 = spawn RRect(IRRect(Rect_(0,0,_,_),
+                                           AnchorXY(AnchorX.Left(), AnchorY.Center()),
+                                           &r1.pub,
+                                           AnchorXY(AnchorX.Left(), AnchorY.Center()),
+                                           _, _));
 
         if i == 0 then
-            spawn Sprite_from_name(&r1, "core/buttons/buttonbackgroundhl", &outer.main.dt, &outer.main.redraw);
+            spawn Sprite_from_name_(&r1.pub, "core/buttons/buttonbackgroundhl", &outer.main.dt, &outer.main.redraw);
 
-            var&? Sprite_from_name s = spawn Sprite_from_name(&r2, &&name[0] as _char&&, &outer.main.dt, &outer.main.redraw);
+            var&? Sprite_from_name_ s = spawn Sprite_from_name_(&r2.pub, &&name[0] as _char&&, &outer.main.dt, &outer.main.redraw);
             s!.sprite.is_loop = true;
 
             outer.game.action_next = id_me;
@@ -43,9 +50,9 @@ do
 
         loop do
             do
-                spawn Sprite_from_name(&r1, "core/buttons/buttonbackground", &outer.main.dt, &outer.main.redraw);
+                spawn Sprite_from_name_(&r1.pub, "core/buttons/buttonbackground", &outer.main.dt, &outer.main.redraw);
 
-                var&? Sprite_from_name s = spawn Sprite_from_name(&r2, &&name[0] as _char&&, &outer.main.dt, &outer.main.redraw);
+                var&? Sprite_from_name_ s = spawn Sprite_from_name_(&r2.pub, &&name[0] as _char&&, &outer.main.dt, &outer.main.redraw);
                 s!.sprite.frame_delay = 0;
 
                 par/or do
@@ -58,9 +65,9 @@ do
                 emit e(i);
             end
             do
-                spawn Sprite_from_name(&r1, "core/buttons/buttonbackgroundhl", &outer.main.dt, &outer.main.redraw);
+                spawn Sprite_from_name_(&r1.pub, "core/buttons/buttonbackgroundhl", &outer.main.dt, &outer.main.redraw);
 
-                var&? Sprite_from_name s = spawn Sprite_from_name(&r2, &&name[0] as _char&&, &outer.main.dt, &outer.main.redraw);
+                var&? Sprite_from_name_ s = spawn Sprite_from_name_(&r2.pub, &&name[0] as _char&&, &outer.main.dt, &outer.main.redraw);
                 s!.sprite.is_loop = true;
 
                 await e;
@@ -81,8 +88,8 @@ do
 #endif
             else
                 call {Fonts::pingus_small}.render(
-                    _origin_top_center,
-                    x+46, y+5,
+                    {origin_center_right},
+                    r1.pub.abs.x+r1.pub.abs.w-5, r1.pub.abs.y+r1.pub.abs.h/2,
                     {StringUtil::to_string(GLOBAL_ACTIONHOLDER->get_available(@id_me))},
                     *{Display::s_framebuffer}
                 );
@@ -94,8 +101,8 @@ do
             watching component.component.on_pointer_leave do
                 every outer.main.redraw do
                     call {Fonts::pingus_small}.render(
-                        _origin_top_left,
-                        x+65, y+5,
+                        {origin_center_left},
+                        r1.pub.abs.x+r1.pub.abs.w+5, r1.pub.abs.y+r1.pub.abs.h/2,
                         {ActionName::to_screenname}(id_me),
                         *{Display::s_framebuffer}
                     );
@@ -111,14 +118,10 @@ var   int max = {ButtonPanel_actions.size()};
 var   int n = 0;
 event int e;
 
-var int x = 0;
-var int y = ({Display::get_height()}-150)/2 - /// TODO: screen.size
-                (max*38/2);
-
-pool[] Button abs;
+pool[] Button buts;
 var int i;
 loop i in [0 -> max[ do
-    spawn Button(x, y+38*i, i, {ButtonPanel_actions[@i]}, &n, &e) in abs;
+    spawn Button(i, {ButtonPanel_actions[@i]}, &n, &e) in buts;
 end
 
 var _Input__ButtonEvent&& but;
