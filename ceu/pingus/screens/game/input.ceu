@@ -88,27 +88,19 @@ par do                                                      // INPUT
         end
     end
 with                                                        // UI
-    var int dwidth  = {Display::get_width()};
-    var int dheight = {Display::get_height()};
-
-    var int arm_x = dwidth-40*1;
-    var int arm_y = dheight-62;
-
-    var int fwd_x = dwidth-40*2;
-    var int fwd_y = dheight-62;
-
-    var int pse_x = dwidth-40*3;
-    var int pse_y = dheight-62;
-
     par do                                                      // ARMAGEDDON
-        var Rect rect = val Rect(arm_x,arm_y, 38,60, nil);
+        var& RRect rect = spawn RRect(IRRect(Rect_(-150,-5,38,60),
+                                             AnchorXY(AnchorX.Center(), AnchorY.Bottom()),
+                                             &outer.main.rect.pub,
+                                             AnchorXY(AnchorX.Right(), AnchorY.Bottom()),
+                                             _, _));
 
-        var& RectComponent component = spawn RectComponent(&rect);
+        var& RectComponent_ component = spawn RectComponent_(&rect.pub);
 
-        spawn Sprite_from_name(&rect, "core/buttons/hbuttonbgb", &outer.main.dt, &outer.main.redraw);
+        spawn Sprite_from_name_(&rect.pub, "core/buttons/hbuttonbgb", &outer.main.dt, &outer.main.redraw);
 
         do
-            var&? Sprite_from_name s = spawn Sprite_from_name(&rect, "core/buttons/armageddon_anim", &outer.main.dt, &outer.main.redraw);
+            var&? Sprite_from_name_ s = spawn Sprite_from_name_(&rect.pub, "core/buttons/armageddon_anim", &outer.main.dt, &outer.main.redraw);
             s!.sprite.frame_delay = 0;
             s!.sprite.frame = 7;
 
@@ -122,19 +114,23 @@ with                                                        // UI
         end
 
         do
-            spawn Sprite_from_name(&rect, "core/buttons/armageddon_anim", &outer.main.dt, &outer.main.redraw);
+            spawn Sprite_from_name_(&rect.pub, "core/buttons/armageddon_anim", &outer.main.dt, &outer.main.redraw);
             emit outer.game.go_armageddon;
             await FOREVER;
         end
     with                                                        // FORWARD
-        var Rect rect = val Rect(fwd_x,fwd_y, 38,60, nil);
+        var& RRect rect = spawn RRect(IRRect(Rect_(-150+40,-5,38,60),
+                                             AnchorXY(AnchorX.Center(), AnchorY.Bottom()),
+                                             &outer.main.rect.pub,
+                                             AnchorXY(AnchorX.Right(), AnchorY.Bottom()),
+                                             _, _));
 
-        var& RectComponent component = spawn RectComponent(&rect);
+        var& RectComponent_ component = spawn RectComponent_(&rect.pub);
 
         spawn do
             loop do
                 do
-                    spawn Sprite_from_name(&rect, "core/buttons/hbuttonbgb", &outer.main.dt, &outer.main.redraw);
+                    spawn Sprite_from_name_(&rect.pub, "core/buttons/hbuttonbgb", &outer.main.dt, &outer.main.redraw);
                     par/or do
                         var bool v = await go_forward until v;
                     with
@@ -143,7 +139,7 @@ with                                                        // UI
                     end
                 end
                 do
-                    spawn Sprite_from_name(&rect, "core/buttons/hbuttonbg", &outer.main.dt, &outer.main.redraw);
+                    spawn Sprite_from_name_(&rect.pub, "core/buttons/hbuttonbg", &outer.main.dt, &outer.main.redraw);
                     par/or do
                         var bool v = await go_forward until (not v);
                     with
@@ -154,18 +150,22 @@ with                                                        // UI
             end
         end
 
-        spawn Sprite_from_name(&rect, "core/buttons/fast_forward", &outer.main.dt, &outer.main.redraw);
+        spawn Sprite_from_name_(&rect.pub, "core/buttons/fast_forward", &outer.main.dt, &outer.main.redraw);
         await FOREVER;
     with                                                        // PAUSE
-        var Rect rect = val Rect(pse_x,pse_y, 38,60, nil);
+        var& RRect rect = spawn RRect(IRRect(Rect_(-150+40+40,-5,38,60),
+                                             AnchorXY(AnchorX.Center(), AnchorY.Bottom()),
+                                             &outer.main.rect.pub,
+                                             AnchorXY(AnchorX.Right(), AnchorY.Bottom()),
+                                             _, _));
 
-        var& RectComponent component = spawn RectComponent(&rect);
+        var& RectComponent_ component = spawn RectComponent_(&rect.pub);
 
         spawn do
             loop do
                 var bool from_out = true;
                 do
-                    spawn Sprite_from_name(&rect, "core/buttons/hbuttonbgb", &outer.main.dt, &outer.main.redraw);
+                    spawn Sprite_from_name_(&rect.pub, "core/buttons/hbuttonbgb", &outer.main.dt, &outer.main.redraw);
                     par/or do
                         await go_pause_toggle until from_out;
                     with
@@ -175,7 +175,7 @@ with                                                        // UI
                     end
                 end
                 do
-                    spawn Sprite_from_name(&rect, "core/buttons/hbuttonbg", &outer.main.dt, &outer.main.redraw);
+                    spawn Sprite_from_name_(&rect.pub, "core/buttons/hbuttonbg", &outer.main.dt, &outer.main.redraw);
                     from_out = true;
                     par/or do
                         await go_pause_toggle until from_out;
@@ -188,7 +188,7 @@ with                                                        // UI
             end
         end
 
-        spawn Sprite_from_name(&rect, "core/buttons/pause", &outer.main.dt, &outer.main.redraw);
+        spawn Sprite_from_name_(&rect.pub, "core/buttons/pause", &outer.main.dt, &outer.main.redraw);
         await FOREVER;
     end
 end
