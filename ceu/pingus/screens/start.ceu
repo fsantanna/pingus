@@ -98,7 +98,8 @@ with
         // cancel button
         call {Fonts::chalk_normal}.render(
             _origin_top_center,
-            cancel_r.pub.abs.x+cancel_r.pub.abs.w/2, cancel_r.pub.abs.y,
+            cancel_r.pub.abs.x+cancel_r.pub.abs.w/2,
+            cancel_r.pub.abs.y,
             __("Back"),
             *{Display::s_framebuffer}
         );

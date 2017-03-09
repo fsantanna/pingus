@@ -31,11 +31,11 @@ code/await PingusMenuBackground (void) -> FOREVER do
         var int v;
         every v in outer.main.dt do
             var float dt = (v as float)/1000;
-            x1 = {Math::mod}(x1+ 12*dt, {Display::get_width()});
-            x2 = {Math::mod}(x2+ 25*dt, {Display::get_width()});
-            x3 = {Math::mod}(x3+ 50*dt, {Display::get_width()});
-            x4 = {Math::mod}(x4+100*dt, {Display::get_width()});
-            x5 = {Math::mod}(x5+200*dt, {Display::get_width()});
+            x1 = {Math::mod}(x1+ 12*dt, outer.main.rect.abs.w);
+            x2 = {Math::mod}(x2+ 25*dt, outer.main.rect.abs.w);
+            x3 = {Math::mod}(x3+ 50*dt, outer.main.rect.abs.w);
+            x4 = {Math::mod}(x4+100*dt, outer.main.rect.abs.w);
+            x5 = {Math::mod}(x5+200*dt, outer.main.rect.abs.w);
         end
     with
         every outer.main.redraw do
@@ -45,7 +45,7 @@ code/await PingusMenuBackground (void) -> FOREVER do
             );
             call {Display::s_framebuffer}:draw_surface(
                 s1.surface.framebuffer,
-                _Vector2i(x1-{Display::get_width()}, y1)
+                _Vector2i(x1-outer.main.rect.abs.w, y1)
             );
             call {Display::s_framebuffer}:draw_surface(
                 s2.surface.framebuffer,
@@ -53,7 +53,7 @@ code/await PingusMenuBackground (void) -> FOREVER do
             );
             call {Display::s_framebuffer}:draw_surface(
                 s2.surface.framebuffer,
-                _Vector2i(x2-{Display::get_width()}, y2)
+                _Vector2i(x2-outer.main.rect.abs.w, y2)
             );
             call {Display::s_framebuffer}:draw_surface(
                 s3.surface.framebuffer,
@@ -61,7 +61,7 @@ code/await PingusMenuBackground (void) -> FOREVER do
             );
             call {Display::s_framebuffer}:draw_surface(
                 s3.surface.framebuffer,
-                _Vector2i(x3-{Display::get_width()}, y3)
+                _Vector2i(x3-outer.main.rect.abs.w, y3)
             );
             call {Display::s_framebuffer}:draw_surface(
                 s4.surface.framebuffer,
@@ -69,7 +69,7 @@ code/await PingusMenuBackground (void) -> FOREVER do
             );
             call {Display::s_framebuffer}:draw_surface(
                 s4.surface.framebuffer,
-                _Vector2i(x4-{Display::get_width()}, y4)
+                _Vector2i(x4-outer.main.rect.abs.w, y4)
             );
             call {Display::s_framebuffer}:draw_surface(
                 s5.surface.framebuffer,
@@ -77,7 +77,7 @@ code/await PingusMenuBackground (void) -> FOREVER do
             );
             call {Display::s_framebuffer}:draw_surface(
                 s5.surface.framebuffer,
-                _Vector2i(x5-{Display::get_width()}, y5)
+                _Vector2i(x5-outer.main.rect.abs.w, y5)
             );
         end
     end
@@ -86,11 +86,13 @@ end
 code/await PingusMenu (void) -> int do
     spawn PingusMenuBackground();
 
-    var Size size = val Size({Display::get_width()}, {Display::get_height()});
-    var Rect rect = val Rect(size.width/2,size.height/2, 0,0, &outer.main.center);
-    var&? Sprite_from_name logo = spawn Sprite_from_name(&rect,"core/misc/logo",&outer.main.dt, &outer.main.redraw);
-    rect.x = rect.x - logo!.sprite.frame_size.width/2;
-    rect.y = rect.y - 280;
+    var& RRect rect = spawn RRect(IRRect(Rect_(0,20, _,_),
+                                         AnchorXY(AnchorX.Center(), AnchorY.Top()),
+                                         &outer.main.rect,
+                                         AnchorXY(AnchorX.Center(), AnchorY.Top()),
+                                         _,_));
+
+     var&? Sprite_from_name_ logo = spawn Sprite_from_name_(&rect.pub,"core/misc/logo",&outer.main.dt, &outer.main.redraw);
 
     {Sound::PingusSound::play_music("pingus-1.it");};
 
@@ -122,8 +124,8 @@ code/await PingusMenu (void) -> int do
         every outer.main.redraw do
             call {Fonts::pingus_small}.render(
                 _origin_top_left,
-                {Display::get_width ()}/2 - 400 + 25,
-                {Display::get_height()}   - 140,
+                outer.main.rect.abs.w/2 - 400 + 25,
+                outer.main.rect.abs.h   - 140,
 // TODO: AT -> @
                 {
 "Pingus " VERSION " - Copyright (C) 1998-2011 Ingo Ruhnke <grumbelATgmail.com>\n"
@@ -136,16 +138,16 @@ code/await PingusMenu (void) -> int do
 
             call {Display::s_framebuffer}:draw_rect(
                 _Rect(0,
-                      {Display::get_height()} - 26,
-                      {Display::get_width ()},
-                      {Display::get_height()}),
+                      outer.main.rect.abs.h - 26,
+                      outer.main.rect.abs.w,
+                      outer.main.rect.abs.h),
                 _Color(0, 0, 0, 255)
             );
 
             call {Fonts::pingus_small}.render(
                 _origin_top_center,
-                {Display::get_width ()}/2,
-                {Display::get_height()} - {Fonts::pingus_small.get_height()} - 8,
+                outer.main.rect.abs.w/2,
+                outer.main.rect.abs.h - {Fonts::pingus_small.get_height()} - 8,
 "..:: Ctrl-g: mouse grab   ::   F10: fps counter   ::   F11: fullscreen   ::   F12: screenshot ::..",
                 *{Display::s_framebuffer}
             );

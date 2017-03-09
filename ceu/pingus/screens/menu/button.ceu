@@ -7,15 +7,16 @@ code/await MenuButton (var int x, var int y, var _char_const_ptr text, var _char
                         -> (event void ok_clicked)
                             -> FOREVER
 do
-    var Rect r1 = val Rect(x, y, 0, 0, &outer.main.center);
-    var&? Sprite_from_name bg =
-        spawn Sprite_from_name(&r1, "core/menu/menuitem", &outer.main.dt, &outer.main.redraw);
+    var& RRect r1 = spawn RRect(IRRect(Rect_(x,y, _,_),
+                                       AnchorXY(AnchorX.Center(), AnchorY.Center()),
+                                       &outer.main.rect,
+                                       AnchorXY(AnchorX.Center(), AnchorY.Center()),
+                                       _, _));
 
-    var Rect r2 = val Rect(x-bg!.sprite.frame_size.width/2, y-bg!.sprite.frame_size.height/2,
-                           bg!.sprite.frame_size.width, bg!.sprite.frame_size.height,
-                           &outer.main.center);
+    var&? Sprite_from_name_ bg =
+        spawn Sprite_from_name_(&r1.pub, "core/menu/menuitem", &outer.main.dt, &outer.main.redraw);
 
-    var& RectComponent component = spawn RectComponent(&r2);
+    var& RectComponent_ component = spawn RectComponent_(&r1.pub);
 
     par do
         every component.component.on_click do
@@ -26,18 +27,16 @@ do
             await component.component.on_pointer_enter;
             {Sound::PingusSound::play_sound ("tick");};
             do
-                spawn Sprite_from_name(&r1, "core/menu/menuitem_highlight", &outer.main.dt, &outer.main.redraw);
+                spawn Sprite_from_name_(&r1.pub, "core/menu/menuitem_highlight", &outer.main.dt, &outer.main.redraw);
                 await component.component.on_pointer_leave;
             end
         end
     with
         every outer.main.redraw do
-            var Rect r = _;
-            call/recursive Rect_Off(&r1, &r);
             call {Fonts::chalk_large}.render(
-                _origin_top_center,
-                r.x,
-                r.y - 28,
+                {origin_top_center},
+                r1.pub.abs.x + r1.pub.abs.w/2,
+                r1.pub.abs.y + r1.pub.abs.h/2 - 28,
                 text,
                 *{Display::s_framebuffer}
             );
