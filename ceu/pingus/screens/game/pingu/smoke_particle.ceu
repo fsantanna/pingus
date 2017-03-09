@@ -16,8 +16,12 @@ do
         end
     end;
 
-    var Rect rect = val Rect(x,y, 0,0, &outer.game.offset);
-    spawn Sprite_from_name(&rect, name, &outer.game.dt, &outer.main.redraw);
+    var& RRect rect = spawn RRect(IRRect(Rect_(x,y,_,_),
+                                         AnchorXY(AnchorX.Left(), AnchorY.Top()),
+                                         &outer.game.offset_,
+                                         AnchorXY(AnchorX.Center(), AnchorY.Center()),
+                                         _, _));
+    spawn Sprite_from_name_(&rect.pub, name, &outer.game.dt, &outer.main.redraw);
 
     var int i;
     loop i in [0 -> livetime[ do

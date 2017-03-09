@@ -23,7 +23,6 @@ data IGame with
     var   Rect                 rect;
     var   Rect                 rect_smallmap;
     var&  _GraphicContextState state;
-    var   Rect                 offset;
     var&  IRRect               offset_;
     var   float                gravity     = 0.2;
     var   _ActionName__Enum    action_next = {ActionName::WALKER};
@@ -84,7 +83,8 @@ var IGame game =
                      Rect(0,0,w,h,&outer.main.center),
                      Rect(6,{Display::get_size}().height-105, 175,100,&outer.main.center),
                      &state,
-                     _, &r.pub, _, _, _, _, _);
+                     &r.pub,
+                     _, _, _, _, _);
 
 game.state.set_limit({Rect(Vector2i(0,0), Size(@w,@h))});
 
@@ -116,12 +116,6 @@ par do
 with
     every game.dt do
         game.game_time = game.game_time + 1;
-    end
-with
-    call Game_Get_Offset(&game.offset);
-    every outer.main.redraw do
-/// TODO: call when setting game.state
-        call Game_Get_Offset(&game.offset);
     end
 with
     var Color ambient_light = val Color({@game.plf.get_ambient_light()}.r,
