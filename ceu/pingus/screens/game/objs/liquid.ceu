@@ -15,32 +15,37 @@ do
         static int width;
         WORLDOBJ_FACTORY_READER.read_int("repeat", width);
     }
-    var Rect rect = val Rect({p.x},{p.y}, 0,0, &outer.game.offset);
+    var& RRect rect = spawn RRect(IRRect(Rect_({p.x},{p.y}, 0,0),
+                                         AnchorXY(AnchorX.Left(), AnchorY.Top()),
+                                         &outer.game.offset_,
+                                         AnchorXY(AnchorX.Center(), AnchorY.Center()),
+                                         _, _));
+
 
 /// TODO: vector of sprites up to width
     /* Background image */
     // FIXME: would be nice to allow surface manipulation with
     // animated sprites, but it's not that easy to do
-    var&? Sprite_from_desc sprite =
-        spawn Sprite_from_desc(&rect, {Resource::load_sprite_desc(desc.res_name)}, &outer.game.dt, &outer.main.redraw);
+    var&? Sprite_from_desc_ sprite =
+        spawn Sprite_from_desc_(&rect.pub, {Resource::load_sprite_desc(desc.res_name)}, &outer.game.dt, &outer.main.redraw);
 
     var int width = {width} * sprite!.sprite.frame_size.width;
     do
         { static CollisionMask mask("liquids/water_cmap"); };
         var int i;
         loop i in [0 -> width[ do
-            call Game_Put({&mask}, rect.x+i, rect.y, {Groundtype::GP_WATER});
+            call Game_Put({&mask}, rect.pub.off.x+i, rect.pub.off.y, {Groundtype::GP_WATER});
         end
     end
 
     every outer.main.redraw do
-        var int x = rect.x;
+        var int x = rect.pub.abs.x;
         loop do
-            if x >= rect.x+width then
+            if x >= rect.pub.abs.x+width then
                 break;
             end
             x = x + sprite!.sprite.frame_size.width;
-            call/recursive sprite!.Draw(x, rect.y);
+            call sprite!.Draw(x, rect.pub.abs.y);
         end
     end
 

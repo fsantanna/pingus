@@ -305,7 +305,7 @@ do
         await FOREVER;
     end
 
-    code/tight/recursive Draw (var int x, var int y) -> void do
+    code/tight Draw (var int x, var int y) -> void do
         call {Display::s_framebuffer}:draw_surface(
             outer.sfc_from_desc.surface.framebuffer,
             {Rect}(
@@ -313,8 +313,8 @@ do
                     {Vector2i}(outer.sprite.frame_size.width  * (outer.sprite.frame%outer.sprite.array.width),
                                outer.sprite.frame_size.height * (outer.sprite.frame/outer.sprite.array.width)),
                 {Size}(outer.sprite.frame_size.width,outer.sprite.frame_size.height)),
-            {Vector2i}(outer.rect.abs.x - outer.sprite.offset.x,
-                       outer.rect.abs.y - outer.sprite.offset.y)
+            {Vector2i}(x - outer.sprite.offset.x,
+                       y - outer.sprite.offset.y)
         );
     end
 end
