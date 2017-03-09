@@ -5,45 +5,27 @@
 
 #define POS2VEC(m) _Vector2i(m.x,m.y)
 
-var Rect rect = val Rect(
-    {Math::max}(({Display::get_width()}-outer.game.rect.w)/2, 0),
-    {Math::max}(({Display::get_height()}-outer.game.rect.h)/2, 0),
-    {Math::min}({Display::get_width()},  outer.game.rect.w),
-    {Math::min}({Display::get_height()}, outer.game.rect.h),
-    nil//&outer.main.center
-);
-
-var& RectComponent component = spawn RectComponent(&rect);
-
-var Position mouse_pos = val Position(0,0);
-var Position mouse_pos_ = val Position(0,0);
+var Position mouse = val Position(0,0);
 spawn do
     var int x;
     var int y;
     every (x,y) in ON_POINTER_MOVE do
-        mouse_pos.x = x - rect.x;
-        mouse_pos.y = y - rect.y;
-        mouse_pos_.x = x;
-        mouse_pos_.y = y;
+        mouse.x = x;
+        mouse.y = y;
     end
 end
 
 par do
     var int x;
     var int y;
-    every (x,y) in component.component.on_primary_button_pressed do
-        //x = x - rect.x;
-        //y = y - rect.y;
-        //x = outer.game.state.screen2world(_Vector2i(x,y)).x;
-        //y = outer.game.state.screen2world(_Vector2i(x,y)).y;
-
+    every (x,y) in ON_PRIMARY_BUTTON_PRESSED do
         var float min_dist = 500.0;
         var bool? check;
         var&? Pingu pingu = do
             var&? Pingu p;
             loop p in outer.pingus do
-                if (call p!.Pingu_Abs_Is_Over(mouse_pos_.x,mouse_pos_.y)) then
-                    var float dist = call p!.Pingu_Abs_Dist(mouse_pos_.x,mouse_pos_.y);
+                if (call p!.Pingu_Abs_Is_Over(mouse.x,mouse.y)) then
+                    var float dist = call p!.Pingu_Abs_Dist(mouse.x,mouse.y);
                     if (dist < min_dist) then
                         min_dist = dist;
                         check = call p!.Pingu_Check_Action(outer.game.action_next);
@@ -65,38 +47,21 @@ with
         var int x;
         (x,y) = await ON_SECONDARY_BUTTON_PRESSED;
 
-        var Vector2i old_state_pos = val Vector2i(outer.game.state.get_pos().x,
-                                                  outer.game.state.get_pos().y);
-
-        var Vector2i scroll = val Vector2i(x - rect.x,
-                                           y - rect.y);
-
         watching ON_SECONDARY_BUTTON_RELEASED do
             par do
                 every outer.main.dt do
+                    var int dx = x - mouse.x;
+                    var int dy = y - mouse.y;
+
                     // FIXME: This should be delta dependant
                     if {globals::drag_drop_scrolling} as bool then
-                        outer.game.state.set_pos(
-                            _Vector2i(old_state_pos.x,old_state_pos.y)
-                                + (_Vector2i(scroll.x,scroll.y)
-                                    - POS2VEC(mouse_pos)));
-                        outer.game.rect.x =
-                            (old_state_pos.x + scroll.x - mouse_pos.x) as int;
-                        outer.game.rect.y =
-                            (old_state_pos.y + scroll.y - mouse_pos.y) as int;
+                        outer.game.offset_.off.x = outer.game.offset_.off.x - dx;
+                        outer.game.offset_.off.y = outer.game.offset_.off.y - dy;
                     else
-                        outer.game.state.set_pos(
-                            _Vector2i(outer.game.state.get_pos().x
-                                        - (scroll.x - mouse_pos.x) * 0.2,
-                                      outer.game.state.get_pos().y
-                                        - (scroll.y - mouse_pos.y) * 0.2
-                            )
-                        );
-                        outer.game.rect.x =
-                            (outer.game.rect.x - (scroll.x - mouse_pos.x) * 0.2) as int;
-                        outer.game.rect.y =
-                            (outer.game.rect.y - (scroll.y - mouse_pos.y) * 0.2) as int;
+                        outer.game.offset_.off.x = outer.game.offset_.off.x + ((dx*0.2) as int);
+                        outer.game.offset_.off.y = outer.game.offset_.off.y + ((dy*0.2) as int);
                     end
+                    emit outer.game.offset_.changed;
                 end
             with
                 every outer.main.redraw do
@@ -104,28 +69,28 @@ with
                         continue;
                     end
                     call {Display::s_framebuffer}:draw_line(
-                        POS2VEC(mouse_pos),
-                        _Vector2i(scroll.x, scroll.y-15),
+                        POS2VEC(mouse),
+                        _Vector2i(x, y-15),
                         _Color(0, 255, 0)
                     );
                     call {Display::s_framebuffer}:draw_line(
-                        POS2VEC(mouse_pos),
-                        _Vector2i(scroll.x, scroll.y+15),
+                        POS2VEC(mouse),
+                        _Vector2i(x, y+15),
                         _Color(0, 0, 255)
                     );
                     call {Display::s_framebuffer}:draw_line(
-                        POS2VEC(mouse_pos),
-                        _Vector2i(scroll.x+15, scroll.y),
+                        POS2VEC(mouse),
+                        _Vector2i(x+15, y),
                         _Color(0, 255, 255)
                     );
                     call {Display::s_framebuffer}:draw_line(
-                        POS2VEC(mouse_pos),
-                        _Vector2i(scroll.x-15, scroll.y),
+                        POS2VEC(mouse),
+                        _Vector2i(x-15, y),
                         _Color(255, 255, 0)
                     );
                     call {Display::s_framebuffer}:draw_line(
-                        POS2VEC(mouse_pos),
-                        _Vector2i(scroll.x, scroll.y),
+                        POS2VEC(mouse),
+                        _Vector2i(x, y),
                         _Color(255, 0, 0)
                     );
                 end
@@ -145,37 +110,20 @@ with
         then
             var int scroll_speed = (dt * 0.8) as int;
 
-            if (mouse_pos.x < 10) then
-                outer.game.state.set_pos(outer.game.state.get_pos() - _Vector2i(scroll_speed, 0));
-                outer.game.rect.x = outer.game.rect.x - scroll_speed;
-            else/if (mouse_pos.x > {Display::get_width()} - 10) then
-                outer.game.state.set_pos(outer.game.state.get_pos() + _Vector2i(scroll_speed, 0));
-                outer.game.rect.x = outer.game.rect.x + scroll_speed;
+            if (mouse.x < 10) then
+                outer.game.offset_.off.x = outer.game.offset_.off.x + scroll_speed;
+            else/if (mouse.x > outer.main.rect.abs.w - 10) then
+                outer.game.offset_.off.x = outer.game.offset_.off.x - scroll_speed;
             end
 
-            if (mouse_pos.y < 10) then
-                outer.game.state.set_pos(outer.game.state.get_pos() - _Vector2i(0, scroll_speed));
-                outer.game.rect.y = outer.game.rect.y - scroll_speed;
-            else/if (mouse_pos.y > {Display::get_height()} - 10) then
-                outer.game.state.set_pos(outer.game.state.get_pos() + _Vector2i(0, scroll_speed));
-                outer.game.rect.y = outer.game.rect.y + scroll_speed;
+            if (mouse.y < 10) then
+                outer.game.offset_.off.y = outer.game.offset_.off.y + scroll_speed;
+            else/if (mouse.y > outer.main.rect.abs.h - 10) then
+                outer.game.offset_.off.y = outer.game.offset_.off.y - scroll_speed;
             end
+            emit outer.game.offset_.changed;
         end
     end
 end
-
-/* PUBLIC */
-
-#if 0
-function (int x, int y)=>void scroll do
-    outer.game.state.set_pos(outer.game.state.get_pos() + _Vector2i(x, y));
-    outer.game.rect.left = outer.game.rect.left + x;
-    outer.game.rect.top  = outer.game.rect.top  + y;
-end
-
-function (void)=>void update_layout do
-    outer.game.state.set_size(outer.rect.width, outer.rect.height);
-end
-#endif
 
 #endif
