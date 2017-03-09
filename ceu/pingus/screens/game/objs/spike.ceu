@@ -21,8 +21,12 @@ do
                     p!.pingu.rect.off.y > pst.y      and
                     p!.pingu.rect.off.y < pst.y + 32)
                 then
-                    var Rect r = val Rect(pst.x,pst.y, 0,0, &outer.game.offset);
-                    var&? Sprite_from_name s = spawn Sprite_from_name(&r, "traps/spike", &outer.game.dt, &outer.main.redraw);
+                    var& RRect rect = spawn RRect(IRRect(Rect_(pst.x,pst.y,_,_),
+                                                         AnchorXY(AnchorX.Left(), AnchorY.Top()),
+                                                         &outer.game.offset_,
+                                                         AnchorXY(AnchorX.Center(), AnchorY.Center()),
+                                                         _, _));
+                    var&? Sprite_from_name_ s = spawn Sprite_from_name_(&rect.pub, "traps/spike", &outer.game.dt, &outer.main.redraw);
                     watching s, p do
                         loop do
                             await outer.game.dt;

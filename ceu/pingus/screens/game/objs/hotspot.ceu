@@ -22,7 +22,7 @@ do
     // animated sprites, but it's not that easy to do
 
     var& RRect r = spawn RRect(IRRect(Rect_(pst.x,pst.y,_,_),
-                                      AnchorXY(AnchorX.Center(), AnchorY.Center()),
+                                      AnchorXY(AnchorX.Left(), AnchorY.Top()),
                                       &outer.game.offset_,
                                       AnchorXY(AnchorX.Center(), AnchorY.Center()),
                                       _, _));

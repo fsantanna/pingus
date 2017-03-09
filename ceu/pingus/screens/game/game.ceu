@@ -147,7 +147,8 @@ with
     pool[] Visible layer_bg_0;          // background
     spawn do
         every outer.main.redraw do             // groundpiece
-            gfx_map.draw({Vector2i(@game.offset.x,@game.offset.y)});
+            gfx_map.draw({Vector2i(@(game.offset_.abs.x+game.offset_.abs.w/2),
+                                   @(game.offset_.abs.y+game.offset_.abs.h/2))});
         end
     end
     pool[] Visible layer_bg_1;          // liquid, hotspot, exit
