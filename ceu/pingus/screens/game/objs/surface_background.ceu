@@ -124,19 +124,21 @@ do
             var int y = start_y;
             var int i;
             loop i do
-                if y >= outer.game.rect.h then
+                var int yy = y + outer.game.offset_.abs.y;
+                if yy >= outer.main.rect.abs.h then
                     break;
                 end
 
                 var int x = start_x;
                 var int j;
                 loop j do
-                    if x >= outer.game.rect.w then
+                    var int xx = x + outer.game.offset_.abs.x;
+                    if xx >= outer.main.rect.abs.w then
                         break;
                     end
                     call {Display::s_framebuffer}:draw_surface(
                         bg.surface.framebuffer,
-                        _Vector2i(x+outer.game.offset_.abs.x,y+outer.game.offset_.abs.y)
+                        _Vector2i(xx,yy)
                     );
                     x = x + w;
                 end

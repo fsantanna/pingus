@@ -20,7 +20,6 @@ data IGame with
     var&  _PingusLevel         plf;
     var   int                  game_time;
     var   PingusCounter        counter;
-    var   Rect_                rect;
     var   Rect_                rect_smallmap;
     var&  IRRect               offset_;
     var   float                gravity     = 0.2;
@@ -54,6 +53,7 @@ var& _GroundMap gfx_map =
             _delete(&&gfx_map);
         end;
 
+/// TODO: remove
 var& _GraphicContextState state =
     &{new GraphicContextState}({Math::min}({Display::get_width()},  w),
                                {Math::min}({Display::get_height()}, h))
@@ -95,7 +95,6 @@ var IGame game =
                      PingusCounter(0,0,0,0,
                                    outer.plf.get_number_of_pingus(),
                                    outer.plf.get_number_to_save()),
-                     Rect_(0,0,w,h),
                      Rect_(6,{Display::get_size}().height-105, 175,100),
                      &r.pub,
                      _, _, _, _, _);
