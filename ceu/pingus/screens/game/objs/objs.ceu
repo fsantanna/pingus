@@ -124,10 +124,6 @@ do
         pos_start.y = pos_start.y + 100;
     end
 
-    outer.game.state.set_pos(_Vector2i(pos_start.x,pos_start.y));
-    outer.game.rect.x = pos_start.x;
-    outer.game.rect.y = pos_start.y;
-
     outer.game.offset_.off.x = -pos_start.x;
     outer.game.offset_.off.y = -pos_start.y;
     emit outer.game.offset_.changed;

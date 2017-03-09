@@ -24,7 +24,6 @@ with
                 // set view to the given COs
                 var int cx = (x - outer.game.rect_smallmap.x) * outer.game.rect.w / outer.game.rect_smallmap.w;
                 var int cy = (y - outer.game.rect_smallmap.y) * outer.game.rect.h / outer.game.rect_smallmap.h;
-                call Game_Set_Viewpoint(cx, cy);
 
                 outer.game.offset_.off.x = -cx;
                 outer.game.offset_.off.y = -cy;
@@ -36,7 +35,6 @@ with
     end
 with
     every outer.main.redraw do
-        var Vector2i vec = call Game_Get_Pos();
         {
             static Rect view_rect;
         };
@@ -44,7 +42,7 @@ with
         if (outer.game.rect.w > {Display::get_width()}) then
             var int rwidth = {Display::get_width()} * outer.game.rect_smallmap.w / outer.game.rect.w;
             {
-                view_rect.left = @(outer.game.rect_smallmap.x + (vec.x * outer.game.rect_smallmap.w / outer.game.rect.w) - rwidth/2);
+                view_rect.left = @(outer.game.rect_smallmap.x + (-outer.game.offset_.off.x * outer.game.rect_smallmap.w / outer.game.rect.w) - rwidth/2);
                 view_rect.right = view_rect.left + @rwidth;
             }
         else
@@ -57,7 +55,7 @@ with
         if (outer.game.rect.h > {Display::get_height()}) then
             var int rheight = {Display::get_height()} * outer.game.rect_smallmap.h / outer.game.rect.h;
             {
-                view_rect.top = @(outer.game.rect_smallmap.y + (vec.y * outer.game.rect_smallmap.h / outer.game.rect.h) - rheight/2);
+                view_rect.top = @(outer.game.rect_smallmap.y + (-outer.game.offset_.off.y * outer.game.rect_smallmap.h / outer.game.rect.h) - rheight/2);
                 view_rect.bottom = view_rect.top + @rheight;
             }
         else

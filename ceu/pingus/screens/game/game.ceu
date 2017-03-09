@@ -22,7 +22,6 @@ data IGame with
     var   PingusCounter        counter;
     var   Rect_                rect;
     var   Rect_                rect_smallmap;
-    var&  _GraphicContextState state;
     var&  IRRect               offset_;
     var   float                gravity     = 0.2;
     var   _ActionName__Enum    action_next = {ActionName::WALKER};
@@ -62,16 +61,32 @@ var& _GraphicContextState state =
             _delete(&&state);
         end;
 
-var& RRect r = spawn RRect(IRRect(Rect_(0,0,_,_),
+var& RRect r = spawn RRect(IRRect(Rect_(0,0,outer.main.rect.abs.w,outer.main.rect.abs.w),
                            AnchorXY(AnchorX.Center(), AnchorY.Center()),
                            &outer.main.rect,
                            AnchorXY(AnchorX.Center(), AnchorY.Center()),
                            _,_));
 spawn do
-    every outer.main.rect.changed do
-        r.pub.off.w = outer.main.rect.abs.w;
-        r.pub.off.h = outer.main.rect.abs.h;
-        emit r.pub.changed;
+    par do
+        every r.pub.changed do
+            if r.pub.off.x+r.pub.off.w/2 > 0 then
+                r.pub.off.x = -r.pub.off.w/2;
+            else/if r.pub.off.x-r.pub.off.w/2 < -w then
+                r.pub.off.x = -w+r.pub.off.w/2;
+            end
+            if r.pub.off.y+r.pub.off.h/2 > 0 then
+                r.pub.off.y = -r.pub.off.h/2;
+            else/if r.pub.off.y-r.pub.off.h/2 < -h then
+                r.pub.off.y = -h+r.pub.off.h/2;
+            end
+            call IRRect_Set(&r.pub);
+        end
+    with
+        every outer.main.rect.changed do
+            r.pub.off.w = outer.main.rect.abs.w;
+            r.pub.off.h = outer.main.rect.abs.h;
+            emit r.pub.changed;
+        end
     end
 end
 
@@ -82,13 +97,11 @@ var IGame game =
                                    outer.plf.get_number_to_save()),
                      Rect_(0,0,w,h),
                      Rect_(6,{Display::get_size}().height-105, 175,100),
-                     &state,
                      &r.pub,
                      _, _, _, _, _);
 
-game.state.set_limit({Rect(Vector2i(0,0), Size(@w,@h))});
-
 #include "codes.ceu"
+
 
 par do
     do ()
