@@ -14,19 +14,31 @@ vector[] byte description = [] .. ({str.c_str()} as _char&&);
 
 spawn Wood();
 
-var Rect rect = val Rect(0,0, _,_, &outer.main.center);
-spawn Sprite_from_name(&rect, "core/menu/blackboard", &outer.main.dt, &outer.main.redraw);
+var& RRect rect = spawn RRect(IRRect(Rect_(0,0, _,_),
+                                  AnchorXY(AnchorX.Center(), AnchorY.Center()),
+                                  &outer.main.rect,
+                                  AnchorXY(AnchorX.Center(), AnchorY.Center()),
+                                  _, _));
+spawn Sprite_from_name_(&rect.pub, "core/menu/blackboard", &outer.main.dt, &outer.main.redraw);
 
-var Rect start_r = val Rect(245,150, _,_, &outer.main.center);
-var& SurfaceButton start =
-    spawn SurfaceButton(&start_r,
-                        "core/start/ok",
-                        "core/start/ok_clicked",
-                        "core/start/ok_hover");
+var& RRect r1 = spawn RRect(IRRect(Rect_(-50,-60, _,_),
+                                   AnchorXY(AnchorX.Right(), AnchorY.Bottom()),
+                                   &rect.pub,
+                                   AnchorXY(AnchorX.Right(), AnchorY.Bottom()),
+                                   _, _));
+var& SurfaceButton_ start =
+    spawn SurfaceButton_(&r1.pub,
+                         "core/start/ok",
+                         "core/start/ok_clicked",
+                         "core/start/ok_hover");
 
-var Rect cancel_r = val Rect(-300,200, _,_, &outer.main.center);
-var& SurfaceButton cancel =
-    spawn SurfaceButton(&cancel_r,
+var& RRect r2 = spawn RRect(IRRect(Rect_(70,-2, _,_),
+                                   AnchorXY(AnchorX.Left(), AnchorY.Bottom()),
+                                   &rect.pub,
+                                   AnchorXY(AnchorX.Left(), AnchorY.Bottom()),
+                                   _, _));
+var& SurfaceButton_ cancel =
+    spawn SurfaceButton_(&r2.pub,
                         "core/start/back",
                         "core/start/back_clicked",
                         "core/start/back_hover");
@@ -59,44 +71,51 @@ with
     end
 with
     every outer.main.redraw do
-        var int left_x  = outer.main.center.x - 150;
-        var int right_x = outer.main.center.x + 150;
-        var int y = outer.main.center.y + 40;
-
-        // cancel button
-        call {Fonts::chalk_normal}.render(
-            _origin_top_center,
-            cancel_r.x+55, cancel_r.y,
-            __("Back"),
-            *{Display::s_framebuffer}
-        );
+        //var& Rect_ abs = &rect.pub.abs;
 
         call {Fonts::chalk_large}.render(
             _origin_top_center,
-            outer.main.center.x, outer.main.center.y-230,
+            rect.pub.abs.x+rect.pub.abs.w/2, rect.pub.abs.y+50,
             __(outer.plf.get_levelname()),
             *{Display::s_framebuffer}
         );
 
         call ({Fonts::chalk_normal}.render as /nohold)(
             _origin_top_left,
-            outer.main.center.x-300, outer.main.center.y-170,
+            rect.pub.abs.x+70, rect.pub.abs.y+110,
             &&description[0] as _char&&,
             *{Display::s_framebuffer}
         );
 
-        y = y+32;
-        y = y+45;
+        // play button
+        call {Fonts::chalk_normal}.render(
+            _origin_top_center,
+            r1.pub.abs.x+r1.pub.abs.w/2, r1.pub.abs.y-20,
+            __("Play"),
+            *{Display::s_framebuffer}
+        );
+
+        // cancel button
+        call {Fonts::chalk_normal}.render(
+            _origin_top_center,
+            r2.pub.abs.x+r2.pub.abs.w/2, r2.pub.abs.y,
+            __("Back"),
+            *{Display::s_framebuffer}
+        );
+
+        var int xl = rect.pub.abs.x + 220;
+        var int xr = rect.pub.abs.x + rect.pub.abs.w - 220;
+        var int y  = rect.pub.abs.y + rect.pub.abs.h - 160;
 
         call {Fonts::chalk_normal}.render(
             _origin_top_left,
-            left_x, y,
+            xl, y,
             __("Number of Pingus: "),
             *{Display::s_framebuffer}
         );
         call {Fonts::chalk_normal}.render(
             _origin_top_right,
-            right_x, y,
+            xr, y,
             {StringUtil::to_string}(outer.plf.get_number_of_pingus()),
             *{Display::s_framebuffer}
         );
@@ -104,13 +123,13 @@ with
         y = y+30;
         call {Fonts::chalk_normal}.render(
             _origin_top_left,
-            left_x, y,
+            xl, y,
             __("Number to Save: "),
             *{Display::s_framebuffer}
         );
         call {Fonts::chalk_normal}.render(
             _origin_top_right,
-            right_x, y,
+            xr, y,
             {StringUtil::to_string}(outer.plf.get_number_to_save()),
             *{Display::s_framebuffer}
         );
@@ -118,20 +137,21 @@ with
         y = y+30;
         call {Fonts::chalk_normal}.render(
             _origin_top_left,
-            left_x, y,
+            xl, y,
             __("Time: "),
             *{Display::s_framebuffer}
         );
         call {Fonts::chalk_normal}.render(
             _origin_top_right,
-            right_x, y,
+            xr, y,
             {GameTime::ticks_to_realtime_string}(outer.plf.get_time()),
             *{Display::s_framebuffer}
         );
 
         call {Fonts::chalk_small}.render(
             _origin_top_center,
-            outer.main.center.x, outer.main.center.y + 215,
+            rect.pub.abs.x + rect.pub.abs.w/2,
+            rect.pub.abs.y + rect.pub.abs.h - 60,
             __("Author: ") + outer.plf.get_author(),
             *{Display::s_framebuffer}
         );
@@ -139,7 +159,8 @@ with
         if {globals::developer_mode} as bool then
             call {Fonts::chalk_small}.render(
                 _origin_top_center,
-                outer.main.center.x, outer.main.center.y-50,
+                outer.main.rect.abs.x + outer.main.rect.abs.w/2,
+                outer.main.rect.abs.y + outer.main.rect.abs.h - 30,
                 outer.plf.get_resname(),
                 *{Display::s_framebuffer}
             );
