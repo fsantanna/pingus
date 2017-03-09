@@ -20,7 +20,7 @@ do
     var int y = i*38 - ({ButtonPanel_actions.size()}*38/2);
     var& RRect r1 = spawn RRect(IRRect(Rect_(0,y,60,38),
                                        AnchorXY(AnchorX.Left(), AnchorY.Center()),
-                                       &outer.main.rect.pub,
+                                       &outer.main.rect,
                                        AnchorXY(AnchorX.Left(), AnchorY.Center()),
                                        _, _));
 

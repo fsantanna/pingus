@@ -25,7 +25,7 @@ code/await OptionMenu (void) -> void do
 
     var& RRect r = spawn RRect(IRRect(Rect_(0,0,_,_),
                                       AnchorXY(AnchorX.Center(), AnchorY.Center()),
-                                      &outer.main.rect.pub,
+                                      &outer.main.rect,
                                       AnchorXY(AnchorX.Center(), AnchorY.Center()),
                                       _, _));
     spawn Sprite_from_name_(&r.pub, "core/menu/blackboard", &outer.main.dt, &outer.main.redraw);

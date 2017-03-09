@@ -91,7 +91,7 @@ with                                                        // UI
     par do                                                      // ARMAGEDDON
         var& RRect rect = spawn RRect(IRRect(Rect_(-150,-5,38,60),
                                              AnchorXY(AnchorX.Center(), AnchorY.Bottom()),
-                                             &outer.main.rect.pub,
+                                             &outer.main.rect,
                                              AnchorXY(AnchorX.Right(), AnchorY.Bottom()),
                                              _, _));
 
@@ -121,7 +121,7 @@ with                                                        // UI
     with                                                        // FORWARD
         var& RRect rect = spawn RRect(IRRect(Rect_(-150+40,-5,38,60),
                                              AnchorXY(AnchorX.Center(), AnchorY.Bottom()),
-                                             &outer.main.rect.pub,
+                                             &outer.main.rect,
                                              AnchorXY(AnchorX.Right(), AnchorY.Bottom()),
                                              _, _));
 
@@ -155,7 +155,7 @@ with                                                        // UI
     with                                                        // PAUSE
         var& RRect rect = spawn RRect(IRRect(Rect_(-150+40+40,-5,38,60),
                                              AnchorXY(AnchorX.Center(), AnchorY.Bottom()),
-                                             &outer.main.rect.pub,
+                                             &outer.main.rect,
                                              AnchorXY(AnchorX.Right(), AnchorY.Bottom()),
                                              _, _));
 

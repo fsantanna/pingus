@@ -5,7 +5,7 @@
 
 var& RRect rect = spawn RRect(IRRect(Rect_(0,0,_,_),
                               AnchorXY(AnchorX.Center(), AnchorY.Top()),
-                              &outer.main.rect.pub,
+                              &outer.main.rect,
                               AnchorXY(AnchorX.Center(), AnchorY.Top()),
                                       _, _));
 spawn Sprite_from_name_(&rect.pub, "core/buttons/info", &outer.main.dt, &outer.main.redraw);
