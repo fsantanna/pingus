@@ -55,45 +55,47 @@ vector[] byte saved_needed = [] ..
     ({StringUtil::to_string((int)@outer.result.saved)}.c_str() as _char&&) .. [{'/'}] ..
     ({StringUtil::to_string((int)@outer.result.needed)}.c_str() as _char&&);
 
-var Rect rect = val Rect(
-    {Display::get_width()}  / 2,
-    {Display::get_height()} / 2,
-    0, 0,
-    &outer.main.center
-);
-
 spawn Wood();
-spawn Sprite_from_name(&rect, "core/menu/blackboard", &outer.main.dt, &outer.main.redraw);
 
-var Rect ok_r = val Rect({Display::get_width()/2}+245,
-                         {Display::get_height()/2}+150,
-                         _,_,
-                         &outer.main.center);
-var&? SurfaceButton ok = 
-    spawn SurfaceButton(&ok_r,
-                        "core/start/ok",
-                        "core/start/ok_clicked",
-                        "core/start/ok_hover");
+var& RRect rect = spawn RRect(IRRect(Rect_(0,0, _,_),
+                                  AnchorXY(AnchorX.Center(), AnchorY.Center()),
+                                  &outer.main.rect,
+                                  AnchorXY(AnchorX.Center(), AnchorY.Center()),
+                                  _, _));
+spawn Sprite_from_name_(&rect.pub, "core/menu/blackboard", &outer.main.dt, &outer.main.redraw);
 
-var Rect abort_r = val Rect({Display::get_width()/2}-300,
-                            {Display::get_height()/2}+200,
-                            _,_,
-                            &outer.main.center);
-var&? SurfaceButton abort =
-    spawn SurfaceButton(&abort_r,
+var& RRect r1 = spawn RRect(IRRect(Rect_(-50,-60, _,_),
+                                   AnchorXY(AnchorX.Right(), AnchorY.Bottom()),
+                                   &rect.pub,
+                                   AnchorXY(AnchorX.Right(), AnchorY.Bottom()),
+                                   _, _));
+var&? SurfaceButton_ ok =
+    spawn SurfaceButton_(&r1.pub,
+                         "core/start/ok",
+                         "core/start/ok_clicked",
+                         "core/start/ok_hover");
+
+var& RRect abort_r = spawn RRect(IRRect(Rect_(70,-2, _,_),
+                                   AnchorXY(AnchorX.Left(), AnchorY.Bottom()),
+                                   &rect.pub,
+                                   AnchorXY(AnchorX.Left(), AnchorY.Bottom()),
+                                   _, _));
+var&? SurfaceButton_ abort =
+    spawn SurfaceButton_(&abort_r.pub,
                         "core/start/back",
                         "core/start/back_clicked",
                         "core/start/back_hover");
 
-var Rect retry_r = val Rect({Display::get_width()/2}+245,
-                            {Display::get_height()/2}+150,
-                            _,_,
-                            &outer.main.center);
-var&? SurfaceButton retry =
-    spawn SurfaceButton(&retry_r,
-                        "core/start/ok",
-                        "core/start/ok_clicked",
-                        "core/start/ok_hover");
+var& RRect retry_r = spawn RRect(IRRect(Rect_(-50,-60, _,_),
+                                        AnchorXY(AnchorX.Right(), AnchorY.Bottom()),
+                                        &rect.pub,
+                                        AnchorXY(AnchorX.Right(), AnchorY.Bottom()),
+                                        _, _));
+var&? SurfaceButton_ retry =
+    spawn SurfaceButton_(&retry_r.pub,
+                         "core/start/ok",
+                         "core/start/ok_clicked",
+                         "core/start/ok_hover");
 
 par do
     every abort!.component.on_pointer_enter do
@@ -140,21 +142,23 @@ with
 with
     every outer.main.redraw do
         do
-            var int left_x  = {Display::get_width()}/2 - 150;
-            var int right_x = {Display::get_width()}/2 + 150;
-            var int y = {Display::get_height()}/2 + 40;
+            var int left_x  = outer.main.rect.abs.w/2 - 150;
+            var int right_x = outer.main.rect.abs.w/2 + 150;
+            var int y = outer.main.rect.abs.h/2 + 40;
 
             if not has_succeeded then
                 // abort button
                 call {Fonts::chalk_normal}.render(
                     _origin_top_center,
-                    abort_r.x+55, abort_r.y-4,
+                    abort_r.pub.abs.x+abort_r.pub.abs.w/2,
+                    abort_r.pub.abs.y-4,
                     __("Give Up"),
                     *{Display::s_framebuffer}
                 );
                 call {Fonts::chalk_normal}.render(
                     _origin_top_center,
-                    retry_r.x+30, retry_r.y-24,
+                    retry_r.pub.abs.x+retry_r.pub.abs.w/2,
+                    retry_r.pub.abs.y-24,
                     __("Retry"),
                     *{Display::s_framebuffer}
                 );
@@ -162,7 +166,7 @@ with
 
             call ({Fonts::chalk_large}.render as /nohold)(
                 _origin_top_center,
-                {Display::get_width()}/2, {Display::get_height()}/2-200,
+                outer.main.rect.abs.w/2, outer.main.rect.abs.h/2-200,
                 &&level_name[0] as _char&&,
                 *{Display::s_framebuffer}
             );
@@ -170,7 +174,7 @@ with
             if has_succeeded then
                 call {Fonts::chalk_large}.render(
                     _origin_top_center,
-                    {Display::get_width()}/2, {Display::get_height()}/2-140,
+                    outer.main.rect.abs.w/2, outer.main.rect.abs.h/2-140,
                     __("Success!"),
                     *{Display::s_framebuffer}
                 );
@@ -179,7 +183,7 @@ with
             else
                 call {Fonts::chalk_large}.render(
                     _origin_top_center,
-                    {Display::get_width()}/2, {Display::get_height()}/2-140,
+                    outer.main.rect.abs.w/2, outer.main.rect.abs.h/2-140,
                     __("Failure!"),
                     *{Display::s_framebuffer}
                 );
@@ -189,16 +193,16 @@ with
 
             call ({Fonts::chalk_normal}.render as /nohold)(
                 _origin_top_center,
-                {Display::get_width()}/2, {Display::get_height()}/2-70,
+                outer.main.rect.abs.w/2, outer.main.rect.abs.h/2-70,
                 &&message[0] as _char&&,
                 *{Display::s_framebuffer}
             );
         end
 
         do
-            var int left_x  = {Display::get_width()}/2 - 100;
-            var int right_x = {Display::get_width()}/2 + 100;
-            var int y = {Display::get_height()}/2 + 10;
+            var int left_x  = outer.main.rect.abs.w/2 - 100;
+            var int right_x = outer.main.rect.abs.w/2 + 100;
+            var int y = outer.main.rect.abs.h/2 + 10;
 
             call {Fonts::chalk_normal}.render(
                 _origin_top_left,
