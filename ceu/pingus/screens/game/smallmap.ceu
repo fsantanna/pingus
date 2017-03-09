@@ -25,6 +25,11 @@ with
                 var int cx = (x - outer.game.rect_smallmap.x) * outer.game.rect.w / outer.game.rect_smallmap.w;
                 var int cy = (y - outer.game.rect_smallmap.y) * outer.game.rect.h / outer.game.rect_smallmap.h;
                 call Game_Set_Viewpoint(cx, cy);
+
+                outer.game.offset_.off.x = -cx;
+                outer.game.offset_.off.y = -cy;
+                emit outer.game.offset_.changed;
+
                 (x,y) = await ON_POINTER_MOVE until call Is_At(x,y);
             end
         end

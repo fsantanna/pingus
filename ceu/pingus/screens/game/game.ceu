@@ -24,6 +24,7 @@ data IGame with
     var   Rect                 rect_smallmap;
     var&  _GraphicContextState state;
     var   Rect                 offset;
+    var&  IRRect               offset_;
     var   float                gravity     = 0.2;
     var   _ActionName__Enum    action_next = {ActionName::WALKER};
     event void                 go_armageddon;
@@ -62,6 +63,19 @@ var& _GraphicContextState state =
             _delete(&&state);
         end;
 
+var& RRect r = spawn RRect(IRRect(Rect_(0,0,_,_),
+                           AnchorXY(AnchorX.Center(), AnchorY.Center()),
+                           &outer.main.rect,
+                           AnchorXY(AnchorX.Center(), AnchorY.Center()),
+                           _,_));
+spawn do
+    every outer.main.rect.changed do
+        r.pub.off.w = outer.main.rect.abs.w;
+        r.pub.off.h = outer.main.rect.abs.h;
+        emit r.pub.changed;
+    end
+end
+
 var IGame game =
     val IGame(&outer.plf, 0,
                      PingusCounter(0,0,0,0,
@@ -70,7 +84,7 @@ var IGame game =
                      Rect(0,0,w,h,&outer.main.center),
                      Rect(6,{Display::get_size}().height-105, 175,100,&outer.main.center),
                      &state,
-                     _, _, _, _, _, _);
+                     _, &r.pub, _, _, _, _, _);
 
 game.state.set_limit({Rect(Vector2i(0,0), Size(@w,@h))});
 

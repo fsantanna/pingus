@@ -20,8 +20,13 @@ do
     /* Background image */
     // FIXME: would be nice to allow surface manipulation with
     // animated sprites, but it's not that easy to do
-    var Rect r = val Rect(pst.x,pst.y, 0,0, &outer.game.offset);
-    spawn Sprite_from_desc(&r, {Resource::load_sprite_desc(desc.res_name)}, &outer.game.dt, &outer.main.redraw);
+
+    var& RRect r = spawn RRect(IRRect(Rect_(pst.x,pst.y,_,_),
+                                      AnchorXY(AnchorX.Center(), AnchorY.Center()),
+                                      &outer.game.offset_,
+                                      AnchorXY(AnchorX.Center(), AnchorY.Center()),
+                                      _, _));
+    spawn Sprite_from_desc_(&r.pub, {Resource::load_sprite_desc(desc.res_name)}, &outer.game.dt, &outer.main.redraw);
 
     await FOREVER;
 

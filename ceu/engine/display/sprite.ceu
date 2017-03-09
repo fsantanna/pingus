@@ -291,6 +291,34 @@ do
     end
 end
 
+code/await Sprite_from_desc_ (var& IRRect rect, var _SpriteDescription_ptr desc, event& int dt, event& void redraw)
+                                -> (var& ISprite sprite)
+                                    -> void
+do
+    var& Surface_from_desc sfc_from_desc =
+        spawn Surface_from_desc(desc, {ResourceModifier::ROT0});
+
+    var& Surface sfc = &sfc_from_desc.surface;
+    var&? Sprite_from_sfc_ s = spawn Sprite_from_sfc_(&rect, &sfc, &dt, &redraw);
+    watching s do
+        sprite = &s!.sprite;
+        await FOREVER;
+    end
+
+    code/tight/recursive Draw (var int x, var int y) -> void do
+        call {Display::s_framebuffer}:draw_surface(
+            outer.sfc_from_desc.surface.framebuffer,
+            {Rect}(
+                {Vector2i}(outer.sprite.frame_pos.x,outer.sprite.frame_pos.y) +
+                    {Vector2i}(outer.sprite.frame_size.width  * (outer.sprite.frame%outer.sprite.array.width),
+                               outer.sprite.frame_size.height * (outer.sprite.frame/outer.sprite.array.width)),
+                {Size}(outer.sprite.frame_size.width,outer.sprite.frame_size.height)),
+            {Vector2i}(outer.rect.abs.x - outer.sprite.offset.x,
+                       outer.rect.abs.y - outer.sprite.offset.y)
+        );
+    end
+end
+
 code/await Sprite_from_name_ (var& IRRect rect, var _char_const_ptr name, event& int dt, event& void redraw)
                                 -> (var& ISprite sprite)
                                     -> void

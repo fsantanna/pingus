@@ -245,18 +245,19 @@ end
 #include "pingus/config_manager.ceu"
 
 data IMain with
-    var Rect     center;
-    var&  RRect  rect;
+    var   Rect   center;
+    var&  IRRect rect;
     event void   go_options;
     event int    dt;
     event void   redraw;
 end
-var IMain main = _;
 
-main.rect = spawn RRect(IRRect(Rect_(0,0, {Display::get_width()},{Display::get_height()}),
-                               AnchorXY(AnchorX.Left(), AnchorY.Top()),
-                               nil, _,
-                               _, _));
+var& RRect r = spawn RRect(IRRect(Rect_(0,0, {Display::get_width()},{Display::get_height()}),
+                                  AnchorXY(AnchorX.Left(), AnchorY.Top()),
+                                  nil, _,
+                                  _, _));
+
+var IMain main = val IMain(_, &r.pub, _,_,_);
 
 #include "engine/display/surface.ceu"
 #include "engine/display/sprite.ceu"
@@ -329,9 +330,9 @@ with
                                0, 0,
                                nil);
         await SDL_RESIZE;
-        main.rect.pub.off.w = {Display::get_width()};
-        main.rect.pub.off.h = {Display::get_height()};
-        emit main.rect.pub.changed;
+        main.rect.off.w = {Display::get_width()};
+        main.rect.off.h = {Display::get_height()};
+        emit main.rect.changed;
     end
 with
     pause/if go_pause do
