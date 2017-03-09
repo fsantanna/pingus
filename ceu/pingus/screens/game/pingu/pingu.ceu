@@ -10,11 +10,11 @@ pool[] PinguParticle pingu_particles;
 pool[] SmokeParticle smoke_particles;
 
 data IPingu with
-    var Rect     rect;
-    var s8       direction;
-    var Vector3f velocity = val Vector3f(0, 0, 0);
-    var _ActionName__Enum current_action  = {ActionName::FALLER};
-    var _ActionName__Enum previous_action = {ActionName::FALLER};
+    var& IRRect   rect;
+    var  s8       direction;
+    var  Vector3f velocity = val Vector3f(0, 0, 0);
+    var  _ActionName__Enum current_action  = {ActionName::FALLER};
+    var  _ActionName__Enum previous_action = {ActionName::FALLER};
 
     vector[] byte name;
 
@@ -25,7 +25,8 @@ end
 code/await Pingu (pool&[] Pingu  pingus,
                   var     uint   id,
                   var     int    owner_id,
-                  var     Rect   rect_,
+                  var     int    x,
+                  var     int    y,
                   var     s8?    direction_)
                     -> (var IPingu pingu)
                         -> void
@@ -34,7 +35,13 @@ do
         direction_ = {LEFT};
     end
 
-    pingu = val IPingu(rect_, direction_!, _,_,_,_,_,_);
+    var& RRect r = spawn RRect(IRRect(Rect_(x,y, 32,32),
+                                      AnchorXY(AnchorX.Center(), AnchorY.Center()),
+                                      &outer.game.offset_,
+                                      AnchorXY(AnchorX.Center(), AnchorY.Center()),
+                                      _, _));
+
+    pingu = val IPingu(&r.pub, direction_!, _,_,_,_,_,_);
 
     var _ActionName__Enum wall_action = {ActionName::NONE};
     var _ActionName__Enum fall_action = {ActionName::NONE};
@@ -87,7 +94,8 @@ do
                 if call Pingu_Rel_Getpixel(0,-1) == {Groundtype::GP_OUTOFSCREEN} then
                     //Sound::PingusSound::play_sound("die");
     // TODO: copied from walker.ceu
-                    pingu.rect.x = (pingu.rect.x + (pingu.direction as int));
+                    pingu.rect.off.x = (pingu.rect.off.x + (pingu.direction as int));
+                    emit pingu.rect.changed;
                     escape {PS_DEAD};
                 end
 

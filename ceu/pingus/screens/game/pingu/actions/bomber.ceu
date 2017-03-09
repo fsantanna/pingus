@@ -18,8 +18,8 @@ do
 
     call {Sound::PingusSound::play_sound}("ohno", 0.5, 0.0);
 
-    var&? Sprite_from_name sprite =
-        spawn Sprite_from_name(&outer.pingu.rect, &&bomber[0] as _char&&, &outer.game.dt, &outer.main.redraw);
+    var&? Sprite_from_name_ sprite =
+        spawn Sprite_from_name_(&outer.pingu.rect, &&bomber[0] as _char&&, &outer.game.dt, &outer.main.redraw);
 
     watching sprite do
         spawn Mover();
@@ -35,19 +35,19 @@ do
         await outer.game.dt until sprite!.sprite.frame == 13;
         var int i;
         loop i in [0 -> 50[ do
-            spawn PinguParticle(outer.pingu.rect.x,outer.pingu.rect.y-5) in outer.pingu_particles;
+            spawn PinguParticle(outer.pingu.rect.off.x,outer.pingu.rect.off.y-5) in outer.pingu_particles;
         end
 
         call Game_Remove({&bomber_radius},
-                         outer.pingu.rect.x - {bomber_radius.get_width()/2},
-                         outer.pingu.rect.y - {bomber_radius.get_width()/2} - 16);
+                         outer.pingu.rect.off.x - {bomber_radius.get_width()/2},
+                         outer.pingu.rect.off.y - {bomber_radius.get_width()/2} - 16);
 
         do
             vector[] byte explo = [] .. "pingus/player"
                                      .. (call Pingu_Get_Owner_Str() as _char&&)
                                      .. "/explo";
-            var&? Sprite_from_name s =
-                spawn Sprite_from_name(&outer.pingu.rect, &&explo[0] as _char&&, &outer.game.dt, &outer.main.redraw);
+            var&? Sprite_from_name_ s =
+                spawn Sprite_from_name_(&outer.pingu.rect, &&explo[0] as _char&&, &outer.game.dt, &outer.main.redraw);
             s!.sprite.offset.x = 32;
             s!.sprite.offset.y = 48;
             await outer.game.dt;

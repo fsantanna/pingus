@@ -1,3 +1,4 @@
 (pingus-sprite 
   (image "/images/core/cursors/capwrong.png")
-  (origin "center"))
+  ;(origin "center")
+)

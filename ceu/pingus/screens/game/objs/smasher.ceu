@@ -37,12 +37,12 @@ do
                 loop pingu in outer.pingus do
                     // Activate the smasher if a Pingu is under it
                     if ((pingu!.pingu.direction == {LEFT}    and
-                         pingu!.pingu.rect.x > pst.x + 65 and
-                         pingu!.pingu.rect.x < pst.x + 85)
+                         pingu!.pingu.rect.off.x > pst.x + 65 and
+                         pingu!.pingu.rect.off.x < pst.x + 85)
                     or
                         (pingu!.pingu.direction == {RIGHT}    and
-                         pingu!.pingu.rect.x > pst.x + 190 and
-                         pingu!.pingu.rect.x < pst.x + 210))
+                         pingu!.pingu.rect.off.x > pst.x + 190 and
+                         pingu!.pingu.rect.off.x < pst.x + 210))
                     then
                         if (pingu!.pingu.current_action != {ActionName::SPLASHED}) then
                             escape 1;

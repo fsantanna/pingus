@@ -31,11 +31,11 @@ do
                                   .. (call Pingu_Get_Owner_Str() as _char&&)
                                   .. "/bridger/right";
 
-            var&? RightLeftSprites builds =
-                spawn RightLeftSprites(&outer.pingu.rect, &outer.pingu.direction, &left, &left, &right);
+            var&? RightLeftSprites_ builds =
+                spawn RightLeftSprites_(&outer.pingu.rect, &outer.pingu.direction, &left, &left, &right);
 
 /// TODO
-            var&? Sprite_from_name s;
+            var&? Sprite_from_name_ s;
             loop s in builds!.sprites do
                 break;
             end
@@ -65,7 +65,7 @@ do
                                   .. (call Pingu_Get_Owner_Str() as _char&&)
                                   .. "/bridger_walk/right";
 
-            await RightLeftSprites(&outer.pingu.rect, &outer.pingu.direction, &left, &left, &right);
+            await RightLeftSprites_(&outer.pingu.rect, &outer.pingu.direction, &left, &left, &right);
 
             // FIXME: Dangerous! might not be fixed timing
             if not call Way_Is_Free() then
@@ -165,22 +165,23 @@ do
 
         if outer.pingu.direction == {RIGHT} then
             call Game_Put({&brick_r},
-                          outer.pingu.rect.x + 10 - {brick_r.get_width()},
-                          outer.pingu.rect.y,
+                          outer.pingu.rect.off.x + 10 - {brick_r.get_width()},
+                          outer.pingu.rect.off.y,
                           {Groundtype::GP_BRIDGE}
             );
         else
             call Game_Put({&brick_l},
-                          outer.pingu.rect.x - 10,
-                          outer.pingu.rect.y,
+                          outer.pingu.rect.off.x - 10,
+                          outer.pingu.rect.off.y,
                           {Groundtype::GP_BRIDGE}
             );
         end
     end
 
     code/tight Walk_One_Step_Up (void) -> void do
-        outer.pingu.rect.x = outer.pingu.rect.x + (4*(outer.pingu.direction as int));
-        outer.pingu.rect.y = outer.pingu.rect.y - 2;
+        outer.pingu.rect.off.x = outer.pingu.rect.off.x + (4*(outer.pingu.direction as int));
+        outer.pingu.rect.off.y = outer.pingu.rect.off.y - 2;
+        emit outer.pingu.rect.changed;
     end
 end
 

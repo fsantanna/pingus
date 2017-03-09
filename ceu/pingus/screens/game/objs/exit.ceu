@@ -59,10 +59,10 @@ do
 #endif
 
             // Now, make sure the pingu is within range
-            if ( (p!.pingu.rect.x > pst.x-1) and
-                 (p!.pingu.rect.x < pst.x+1) and
-                 (p!.pingu.rect.y > pst.y-5) and
-                 (p!.pingu.rect.y < pst.y+5) )
+            if ( (p!.pingu.rect.off.x > pst.x-1) and
+                 (p!.pingu.rect.off.x < pst.x+1) and
+                 (p!.pingu.rect.off.y > pst.y-5) and
+                 (p!.pingu.rect.off.y < pst.y+5) )
             then
                 // Now, make sure the pingu isn't already exiting, gone, or dead
                 // Pingu actually exits

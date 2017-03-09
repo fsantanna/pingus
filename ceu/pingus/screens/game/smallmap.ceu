@@ -72,8 +72,8 @@ with
         // Draw Pingus
         var&? Pingu pingu;
         loop pingu in outer.pingus do
-            var int x = outer.game.rect_smallmap.x + (pingu!.pingu.rect.x * outer.game.rect_smallmap.w  / outer.game.rect.w);
-            var int y = outer.game.rect_smallmap.y  + (pingu!.pingu.rect.y  * outer.game.rect_smallmap.h / outer.game.rect.h);
+            var int x = outer.game.rect_smallmap.x + (pingu!.pingu.rect.off.x * outer.game.rect_smallmap.w  / outer.game.rect.w);
+            var int y = outer.game.rect_smallmap.y  + (pingu!.pingu.rect.off.y  * outer.game.rect_smallmap.h / outer.game.rect.h);
             {Display::s_framebuffer->draw_line(Vector2i(@x, @y), Vector2i(@x, @y-2), Color(255,255,0));}
         end
     end

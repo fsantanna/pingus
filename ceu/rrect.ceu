@@ -27,44 +27,47 @@ data IRRect with
     event void      changed;
 end
 
+code/tight IRRect_Set (var& IRRect rect) -> void do
+    if rect.ref? then
+        rect.abs.x = rect.ref!.abs.x + rect.off.x;
+        rect.abs.y = rect.ref!.abs.y + rect.off.y;
+        rect.abs.w = rect.off.w;
+        rect.abs.h = rect.off.h;
+
+        if rect.a_ref!.x is AnchorX.Center then
+            rect.abs.x = rect.abs.x + rect.ref!.abs.w/2;
+        else/if rect.a_ref!.x is AnchorX.Right then
+            rect.abs.x = rect.abs.x + rect.ref!.abs.w;
+        end
+
+        if rect.a_ref!.y is AnchorY.Center then
+            rect.abs.y = rect.abs.y + rect.ref!.abs.h/2;
+        else/if rect.a_ref!.y is AnchorY.Bottom then
+            rect.abs.y = rect.abs.y + rect.ref!.abs.h;
+        end
+
+    else
+        rect.abs = rect.off;
+    end
+
+    if rect.a_off.x is AnchorX.Center then
+        rect.abs.x = rect.abs.x - rect.abs.w/2;
+    else/if rect.a_off.x is AnchorX.Right then
+        rect.abs.x = rect.abs.x - rect.abs.w;
+    end
+
+    if rect.a_off.y is AnchorY.Center then
+        rect.abs.y = rect.abs.y - rect.abs.h/2;
+    else/if rect.a_off.y is AnchorY.Bottom then
+        rect.abs.y = rect.abs.y - rect.abs.h;
+    end
+end
+
 code/await RRect (var IRRect rect) -> (var& IRRect pub) -> FOREVER
 do
     pub = &rect;
     loop do
-        if pub.ref? then
-            pub.abs.x = pub.ref!.abs.x + pub.off.x;
-            pub.abs.y = pub.ref!.abs.y + pub.off.y;
-            pub.abs.w = pub.off.w;
-            pub.abs.h = pub.off.h;
-
-            if pub.a_ref!.x is AnchorX.Center then
-                pub.abs.x = pub.abs.x + pub.ref!.abs.w/2;
-            else/if pub.a_ref!.x is AnchorX.Right then
-                pub.abs.x = pub.abs.x + pub.ref!.abs.w;
-            end
-
-            if pub.a_ref!.y is AnchorY.Center then
-                pub.abs.y = pub.abs.y + pub.ref!.abs.h/2;
-            else/if pub.a_ref!.y is AnchorY.Bottom then
-                pub.abs.y = pub.abs.y + pub.ref!.abs.h;
-            end
-
-        else
-            pub.abs = pub.off;
-        end
-
-        if pub.a_off.x is AnchorX.Center then
-            pub.abs.x = pub.abs.x - pub.abs.w/2;
-        else/if pub.a_off.x is AnchorX.Right then
-            pub.abs.x = pub.abs.x - pub.abs.w;
-        end
-
-        if pub.a_off.y is AnchorY.Center then
-            pub.abs.y = pub.abs.y - pub.abs.h/2;
-        else/if pub.a_off.y is AnchorY.Bottom then
-            pub.abs.y = pub.abs.y - pub.abs.h;
-        end
-
+        call IRRect_Set(&pub);
         emit pub.changed;
         par/or do
             await pub.changed;

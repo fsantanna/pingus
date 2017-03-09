@@ -160,8 +160,7 @@ with
     do
         if call Game_Pingu_In() then
             outer.id = outer.id+1;
-            var Rect r = val Rect(x,y, 0,0, &outer.game.offset);
-            spawn Pingu(&outer.pingus,outer.id,owner_id,r,dir) in outer.pingus;
+            spawn Pingu(&outer.pingus,outer.id,owner_id,x,y,dir) in outer.pingus;
         end
     end
 

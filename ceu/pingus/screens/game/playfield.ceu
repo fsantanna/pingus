@@ -16,12 +16,15 @@ var Rect rect = val Rect(
 var& RectComponent component = spawn RectComponent(&rect);
 
 var Position mouse_pos = val Position(0,0);
+var Position mouse_pos_ = val Position(0,0);
 spawn do
     var int x;
     var int y;
     every (x,y) in ON_POINTER_MOVE do
         mouse_pos.x = x - rect.x;
         mouse_pos.y = y - rect.y;
+        mouse_pos_.x = x;
+        mouse_pos_.y = y;
     end
 end
 
@@ -39,8 +42,8 @@ par do
         var&? Pingu pingu = do
             var&? Pingu p;
             loop p in outer.pingus do
-                if (call/recursive p!.Pingu_Is_Over(mouse_pos.x,mouse_pos.y)) then
-                    var float dist = call/recursive p!.Pingu_Dist(mouse_pos.x,mouse_pos.y);
+                if (call p!.Pingu_Abs_Is_Over(mouse_pos_.x,mouse_pos_.y)) then
+                    var float dist = call p!.Pingu_Abs_Dist(mouse_pos_.x,mouse_pos_.y);
                     if (dist < min_dist) then
                         min_dist = dist;
                         check = call p!.Pingu_Check_Action(outer.game.action_next);

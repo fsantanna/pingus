@@ -12,8 +12,8 @@ loop do
     var&? Pingu p;
 
     loop p in outer.pingus do
-        if call/recursive p!.Pingu_Is_Over(outer.mouse_pos.x,outer.mouse_pos.y) then
-            var float dist = call/recursive p!.Pingu_Dist(outer.mouse_pos.x, outer.mouse_pos.y);
+        if call p!.Pingu_Abs_Is_Over(outer.mouse_pos_.x,outer.mouse_pos_.y) then
+            var float dist = call p!.Pingu_Abs_Dist(outer.mouse_pos_.x, outer.mouse_pos_.y);
             if dist < min_dist then
                 min_dist = dist;
                 nxt = &p;

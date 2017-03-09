@@ -24,8 +24,8 @@ do
                           .. (call Pingu_Get_Owner_Str() as _char&&)
                           .. "/basher/right";
 
-    var&? RightLeftSprites sprites =
-        spawn RightLeftSprites(&outer.pingu.rect, &outer.pingu.direction, &left, &left, &right);
+    var&? RightLeftSprites_ sprites =
+        spawn RightLeftSprites_(&outer.pingu.rect, &outer.pingu.direction, &left, &left, &right);
 
     var int? bash_reach; // set in bash
 
@@ -68,7 +68,7 @@ do
                 end
             else
 /// TODO
-                var&? Sprite_from_name s;
+                var&? Sprite_from_name_ s;
                 loop s in sprites!.sprites do
                     break;
                 end
@@ -95,8 +95,8 @@ do
         outer.bash_reach = {bash_radius.get_width()};
 
         call Game_Remove({&bash_radius},
-                         outer.pingu.rect.x - {bash_radius.get_width() / 2},
-                         outer.pingu.rect.y - {bash_radius.get_height()} + 1);
+                         outer.pingu.rect.off.x - {bash_radius.get_width() / 2},
+                         outer.pingu.rect.off.y - {bash_radius.get_height()} + 1);
     end
 
     code/tight Walk_Forward (void) -> bool do
@@ -120,8 +120,9 @@ do
         else
             // Note that Pingu::set_pos() is the 'reverse' of the y co-ords of
             // rel_getpixel()
-            outer.pingu.rect.x = outer.pingu.rect.x + (outer.pingu.direction as int);
-            outer.pingu.rect.y = outer.pingu.rect.y - y_inc;
+            outer.pingu.rect.off.x = outer.pingu.rect.off.x + (outer.pingu.direction as int);
+            outer.pingu.rect.off.y = outer.pingu.rect.off.y - y_inc;
+            emit outer.pingu.rect.changed;
         end
         escape true;
     end

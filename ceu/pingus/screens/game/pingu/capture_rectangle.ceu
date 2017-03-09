@@ -37,8 +37,11 @@ loop do
 
         par do
             if {ActionName::CATCHABLE}[outer.pingu.current_action] as bool then
-                var Rect rect_gb = val Rect(0,-16, 0,0, &outer.pingu.rect);
-                var Rect rect_lr = val Rect(0,-16, 0,0, &outer.pingu.rect);
+                var& RRect r1 = spawn RRect(IRRect(Rect_(0,0, _,_),
+                                           AnchorXY(AnchorX.Center(), AnchorY.Center()),
+                                           &outer.pingu.rect,
+                                           AnchorXY(AnchorX.Center(), AnchorY.Center()),
+                                           _, _));
 
                 var _char&& name1 = do
                     if {ActionName::CHANGE_ALLOWED}[outer.pingu.current_action][outer.game.action_next] as bool then
@@ -47,7 +50,13 @@ loop do
                         escape "game/cursors/capbad";
                     end
                 end;
-                spawn Sprite_from_name(&rect_gb, name1, &outer.main.dt, &outer.main.redraw);
+                spawn Sprite_from_name_(&r1.pub, name1, &outer.main.dt, &outer.main.redraw);
+
+                var& RRect r2 = spawn RRect(IRRect(Rect_(0,0, _,_),
+                                           AnchorXY(AnchorX.Center(), AnchorY.Center()),
+                                           &outer.pingu.rect,
+                                           AnchorXY(AnchorX.Center(), AnchorY.Center()),
+                                           _, _));
 
                 var _char&& name2 = do
                     if outer.pingu.direction == {LEFT} then
@@ -56,7 +65,7 @@ loop do
                         escape "game/cursors/arrow_right";
                     end
                 end;
-                spawn Sprite_from_name(&rect_lr, name2, &outer.main.dt, &outer.main.redraw);
+                spawn Sprite_from_name_(&r2.pub, name2, &outer.main.dt, &outer.main.redraw);
 
                 await FOREVER;
             end
@@ -66,8 +75,8 @@ loop do
                     var Vector3f pst = call/recursive Pingu_Get_Center_Pos();
                     call ({Fonts::courier_small}.render as /nohold)(
                         {origin_top_center},
-                        pst.x,
-                        pst.y - 46,
+                        outer.pingu.rect.abs.x + outer.pingu.rect.abs.w/2,
+                        outer.pingu.rect.abs.y - 30,
                         &&action_str[0] as _char&&,
                         *{Display::s_framebuffer}
                     );

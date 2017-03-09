@@ -34,8 +34,8 @@ end
 
 code/tight Pingu_Rel_Getpixel (var int x, var int y) -> int do
     escape outer.gfx_map.get_colmap():getpixel(
-                (outer.pingu.rect.x + (x * outer.pingu.direction)),
-                (outer.pingu.rect.y - y)
+                (outer.pingu.rect.off.x + (x * outer.pingu.direction)),
+                (outer.pingu.rect.off.y - y)
             );
 end
 
@@ -65,23 +65,33 @@ code/tight Pingu_Check_Action (var _ActionName__Enum new_action) -> bool do
     end
 end
 
+/// TODO: remove
 code/tight/recursive Pingu_Get_Center_Pos (void) -> Vector3f do
-    var Rect r = _;
-    call/recursive Rect_Off(&outer.pingu.rect, &r);
-    var Vector3f vec = val Vector3f(r.x as float, (r.y-16) as float, 0);
+    var Vector3f vec = val Vector3f(outer.pingu.rect.off.x as float, outer.pingu.rect.off.y as float, 0);
     escape vec;
 end
 
 // Returns true if the given koordinates are above the pingu
+code/tight Pingu_Abs_Is_Over (var int x, var int y) -> bool do
+    escape (outer.pingu.rect.abs.x+32 > x and
+            outer.pingu.rect.abs.x    < x and
+            outer.pingu.rect.abs.y+32 > y and
+            outer.pingu.rect.abs.y    < y);
+end
+
 code/tight/recursive Pingu_Is_Over (var int x, var int y) -> bool do
-    var Vector3f center = call/recursive Pingu_Get_Center_Pos();
-    escape (center.x+16 > x and
-            center.x-16 < x and
-            center.y+16 > y and
-            center.y-16 < y);
+    escape (outer.pingu.rect.off.x+16 > x and
+            outer.pingu.rect.off.x-16 < x and
+            outer.pingu.rect.off.y+16 > y and
+            outer.pingu.rect.off.y-16 < y);
 end
 
 // Returns the distance between the Pingu and a given coordinate
+code/tight Pingu_Abs_Dist (var int x, var int y) -> float do
+    escape {Math::sqrt}(((outer.pingu.rect.abs.x+16 - x) * (outer.pingu.rect.abs.x+16 - x) +
+                         (outer.pingu.rect.abs.y+16 - y) * (outer.pingu.rect.abs.y+16 - y)));
+end
+
 code/tight/recursive Pingu_Dist (var int x, var int y) -> float do
     var Vector3f p = call/recursive Pingu_Get_Center_Pos();
     escape {Math::sqrt}(((p.x - x) * (p.x - x) +
@@ -93,10 +103,10 @@ do
     _ceu_dbg_assert(x1 < x2);
     _ceu_dbg_assert(y1 < y2);
 
-    escape (outer.pingu.rect.x > x1 and
-            outer.pingu.rect.x < x2 and
-            outer.pingu.rect.y > y1 and
-            outer.pingu.rect.y < y2);
+    escape (outer.pingu.rect.off.x > x1 and
+            outer.pingu.rect.off.x < x2 and
+            outer.pingu.rect.off.y > y1 and
+            outer.pingu.rect.off.y < y2);
 end
 
 #endif
