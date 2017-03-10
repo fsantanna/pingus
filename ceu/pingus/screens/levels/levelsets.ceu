@@ -6,11 +6,10 @@
 #define LEVELSET_ITEMS_PER_PAGE 4
 #define LEVELSET_ITEM_HEIGHT 95
 
-code/await Levelset (var& ILevelUI ui, var int i, var Rect rect) -> FOREVER
+code/await Levelset (var& ILevelUI ui, var int i, var& IRRect rect) -> FOREVER
 do
-    var& RectComponent component = spawn RectComponent(&rect);
-
-    var int y = rect.y;
+    var& RRect r = spawn RRect(rect);
+    var& RectComponent_ component = spawn RectComponent_(&r.pub);
 
     event bool pse;
     par do
@@ -23,8 +22,13 @@ do
                 // draw background highlight mark
                 loop do
                     await component.component.on_pointer_enter;
-                    var Rect r = val Rect(rect.x-20, y-10, _,_, &rect.off);
-                    spawn Sprite_from_name(&r, "core/menu/marker", &outer.main.dt, &outer.main.redraw);
+                    var& RRect rr = spawn RRect(IRRect(Rect_(0,0, _,_),
+                                                       AnchorXY(AnchorX.Left(), AnchorY.Center()),
+                                                       &r.pub,
+                                                       AnchorXY(AnchorX.Left(), AnchorY.Center()),
+                                                       _, _));
+
+                    spawn Sprite_from_name_(&rr.pub, "core/menu/marker", &outer.main.dt, &outer.main.redraw);
                     await component.component.on_pointer_leave;
                 end
             with
@@ -35,38 +39,35 @@ do
                 var& Surface_from_name sfc =
                     spawn Surface_from_name({str.c_str()}, _);
                 every outer.main.redraw do
-                    var Rect r = _;
-                    call/recursive Rect_Off(&rect, &r);
-
                     call {Display::s_framebuffer}:draw_surface(
                         sfc.surface.framebuffer,
-                        _Vector2i(r.x+10, r.y)
+                        _Vector2i(r.pub.abs.x+25, r.pub.abs.y)
                     );
 
                     call {Fonts::chalk_normal}.render(
                         _origin_top_left,
-                        r.x+105, 15+r.y,
+                        r.pub.abs.x+105, r.pub.abs.y+15,
                         {_(levelsets[@i]->get_title())},
                         *{Display::s_framebuffer}
                     );
 
                     call {Fonts::chalk_small}.render(
                         _origin_top_left,
-                        r.x+105, 40+r.y,
+                        r.pub.abs.x+105, r.pub.abs.y+40,
                         {_(levelsets[@i]->get_description())},
                         *{Display::s_framebuffer}
                     );
 
                     call {Fonts::chalk_normal}.render(
                         _origin_top_right,
-                        outer.main.center.x+230, 15+r.y,
+                        r.pub.abs.x+r.pub.abs.w-25, r.pub.abs.y+15,
                         {(boost::format("%1% %2%%%") % _("Solved:") % levelsets[@i]->get_completion()).str()},
                         *{Display::s_framebuffer}
                     );
 
                     call {Fonts::chalk_normal}.render(
                         _origin_top_right,
-                        outer.main.center.x+230, 40+r.y,
+                        r.pub.abs.x+r.pub.abs.w-25, r.pub.abs.y+40,
                         {(boost::format("%1% %2%") % levelsets[@i]->get_level_count() % _("levels")).str()},
                         *{Display::s_framebuffer}
                     );
@@ -83,8 +84,8 @@ do
                 emit pse(true);
             end
             var int v = await ui.go;
-            rect.y = rect.y + v;
-            y = y + v;
+            r.pub.off.y = r.pub.off.y + v;
+            emit r.pub.changed;
         end
     end
 end
@@ -120,13 +121,15 @@ code/await Levelsets (void) -> int do
     var int? ret =
         watching ui do
             pool[] Levelset sets;
-            var Rect rect = val Rect(-370+70-10, -280+70+35,
-                                     680-90, LEVELSET_ITEM_HEIGHT-1,
-                                     &outer.main.center);
+            var IRRect r = val IRRect(Rect_(44,155, 680-90,LEVELSET_ITEM_HEIGHT-1),
+                                      AnchorXY(AnchorX.Left(), AnchorY.Center()),
+                                      &ui!.rect,
+                                      AnchorXY(AnchorX.Left(), AnchorY.Top()),
+                                      _, _);
             var int i;
             loop i in [0 -> {levelsets.size()}[ do
-                spawn Levelset(&ui!.ui, i, rect) in sets;
-                rect.y = rect.y + LEVELSET_ITEM_HEIGHT;
+                spawn Levelset(&ui!.ui, i, &r) in sets;
+                r.off.y = r.off.y + LEVELSET_ITEM_HEIGHT;
             end
 
             par do
@@ -136,7 +139,8 @@ code/await Levelsets (void) -> int do
                 every outer.main.redraw do
                     call {Fonts::chalk_large}.render(
                         _origin_top_center,
-                        outer.main.center.x, outer.main.center.y-280+40,
+                        ui!.rect.abs.x + ui!.rect.abs.w/2,
+                        ui!.rect.abs.y + 40,
                         __("Levelsets"),
                         *{Display::s_framebuffer}
                     );

@@ -144,7 +144,6 @@ code/await Level (var& _Levelset levelset, var& ILevelUI ui, var int i, var& IRR
                     -> FOREVER
 do
     var& RRect r = spawn RRect(rect);
-
     var& RectComponent_ component = spawn RectComponent_(&r.pub);
 
     event bool pse;
@@ -222,7 +221,7 @@ do
                 emit pse(true);
             end
             var int v = await ui.go;
-            r.pub.off.y= r.pub.off.y + v;
+            r.pub.off.y = r.pub.off.y + v;
             emit r.pub.changed;
         end
     end
