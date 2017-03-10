@@ -48,26 +48,33 @@ do
         end_offset = -end_offset;
     };
 
-    var int xc = ({Display::get_width()}  / 2) as int;
-    var int yc = ({Display::get_height()} / 2) as int;
-
     spawn Wood();
 
-    var Rect r1 = val Rect(xc, yc, 0, 0, &outer.main.center);
-    spawn Sprite_from_name(&r1, "core/menu/blackboard", &outer.main.dt, &outer.main.redraw);
+    var& RRect rect = spawn RRect(IRRect(Rect_(0,0, _,_),
+                                      AnchorXY(AnchorX.Center(), AnchorY.Center()),
+                                      &outer.main.rect,
+                                      AnchorXY(AnchorX.Center(), AnchorY.Center()),
+                                      _, _));
+    spawn Sprite_from_name_(&rect.pub, "core/menu/blackboard", &outer.main.dt, &outer.main.redraw);
 
-    var Rect r2 = val Rect(xc, yc-20, 0, 0, &outer.main.center);
-    spawn Sprite_from_name(&r1, "core/misc/creditpingu", &outer.main.dt, &outer.main.redraw);
+    var& RRect r1 = spawn RRect(IRRect(Rect_(0,-20, _,_),
+                                       AnchorXY(AnchorX.Center(), AnchorY.Center()),
+                                       &rect.pub,
+                                       AnchorXY(AnchorX.Center(), AnchorY.Center()),
+                                       _, _));
+    spawn Sprite_from_name_(&r1.pub, "core/misc/creditpingu", &outer.main.dt, &outer.main.redraw);
 
-    var Rect ok_r = val Rect({Display::get_width()/2} +260,
-                             {Display::get_height()/2}+170,
-                             _,_,
-                             &outer.main.center);
-    var& SurfaceButton ok = 
-        spawn SurfaceButton(&ok_r,
-                            "core/start/ok",
-                            "core/start/ok_clicked",
-                            "core/start/ok_hover");
+    var& RRect r2 = spawn RRect(IRRect(Rect_(-50,-60, _,_),
+                                       AnchorXY(AnchorX.Right(), AnchorY.Bottom()),
+                                       &rect.pub,
+                                       AnchorXY(AnchorX.Right(), AnchorY.Bottom()),
+                                       _, _));
+    var& SurfaceButton_ ok =
+        spawn SurfaceButton_(&r2.pub,
+                             "core/start/ok",
+                             "core/start/ok_clicked",
+                             "core/start/ok_hover");
+
 
     var bool is_fast_scrolling = false;
     var float offset = {Display::get_height()} - 50;
@@ -104,6 +111,9 @@ do
         await FOREVER;
     with
         every outer.main.redraw do
+            var int xc = outer.main.rect.abs.w / 2;
+            var int yc = outer.main.rect.abs.h / 2;
+
     #if 0
             scene_context!.set_cliprect(
                 _Rect(gc:get_width()/2 - 685/2, gc:get_height()/2 - 250,
