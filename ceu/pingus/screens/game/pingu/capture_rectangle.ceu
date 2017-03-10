@@ -72,7 +72,6 @@ loop do
         with
             every outer.main.redraw do
                 if {ActionName::CATCHABLE}[outer.pingu.current_action] as bool then
-                    var Vector3f pst = call/recursive Pingu_Get_Center_Pos();
                     call ({Fonts::courier_small}.render as /nohold)(
                         {origin_top_center},
                         outer.pingu.rect.abs.x + outer.pingu.rect.abs.w/2,

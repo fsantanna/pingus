@@ -24,8 +24,8 @@ par do
         var&? Pingu pingu = do
             var&? Pingu p;
             loop p in outer.pingus do
-                if (call p!.Pingu_Abs_Is_Over(mouse.x,mouse.y)) then
-                    var float dist = call p!.Pingu_Abs_Dist(mouse.x,mouse.y);
+                if (call p!.Pingu_Is_Over(mouse.x,mouse.y)) then
+                    var float dist = call p!.Pingu_Dist(mouse.x,mouse.y);
                     if (dist < min_dist) then
                         min_dist = dist;
                         check = call p!.Pingu_Check_Action(outer.game.action_next);

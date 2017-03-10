@@ -24,7 +24,7 @@ do
                 await outer.game.dt;
                 var&? Pingu p;
                 loop p in outer.pingus do
-                    if call p!.Is_Inside(pst.x+38, pst.y+90, pst.x+42, pst.y+98) then
+                    if call p!.Pingu_Is_Inside(pst.x+38, pst.y+90, pst.x+42, pst.y+98) then
                         var s8 dir = p!.pingu.direction;
                         emit p!.pingu.go_action({ActionName::DEAD});
                         escape dir;

@@ -65,12 +65,6 @@ code/tight Pingu_Check_Action (var _ActionName__Enum new_action) -> bool do
     end
 end
 
-/// TODO: remove
-code/tight/recursive Pingu_Get_Center_Pos (void) -> Vector3f do
-    var Vector3f vec = val Vector3f(outer.pingu.rect.off.x as float, outer.pingu.rect.off.y as float, 0);
-    escape vec;
-end
-
 // Returns true if the given koordinates are above the pingu
 code/tight Pingu_Abs_Is_Over (var int x, var int y) -> bool do
     escape (outer.pingu.rect.abs.x+32 > x and
@@ -79,26 +73,13 @@ code/tight Pingu_Abs_Is_Over (var int x, var int y) -> bool do
             outer.pingu.rect.abs.y    < y);
 end
 
-code/tight/recursive Pingu_Is_Over (var int x, var int y) -> bool do
-    escape (outer.pingu.rect.off.x+16 > x and
-            outer.pingu.rect.off.x-16 < x and
-            outer.pingu.rect.off.y+16 > y and
-            outer.pingu.rect.off.y-16 < y);
-end
-
 // Returns the distance between the Pingu and a given coordinate
 code/tight Pingu_Abs_Dist (var int x, var int y) -> float do
     escape {Math::sqrt}(((outer.pingu.rect.abs.x+16 - x) * (outer.pingu.rect.abs.x+16 - x) +
                          (outer.pingu.rect.abs.y+16 - y) * (outer.pingu.rect.abs.y+16 - y)));
 end
 
-code/tight/recursive Pingu_Dist (var int x, var int y) -> float do
-    var Vector3f p = call/recursive Pingu_Get_Center_Pos();
-    escape {Math::sqrt}(((p.x - x) * (p.x - x) +
-                         (p.y - y) * (p.y - y)));
-end
-
-code/tight Is_Inside (var int x1, var int y1, var int x2, var int y2) -> bool
+code/tight Pingu_Is_Inside (var int x1, var int y1, var int x2, var int y2) -> bool
 do
     _ceu_dbg_assert(x1 < x2);
     _ceu_dbg_assert(y1 < y2);
