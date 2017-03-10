@@ -1,3 +1,4 @@
 (pingus-sprite 
   (image "story4.png")
-  (origin "center"))
+  ;(origin "center")
+)

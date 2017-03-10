@@ -12,21 +12,31 @@ do
 
     spawn Wood();
 
-    var Rect r = val Rect(xc,yc, 0,0, &outer.main.center);
-    spawn Sprite_from_name(&r, "core/menu/blackboard", &outer.main.dt, &outer.main.redraw);
+    var& RRect rect = spawn RRect(IRRect(Rect_(0,0, _,_),
+                                      AnchorXY(AnchorX.Center(), AnchorY.Center()),
+                                      &outer.main.rect,
+                                      AnchorXY(AnchorX.Center(), AnchorY.Center()),
+                                      _, _));
+    spawn Sprite_from_name_(&rect.pub, "core/menu/blackboard", &outer.main.dt, &outer.main.redraw);
 
-    var Rect next_r = val Rect(xc + 220 + 40,
-                               yc + 180 + 32,
-                               _,_,
-                               &outer.main.center);
-    var& SurfaceButton next = spawn SurfaceButton(&next_r,
-                                                  "core/misc/next",
-                                                  "core/misc/next",
-                                                  "core/misc/next_hover");
+    var& RRect r1 = spawn RRect(IRRect(Rect_(-50,-60, _,_),
+                                       AnchorXY(AnchorX.Right(), AnchorY.Bottom()),
+                                       &rect.pub,
+                                       AnchorXY(AnchorX.Right(), AnchorY.Bottom()),
+                                       _, _));
+    var& SurfaceButton_ next =
+        spawn SurfaceButton_(&r1.pub,
+                             "core/misc/next",
+                             "core/misc/next",
+                             "core/misc/next_hover");
 
-    var&? LabelButton skip = spawn LabelButton({Display::get_width()}  - 36,
-                                               {Display::get_height()} - 26,
-                                               "skip");
+    var IRRect r = val IRRect(Rect_(-26,0,_,_),
+                              AnchorXY(AnchorX.Left(), AnchorY.Top()),
+                              &rect.pub,
+                              AnchorXY(AnchorX.Right(), AnchorY.Bottom()),
+                              _, _);
+
+    var&? LabelButton skip = spawn LabelButton(&r, "skip");
 
     if not ({globals::developer_mode} as bool) then
         //kill skip;
@@ -56,12 +66,16 @@ do
                 page = pages.at(@i);
             };
             vector[] byte text = [].."TODO";    // printing "" crashes
-            var Rect r2 = val Rect(xc,yc-65, 0,0, &outer.main.center);
             {
                 static std::string str2;
                 str2 = page.image.res_name;
             }
-            spawn Sprite_from_name(&r2, {str2.c_str()} as _char&&, &outer.main.dt, &outer.main.redraw);
+            var& RRect r2 = spawn RRect(IRRect(Rect_(0,10, _,_),
+                                               AnchorXY(AnchorX.Center(), AnchorY.Bottom()),
+                                               &rect.pub,
+                                               AnchorXY(AnchorX.Center(), AnchorY.Center()),
+                                               _, _));
+            spawn Sprite_from_name_(&r2.pub, {str2.c_str()} as _char&&, &outer.main.dt, &outer.main.redraw);
             par/or do
                 var float time = 0;
                 watching next_text do
