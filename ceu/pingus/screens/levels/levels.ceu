@@ -26,45 +26,62 @@ data ILevelUI with
 end
 
 code/await LevelUI (var int items_total, var int items_per_page, var int item_height)
-                    -> (var ILevelUI ui)
+                    -> (var ILevelUI ui, var& IRRect rect)
                         -> int
 do
     ui = _;
 
     spawn Wood();
 
-    var Rect rect = val Rect(0, 0, _,_, &outer.main.center);
-    spawn Sprite_from_name(&rect, "core/menu/blackboard", &outer.main.dt, &outer.main.redraw);
+    var& RRect r = spawn RRect(IRRect(Rect_(0,0, _,_),
+                               AnchorXY(AnchorX.Center(), AnchorY.Center()),
+                               &outer.main.rect,
+                               AnchorXY(AnchorX.Center(), AnchorY.Center()),
+                               _, _));
+    rect = &r.pub;
+    spawn Sprite_from_name_(&r.pub, "core/menu/blackboard", &outer.main.dt, &outer.main.redraw);
 
-    var Rect cancel_r = val Rect(-300, 200, 0, 0, &outer.main.center);
-    var& SurfaceButton cancel =
-        spawn SurfaceButton(&cancel_r,
+    var& RRect cancel_r = spawn RRect(IRRect(Rect_(70,-2, _,_),
+                                             AnchorXY(AnchorX.Left(), AnchorY.Bottom()),
+                                             &r.pub,
+                                             AnchorXY(AnchorX.Left(), AnchorY.Bottom()),
+                                             _, _));
+    var& SurfaceButton_ cancel =
+        spawn SurfaceButton_(&cancel_r.pub,
                             "core/start/back",
                             "core/start/back_clicked",
                             "core/start/back_hover");
+
     spawn do
         every outer.main.redraw do
-            var Rect r = _;
-            call/recursive Rect_Off(&cancel_r, &r);
             call {Fonts::chalk_normal}.render(
                 _origin_top_center,
-                r.x+55, r.y,
+                cancel_r.pub.abs.x+cancel_r.pub.abs.w/2,
+                cancel_r.pub.abs.y,
                 __("Back"),
                 *{Display::s_framebuffer}
             );
         end
     end
 
-    var Rect prv_r = val Rect(280, -48-12, _,_, &outer.main.center);
-    var& SurfaceButton prv =
-        spawn SurfaceButton(&prv_r,
+    var& RRect prv_r = spawn RRect(IRRect(Rect_(-35,-10, _,_),
+                                             AnchorXY(AnchorX.Right(), AnchorY.Bottom()),
+                                             &r.pub,
+                                             AnchorXY(AnchorX.Right(), AnchorY.Center()),
+                                             _, _));
+    var& SurfaceButton_ prv =
+        spawn SurfaceButton_(&prv_r.pub,
                             "core/menu/arrow_up",
                             "core/menu/arrow_up_pressed",
                             "core/menu/arrow_up_hover");
 
-    var Rect nxt_r = val Rect(280, 12, _,_, &outer.main.center);
-    var& SurfaceButton nxt =
-        spawn SurfaceButton(&nxt_r,
+    var& RRect nxt_r = spawn RRect(IRRect(Rect_(-35,10, _,_),
+                                             AnchorXY(AnchorX.Right(), AnchorY.Top()),
+                                             &r.pub,
+                                             AnchorXY(AnchorX.Right(), AnchorY.Center()),
+                                             _, _));
+    var& SurfaceButton_ nxt =
+        spawn SurfaceButton_(&nxt_r.pub,
                             "core/menu/arrow_down",
                             "core/menu/arrow_down_pressed",
                             "core/menu/arrow_down_hover");
@@ -123,12 +140,12 @@ end
 
 ////////////////////////////////////////////////////////////////////////////////
 
-code/await Level (var& _Levelset levelset, var& ILevelUI ui, var int i, var Rect rect)
+code/await Level (var& _Levelset levelset, var& ILevelUI ui, var int i, var& IRRect rect)
                     -> FOREVER
 do
-    var& RectComponent component = spawn RectComponent(&rect);
+    var& RRect r = spawn RRect(rect);
 
-    var int y = rect.y;
+    var& RectComponent_ component = spawn RectComponent_(&r.pub);
 
     event bool pse;
     par do
@@ -144,8 +161,13 @@ do
                         // draw background highlight mark
                         loop do
                             await component.component.on_pointer_enter;
-                            var Rect r = val Rect(rect.x-25, y, _, _, &rect.off);
-                            spawn Sprite_from_name(&r, "core/menu/marker2", &outer.main.dt, &outer.main.redraw);
+                            var& RRect rr = spawn RRect(IRRect(Rect_(0,0, _,_),
+                                                               AnchorXY(AnchorX.Left(), AnchorY.Center()),
+                                                               &r.pub,
+                                                               AnchorXY(AnchorX.Left(), AnchorY.Center()),
+                                                               _, _));
+
+                            spawn Sprite_from_name_(&rr.pub, "core/menu/marker2", &outer.main.dt, &outer.main.redraw);
                             await component.component.on_pointer_leave;
                         end
                     end
@@ -165,27 +187,24 @@ do
                 var& Surface_from_name sfc = spawn Surface_from_name(name, _);
 
                 every outer.main.redraw do
-                    var Rect r = _;
-                    call/recursive Rect_Off(&rect, &r);
-
                     // draw checkbox
                     call {Display::s_framebuffer}:draw_surface(
                         sfc.surface.framebuffer,
-                        _Vector2i(r.x, r.y)
+                        _Vector2i(r.pub.abs.x+25, r.pub.abs.y)
                     );
 
                     // draw levelname
                     if {globals::developer_mode} as bool then
                         call {Fonts::chalk_normal}.render(
                             _origin_top_left,
-                            r.x+40, r.y+4,
+                            r.pub.abs.x+65, r.pub.abs.y+4,
                             __(levelset.get_level(i):plf.get_resname()),
                             *{Display::s_framebuffer}
                         );
                     else
                         call {Fonts::chalk_normal}.render(
                             _origin_top_left,
-                            r.x+40, r.y+4,
+                            r.pub.abs.x+65, r.pub.abs.y+4,
                             __(levelset.get_level(i):plf.get_levelname()),
                             *{Display::s_framebuffer}
                         );
@@ -203,8 +222,8 @@ do
                 emit pse(true);
             end
             var int v = await ui.go;
-            rect.y = rect.y + v;
-            y = y + v;
+            r.pub.off.y= r.pub.off.y + v;
+            emit r.pub.changed;
         end
     end
 end
@@ -219,24 +238,36 @@ do
     var&? LevelUI ui = spawn LevelUI(levelset.get_level_count() as int, LEVEL_ITEMS_PER_PAGE, LEVEL_ITEM_HEIGHT);
     var int? ret =
         watching ui do
-            var Rect r1 = val Rect(0, -280+70-20, 0, 0, &outer.main.center);
             {
                 static std::string str;
                 str = @levelset.get_image();
             }
-            spawn Sprite_from_name(&r1, {str.c_str()}, &outer.main.dt, &outer.main.redraw);
-                r1.x = -370 + 35 + r1.w/2;
+            var& RRect r1 = spawn RRect(IRRect(Rect_(100,85, _,_),
+                                               AnchorXY(AnchorX.Center(), AnchorY.Center()),
+                                               &ui!.rect,
+                                               AnchorXY(AnchorX.Left(), AnchorY.Top()),
+                                               _, _));
+            spawn Sprite_from_name_(&r1.pub, {str.c_str()}, &outer.main.dt, &outer.main.redraw);
 
-            var Rect r2 = val Rect(0, -280+70-20, 0, 0, &outer.main.center);
-            spawn Sprite_from_name(&r2, {str.c_str()}, &outer.main.dt, &outer.main.redraw);
-                r2.x =  370 - 90 - r2.w/2;
+            var& RRect r2 = spawn RRect(IRRect(Rect_(-100,85, _,_),
+                                               AnchorXY(AnchorX.Center(), AnchorY.Center()),
+                                               &ui!.rect,
+                                               AnchorXY(AnchorX.Right(), AnchorY.Top()),
+                                               _, _));
+            spawn Sprite_from_name_(&r2.pub, {str.c_str()}, &outer.main.dt, &outer.main.redraw);
 
             pool[] Level levels;
-            var Rect rect = val Rect(-370+70+10, -280+70+70, 680-90, LEVEL_ITEM_HEIGHT-1, &outer.main.center);
+
+            var IRRect r = val IRRect(Rect_(44,155, 680-90,LEVEL_ITEM_HEIGHT-1),
+                                      AnchorXY(AnchorX.Left(), AnchorY.Center()),
+                                      &ui!.rect,
+                                      AnchorXY(AnchorX.Left(), AnchorY.Top()),
+                                      _, _);
+
             var int i;
             loop i in [0->levelset.get_level_count() as int[ do
-                spawn Level(&levelset, &ui!.ui, i, rect) in levels;
-                rect.y = rect.y + LEVEL_ITEM_HEIGHT;
+                spawn Level(&levelset, &ui!.ui, i, &r) in levels;
+                r.off.y = r.off.y + LEVEL_ITEM_HEIGHT;
             end
 
             par do
@@ -246,7 +277,8 @@ do
                 every outer.main.redraw do
                     call {Fonts::chalk_large}.render(
                         _origin_top_center,
-                        outer.main.center.x, outer.main.center.y-280+40,
+                        ui!.rect.abs.x + ui!.rect.abs.w/2,
+                        ui!.rect.abs.y + 40,
                         __(levelset.get_title()),
                         *{Display::s_framebuffer}
                     );
