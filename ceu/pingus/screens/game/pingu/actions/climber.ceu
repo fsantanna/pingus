@@ -24,6 +24,7 @@ do
             // and there is still ground to walk on
             if (call Pingu_Rel_Getpixel(1,1) != {Groundtype::GP_NOTHING}) then
                 outer.pingu.rect.off.y = outer.pingu.rect.off.y - 1;
+                emit outer.pingu.rect.changed;
             else/if (call Pingu_Rel_Getpixel(1,1) ==  {Groundtype::GP_NOTHING}) then
                 //  log_info("Climber failed, no more wall");
                 // If Pingu able to get to new position without head collision

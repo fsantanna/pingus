@@ -66,7 +66,7 @@ code/tight Pingu_Check_Action (var _ActionName__Enum new_action) -> bool do
 end
 
 // Returns true if the given koordinates are above the pingu
-code/tight Pingu_Abs_Is_Over (var int x, var int y) -> bool do
+code/tight Pingu_Is_Over (var int x, var int y) -> bool do
     escape (outer.pingu.rect.abs.x+32 > x and
             outer.pingu.rect.abs.x    < x and
             outer.pingu.rect.abs.y+32 > y and
@@ -74,7 +74,7 @@ code/tight Pingu_Abs_Is_Over (var int x, var int y) -> bool do
 end
 
 // Returns the distance between the Pingu and a given coordinate
-code/tight Pingu_Abs_Dist (var int x, var int y) -> float do
+code/tight Pingu_Dist (var int x, var int y) -> float do
     escape {Math::sqrt}(((outer.pingu.rect.abs.x+16 - x) * (outer.pingu.rect.abs.x+16 - x) +
                          (outer.pingu.rect.abs.y+16 - y) * (outer.pingu.rect.abs.y+16 - y)));
 end
