@@ -258,19 +258,19 @@ code/await OptionMenu (void) -> void do
     yy_ = yy_ + 32;
 
     // Renderer
-    var& RRect r71 = spawn RRect(IRRect(Rect_(365,yy_,140,32),
+    var& RRect r81 = spawn RRect(IRRect(Rect_(365,yy_,140,32),
                                         AnchorXY(AnchorX.Left(), AnchorY.Center()),
                                         &r.pub,
                                         AnchorXY(AnchorX.Left(), AnchorY.Top()),
                                         _, _));
 
-    var& RRect r72 = spawn RRect(IRRect(Rect_(365+135,yy_,180,32),
+    var& RRect r82 = spawn RRect(IRRect(Rect_(365+135,yy_,180,32),
                                         AnchorXY(AnchorX.Left(), AnchorY.Center()),
                                         &r.pub,
                                         AnchorXY(AnchorX.Left(), AnchorY.Top()),
                                         _, _));
 
-    spawn Label("Renderer:", &r71.pub);
+    spawn Label("Renderer:", &r81.pub);
     pool[] ChoiceItem its2;
     var    IChoiceBox cb2 = val IChoiceBox(_,_,_);
     if _config_manager.get_renderer() == {SDL_FRAMEBUFFER} then
@@ -285,12 +285,12 @@ code/await OptionMenu (void) -> void do
         cb2.current = -1;
         _ceu_dbg_assert({!"unknown renderer type"});
     end
-    spawn ChoiceItem(&r72.pub, "sdl",    0, &cb2) in its2;
-    spawn ChoiceItem(&r72.pub, "delta",  1, &cb2) in its2;
+    spawn ChoiceItem(&r82.pub, "sdl",    0, &cb2) in its2;
+    spawn ChoiceItem(&r82.pub, "delta",  1, &cb2) in its2;
 #ifdef HAVE_OPENGL
-    spawn ChoiceItem(&r72.pub, "opengl", 2, &cb2) in its2;
+    spawn ChoiceItem(&r82.pub, "opengl", 2, &cb2) in its2;
 #endif
-    spawn ChoiceBox(&r72.pub, &its2, &cb2);
+    spawn ChoiceBox(&r82.pub, &its2, &cb2);
     spawn do
         every cb2.go do
             _config_manager.set_renderer(
@@ -303,19 +303,19 @@ code/await OptionMenu (void) -> void do
     yy_ = yy_ + 32;
 
     // Language
-    var& RRect r81 = spawn RRect(IRRect(Rect_(365,yy_,140,32),
+    var& RRect r91 = spawn RRect(IRRect(Rect_(365,yy_,140,32),
                                         AnchorXY(AnchorX.Left(), AnchorY.Center()),
                                         &r.pub,
                                         AnchorXY(AnchorX.Left(), AnchorY.Top()),
                                         _, _));
 
-    var& RRect r82 = spawn RRect(IRRect(Rect_(365+135,yy_,180,32),
+    var& RRect r92 = spawn RRect(IRRect(Rect_(365+135,yy_,180,32),
                                         AnchorXY(AnchorX.Left(), AnchorY.Center()),
                                         &r.pub,
                                         AnchorXY(AnchorX.Left(), AnchorY.Top()),
                                         _, _));
 
-    spawn Label("Language:", &r81.pub);
+    spawn Label("Language:", &r91.pub);
     pool[] ChoiceItem its3;
     var    IChoiceBox cb3 = val IChoiceBox(_,_,_);
 
@@ -340,7 +340,7 @@ code/await OptionMenu (void) -> void do
                 static const char* str3;
                 str3 = it3->get_name().c_str();
             }
-            spawn ChoiceItem(&r82.pub, {str3}, i, &cb3) in its3;
+            spawn ChoiceItem(&r92.pub, {str3}, i, &cb3) in its3;
             {
                 m_language_map[str3] = *it3;
             }
@@ -351,7 +351,7 @@ code/await OptionMenu (void) -> void do
             {it3++;};
         end
     end
-    spawn ChoiceBox(&r82.pub, &its3, &cb3);
+    spawn ChoiceBox(&r92.pub, &its3, &cb3);
     spawn do
         every cb3.go do
             {
@@ -373,30 +373,6 @@ code/await OptionMenu (void) -> void do
     yy_ = yy_ + 32;
 
     // Master Volume
-    var& RRect r91 = spawn RRect(IRRect(Rect_(365,yy_,140,32),
-                                        AnchorXY(AnchorX.Left(), AnchorY.Center()),
-                                        &r.pub,
-                                        AnchorXY(AnchorX.Left(), AnchorY.Top()),
-                                        _, _));
-
-    var& RRect r92 = spawn RRect(IRRect(Rect_(365+135,yy_,180,32),
-                                        AnchorXY(AnchorX.Left(), AnchorY.Center()),
-                                        &r.pub,
-                                        AnchorXY(AnchorX.Left(), AnchorY.Top()),
-                                        _, _));
-
-    spawn Label("Master Volume:", &r91.pub);
-    var& SliderBox box4 = spawn SliderBox(&r92.pub, 25, _config_manager.get_master_volume());
-    spawn do
-        var int v;
-        every v in box4.go do
-            _config_manager.set_master_volume(v);
-        end
-    end
-
-    yy_ = yy_ + 32;
-
-    // Sound Volume
     var& RRect ra1 = spawn RRect(IRRect(Rect_(365,yy_,140,32),
                                         AnchorXY(AnchorX.Left(), AnchorY.Center()),
                                         &r.pub,
@@ -409,18 +385,18 @@ code/await OptionMenu (void) -> void do
                                         AnchorXY(AnchorX.Left(), AnchorY.Top()),
                                         _, _));
 
-    spawn Label("Sound Volume:", &ra1.pub);
-    var& SliderBox box5 = spawn SliderBox(&ra2.pub, 25, _config_manager.get_sound_volume());
+    spawn Label("Master Volume:", &ra1.pub);
+    var& SliderBox box4 = spawn SliderBox(&ra2.pub, 25, _config_manager.get_master_volume());
     spawn do
         var int v;
-        every v in box5.go do
-            _config_manager.set_sound_volume(v);
+        every v in box4.go do
+            _config_manager.set_master_volume(v);
         end
     end
 
     yy_ = yy_ + 32;
 
-    // Music Volume
+    // Sound Volume
     var& RRect rb1 = spawn RRect(IRRect(Rect_(365,yy_,140,32),
                                         AnchorXY(AnchorX.Left(), AnchorY.Center()),
                                         &r.pub,
@@ -433,8 +409,32 @@ code/await OptionMenu (void) -> void do
                                         AnchorXY(AnchorX.Left(), AnchorY.Top()),
                                         _, _));
 
-    spawn Label("Music Volume:", &rb1.pub);
-    var& SliderBox box6 = spawn SliderBox(&rb2.pub, 25, _config_manager.get_music_volume());
+    spawn Label("Sound Volume:", &rb1.pub);
+    var& SliderBox box5 = spawn SliderBox(&rb2.pub, 25, _config_manager.get_sound_volume());
+    spawn do
+        var int v;
+        every v in box5.go do
+            _config_manager.set_sound_volume(v);
+        end
+    end
+
+    yy_ = yy_ + 32;
+
+    // Music Volume
+    var& RRect rc1 = spawn RRect(IRRect(Rect_(365,yy_,140,32),
+                                        AnchorXY(AnchorX.Left(), AnchorY.Center()),
+                                        &r.pub,
+                                        AnchorXY(AnchorX.Left(), AnchorY.Top()),
+                                        _, _));
+
+    var& RRect rc2 = spawn RRect(IRRect(Rect_(365+135,yy_,180,32),
+                                        AnchorXY(AnchorX.Left(), AnchorY.Center()),
+                                        &r.pub,
+                                        AnchorXY(AnchorX.Left(), AnchorY.Top()),
+                                        _, _));
+
+    spawn Label("Music Volume:", &rc1.pub);
+    var& SliderBox box6 = spawn SliderBox(&rc2.pub, 25, _config_manager.get_music_volume());
     spawn do
         var int v;
         every v in box6.go do
@@ -444,14 +444,14 @@ code/await OptionMenu (void) -> void do
 
     // CLOSE //
 
-    var& RRect rc = spawn RRect(IRRect(Rect_(-50,-50,_,_),
+    var& RRect rd = spawn RRect(IRRect(Rect_(-50,-50,_,_),
                                        AnchorXY(AnchorX.Right(), AnchorY.Bottom()),
                                        &r.pub,
                                        AnchorXY(AnchorX.Right(), AnchorY.Bottom()),
                                        _, _));
 
     var& SurfaceButton_ button =
-        spawn SurfaceButton_(&rc.pub, "core/start/ok",
+        spawn SurfaceButton_(&rd.pub, "core/start/ok",
                                       "core/start/ok_clicked",
                                       "core/start/ok_hover");
 
@@ -470,24 +470,24 @@ code/await OptionMenu (void) -> void do
         every outer.main.redraw do
             call {Fonts::chalk_large}.render(
                 _origin_top_center,
-                outer.main.center.x,
-                outer.main.center.y - 240,
+                r.pub.abs.x + r.pub.abs.w/2,
+                r.pub.abs.y + 40,
                 __("Option Menu"),
                 *{Display::s_framebuffer}
             );
 
             call {Fonts::chalk_normal}.render(
                 {origin_bottom_center},
-                rc.pub.abs.x + rc.pub.abs.w/2,
-                rc.pub.abs.y,
+                rd.pub.abs.x + rd.pub.abs.w/2,
+                rd.pub.abs.y,
                 __("Close"),
                 *{Display::s_framebuffer}
             );
 
             call {Fonts::chalk_normal}.render(
-                _origin_top_left,
-                outer.main.center.x  - 320,
-                outer.main.center.y + 200,
+                {origin_bottom_left},
+                r.pub.abs.x + 45,
+                r.pub.abs.y + r.pub.abs.h - 50,
                 __("Some options require a restart of the game to take effect."),
                 *{Display::s_framebuffer}
             );
