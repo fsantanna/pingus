@@ -245,7 +245,6 @@ end
 #include "pingus/config_manager.ceu"
 
 data IMain with
-    var   Rect   center;
     var&  IRRect rect;
     event void   go_options;
     event int    dt;
@@ -257,7 +256,7 @@ var& RRect r = spawn RRect(IRRect(Rect_(0,0, {Display::get_width()},{Display::ge
                                   nil, _,
                                   _, _));
 
-var IMain main = val IMain(_, &r.pub, _,_,_);
+var IMain main = val IMain(&r.pub, _,_,_);
 
 #include "engine/display/surface.ceu"
 #include "engine/display/sprite.ceu"
@@ -325,10 +324,6 @@ with
     end
 with
     loop do
-        main.center = val Rect({Display::get_width()/2},
-                               {Display::get_height()/2},
-                               0, 0,
-                               nil);
         await SDL_RESIZE;
         main.rect.off.w = {Display::get_width()};
         main.rect.off.h = {Display::get_height()};
