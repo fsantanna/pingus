@@ -63,9 +63,9 @@ var& _GraphicContextState state =
         end;
 
 var& RRect r = spawn RRect(IRRect(Rect_(0,0,outer.main.rect.abs.w,outer.main.rect.abs.w),
-                           AnchorXY(AnchorX.Center(), AnchorY.Center()),
+                           AnchorXY(AnchorX.Left(), AnchorY.Top()),
                            &outer.main.rect,
-                           AnchorXY(AnchorX.Center(), AnchorY.Center()),
+                           AnchorXY(AnchorX.Left(), AnchorY.Top()),
                            _,_));
 spawn do
     par do

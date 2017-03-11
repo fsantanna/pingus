@@ -19,32 +19,36 @@ do
     var Vector3f pst = val Vector3f({pst.x},{pst.y},{pst.z});
 
     var& Surface_from_desc sfc = spawn Surface_from_desc({spr},_);
+    var int w = sfc.surface.framebuffer.get_width();
+    var int h = sfc.surface.framebuffer.get_height();
 
     every outer.main.redraw do
         if auto_uncover then
             // Pingu is not over the surface
-            if (not (outer.pst.x>pst.x and outer.pst.x<(pst.x + sfc.surface.framebuffer.get_width()) and
-                     outer.pst.y>pst.y and outer.pst.y<(pst.y + sfc.surface.framebuffer.get_height())))
+            if (not (outer.pst.x>pst.x and outer.pst.x<(pst.x + w) and
+                     outer.pst.y>pst.y and outer.pst.y<(pst.y + h)))
             then
                 call {Display::s_framebuffer}:draw_surface(
                     sfc.surface.framebuffer,
-                    _Vector2i(-outer.offset.x + pst.x,
-                              -outer.offset.y + pst.y)
+                    _Vector2i(outer.offset.abs.x+outer.offset.abs.w/2,
+                              outer.offset.abs.y+outer.offset.abs.h/2)
                 );
+#if 0
             else/if outer.pst.z > pst.z+1000 then
                 // FIXME: Hack for the 0.6.0 release/tutorial world remove // later
 // TODO
                 call {Display::s_framebuffer}:draw_surface(
                     sfc.surface.framebuffer,
-                    _Vector2i(-outer.offset.x + pst.x,
-                              -outer.offset.y + pst.y)
+                    _Vector2i(outer.offset.abs.x + pst.x,
+                              outer.offset.abs.y + pst.y)
                 );
+#endif
             end
         else
             call {Display::s_framebuffer}:draw_surface(
                 sfc.surface.framebuffer,
-                _Vector2i(-outer.offset.x + pst.x,
-                          -outer.offset.y + pst.y)
+                _Vector2i(outer.offset.abs.x+outer.offset.abs.w/2,
+                          outer.offset.abs.y+outer.offset.abs.h/2)
             );
         end
     end

@@ -7,12 +7,11 @@ data EDot with
     event void snd;
 end
 
-code/await Mouse (var& Rect rect, var& EDot e) -> FOREVER
+code/await Mouse (var& IRRect rect, var& EDot e) -> FOREVER
 do
     code/tight Is_Inside (var int x, var int y) -> bool do
-        var Vector2i off = call Get_Offset();
-        var float dx = off.x + x - outer.rect.x;
-        var float dy = off.y + y - outer.rect.y;
+        var float dx = outer.rect.abs.x - x;
+        var float dy = outer.rect.abs.y - y;
         escape {Math::sqrt}(dx*dx + dy*dy) < 30;
     end
 
@@ -75,22 +74,26 @@ do
     vector[] byte m_name   = [] .. {m_name.c_str()} as _char&&;
     vector[] byte filename = [] .. {m_story.c_str()} as _char&&;
 
-    var Rect rect = val Rect({pst.x},{pst.y}, 0,0, &outer.offset);
-    spawn Sprite_from_name(&rect, "core/worldmap/story_dot", &outer.main.dt, &outer.main.redraw);
+    var& RRect r = spawn RRect(IRRect(Rect_({pst.x},{pst.y}, _,_),
+                                      AnchorXY(AnchorX.Center(), AnchorY.Center()),
+                                      &outer.offset,
+                                      AnchorXY(AnchorX.Center(), AnchorY.Center()),
+                                      _, _));
+    spawn Sprite_from_name_(&r.pub, "core/worldmap/story_dot", &outer.main.dt, &outer.main.redraw);
 
     var EDot e2 = _;
-    spawn Mouse(&rect, &e2);
+    spawn Mouse(&r.pub, &e2);
 
     var bool v = await e2.out until v==false;
     pause/if e2.out do
-        spawn Sprite_from_name(&rect, "core/worldmap/story_dot_highlight", &outer.main.dt, &outer.main.redraw);
+        spawn Sprite_from_name_(&r.pub, "core/worldmap/story_dot_highlight", &outer.main.dt, &outer.main.redraw);
 
         par do
             every outer.main.redraw do
                 call {Fonts::pingus_small}.render(
                     {origin_top_center},
-                    -outer.offset.x + rect.x,
-                    -outer.offset.y + rect.y-44,
+                    r.pub.abs.x+r.pub.abs.w/2,
+                    r.pub.abs.y-44,
                     __(&&m_name[0] as _char&&),
                     *{Display::s_framebuffer}
                 );
@@ -161,30 +164,34 @@ do
         status = {savegame->get_status()};
     end
 
-    var Rect rect = val Rect({pst.x},{pst.y}, 0,0, &outer.offset);
+    var& RRect r = spawn RRect(IRRect(Rect_({pst.x},{pst.y}, _,_),
+                                      AnchorXY(AnchorX.Center(), AnchorY.Center()),
+                                      &outer.offset,
+                                      AnchorXY(AnchorX.Center(), AnchorY.Center()),
+                                      _, _));
     var EDot e2 = _;
-    spawn Mouse(&rect, &e2);
+    spawn Mouse(&r.pub, &e2);
 
     par do
         if status=={Savegame::FINISHED} or status=={Savegame::ACCESSIBLE} then
             if status == {Savegame::FINISHED} then
-                spawn Sprite_from_name(&rect, "core/worldmap/dot_green", &outer.main.dt, &outer.main.redraw);
+                spawn Sprite_from_name_(&r.pub, "core/worldmap/dot_green", &outer.main.dt, &outer.main.redraw);
                 var bool v = await e2.out until v==false;
                 pause/if e2.out do
-                    spawn Sprite_from_name(&rect, "core/worldmap/dot_green_hl", &outer.main.dt, &outer.main.redraw);
+                    spawn Sprite_from_name_(&r.pub, "core/worldmap/dot_green_hl", &outer.main.dt, &outer.main.redraw);
                     await FOREVER;
                 end
             else
-                spawn Sprite_from_name(&rect, "core/worldmap/dot_red", &outer.main.dt, &outer.main.redraw);
+                spawn Sprite_from_name_(&r.pub, "core/worldmap/dot_red", &outer.main.dt, &outer.main.redraw);
                 var bool v = await e2.out until v==false;
                 pause/if e2.out do
-                    spawn Sprite_from_name(&rect, "core/worldmap/dot_red_hl", &outer.main.dt, &outer.main.redraw);
+                    spawn Sprite_from_name_(&r.pub, "core/worldmap/dot_red_hl", &outer.main.dt, &outer.main.redraw);
                     await FOREVER;
                 end
                 await FOREVER;
             end
         else
-            spawn Sprite_from_name(&rect, "core/worldmap/dot_invalid", &outer.main.dt, &outer.main.redraw);
+            spawn Sprite_from_name_(&r.pub, "core/worldmap/dot_invalid", &outer.main.dt, &outer.main.redraw);
             await FOREVER;
         end
     with
@@ -192,19 +199,17 @@ do
         pause/if e2.out do
             par do
                 every outer.main.redraw do
-                    var int x = -outer.offset.x;
-                    var int y = -outer.offset.y;
                     if status == {Savegame::NONE} then
                         call {Fonts::pingus_small}.render(
                             _origin_top_center,
-                            x+rect.x, y+rect.y-44,
+                            r.pub.abs.x+r.pub.abs.w/2, r.pub.abs.y-44,
                             __("???"),
                             *{Display::s_framebuffer}
                         );
                     else
                         call {Fonts::pingus_small}.render(
                             _origin_top_center,
-                            x+rect.x, y+rect.y-44,
+                            r.pub.abs.x+r.pub.abs.w/2, r.pub.abs.y-44,
                             __(&&lvl_name[0] as _char&&),
                             *{Display::s_framebuffer}
                         );
@@ -212,7 +217,7 @@ do
                     if {globals::developer_mode} as bool then
                         call {Fonts::pingus_small}.render(
                             _origin_top_center,
-                            x+rect.x, y+rect.y-70,
+                            r.pub.abs.x+r.pub.abs.w/2, r.pub.abs.y-70,
                             __(&&res_name[0] as _char&&),
                             *{Display::s_framebuffer}
                         );

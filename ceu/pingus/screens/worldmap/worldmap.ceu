@@ -36,7 +36,12 @@ vector[] byte return_filename;
 
 code/await Worldmap (void) -> int
 do
-    var Rect offset = val Rect(0,0,0,0,nil);
+    var& RRect r = spawn RRect(IRRect(Rect_(0,0,outer.main.rect.abs.w,outer.main.rect.abs.w),
+                               AnchorXY(AnchorX.Left(), AnchorY.Top()),
+                               &outer.main.rect,
+                               AnchorXY(AnchorX.Left(), AnchorY.Top()),
+                               _,_));
+    var&  IRRect offset = &r.pub;
 
     par do
         var int ret = do ()
@@ -44,9 +49,13 @@ do
         end;
         escape ret;
     with
-        var Rect close_r = val Rect(0, {Display::get_height()-37}, _,_, nil);
-        var& SurfaceButton close = 
-            spawn SurfaceButton(&close_r,
+        var& RRect close_r = spawn RRect(IRRect(Rect_(0,-2, _,_),
+                                                 AnchorXY(AnchorX.Left(), AnchorY.Bottom()),
+                                                 &outer.main.rect,
+                                                 AnchorXY(AnchorX.Left(), AnchorY.Bottom()),
+                                                 _, _));
+        var& SurfaceButton_ close =
+            spawn SurfaceButton_(&close_r.pub,
                                 "core/worldmap/leave_button_normal",
                                 "core/worldmap/leave_button_pressed",
                                 "core/worldmap/leave_button_hover");
@@ -55,7 +64,7 @@ do
             every outer.main.redraw do
                 call {Fonts::chalk_small}.render(
                     _origin_top_center,
-                    44, {Display::get_height()}-25,
+                    44, outer.main.rect.abs.h-25,
                     __("Leave?"),
                     *{Display::s_framebuffer}
                 );
