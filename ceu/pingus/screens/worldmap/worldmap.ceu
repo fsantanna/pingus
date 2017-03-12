@@ -89,6 +89,19 @@ end
 
 code/await Worldmap_Loop (void) -> void
 do
+    {
+        static bool story_seen;
+        story_seen = false;
+        StatManager::instance()->get_bool("tutorial-startstory-seen", story_seen);
+    }
+    if {!story_seen} as bool then
+        {
+            StatManager::instance()->set_bool("tutorial-startstory-seen", true); // FIXME: Hardcoding tutorial is evil
+            reader = FileReader::parse(Pathname("stories/tutorial_intro.story", Pathname::DATA_PATH));
+        }
+        await Story();
+    end
+
     loop do
         var int ret = await Worldmap();
         if ret=={WORLDMAP_RETURN_STORY_MAP} or ret=={WORLDMAP_RETURN_STORY_CREDITS}

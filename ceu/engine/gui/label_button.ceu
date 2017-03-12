@@ -14,6 +14,10 @@ do
     var& RectComponent_ rc = spawn RectComponent_(&r.pub);
     component = &rc.component;
 
+    r.pub.off.w = {Fonts::chalk_small.get_width(_(@label))};
+    r.pub.off.h = {Fonts::chalk_small.get_height()};
+    emit r.pub.changed;
+
     every outer.main.redraw do
         call ({Fonts::chalk_small}.render as /nohold)(
             {origin_top_left},

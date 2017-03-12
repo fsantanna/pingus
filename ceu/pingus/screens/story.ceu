@@ -7,9 +7,6 @@
 
 code/await Story (void) -> bool
 do
-    var int xc = ({Display::get_width()}  / 2) as int;
-    var int yc = ({Display::get_height()} / 2) as int;
-
     spawn Wood();
 
     var& RRect rect = spawn RRect(IRRect(Rect_(0,0, _,_),
@@ -30,9 +27,9 @@ do
                              "core/misc/next",
                              "core/misc/next_hover");
 
-    var IRRect r = val IRRect(Rect_(-26,0,_,_),
+    var IRRect r = val IRRect(Rect_(-30,-30,_,_),
                               AnchorXY(AnchorX.Left(), AnchorY.Top()),
-                              &rect.pub,
+                              &outer.main.rect,
                               AnchorXY(AnchorX.Right(), AnchorY.Bottom()),
                               _, _);
 

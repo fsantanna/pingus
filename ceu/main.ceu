@@ -239,11 +239,6 @@ end
 
 #include "rrect.ceu"
 
-#include "engine/input/sdl_driver.ceu"
-#include "engine/gui/rect_component.ceu"
-
-#include "pingus/config_manager.ceu"
-
 data IMain with
     var&  IRRect rect;
     event void   go_options;
@@ -257,6 +252,10 @@ var& RRect r = spawn RRect(IRRect(Rect_(0,0, {Display::get_width()},{Display::ge
                                   _, _));
 
 var IMain main = val IMain(&r.pub, _,_,_);
+
+#include "engine/input/sdl_driver.ceu"
+#include "engine/gui/rect_component.ceu"
+#include "pingus/config_manager.ceu"
 
 #include "engine/display/surface.ceu"
 #include "engine/display/sprite.ceu"

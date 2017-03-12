@@ -92,6 +92,16 @@ do
                 end
             end
         end
+#if 0
+    with
+        every outer.main.redraw do
+//_printf("%d,%d // %d,%d\n", rect.abs.x, rect.abs.y, rect.abs.w, rect.abs.h);
+            {Display::s_framebuffer->draw_rect(
+                Rect(@rect.abs.x-2,@rect.abs.y-2,
+                     @rect.abs.x-2+@rect.abs.w+4,@rect.abs.y-2+@rect.abs.h+4),
+                Color(255,255,255));}
+        end
+#endif
     end
 end
 
