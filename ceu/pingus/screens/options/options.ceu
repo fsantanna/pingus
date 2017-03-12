@@ -450,10 +450,10 @@ code/await OptionMenu (void) -> void do
                                        AnchorXY(AnchorX.Right(), AnchorY.Bottom()),
                                        _, _));
 
-    var& SurfaceButton_ button =
-        spawn SurfaceButton_(&rd.pub, "core/start/ok",
-                                      "core/start/ok_clicked",
-                                      "core/start/ok_hover");
+    var& SurfaceButton button =
+        spawn SurfaceButton(&rd.pub, "core/start/ok",
+                                     "core/start/ok_clicked",
+                                     "core/start/ok_hover");
 
     par/or do
         every button.component.on_pointer_enter do

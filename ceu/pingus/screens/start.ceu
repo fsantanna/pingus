@@ -26,19 +26,19 @@ var& RRect r1 = spawn RRect(IRRect(Rect_(-50,-60, _,_),
                                    &rect.pub,
                                    AnchorXY(AnchorX.Right(), AnchorY.Bottom()),
                                    _, _));
-var& SurfaceButton_ start =
-    spawn SurfaceButton_(&r1.pub,
-                         "core/start/ok",
-                         "core/start/ok_clicked",
-                         "core/start/ok_hover");
+var& SurfaceButton start =
+    spawn SurfaceButton(&r1.pub,
+                        "core/start/ok",
+                        "core/start/ok_clicked",
+                        "core/start/ok_hover");
 
 var& RRect cancel_r = spawn RRect(IRRect(Rect_(70,-2, _,_),
                                          AnchorXY(AnchorX.Left(), AnchorY.Bottom()),
                                          &rect.pub,
                                          AnchorXY(AnchorX.Left(), AnchorY.Bottom()),
                                          _, _));
-var& SurfaceButton_ cancel =
-    spawn SurfaceButton_(&cancel_r.pub,
+var& SurfaceButton cancel =
+    spawn SurfaceButton(&cancel_r.pub,
                         "core/start/back",
                         "core/start/back_clicked",
                         "core/start/back_hover");

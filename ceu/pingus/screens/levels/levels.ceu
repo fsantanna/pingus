@@ -46,8 +46,8 @@ do
                                              &r.pub,
                                              AnchorXY(AnchorX.Left(), AnchorY.Bottom()),
                                              _, _));
-    var& SurfaceButton_ cancel =
-        spawn SurfaceButton_(&cancel_r.pub,
+    var& SurfaceButton cancel =
+        spawn SurfaceButton(&cancel_r.pub,
                             "core/start/back",
                             "core/start/back_clicked",
                             "core/start/back_hover");
@@ -69,8 +69,8 @@ do
                                              &r.pub,
                                              AnchorXY(AnchorX.Right(), AnchorY.Center()),
                                              _, _));
-    var& SurfaceButton_ prv =
-        spawn SurfaceButton_(&prv_r.pub,
+    var& SurfaceButton prv =
+        spawn SurfaceButton(&prv_r.pub,
                             "core/menu/arrow_up",
                             "core/menu/arrow_up_pressed",
                             "core/menu/arrow_up_hover");
@@ -80,8 +80,8 @@ do
                                              &r.pub,
                                              AnchorXY(AnchorX.Right(), AnchorY.Center()),
                                              _, _));
-    var& SurfaceButton_ nxt =
-        spawn SurfaceButton_(&nxt_r.pub,
+    var& SurfaceButton nxt =
+        spawn SurfaceButton(&nxt_r.pub,
                             "core/menu/arrow_down",
                             "core/menu/arrow_down_pressed",
                             "core/menu/arrow_down_hover");

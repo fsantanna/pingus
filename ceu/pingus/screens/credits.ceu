@@ -69,8 +69,8 @@ do
                                        &rect.pub,
                                        AnchorXY(AnchorX.Right(), AnchorY.Bottom()),
                                        _, _));
-    var& SurfaceButton_ ok =
-        spawn SurfaceButton_(&r2.pub,
+    var& SurfaceButton ok =
+        spawn SurfaceButton(&r2.pub,
                              "core/start/ok",
                              "core/start/ok_clicked",
                              "core/start/ok_hover");

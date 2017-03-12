@@ -54,8 +54,8 @@ do
                                                  &outer.main.rect,
                                                  AnchorXY(AnchorX.Left(), AnchorY.Bottom()),
                                                  _, _));
-        var& SurfaceButton_ close =
-            spawn SurfaceButton_(&close_r.pub,
+        var& SurfaceButton close =
+            spawn SurfaceButton(&close_r.pub,
                                 "core/worldmap/leave_button_normal",
                                 "core/worldmap/leave_button_pressed",
                                 "core/worldmap/leave_button_hover");

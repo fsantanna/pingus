@@ -21,11 +21,11 @@ do
                                        &rect.pub,
                                        AnchorXY(AnchorX.Right(), AnchorY.Bottom()),
                                        _, _));
-    var& SurfaceButton_ next =
-        spawn SurfaceButton_(&r1.pub,
-                             "core/misc/next",
-                             "core/misc/next",
-                             "core/misc/next_hover");
+    var& SurfaceButton next =
+        spawn SurfaceButton(&r1.pub,
+                            "core/misc/next",
+                            "core/misc/next",
+                            "core/misc/next_hover");
 
     var IRRect r = val IRRect(Rect_(-30,-30,_,_),
                               AnchorXY(AnchorX.Left(), AnchorY.Top()),

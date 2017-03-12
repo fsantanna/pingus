@@ -69,8 +69,8 @@ var& RRect r1 = spawn RRect(IRRect(Rect_(-50,-60, _,_),
                                    &rect.pub,
                                    AnchorXY(AnchorX.Right(), AnchorY.Bottom()),
                                    _, _));
-var&? SurfaceButton_ ok =
-    spawn SurfaceButton_(&r1.pub,
+var&? SurfaceButton ok =
+    spawn SurfaceButton(&r1.pub,
                          "core/start/ok",
                          "core/start/ok_clicked",
                          "core/start/ok_hover");
@@ -80,8 +80,8 @@ var& RRect abort_r = spawn RRect(IRRect(Rect_(70,-2, _,_),
                                    &rect.pub,
                                    AnchorXY(AnchorX.Left(), AnchorY.Bottom()),
                                    _, _));
-var&? SurfaceButton_ abort =
-    spawn SurfaceButton_(&abort_r.pub,
+var&? SurfaceButton abort =
+    spawn SurfaceButton(&abort_r.pub,
                         "core/start/back",
                         "core/start/back_clicked",
                         "core/start/back_hover");
@@ -91,8 +91,8 @@ var& RRect retry_r = spawn RRect(IRRect(Rect_(-50,-60, _,_),
                                         &rect.pub,
                                         AnchorXY(AnchorX.Right(), AnchorY.Bottom()),
                                         _, _));
-var&? SurfaceButton_ retry =
-    spawn SurfaceButton_(&retry_r.pub,
+var&? SurfaceButton retry =
+    spawn SurfaceButton(&retry_r.pub,
                          "core/start/ok",
                          "core/start/ok_clicked",
                          "core/start/ok_hover");
