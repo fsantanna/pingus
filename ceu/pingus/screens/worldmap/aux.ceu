@@ -11,7 +11,6 @@ native/pre do
     static PingusWorldmap worldmap;
     static FileReader path_graph_reader;
     static std::unique_ptr<WorldmapNS::PathGraph> path_graph;
-    static GraphicContextState gc_state;
 
     struct unlock_nodes
     {
@@ -56,35 +55,6 @@ bool Worldmap::is_final_map() {
     path_graph.reset(new WorldmapNS::PathGraph(path_graph_reader));
     path_graph->graph.for_each_node(unlock_nodes(path_graph.get()));
 
-    //void Worldmap::update_locked_nodes()
-    // FIXME: This shouldn't be a polling function
-    //_path_graph:graph.for_each_node(_unlock_nodes(_path_graph.get()));
-#if 0
-  bool credits_unlocked = false;
-  StatManager::instance()->get_bool(worldmap.get_short_name() + "-endstory-seen", credits_unlocked);
-
-  if (!credits_unlocked)
-  {
-    // See if the last level is finished
-    Dot* dot = path_graph->get_dot(final_node);
-    if (dot)
-    {
-      if (dot->finished())
-      {
-        ScreenManager::instance()->push_screen(new StoryScreen(worldmap.get_end_story()));
-      }
-    }
-    else
-    {
-      log_info("Error: Worldmap: Last level missing");
-    }
-  }
-
-    gc_state.set_limit(
-        Rect(Vector2i(0, 0),
-        Size(worldmap.get_width(), worldmap.get_height())));
-#endif
-
     Sound::PingusSound::play_music(worldmap.get_music());
 
     // Determine starting node
@@ -108,7 +78,7 @@ code/tight Get_Offset (void)-> Vector2i do
     do
         var int min;
         var int max;
-        var int width  = outer.main.rect.abs.w;
+        var int width  = {worldmap.get_width()};
         if width >= outer.main.rect.abs.w then
             min = outer.main.rect.abs.w/2;
             max = width - outer.main.rect.abs.w/2;
@@ -117,14 +87,14 @@ code/tight Get_Offset (void)-> Vector2i do
             max = outer.main.rect.abs.w/2;
         end
         x = {Math::clamp}(min, outer.pst.x, max);
-        x = outer.pst.x;
+        //x = outer.pst.x;
     end
 
     var int y = 0;
     do
         var int min;
         var int max;
-        var int height = outer.main.rect.abs.h;
+        var int height = {worldmap.get_height()};
         if height >= outer.main.rect.abs.h then
             min = outer.main.rect.abs.h/2;
             max = height - outer.main.rect.abs.h/2;
@@ -132,8 +102,8 @@ code/tight Get_Offset (void)-> Vector2i do
             min = height - outer.main.rect.abs.h/2;
             max = outer.main.rect.abs.h/2;
         end
-        y = {Math::clamp}(min, outer.pst.y, max);
-        y = outer.pst.y;
+        y = {Math::clamp}(min, outer.pst.y+100, max);
+        //y = outer.pst.y;
     end
 
     var Vector2i ret = val Vector2i(-x,-y);
@@ -151,8 +121,6 @@ spawn do
         outer.offset.off.x = off.x;
         outer.offset.off.y = off.y;
         emit outer.offset.changed;
-        {gc_state.set_pos(Vector2i(@off.x, @off.y));}
-
     end
 end
 emit set_pst(pst.x,pst.y);
@@ -294,7 +262,8 @@ Vector2i(100,100),
     every outer.main.redraw do
         if {globals::developer_mode} as bool then
             {path_graph->graph.for_each_edge(
-                draw_edges(path_graph.get(), Vector2i(@outer.offset.abs.x,@outer.offset.abs.y)));}
+                draw_edges(path_graph.get(), Vector2i(@outer.offset.abs.x+@outer.offset.abs.w/2,
+                                                      @outer.offset.abs.y+@outer.offset.abs.h/2)));}
         end
     end
 end

@@ -30,8 +30,8 @@ do
             then
                 call {Display::s_framebuffer}:draw_surface(
                     sfc.surface.framebuffer,
-                    _Vector2i(outer.offset.abs.x+outer.offset.abs.w/2,
-                              outer.offset.abs.y+outer.offset.abs.h/2)
+                    _Vector2i(pst.x+outer.offset.abs.x+outer.offset.abs.w/2,
+                              pst.y+outer.offset.abs.y+outer.offset.abs.h/2)
                 );
 #if 0
             else/if outer.pst.z > pst.z+1000 then
@@ -47,8 +47,8 @@ do
         else
             call {Display::s_framebuffer}:draw_surface(
                 sfc.surface.framebuffer,
-                _Vector2i(outer.offset.abs.x+outer.offset.abs.w/2,
-                          outer.offset.abs.y+outer.offset.abs.h/2)
+                _Vector2i(pst.x+outer.offset.abs.x+outer.offset.abs.w/2,
+                          pst.y+outer.offset.abs.y+outer.offset.abs.h/2)
             );
         end
     end

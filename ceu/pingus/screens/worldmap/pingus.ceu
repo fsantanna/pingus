@@ -53,8 +53,8 @@ end
 vector[] byte none  = [].."core/worldmap/pingus_standing";
 vector[] byte left  = [].."core/worldmap/pingus/left";
 vector[] byte right = [].."core/worldmap/pingus/right";
-var&? RightLeftSprites_ sprites =
-    spawn RightLeftSprites_(&r.pub, &direction, &none, &left, &right);
+var&? RightLeftSprites sprites =
+    spawn RightLeftSprites(&r.pub, &direction, &none, &left, &right);
 
 loop do
     direction = {NONE};
@@ -94,7 +94,7 @@ loop do
                                                       AnchorXY(AnchorX.Center(), AnchorY.Center()),
                                                       _, _));
 
-                    spawn Sprite_from_name_(&r.pub, "core/worldmap/arrow", &outer.main.dt, &outer.main.redraw);
+                    spawn Sprite_from_name(&r.pub, "core/worldmap/arrow", &outer.main.dt, &outer.main.redraw);
                     var int i;
                     loop i do
                         {

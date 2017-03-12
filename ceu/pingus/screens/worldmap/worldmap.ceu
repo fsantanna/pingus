@@ -41,7 +41,7 @@ do
                                &outer.main.rect,
                                AnchorXY(AnchorX.Left(), AnchorY.Top()),
                                _,_));
-    var&  IRRect offset = &r.pub;
+    var& IRRect offset = &r.pub;
 
     par do
         var int ret = do ()
