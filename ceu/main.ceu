@@ -193,34 +193,11 @@ data Position with
     var int y;
 end
 
-data Rect with
-    var   int x;
-    var   int y;
-    var   int w;
-    var   int h;
-    var&? Rect off;
-end
-
 data Rect_ with
     var int x;
     var int y;
     var int w;
     var int h;
-end
-
-code/tight/recursive Rect_Off_ (var& Rect rect, var& Rect ret) -> void do
-    if rect.off? then
-        call/recursive Rect_Off_(&rect.off!, &ret);
-    end
-    ret.x = ret.x + rect.x;
-    ret.y = ret.y + rect.y;
-    ret.w = ret.w + rect.w;
-    ret.h = ret.h + rect.h;
-end
-
-code/tight/recursive Rect_Off (var& Rect rect, var& Rect ret) -> void do
-    ret = val Rect(0,0,0,0,nil);
-    call/recursive Rect_Off_(&rect, &ret);
 end
 
 data Size with
