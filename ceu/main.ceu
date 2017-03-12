@@ -111,6 +111,8 @@ native/pre do
     ##include "pingus/savegame_manager.hpp"
     ##include "pingus/stat_manager.hpp"
     ##include "pingus/string_format.hpp"
+    ##include "pingus/worldmap/dot.hpp"
+    ##include "pingus/worldmap/level_dot.hpp"
     ##include "pingus/worldmap/pathfinder.hpp"
     ##include "pingus/worldmap/path_graph.hpp"
     ##include "pingus/worldmap/path.hpp"

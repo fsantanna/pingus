@@ -17,6 +17,7 @@
 #include <stdexcept>
 
 #include "pingus/globals.hpp"
+#include "pingus/worldmap/dot_factory.hpp"
 #include "pingus/worldmap/dot.hpp"
 #include "pingus/worldmap/path_graph.hpp"
 #include "util/log.hpp"
@@ -59,8 +60,7 @@ PathGraph::parse_nodes(const FileReader& reader)
   for(std::vector<FileReader>::const_iterator i = childs.begin();
       i != childs.end(); ++i)
   {
-    FileReader reader = (*i).read_section("dot");
-    Dot* dot = new Dot(reader); //DotFactory::create(*i);
+    Dot* dot = DotFactory::create(*i);
     if (dot)
     {
       // add the dot to the pathfinding

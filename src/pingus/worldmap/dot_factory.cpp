@@ -1,51 +1,47 @@
 //  Pingus - A free Lemmings clone
-//  Copyright (C) 2002 Ingo Ruhnke <grumbel@gmail.com>
+//  Copyright (C) 2002 Ingo Ruhnke <grumbel@gmx.de>
 //
 //  This program is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-//
+//  
 //  This program is distributed in the hope that it will be useful,
 //  but WITHOUT ANY WARRANTY; without even the implied warranty of
 //  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 //  GNU General Public License for more details.
-//
+//  
 //  You should have received a copy of the GNU General Public License
 //  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef HEADER_PINGUS_PINGUS_WORLDMAP_DOT_HPP
-#define HEADER_PINGUS_PINGUS_WORLDMAP_DOT_HPP
+#include "pingus/worldmap/dot_factory.hpp"
 
-#include "math/vector3f.hpp"
-#include "util/file_reader.hpp"
+#include <stdexcept>
+
+#include "pingus/worldmap/level_dot.hpp"
+#include "pingus/worldmap/story_dot.hpp"
+#include "util/raise_exception.hpp"
 
 namespace WorldmapNS {
 
-/** A Dot is a node between all the pathes on the worldmap, there are
-    LevelDots TubeDots and other availabe. */
-class Dot
+Dot*
+DotFactory::create(const FileReader& reader)
 {
-protected:
-  Vector3f pos;
-  std::string name;
-
-public:
-  Dot(const FileReader& reader);
-
-  Vector3f get_pos() { return pos; }
-  std::string get_name() { return name; }
-
-  virtual bool finished() = 0;
-  virtual bool accessible() = 0;
-  virtual void unlock() = 0;
-private:
-  Dot (const Dot&);
-  Dot& operator= (const Dot&);
-};
+  if (reader.get_name() == "storydot")
+  {
+    return new StoryDot(reader);
+  }
+  else if (reader.get_name() == "leveldot")
+  {
+    return new LevelDot(reader);
+  }
+  else
+  {
+    raise_exception(std::runtime_error, "DotFactory: unknown tag: " <<  reader.get_name());
+    return 0;
+  }
+}
 
 } // namespace WorldmapNS
-
-#endif
 
 /* EOF */

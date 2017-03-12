@@ -1,5 +1,5 @@
 //  Pingus - A free Lemmings clone
-//  Copyright (C) 2002 Ingo Ruhnke <grumbel@gmail.com>
+//  Copyright (C) 1998-2011 Ingo Ruhnke <grumbel@gmx.de>
 //
 //  This program is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -14,38 +14,26 @@
 //  You should have received a copy of the GNU General Public License
 //  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef HEADER_PINGUS_PINGUS_WORLDMAP_DOT_HPP
-#define HEADER_PINGUS_PINGUS_WORLDMAP_DOT_HPP
+#include "pingus/worldmap/story_dot.hpp"
 
-#include "math/vector3f.hpp"
 #include "util/file_reader.hpp"
+#include "util/file_reader.hpp"
+#include "util/log.hpp"
+#include "util/pathname.hpp"
 
 namespace WorldmapNS {
 
-/** A Dot is a node between all the pathes on the worldmap, there are
-    LevelDots TubeDots and other availabe. */
-class Dot
+StoryDot::StoryDot(const FileReader& reader) :
+  Dot(reader.read_section("dot")),
+  m_name(),
+  m_story(),
+  m_credits(false)
 {
-protected:
-  Vector3f pos;
-  std::string name;
-
-public:
-  Dot(const FileReader& reader);
-
-  Vector3f get_pos() { return pos; }
-  std::string get_name() { return name; }
-
-  virtual bool finished() = 0;
-  virtual bool accessible() = 0;
-  virtual void unlock() = 0;
-private:
-  Dot (const Dot&);
-  Dot& operator= (const Dot&);
-};
+  reader.read_string("name", m_name);
+  reader.read_string("story", m_story);
+  reader.read_bool("credits", m_credits);
+}
 
 } // namespace WorldmapNS
-
-#endif
 
 /* EOF */

@@ -54,6 +54,7 @@ bool Worldmap::is_final_map() {
     worldmap = PingusWorldmap(filename);
     path_graph_reader = worldmap.get_graph();
     path_graph.reset(new WorldmapNS::PathGraph(path_graph_reader));
+    path_graph->graph.for_each_node(unlock_nodes(path_graph.get()));
 
     //void Worldmap::update_locked_nodes()
     // FIXME: This shouldn't be a polling function
@@ -156,13 +157,12 @@ spawn do
 end
 emit set_pst(pst.x,pst.y);
 
-// TODO
-#if 0
-  LevelDot* leveldot = dynamic_cast<LevelDot*>(path_graph->get_dot(id));
-  if (leveldot) {
-    leveldot->unlock();
-  }
-#endif
+{{
+    WorldmapNS::LevelDot* leveldot = dynamic_cast<WorldmapNS::LevelDot*>(path_graph->get_dot(id));
+    if (leveldot) {
+        leveldot->unlock();
+    }
+}}
 
 par do
     { static FileReader* file_reader; }
