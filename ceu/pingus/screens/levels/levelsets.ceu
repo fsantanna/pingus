@@ -28,7 +28,7 @@ do
                                                        AnchorXY(AnchorX.Left(), AnchorY.Center()),
                                                        _, _));
 
-                    spawn Sprite_from_name_(&rr.pub, "core/menu/marker", &outer.main.dt, &outer.main.redraw);
+                    spawn Sprite_from_name(&rr.pub, "core/menu/marker", &outer.main.dt, &outer.main.redraw);
                     await component.component.on_pointer_leave;
                 end
             with

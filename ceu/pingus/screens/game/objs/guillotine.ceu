@@ -17,7 +17,7 @@ do
                                       AnchorXY(AnchorX.Center(), AnchorY.Center()),
                                       _, _));
     loop do
-        spawn Sprite_from_name_(&r.pub, "traps/guillotineidle", &outer.game.dt, &outer.main.redraw);
+        spawn Sprite_from_name(&r.pub, "traps/guillotineidle", &outer.game.dt, &outer.main.redraw);
 
         var s8 dir = do
             loop do
@@ -41,7 +41,7 @@ do
                     escape "traps/guillotinekill/right";
                 end
             end;
-            var&? Sprite_from_name_ s = spawn Sprite_from_name_(&r.pub, name, &outer.game.dt, &outer.main.redraw);
+            var&? Sprite_from_name s = spawn Sprite_from_name(&r.pub, name, &outer.game.dt, &outer.main.redraw);
             watching s do
                 every outer.game.dt do
                     if s!.sprite.frame == 7 then

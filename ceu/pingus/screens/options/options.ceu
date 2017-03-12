@@ -28,7 +28,7 @@ code/await OptionMenu (void) -> void do
                                       &outer.main.rect,
                                       AnchorXY(AnchorX.Center(), AnchorY.Center()),
                                       _, _));
-    spawn Sprite_from_name_(&r.pub, "core/menu/blackboard", &outer.main.dt, &outer.main.redraw);
+    spawn Sprite_from_name(&r.pub, "core/menu/blackboard", &outer.main.dt, &outer.main.redraw);
 
     var int yy_ = 135;
 

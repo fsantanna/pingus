@@ -9,7 +9,7 @@ do
                            .. (call Pingu_Get_Owner_Str() as _char&&)
                            .. "/waiter/left";
 
-    spawn Sprite_from_name_(&outer.pingu.rect, &&str[0] as _char&&, &outer.game.dt, &outer.main.redraw);
+    spawn Sprite_from_name(&outer.pingu.rect, &&str[0] as _char&&, &outer.game.dt, &outer.main.redraw);
 
     var float countdown = 2.0;
     loop do

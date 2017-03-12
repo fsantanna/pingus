@@ -68,7 +68,7 @@ do
                 end
             else
 /// TODO
-                var&? Sprite_from_name_ s;
+                var&? Sprite_from_name s;
                 loop s in sprites!.sprites do
                     break;
                 end

@@ -35,7 +35,7 @@ do
                 spawn RightLeftSprites_(&outer.pingu.rect, &outer.pingu.direction, &left, &left, &right);
 
 /// TODO
-            var&? Sprite_from_name_ s;
+            var&? Sprite_from_name s;
             loop s in builds!.sprites do
                 break;
             end

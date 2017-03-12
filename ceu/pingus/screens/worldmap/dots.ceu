@@ -79,14 +79,14 @@ do
                                       &outer.offset,
                                       AnchorXY(AnchorX.Center(), AnchorY.Center()),
                                       _, _));
-    spawn Sprite_from_name_(&r.pub, "core/worldmap/story_dot", &outer.main.dt, &outer.main.redraw);
+    spawn Sprite_from_name(&r.pub, "core/worldmap/story_dot", &outer.main.dt, &outer.main.redraw);
 
     var EDot e2 = _;
     spawn Mouse(&r.pub, &e2);
 
     var bool v = await e2.out until v==false;
     pause/if e2.out do
-        spawn Sprite_from_name_(&r.pub, "core/worldmap/story_dot_highlight", &outer.main.dt, &outer.main.redraw);
+        spawn Sprite_from_name(&r.pub, "core/worldmap/story_dot_highlight", &outer.main.dt, &outer.main.redraw);
 
         par do
             every outer.main.redraw do
@@ -175,23 +175,23 @@ do
     par do
         if status=={Savegame::FINISHED} or status=={Savegame::ACCESSIBLE} then
             if status == {Savegame::FINISHED} then
-                spawn Sprite_from_name_(&r.pub, "core/worldmap/dot_green", &outer.main.dt, &outer.main.redraw);
+                spawn Sprite_from_name(&r.pub, "core/worldmap/dot_green", &outer.main.dt, &outer.main.redraw);
                 var bool v = await e2.out until v==false;
                 pause/if e2.out do
-                    spawn Sprite_from_name_(&r.pub, "core/worldmap/dot_green_hl", &outer.main.dt, &outer.main.redraw);
+                    spawn Sprite_from_name(&r.pub, "core/worldmap/dot_green_hl", &outer.main.dt, &outer.main.redraw);
                     await FOREVER;
                 end
             else
-                spawn Sprite_from_name_(&r.pub, "core/worldmap/dot_red", &outer.main.dt, &outer.main.redraw);
+                spawn Sprite_from_name(&r.pub, "core/worldmap/dot_red", &outer.main.dt, &outer.main.redraw);
                 var bool v = await e2.out until v==false;
                 pause/if e2.out do
-                    spawn Sprite_from_name_(&r.pub, "core/worldmap/dot_red_hl", &outer.main.dt, &outer.main.redraw);
+                    spawn Sprite_from_name(&r.pub, "core/worldmap/dot_red_hl", &outer.main.dt, &outer.main.redraw);
                     await FOREVER;
                 end
                 await FOREVER;
             end
         else
-            spawn Sprite_from_name_(&r.pub, "core/worldmap/dot_invalid", &outer.main.dt, &outer.main.redraw);
+            spawn Sprite_from_name(&r.pub, "core/worldmap/dot_invalid", &outer.main.dt, &outer.main.redraw);
             await FOREVER;
         end
     with

@@ -17,186 +17,7 @@ code/tight Get_Frame_Count (var& ISprite sprite) -> int do
     escape sprite.array.width * sprite.array.height;
 end
 
-code/await Sprite_from_sfc (var& Rect rect, var& Surface sfc, event& int dt, event& void redraw)
-                                -> (var ISprite sprite)
-                                    -> void
-do
-    sprite = val ISprite(
-        _,
-        Vector2i(sfc.desc:frame_pos.x, sfc.desc:frame_pos.y),
-        _,
-        sfc.desc:speed,
-        Size(sfc.desc:array.width, sfc.desc:array.height),
-        (sfc.desc:_loop as bool),
-        _,
-    );
-
-    sprite.frame_pos   = val Vector2i(sfc.desc:frame_pos.x, sfc.desc:frame_pos.y);
-    sprite.array       = val Size(sfc.desc:array.width, sfc.desc:array.height);
-    sprite.frame_delay = sfc.desc:speed;
-    sprite.is_loop     = sfc.desc:_loop as bool;
-
-    if sfc.desc:frame_size.width  == -1 then
-        sprite.frame_size.width  = sfc.framebuffer.get_width()  / sprite.array.width;
-        sprite.frame_size.height = sfc.framebuffer.get_height() / sprite.array.height;
-    else
-        sprite.frame_size.width  = sfc.desc:frame_size.width;
-        sprite.frame_size.height = sfc.desc:frame_size.height;
-    end
-    rect.w = sprite.frame_size.width;
-    rect.h = sprite.frame_size.height;
-
-    {
-        static Vector2i vec;
-        vec = calc_origin(@(sfc.desc:origin),
-                          Size(@(sprite.frame_size.width),
-                               @(sprite.frame_size.height)))
-                - @(sfc.desc:offset);
-    };
-    sprite.offset = val Vector2i({vec.x}, {vec.y});
-
-    var int total_time = sprite.frame_delay *
-                         (sprite.array.width * sprite.array.height);
-
-    sprite.frame = 0;
-
-    var int tick_count = 0;
-
-    par do
-        /* UPDATE */
-        loop do
-            loop do
-                var int v = await dt;
-                if sprite.frame_delay == 0 then
-                    await FOREVER;
-                end
-
-                tick_count = tick_count + v;
-
-                if tick_count >= total_time then
-                    if sprite.is_loop then
-                        tick_count = tick_count % total_time;
-                        sprite.frame = tick_count / sprite.frame_delay;
-                    end
-                    break;
-                else
-                    sprite.frame = tick_count / sprite.frame_delay;
-                end
-            end
-            if not sprite.is_loop then
-                escape;
-            end
-        end
-    with
-        /* DRAW */
-        every redraw do
-            var Rect r = _;
-            call/recursive Rect_Off(&rect, &r);
-#if 0
-            call {Display::s_framebuffer}:draw_surface(
-                                            sfc.framebuffer,
-                                            _Vector2i(x,y),
-            );
-#endif
-            call {Display::s_framebuffer}:draw_surface(
-                sfc.framebuffer,
-                _Rect(
-                    _Vector2i(sprite.frame_pos.x,sprite.frame_pos.y) +
-                        _Vector2i(sprite.frame_size.width  * (sprite.frame%sprite.array.width),
-                                  sprite.frame_size.height * (sprite.frame/sprite.array.width)),
-                    _Size(sprite.frame_size.width,sprite.frame_size.height)),
-                _Vector2i(r.x - sprite.offset.x,
-                          r.y - sprite.offset.y)
-            );
-        end
-    end
-end
-
-#if 0
-    var bool is_world = true;   // TODO: rename to is_relative
-    var Rect&? small_map;   // TODO
-    // constructor
-    var _Surface&&              surface = null;
-    var _SpriteDescription&&    desc    = null;
-    var _ResourceModifier__Enum mod     = {ResourceModifier::ROT0};
-
-    if surface != null then
-        this.frame_pos   = Vector2i(0, 0);
-        this.offset      = Vector2i(0, 0);
-        this.array       = Size(sfc.get_width(), sfc.get_height());
-        this.frame_delay = 0;
-        this.frame_size  = this.array;
-    else
-...
-    end
-    //end
-
-/* PUBLIC */
-
-function (void)=>int get_current_frame do
-    return this.frame;
-end
-function (int frame)=>void set_frame do
-    this.frame = frame;
-end
-
-function (void)=>int get_width do
-    return this.frame_size.width;
-end
-function (void)=>int get_height do
-    return this.frame_size.height;
-end
-#endif
-
-code/await Sprite_from_desc (var& Rect rect, var _SpriteDescription_ptr desc, event& int dt, event& void redraw)
-                                -> (var& ISprite sprite)
-                                    -> void
-do
-    var& Surface_from_desc sfc_from_desc =
-        spawn Surface_from_desc(desc, {ResourceModifier::ROT0});
-
-    var& Surface sfc = &sfc_from_desc.surface;
-    var&? Sprite_from_sfc s = spawn Sprite_from_sfc(&rect, &sfc, &dt, &redraw);
-    watching s do
-        sprite = &s!.sprite;
-        await FOREVER;
-    end
-
-    code/tight/recursive Draw (var int x, var int y) -> void do
-        var Rect r = _;
-        call/recursive Rect_Off(&outer.rect, &r);
-
-        call {Display::s_framebuffer}:draw_surface(
-            outer.sfc_from_desc.surface.framebuffer,
-            {Rect}(
-                {Vector2i}(outer.sprite.frame_pos.x,outer.sprite.frame_pos.y) +
-                    {Vector2i}(outer.sprite.frame_size.width  * (outer.sprite.frame%outer.sprite.array.width),
-                               outer.sprite.frame_size.height * (outer.sprite.frame/outer.sprite.array.width)),
-                {Size}(outer.sprite.frame_size.width,outer.sprite.frame_size.height)),
-            {Vector2i}(r.x - outer.sprite.offset.x,
-                       r.y - outer.sprite.offset.y)
-        );
-    end
-end
-
-code/await Sprite_from_name (var& Rect rect, var _char_const_ptr name, event& int dt, event& void redraw)
-                                -> (var& ISprite sprite)
-                                    -> void
-do
-    var& Surface_from_name sfc_from_name =
-        spawn Surface_from_name(name, {ResourceModifier::ROT0});
-
-    var& Surface sfc = &sfc_from_name.surface;
-    var&? Sprite_from_sfc s = spawn Sprite_from_sfc(&rect, &sfc, &dt, &redraw);
-    watching s do
-        sprite = &s!.sprite;
-        await FOREVER;
-    end
-end
-
-///////////////////////////////////////////////////////////////////////////////
-
-code/await Sprite_from_sfc_ (var& IRRect rect, var& Surface sfc, event& int dt, event& void redraw)
+code/await Sprite_from_sfc (var& IRRect rect, var& Surface sfc, event& int dt, event& void redraw)
                                 -> (var ISprite sprite)
                                     -> void
 do
@@ -291,7 +112,7 @@ do
     end
 end
 
-code/await Sprite_from_desc_ (var& IRRect rect, var _SpriteDescription_ptr desc, event& int dt, event& void redraw)
+code/await Sprite_from_desc (var& IRRect rect, var _SpriteDescription_ptr desc, event& int dt, event& void redraw)
                                 -> (var& ISprite sprite)
                                     -> void
 do
@@ -299,7 +120,7 @@ do
         spawn Surface_from_desc(desc, {ResourceModifier::ROT0});
 
     var& Surface sfc = &sfc_from_desc.surface;
-    var&? Sprite_from_sfc_ s = spawn Sprite_from_sfc_(&rect, &sfc, &dt, &redraw);
+    var&? Sprite_from_sfc s = spawn Sprite_from_sfc(&rect, &sfc, &dt, &redraw);
     watching s do
         sprite = &s!.sprite;
         await FOREVER;
@@ -319,7 +140,7 @@ do
     end
 end
 
-code/await Sprite_from_name_ (var& IRRect rect, var _char_const_ptr name, event& int dt, event& void redraw)
+code/await Sprite_from_name (var& IRRect rect, var _char_const_ptr name, event& int dt, event& void redraw)
                                 -> (var& ISprite sprite)
                                     -> void
 do
@@ -327,7 +148,7 @@ do
         spawn Surface_from_name(name, {ResourceModifier::ROT0});
 
     var& Surface sfc = &sfc_from_name.surface;
-    var&? Sprite_from_sfc_ s = spawn Sprite_from_sfc_(&rect, &sfc, &dt, &redraw);
+    var&? Sprite_from_sfc s = spawn Sprite_from_sfc(&rect, &sfc, &dt, &redraw);
     watching s do
         sprite = &s!.sprite;
         await FOREVER;

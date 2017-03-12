@@ -13,8 +13,8 @@ do
                                        AnchorXY(AnchorX.Center(), AnchorY.Center()),
                                        _, _));
 
-    var&? Sprite_from_name_ bg =
-        spawn Sprite_from_name_(&r1.pub, "core/menu/menuitem", &outer.main.dt, &outer.main.redraw);
+    var&? Sprite_from_name bg =
+        spawn Sprite_from_name(&r1.pub, "core/menu/menuitem", &outer.main.dt, &outer.main.redraw);
 
     var& RectComponent component = spawn RectComponent(&r1.pub);
 
@@ -27,7 +27,7 @@ do
             await component.component.on_pointer_enter;
             {Sound::PingusSound::play_sound ("tick");};
             do
-                spawn Sprite_from_name_(&r1.pub, "core/menu/menuitem_highlight", &outer.main.dt, &outer.main.redraw);
+                spawn Sprite_from_name(&r1.pub, "core/menu/menuitem_highlight", &outer.main.dt, &outer.main.redraw);
                 await component.component.on_pointer_leave;
             end
         end

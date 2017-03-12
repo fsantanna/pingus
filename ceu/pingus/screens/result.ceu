@@ -62,7 +62,7 @@ var& RRect rect = spawn RRect(IRRect(Rect_(0,0, _,_),
                                   &outer.main.rect,
                                   AnchorXY(AnchorX.Center(), AnchorY.Center()),
                                   _, _));
-spawn Sprite_from_name_(&rect.pub, "core/menu/blackboard", &outer.main.dt, &outer.main.redraw);
+spawn Sprite_from_name(&rect.pub, "core/menu/blackboard", &outer.main.dt, &outer.main.redraw);
 
 var& RRect r1 = spawn RRect(IRRect(Rect_(-50,-60, _,_),
                                    AnchorXY(AnchorX.Right(), AnchorY.Bottom()),

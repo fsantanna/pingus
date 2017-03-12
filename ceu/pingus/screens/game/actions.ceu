@@ -39,9 +39,9 @@ do
                                            _, _));
 
         if i == 0 then
-            spawn Sprite_from_name_(&r1.pub, "core/buttons/buttonbackgroundhl", &outer.main.dt, &outer.main.redraw);
+            spawn Sprite_from_name(&r1.pub, "core/buttons/buttonbackgroundhl", &outer.main.dt, &outer.main.redraw);
 
-            var&? Sprite_from_name_ s = spawn Sprite_from_name_(&r2.pub, &&name[0] as _char&&, &outer.main.dt, &outer.main.redraw);
+            var&? Sprite_from_name s = spawn Sprite_from_name(&r2.pub, &&name[0] as _char&&, &outer.main.dt, &outer.main.redraw);
             s!.sprite.is_loop = true;
 
             outer.game.action_next = id_me;
@@ -50,9 +50,9 @@ do
 
         loop do
             do
-                spawn Sprite_from_name_(&r1.pub, "core/buttons/buttonbackground", &outer.main.dt, &outer.main.redraw);
+                spawn Sprite_from_name(&r1.pub, "core/buttons/buttonbackground", &outer.main.dt, &outer.main.redraw);
 
-                var&? Sprite_from_name_ s = spawn Sprite_from_name_(&r2.pub, &&name[0] as _char&&, &outer.main.dt, &outer.main.redraw);
+                var&? Sprite_from_name s = spawn Sprite_from_name(&r2.pub, &&name[0] as _char&&, &outer.main.dt, &outer.main.redraw);
                 s!.sprite.frame_delay = 0;
 
                 par/or do
@@ -65,9 +65,9 @@ do
                 emit e(i);
             end
             do
-                spawn Sprite_from_name_(&r1.pub, "core/buttons/buttonbackgroundhl", &outer.main.dt, &outer.main.redraw);
+                spawn Sprite_from_name(&r1.pub, "core/buttons/buttonbackgroundhl", &outer.main.dt, &outer.main.redraw);
 
-                var&? Sprite_from_name_ s = spawn Sprite_from_name_(&r2.pub, &&name[0] as _char&&, &outer.main.dt, &outer.main.redraw);
+                var&? Sprite_from_name s = spawn Sprite_from_name(&r2.pub, &&name[0] as _char&&, &outer.main.dt, &outer.main.redraw);
                 s!.sprite.is_loop = true;
 
                 await e;
