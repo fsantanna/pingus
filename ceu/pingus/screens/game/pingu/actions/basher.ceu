@@ -24,8 +24,8 @@ do
                           .. (call Pingu_Get_Owner_Str() as _char&&)
                           .. "/basher/right";
 
-    var&? RightLeftSprites_ sprites =
-        spawn RightLeftSprites_(&outer.pingu.rect, &outer.pingu.direction, &left, &left, &right);
+    var&? RightLeftSprites sprites =
+        spawn RightLeftSprites(&outer.pingu.rect, &outer.pingu.direction, &left, &left, &right);
 
     var int? bash_reach; // set in bash
 

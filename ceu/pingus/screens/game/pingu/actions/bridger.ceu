@@ -31,8 +31,8 @@ do
                                   .. (call Pingu_Get_Owner_Str() as _char&&)
                                   .. "/bridger/right";
 
-            var&? RightLeftSprites_ builds =
-                spawn RightLeftSprites_(&outer.pingu.rect, &outer.pingu.direction, &left, &left, &right);
+            var&? RightLeftSprites builds =
+                spawn RightLeftSprites(&outer.pingu.rect, &outer.pingu.direction, &left, &left, &right);
 
 /// TODO
             var&? Sprite_from_name s;
@@ -65,7 +65,7 @@ do
                                   .. (call Pingu_Get_Owner_Str() as _char&&)
                                   .. "/bridger_walk/right";
 
-            await RightLeftSprites_(&outer.pingu.rect, &outer.pingu.direction, &left, &left, &right);
+            await RightLeftSprites(&outer.pingu.rect, &outer.pingu.direction, &left, &left, &right);
 
             // FIXME: Dangerous! might not be fixed timing
             if not call Way_Is_Free() then

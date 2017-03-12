@@ -12,7 +12,7 @@ do
                           .. (call Pingu_Get_Owner_Str() as _char&&)
                           .. "/blocker/right";
 
-    spawn RightLeftSprites_(&outer.pingu.rect, &outer.pingu.direction, &left, &left, &right);
+    spawn RightLeftSprites(&outer.pingu.rect, &outer.pingu.direction, &left, &left, &right);
 
     code/tight Standing_On_Ground (void)               -> bool;
     code/tight Catch_Pingu        (var& IPingu target) -> void;
