@@ -7,7 +7,7 @@ code/await SliderBox (var& IRRect rect, var int max, var int current)
                         -> (event int go)
                             -> FOREVER
 do
-    var& RectComponent_ component = spawn RectComponent_(&rect);
+    var& RectComponent component = spawn RectComponent(&rect);
 
     par do
         var int x=0;

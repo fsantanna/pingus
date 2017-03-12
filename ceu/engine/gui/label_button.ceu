@@ -11,7 +11,7 @@ do
 
     var& RRect r = spawn RRect(rect);
 
-    var& RectComponent_ rc = spawn RectComponent_(&r.pub);
+    var& RectComponent rc = spawn RectComponent(&r.pub);
     component = &rc.component;
 
     r.pub.off.w = {Fonts::chalk_small.get_width(_(@label))};

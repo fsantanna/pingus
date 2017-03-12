@@ -144,7 +144,7 @@ code/await Level (var& _Levelset levelset, var& ILevelUI ui, var int i, var& IRR
                     -> FOREVER
 do
     var& RRect r = spawn RRect(rect);
-    var& RectComponent_ component = spawn RectComponent_(&r.pub);
+    var& RectComponent component = spawn RectComponent(&r.pub);
 
     event bool pse;
     par do

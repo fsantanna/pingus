@@ -14,7 +14,7 @@ code/await CheckBox (var& IRRect rect, var bool is_on)
 do
     checkbox = val ICheckBox(is_on,_);
 
-    var& RectComponent_ component = spawn RectComponent_(&rect);
+    var& RectComponent component = spawn RectComponent(&rect);
 
     par do
         every component.component.on_primary_button_pressed do

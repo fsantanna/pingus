@@ -11,50 +11,7 @@ data IRectComponent with
     event void      on_click;
 end
 
-code/await RectComponent (var& Rect rect)
-                            -> (var IRectComponent component)
-                                -> FOREVER
-do
-    component = _;
-
-    code/tight/recursive Rect_is_at (var int x, var int y) -> bool do
-        var Rect r = _;
-        call/recursive Rect_Off(&outer.rect, &r);
-        escape r.x<=x and x<=r.x+r.w
-           and r.y<=y and y<=r.y+r.h;
-    end
-
-    par do
-        loop do
-            var int x;
-            var int y;
-            (x,y) = await ON_PRIMARY_BUTTON_PRESSED
-                    until call/recursive Rect_is_at(x,y);
-            emit component.on_primary_button_pressed(x,y);
-            (x,y) = await ON_PRIMARY_BUTTON_RELEASED;
-            if call/recursive Rect_is_at(x,y) then
-                emit component.on_click;
-            end
-            emit component.on_primary_button_released(x,y);
-        end
-    with
-        var bool is_on = false;
-        var int x;
-        var int y;
-        every (x,y) in ON_POINTER_MOVE do
-            if call/recursive Rect_is_at(x,y) != is_on then
-                is_on = not is_on;
-                if is_on then
-                    emit component.on_pointer_enter;
-                else
-                    emit component.on_pointer_leave;
-                end
-            end
-        end
-    end
-end
-
-code/await RectComponent_ (var& IRRect rect)
+code/await RectComponent (var& IRRect rect)
                             -> (var IRectComponent component)
                                 -> FOREVER
 do

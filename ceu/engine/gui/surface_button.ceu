@@ -10,7 +10,7 @@ code/await SurfaceButton (var& IRRect rect,
                             -> (var& IRectComponent component)
                                 -> FOREVER
 do
-    var& RectComponent_ component_ = spawn RectComponent_(&rect);
+    var& RectComponent component_ = spawn RectComponent(&rect);
     component = &component_.component;
     loop do
         do

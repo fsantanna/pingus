@@ -16,7 +16,7 @@ do
     var&? Sprite_from_name_ bg =
         spawn Sprite_from_name_(&r1.pub, "core/menu/menuitem", &outer.main.dt, &outer.main.redraw);
 
-    var& RectComponent_ component = spawn RectComponent_(&r1.pub);
+    var& RectComponent component = spawn RectComponent(&r1.pub);
 
     par do
         every component.component.on_click do

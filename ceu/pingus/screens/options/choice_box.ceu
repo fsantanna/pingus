@@ -42,7 +42,7 @@ end
 code/await ChoiceBox (var& IRRect rect, pool&[] ChoiceItem items, var& IChoiceBox choicebox)
                         -> FOREVER
 do
-    var& RectComponent_ component = spawn RectComponent_(&rect);
+    var& RectComponent component = spawn RectComponent(&rect);
 
     emit choicebox.go;
 

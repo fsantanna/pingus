@@ -95,7 +95,7 @@ with                                                        // UI
                                              AnchorXY(AnchorX.Right(), AnchorY.Bottom()),
                                              _, _));
 
-        var& RectComponent_ component = spawn RectComponent_(&rect.pub);
+        var& RectComponent component = spawn RectComponent(&rect.pub);
 
         spawn Sprite_from_name_(&rect.pub, "core/buttons/hbuttonbgb", &outer.main.dt, &outer.main.redraw);
 
@@ -125,7 +125,7 @@ with                                                        // UI
                                              AnchorXY(AnchorX.Right(), AnchorY.Bottom()),
                                              _, _));
 
-        var& RectComponent_ component = spawn RectComponent_(&rect.pub);
+        var& RectComponent component = spawn RectComponent(&rect.pub);
 
         spawn do
             loop do
@@ -159,7 +159,7 @@ with                                                        // UI
                                              AnchorXY(AnchorX.Right(), AnchorY.Bottom()),
                                              _, _));
 
-        var& RectComponent_ component = spawn RectComponent_(&rect.pub);
+        var& RectComponent component = spawn RectComponent(&rect.pub);
 
         spawn do
             loop do

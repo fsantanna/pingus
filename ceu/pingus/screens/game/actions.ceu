@@ -24,7 +24,7 @@ do
                                        AnchorXY(AnchorX.Left(), AnchorY.Center()),
                                        _, _));
 
-    var& RectComponent_ component = spawn RectComponent_(&r1.pub);
+    var& RectComponent component = spawn RectComponent(&r1.pub);
 
     vector[] byte name = []
         .. "pingus/player0/"
