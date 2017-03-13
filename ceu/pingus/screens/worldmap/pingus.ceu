@@ -25,6 +25,8 @@ end
 code/await MovePath (var& float cur) -> void
 do
     var float velocity = 70;
+    var float prv_x = outer.pst.x;
+    var float prv_y = outer.pst.y;
     loop do
         var int dt = await outer.main.dt;
 
@@ -36,17 +38,20 @@ do
         end
 
         // Recalc pingus position on the screen
-        var float prv_x = outer.pst.x;
-        var float prv_y = outer.pst.y;
-        emit outer.set_pst({edge_path.at(@cur).x}, {edge_path.at(@cur).y});
+        var float cur_x = {edge_path.at(@cur).x};
+        var float cur_y = {edge_path.at(@cur).y};
+        emit outer.set_pst(cur_x as int, cur_y as int);
 
-        var float dir = ({Math::atan2}(prv_x-outer.pst.x, -(prv_y-outer.pst.y))
+        var float dir = ({Math::atan2}(prv_x-cur_x, -(prv_y-cur_y))
                             / {Math::pi}*180) + 180;
         if dir>=0 and dir<180 then
             outer.direction = {RIGHT};
         else
             outer.direction = {LEFT};
         end
+
+        prv_x = cur_x;
+        prv_y = cur_y;
     end
 end
 
