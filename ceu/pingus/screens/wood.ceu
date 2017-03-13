@@ -8,12 +8,12 @@ code/await Wood (void) -> FOREVER do
     every outer.main.redraw do
         var int y = 0;
         loop do
-            if y >= {Display::get_height()} then
+            if y >= outer.main.rect.abs.h then
                 break;
             end
             var int x = 0;
             loop do
-                if x >= {Display::get_width()} then
+                if x >= outer.main.rect.abs.w then
                     break;
                 end
                 call {Display::s_framebuffer}:draw_surface(

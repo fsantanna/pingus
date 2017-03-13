@@ -12,7 +12,7 @@ do
     // read credit information from filename
     {
         static std::vector<std::string> credits;
-        static int end_offset = -static_cast<float>(Display::get_height())/2 - 50; // screen height + grace time
+        static int end_offset = -static_cast<float>(@outer.main.rect.abs.h)/2 - 50; // screen height + grace time
 
         {
             std::ifstream in(filename_credits.get_sys_path());
@@ -77,7 +77,7 @@ do
 
 
     var bool is_fast_scrolling = false;
-    var float offset = {Display::get_height()} - 50;
+    var float offset = outer.main.rect.abs.h - 50;
 
     par do
         await ok.component.on_click;

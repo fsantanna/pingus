@@ -56,8 +56,8 @@ var& _GroundMap gfx_map =
 
 /// TODO: remove
 var& _GraphicContextState state =
-    &{new GraphicContextState}({Math::min}({Display::get_width()},  w),
-                               {Math::min}({Display::get_height()}, h))
+    &{new GraphicContextState}({Math::min}(outer.main.rect.abs.w,  w),
+                               {Math::min}(outer.main.rect.abs.h, h))
         finalize (state) with
             _delete(&&state);
         end;
@@ -144,7 +144,7 @@ with
                                         {@game.plf.get_ambient_light()}.a);
     every outer.main.redraw do
         call {Display::s_framebuffer}:fill_rect(
-            _Rect(0,0, {Display::get_width()},{Display::get_height()}),
+            _Rect(0,0, outer.main.rect.abs.w,outer.main.rect.abs.h),
             _Color(ambient_light.r,
                    ambient_light.g,
                    ambient_light.b,

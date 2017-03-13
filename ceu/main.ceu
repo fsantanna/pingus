@@ -440,7 +440,7 @@ void ScreenManager::show_software_cursor(bool visible) {
             end
             call {Fonts::pingus_small}.render(
                 _origin_top_center,
-                {Display::get_width()}/2, height,
+                main.rect.abs.w/2, height,
                 "Developer Mode",
                 *{Display::s_framebuffer}
             );

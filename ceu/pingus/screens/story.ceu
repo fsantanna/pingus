@@ -102,8 +102,8 @@ do
                 every outer.main.redraw do
                     call ({Fonts::chalk_normal}.render as /nohold)(
                         {origin_top_left},
-                        {Display::get_width()} /2 - 280,
-                        {Display::get_height()}/2 + 35,
+                        outer.main.rect.abs.w/2 - 280,
+                        outer.main.rect.abs.h/2 + 35,
                         &&text[0] as _char&&,
                         *{Display::s_framebuffer}
                     );
@@ -139,8 +139,8 @@ do
         every outer.main.redraw do
             call ({Fonts::chalk_large}.render as /nohold)(
                 {origin_top_center},
-                {Display::get_width()} /2,
-                {Display::get_height()}/2 - 200,
+                outer.main.rect.abs.w/2,
+                outer.main.rect.abs.h/2 - 200,
                 &&title[0] as _char&&,
                 *{Display::s_framebuffer}
             );
