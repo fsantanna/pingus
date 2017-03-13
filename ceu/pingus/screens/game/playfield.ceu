@@ -55,13 +55,13 @@ with
 
                     // FIXME: This should be delta dependant
                     if {globals::drag_drop_scrolling} as bool then
-                        outer.game.offset_.off.x = outer.game.offset_.off.x - dx;
-                        outer.game.offset_.off.y = outer.game.offset_.off.y - dy;
+                        outer.game.offset.off.x = outer.game.offset.off.x - dx;
+                        outer.game.offset.off.y = outer.game.offset.off.y - dy;
                     else
-                        outer.game.offset_.off.x = outer.game.offset_.off.x + ((dx*0.2) as int);
-                        outer.game.offset_.off.y = outer.game.offset_.off.y + ((dy*0.2) as int);
+                        outer.game.offset.off.x = outer.game.offset.off.x + ((dx*0.2) as int);
+                        outer.game.offset.off.y = outer.game.offset.off.y + ((dy*0.2) as int);
                     end
-                    emit outer.game.offset_.changed;
+                    emit outer.game.offset.changed;
                 end
             with
                 every outer.main.redraw do
@@ -111,17 +111,17 @@ with
             var int scroll_speed = (dt * 0.8) as int;
 
             if (mouse.x < 10) then
-                outer.game.offset_.off.x = outer.game.offset_.off.x + scroll_speed;
+                outer.game.offset.off.x = outer.game.offset.off.x + scroll_speed;
             else/if (mouse.x > outer.main.rect.abs.w - 10) then
-                outer.game.offset_.off.x = outer.game.offset_.off.x - scroll_speed;
+                outer.game.offset.off.x = outer.game.offset.off.x - scroll_speed;
             end
 
             if (mouse.y < 10) then
-                outer.game.offset_.off.y = outer.game.offset_.off.y + scroll_speed;
+                outer.game.offset.off.y = outer.game.offset.off.y + scroll_speed;
             else/if (mouse.y > outer.main.rect.abs.h - 10) then
-                outer.game.offset_.off.y = outer.game.offset_.off.y - scroll_speed;
+                outer.game.offset.off.y = outer.game.offset.off.y - scroll_speed;
             end
-            emit outer.game.offset_.changed;
+            emit outer.game.offset.changed;
         end
     end
 end

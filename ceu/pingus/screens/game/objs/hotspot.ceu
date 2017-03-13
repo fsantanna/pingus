@@ -23,7 +23,7 @@ do
 
     var& RRect r = spawn RRect(IRRect(Rect_(pst.x,pst.y,_,_),
                                       AnchorXY(AnchorX.Left(), AnchorY.Top()),
-                                      &outer.game.offset_,
+                                      &outer.game.offset,
                                       AnchorXY(AnchorX.Center(), AnchorY.Center()),
                                       _, _));
     spawn Sprite_from_desc(&r.pub, {Resource::load_sprite_desc(desc.res_name)}, &outer.game.dt, &outer.main.redraw);

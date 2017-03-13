@@ -110,8 +110,8 @@ do
         end
     with
         every outer.main.redraw do
-            var int start_x = ((-outer.game.offset_.abs.x * para_x) + scroll_ox) as int;
-            var int start_y = ((-outer.game.offset_.abs.y * para_y) + scroll_oy) as int;
+            var int start_x = ((-outer.game.offset.abs.x * para_x) + scroll_ox) as int;
+            var int start_y = ((-outer.game.offset.abs.y * para_y) + scroll_oy) as int;
 
             if (start_x > 0) then
                 start_x = (start_x % w) - w;
@@ -124,7 +124,7 @@ do
             var int y = start_y;
             var int i;
             loop i do
-                var int yy = y + outer.game.offset_.abs.y;
+                var int yy = y + outer.game.offset.abs.y;
                 if yy >= outer.main.rect.abs.h then
                     break;
                 end
@@ -132,7 +132,7 @@ do
                 var int x = start_x;
                 var int j;
                 loop j do
-                    var int xx = x + outer.game.offset_.abs.x;
+                    var int xx = x + outer.game.offset.abs.x;
                     if xx >= outer.main.rect.abs.w then
                         break;
                     end

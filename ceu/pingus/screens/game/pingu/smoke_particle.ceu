@@ -18,7 +18,7 @@ do
 
     var& RRect rect = spawn RRect(IRRect(Rect_(x,y,_,_),
                                          AnchorXY(AnchorX.Left(), AnchorY.Top()),
-                                         &outer.game.offset_,
+                                         &outer.game.offset,
                                          AnchorXY(AnchorX.Center(), AnchorY.Center()),
                                          _, _));
     spawn Sprite_from_name(&rect.pub, name, &outer.game.dt, &outer.main.redraw);

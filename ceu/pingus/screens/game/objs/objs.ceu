@@ -124,9 +124,9 @@ do
         pos_start.y = pos_start.y + 100;
     end
 
-    outer.game.offset_.off.x = -pos_start.x;
-    outer.game.offset_.off.y = -pos_start.y;
-    emit outer.game.offset_.changed;
+    outer.game.offset.off.x = -pos_start.x;
+    outer.game.offset.off.y = -pos_start.y;
+    emit outer.game.offset.changed;
 end
 
 await FOREVER;

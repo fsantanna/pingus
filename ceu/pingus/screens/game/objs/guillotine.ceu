@@ -13,7 +13,7 @@ do
 
     var& RRect r = spawn RRect(IRRect(Rect_(pst.x,pst.y,_,_),
                                       AnchorXY(AnchorX.Left(), AnchorY.Top()),
-                                      &outer.game.offset_,
+                                      &outer.game.offset,
                                       AnchorXY(AnchorX.Center(), AnchorY.Center()),
                                       _, _));
     loop do
