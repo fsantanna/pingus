@@ -51,36 +51,42 @@ do
         }};         // TODO: repeated above
     end
 
-    var Vector2i pst3 = call Game_Pos_To_Smallmap(Vector2i(pst.x,pst.y));
-    var& RRect r3 = spawn RRect(IRRect(Rect(pst3.x,pst3.y,_,_),
-                                       AnchorXY(AnchorX.Left(), AnchorY.Top()),
-                                       &outer.game.rect_smallmap,
-                                       AnchorXY(AnchorX.Left(), AnchorY.Top()),
-                                       _,_));
-    spawn Sprite_from_name(&r3.pub, "core/misc/smallmap_exit", &outer.main.dt, &outer.game.redraw_smallmap);
+    par do
+        every outer.game.dt do
+            var&? Pingu p;
+            loop p in outer.pingus do
+                // Make sure this particular exit is allowed for this pingu
+    #if 0
+    /// TODO
+                if (p:get_owner() != this.owner_id) then
+                    continue;
+                end
+    #endif
 
-    every outer.game.dt do
-        var&? Pingu p;
-        loop p in outer.pingus do
-            // Make sure this particular exit is allowed for this pingu
-#if 0
-/// TODO
-            if (p:get_owner() != this.owner_id) then
-                continue;
+                // Now, make sure the pingu is within range
+                if ( (p!.pingu.rect.off.x > pst.x-1) and
+                     (p!.pingu.rect.off.x < pst.x+1) and
+                     (p!.pingu.rect.off.y > pst.y-5) and
+                     (p!.pingu.rect.off.y < pst.y+5) )
+                then
+                    // Now, make sure the pingu isn't already exiting, gone, or dead
+                    // Pingu actually exits
+                    emit p!.pingu.go_action({ActionName::EXITER});
+                    break;
+                end
             end
-#endif
-
-            // Now, make sure the pingu is within range
-            if ( (p!.pingu.rect.off.x > pst.x-1) and
-                 (p!.pingu.rect.off.x < pst.x+1) and
-                 (p!.pingu.rect.off.y > pst.y-5) and
-                 (p!.pingu.rect.off.y < pst.y+5) )
-            then
-                // Now, make sure the pingu isn't already exiting, gone, or dead
-                // Pingu actually exits
-                emit p!.pingu.go_action({ActionName::EXITER});
-                break;
-            end
+        end
+    with
+        var Vector2i pst3 = call Game_Pos_To_Smallmap(Vector2i(pst.x,pst.y));
+        var& Surface_from_name sfc = spawn Surface_from_name("core/misc/smallmap_exit",_);
+        var int w = sfc.surface.framebuffer.get_width();
+        var int h = sfc.surface.framebuffer.get_height();
+        every outer.game.redraw_smallmap do
+            call {Display::s_framebuffer}:draw_surface(
+                sfc.surface.framebuffer,
+                _Vector2i(outer.game.rect_smallmap.abs.x + pst3.x-w/2,
+                          outer.game.rect_smallmap.abs.y + pst3.y-h)
+            );
         end
     end
 

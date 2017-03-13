@@ -38,43 +38,49 @@ do
             log_error("unknown direction: '%1%'", direction_str);
     };
 
-    var Vector2i pst2 = call Game_Pos_To_Smallmap(Vector2i(pst.x,pst.y));
-    var& RRect r2 = spawn RRect(IRRect(Rect(pst2.x,pst2.y,_,_),
-                                       AnchorXY(AnchorX.Left(), AnchorY.Top()),
-                                       &outer.game.rect_smallmap,
-                                       AnchorXY(AnchorX.Left(), AnchorY.Top()),
-                                       _,_));
-    spawn Sprite_from_name(&r2.pub, "core/misc/smallmap_entrance", &outer.game.dt, &outer.game.redraw_smallmap);
-
     var int last_release = 150 - release_rate;
         // wait ~2sec at startup to allow a 'lets go' sound
 
     var bool last_was_right = false;
 
     watching outer.game.go_armageddon do
-        loop do
-            await outer.game.dt
-            until outer.game.game_time >= last_release+release_rate;
-            last_release = outer.game.game_time;
+        par do
+            loop do
+                await outer.game.dt
+                until outer.game.game_time >= last_release+release_rate;
+                last_release = outer.game.game_time;
 
-            var s8 dir;
-            if direction == {ENTRANCE_LEFT} then
-                dir = {LEFT};
-            else/if direction == {ENTRANCE_RIGHT}  then
-                dir = {RIGHT};
-            else/if direction == {ENTRANCE_MISC} then
-                if last_was_right then
+                var s8 dir;
+                if direction == {ENTRANCE_LEFT} then
                     dir = {LEFT};
+                else/if direction == {ENTRANCE_RIGHT}  then
+                    dir = {RIGHT};
+                else/if direction == {ENTRANCE_MISC} then
+                    if last_was_right then
+                        dir = {LEFT};
+                    else
+                        dir = {RIGHT};
+                    end
+                    last_was_right = not last_was_right;
                 else
+                    _log_error("warning direction is wrong: %1%", direction);
                     dir = {RIGHT};
                 end
-                last_was_right = not last_was_right;
-            else
-                _log_error("warning direction is wrong: %1%", direction);
-                dir = {RIGHT};
-            end
 
-            await Pingu_Spawn(owner_id, pst.x as int, pst.y as int, dir);
+                await Pingu_Spawn(owner_id, pst.x as int, pst.y as int, dir);
+            end
+        with
+            var Vector2i pst2 = call Game_Pos_To_Smallmap(Vector2i(pst.x,pst.y));
+            var& Surface_from_name sfc = spawn Surface_from_name("core/misc/smallmap_entrance",_);
+            var int w = sfc.surface.framebuffer.get_width();
+            var int h = sfc.surface.framebuffer.get_height();
+            every outer.game.redraw_smallmap do
+                call {Display::s_framebuffer}:draw_surface(
+                    sfc.surface.framebuffer,
+                    _Vector2i(outer.game.rect_smallmap.abs.x + pst2.x-w/2,
+                              outer.game.rect_smallmap.abs.y + pst2.y-h)
+                );
+            end
         end
     end
 
