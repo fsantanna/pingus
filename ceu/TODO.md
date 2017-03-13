@@ -2,11 +2,9 @@
     - pingus acumulados
     - deteccao de exit
     - mapas acumulados
-    - offset_
+    - _offset_
 - worldmap
-    - position, slightly shifted
     - pingus walk r/l
-    - clamp p/ tela grande
     - cover/uncover
 - docs
     - nested code/data

@@ -15,7 +15,7 @@ do
         spr = Resource::load_sprite_desc(desc.res_name);
     };
 
-    var bool auto_uncover = false;  /// TODO
+    var bool auto_uncover = {auto_uncover} as bool;  /// TODO
     var Vector3f pst = val Vector3f({pst.x},{pst.y},{pst.z});
 
     var& Surface_from_desc sfc = spawn Surface_from_desc({spr},_);
