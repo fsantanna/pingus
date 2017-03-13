@@ -36,13 +36,6 @@ vector[] byte return_filename;
 
 code/await Worldmap (void) -> int
 do
-    var& RRect r = spawn RRect(IRRect(Rect_(0,0,outer.main.rect.abs.w,outer.main.rect.abs.w),
-                               AnchorXY(AnchorX.Left(), AnchorY.Top()),
-                               &outer.main.rect,
-                               AnchorXY(AnchorX.Left(), AnchorY.Top()),
-                               _,_));
-    var& IRRect offset = &r.pub;
-
     par do
         var int ret = do ()
             #include "aux.ceu"

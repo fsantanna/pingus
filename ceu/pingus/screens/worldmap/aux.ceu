@@ -73,6 +73,21 @@ event (int,int) set_pst;
 var Vector2i pst = val Vector2i({path_graph->get_dot(id)->get_pos().x},
                                 {path_graph->get_dot(id)->get_pos().y}); 
 
+var& RRect r = spawn RRect(IRRect(Rect_(0,0,outer.main.rect.abs.w,outer.main.rect.abs.w),
+                           AnchorXY(AnchorX.Center(), AnchorY.Center()),
+                           &outer.main.rect,
+                           AnchorXY(AnchorX.Center(), AnchorY.Center()),
+                           _,_));
+var& IRRect offset = &r.pub;
+spawn do
+    every outer.main.rect.changed do
+        r.pub.off.w = outer.main.rect.abs.w;
+        r.pub.off.h = outer.main.rect.abs.h;
+        emit set_pst(pst.x, pst.y); // emits r.pub.changed
+        //emit r.pub.changed;
+    end
+end
+
 code/tight Get_Offset (void)-> Vector2i do
     var int x = 0;
     do
@@ -102,7 +117,7 @@ code/tight Get_Offset (void)-> Vector2i do
             min = height - outer.main.rect.abs.h/2;
             max = outer.main.rect.abs.h/2;
         end
-        y = {Math::clamp}(min, outer.pst.y+100, max);
+        y = {Math::clamp}(min, outer.pst.y, max);
         //y = outer.pst.y;
     end
 
@@ -118,9 +133,9 @@ spawn do
         pst.y = y;
 
         var Vector2i off = call Get_Offset();
-        outer.offset.off.x = off.x;
-        outer.offset.off.y = off.y;
-        emit outer.offset.changed;
+        offset.off.x = off.x;
+        offset.off.y = off.y;
+        emit offset.changed;
     end
 end
 emit set_pst(pst.x,pst.y);
@@ -213,7 +228,7 @@ with
     every (x,y) in ON_PRIMARY_BUTTON_PRESSED do
         {
             static Vector2f click_pos;
-            click_pos = Vector2i(@outer.offset.abs.x+x,@outer.offset.abs.y+y);
+            click_pos = Vector2i(@offset.abs.x+x,@offset.abs.y+y);
             if (globals::developer_mode)
             {
                 SExprFileWriter writer(std::cout);
@@ -262,8 +277,8 @@ Vector2i(100,100),
     every outer.main.redraw do
         if {globals::developer_mode} as bool then
             {path_graph->graph.for_each_edge(
-                draw_edges(path_graph.get(), Vector2i(@outer.offset.abs.x+@outer.offset.abs.w/2,
-                                                      @outer.offset.abs.y+@outer.offset.abs.h/2)));}
+                draw_edges(path_graph.get(), Vector2i(@offset.abs.x+@offset.abs.w/2,
+                                                      @offset.abs.y+@offset.abs.h/2)));}
         end
     end
 end

@@ -1,29 +1,33 @@
-- documentar nested code/data
-- recolocar option_menu, languages
+- game
+    - pingus acumulados
+    - deteccao de exit
+    - mapas acumulados
+    - offset_
+- worldmap
+    - position, slightly shifted
+    - pingus walk r/l
+    - clamp p/ tela grande
+    - cover/uncover
+- docs
+    - nested code/data
+- remover state
+- remover Display->getW/H
 - TODO: names in bridger?
 - TODO: pause p/ world pause
-- BUG: worldmap edge lines on dev mode
 - BUG: credits clip rect
 - BUG: playfield-lines, bg-non-repeat
 - TODO: configuration of input events, input controller cmd-line opt
 - TODO: cursor
 - TODO: fade effects
-- TODO: resize
 - TODO: stress test pathfinder
 - TODO: fast_forward p/ WM
 - TODO: draw border p/ WM
 - TODO: read/write inputs (screen_manager)
-- TODO: WM: cavernas nao somem e reaparecem qd o pingus passa por elas
-- BUG: seta do worldmap aparece por baixo do pingus
-- BUG: explosao do pingu nao esta centralizada nele
-- BUG: a cada reinicio, o dobro de pingus sao criados
-- BUG: is_world=false in sprite.ceu
 - BUG: cliques nos pingus
 - BUG: bg do pingu counter fixo
 - BUG: small map esta atras da agua embaixo do level snow20
 - BUG: queda do pingu saindo da entrada esta levemente desalinhado
 - BUG: glitch periodico no smallmap relacionado ao RENDER
-- BUG: pequeno glitch no smallmap no inicio da fase
 - BUG: procurar /// TODO: w/o me.ceu this function becomes @rec
 - z-order front entrance snow-tutorial
 - TODO: pos_offset em todos os objs em factory
@@ -35,10 +39,6 @@
 - cache de sprites ou performance inviavel
 - EXITER/LASERKILL in pingu.ceu
 - BUG: climber center
-- global:world.pingus vai simplificar min.ceu
-- bug do WORLD_UPDATE necessario
-- pingu! = <...>
-- world! = <...>
 - countdown action disable from the original??
 - walker behind all
 - bridger offset
