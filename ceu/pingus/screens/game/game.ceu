@@ -20,8 +20,8 @@ data IGame with
     var&  _PingusLevel         plf;
     var   int                  game_time;
     var   PingusCounter        counter;
-    var   Rect                rect;
-    var   Rect                rect_smallmap;
+    var   Rect                 rect;
+    var   Rect                 rect_smallmap;
     var&  IRRect               offset;
     var   float                gravity     = 0.2;
     var   _ActionName__Enum    action_next = {ActionName::WALKER};

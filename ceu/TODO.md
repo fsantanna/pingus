@@ -3,9 +3,6 @@
     - deteccao de exit
     - mapas acumulados
     - _offset_
-- worldmap
-    - pingus walk r/l
-    - cover/uncover
 - docs
     - nested code/data
 - remover state
