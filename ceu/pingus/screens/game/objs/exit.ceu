@@ -56,12 +56,12 @@ do
             var&? Pingu p;
             loop p in outer.pingus do
                 // Make sure this particular exit is allowed for this pingu
-    #if 0
-    /// TODO
+#if 0
+/// TODO
                 if (p:get_owner() != this.owner_id) then
                     continue;
                 end
-    #endif
+#endif
 
                 // Now, make sure the pingu is within range
                 if ( (p!.pingu.rect.off.x > pst.x-1) and
@@ -72,7 +72,6 @@ do
                     // Now, make sure the pingu isn't already exiting, gone, or dead
                     // Pingu actually exits
                     emit p!.pingu.go_action({ActionName::EXITER});
-                    break;
                 end
             end
         end
