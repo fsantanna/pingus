@@ -70,6 +70,10 @@ do
     end
 end
 
+do finalize with
+    {WORLDOBJ_FACTORY_VECTOR.clear();}
+end
+
 do
     var usize i;
     loop i in [0 -> {WORLDOBJ_FACTORY_VECTOR.size()}[ do
