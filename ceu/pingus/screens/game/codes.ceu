@@ -49,8 +49,8 @@ code/tight Game_Pos_To_Smallmap (var Vector2i pst) -> Vector2i do
     var int ww = 175;
     var int hh = 100;
 
-    var Vector2i ret = val Vector2i(outer.game.rect_smallmap.x + pst.x*outer.game.rect_smallmap.w/outer.game.rect.w,
-                                    outer.game.rect_smallmap.y + pst.y*outer.game.rect_smallmap.h/outer.game.rect.h);
+    var Vector2i ret = val Vector2i(pst.x*outer.game.rect_smallmap.abs.w/outer.game.rect.w,
+                                    pst.y*outer.game.rect_smallmap.abs.h/outer.game.rect.h);
     escape ret;
 end
 

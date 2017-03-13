@@ -54,7 +54,8 @@ do
     var Vector2i pst3 = call Game_Pos_To_Smallmap(Vector2i(pst.x,pst.y));
     var& RRect r3 = spawn RRect(IRRect(Rect(pst3.x,pst3.y,_,_),
                                        AnchorXY(AnchorX.Left(), AnchorY.Top()),
-                                       nil,_,
+                                       &outer.game.rect_smallmap,
+                                       AnchorXY(AnchorX.Left(), AnchorY.Top()),
                                        _,_));
     spawn Sprite_from_name(&r3.pub, "core/misc/smallmap_exit", &outer.main.dt, &outer.game.redraw_smallmap);
 

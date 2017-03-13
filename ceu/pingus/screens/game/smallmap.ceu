@@ -4,10 +4,10 @@
 #define _SMALLMAP_CEU
 
 code/tight Is_At (var int x, var int y) -> bool do
-    escape (x > outer.game.rect_smallmap.x and
-            x < outer.game.rect_smallmap.x + outer.game.rect_smallmap.w and
-            y > outer.game.rect_smallmap.y and
-            y < outer.game.rect_smallmap.y + outer.game.rect_smallmap.h);
+    escape (x > outer.game.rect_smallmap.abs.x and
+            x < outer.game.rect_smallmap.abs.x + outer.game.rect_smallmap.abs.w and
+            y > outer.game.rect_smallmap.abs.y and
+            y < outer.game.rect_smallmap.abs.y + outer.game.rect_smallmap.abs.h);
 end
 
 par do
@@ -22,8 +22,8 @@ with
         watching ON_PRIMARY_BUTTON_RELEASED do
             loop do
                 // set view to the given COs
-                var int cx = (x - outer.game.rect_smallmap.x) * outer.game.rect.w / outer.game.rect_smallmap.w;
-                var int cy = (y - outer.game.rect_smallmap.y) * outer.game.rect.h / outer.game.rect_smallmap.h;
+                var int cx = (x - outer.game.rect_smallmap.abs.x) * outer.game.rect.w / outer.game.rect_smallmap.abs.w;
+                var int cy = (y - outer.game.rect_smallmap.abs.y) * outer.game.rect.h / outer.game.rect_smallmap.abs.h;
 
                 outer.game.offset.off.x = -cx;
                 outer.game.offset.off.y = -cy;
@@ -40,28 +40,28 @@ with
         };
 
         if (outer.game.rect.w > {Display::get_width()}) then
-            var int rwidth = {Display::get_width()} * outer.game.rect_smallmap.w / outer.game.rect.w;
+            var int rwidth = {Display::get_width()} * outer.game.rect_smallmap.abs.w / outer.game.rect.w;
             {
-                view_rect.left = @(outer.game.rect_smallmap.x + (-outer.game.offset.off.x * outer.game.rect_smallmap.w / outer.game.rect.w) - rwidth/2);
+                view_rect.left = @(outer.game.rect_smallmap.abs.x + (-outer.game.offset.off.x * outer.game.rect_smallmap.abs.w / outer.game.rect.w) - rwidth/2);
                 view_rect.right = view_rect.left + @rwidth;
             }
         else
             {
-                view_rect.left  = @outer.game.rect_smallmap.x;
-                view_rect.right = @(outer.game.rect_smallmap.x + outer.game.rect_smallmap.w);
+                view_rect.left  = @outer.game.rect_smallmap.abs.x;
+                view_rect.right = @(outer.game.rect_smallmap.abs.x + outer.game.rect_smallmap.abs.w);
             }
         end
 
         if (outer.game.rect.h > {Display::get_height()}) then
-            var int rheight = {Display::get_height()} * outer.game.rect_smallmap.h / outer.game.rect.h;
+            var int rheight = {Display::get_height()} * outer.game.rect_smallmap.abs.h / outer.game.rect.h;
             {
-                view_rect.top = @(outer.game.rect_smallmap.y + (-outer.game.offset.off.y * outer.game.rect_smallmap.h / outer.game.rect.h) - rheight/2);
+                view_rect.top = @(outer.game.rect_smallmap.abs.y + (-outer.game.offset.off.y * outer.game.rect_smallmap.abs.h / outer.game.rect.h) - rheight/2);
                 view_rect.bottom = view_rect.top + @rheight;
             }
         else
             {
-                view_rect.top    = @outer.game.rect_smallmap.y;
-                view_rect.bottom = @(outer.game.rect_smallmap.y + outer.game.rect_smallmap.h);
+                view_rect.top    = @outer.game.rect_smallmap.abs.y;
+                view_rect.bottom = @(outer.game.rect_smallmap.abs.y + outer.game.rect_smallmap.abs.h);
             }
         end
 
@@ -70,8 +70,8 @@ with
         // Draw Pingus
         var&? Pingu pingu;
         loop pingu in outer.pingus do
-            var int x = outer.game.rect_smallmap.x + (pingu!.pingu.rect.off.x * outer.game.rect_smallmap.w  / outer.game.rect.w);
-            var int y = outer.game.rect_smallmap.y  + (pingu!.pingu.rect.off.y  * outer.game.rect_smallmap.h / outer.game.rect.h);
+            var int x = outer.game.rect_smallmap.abs.x + (pingu!.pingu.rect.off.x * outer.game.rect_smallmap.abs.w  / outer.game.rect.w);
+            var int y = outer.game.rect_smallmap.abs.y  + (pingu!.pingu.rect.off.y  * outer.game.rect_smallmap.abs.h / outer.game.rect.h);
             {Display::s_framebuffer->draw_line(Vector2i(@x, @y), Vector2i(@x, @y-2), Color(255,255,0));}
         end
     end

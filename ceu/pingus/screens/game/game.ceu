@@ -21,7 +21,7 @@ data IGame with
     var   int                  game_time;
     var   PingusCounter        counter;
     var   Rect                 rect;
-    var   Rect                 rect_smallmap;
+    var&  IRRect               rect_smallmap;
     var&  IRRect               offset;
     var   float                gravity     = 0.2;
     var   _ActionName__Enum    action_next = {ActionName::WALKER};
@@ -91,13 +91,19 @@ spawn do
     end
 end
 
+var& RRect sm = spawn RRect(IRRect(Rect(5,-5,175,100),
+                                   AnchorXY(AnchorX.Left(), AnchorY.Bottom()),
+                                   &outer.main.rect,
+                                   AnchorXY(AnchorX.Left(), AnchorY.Bottom()),
+                                   _,_));
+
 var IGame game =
     val IGame(&outer.plf, 0,
                      PingusCounter(0,0,0,0,
                                    outer.plf.get_number_of_pingus(),
                                    outer.plf.get_number_to_save()),
                      Rect(0,0,w,h),
-                     Rect(6,{Display::get_size}().height-105, 175,100),
+                     &sm.pub,
                      &r.pub,
                      _, _, _, _, _);
 

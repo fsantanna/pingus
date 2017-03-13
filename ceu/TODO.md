@@ -1,3 +1,4 @@
+- remover draw_smallmap, usar surface em vez de sprite em entrance/exit
 - game
     - pingus acumulados
     - deteccao de exit
