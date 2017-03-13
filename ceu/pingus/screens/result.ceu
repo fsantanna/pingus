@@ -57,14 +57,14 @@ vector[] byte saved_needed = [] ..
 
 spawn Wood();
 
-var& RRect rect = spawn RRect(IRRect(Rect_(0,0, _,_),
+var& RRect rect = spawn RRect(IRRect(Rect(0,0, _,_),
                                   AnchorXY(AnchorX.Center(), AnchorY.Center()),
                                   &outer.main.rect,
                                   AnchorXY(AnchorX.Center(), AnchorY.Center()),
                                   _, _));
 spawn Sprite_from_name(&rect.pub, "core/menu/blackboard", &outer.main.dt, &outer.main.redraw);
 
-var& RRect r1 = spawn RRect(IRRect(Rect_(-50,-60, _,_),
+var& RRect r1 = spawn RRect(IRRect(Rect(-50,-60, _,_),
                                    AnchorXY(AnchorX.Right(), AnchorY.Bottom()),
                                    &rect.pub,
                                    AnchorXY(AnchorX.Right(), AnchorY.Bottom()),
@@ -75,7 +75,7 @@ var&? SurfaceButton ok =
                          "core/start/ok_clicked",
                          "core/start/ok_hover");
 
-var& RRect abort_r = spawn RRect(IRRect(Rect_(70,-2, _,_),
+var& RRect abort_r = spawn RRect(IRRect(Rect(70,-2, _,_),
                                    AnchorXY(AnchorX.Left(), AnchorY.Bottom()),
                                    &rect.pub,
                                    AnchorXY(AnchorX.Left(), AnchorY.Bottom()),
@@ -86,7 +86,7 @@ var&? SurfaceButton abort =
                         "core/start/back_clicked",
                         "core/start/back_hover");
 
-var& RRect retry_r = spawn RRect(IRRect(Rect_(-50,-60, _,_),
+var& RRect retry_r = spawn RRect(IRRect(Rect(-50,-60, _,_),
                                         AnchorXY(AnchorX.Right(), AnchorY.Bottom()),
                                         &rect.pub,
                                         AnchorXY(AnchorX.Right(), AnchorY.Bottom()),

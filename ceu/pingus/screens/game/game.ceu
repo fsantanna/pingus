@@ -20,8 +20,8 @@ data IGame with
     var&  _PingusLevel         plf;
     var   int                  game_time;
     var   PingusCounter        counter;
-    var   Rect_                rect;
-    var   Rect_                rect_smallmap;
+    var   Rect                rect;
+    var   Rect                rect_smallmap;
     var&  IRRect               offset;
     var   float                gravity     = 0.2;
     var   _ActionName__Enum    action_next = {ActionName::WALKER};
@@ -62,7 +62,7 @@ var& _GraphicContextState state =
             _delete(&&state);
         end;
 
-var& RRect r = spawn RRect(IRRect(Rect_(0,0,outer.main.rect.abs.w,outer.main.rect.abs.w),
+var& RRect r = spawn RRect(IRRect(Rect(0,0,outer.main.rect.abs.w,outer.main.rect.abs.w),
                            AnchorXY(AnchorX.Left(), AnchorY.Top()),
                            &outer.main.rect,
                            AnchorXY(AnchorX.Left(), AnchorY.Top()),
@@ -96,8 +96,8 @@ var IGame game =
                      PingusCounter(0,0,0,0,
                                    outer.plf.get_number_of_pingus(),
                                    outer.plf.get_number_to_save()),
-                     Rect_(0,0,w,h),
-                     Rect_(6,{Display::get_size}().height-105, 175,100),
+                     Rect(0,0,w,h),
+                     Rect(6,{Display::get_size}().height-105, 175,100),
                      &r.pub,
                      _, _, _, _, _);
 

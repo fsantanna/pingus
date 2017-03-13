@@ -22,7 +22,7 @@ do
                 // draw background highlight mark
                 loop do
                     await component.component.on_pointer_enter;
-                    var& RRect rr = spawn RRect(IRRect(Rect_(0,0, _,_),
+                    var& RRect rr = spawn RRect(IRRect(Rect(0,0, _,_),
                                                        AnchorXY(AnchorX.Left(), AnchorY.Center()),
                                                        &r.pub,
                                                        AnchorXY(AnchorX.Left(), AnchorY.Center()),
@@ -121,7 +121,7 @@ code/await Levelsets (void) -> int do
     var int? ret =
         watching ui do
             pool[] Levelset sets;
-            var IRRect r = val IRRect(Rect_(44,155, 680-90,LEVELSET_ITEM_HEIGHT-1),
+            var IRRect r = val IRRect(Rect(44,155, 680-90,LEVELSET_ITEM_HEIGHT-1),
                                       AnchorXY(AnchorX.Left(), AnchorY.Center()),
                                       &ui!.rect,
                                       AnchorXY(AnchorX.Left(), AnchorY.Top()),

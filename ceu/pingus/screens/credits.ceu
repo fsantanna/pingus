@@ -50,21 +50,21 @@ do
 
     spawn Wood();
 
-    var& RRect rect = spawn RRect(IRRect(Rect_(0,0, _,_),
+    var& RRect rect = spawn RRect(IRRect(Rect(0,0, _,_),
                                       AnchorXY(AnchorX.Center(), AnchorY.Center()),
                                       &outer.main.rect,
                                       AnchorXY(AnchorX.Center(), AnchorY.Center()),
                                       _, _));
     spawn Sprite_from_name(&rect.pub, "core/menu/blackboard", &outer.main.dt, &outer.main.redraw);
 
-    var& RRect r1 = spawn RRect(IRRect(Rect_(0,-20, _,_),
+    var& RRect r1 = spawn RRect(IRRect(Rect(0,-20, _,_),
                                        AnchorXY(AnchorX.Center(), AnchorY.Center()),
                                        &rect.pub,
                                        AnchorXY(AnchorX.Center(), AnchorY.Center()),
                                        _, _));
     spawn Sprite_from_name(&r1.pub, "core/misc/creditpingu", &outer.main.dt, &outer.main.redraw);
 
-    var& RRect r2 = spawn RRect(IRRect(Rect_(-50,-60, _,_),
+    var& RRect r2 = spawn RRect(IRRect(Rect(-50,-60, _,_),
                                        AnchorXY(AnchorX.Right(), AnchorY.Bottom()),
                                        &rect.pub,
                                        AnchorXY(AnchorX.Right(), AnchorY.Bottom()),

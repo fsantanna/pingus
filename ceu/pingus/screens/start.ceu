@@ -14,14 +14,14 @@ vector[] byte description = [] .. ({str.c_str()} as _char&&);
 
 spawn Wood();
 
-var& RRect rect = spawn RRect(IRRect(Rect_(0,0, _,_),
+var& RRect rect = spawn RRect(IRRect(Rect(0,0, _,_),
                                   AnchorXY(AnchorX.Center(), AnchorY.Center()),
                                   &outer.main.rect,
                                   AnchorXY(AnchorX.Center(), AnchorY.Center()),
                                   _, _));
 spawn Sprite_from_name(&rect.pub, "core/menu/blackboard", &outer.main.dt, &outer.main.redraw);
 
-var& RRect r1 = spawn RRect(IRRect(Rect_(-50,-60, _,_),
+var& RRect r1 = spawn RRect(IRRect(Rect(-50,-60, _,_),
                                    AnchorXY(AnchorX.Right(), AnchorY.Bottom()),
                                    &rect.pub,
                                    AnchorXY(AnchorX.Right(), AnchorY.Bottom()),
@@ -32,7 +32,7 @@ var& SurfaceButton start =
                         "core/start/ok_clicked",
                         "core/start/ok_hover");
 
-var& RRect cancel_r = spawn RRect(IRRect(Rect_(70,-2, _,_),
+var& RRect cancel_r = spawn RRect(IRRect(Rect(70,-2, _,_),
                                          AnchorXY(AnchorX.Left(), AnchorY.Bottom()),
                                          &rect.pub,
                                          AnchorXY(AnchorX.Left(), AnchorY.Bottom()),
@@ -71,7 +71,7 @@ with
     end
 with
     every outer.main.redraw do
-        //var& Rect_ abs = &rect.pub.abs;
+        //var& Rect abs = &rect.pub.abs;
 
         call {Fonts::chalk_large}.render(
             _origin_top_center,

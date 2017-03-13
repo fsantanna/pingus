@@ -35,7 +35,7 @@ do
         direction_ = {LEFT};
     end
 
-    var& RRect r = spawn RRect(IRRect(Rect_(x,y, 32,32),
+    var& RRect r = spawn RRect(IRRect(Rect(x,y, 32,32),
                                       AnchorXY(AnchorX.Center(), AnchorY.Bottom()),
                                       &outer.game.offset,
                                       AnchorXY(AnchorX.Center(), AnchorY.Center()),

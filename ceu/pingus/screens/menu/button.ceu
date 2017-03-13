@@ -7,7 +7,7 @@ code/await MenuButton (var int x, var int y, var _char_const_ptr text, var _char
                         -> (event void ok_clicked)
                             -> FOREVER
 do
-    var& RRect r1 = spawn RRect(IRRect(Rect_(x,y, _,_),
+    var& RRect r1 = spawn RRect(IRRect(Rect(x,y, _,_),
                                        AnchorXY(AnchorX.Center(), AnchorY.Center()),
                                        &outer.main.rect,
                                        AnchorXY(AnchorX.Center(), AnchorY.Center()),

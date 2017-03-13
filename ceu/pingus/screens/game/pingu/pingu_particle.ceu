@@ -13,7 +13,7 @@ do
                                          ({Math::frand}() * -9)      as float,
                                          0);
 
-    var& RRect rect = spawn RRect(IRRect(Rect_(x,y,_,_),
+    var& RRect rect = spawn RRect(IRRect(Rect(x,y,_,_),
                                          AnchorXY(AnchorX.Left(), AnchorY.Bottom()),
                                          &outer.game.offset,
                                          AnchorXY(AnchorX.Center(), AnchorY.Center()),

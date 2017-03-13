@@ -73,7 +73,7 @@ event (int,int) set_pst;
 var Vector2i pst = val Vector2i({path_graph->get_dot(id)->get_pos().x},
                                 {path_graph->get_dot(id)->get_pos().y}); 
 
-var& RRect r = spawn RRect(IRRect(Rect_(0,0,outer.main.rect.abs.w,outer.main.rect.abs.w),
+var& RRect r = spawn RRect(IRRect(Rect(0,0,outer.main.rect.abs.w,outer.main.rect.abs.w),
                            AnchorXY(AnchorX.Center(), AnchorY.Center()),
                            &outer.main.rect,
                            AnchorXY(AnchorX.Center(), AnchorY.Center()),

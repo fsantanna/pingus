@@ -9,14 +9,14 @@ code/await Story (void) -> bool
 do
     spawn Wood();
 
-    var& RRect rect = spawn RRect(IRRect(Rect_(0,0, _,_),
+    var& RRect rect = spawn RRect(IRRect(Rect(0,0, _,_),
                                       AnchorXY(AnchorX.Center(), AnchorY.Center()),
                                       &outer.main.rect,
                                       AnchorXY(AnchorX.Center(), AnchorY.Center()),
                                       _, _));
     spawn Sprite_from_name(&rect.pub, "core/menu/blackboard", &outer.main.dt, &outer.main.redraw);
 
-    var& RRect r1 = spawn RRect(IRRect(Rect_(-50,-60, _,_),
+    var& RRect r1 = spawn RRect(IRRect(Rect(-50,-60, _,_),
                                        AnchorXY(AnchorX.Right(), AnchorY.Bottom()),
                                        &rect.pub,
                                        AnchorXY(AnchorX.Right(), AnchorY.Bottom()),
@@ -27,7 +27,7 @@ do
                             "core/misc/next",
                             "core/misc/next_hover");
 
-    var IRRect r = val IRRect(Rect_(-30,-30,_,_),
+    var IRRect r = val IRRect(Rect(-30,-30,_,_),
                               AnchorXY(AnchorX.Left(), AnchorY.Top()),
                               &outer.main.rect,
                               AnchorXY(AnchorX.Right(), AnchorY.Bottom()),
@@ -67,7 +67,7 @@ do
                 static std::string str2;
                 str2 = page.image.res_name;
             }
-            var& RRect r2 = spawn RRect(IRRect(Rect_(0,10, _,_),
+            var& RRect r2 = spawn RRect(IRRect(Rect(0,10, _,_),
                                                AnchorXY(AnchorX.Center(), AnchorY.Bottom()),
                                                &rect.pub,
                                                AnchorXY(AnchorX.Center(), AnchorY.Center()),

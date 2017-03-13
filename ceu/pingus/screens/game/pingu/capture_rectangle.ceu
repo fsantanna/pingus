@@ -37,7 +37,7 @@ loop do
 
         par do
             if {ActionName::CATCHABLE}[outer.pingu.current_action] as bool then
-                var& RRect r1 = spawn RRect(IRRect(Rect_(0,0, _,_),
+                var& RRect r1 = spawn RRect(IRRect(Rect(0,0, _,_),
                                            AnchorXY(AnchorX.Center(), AnchorY.Center()),
                                            &outer.pingu.rect,
                                            AnchorXY(AnchorX.Center(), AnchorY.Center()),
@@ -52,7 +52,7 @@ loop do
                 end;
                 spawn Sprite_from_name(&r1.pub, name1, &outer.main.dt, &outer.main.redraw);
 
-                var& RRect r2 = spawn RRect(IRRect(Rect_(0,0, _,_),
+                var& RRect r2 = spawn RRect(IRRect(Rect(0,0, _,_),
                                            AnchorXY(AnchorX.Center(), AnchorY.Center()),
                                            &outer.pingu.rect,
                                            AnchorXY(AnchorX.Center(), AnchorY.Center()),

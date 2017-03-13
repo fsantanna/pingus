@@ -18,7 +18,7 @@ code/await Button (var    int i,
             -> FOREVER
 do
     var int y = i*38 - ({ButtonPanel_actions.size()}*38/2);
-    var& RRect r1 = spawn RRect(IRRect(Rect_(0,y,60,38),
+    var& RRect r1 = spawn RRect(IRRect(Rect(0,y,60,38),
                                        AnchorXY(AnchorX.Left(), AnchorY.Center()),
                                        &outer.main.rect,
                                        AnchorXY(AnchorX.Left(), AnchorY.Center()),
@@ -32,7 +32,7 @@ do
         .. "/right";
 
     par do
-        var& RRect r2 = spawn RRect(IRRect(Rect_(0,0,_,_),
+        var& RRect r2 = spawn RRect(IRRect(Rect(0,0,_,_),
                                            AnchorXY(AnchorX.Left(), AnchorY.Center()),
                                            &r1.pub,
                                            AnchorXY(AnchorX.Left(), AnchorY.Center()),

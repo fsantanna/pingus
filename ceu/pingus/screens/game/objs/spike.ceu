@@ -21,7 +21,7 @@ do
                     p!.pingu.rect.off.y > pst.y      and
                     p!.pingu.rect.off.y < pst.y + 32)
                 then
-                    var& RRect rect = spawn RRect(IRRect(Rect_(pst.x,pst.y,_,_),
+                    var& RRect rect = spawn RRect(IRRect(Rect(pst.x,pst.y,_,_),
                                                          AnchorXY(AnchorX.Left(), AnchorY.Top()),
                                                          &outer.game.offset,
                                                          AnchorXY(AnchorX.Center(), AnchorY.Center()),

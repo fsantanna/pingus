@@ -193,7 +193,7 @@ data Position with
     var int y;
 end
 
-data Rect_ with
+data Rect with
     var int x;
     var int y;
     var int w;
@@ -225,7 +225,7 @@ data IMain with
     event void   redraw;
 end
 
-var& RRect r = spawn RRect(IRRect(Rect_(0,0, {Display::get_width()},{Display::get_height()}),
+var& RRect r = spawn RRect(IRRect(Rect(0,0, {Display::get_width()},{Display::get_height()}),
                                   AnchorXY(AnchorX.Left(), AnchorY.Top()),
                                   nil, _,
                                   _, _));

@@ -15,7 +15,7 @@ do
         static int width;
         WORLDOBJ_FACTORY_READER.read_int("repeat", width);
     }
-    var& RRect rect = spawn RRect(IRRect(Rect_({p.x},{p.y}, 0,0),
+    var& RRect rect = spawn RRect(IRRect(Rect({p.x},{p.y}, 0,0),
                                          AnchorXY(AnchorX.Left(), AnchorY.Top()),
                                          &outer.game.offset,
                                          AnchorXY(AnchorX.Center(), AnchorY.Center()),

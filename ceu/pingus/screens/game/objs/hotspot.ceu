@@ -21,7 +21,7 @@ do
     // FIXME: would be nice to allow surface manipulation with
     // animated sprites, but it's not that easy to do
 
-    var& RRect r = spawn RRect(IRRect(Rect_(pst.x,pst.y,_,_),
+    var& RRect r = spawn RRect(IRRect(Rect(pst.x,pst.y,_,_),
                                       AnchorXY(AnchorX.Left(), AnchorY.Top()),
                                       &outer.game.offset,
                                       AnchorXY(AnchorX.Center(), AnchorY.Center()),

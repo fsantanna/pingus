@@ -11,7 +11,7 @@ do
     }
     var Vector2i pst = val Vector2i({p.x},{p.y});
 
-    var& RRect r = spawn RRect(IRRect(Rect_(pst.x,pst.y,_,_),
+    var& RRect r = spawn RRect(IRRect(Rect(pst.x,pst.y,_,_),
                                       AnchorXY(AnchorX.Left(), AnchorY.Top()),
                                       &outer.game.offset,
                                       AnchorXY(AnchorX.Center(), AnchorY.Center()),

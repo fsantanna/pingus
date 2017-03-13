@@ -3,7 +3,7 @@
 #else
 #define _PINGUSCOUNTER_CEU
 
-var& RRect rect = spawn RRect(IRRect(Rect_(0,0,_,_),
+var& RRect rect = spawn RRect(IRRect(Rect(0,0,_,_),
                               AnchorXY(AnchorX.Center(), AnchorY.Top()),
                               &outer.main.rect,
                               AnchorXY(AnchorX.Center(), AnchorY.Top()),

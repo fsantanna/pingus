@@ -33,7 +33,7 @@ do
 
     spawn Wood();
 
-    var& RRect r = spawn RRect(IRRect(Rect_(0,0, _,_),
+    var& RRect r = spawn RRect(IRRect(Rect(0,0, _,_),
                                AnchorXY(AnchorX.Center(), AnchorY.Center()),
                                &outer.main.rect,
                                AnchorXY(AnchorX.Center(), AnchorY.Center()),
@@ -41,7 +41,7 @@ do
     rect = &r.pub;
     spawn Sprite_from_name(&r.pub, "core/menu/blackboard", &outer.main.dt, &outer.main.redraw);
 
-    var& RRect cancel_r = spawn RRect(IRRect(Rect_(70,-2, _,_),
+    var& RRect cancel_r = spawn RRect(IRRect(Rect(70,-2, _,_),
                                              AnchorXY(AnchorX.Left(), AnchorY.Bottom()),
                                              &r.pub,
                                              AnchorXY(AnchorX.Left(), AnchorY.Bottom()),
@@ -64,7 +64,7 @@ do
         end
     end
 
-    var& RRect prv_r = spawn RRect(IRRect(Rect_(-35,-10, _,_),
+    var& RRect prv_r = spawn RRect(IRRect(Rect(-35,-10, _,_),
                                              AnchorXY(AnchorX.Right(), AnchorY.Bottom()),
                                              &r.pub,
                                              AnchorXY(AnchorX.Right(), AnchorY.Center()),
@@ -75,7 +75,7 @@ do
                             "core/menu/arrow_up_pressed",
                             "core/menu/arrow_up_hover");
 
-    var& RRect nxt_r = spawn RRect(IRRect(Rect_(-35,10, _,_),
+    var& RRect nxt_r = spawn RRect(IRRect(Rect(-35,10, _,_),
                                              AnchorXY(AnchorX.Right(), AnchorY.Top()),
                                              &r.pub,
                                              AnchorXY(AnchorX.Right(), AnchorY.Center()),
@@ -160,7 +160,7 @@ do
                         // draw background highlight mark
                         loop do
                             await component.component.on_pointer_enter;
-                            var& RRect rr = spawn RRect(IRRect(Rect_(0,0, _,_),
+                            var& RRect rr = spawn RRect(IRRect(Rect(0,0, _,_),
                                                                AnchorXY(AnchorX.Left(), AnchorY.Center()),
                                                                &r.pub,
                                                                AnchorXY(AnchorX.Left(), AnchorY.Center()),
@@ -241,14 +241,14 @@ do
                 static std::string str;
                 str = @levelset.get_image();
             }
-            var& RRect r1 = spawn RRect(IRRect(Rect_(100,85, _,_),
+            var& RRect r1 = spawn RRect(IRRect(Rect(100,85, _,_),
                                                AnchorXY(AnchorX.Center(), AnchorY.Center()),
                                                &ui!.rect,
                                                AnchorXY(AnchorX.Left(), AnchorY.Top()),
                                                _, _));
             spawn Sprite_from_name(&r1.pub, {str.c_str()}, &outer.main.dt, &outer.main.redraw);
 
-            var& RRect r2 = spawn RRect(IRRect(Rect_(-100,85, _,_),
+            var& RRect r2 = spawn RRect(IRRect(Rect(-100,85, _,_),
                                                AnchorXY(AnchorX.Center(), AnchorY.Center()),
                                                &ui!.rect,
                                                AnchorXY(AnchorX.Right(), AnchorY.Top()),
@@ -257,7 +257,7 @@ do
 
             pool[] Level levels;
 
-            var IRRect r = val IRRect(Rect_(44,155, 680-90,LEVEL_ITEM_HEIGHT-1),
+            var IRRect r = val IRRect(Rect(44,155, 680-90,LEVEL_ITEM_HEIGHT-1),
                                       AnchorXY(AnchorX.Left(), AnchorY.Center()),
                                       &ui!.rect,
                                       AnchorXY(AnchorX.Left(), AnchorY.Top()),

@@ -16,7 +16,7 @@ do
         end
     end;
 
-    var& RRect rect = spawn RRect(IRRect(Rect_(x,y,_,_),
+    var& RRect rect = spawn RRect(IRRect(Rect(x,y,_,_),
                                          AnchorXY(AnchorX.Left(), AnchorY.Top()),
                                          &outer.game.offset,
                                          AnchorXY(AnchorX.Center(), AnchorY.Center()),

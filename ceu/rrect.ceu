@@ -19,11 +19,11 @@ data AnchorXY with
 end
 
 data IRRect with
-    var   Rect_     off;
+    var   Rect      off;
     var   AnchorXY  a_off;
     var&? IRRect    ref;
     var   AnchorXY? a_ref;
-    var   Rect_     abs;
+    var   Rect      abs;
     event void      changed;
 end
 

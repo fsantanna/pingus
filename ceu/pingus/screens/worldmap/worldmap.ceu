@@ -42,7 +42,7 @@ do
         end;
         escape ret;
     with
-        var& RRect close_r = spawn RRect(IRRect(Rect_(0,-2, _,_),
+        var& RRect close_r = spawn RRect(IRRect(Rect(0,-2, _,_),
                                                  AnchorXY(AnchorX.Left(), AnchorY.Bottom()),
                                                  &outer.main.rect,
                                                  AnchorXY(AnchorX.Left(), AnchorY.Bottom()),

@@ -23,7 +23,7 @@ end
 code/await OptionMenu (void) -> void do
     spawn Wood();
 
-    var& RRect r = spawn RRect(IRRect(Rect_(0,0,_,_),
+    var& RRect r = spawn RRect(IRRect(Rect(0,0,_,_),
                                       AnchorXY(AnchorX.Center(), AnchorY.Center()),
                                       &outer.main.rect,
                                       AnchorXY(AnchorX.Center(), AnchorY.Center()),
@@ -35,13 +35,13 @@ code/await OptionMenu (void) -> void do
     // LEFT OPTIONS //
 
     // Fullscreen
-    var& RRect r11 = spawn RRect(IRRect(Rect_(50,yy_,32,32),
+    var& RRect r11 = spawn RRect(IRRect(Rect(50,yy_,32,32),
                                         AnchorXY(AnchorX.Left(), AnchorY.Center()),
                                         &r.pub,
                                         AnchorXY(AnchorX.Left(), AnchorY.Top()),
                                         _, _));
 
-    var& RRect r12 = spawn RRect(IRRect(Rect_(50+40,yy_,32,32),
+    var& RRect r12 = spawn RRect(IRRect(Rect(50+40,yy_,32,32),
                                         AnchorXY(AnchorX.Left(), AnchorY.Center()),
                                         &r.pub,
                                         AnchorXY(AnchorX.Left(), AnchorY.Top()),
@@ -60,13 +60,13 @@ code/await OptionMenu (void) -> void do
     yy_ = yy_ + 32;
 
     // Mouse Grab
-    var& RRect r21 = spawn RRect(IRRect(Rect_(50,yy_,32,32),
+    var& RRect r21 = spawn RRect(IRRect(Rect(50,yy_,32,32),
                                         AnchorXY(AnchorX.Left(), AnchorY.Center()),
                                         &r.pub,
                                         AnchorXY(AnchorX.Left(), AnchorY.Top()),
                                         _, _));
 
-    var& RRect r22 = spawn RRect(IRRect(Rect_(50+40,yy_,32,32),
+    var& RRect r22 = spawn RRect(IRRect(Rect(50+40,yy_,32,32),
                                         AnchorXY(AnchorX.Left(), AnchorY.Center()),
                                         &r.pub,
                                         AnchorXY(AnchorX.Left(), AnchorY.Top()),
@@ -93,13 +93,13 @@ code/await OptionMenu (void) -> void do
     yy_ = yy_ + 32;
 
     // Software Cursor
-    var& RRect r31 = spawn RRect(IRRect(Rect_(50,yy_,32,32),
+    var& RRect r31 = spawn RRect(IRRect(Rect(50,yy_,32,32),
                                         AnchorXY(AnchorX.Left(), AnchorY.Center()),
                                         &r.pub,
                                         AnchorXY(AnchorX.Left(), AnchorY.Top()),
                                         _, _));
 
-    var& RRect r32 = spawn RRect(IRRect(Rect_(50+40,yy_,32,32),
+    var& RRect r32 = spawn RRect(IRRect(Rect(50+40,yy_,32,32),
                                         AnchorXY(AnchorX.Left(), AnchorY.Center()),
                                         &r.pub,
                                         AnchorXY(AnchorX.Left(), AnchorY.Top()),
@@ -118,13 +118,13 @@ code/await OptionMenu (void) -> void do
     yy_ = yy_ + 32;
 
     // Auto Scrolling
-    var& RRect r41 = spawn RRect(IRRect(Rect_(50,yy_,32,32),
+    var& RRect r41 = spawn RRect(IRRect(Rect(50,yy_,32,32),
                                         AnchorXY(AnchorX.Left(), AnchorY.Center()),
                                         &r.pub,
                                         AnchorXY(AnchorX.Left(), AnchorY.Top()),
                                         _, _));
 
-    var& RRect r42 = spawn RRect(IRRect(Rect_(50+40,yy_,32,32),
+    var& RRect r42 = spawn RRect(IRRect(Rect(50+40,yy_,32,32),
                                         AnchorXY(AnchorX.Left(), AnchorY.Center()),
                                         &r.pub,
                                         AnchorXY(AnchorX.Left(), AnchorY.Top()),
@@ -143,13 +143,13 @@ code/await OptionMenu (void) -> void do
     yy_ = yy_ + 32;
 
     // Drag & Drop Scrolling
-    var& RRect r51 = spawn RRect(IRRect(Rect_(50,yy_,32,32),
+    var& RRect r51 = spawn RRect(IRRect(Rect(50,yy_,32,32),
                                         AnchorXY(AnchorX.Left(), AnchorY.Center()),
                                         &r.pub,
                                         AnchorXY(AnchorX.Left(), AnchorY.Top()),
                                         _, _));
 
-    var& RRect r52 = spawn RRect(IRRect(Rect_(50+40,yy_,32,32),
+    var& RRect r52 = spawn RRect(IRRect(Rect(50+40,yy_,32,32),
                                         AnchorXY(AnchorX.Left(), AnchorY.Center()),
                                         &r.pub,
                                         AnchorXY(AnchorX.Left(), AnchorY.Top()),
@@ -169,13 +169,13 @@ code/await OptionMenu (void) -> void do
     yy_ = yy_ + 32;
 
     // Print FPS
-    var& RRect r61 = spawn RRect(IRRect(Rect_(50,yy_,32,32),
+    var& RRect r61 = spawn RRect(IRRect(Rect(50,yy_,32,32),
                                         AnchorXY(AnchorX.Left(), AnchorY.Center()),
                                         &r.pub,
                                         AnchorXY(AnchorX.Left(), AnchorY.Top()),
                                         _, _));
 
-    var& RRect r62 = spawn RRect(IRRect(Rect_(50+40,yy_,32,32),
+    var& RRect r62 = spawn RRect(IRRect(Rect(50+40,yy_,32,32),
                                         AnchorXY(AnchorX.Left(), AnchorY.Center()),
                                         &r.pub,
                                         AnchorXY(AnchorX.Left(), AnchorY.Top()),
@@ -196,13 +196,13 @@ code/await OptionMenu (void) -> void do
     yy_ = 135;
 
     // Resolution
-    var& RRect r71 = spawn RRect(IRRect(Rect_(365,yy_,140,32),
+    var& RRect r71 = spawn RRect(IRRect(Rect(365,yy_,140,32),
                                         AnchorXY(AnchorX.Left(), AnchorY.Center()),
                                         &r.pub,
                                         AnchorXY(AnchorX.Left(), AnchorY.Top()),
                                         _, _));
 
-    var& RRect r72 = spawn RRect(IRRect(Rect_(365+135,yy_,180,32),
+    var& RRect r72 = spawn RRect(IRRect(Rect(365+135,yy_,180,32),
                                         AnchorXY(AnchorX.Left(), AnchorY.Center()),
                                         &r.pub,
                                         AnchorXY(AnchorX.Left(), AnchorY.Top()),
@@ -258,13 +258,13 @@ code/await OptionMenu (void) -> void do
     yy_ = yy_ + 32;
 
     // Renderer
-    var& RRect r81 = spawn RRect(IRRect(Rect_(365,yy_,140,32),
+    var& RRect r81 = spawn RRect(IRRect(Rect(365,yy_,140,32),
                                         AnchorXY(AnchorX.Left(), AnchorY.Center()),
                                         &r.pub,
                                         AnchorXY(AnchorX.Left(), AnchorY.Top()),
                                         _, _));
 
-    var& RRect r82 = spawn RRect(IRRect(Rect_(365+135,yy_,180,32),
+    var& RRect r82 = spawn RRect(IRRect(Rect(365+135,yy_,180,32),
                                         AnchorXY(AnchorX.Left(), AnchorY.Center()),
                                         &r.pub,
                                         AnchorXY(AnchorX.Left(), AnchorY.Top()),
@@ -303,13 +303,13 @@ code/await OptionMenu (void) -> void do
     yy_ = yy_ + 32;
 
     // Language
-    var& RRect r91 = spawn RRect(IRRect(Rect_(365,yy_,140,32),
+    var& RRect r91 = spawn RRect(IRRect(Rect(365,yy_,140,32),
                                         AnchorXY(AnchorX.Left(), AnchorY.Center()),
                                         &r.pub,
                                         AnchorXY(AnchorX.Left(), AnchorY.Top()),
                                         _, _));
 
-    var& RRect r92 = spawn RRect(IRRect(Rect_(365+135,yy_,180,32),
+    var& RRect r92 = spawn RRect(IRRect(Rect(365+135,yy_,180,32),
                                         AnchorXY(AnchorX.Left(), AnchorY.Center()),
                                         &r.pub,
                                         AnchorXY(AnchorX.Left(), AnchorY.Top()),
@@ -373,13 +373,13 @@ code/await OptionMenu (void) -> void do
     yy_ = yy_ + 32;
 
     // Master Volume
-    var& RRect ra1 = spawn RRect(IRRect(Rect_(365,yy_,140,32),
+    var& RRect ra1 = spawn RRect(IRRect(Rect(365,yy_,140,32),
                                         AnchorXY(AnchorX.Left(), AnchorY.Center()),
                                         &r.pub,
                                         AnchorXY(AnchorX.Left(), AnchorY.Top()),
                                         _, _));
 
-    var& RRect ra2 = spawn RRect(IRRect(Rect_(365+135,yy_,180,32),
+    var& RRect ra2 = spawn RRect(IRRect(Rect(365+135,yy_,180,32),
                                         AnchorXY(AnchorX.Left(), AnchorY.Center()),
                                         &r.pub,
                                         AnchorXY(AnchorX.Left(), AnchorY.Top()),
@@ -397,13 +397,13 @@ code/await OptionMenu (void) -> void do
     yy_ = yy_ + 32;
 
     // Sound Volume
-    var& RRect rb1 = spawn RRect(IRRect(Rect_(365,yy_,140,32),
+    var& RRect rb1 = spawn RRect(IRRect(Rect(365,yy_,140,32),
                                         AnchorXY(AnchorX.Left(), AnchorY.Center()),
                                         &r.pub,
                                         AnchorXY(AnchorX.Left(), AnchorY.Top()),
                                         _, _));
 
-    var& RRect rb2 = spawn RRect(IRRect(Rect_(365+135,yy_,180,32),
+    var& RRect rb2 = spawn RRect(IRRect(Rect(365+135,yy_,180,32),
                                         AnchorXY(AnchorX.Left(), AnchorY.Center()),
                                         &r.pub,
                                         AnchorXY(AnchorX.Left(), AnchorY.Top()),
@@ -421,13 +421,13 @@ code/await OptionMenu (void) -> void do
     yy_ = yy_ + 32;
 
     // Music Volume
-    var& RRect rc1 = spawn RRect(IRRect(Rect_(365,yy_,140,32),
+    var& RRect rc1 = spawn RRect(IRRect(Rect(365,yy_,140,32),
                                         AnchorXY(AnchorX.Left(), AnchorY.Center()),
                                         &r.pub,
                                         AnchorXY(AnchorX.Left(), AnchorY.Top()),
                                         _, _));
 
-    var& RRect rc2 = spawn RRect(IRRect(Rect_(365+135,yy_,180,32),
+    var& RRect rc2 = spawn RRect(IRRect(Rect(365+135,yy_,180,32),
                                         AnchorXY(AnchorX.Left(), AnchorY.Center()),
                                         &r.pub,
                                         AnchorXY(AnchorX.Left(), AnchorY.Top()),
@@ -444,7 +444,7 @@ code/await OptionMenu (void) -> void do
 
     // CLOSE //
 
-    var& RRect rd = spawn RRect(IRRect(Rect_(-50,-50,_,_),
+    var& RRect rd = spawn RRect(IRRect(Rect(-50,-50,_,_),
                                        AnchorXY(AnchorX.Right(), AnchorY.Bottom()),
                                        &r.pub,
                                        AnchorXY(AnchorX.Right(), AnchorY.Bottom()),

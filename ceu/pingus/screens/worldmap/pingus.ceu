@@ -6,7 +6,7 @@
 }
 
 var s8 direction = {NONE};
-var& RRect r = spawn RRect(IRRect(Rect_(outer.pst.x,outer.pst.y, _,_),
+var& RRect r = spawn RRect(IRRect(Rect(outer.pst.x,outer.pst.y, _,_),
                                   AnchorXY(AnchorX.Center(), AnchorY.Bottom()),
                                   &outer.offset,
                                   AnchorXY(AnchorX.Center(), AnchorY.Center()),
@@ -91,8 +91,8 @@ loop do
 
             var _WorldmapNS__NodeId? target_ =
                 watching pingus.go_walking do
-                    var& RRect r = spawn RRect(IRRect(Rect_({path_graph->get_dot(@target)->get_pos().x},
-                                                            {path_graph->get_dot(@target)->get_pos().y},
+                    var& RRect r = spawn RRect(IRRect(Rect({path_graph->get_dot(@target)->get_pos().x},
+                                                           {path_graph->get_dot(@target)->get_pos().y},
                                                             _,_),
                                                       AnchorXY(AnchorX.Center(), AnchorY.Bottom()),
                                                       &outer.offset,

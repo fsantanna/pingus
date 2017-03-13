@@ -74,7 +74,7 @@ do
     vector[] byte m_name   = [] .. {m_name.c_str()} as _char&&;
     vector[] byte filename = [] .. {m_story.c_str()} as _char&&;
 
-    var& RRect r = spawn RRect(IRRect(Rect_({pst.x},{pst.y}, _,_),
+    var& RRect r = spawn RRect(IRRect(Rect({pst.x},{pst.y}, _,_),
                                       AnchorXY(AnchorX.Center(), AnchorY.Center()),
                                       &outer.offset,
                                       AnchorXY(AnchorX.Center(), AnchorY.Center()),
@@ -164,7 +164,7 @@ do
         status = {savegame->get_status()};
     end
 
-    var& RRect r = spawn RRect(IRRect(Rect_({pst.x},{pst.y}, _,_),
+    var& RRect r = spawn RRect(IRRect(Rect({pst.x},{pst.y}, _,_),
                                       AnchorXY(AnchorX.Center(), AnchorY.Center()),
                                       &outer.offset,
                                       AnchorXY(AnchorX.Center(), AnchorY.Center()),
