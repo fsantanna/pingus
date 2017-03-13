@@ -26,7 +26,7 @@ do
                                                          &outer.game.offset,
                                                          AnchorXY(AnchorX.Center(), AnchorY.Center()),
                                                          _, _));
-                    var&? Sprite_from_name s = spawn Sprite_from_name(&rect.pub, "traps/spike", &outer.game.dt, &outer.main.redraw);
+                    var&? Sprite_from_name s = spawn Sprite_from_name(&rect.pub, "traps/spike", &outer.game.dt);
                     watching s, p do
                         loop do
                             await outer.game.dt;

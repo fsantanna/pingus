@@ -92,7 +92,7 @@ code/await PingusMenu (void) -> int do
                                          AnchorXY(AnchorX.Center(), AnchorY.Top()),
                                          _,_));
 
-     var&? Sprite_from_name logo = spawn Sprite_from_name(&rect.pub,"core/misc/logo",&outer.main.dt, &outer.main.redraw);
+     var&? Sprite_from_name logo = spawn Sprite_from_name(&rect.pub,"core/misc/logo",&outer.main.dt);
 
     {Sound::PingusSound::play_music("pingus-1.it");};
 

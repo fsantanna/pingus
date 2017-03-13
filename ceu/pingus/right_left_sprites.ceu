@@ -48,7 +48,7 @@ do
                 end
             end;
             var&? Sprite_from_name s =
-                spawn Sprite_from_name(&rect, name, &outer.main.dt, &outer.main.redraw) in sprites;
+                spawn Sprite_from_name(&rect, name, &outer.main.dt) in sprites;
 
             par/or do
                 await s;

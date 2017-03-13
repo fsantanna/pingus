@@ -29,7 +29,7 @@ do
     };         // TODO: repeated below
 
     var&? Sprite_from_desc sprite =
-        spawn Sprite_from_desc(&r1.pub, {Resource::load_sprite_desc(desc1.res_name)}, &outer.game.dt, &outer.main.redraw);
+        spawn Sprite_from_desc(&r1.pub, {Resource::load_sprite_desc(desc1.res_name)}, &outer.game.dt);
 
     vector[] byte name = [] .. "core/misc/flag" ..
                             {StringUtil::to_string}(owner_id).c_str() as _char&&;
@@ -38,7 +38,7 @@ do
                                        &outer.game.offset,
                                        AnchorXY(AnchorX.Center(), AnchorY.Center()),
                                        _, _));
-    spawn Sprite_from_name(&r2.pub, &&name[0] as _char&&, &outer.game.dt, &outer.main.redraw);
+    spawn Sprite_from_name(&r2.pub, &&name[0] as _char&&, &outer.game.dt);
 
     do
         {{

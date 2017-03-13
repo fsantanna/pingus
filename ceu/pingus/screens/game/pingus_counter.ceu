@@ -8,7 +8,7 @@ var& RRect rect = spawn RRect(IRRect(Rect(0,0,_,_),
                               &outer.main.rect,
                               AnchorXY(AnchorX.Center(), AnchorY.Top()),
                                       _, _));
-spawn Sprite_from_name(&rect.pub, "core/buttons/info", &outer.main.dt, &outer.main.redraw);
+spawn Sprite_from_name(&rect.pub, "core/buttons/info", &outer.main.dt);
 
 every outer.main.redraw do
     vector[128] byte str = [];

@@ -21,7 +21,7 @@ do
                                          &outer.game.offset,
                                          AnchorXY(AnchorX.Center(), AnchorY.Center()),
                                          _, _));
-    spawn Sprite_from_name(&rect.pub, name, &outer.game.dt, &outer.main.redraw);
+    spawn Sprite_from_name(&rect.pub, name, &outer.game.dt);
 
     var int i;
     loop i in [0 -> livetime[ do

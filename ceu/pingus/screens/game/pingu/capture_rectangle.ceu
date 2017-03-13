@@ -50,7 +50,7 @@ loop do
                         escape "game/cursors/capbad";
                     end
                 end;
-                spawn Sprite_from_name(&r1.pub, name1, &outer.main.dt, &outer.main.redraw);
+                spawn Sprite_from_name(&r1.pub, name1, &outer.main.dt);
 
                 var& RRect r2 = spawn RRect(IRRect(Rect(0,0, _,_),
                                            AnchorXY(AnchorX.Center(), AnchorY.Center()),
@@ -65,7 +65,7 @@ loop do
                         escape "game/cursors/arrow_right";
                     end
                 end;
-                spawn Sprite_from_name(&r2.pub, name2, &outer.main.dt, &outer.main.redraw);
+                spawn Sprite_from_name(&r2.pub, name2, &outer.main.dt);
 
                 await FOREVER;
             end

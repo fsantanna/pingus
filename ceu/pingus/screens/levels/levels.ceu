@@ -39,7 +39,7 @@ do
                                AnchorXY(AnchorX.Center(), AnchorY.Center()),
                                _, _));
     rect = &r.pub;
-    spawn Sprite_from_name(&r.pub, "core/menu/blackboard", &outer.main.dt, &outer.main.redraw);
+    spawn Sprite_from_name(&r.pub, "core/menu/blackboard", &outer.main.dt);
 
     var& RRect cancel_r = spawn RRect(IRRect(Rect(70,-2, _,_),
                                              AnchorXY(AnchorX.Left(), AnchorY.Bottom()),
@@ -166,7 +166,7 @@ do
                                                                AnchorXY(AnchorX.Left(), AnchorY.Center()),
                                                                _, _));
 
-                            spawn Sprite_from_name(&rr.pub, "core/menu/marker2", &outer.main.dt, &outer.main.redraw);
+                            spawn Sprite_from_name(&rr.pub, "core/menu/marker2", &outer.main.dt);
                             await component.component.on_pointer_leave;
                         end
                     end
@@ -246,14 +246,14 @@ do
                                                &ui!.rect,
                                                AnchorXY(AnchorX.Left(), AnchorY.Top()),
                                                _, _));
-            spawn Sprite_from_name(&r1.pub, {str.c_str()}, &outer.main.dt, &outer.main.redraw);
+            spawn Sprite_from_name(&r1.pub, {str.c_str()}, &outer.main.dt);
 
             var& RRect r2 = spawn RRect(IRRect(Rect(-100,85, _,_),
                                                AnchorXY(AnchorX.Center(), AnchorY.Center()),
                                                &ui!.rect,
                                                AnchorXY(AnchorX.Right(), AnchorY.Top()),
                                                _, _));
-            spawn Sprite_from_name(&r2.pub, {str.c_str()}, &outer.main.dt, &outer.main.redraw);
+            spawn Sprite_from_name(&r2.pub, {str.c_str()}, &outer.main.dt);
 
             pool[] Level levels;
 

@@ -97,10 +97,10 @@ with                                                        // UI
 
         var& RectComponent component = spawn RectComponent(&rect.pub);
 
-        spawn Sprite_from_name(&rect.pub, "core/buttons/hbuttonbgb", &outer.main.dt, &outer.main.redraw);
+        spawn Sprite_from_name(&rect.pub, "core/buttons/hbuttonbgb", &outer.main.dt);
 
         do
-            var&? Sprite_from_name s = spawn Sprite_from_name(&rect.pub, "core/buttons/armageddon_anim", &outer.main.dt, &outer.main.redraw);
+            var&? Sprite_from_name s = spawn Sprite_from_name(&rect.pub, "core/buttons/armageddon_anim", &outer.main.dt);
             s!.sprite.frame_delay = 0;
             s!.sprite.frame = 7;
 
@@ -114,7 +114,7 @@ with                                                        // UI
         end
 
         do
-            spawn Sprite_from_name(&rect.pub, "core/buttons/armageddon_anim", &outer.main.dt, &outer.main.redraw);
+            spawn Sprite_from_name(&rect.pub, "core/buttons/armageddon_anim", &outer.main.dt);
             emit outer.game.go_armageddon;
             await FOREVER;
         end
@@ -130,7 +130,7 @@ with                                                        // UI
         spawn do
             loop do
                 do
-                    spawn Sprite_from_name(&rect.pub, "core/buttons/hbuttonbgb", &outer.main.dt, &outer.main.redraw);
+                    spawn Sprite_from_name(&rect.pub, "core/buttons/hbuttonbgb", &outer.main.dt);
                     par/or do
                         var bool v = await go_forward until v;
                     with
@@ -139,7 +139,7 @@ with                                                        // UI
                     end
                 end
                 do
-                    spawn Sprite_from_name(&rect.pub, "core/buttons/hbuttonbg", &outer.main.dt, &outer.main.redraw);
+                    spawn Sprite_from_name(&rect.pub, "core/buttons/hbuttonbg", &outer.main.dt);
                     par/or do
                         var bool v = await go_forward until (not v);
                     with
@@ -150,7 +150,7 @@ with                                                        // UI
             end
         end
 
-        spawn Sprite_from_name(&rect.pub, "core/buttons/fast_forward", &outer.main.dt, &outer.main.redraw);
+        spawn Sprite_from_name(&rect.pub, "core/buttons/fast_forward", &outer.main.dt);
         await FOREVER;
     with                                                        // PAUSE
         var& RRect rect = spawn RRect(IRRect(Rect(-150+40+40,-5,38,60),
@@ -165,7 +165,7 @@ with                                                        // UI
             loop do
                 var bool from_out = true;
                 do
-                    spawn Sprite_from_name(&rect.pub, "core/buttons/hbuttonbgb", &outer.main.dt, &outer.main.redraw);
+                    spawn Sprite_from_name(&rect.pub, "core/buttons/hbuttonbgb", &outer.main.dt);
                     par/or do
                         await go_pause_toggle until from_out;
                     with
@@ -175,7 +175,7 @@ with                                                        // UI
                     end
                 end
                 do
-                    spawn Sprite_from_name(&rect.pub, "core/buttons/hbuttonbg", &outer.main.dt, &outer.main.redraw);
+                    spawn Sprite_from_name(&rect.pub, "core/buttons/hbuttonbg", &outer.main.dt);
                     from_out = true;
                     par/or do
                         await go_pause_toggle until from_out;
@@ -188,7 +188,7 @@ with                                                        // UI
             end
         end
 
-        spawn Sprite_from_name(&rect.pub, "core/buttons/pause", &outer.main.dt, &outer.main.redraw);
+        spawn Sprite_from_name(&rect.pub, "core/buttons/pause", &outer.main.dt);
         await FOREVER;
     end
 end

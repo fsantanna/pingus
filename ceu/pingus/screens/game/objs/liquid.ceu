@@ -27,7 +27,7 @@ do
     // FIXME: would be nice to allow surface manipulation with
     // animated sprites, but it's not that easy to do
     var&? Sprite_from_desc sprite =
-        spawn Sprite_from_desc(&rect.pub, {Resource::load_sprite_desc(desc.res_name)}, &outer.game.dt, &outer.main.redraw);
+        spawn Sprite_from_desc(&rect.pub, {Resource::load_sprite_desc(desc.res_name)}, &outer.game.dt);
 
     var int width = {width} * sprite!.sprite.frame_size.width;
     do

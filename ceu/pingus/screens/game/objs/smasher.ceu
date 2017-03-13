@@ -30,7 +30,7 @@ do
     loop do
         var int ok = do
             var&? Sprite_from_name sprite =
-                spawn Sprite_from_name(&rect.pub,"traps/smasher",&outer.game.dt, &outer.main.redraw);
+                spawn Sprite_from_name(&rect.pub,"traps/smasher",&outer.game.dt);
             _ceu_dbg_assert(call Get_Frame_Count(&sprite!.sprite) == 6);
             sprite!.sprite.frame_delay = 0;
 
@@ -58,7 +58,7 @@ do
 
         do
             var&? Sprite_from_name sprite =
-                spawn Sprite_from_name(&rect.pub,"traps/smasher",&outer.game.dt, &outer.main.redraw);
+                spawn Sprite_from_name(&rect.pub,"traps/smasher",&outer.game.dt);
 
             do
                 var int i;

@@ -99,7 +99,7 @@ loop do
                                                       AnchorXY(AnchorX.Center(), AnchorY.Center()),
                                                       _, _));
 
-                    spawn Sprite_from_name(&r.pub, "core/worldmap/arrow", &outer.main.dt, &outer.main.redraw);
+                    spawn Sprite_from_name(&r.pub, "core/worldmap/arrow", &outer.main.dt);
                     var int i;
                     loop i do
                         {

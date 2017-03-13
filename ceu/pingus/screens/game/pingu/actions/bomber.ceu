@@ -19,7 +19,7 @@ do
     call {Sound::PingusSound::play_sound}("ohno", 0.5, 0.0);
 
     var&? Sprite_from_name sprite =
-        spawn Sprite_from_name(&outer.pingu.rect, &&bomber[0] as _char&&, &outer.game.dt, &outer.main.redraw);
+        spawn Sprite_from_name(&outer.pingu.rect, &&bomber[0] as _char&&, &outer.game.dt);
 
     watching sprite do
         spawn Mover();
@@ -47,7 +47,7 @@ do
                                      .. (call Pingu_Get_Owner_Str() as _char&&)
                                      .. "/explo";
             var&? Sprite_from_name s =
-                spawn Sprite_from_name(&outer.pingu.rect, &&explo[0] as _char&&, &outer.game.dt, &outer.main.redraw);
+                spawn Sprite_from_name(&outer.pingu.rect, &&explo[0] as _char&&, &outer.game.dt);
             s!.sprite.offset.x = 32;
             s!.sprite.offset.y = 48;
             await outer.game.dt;

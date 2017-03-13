@@ -19,7 +19,7 @@ do
                                          AnchorXY(AnchorX.Center(), AnchorY.Center()),
                                          _, _));
 
-    spawn Sprite_from_name(&rect.pub, "particles/pingu_explo", &outer.game.dt, &outer.main.redraw);
+    spawn Sprite_from_name(&rect.pub, "particles/pingu_explo", &outer.game.dt);
     var& IRRect r = &rect.pub;
 
     var bool has_pixel = do

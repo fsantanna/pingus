@@ -17,7 +17,7 @@ code/tight Get_Frame_Count (var& ISprite sprite) -> int do
     escape sprite.array.width * sprite.array.height;
 end
 
-code/await Sprite_from_sfc (var& IRRect rect, var& Surface sfc, event& int dt, event& void redraw)
+code/await Sprite_from_sfc (var& IRRect rect, var& Surface sfc, event& int dt)
                                 -> (var ISprite sprite)
                                     -> void
 do
@@ -91,7 +91,7 @@ do
         end
     with
         /* DRAW */
-        every redraw do
+        every outer.main.redraw do
 #if 0
             call {Display::s_framebuffer}:draw_surface(
                                             sfc.framebuffer,
@@ -112,7 +112,7 @@ do
     end
 end
 
-code/await Sprite_from_desc (var& IRRect rect, var _SpriteDescription_ptr desc, event& int dt, event& void redraw)
+code/await Sprite_from_desc (var& IRRect rect, var _SpriteDescription_ptr desc, event& int dt)
                                 -> (var& ISprite sprite)
                                     -> void
 do
@@ -120,7 +120,7 @@ do
         spawn Surface_from_desc(desc, {ResourceModifier::ROT0});
 
     var& Surface sfc = &sfc_from_desc.surface;
-    var&? Sprite_from_sfc s = spawn Sprite_from_sfc(&rect, &sfc, &dt, &redraw);
+    var&? Sprite_from_sfc s = spawn Sprite_from_sfc(&rect, &sfc, &dt);
     watching s do
         sprite = &s!.sprite;
         await FOREVER;
@@ -140,7 +140,7 @@ do
     end
 end
 
-code/await Sprite_from_name (var& IRRect rect, var _char_const_ptr name, event& int dt, event& void redraw)
+code/await Sprite_from_name (var& IRRect rect, var _char_const_ptr name, event& int dt)
                                 -> (var& ISprite sprite)
                                     -> void
 do
@@ -148,7 +148,7 @@ do
         spawn Surface_from_name(name, {ResourceModifier::ROT0});
 
     var& Surface sfc = &sfc_from_name.surface;
-    var&? Sprite_from_sfc s = spawn Sprite_from_sfc(&rect, &sfc, &dt, &redraw);
+    var&? Sprite_from_sfc s = spawn Sprite_from_sfc(&rect, &sfc, &dt);
     watching s do
         sprite = &s!.sprite;
         await FOREVER;

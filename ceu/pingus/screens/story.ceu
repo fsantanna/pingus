@@ -14,7 +14,7 @@ do
                                       &outer.main.rect,
                                       AnchorXY(AnchorX.Center(), AnchorY.Center()),
                                       _, _));
-    spawn Sprite_from_name(&rect.pub, "core/menu/blackboard", &outer.main.dt, &outer.main.redraw);
+    spawn Sprite_from_name(&rect.pub, "core/menu/blackboard", &outer.main.dt);
 
     var& RRect r1 = spawn RRect(IRRect(Rect(-50,-60, _,_),
                                        AnchorXY(AnchorX.Right(), AnchorY.Bottom()),
@@ -72,7 +72,7 @@ do
                                                &rect.pub,
                                                AnchorXY(AnchorX.Center(), AnchorY.Center()),
                                                _, _));
-            spawn Sprite_from_name(&r2.pub, {str2.c_str()} as _char&&, &outer.main.dt, &outer.main.redraw);
+            spawn Sprite_from_name(&r2.pub, {str2.c_str()} as _char&&, &outer.main.dt);
             par/or do
                 var float time = 0;
                 watching next_text do
