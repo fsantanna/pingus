@@ -46,10 +46,7 @@ do
             vector[] byte explo = [] .. "pingus/player"
                                      .. (call Pingu_Get_Owner_Str() as _char&&)
                                      .. "/explo";
-            var&? Sprite_from_name s =
-                spawn Sprite_from_name(&outer.pingu.rect, &&explo[0] as _char&&, &outer.game.dt);
-            s!.sprite.offset.x = 32;
-            s!.sprite.offset.y = 48;
+            spawn Sprite_from_name(&outer.pingu.rect, &&explo[0] as _char&&, &outer.game.dt);
             await outer.game.dt;
         end
     end
