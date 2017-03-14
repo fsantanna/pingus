@@ -161,6 +161,7 @@ with
 
     #include "pingu/pingu.ceu"
     pool[] Pingu pingus;
+    pool[] Visible layer_bg_2;          // hotspot
 
     var uint id = 0;
     code/await Pingu_Spawn (var int owner_id, var int x, var int y, var s8 dir) -> void

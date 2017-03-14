@@ -77,7 +77,11 @@ end
 do
     var usize i;
     loop i in [0 -> {WORLDOBJ_FACTORY_VECTOR.size()}[ do
-        {WORLDOBJ_FACTORY_READER = WORLDOBJ_FACTORY_VECTOR.at(@i).first;};
+        {
+            WORLDOBJ_FACTORY_READER = WORLDOBJ_FACTORY_VECTOR.at(@i).first;
+            static Vector3f p;
+            WORLDOBJ_FACTORY_READER.read_vector("position", p);
+        };
         var Vector2i pst_offset = val Vector2i({WORLDOBJ_FACTORY_VECTOR}.at(i).second.x,
                                                {WORLDOBJ_FACTORY_VECTOR}.at(i).second.y);
         #define id_ {WORLDOBJ_FACTORY_VECTOR}.at(i).first.get_name()
@@ -88,8 +92,11 @@ do
         else/if id_ == "liquid" then
             spawn Liquid() in outer.layer_bg_1;
         else/if id_ == "hotspot" then
-// TODO: entrance "+100"
-            spawn Hotspot(pst_offset) in outer.layer_bg_1;
+            if {p.z} < 100 then
+                spawn Hotspot(pst_offset) in outer.layer_bg_1;
+            else
+                spawn Hotspot(pst_offset) in outer.layer_bg_2;
+            end
         else/if id_ == "entrance" then
             spawn Entrance(pst_offset) in entrances;
         else/if id_ == "exit" then
