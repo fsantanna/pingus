@@ -32,7 +32,7 @@ do
         .. "/right";
 
     par do
-        var& RRect r2 = spawn RRect(IRRect(Rect(0,0,_,_),
+        var& RRect r2 = spawn RRect(IRRect(Rect(3,-3,_,_),
                                            AnchorXY(AnchorX.Left(), AnchorY.Center()),
                                            &r1.pub,
                                            AnchorXY(AnchorX.Left(), AnchorY.Center()),
