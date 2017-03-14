@@ -54,14 +54,6 @@ var& _GroundMap gfx_map =
             _delete(&&gfx_map);
         end;
 
-/// TODO: remove
-var& _GraphicContextState state =
-    &{new GraphicContextState}({Math::min}(outer.main.rect.abs.w,  w),
-                               {Math::min}(outer.main.rect.abs.h, h))
-        finalize (state) with
-            _delete(&&state);
-        end;
-
 var& RRect r = spawn RRect(IRRect(Rect(0,0,outer.main.rect.abs.w,outer.main.rect.abs.w),
                            AnchorXY(AnchorX.Left(), AnchorY.Top()),
                            &outer.main.rect,
