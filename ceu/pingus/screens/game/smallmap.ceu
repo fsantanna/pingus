@@ -65,7 +65,7 @@ with
             }
         end
 
-        {Display::s_framebuffer->draw_rect(view_rect, Color(255,255,0));}
+        {Display::s_framebuffer->draw_rect(view_rect, Color(0,255,0));}
 
         // Draw Pingus
         var&? Pingu pingu;
