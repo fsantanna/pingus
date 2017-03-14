@@ -59,7 +59,7 @@ vector[] byte none  = [].."core/worldmap/pingus_standing";
 vector[] byte left  = [].."core/worldmap/pingus/left";
 vector[] byte right = [].."core/worldmap/pingus/right";
 var&? RightLeftSprites sprites =
-    spawn RightLeftSprites(&r.pub, &direction, &none, &left, &right);
+    spawn RightLeftSprites(&r.pub, &direction, &none, &left, &right, &outer.main.dt);
 
 loop do
     direction = {NONE};

@@ -12,7 +12,7 @@ do
                           .. (call Pingu_Get_Owner_Str() as _char&&)
                           .. "/drownfall/right";
 
-    await RightLeftSprites(&outer.pingu.rect, &outer.pingu.direction, &left, &left, &right);
+    await RightLeftSprites(&outer.pingu.rect, &outer.pingu.direction, &left, &left, &right, &outer.game.dt);
     escape {ActionName::DEAD};
 end
 

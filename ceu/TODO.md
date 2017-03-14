@@ -1,7 +1,8 @@
 - docs
     - nested code/data
-- remover state
-- TODO: names in bridger?
+- game
+    - smallmap viewport vs total rectangles nao casam
+        - data/levels/tutorial/snow17-grumbel.pingus
 - TODO: pause p/ world pause
 - BUG: credits clip rect
 - BUG: playfield-lines, bg-non-repeat
