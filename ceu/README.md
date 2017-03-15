@@ -1,49 +1,50 @@
-* TODO
-    * events before signalling
-
 <head>
-    <title>On Rewriting Pingus from C++ to Céu</title>
-    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
-    <style>
-        body {
-            width:950px;
-            margin:0 auto;
-            text-align: justify;
-            text-justify: inter-word;
-        }
-        pre {
-            padding: 10px 10px 10px 10px;
-            background-color: #E5E4E2;
-        }
-        code {
-            background-color: #E5E4E2;
-        }
-        div.images {
-            float: right;
-            background-color: #ffffff;
-            border: 1px solid black;
-            padding: 10px;
-            margin: 0 0 5px 10px;
+<title>Structured Synchronous Reactive Programming for Game Development:
+       On Rewriting Pingus from C++ to Céu</title>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+<style>
+    body {
+        width:950px;
+        margin:0 auto;
+        text-align: justify;
+        text-justify: inter-word;
+    }
+    pre {
+        padding: 10px 10px 10px 10px;
+        background-color: #E5E4E2;
+    }
+    code {
+        background-color: #E5E4E2;
+    }
+    div.images {
+        float: right;
+        background-color: #ffffff;
+        border: 1px solid black;
+        padding: 10px;
+        margin: 0 0 5px 10px;
 /*
-            width: 120px;
+        width: 120px;
 */
-            text-align: center;
-        }
-        div.box {
-            float: right;
-            background-color: #ffffff;
-            border: 1px solid black;
-            padding: 10px;
-            margin: 0 0 5px 10px;
-            display: inline-block;
-            width: 400px;
-        }
-        div.summary {
-            background-color: #FFCCCC;
-            border: 1px solid black;
-            padding: 5px;
-        }
-    </style>
+        text-align: center;
+    }
+    div.box {
+        float: right;
+        background-color: #ffffff;
+        border: 1px solid black;
+        padding: 10px;
+        margin: 0 0 5px 10px;
+        display: inline-block;
+        width: 400px;
+    }
+    div.summary {
+        background-color: #FFCCCC;
+        border: 1px solid black;
+        padding: 5px;
+    }
+</style>
+</head>
+<body>
+
 
 @[[
 FIG_COUNT = 0
@@ -165,9 +166,6 @@ end
 
 ]]
 
-</head>
-<body>
-
 <!--
 silentcast, transparent window interior, dont go under the default size
 convert credits-anim.gif -fuzz 10% -layers Optimize optimised.gif
@@ -176,6 +174,12 @@ convert -delay 200 -loop 0 *.png state-anim.gif
 chico@note:/opt/pingus/ceu$ lua md-macros.lua README.md > /tmp/README.md
 chico@note:/opt/pingus/ceu$ pandoc /tmp/README.md >README.html 
 key-mon --noshift --noalt
+
+* TODO
+    * events before signalling
+    - 2 casos p/ cada pattern
+        - pause: pause/if e o nao gerar evento
+        - hier: adicionar resize
 
 TODO:
     - TARGET AUDIENCE
@@ -218,8 +222,9 @@ TODO:
 
 [X]: images/link_12.png
 
-# On Rewriting Pingus from C++ to Céu
+# Structured Synchronous Reactive Programming for Game Development: On Rewriting Pingus from C++ to Céu
 
+<!--
 * [What](#what-is-this-all-about),
   [Why](#why-rewrite-pingus-to-céu),
   [How](#how-to-rewrite),
@@ -227,7 +232,6 @@ TODO:
 * Analysis: [Qualitative](#qualitative-analysis),
             [Quantitative](#quantitative-analysis)
 
-<!--
 * [TLDR!](#tldr!)
     - did you do a complete port?
     - why is this cool?
@@ -235,25 +239,333 @@ TODO:
     - what about CPU,ROM,RAM?
 -->
 
-## What is this all about?
+## Introduction
 
-This report documents the process of rewriting the video game Pingus
-[[![X]][pingus-1],[![X]][pingus-2]]
-from C++ to the programming language Céu
-[[![X]][ceu-1],[![X]][ceu-2]].
-
-
-<img src="images/pingus-1.png" width="400"/>
-<img src="images/pingus-2.png" width="400"/>
+This report documents the process of rewriting the video game
+Pingus [[![X]][pingus-1] from C++ to Céu [[![X]][ceu-1],[![X]][ceu-2]].
 
 [pingus-1]: http://pingus.seul.org/
+[ceu-1]:    http://ceu-lang.org/
+[ceu-2]:    https://github.com/fsantanna/ceu/
+
+<!--
+<img src="images/pingus-1.png" align="right" width="400"/>
+<img src="images/pingus-2.png" align="right" width="400"/>
+-->
+
+@FIG_NEW(pingus-2.png,
+         Pingus gameplay,
+         350)
+
+Pingus is an open-source [![X]][pingus-2]] clone of
+Lemmings [[![X]][lemmings]], a puzzle-platformer video game.      
+The objective of the game is to guide a group of penguins through a number of
+obstacles towards a designated exit [[![X]][pingus-3]].
+
 [pingus-2]: https://github.com/Pingus/pingus/
-[ceu-1]: http://ceu-lang.org/
-[ceu-2]: https://github.com/fsantanna/ceu/
+[pingus-3]: https://www.youtube.com/watch?v=MKrJgIFtJX0
+[lemmings]: https://en.wikipedia.org/wiki/Lemmings_(video_game)  
 
-<a name="warming-up"/>
+Pingus is developed in object-oriented C++, the *lingua franca* of game
+development [[![X]][cpp-1]].
+The codebase is about 40.000 lines of code [[![X]][git-1]], divided into the
+engine, level editor, auxiliary libraries, and the game logic itself.
 
-### Warming Up!
+[cpp-1]: http://gameprogrammingpatterns.com/introduction.html#about-the-sample-code
+<!--
+    I chose C++ for a couple of reasons. First, it’s the most popular language
+    for commercially shipped games.
+    It is the lingua franca of the industry.
+    Moreso, the C syntax that C++ is based on is also the basis for Java, C#,
+    JavaScript, and many other languages.
+    Even if you don’t know C++, the odds are good you can understand the code
+    samples here with a little bit of effort.
+-->
+[git-1]: https://github.com/Pingus/pingus/commit/7b255840c201d028fd6b19a2185ccf7df3a2cd6e
+
+<!-- TODO: codebases for other open source games -->
+
+<!--
+ (the `pingus/` directory):
+```
+$ sloccount pingus/
+SLOC	Directory	SLOC-by-Language (Sorted)
+18173   pingus/         cpp=18173
+10062   engine/         cpp=10062
+6532    editor/         cpp=6532
+2771    util/           cpp=2771
+1138    math/           cpp=1138
+679     lisp/           cpp=679
+365     win32/          ansic=365
+248     macosx/         objc=248
+7       ./              cpp=7
+
+Totals grouped by language (dominant language first):
+cpp:          39362 (98.47%)
+ansic:          365 (0.91%)
+objc:           248 (0.62%)
+
+Total Physical Source Lines of Code (SLOC) = 39,975
+```
+-->
+
+Céu is a programming language that aims to offer a higher-level and safer
+alternative to C/C++ with the following features:
+
+- Awaiting events in direct/sequential style
+- Parallel lines of execution with
+    - safe abortion
+    - deterministic behavior (in contrast with threads)
+- Seamless integration with C/C++
+
+According to Tim Sweeney (of Unreal Engine fame) [[![X]][sweeney]], about half
+of the development complexity in games resides in *simulation*
+(aka *game logic*), but which accounts for only 10% of the CPU budget.
+<!-- the way entities interact in real time -->
+The high development costs contrasting with the low impact on performance
+appeals for alternatives with productivity in mind, especially considering that
+is the game logic that varies the most between projects.
+
+@FIG_NEW(sweeney.png,
+         Three "kinds" of code,
+         350)
+
+[sweeney]: https://www.cs.princeton.edu/~dpw/popl/06/Tim-POPL.ppt
+
+<!--
+When updating 10,000 objects at 60 FPS, everything is performance-sensitive
+But:
+Productivity is just as important
+Will gladly sacrifice 10% of our performance
+for 10% higher productivity
+We never use assembly language
+
+Gameplay Simulation
+Gratuitous use of mutable state
+10,000’s of objects must be updated
+Typical object update touches 5-10 other objects
+
+This is the hardest problem…
+10,00’s of objects
+Each one contains mutable state
+Each one updated 30 times per second
+Each update touches 5-10 other objects
+ 
+Manual synchronization (shared state concurrency) is 
+hopelessly intractible here.
+ 
+Solutions?
+Rewrite as referentially-transparent functions?
+Message-passing concurrency?
+Continue using the sequential, single-threaded approach?
+
+Update all objects concurrently in arbitrary order, with each update wrapped in 
+an atomic {...} block.
+With 10,000’s of updates, and 5-10 objects touched per update, collisions will 
+be low.
+~2-4X STM performance overhead is acceptable:
+if it enables our state-intensive code to scale to many threads, it’s still a win
+
+Claim: Transactions are the only plausible solution to concurrent mutable state
+-->
+
+Therefore, the main motivation to rewrite Pingus from C++ to Céu is to promote
+its programming model in the context of video games.
+Céu supports concurrent and deterministic abstractions to specify behaviors
+with high degree of real-time interactions such as in video games.
+
+The focus of our rewrite is on the game logic, accounting for almost half of
+the codebase (18173 from 39362 LoC, or 46%).
+
+`TODO: total rewritten, gains in %`
+
+- patterns in pingus that we believe appear in most games
+- how to rewrite these patterns with structured programming
+
+<!--
+## Why rewriting Pingus to Céu?
+
+Besides promoting the concurrency model of Céu, we have additional motivations 
+to write this report as follows:
+
+* Expose Céu to a real code base that was neither specified nor implemented by 
+  the designers of the language.
+  Even though video games match the domain of Céu, a real-world project 
+  consists of a range of requirements, forcing us to transpose the "academic
+  fences" of papers (which usually only explore idiomatic code).
+* Exercise the interface between Céu and C/C++.
+  Céu is designed to integrate seamlessly with C.
+  This allowed us to perform a *live rewriting*, i.e., we incrementally rewrote 
+  code from C++ to Céu without breaking the game for long.
+* Serve as a comprehensive guide for developers interested in trying Céu.
+  We provide an in-depth comparison between the original code in C++ and the 
+  equivalent code rewritten to Céu for a number of behaviors in the game.
+* Stress-test the implementation of Céu.
+  Academic artifacts typically do not go beyond working prototypes.
+  We also want Céu to be a robust and practical language for everyday use.
+* Evaluate the performance of Céu.
+  Having C++ as a benchmark, how does Céu compare in terms of memory usage, 
+  code size, and execution time (e.g., FPS rate)?
+-->
+
+## How to rewrite from C++ to Céu?
+
+The general idea is to identify control-flow behavior in the game that crosses 
+successive reactions to events.
+Our hypothesis is that the implementation in C++ involves callbacks 
+manipulating state explicitly.
+We then rewrite these behaviors in a class in Céu, using appropriate structured 
+constructs, and redirect the instantiation and event dispatching to the new 
+class.
+The remaining classes in C++ should interoperate with the new classes in Céu 
+until we complete the rewriting process.
+
+Note that we only touch classes that deal with events, as Céu is actually less 
+expressive than C++ for pure data manipulation.
+Therefore, we also rely on the tight integration between Céu and C/C++ to take 
+advantage of the existing code base and libraries.
+
+To identify these control-flow behaviors, we inspect the C++ class definitions 
+searching for members with suspicious names (e.g.,
+[`pressed`][state-pressed],
+[`particle_thrown`][state-particle-thrown],
+[`mode`][state-mode], or
+[`delay_count`][state-delay-count]).
+Good chances are that variables with identifiers resembling verbs, status, or 
+counters encode some form of control-flow progression that cross multiple 
+callback invocations.
+
+[state-pressed]: https://github.com/Pingus/pingus/blob/v0.7.6/src/pingus/components/action_button.hpp#L36
+[state-particle-thrown]: https://github.com/Pingus/pingus/blob/v0.7.6/src/pingus/actions/bomber.hpp#L31
+[state-mode]: https://github.com/Pingus/pingus/blob/v0.7.6/src/pingus/actions/bridger.hpp#L30
+[state-delay-count]: https://github.com/Pingus/pingus/blob/v0.7.6/src/pingus/actions/digger.hpp#L32
+
+During the course of the rewriting process, and following the class-by-class 
+identification described above, we could extract more abstract control patterns 
+that should apply to other games.
+Our hypothesis is that other games manifesting such patterns must use some form 
+of explicit state which are likely subject to the same rewriting process.
+
+Overall, we believe that most difficulties in implementing control behavior in 
+games is not inherent to this domain, but result of accidental complexity due 
+to the lack of structured abstractions and appropriate concurrency models to 
+handle event-based applications.
+
+## Control-Flow Patterns in Pingus
+
+We identified eight control-flow patterns in Pingus which we discuss further 
+along with in-depth examples:
+
+<a name="finite-state-machines"/>
+
+1. [**Finite State Machines**](#finite-state-machines):
+    State machines describe the behavior of game entities by mapping event 
+    occurrences to transitions between states and triggering appropriate
+    actions.
+    * [ [case 1](#finite-state-machines-1) |
+        [case 2](#finite-state-machines-2) |
+        [summary](#finite-state-machines-summary) ]
+
+2. [**Continuation Passing**](#continuation-passing):
+    The completion of a long-lasting activity in a game may have a 
+    continuation, i.e., some action to execute next.
+    * [ [case 1](#continuation-passing-1) |
+        [case 2](#continuation-passing-2) |
+        [summary](#continuation-passing-summary) ]
+
+
+3. [**Dispatching Hierarchies**](#dispatching-hierarchies):
+    Some entities manage other child entities, resulting in dispatching 
+    hierarchies for event forwarding.
+    * [ [case 1](#dispatching-hierarchies-1) |
+        [summary](#dispatching-hierarchies-summary) ]
+
+4. [**Scoping Hierarchies**](#scoping-hierarchies):
+    Some entities manage other child entities, resulting in scoping hierarchies 
+    for the lifespan of objects.
+    * [ [case 1](#scoping-hierarchies-1) |
+        [case 2](#scoping-hierarchies-2) |
+        [summary](#scoping-hierarchies-summary) ]
+
+5. [**Signaling Mechanisms**](#signaling-mechanism):
+    Entities often need to communicate explicitly through a signaling 
+    mechanism, especially if there is no hierarchy relationship between them.
+    * [ [case 1](#signaling-mechanism-1) |
+        [summary](#signaling-mechanism-summary) ]
+
+<!--
+6. [**Wall-Clock Timers**](#wall-clock-timers):
+    Wall-clock timers measure the passage of time from the real world
+    (e.g., *10 seconds*) such as for periodic sampling and timeout watchdogs.
+    * [ [summary](#wall-clock-timers-summary) ]
+-->
+
+6. [**Pausing**](#pausing):
+    Pausing allows parts of the game to temporarily stop reacting to incoming
+    events.
+    * [ [summary](#pausing-summary) ]
+
+7. [**Resource Acquisition and Release**](#resource-acquisition-and-release):
+    External resources, such as configuration files and saved games,
+    must be acquired and properly released.
+    * [ [summary](#resource-acquisition-and-release-summary) ]
+
+<!-- TODO: are these terms and explanations symmetric? -->
+
+## Author
+
+Francisco Sant'Anna
+
+* <http://www.ceu-lang.org/chico/>
+* <https://github.com/fsantanna/>
+* [&#64;_fsantanna](https://twitter.com/_fsantanna/)
+
+### Acknowledgments
+
+Leonardo Kaplan
+
+* <https://github.com/leokaplan/>
+
+Alexander Tkachov
+
+* <https://github.com/Tkachov/>
+
+-------------------------------------------------------------------------------
+
+<!--
+# Qualitative Analysis
+
+- why not quantitative?
+    - focus on how
+    - not all changes delete code
+    - more intereseted in changes that remove global rearrange
+        - expressiveness
+
+TODO: Selected Code Snippets
+TODO: state vars, code reduction para cada case
+
+-------------------------------------------------------------------------------
+-->
+
+<a name="finite-state-machines"/>
+
+@SEC[[
+## Finite State Machines
+]]
+
+State machines describe the behavior of game entities by mapping event 
+occurrences to transitions between states and triggering appropriate actions.
+<!--
+The double click behavior for the *Armageddon button* is an example of a simple 
+state machine.
+TODO: Case 3: Sprite Animations
+-->
+
+<a name="finite-state-machines-1"/>
+
+@SEC[[
+### Case Study: The *Armageddon* Double Click
+]]
 
 Let's consider the case of handling double clicks in the game.
 
@@ -416,245 +728,6 @@ composition of code, resulting in considerable gains in productivity.
 [cpp-armageddon]: https://github.com/Pingus/pingus/blob/v0.7.6/src/pingus/components/action_button.cpp#L24 
 [cpp-armageddon-2]: https://github.com/Pingus/pingus/blob/v0.7.6/src/pingus/components/action_button.cpp#L33-#L90
 [ceu-armageddon]: https://github.com/fsantanna/pingus/blob/ceu/ceu/pingus/components/action_button.ceu#L6
-
-## Why rewriting Pingus to Céu?
-
-The main motivation to rewrite Pingus from C++ to Céu is to promote its 
-programming model in the context of video games.
-Céu supports concurrent and deterministic abstractions to specify entities with 
-a high degree of real-time interactions such as in video games.
-
-@FIG_NEW(sweeney.png,
-         Three "kinds" of code,
-         350)
-
-According to Tim Sweeney (of Unreal Engine fame), about half of the development 
-complexity in games resides in *simulation* [[![X]][sweeney]], i.e., in the way 
-entities interact in real time.
-If we consider that *numeric computation* and *shading* do not vary from game 
-to game (i.e., they are part of a game engine), the tendency is to shift the 
-complexity even more towards game simulation.
-Furthermore, only 10% of the CPU budget goes to game simulation, opening an 
-opportunity for gains in productivity.
-
-[sweeney]: https://www.cs.princeton.edu/~dpw/popl/06/Tim-POPL.ppt
-
-<!--
-When updating 10,000 objects at 60 FPS, everything is performance-sensitive
-But:
-Productivity is just as important
-Will gladly sacrifice 10% of our performance
-for 10% higher productivity
-We never use assembly language
-
-Gameplay Simulation
-Gratuitous use of mutable state
-10,000’s of objects must be updated
-Typical object update touches 5-10 other objects
-
-This is the hardest problem…
-10,00’s of objects
-Each one contains mutable state
-Each one updated 30 times per second
-Each update touches 5-10 other objects
- 
-Manual synchronization (shared state concurrency) is 
-hopelessly intractible here.
- 
-Solutions?
-Rewrite as referentially-transparent functions?
-Message-passing concurrency?
-Continue using the sequential, single-threaded approach?
-
-Update all objects concurrently in arbitrary order, with each update wrapped in 
-an atomic {...} block.
-With 10,000’s of updates, and 5-10 objects touched per update, collisions will 
-be low.
-~2-4X STM performance overhead is acceptable:
-if it enables our state-intensive code to scale to many threads, it’s still a win
-
-Claim: Transactions are the only plausible solution to concurrent mutable state
--->
-
-Besides promoting the concurrency model of Céu, we have additional motivations 
-to write this report as follows:
-
-* Expose Céu to a real code base that was neither specified nor implemented by 
-  the designers of the language.
-  Even though video games match the domain of Céu, a real-world project 
-  consists of a range of requirements, forcing us to transpose the "academic
-  fences" of papers (which usually only explore idiomatic code).
-* Exercise the interface between Céu and C/C++.
-  Céu is designed to integrate seamlessly with C.
-  This allowed us to perform a *live rewriting*, i.e., we incrementally rewrote 
-  code from C++ to Céu without breaking the game for long.
-* Serve as a deep and comprehensive guide for developers interested in trying 
-  Céu.
-  We provide an in-depth comparison between the original code in C++ and the 
-  equivalent code rewritten to Céu for a number of behaviors in the game.
-* Stress-test the implementation of Céu.
-  Academic artifacts typically do not go beyond working prototypes.
-  We also want Céu to be a robust and practical language for everyday use.
-* Evaluate the performance of Céu.
-  Having C++ as a benchmark, how does Céu compare in terms of memory usage, 
-  code size, and execution time (e.g., FPS rate)?
-
-## How to rewrite from C++ to Céu?
-
-The general idea is to identify control-flow behavior in the game that crosses 
-successive reactions to events.
-Our hypothesis is that the implementation in C++ involves callbacks 
-manipulating state explicitly.
-We then rewrite these behaviors in a class in Céu, using appropriate structured 
-constructs, and redirect the instantiation and event dispatching to the new 
-class.
-The remaining classes in C++ should interoperate with the new classes in Céu 
-until we complete the rewriting process.
-
-Note that we only touch classes that deal with events, as Céu is actually less 
-expressive than C++ for pure data manipulation.
-Therefore, we also rely on the tight integration between Céu and C/C++ to take 
-advantage of the existing code base and libraries.
-
-To identify these control-flow behaviors, we inspect the C++ class definitions 
-searching for members with suspicious names (e.g.,
-[`pressed`][state-pressed],
-[`particle_thrown`][state-particle-thrown],
-[`mode`][state-mode], or
-[`delay_count`][state-delay-count]).
-Good chances are that variables with identifiers resembling verbs, status, or 
-counters encode some form of control-flow progression that cross multiple 
-callback invocations.
-
-[state-pressed]: https://github.com/Pingus/pingus/blob/v0.7.6/src/pingus/components/action_button.hpp#L36
-[state-particle-thrown]: https://github.com/Pingus/pingus/blob/v0.7.6/src/pingus/actions/bomber.hpp#L31
-[state-mode]: https://github.com/Pingus/pingus/blob/v0.7.6/src/pingus/actions/bridger.hpp#L30
-[state-delay-count]: https://github.com/Pingus/pingus/blob/v0.7.6/src/pingus/actions/digger.hpp#L32
-
-During the course of the rewriting process, and following the class-by-class 
-identification described above, we could extract more abstract control patterns 
-that should apply to other games.
-Our hypothesis is that other games manifesting such patterns must use some form 
-of explicit state which are likely subject to the same rewriting process.
-
-Overall, we believe that most difficulties in implementing control behavior in 
-games is not inherent to this domain, but result of accidental complexity due 
-to the lack of structured abstractions and appropriate concurrency models to 
-handle event-based applications.
-
-### Control-Flow Patterns in Pingus
-
-We identified eight control-flow patterns in Pingus which we discuss further 
-along with in-depth examples:
-
-<a name="finite-state-machines"/>
-
-1. [**Finite State Machines**](#finite-state-machines):
-    State machines describe the behavior of game entities by mapping event 
-    occurrences to transitions between states and triggering appropriate
-    actions.
-    * [ [case 1](#finite-state-machines-1) |
-      [ [case 2](#finite-state-machines-2) |
-      [summary](#finite-state-machines-summary) ]
-
-2. [**Continuation Passing**](#continuation-passing):
-    The completion of a long-lasting activity in a game may have a 
-    continuation, i.e., some action to execute next.
-    * [ [case 1](#continuation-passing-1) |
-      [ [case 2](#continuation-passing-2) |
-      [summary](#continuation-passing-summary) ]
-
-
-3. [**Dispatching Hierarchies**](#dispatching-hierarchies):
-    Some entities manage other child entities, resulting in dispatching 
-    hierarchies for event forwarding.
-    * [ [case 1](#dispatching-hierarchies-1) |
-      [summary](#dispatching-hierarchies-summary) ]
-
-4. [**Scoping Hierarchies**](#scoping-hierarchies):
-    Some entities manage other child entities, resulting in scoping hierarchies 
-    for the lifespan of objects.
-    * [ [case 1](#scoping-hierarchies-1) |
-      [ [case 2](#scoping-hierarchies-2) |
-      [summary](#scoping-hierarchies-summary) ]
-
-5. [**Signaling Mechanisms**](#signaling-mechanism):
-    Entities often need to communicate explicitly through a signaling 
-    mechanism, especially if there is no hierarchy relationship between them.
-    * [ [case 1](#signaling-mechanism-1) |
-      [summary](#signaling-mechanism-summary) ]
-
-<!--
-6. [**Wall-Clock Timers**](#wall-clock-timers):
-    Wall-clock timers measure the passage of time from the real world
-    (e.g., *10 seconds*) such as for periodic sampling and timeout watchdogs.
-    * [ [summary](#wall-clock-timers-summary) ]
--->
-
-6. [**Pausing**](#pausing):
-    Pausing allows parts of the game to temporarily stop reacting to incoming
-    events.
-    * [ [summary](#pausing-summary) ]
-
-7. [**Resource Acquisition and Release**](#resource-acquisition-and-release):
-    External resources, such as configuration files and saved games,
-    must be acquired and properly released.
-    * [ [summary](#resource-acquisition-and-release-summary) ]
-
-<!-- TODO: are these terms and explanations symmetric? -->
-
-## Who?
-
-Francisco Sant'Anna
-
-* <http://www.ceu-lang.org/chico/>
-* <https://github.com/fsantanna/>
-* [&#64;fsantanna_uerj](https://twitter.com/fsantanna_uerj/)
-
-### Acknowledgments
-
-Leonardo Kaplan
-
-* <https://github.com/leokaplan/>
-
-Alexander Tkachov
-
-* <https://github.com/Tkachov/>
-
--------------------------------------------------------------------------------
-
-# Qualitative Analysis
-
-- why not quantitative?
-    - focus on how
-    - not all changes delete code
-    - more intereseted in changes that remove global rearrange
-        - expressiveness
-
-TODO: Selected Code Snippets
-TODO: state vars, code reduction para cada case
-
-<a name="finite-state-machines"/>
-
-@SEC[[
-## Finite State Machines
-]]
-
-State machines describe the behavior of game entities by mapping event 
-occurrences to transitions between states and triggering appropriate actions.
-<!--
-The double click behavior for the *Armageddon button* is an example of a simple 
-state machine.
-TODO: Case 3: Sprite Animations
--->
-
-<a name="finite-state-machines-1"/>
-
-@SEC[[
-### Case Study: The *Armageddon* Double Click
-]]
-
-See [Warming Up](#warming-up).
 
 <a name="finite-state-machines-2"/>
 
@@ -2403,7 +2476,7 @@ Most of
 
 
 
-Total Physical Source Lines of Code (SLOC)                = 39,986
+Total Physical Source Lines of Code (SLOC) = 39,986
 
 The next Mainstream Programming Language, slides for his invited talk at POPL 2006
 Video game programming has a

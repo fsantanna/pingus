@@ -35,6 +35,10 @@ clean:
 	rm -f pingus
 	scons -c
 
+doc:
+	lua5.3 ceu/md-macros.lua ceu/README.md > /tmp/README.md
+	pandoc /tmp/README.md > ceu/README.html
+
 ceu:
 	ceu --pre --pre-args="-I$(CEU_DIR)/include -I./include -I./ceu" \
 	    --pre-input=ceu/main.ceu                                 \
@@ -47,6 +51,18 @@ ceu-cpp:
 	ceu --pre --pre-args="-I$(CEU_DIR)/include -I./include -I./ceu" \
 	    --pre-input=ceu/main.ceu                                 \
 	    --ceu --ceu-err-unused=pass --ceu-err-uninitialized=pass \
+	    --ceu-features-lua=false --ceu-features-thread=false     \
+	          --ceu-line-directives=false                        \
+	    --env --env-types=$(CEU_DIR)/env/types.h                 \
+	          --env-output=src/_ceu_app.c.h
+
+ceu1:
+	ceu --pre --pre-args="-I$(CEU_DIR)/include -I./include -I./ceu" \
+	    --pre-input=ceu/main.ceu --pre-output=/tmp/pingus.ceu
+
+ceu2:
+	ceu --pre --pre-args="-I$(CEU_DIR)/include -I./include -I./ceu" \
+	    --ceu --pre-input=/tmp/pingus.ceu --ceu-err-unused=pass --ceu-err-uninitialized=pass \
 	    --ceu-features-lua=false --ceu-features-thread=false     \
 	          --ceu-line-directives=false                        \
 	    --env --env-types=$(CEU_DIR)/env/types.h                 \
@@ -88,6 +104,6 @@ install-data:
 install-man:
 	install -D doc/man/pingus.6 "$(DESTDIR)$(MANDIR)/man1/pingus.6"
 
-.PHONY : clean install install-exec install-data install-man ceu
+.PHONY : clean install install-exec install-data install-man ceu doc
 
 # EOF #

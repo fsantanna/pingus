@@ -4,23 +4,19 @@
     - smallmap viewport vs total rectangles nao casam
         - data/levels/tutorial/snow17-grumbel.pingus
     - pause/fwd com mouse/buttons tem bugs
-- BUG: credits clip rect
+- gfx
+    - menu / icebergs
+    - fade
+    - credits below blackboard
 - BUG: playfield-lines, bg-non-repeat
 - TODO: configuration of input events, input controller cmd-line opt
 - TODO: cursor
-- TODO: fade effects
-- TODO: stress test pathfinder
 - TODO: fast_forward p/ WM
 - TODO: draw border p/ WM
 - TODO: read/write inputs (screen_manager)
-- BUG: cliques nos pingus
-- BUG: bg do pingu counter fixo
-- BUG: small map esta atras da agua embaixo do level snow20
-- BUG: procurar /// TODO: w/o me.ceu this function becomes @rec
 - cache de sprites ou performance inviavel
 - countdown action disable from the original??
 - walker behind all
-- bridger offset
 
 = GIFs
 - key-mon --nometa --nomouse --noshift --noalt --noctrl

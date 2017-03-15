@@ -110,15 +110,22 @@ do
         end
         await FOREVER;
     with
+#if 0
+        var& _SceneContext sc = &{new SceneContext}()
+            finalize (sc) with
+                _delete(&&sc);
+            end
+#endif
+
         every outer.main.redraw do
             var int xc = outer.main.rect.abs.w / 2;
             var int yc = outer.main.rect.abs.h / 2;
 
-    #if 0
-            scene_context!.set_cliprect(
-                _Rect(gc:get_width()/2 - 685/2, gc:get_height()/2 - 250,
-                      gc:get_width()/2 + 685/2, gc:get_height()/2 + 250));
-    #endif
+#if 0
+            sc.clear();
+            sc.set_cliprect(_Rect(xc-685/2, yc-250, xc+685/2, yc+250));
+#endif
+
            var int yof = 0;
             {
                 static std::vector<std::string>::iterator i;

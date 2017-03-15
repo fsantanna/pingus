@@ -1,8 +1,8 @@
-require 'lpeg'
+lpeg = require 'lpeg'
 local P, C, V, S, Ct, Cs = lpeg.P, lpeg.C, lpeg.V, lpeg.S, lpeg.Ct, lpeg.Cs
 
 function DOSTRING (string)
-    assert(loadstring(string))()
+    assert(load(string))()
     return ''
 end
 
@@ -10,7 +10,7 @@ function CALL (f, t)
     if type(t) == 'string' then
         t = { t }
     end
-    return assert(_G[f], 'undefined function "'..f..'"')(unpack(t))
+    return assert(_G[f], 'undefined function "'..f..'"')(table.unpack(t))
 end
 
 local SPC = S' \n'^0
