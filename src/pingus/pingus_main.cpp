@@ -631,6 +631,7 @@ PingusMain::run(int argc, char** argv)
   {
     std::cout << _("Pingus: Out of memory!") << std::endl;
   }
+#if 0
   catch (const std::exception& a)
   {
     std::cout << _("Pingus: Standard exception caught!:\n") << a.what() << std::endl;
@@ -639,6 +640,7 @@ PingusMain::run(int argc, char** argv)
   {
     std::cout << _("Pingus: Unknown throw caught!") << std::endl;
   }
+#endif
 
   Sound::PingusSound::deinit();
   Fonts::deinit();
