@@ -722,13 +722,14 @@ is entirely self-contained in the `loop` body  @NN(loop_do,-,loop_end).
 Furthermore, these 7 lines of code **only** detect the double click, leaving
 the actual effect to happen outside the loop @NN(emit).
 
+The complete implementations for the *Armageddon button* in C++ and Céu
+(including redrawing) varies from 47 to 24 lines of code
+[[![X]][diff-armageddon]].
+
 As we argue throughout this document, appropriate control-flow mechanisms for 
 reactive applications (e.g., the `await` and `watching` statements) help on the
 structure and composition of code, resulting in considerable gains in
 productivity.
-
-The complete implementation for the buttons in C++ and Céu varies from 47 to 24
-lines of code [[![X]][xxx]].
 
 [cpp-armageddon]:   https://github.com/Pingus/pingus/blob/7b255840c201d028fd6b19a2185ccf7df3a2cd6e/src/pingus/components/action_button.cpp#L24 
 [cpp-armageddon-2]: https://github.com/Pingus/pingus/blob/7b255840c201d028fd6b19a2185ccf7df3a2cd6e/src/pingus/components/action_button.cpp#L33-#L90
