@@ -566,7 +566,7 @@ TODO: Case 3: Sprite Animations
 <a name="finite-state-machines-1"/>
 
 @SEC[[
-### The *Armageddon Button* Double Click
+### The *Armageddon* Button Double Click
 ]]
 
 <!--
@@ -577,7 +577,7 @@ Let's consider the case of handling double clicks in the game.
          Double click detection,
          350)
 
-In Pingus, double clicking the *Armageddon button* at the bottom right of the
+In Pingus, double clicking the *Armageddon* button at the bottom right of the
 screen literally explodes all pingus (@FIG_REF[[double-click-opt.gif]]).
 
 <!-- CPP-ARMAGEDDON -->
@@ -722,7 +722,7 @@ is entirely self-contained in the `loop` body  @NN(loop_do,-,loop_end).
 Furthermore, these 7 lines of code **only** detect the double click, leaving
 the actual effect to happen outside the loop @NN(emit).
 
-The complete implementations for the *Armageddon button* in C++ and Céu
+The complete implementations for the *Armageddon* button in C++ and Céu
 (including redrawing) decreases from 47 to 24 lines of code
 [[![X]][diff-armageddon]].
 
