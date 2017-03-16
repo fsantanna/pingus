@@ -310,13 +310,25 @@ Total Physical Source Lines of Code (SLOC) = 39,975
 -->
 
 Céu is a programming language that aims to offer a higher-level and safer
-alternative to C/C++ with the following features:
+alternative to C/C++ with the following characteristics:
 
-- Awaiting events in direct/sequential style
-- Parallel lines of execution with
-    - safe abortion
-    - deterministic behavior (in contrast with threads)
-- Seamless integration with C/C++
+- *Reactive:* code executes in reactions to events
+- *Synchronous:* reactions run to completion, i.e., there's no implicit
+  preemption or real parallelism (avoiding locks, queues, etc)
+- *Structured:* programs use structured control mechanisms, such as `await` (to
+  suspend a line of execution), and `par` (to combine multiple awaiting lines
+  of execution)
+
+Structured programming eliminates the *callback hell* [[![X]][callback-hell]],
+letting programmers write code in direct/sequential style.
+In addition, when a line of execution is aborted, all allocated resources are
+safely released.
+
+[callback-hell]: http://callbackhell.com/
+
+@FIG_NEW(sweeney.png,
+         Three "kinds" of code,
+         350)
 
 According to Tim Sweeney (of Unreal Engine fame) [[![X]][sweeney]], about half
 of the development complexity in games resides in *simulation*
@@ -324,11 +336,7 @@ of the development complexity in games resides in *simulation*
 <!-- the way entities interact in real time -->
 The high development costs contrasting with the low impact on performance
 appeals for alternatives with productivity in mind, especially considering that
-is the game logic that varies the most between projects.
-
-@FIG_NEW(sweeney.png,
-         Three "kinds" of code,
-         350)
+it is the game logic that varies the most between projects.
 
 [sweeney]: https://www.cs.princeton.edu/~dpw/popl/06/Tim-POPL.ppt
 
@@ -369,64 +377,23 @@ if it enables our state-intensive code to scale to many threads, it’s still a 
 Claim: Transactions are the only plausible solution to concurrent mutable state
 -->
 
-Therefore, the main motivation to rewrite Pingus from C++ to Céu is to promote
-its programming model in the context of video games.
-Céu supports concurrent and deterministic abstractions to specify behaviors
-with high degree of real-time interactions such as in video games.
-
-The focus of our rewrite is on the game logic, accounting for almost half of
-the codebase (18173 from 39362 LoC, or 46%).
-
+The main motivation for rewriting Pingus to Céu is to advocate its
+programming model as an expressive alternative for writing the game
+logic.
+In Pingus, the game logic accounts for almost half the size of the codebase
+(18173 from 39362 LoC, or 46%).
 `TODO: total rewritten, gains in %`
 
-- patterns in pingus that we believe appear in most games
-- how to rewrite these patterns with structured programming
-
-<!--
-## Why rewriting Pingus to Céu?
-
-Besides promoting the concurrency model of Céu, we have additional motivations 
-to write this report as follows:
-
-* Expose Céu to a real code base that was neither specified nor implemented by 
-  the designers of the language.
-  Even though video games match the domain of Céu, a real-world project 
-  consists of a range of requirements, forcing us to transpose the "academic
-  fences" of papers (which usually only explore idiomatic code).
-* Exercise the interface between Céu and C/C++.
-  Céu is designed to integrate seamlessly with C.
-  This allowed us to perform a *live rewriting*, i.e., we incrementally rewrote 
-  code from C++ to Céu without breaking the game for long.
-* Serve as a comprehensive guide for developers interested in trying Céu.
-  We provide an in-depth comparison between the original code in C++ and the 
-  equivalent code rewritten to Céu for a number of behaviors in the game.
-* Stress-test the implementation of Céu.
-  Academic artifacts typically do not go beyond working prototypes.
-  We also want Céu to be a robust and practical language for everyday use.
-* Evaluate the performance of Céu.
-  Having C++ as a benchmark, how does Céu compare in terms of memory usage, 
-  code size, and execution time (e.g., FPS rate)?
--->
-
-## How to rewrite from C++ to Céu?
-
-The general idea is to identify control-flow behavior in the game that crosses 
+Our approach was to identify *control-flow behaviors* in the game that cross
 successive reactions to events.
-Our hypothesis is that the implementation in C++ involves callbacks 
-manipulating state explicitly.
-We then rewrite these behaviors in a class in Céu, using appropriate structured 
-constructs, and redirect the instantiation and event dispatching to the new 
-class.
-The remaining classes in C++ should interoperate with the new classes in Céu 
-until we complete the rewriting process.
-
-Note that we only touch classes that deal with events, as Céu is actually less 
-expressive than C++ for pure data manipulation.
-Therefore, we also rely on the tight integration between Céu and C/C++ to take 
-advantage of the existing code base and libraries.
-
-To identify these control-flow behaviors, we inspect the C++ class definitions 
-searching for members with suspicious names (e.g.,
+As an example, detecting a double mouse click in the game consists of the first
+click, followed by a maximum amount of time, followed by a second click.
+Our hypothesis is that, in C++, these implementations involve callbacks 
+manipulating state variables explicitly.
+We then rewrite these behaviors in Céu, using appropriate structured 
+constructs.
+More concretely, we identify control-flow behaviors by inspecting the code
+looking for class members with "suspicious names" (e.g.,
 [`pressed`][state-pressed],
 [`particle_thrown`][state-particle-thrown],
 [`mode`][state-mode], or
@@ -440,9 +407,21 @@ callback invocations.
 [state-mode]: https://github.com/Pingus/pingus/blob/v0.7.6/src/pingus/actions/bridger.hpp#L30
 [state-delay-count]: https://github.com/Pingus/pingus/blob/v0.7.6/src/pingus/actions/digger.hpp#L32
 
-During the course of the rewriting process, and following the class-by-class 
-identification described above, we could extract more abstract control patterns 
-that should apply to other games.
+<!--
+, and redirect the instantiation and event dispatching to the new 
+class.
+The remaining classes in C++ should interoperate with the new classes in Céu 
+until we complete the rewriting process.
+-->
+
+Note that we only touch classes that deal with events, as Céu is actually less 
+expressive than C++ for pure data manipulation.
+Therefore, we also rely on the tight integration between Céu and C/C++ to take 
+advantage of the existing code base and libraries.
+
+During the course of the rewriting process, and following the process described
+above, we could extract more abstract control patterns 
+that likely apply to other games.
 Our hypothesis is that other games manifesting such patterns must use some form 
 of explicit state which are likely subject to the same rewriting process.
 
@@ -450,8 +429,6 @@ Overall, we believe that most difficulties in implementing control behavior in
 games is not inherent to this domain, but result of accidental complexity due 
 to the lack of structured abstractions and appropriate concurrency models to 
 handle event-based applications.
-
-## Control-Flow Patterns in Pingus
 
 We identified eight control-flow patterns in Pingus which we discuss further 
 along with in-depth examples:
@@ -511,6 +488,34 @@ along with in-depth examples:
     * [ [summary](#resource-acquisition-and-release-summary) ]
 
 <!-- TODO: are these terms and explanations symmetric? -->
+
+<!--
+## Why rewriting Pingus to Céu?
+
+Besides promoting the concurrency model of Céu, we have additional motivations 
+to write this report as follows:
+
+* Expose Céu to a real code base that was neither specified nor implemented by 
+  the designers of the language.
+  Even though video games match the domain of Céu, a real-world project 
+  consists of a range of requirements, forcing us to transpose the "academic
+  fences" of papers (which usually only explore idiomatic code).
+* Exercise the interface between Céu and C/C++.
+  Céu is designed to integrate seamlessly with C.
+  This allowed us to perform a *live rewriting*, i.e., we incrementally rewrote 
+  code from C++ to Céu without breaking the game for long.
+* Serve as a comprehensive guide for developers interested in trying Céu.
+  We provide an in-depth comparison between the original code in C++ and the 
+  equivalent code rewritten to Céu for a number of behaviors in the game.
+* Stress-test the implementation of Céu.
+  Academic artifacts typically do not go beyond working prototypes.
+  We also want Céu to be a robust and practical language for everyday use.
+* Evaluate the performance of Céu.
+  Having C++ as a benchmark, how does Céu compare in terms of memory usage, 
+  code size, and execution time (e.g., FPS rate)?
+
+## Control-Flow Patterns in Pingus
+-->
 
 ## Author
 
@@ -2178,6 +2183,7 @@ Boost signals of C++:
 **Summary**:
 </div>
 
+<!--
 # Quantitative Analysis
 
 ## Code Size
@@ -2185,6 +2191,7 @@ Boost signals of C++:
 ## Memory
 
 ## CPU
+-->
 
 <!-- ************************************ -->
 
@@ -2625,3 +2632,9 @@ if (x) {
 { tp C; }
 
 -->
+
+-------------------------------------------------------------------------------
+
+## Conclusion
+
+`TODO`
