@@ -213,31 +213,29 @@ class.
 The remaining classes in C++ should interoperate with the new classes in Céu 
 until we complete the rewriting process.
 -->
-<p>Note that we only touch classes that deal with events, as Céu is actually less expressive than C++ for pure data manipulation. Therefore, we also rely on the tight integration between Céu and C/C++ to take advantage of the existing code base and libraries.</p>
-<p>During the course of the rewriting process, and following the process described above, we could extract more abstract control patterns that likely apply to other games. Our hypothesis is that other games manifesting such patterns must use some form of explicit state which are likely subject to the same rewriting process.</p>
-<p>Overall, we believe that most difficulties in implementing control behavior in games is not inherent to this domain, but result of accidental complexity due to the lack of structured abstractions and appropriate concurrency models to handle event-based applications.</p>
-<p>We identified eight control-flow patterns in Pingus which we discuss further along with in-depth examples:</p>
+<p>Note that we only touch classes that deal with events, as Céu is actually less expressive than C++ for pure data manipulation. Therefore, we also rely on the seamless integration between Céu and C/C++ to take advantage of the existing code base and libraries.</p>
+<p>During the course of the rewriting process, and following the process described above, we could extract more abstract behaviors that likely apply to other games. We identified eight control-flow patterns in Pingus which we discuss further along with in-depth examples:</p>
 <p><a name="finite-state-machines"/></p>
 <ol style="list-style-type: decimal">
-<li><a href="#finite-state-machines"><strong>Finite State Machines</strong></a>: State machines describe the behavior of game entities by mapping event occurrences to transitions between states and triggering appropriate actions.
+<li><a href="#finite-state-machines"><strong>Finite State Machines</strong></a>: State machines describe the behavior of entities by mapping event occurrences to transitions between states triggering appropriate actions.
 <ul>
 <li>[ <a href="#finite-state-machines-1">case 1</a> | <a href="#finite-state-machines-2">case 2</a> | <a href="#finite-state-machines-summary">summary</a> ]</li>
 </ul></li>
-<li><a href="#continuation-passing"><strong>Continuation Passing</strong></a>: The completion of a long-lasting activity in a game may have a continuation, i.e., some action to execute next.
+<li><a href="#continuation-passing"><strong>Continuation Passing</strong></a>: The completion of a long-lasting activity may carry a continuation, i.e., some action to execute next.
 <ul>
 <li>[ <a href="#continuation-passing-1">case 1</a> | <a href="#continuation-passing-2">case 2</a> | <a href="#continuation-passing-summary">summary</a> ]</li>
 </ul></li>
-<li><a href="#dispatching-hierarchies"><strong>Dispatching Hierarchies</strong></a>: Some entities manage other child entities, resulting in dispatching hierarchies for event forwarding.
+<li><a href="#dispatching-hierarchies"><strong>Dispatching Hierarchies</strong></a>: Entities typically form a dispatching hierarchy so that a container entity that receives a stimulus automatically forwards it to its managed children.
 <ul>
 <li>[ <a href="#dispatching-hierarchies-1">case 1</a> | <a href="#dispatching-hierarchies-summary">summary</a> ]</li>
 </ul></li>
-<li><a href="#scoping-hierarchies"><strong>Scoping Hierarchies</strong></a>: Some entities manage other child entities, resulting in scoping hierarchies for the lifespan of objects.
+<li><a href="#lifespan-hierarchies"><strong>Lifespan Hierarchies</strong></a>: Entities typically form a lifespan hierarchy so that a terminating container entity automatically destroys its managed children.
 <ul>
-<li>[ <a href="#scoping-hierarchies-1">case 1</a> | <a href="#scoping-hierarchies-2">case 2</a> | <a href="#scoping-hierarchies-summary">summary</a> ]</li>
+<li>[ <a href="#lifespan-hierarchies-1">case 1</a> | <a href="#lifespan-hierarchies-2">case 2</a> | <a href="#lifespan-hierarchies-summary">summary</a> ]</li>
 </ul></li>
-<li><a href="#signaling-mechanism"><strong>Signaling Mechanisms</strong></a>: Entities often need to communicate explicitly through a signaling mechanism, especially if there is no hierarchy relationship between them.
+<li><a href="#signaling"><strong>Signaling</strong></a>: Entities often need to communicate explicitly through a signaling mechanism, especially if there is no hierarchy relationship between them.
 <ul>
-<li>[ <a href="#signaling-mechanism-1">case 1</a> | <a href="#signaling-mechanism-summary">summary</a> ]</li>
+<li>[ <a href="#signaling-1">case 1</a> | <a href="#signaling-summary">summary</a> ]</li>
 </ul></li>
 </ol>
 <!--
@@ -257,6 +255,11 @@ until we complete the rewriting process.
 </ul></li>
 </ol>
 <!-- TODO: are these terms and explanations symmetric? -->
+<!--
+Our hypothesis is that other games manifesting these patterns also use some
+form of explicit state which are likely subject to the same rewriting process.
+-->
+<p>Overall, we believe that most difficulties in implementing control behavior in game logic is not inherent to this domain, but result of accidental complexity due to the lack of structured abstractions and appropriate concurrency models to handle event-based applications.</p>
 <!--
 ## Why rewriting Pingus to Céu?
 
@@ -812,11 +815,11 @@ TODO: falar de broadcast (in Ceu: unless it is paused, all receive always)
 </ul>
 </div>
 <!--* TODO: efficiency?-->
-<p><a name="scoping-hierarchies"/></p>
-<h2 id="scoping-hierarchies">4) Scoping Hierarchies</h2>
+<p><a name="lifespan-hierarchies"/></p>
+<h2 id="lifespan-hierarchies">4) Lifespan Hierarchies</h2>
 <p>Similarly to <em>dispatching hierarchies</em>, some entities control the lifespan of other child entities, resulting in dynamic and explicit allocation and deallocation of objects.</p>
 <p>However, it is actually common to have children with a static lifespan which are known at compile time.</p>
-<p><a name="scoping-hierarchies-1"/></p>
+<p><a name="lifespan-hierarchies-1"/></p>
 <h3 id="case-study-game-ui-widgets">4.1) Case Study: Game UI Widgets</h3>
 <!-- CPP-CONTAINER -->
 <p>Most UI widgets in the <code>GameSession</code> screen class are static and coexist with it, i.e., they are added in the constructor and are never removed explicitly [<a href="https://github.com/Pingus/pingus/blob/v0.7.6/src/pingus/screens/game_session.cpp#L76"><img src="images/link_12.png" alt="X" /></a>]:</p>
@@ -857,7 +860,7 @@ TODO: falar de broadcast (in Ceu: unless it is paused, all receive always)
 <b><font size="-1" color="#666666">10:</font></b>      <...>
 <b><font size="-1" color="#666666">11:</font></b>  <b>end</b></code></pre>
 <p>Again, here we never manipulate references to deal with containers, or allocation and deallocation. Also, all memory required for static instances is known at compile time.</p>
-<p><a name="scoping-hierarchies-2"/></p>
+<p><a name="lifespan-hierarchies-2"/></p>
 <h3 id="case-study-the-pingus-container">4.2) Case Study: The Pingus Container</h3>
 <!-- CPP-CONTAINER-DYNAMIC -->
 <p>In C++, for entities with a dynamic lifespan, we need to <code>add</code> and <code>remove</code> them explicitly from the container.</p>
@@ -963,9 +966,10 @@ do
 end
 ```
 -->
-<p><a name="scoping-hierarchies-summary"/> <br/></p>
+<p><a name="lifespan-hierarchies-summary"/> <br/></p>
 <div class="summary">
 <p><strong>Summary</strong>:</p>
+<p><code>TODO: dynamic vs static</code></p>
 <!--
 Overall, passive objects of C++ impose a dispatching architecture that makes 
 the reasoning about the program harder:
@@ -987,10 +991,10 @@ Also, all memory required for static instances is known at compile time.
 # case-2
 -->
 </div>
-<p><a name="signaling-mechanism"/></p>
+<p><a name="signaling"/></p>
 <h2 id="signaling-mechanisms">5) Signaling Mechanisms</h2>
 <p>Entities often need to communicate explicitly through a signaling mechanism, especially if there is no hierarchy relationship between them.</p>
-<p><a name="signaling-mechanism-1"/></p>
+<p><a name="signaling-1"/></p>
 <h3 id="case-study-global-keys-and-the-options-menu">5.1) Case Study: Global Keys and the Options Menu</h3>
 <div class="images">
 <img src="images/options-anim-opt.gif" width="350"/> <br> <a href="images/options-anim-opt.gif"> Figure 16</a>: The <em>Mouse Grab</em> configuration option.
@@ -1144,7 +1148,7 @@ Also, all memory required for static instances is known at compile time.
 <b><font size="-1" color="#666666">16:</font></b>  <b>end</b></code></pre>
 <p>The two loops parallel handle the connections in opposite directions: from the <code>ConfigManager</code> to the <code>CheckBox</code> (ln. 8-10); and from the <code>CheckBox</code> to the <code>ConfigManager</code> (ln. 12-14).</p>
 <p>When the <em>Option</em> screen terminates, its execution body aborts and the connections break automatically.</p>
-<p><a name="signaling-mechanism-summary"/> <br/></p>
+<p><a name="signaling-summary"/> <br/></p>
 <div class="summary">
 <p><strong>Summary</strong>:</p>
 <p>First-class internal events of Céu provide some advantages in comparison to Boost signals of C++:</p>
