@@ -241,11 +241,11 @@ TODO:
 ## Introduction
 
 This report documents the process of rewriting the video game
-Pingus [[![X]][pingus-1]] from C++ to Céu [[![X]][ceu-1],[![X]][ceu-2]].
+Pingus [[![X]][pingus-1]] from C++ to Céu [[![X]][ceu_1],[![X]][ceu_2]].
 
 [pingus-1]: http://pingus.seul.org/
-[ceu-1]:    http://ceu-lang.org/
-[ceu-2]:    https://github.com/fsantanna/ceu/
+[ceu_1]:    http://ceu-lang.org/
+[ceu_2]:    https://github.com/fsantanna/ceu/
 
 <!--
 <img src="images/pingus-1.png" align="right" width="400"/>
@@ -266,11 +266,11 @@ obstacles towards a designated exit [[![X]][pingus-3]].
 [lemmings]: https://en.wikipedia.org/wiki/Lemmings_(video_game)  
 
 Pingus is developed in object-oriented C++, the *lingua franca* of game
-development [[![X]][cpp-1]].
+development [[![X]][cpp_1]].
 The codebase is about 40.000 lines of code [[![X]][git-1]], divided into the
 engine, level editor, auxiliary libraries, and the game logic itself.
 
-[cpp-1]: http://gameprogrammingpatterns.com/introduction.html#about-the-sample-code
+[cpp_1]: http://gameprogrammingpatterns.com/introduction.html#about-the-sample-code
 <!--
     I chose C++ for a couple of reasons. First, it’s the most popular language
     for commercially shipped games.
@@ -582,7 +582,7 @@ screen literally explodes all pingus (@FIG_REF[[double-click-opt.gif]]).
 
 <!-- CPP-ARMAGEDDON -->
 
-The C++ class `ArmageddonButton` [[![X]][cpp-armageddon]] implements
+The C++ class `ArmageddonButton` [[![X]][cpp_armageddon]] implements
 methods for rendering the button and handling events.
 Here, we focus on the double click detection, hiding unrelated parts with 
 `<...>`:
@@ -656,7 +656,7 @@ Note in the source code how the accesses to these state variables are spread
 across the entire class.
 For instance, the distance between the initialization of `pressed` 
 @NN(pressed_1) and the last access to it @NN(pressed_2) is over 40 lines in the 
-original file [[![X]][cpp-armageddon-2]].
+original file [[![X]][cpp_armageddon_2]].
 Arguably, this dispersion of code across methods makes the understanding and 
 maintenance of the double-click behavior more difficult.
 Also, even though the state variables are private, unrelated methods such as 
@@ -680,7 +680,7 @@ agree on a common protocol to detect the double click:
 Céu provides structured constructs to deal with events, aiming to eradicate
 explicit manipulation of state variables for control-flow purposes.
 The equivalent code in Céu for the double click
-detection is as follows [[![X]][ceu-armageddon]]:
+detection is as follows [[![X]][ceu_armageddon]]:
 
 @CODE_LINES[[language=CEU,
 do                                      @do
@@ -724,17 +724,17 @@ the actual effect to happen outside the loop @NN(emit).
 
 The complete implementations for the *Armageddon* button in C++ and Céu
 (including redrawing) decreases from 47 to 24 lines of code
-[[![X]][diff-armageddon]].
+[[![X]][diff_armageddon]].
 
 As we argue throughout this document, appropriate control-flow mechanisms for 
 reactive applications (e.g., the `await` and `watching` statements) help on the
 structure and composition of code, resulting in considerable gains in
 productivity.
 
-[cpp-armageddon]:   https://github.com/Pingus/pingus/blob/7b255840c201d028fd6b19a2185ccf7df3a2cd6e/src/pingus/components/action_button.cpp#L24 
-[cpp-armageddon-2]: https://github.com/Pingus/pingus/blob/7b255840c201d028fd6b19a2185ccf7df3a2cd6e/src/pingus/components/action_button.cpp#L33-#L90
-[ceu-armageddon]:   https://github.com/fsantanna/pingus/blob/ceu/ceu/pingus/screens/game/input.ceu#L107
-[diff-armageddon]:  https://github.com/fsantanna/pingus/commit/d0afe53648862643857811d0af8a7a9f60119f6c
+[cpp_armageddon]:   https://github.com/Pingus/pingus/blob/7b255840c201d028fd6b19a2185ccf7df3a2cd6e/src/pingus/components/action_button.cpp#L24 
+[cpp_armageddon_2]: https://github.com/Pingus/pingus/blob/7b255840c201d028fd6b19a2185ccf7df3a2cd6e/src/pingus/components/action_button.cpp#L33-#L90
+[ceu_armageddon]:   https://github.com/fsantanna/pingus/blob/ceu/ceu/pingus/screens/game/input.ceu#L107
+[diff_armageddon]:  https://github.com/fsantanna/pingus/commit/d0afe53648862643857811d0af8a7a9f60119f6c
 
 <a name="finite-state-machines-2"/>
 
@@ -763,11 +763,11 @@ animation with actions associated to specific frames as follows:
 4. Game tick:  hides the explosion sprite.
 5. Last frame: kills the pingu.
 
-*([This video][youtube-bomber] plays the sound effects.)*
+*([This video][youtube_bomber] plays the sound effects.)*
 
-[youtube-bomber]: https://youtu.be/QLXIT59il6o?t=306
+[youtube_bomber]: https://youtu.be/QLXIT59il6o?t=306
 
-The C++ class `Bomber` [[![X]][cpp-bomber]] defines the callbacks `draw` and
+The C++ class `Bomber` [[![X]][cpp_bomber]] defines the callbacks `draw` and
 `update` to manage the state machine described above:
 
 @CODE_LINES[[language=CPP,
@@ -851,7 +851,7 @@ unavoidable, and are actually the essence of object-oriented programming
 
 The equivalent code in Céu for the bomber action doesn't require any state
 variables and reflects the sequential state machine implicitly, as code
-separated by `await` statements in direct style [[![X]][ceu-bomber]]:
+separated by `await` statements in direct style [[![X]][ceu_bomber]]:
 
 @CODE_LINES[[language=CEU,
 code/await Bomber (void) -> _ActionName__Enum                       @bomber-1
@@ -923,8 +923,8 @@ explicit state machines in C++:
   improving code encapsulation.
 </div>
 
-[cpp-bomber]:  https://github.com/Pingus/pingus/blob/7b255840c201d028fd6b19a2185ccf7df3a2cd6e/src/pingus/actions/bomber.cpp
-[ceu-bomber]:  https://github.com/fsantanna/pingus/blob/ceu/ceu/pingus/screens/game/pingu/actions/bomber.ceu
+[cpp_bomber]:  https://github.com/Pingus/pingus/blob/7b255840c201d028fd6b19a2185ccf7df3a2cd6e/src/pingus/actions/bomber.cpp
+[ceu_bomber]:  https://github.com/fsantanna/pingus/blob/ceu/ceu/pingus/screens/game/pingu/actions/bomber.ceu
 [diff_bomber]: https://github.com/fsantanna/pingus/commit/8e8cf7ed81427d575975fc7a4da579c7b76219a0
 
 <a name="continuation-passing"/>
@@ -973,7 +973,7 @@ advances to the next page.
 <!-- CPP-STORY-PAGES -->
 
 The code in C++ defines the class `StoryScreenComponent` 
-[[![X]][cpp-story-screen-component]] uses the method `next_text`, which is a 
+[[![X]][cpp_story_screen_component]] uses the method `next_text`, which is a 
 callback from clicks in `>>>`:
 
 @CODE_LINES[[language=CPP,
@@ -1032,7 +1032,7 @@ are both handled inside the method `next_text`.
 
 <!-- CEU-STORY-PAGES -->
 
-The code in Céu [[![X]][ceu-story-pages]] uses the event `next_text`, which is 
+The code in Céu [[![X]][ceu_story_pages]] uses the event `next_text`, which is 
 emitted from clicks in `>>>`:
 
 @CODE_LINES[[language=CEU,
@@ -1086,7 +1086,7 @@ to the world map (@FIG_REF[[credits-anim.gif]]).
 
 <!-- CPP-STORY-CREDITS -->
 
-The `StoryDot` in C++ [[![X]][cpp-story-dot]] reads the level file to check 
+The `StoryDot` in C++ [[![X]][cpp_story_dot]] reads the level file to check 
 whether the story should, after termination, display the *Credits* screen or 
 not:
 
@@ -1106,10 +1106,10 @@ void StoryDot::on_click() {
 ]]
 
 The boolean variable `m_credits` is passed to the `StoryScreen` @NN(call)
-[[![X]][cpp-story-screen]] and represents its continuation, i.e., what to do 
+[[![X]][cpp_story_screen]] and represents its continuation, i.e., what to do 
 after displaying the story.
-The `StoryScreen` forwards the continuation [[![X]][cpp-story-screen-forward]] 
-to the `StoryComponent` [[![X]][cpp-story-screen-component]]:
+The `StoryScreen` forwards the continuation [[![X]][cpp_story_screen_forward]] 
+to the `StoryComponent` [[![X]][cpp_story_screen-component]]:
 
 @CODE_LINES[[language=CPP,
 StoryScreenComponent::StoryScreenComponent (<...>) :
@@ -1250,17 +1250,17 @@ continuation-passing style of C++:
   classes).
 </div>
 
-[cpp-story-screen]:https://github.com/Pingus/pingus/blob/7b255840c201d028fd6b19a2185ccf7df3a2cd6e/src/pingus/screens/story_screen.cpp#L136
-[cpp-story-screen-component]:https://github.com/Pingus/pingus/blob/7b255840c201d028fd6b19a2185ccf7df3a2cd6e/src/pingus/screens/story_screen.cpp#L159
-[cpp-story-screen-forward]:https://github.com/Pingus/pingus/blob/7b255840c201d028fd6b19a2185ccf7df3a2cd6e/src/pingus/screens/story_screen.cpp#L143
-[cpp-story-dot]:https://github.com/Pingus/pingus/blob/7b255840c201d028fd6b19a2185ccf7df3a2cd6e/src/pingus/worldmap/story_dot.cpp#L31
-[cpp-story-pages]:https://github.com/Pingus/pingus/blob/7b255840c201d028fd6b19a2185ccf7df3a2cd6e/src/pingus/screens/story_screen.cpp#L159
+[cpp_story_screen]:https://github.com/Pingus/pingus/blob/7b255840c201d028fd6b19a2185ccf7df3a2cd6e/src/pingus/screens/story_screen.cpp#L136
+[cpp_story_screen_component]:https://github.com/Pingus/pingus/blob/7b255840c201d028fd6b19a2185ccf7df3a2cd6e/src/pingus/screens/story_screen.cpp#L159
+[cpp_story_screen_forward]:https://github.com/Pingus/pingus/blob/7b255840c201d028fd6b19a2185ccf7df3a2cd6e/src/pingus/screens/story_screen.cpp#L143
+[cpp_story_dot]:https://github.com/Pingus/pingus/blob/7b255840c201d028fd6b19a2185ccf7df3a2cd6e/src/pingus/worldmap/story_dot.cpp#L31
+[cpp_story_pages]:https://github.com/Pingus/pingus/blob/7b255840c201d028fd6b19a2185ccf7df3a2cd6e/src/pingus/screens/story_screen.cpp#L159
 
-[ceu-story-screen]:https://github.com/fsantanna/pingus/blob/ceu/ceu/pingus/screens/story_screen.ceu#L14
-[ceu-story-pages]:https://github.com/fsantanna/pingus/blob/ceu/ceu/pingus/screens/story_screen.ceu#L14
+[ceu_story_screen]:https://github.com/fsantanna/pingus/blob/ceu/ceu/pingus/screens/story_screen.ceu#L14
+[ceu_story_pages]:https://github.com/fsantanna/pingus/blob/ceu/ceu/pingus/screens/story_screen.ceu#L14
 
-[wiki-style-direct]:       https://en.wikipedia.org/wiki/Direct_style
-[wiki-style-continuation]: https://en.wikipedia.org/wiki/Continuation-passing_style
+[wiki_style_direct]:       https://en.wikipedia.org/wiki/Direct_style
+[wiki_style_continuation]: https://en.wikipedia.org/wiki/Continuation-passing_style
 
 <a name="dispatching-hierarchies"/>
 
@@ -1296,7 +1296,7 @@ TODO: falar de broadcast (in Ceu: unless it is paused, all receive always)
 
 <!-- CPP-BOMBER-SPRITE -->
 
-Let's dig into the `Bomber` animation class in C++ [[![X]][cpp-bomber]], 
+Let's dig into the `Bomber` animation class in C++ [[![X]][cpp_bomber]], 
 focusing on the `sprite` member, and the `update` and `draw` callback methods:
 
 @CODE_LINES[[language=CPP,
@@ -1327,11 +1327,11 @@ void Bomber::draw (SceneContext& gc) {      @draw_1
 The class loads the `sprite` in the constructor @NN(load) and continually 
 redirects `update` and `draw` to it (ln. @N(update_1)-@N(update_2) and 
 @N(draw_1)-@N(draw_2)).
-The `Sprite` class knows how to update [[![X]][cpp-sprite-update]] and render 
-[[![X]][cpp-sprite-render]] itself.
+The `Sprite` class knows how to update [[![X]][cpp_sprite_update]] and render 
+[[![X]][cpp_sprite_render]] itself.
 
-[cpp-sprite-update]: https://github.com/Pingus/pingus/blob/7b255840c201d028fd6b19a2185ccf7df3a2cd6e/src/engine/display/sprite_impl.cpp#L112
-[cpp-sprite-render]: https://github.com/Pingus/pingus/blob/7b255840c201d028fd6b19a2185ccf7df3a2cd6e/src/engine/display/sprite_impl.cpp#L140
+[cpp_sprite_update]: https://github.com/Pingus/pingus/blob/7b255840c201d028fd6b19a2185ccf7df3a2cd6e/src/engine/display/sprite_impl.cpp#L112
+[cpp_sprite_render]: https://github.com/Pingus/pingus/blob/7b255840c201d028fd6b19a2185ccf7df3a2cd6e/src/engine/display/sprite_impl.cpp#L140
 
 @FIG_NEW(hierarchy.png,
          Dispatching chain for `update`,
@@ -1341,37 +1341,37 @@ However, we have to follow a long chain of 7 dispatches
 (@FIG_REF[[hierarchy.png]]) to understand how the `update` and `draw` callbacks 
 flow from the original environment stimulus down to the sprite:
 
-1. `ScreenManager::display` [[![X]][cpp-screenmanager-11]]
+1. `ScreenManager::display` [[![X]][cpp_screenmanager_11]]
         (the game loop)
    calls
-   `this->update` [[![X]][cpp-screenmanager-12]]
+   `this->update` [[![X]][cpp_screenmanager_12]]
         (in the same class).
-2. `ScreenManager::update` [[![X]][cpp-screenmanager-21]]
+2. `ScreenManager::update` [[![X]][cpp_screenmanager_21]]
    calls
-   `last_screen->update` [[![X]][cpp-screenmanager-22]]
+   `last_screen->update` [[![X]][cpp_screenmanager_22]]
         (the active screen).
-3. `GameSession::update` [[![X]][cpp-gamesession-1]]
+3. `GameSession::update` [[![X]][cpp_gamesession_1]]
         (the gameplay screen)
    calls
-   `world->update` [[![X]][cpp-gamesession-2]].
+   `world->update` [[![X]][cpp_gamesession_2]].
         (with all game objects).
-4. `World::update` [[![X]][cpp-world-1]]
+4. `World::update` [[![X]][cpp_world_1]]
    calls
-   `obj->update` [[![X]][cpp-world-2]]
+   `obj->update` [[![X]][cpp_world_2]]
         (for each object in the world).
-5. `PinguHolder::update` [[![X]][cpp-pinguholder-1]]
+5. `PinguHolder::update` [[![X]][cpp_pinguholder_1]]
         (child of `World`)
    calls
-   `pingu->update` [[![X]][cpp-pinguholder-2]]
+   `pingu->update` [[![X]][cpp_pinguholder_2]]
         (for each pingu alive).
-6. `Pingu::update` [[![X]][cpp-pingu-1]]
+6. `Pingu::update` [[![X]][cpp_pingu_1]]
    calls
-   `action->update` [[![X]][cpp-pingu-2]]
+   `action->update` [[![X]][cpp_pingu_2]]
         (for the active pingu action).
-7. `Bomber::update` [[![X]][cpp-bomber-1]]
+7. `Bomber::update` [[![X]][cpp_bomber_1]]
    calls
-   `sprite.update` [[![X]][cpp-bomber-2].]
-8. `Sprite::update` [[![X]][cpp-sprite-1]]
+   `sprite.update` [[![X]][cpp_bomber_2].]
+8. `Sprite::update` [[![X]][cpp_sprite_1]]
    finally updates the animation frames.
 
 Note that each dispatching step has a reason to exist:
@@ -1390,7 +1390,7 @@ Note that each dispatching step has a reason to exist:
 
 <!-- CEU-BOMBER-SPRITE -->
 
-Now, consider the `Bomber` animation in Céu [[![X]][ceu-bomber]]:
+Now, consider the `Bomber` animation in Céu [[![X]][ceu_bomber]]:
 
 @CODE_LINES[[language=CEU,
 class Bomber with
@@ -1405,8 +1405,8 @@ As mentioned before, organisms in Céu are active entities and can react
 directly to the environment.
 As soon as we declare the `Sprite` organism @NN(dcl), its execution body starts 
 automatically, bypassing the program hierarchy and reacting directly to the 
-external events `WORLD_UPDATE` [[![X]][ceu-sprite-update]] and `REDRAW` 
-[[![X]][ceu-sprite-redraw]].
+external events `WORLD_UPDATE` [[![X]][ceu_sprite_update]] and `REDRAW` 
+[[![X]][ceu_sprite_redraw]].
 
 On the one hand, the radical decoupling between the program hierarchy and 
 external reactions completely eliminates dispatching chains.
@@ -1451,7 +1451,7 @@ Note here that we never manipulate references to the `Sprite`, which is
 declared anonymous with the placeholder `_`.
 In constrast, the animation in C++ requires to explicitly check the state 
 variable `gfx_exploded` and forward the `draw` method down to the child sprite 
-`explo_surf` [[![X]][cpp-bomber-explo]].
+`explo_surf` [[![X]][cpp_bomber_explo]].
 
 <!-- CEU-vs-CPP-BOMBER-SPRITE -->
 
@@ -1474,24 +1474,24 @@ the reasoning about the program harder:
 
 <!--* TODO: efficiency?-->
 
-[cpp-screenmanager-11]: https://github.com/Pingus/pingus/blob/7b255840c201d028fd6b19a2185ccf7df3a2cd6e/src/engine/screen/screen_manager.cpp#L164
-[cpp-screenmanager-12]: https://github.com/Pingus/pingus/blob/7b255840c201d028fd6b19a2185ccf7df3a2cd6e/src/engine/screen/screen_manager.cpp#L218
-[cpp-screenmanager-21]: https://github.com/Pingus/pingus/blob/7b255840c201d028fd6b19a2185ccf7df3a2cd6e/src/engine/screen/screen_manager.cpp#L235
-[cpp-screenmanager-22]: https://github.com/Pingus/pingus/blob/7b255840c201d028fd6b19a2185ccf7df3a2cd6e/src/engine/screen/screen_manager.cpp#L258
-[cpp-gamesession-1]: https://github.com/Pingus/pingus/blob/7b255840c201d028fd6b19a2185ccf7df3a2cd6e/src/pingus/screens/game_session.cpp#L195
-[cpp-gamesession-2]: https://github.com/Pingus/pingus/blob/7b255840c201d028fd6b19a2185ccf7df3a2cd6e/src/pingus/server.cpp#L103 
-[cpp-groupcomponent-1]: https://github.com/Pingus/pingus/blob/7b255840c201d028fd6b19a2185ccf7df3a2cd6e/src/engine/gui/group_component.cpp#L58
-[cpp-groupcomponent-2]: https://github.com/Pingus/pingus/blob/7b255840c201d028fd6b19a2185ccf7df3a2cd6e/src/engine/gui/group_component.cpp#L63
-[cpp-world-1]: https://github.com/Pingus/pingus/blob/7b255840c201d028fd6b19a2185ccf7df3a2cd6e/src/pingus/world.cpp#L146
-[cpp-world-2]: https://github.com/Pingus/pingus/blob/7b255840c201d028fd6b19a2185ccf7df3a2cd6e/src/pingus/world.cpp#L183
-[cpp-pinguholder-1]: https://github.com/Pingus/pingus/blob/7b255840c201d028fd6b19a2185ccf7df3a2cd6e/src/pingus/pingu_holder.cpp#L89
-[cpp-pinguholder-2]: https://github.com/Pingus/pingus/blob/7b255840c201d028fd6b19a2185ccf7df3a2cd6e/src/pingus/pingu_holder.cpp#L95
-[cpp-pingu-1]: https://github.com/Pingus/pingus/blob/7b255840c201d028fd6b19a2185ccf7df3a2cd6e/src/pingus/pingu.cpp#L311
-[cpp-pingu-2]: https://github.com/Pingus/pingus/blob/7b255840c201d028fd6b19a2185ccf7df3a2cd6e/src/pingus/pingu.cpp#L339
-[cpp-bomber-1]: https://github.com/Pingus/pingus/blob/7b255840c201d028fd6b19a2185ccf7df3a2cd6e/src/pingus/actions/bomber.cpp#L58
-[cpp-bomber-2]: https://github.com/Pingus/pingus/blob/7b255840c201d028fd6b19a2185ccf7df3a2cd6e/src/pingus/actions/bomber.cpp#L60
-[cpp-sprite-1]: https://github.com/Pingus/pingus/blob/7b255840c201d028fd6b19a2185ccf7df3a2cd6e/src/engine/display/sprite_impl.cpp#L112
-[cpp-bomber-explo]: https://github.com/Pingus/pingus/blob/7b255840c201d028fd6b19a2185ccf7df3a2cd6e/src/pingus/actions/bomber.cpp#L50
+[cpp_screenmanager_11]: https://github.com/Pingus/pingus/blob/7b255840c201d028fd6b19a2185ccf7df3a2cd6e/src/engine/screen/screen_manager.cpp#L164
+[cpp_screenmanager_12]: https://github.com/Pingus/pingus/blob/7b255840c201d028fd6b19a2185ccf7df3a2cd6e/src/engine/screen/screen_manager.cpp#L218
+[cpp_screenmanager_21]: https://github.com/Pingus/pingus/blob/7b255840c201d028fd6b19a2185ccf7df3a2cd6e/src/engine/screen/screen_manager.cpp#L235
+[cpp_screenmanager_22]: https://github.com/Pingus/pingus/blob/7b255840c201d028fd6b19a2185ccf7df3a2cd6e/src/engine/screen/screen_manager.cpp#L258
+[cpp_gamesession_1]: https://github.com/Pingus/pingus/blob/7b255840c201d028fd6b19a2185ccf7df3a2cd6e/src/pingus/screens/game_session.cpp#L195
+[cpp_gamesession_2]: https://github.com/Pingus/pingus/blob/7b255840c201d028fd6b19a2185ccf7df3a2cd6e/src/pingus/server.cpp#L103 
+[cpp_groupcomponent_1]: https://github.com/Pingus/pingus/blob/7b255840c201d028fd6b19a2185ccf7df3a2cd6e/src/engine/gui/group_component.cpp#L58
+[cpp_groupcomponent_2]: https://github.com/Pingus/pingus/blob/7b255840c201d028fd6b19a2185ccf7df3a2cd6e/src/engine/gui/group_component.cpp#L63
+[cpp_world_1]: https://github.com/Pingus/pingus/blob/7b255840c201d028fd6b19a2185ccf7df3a2cd6e/src/pingus/world.cpp#L146
+[cpp_world_2]: https://github.com/Pingus/pingus/blob/7b255840c201d028fd6b19a2185ccf7df3a2cd6e/src/pingus/world.cpp#L183
+[cpp_pinguholder_1]: https://github.com/Pingus/pingus/blob/7b255840c201d028fd6b19a2185ccf7df3a2cd6e/src/pingus/pingu_holder.cpp#L89
+[cpp_pinguholder_2]: https://github.com/Pingus/pingus/blob/7b255840c201d028fd6b19a2185ccf7df3a2cd6e/src/pingus/pingu_holder.cpp#L95
+[cpp_pingu_1]: https://github.com/Pingus/pingus/blob/7b255840c201d028fd6b19a2185ccf7df3a2cd6e/src/pingus/pingu.cpp#L311
+[cpp_pingu_2]: https://github.com/Pingus/pingus/blob/7b255840c201d028fd6b19a2185ccf7df3a2cd6e/src/pingus/pingu.cpp#L339
+[cpp_bomber_1]: https://github.com/Pingus/pingus/blob/7b255840c201d028fd6b19a2185ccf7df3a2cd6e/src/pingus/actions/bomber.cpp#L58
+[cpp_bomber_2]: https://github.com/Pingus/pingus/blob/7b255840c201d028fd6b19a2185ccf7df3a2cd6e/src/pingus/actions/bomber.cpp#L60
+[cpp_sprite_1]: https://github.com/Pingus/pingus/blob/7b255840c201d028fd6b19a2185ccf7df3a2cd6e/src/engine/display/sprite_impl.cpp#L112
+[cpp_bomber_explo]: https://github.com/Pingus/pingus/blob/7b255840c201d028fd6b19a2185ccf7df3a2cd6e/src/pingus/actions/bomber.cpp#L50
 
 <a name="lifespan-hierarchies"/>
 
@@ -1516,7 +1516,7 @@ are known at compile time.
 
 Most UI widgets in the `GameSession` screen class are static and coexist with 
 it, i.e., they are added in the constructor and are never removed explicitly
-[[![X]][cpp-gamesession-containers]]:
+[[![X]][cpp_gamesession_containers]]:
 
 @CODE_LINES[[language=CPP,
 GameSession::GameSession(<...>) :
@@ -1536,9 +1536,9 @@ GameSession::GameSession(<...>) :
 
 Even so, the `add` method expects only dynamically allocated children because 
 they are automatically deallocated inside the container destructor 
-[[![X]][cpp-groupcomponent-delete]].
+[[![X]][cpp_groupcomponent_delete]].
 
-[cpp-groupcomponent-delete]: https://github.com/Pingus/pingus/blob/7b255840c201d028fd6b19a2185ccf7df3a2cd6e/src/engine/gui/group_component.cpp#L37
+[cpp_groupcomponent_delete]: https://github.com/Pingus/pingus/blob/7b255840c201d028fd6b19a2185ccf7df3a2cd6e/src/engine/gui/group_component.cpp#L37
 
 The dynamic nature of containers in C++ demand extra caution:
 
@@ -1559,7 +1559,7 @@ The dynamic nature of containers in C++ demand extra caution:
 <!-- CEU-CONTAINER-STATIC -->
 
 In Céu, entities that coexist with an enclosing class just need to be declared 
-at the top-level block [[![X]][ceu-world-top]]:
+at the top-level block [[![X]][ceu_world_top]]:
 
 @CODE_LINES[[language=CEU,
 class World with
@@ -1596,7 +1596,7 @@ them explicitly from the container.
 
 As an example, pingus are dynamic entities created periodically and destroyed 
 under certain conditions (e.g., @FIG_REF(pingus_create_die-anim.gif), when 
-falling from a high altitude [[![X]][cpp-pingu-dead]]):
+falling from a high altitude [[![X]][cpp_pingu_dead]]):
 
 @CODE_LINES[[language=CPP,
 Pingu* PinguHolder::create_pingu (<...>) {              @create_1
@@ -1629,7 +1629,7 @@ Without the `erase` call, a dead pingu would keep consuming memory and CPU
 time, i.e., it would remain in the `pingus` vector and be updated every frame 
 @NN(update).
 
-This problem is known as the *lapsed listener* [[![X]][gpp-lapsed-listener]] 
+This problem is known as the *lapsed listener* [[![X]][gpp_lapsed_listener]] 
 and is not restricted to languages without garbage collection.
 Typically, a container holds a strong reference to a child (sometimes the only 
 reference to it), and a collector cannot magically detect it as garbage.
@@ -1642,7 +1642,7 @@ The statement `spawn <T> in <pool>` creates an organism of type `<T>`
 dynamically, also specifying a `<pool>` to hold the new instance.
 
 The `PinguHolder` class in Céu spawns a new `Pingu` for every occurrence of the 
-event `global:go_create_pingu` [[![X]][ceu-pinguholder-every]]:
+event `global:go_create_pingu` [[![X]][ceu_pinguholder_every]]:
 
 @CODE_LINES[[language=CEU,
 class PinguHolder with
@@ -1657,9 +1657,9 @@ do                                      @do
 end                                     @end
 ]]
 
-The class `PinguHolder` declares a pool of `IPingu` [[![X]][ceu-ipingu]] 
+The class `PinguHolder` declares a pool of `IPingu` [[![X]][ceu_ipingu]] 
 identified as `pingus` @NN(pool).
-We spawn instances of `Pingu` [[![X]][ceu-pingu]] (which implements the 
+We spawn instances of `Pingu` [[![X]][ceu_pingu]] (which implements the 
 `IPingu` interface) on the `pingus` pool @NN(spawn).
 
 The scope of the `pingus` pool constrains the lifespan of all pingus 
@@ -1668,8 +1668,8 @@ Therefore, if the top-level block of `PinguHolder` goes out of scope
 @NN(do,-,end), the execution of all pingus is aborted and they are 
 automatically reclaimed from memory.
 The same happens if the block containing the instance of `PinguHolder` goes out 
-of scope [[![X]][ceu-world-pinguholder]] (and so on, up to the outermost block 
-of the program [[![X]][ceu-main-outermost]]).
+of scope [[![X]][ceu_world_pinguholder]] (and so on, up to the outermost block 
+of the program [[![X]][ceu_main_outermost]]).
 
 @FIG_NEW(pool.png,
          Lifespan of dynamic organisms,
@@ -1686,7 +1686,7 @@ containers.
 
 In Céu, going back to the case of removing a pingu from the game, we just need 
 to terminate its execution block according to the appropriate conditions 
-[[![X]][ceu-pingu-dead]]:
+[[![X]][ceu_pingu_dead]]:
 
 @CODE_LINES[[language=CEU,
 class Pingu with
@@ -1713,7 +1713,7 @@ pointers to organisms (TODO: not discussed here).
 
 <!--
 Céu distinguishes between *aliases* and *pointers*.
-Aliases are similar to C++ references [[![X]][cpp-reference]], while pointers 
+Aliases are similar to C++ references [[![X]][cpp_reference]], while pointers 
 are the same as in C and C++.
 Aliases respect static scoping rules and can only be bound to variables defined 
 on enclosing (wider) scopes.
@@ -1723,7 +1723,7 @@ tend to last long and aliases are used extensively in programs.
 
 Note that we can safely pass the `pingus` and the anonymous `PinguHolder` 
 because they are in the same scope.
-[cpp-reference]: https://en.wikipedia.org/wiki/Reference_%28C%2B%2B%29
+[cpp_reference]: https://en.wikipedia.org/wiki/Reference_%28C%2B%2B%29
 
 To complete the previous example, the class `World` also declares a 
 `PinguHolder`:
@@ -1775,7 +1775,7 @@ the reasoning about the program harder:
   calls to `remove`:
   missing calls to `remove` lead to memory and CPU leaks (see the *lapsed listener* problem below).
 In Céu, entities that coexist with an enclosing class just need to be declared 
-at the top-level block [[![X]][ceu-world-top]]:
+at the top-level block [[![X]][ceu_world_top]]:
 Again, here we never manipulate references to deal with containers, or 
 allocation and deallocation.
 Also, all memory required for static instances is known at compile time.
@@ -1784,22 +1784,22 @@ Also, all memory required for static instances is known at compile time.
 -->
 </div>
 
-[cpp-gamesession-containers]: https://github.com/Pingus/pingus/blob/7b255840c201d028fd6b19a2185ccf7df3a2cd6e/src/pingus/screens/game_session.cpp#L76
-[cpp-pingu-dead]:https://github.com/Pingus/pingus/blob/7b255840c201d028fd6b19a2185ccf7df3a2cd6e/src/pingus/actions/splashed.cpp#L48
-[gpp-lapsed-listener]: http://gameprogrammingpatterns.com/observer.html#don't-worry,-i've-got-a-gc
+[cpp_gamesession_containers]: https://github.com/Pingus/pingus/blob/7b255840c201d028fd6b19a2185ccf7df3a2cd6e/src/pingus/screens/game_session.cpp#L76
+[cpp_pingu_dead]:https://github.com/Pingus/pingus/blob/7b255840c201d028fd6b19a2185ccf7df3a2cd6e/src/pingus/actions/splashed.cpp#L48
+[gpp_lapsed_listener]: http://gameprogrammingpatterns.com/observer.html#don't-worry,-i've-got-a-gc
 
-[ceu-sprite-update]: https://github.com/fsantanna/pingus/blob/ceu/ceu/engine/display/sprite.ceu#L109
-[ceu-sprite-redraw]: https://github.com/fsantanna/pingus/blob/ceu/ceu/engine/display/sprite.ceu#L138
-[ceu-world-top]: https://github.com/fsantanna/pingus/blob/ceu/ceu/pingus/world.ceu#L124
+[ceu_sprite_update]: https://github.com/fsantanna/pingus/blob/ceu/ceu/engine/display/sprite.ceu#L109
+[ceu_sprite_redraw]: https://github.com/fsantanna/pingus/blob/ceu/ceu/engine/display/sprite.ceu#L138
+[ceu_world_top]: https://github.com/fsantanna/pingus/blob/ceu/ceu/pingus/world.ceu#L124
 
-[ceu-pinguholder-every]: https://github.com/fsantanna/pingus/blob/ceu/ceu/pingus/pingu_holder.ceu#L12
-[ceu-pingu]: https://github.com/fsantanna/pingus/blob/ceu/ceu/pingus/pingu.ceu#L54
-[ceu-ipingu]: https://github.com/fsantanna/pingus/blob/ceu/ceu/main.ceu#L95
-[ceu-world-pingus]: https://github.com/fsantanna/pingus/blob/ceu/ceu/pingus/world.ceu#L114
-[ceu-world-pinguholder]: https://github.com/fsantanna/pingus/blob/ceu/ceu/pingus/world.ceu#L116
-[ceu-pingu-dead]: https://github.com/fsantanna/pingus/blob/ceu/ceu/pingus/pingu.ceu#L83
+[ceu_pinguholder_every]: https://github.com/fsantanna/pingus/blob/ceu/ceu/pingus/pingu_holder.ceu#L12
+[ceu_pingu]: https://github.com/fsantanna/pingus/blob/ceu/ceu/pingus/pingu.ceu#L54
+[ceu_ipingu]: https://github.com/fsantanna/pingus/blob/ceu/ceu/main.ceu#L95
+[ceu_world_pingus]: https://github.com/fsantanna/pingus/blob/ceu/ceu/pingus/world.ceu#L114
+[ceu_world_pinguholder]: https://github.com/fsantanna/pingus/blob/ceu/ceu/pingus/world.ceu#L116
+[ceu_pingu_dead]: https://github.com/fsantanna/pingus/blob/ceu/ceu/pingus/pingu.ceu#L83
 
-[ceu-main-outermost]: https://github.com/fsantanna/pingus/blob/ceu/ceu/main.ceu#L249
+[ceu_main_outermost]: https://github.com/fsantanna/pingus/blob/ceu/ceu/main.ceu#L249
 
 <a name="signaling"/>
 
@@ -1925,10 +1925,10 @@ the implementation in Céu broadcasts the event `ConfigManager::go_mouse_grab`
 The `ConfigManager` manages all game configuration properties, such as the 
 *Mouse Grab* option.
 
-The implementation in C++ [[![X]][cpp-config_manager]] uses a `boost::signal` 
-[[![X]][boost-signal]] which serves the same purpose of internal events in Céu:
+The implementation in C++ [[![X]][cpp_config_manager]] uses a `boost::signal` 
+[[![X]][boost_signal]] which serves the same purpose of internal events in Céu:
 
-<a name="cpp-config-manager"/>
+<a name="cpp_config-manager"/>
 
 @CODE_LINES[[language=CPP,reset=false,
 boost::signals2::signal<void(bool)> on_mouse_grab_change;   // definition in `config_manager.h` @signal_def
@@ -1950,7 +1950,7 @@ cycle of @FIG_REF(events.png) to avoid an infinite execution loop.
 
 In Céu, since the class `GlobalEvent` already broadcasts the event
 `ConfigManager::go_mouse_grab`, the `ConfigManager` 
-[[![X]][ceu-config_manager]] just needs to react to it continuously to perform 
+[[![X]][ceu_config_manager]] just needs to react to it continuously to perform 
 the *grab* effect:
 
 @CODE_LINES[[language=CEU,reset=false,
@@ -1967,10 +1967,10 @@ end
 
 #### Class `CheckBox`
 
-The `CheckBox` in C++ [[![X]][cpp-check_box]] also uses a `boost::signal` to 
+The `CheckBox` in C++ [[![X]][cpp_check_box]] also uses a `boost::signal` to 
 notify the application on changes:
 
-<a name="cpp-check-box"/>
+<a name="cpp_check-box"/>
 
 @CODE_LINES[[language=CPP,reset=false,
 boost::signals2::signal<void (bool)> on_change;   // definition in `check_box.hpp`
@@ -1986,7 +1986,7 @@ void CheckBox::set_state (bool is_on, bool send_signal) {   @last_argument
 Again, the `if` enclosing the signal emission @NN(if_cb_1,-,if_cb_2) breaks the 
 dependency cycle of @FIG_REF(events.png).
 
-The `CheckBox` in Céu [[![X]][ceu-check_box]] exposes the event `go_click` for 
+The `CheckBox` in Céu [[![X]][ceu_check_box]] exposes the event `go_click` for 
 notifications in both directions, i.e., from the class to the application and 
 *vice versa*:
 
@@ -2021,7 +2021,7 @@ which awakes from notifications from the first trail or from the application.
 The `OptionMenu` closes the loop between the signals in `ConfigManager` and 
 `CheckBox`.
 
-The implementation in C++ [[![X]][cpp-option_menu]] connects the two signals as 
+The implementation in C++ [[![X]][cpp_option_menu]] connects the two signals as 
 follows:
 
 @CODE_LINES[[language=CPP,reset=false,
@@ -2063,19 +2063,19 @@ the signal `mousegrab_box->on_change` to the callback method
            `config_manager.set_mouse_grab`
            @NN(bind_11,-,bind_22).
 This way, every time the `ConfigManager` signals `on_mouse_grab_change`
-(ln. @N(signal) [up](#cpp-config-manager)), `set_state` is implicitly called.
+(ln. @N(signal) [up](#cpp_config-manager)), `set_state` is implicitly called.
 The same happens between the signal `on_change` in the `CheckBox` and the 
 method `set_mouse_grab` in the `ConfigManager`
-(ln. @N(set_mouse_grab) [up](#cpp-config-manager)).
+(ln. @N(set_mouse_grab) [up](#cpp_config-manager)).
 
 Note that the signal binding to call `CheckBox::set_state` @NN(bind_false) 
 receives a fixed `false` as the last argument to prevent infinite execution 
-(ln. @N(last_argument) [up](#cpp-check-box)).
+(ln. @N(last_argument) [up](#cpp_check-box)).
 
 The destructor @NN(destr_1,-,destr_2) has to break the connections when the *Option*
 screen terminates.
 
-The implementation in Céu [[![X]][ceu-option_menu]] connects the two events as 
+The implementation in Céu [[![X]][ceu_option_menu]] connects the two events as 
 follows:
 
 @CODE_LINES[[language=CEU,reset=false,
@@ -2120,15 +2120,15 @@ Boost signals of C++:
 * They do not require explicit unbinding.
 </div>
 
-[boost-signal]:http://www.boost.org/doc/libs/1_60_0/doc/html/signals2.html
-[cpp-global_event]:https://github.com/Pingus/pingus/blob/7b255840c201d028fd6b19a2185ccf7df3a2cd6e/src/pingus/global_event.cpp#L34
-[ceu-global_event]:https://github.com/fsantanna/pingus/blob/ceu/ceu/pingus/global_event.ceu#L4
-[cpp-config_manager]:https://github.com/Pingus/pingus/blob/7b255840c201d028fd6b19a2185ccf7df3a2cd6e/src/pingus/config_manager.cpp#L182
-[ceu-config_manager]:https://github.com/fsantanna/pingus/blob/ceu/ceu/pingus/config_manager.ceu#L4
-[cpp-option_menu]:https://github.com/Pingus/pingus/blob/7b255840c201d028fd6b19a2185ccf7df3a2cd6e/src/pingus/screens/option_menu.cpp#L79
-[ceu-option_menu]:https://github.com/fsantanna/pingus/blob/ceu/ceu/pingus/screens/option_menu.ceu#L26
-[cpp-check_box]:https://github.com/Pingus/pingus/blob/7b255840c201d028fd6b19a2185ccf7df3a2cd6e/src/pingus/components/choice_box.cpp#L54
-[ceu-check_box]:https://github.com/fsantanna/pingus/blob/ceu/ceu/pingus/components/check_box.ceu#L4
+[boost_signal]:http://www.boost.org/doc/libs/1_60_0/doc/html/signals2.html
+[cpp_global_event]:https://github.com/Pingus/pingus/blob/7b255840c201d028fd6b19a2185ccf7df3a2cd6e/src/pingus/global_event.cpp#L34
+[ceu_global_event]:https://github.com/fsantanna/pingus/blob/ceu/ceu/pingus/global_event.ceu#L4
+[cpp_config_manager]:https://github.com/Pingus/pingus/blob/7b255840c201d028fd6b19a2185ccf7df3a2cd6e/src/pingus/config_manager.cpp#L182
+[ceu_config_manager]:https://github.com/fsantanna/pingus/blob/ceu/ceu/pingus/config_manager.ceu#L4
+[cpp_option_menu]:https://github.com/Pingus/pingus/blob/7b255840c201d028fd6b19a2185ccf7df3a2cd6e/src/pingus/screens/option_menu.cpp#L79
+[ceu_option_menu]:https://github.com/fsantanna/pingus/blob/ceu/ceu/pingus/screens/option_menu.ceu#L26
+[cpp_check_box]:https://github.com/Pingus/pingus/blob/7b255840c201d028fd6b19a2185ccf7df3a2cd6e/src/pingus/components/choice_box.cpp#L54
+[ceu_check_box]:https://github.com/fsantanna/pingus/blob/ceu/ceu/pingus/components/check_box.ceu#L4
 
 <!--
 <a name="wall-clock-timers"/>
@@ -2209,7 +2209,7 @@ Boost signals of C++:
 <!--
 
 [[![X]][see pausing]]
-[[![X]][cpp-engine]]: removed files
+[[![X]][cpp_engine]]: removed files
 
 ** remove = death
 
@@ -2239,7 +2239,7 @@ doesn't need
 ## The Game Loop
 
 The *game loop* determines the general structure of virtually all games 
-[[![X]][gpp-gameloop]] (Pingus is no different [[![X]][pingus-gameloop]]):
+[[![X]][gpp_gameloop]] (Pingus is no different [[![X]][pingus-gameloop]]):
 
 ```
 while (true)
@@ -2263,8 +2263,8 @@ and control-flow state across consecutive invocations.
 In this sense, they eliminate any vestige of structured programming, becoming 
 *our generation's goto* [[![X]][goto]].
 
-[gpp-gameloop]: http://gameprogrammingpatterns.com/game-loop.html
-[pingus-gameloop]: https://github.com/Pingus/pingus/blob/7b255840c201d028fd6b19a2185ccf7df3a2cd6e/src/engine/screen/screen_manager.cpp#L172
+[gpp_gameloop]: http://gameprogrammingpatterns.com/game-loop.html
+[pingus_gameloop]: https://github.com/Pingus/pingus/blob/7b255840c201d028fd6b19a2185ccf7df3a2cd6e/src/engine/screen/screen_manager.cpp#L172
 [goto]: http://tirania.org/blog/archive/2013/Aug-15.html
 
 

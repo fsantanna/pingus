@@ -325,14 +325,14 @@ state machine.
 TODO: Case 3: Sprite Animations
 -->
 <p><a name="finite-state-machines-1"/></p>
-<h3 id="the-armageddon-button-double-click">1.1) The <em>Armageddon Button</em> Double Click</h3>
+<h3 id="the-armageddon-button-double-click">1.1) The <em>Armageddon</em> Button Double Click</h3>
 <!--
 Let's consider the case of handling double clicks in the game.
 -->
 <div class="images">
 <img src="images/double-click-opt.gif" width="350"/> <br> <a href="images/double-click-opt.gif"> Figure 3</a>: Double click detection
 </div>
-<p>In Pingus, double clicking the <em>Armageddon button</em> at the bottom right of the screen literally explodes all pingus (Figure 3).</p>
+<p>In Pingus, double clicking the <em>Armageddon</em> button at the bottom right of the screen literally explodes all pingus (Figure 3).</p>
 <!-- CPP-ARMAGEDDON -->
 <p>The C++ class <code>ArmageddonButton</code> [<a href="https://github.com/Pingus/pingus/blob/7b255840c201d028fd6b19a2185ccf7df3a2cd6e/src/pingus/components/action_button.cpp#L24"><img src="images/link_12.png" alt="X" /></a>] implements methods for rendering the button and handling events. Here, we focus on the double click detection, hiding unrelated parts with <code>&lt;...&gt;</code>:</p>
 <pre><code><b><font size="-1" color="#666666"> 1:</font></b>  ArmageddonButton::ArmageddonButton(<...>):
@@ -409,7 +409,7 @@ occurrences alive (if they don't terminate).
 -->
 <p>The <code>loop</code> (ln. 4-10) awaits the first click (ln. 5) and then, while watching 1 second (ln. 6-9), awaits the second click (ln. 7). If the second click occurs within 1 second, the <code>break</code> terminates the loop (ln. 8) and signals the double click to the application (ln. 12). Otherwise, the <code>watching</code> block as a whole aborts and restarts the loop, falling back to the first click <code>await</code> (ln. 5).</p>
 <p>Note how double click detection in Céu doesn't require any state variables and is entirely self-contained in the <code>loop</code> body (ln. 4-10). Furthermore, these 7 lines of code <strong>only</strong> detect the double click, leaving the actual effect to happen outside the loop (ln. 12).</p>
-<p>The complete implementations for the <em>Armageddon button</em> in C++ and Céu (including redrawing) decreases from 47 to 24 lines of code [<a href="https://github.com/fsantanna/pingus/commit/d0afe53648862643857811d0af8a7a9f60119f6c"><img src="images/link_12.png" alt="X" /></a>].</p>
+<p>The complete implementations for the <em>Armageddon</em> button in C++ and Céu (including redrawing) decreases from 47 to 24 lines of code [<a href="https://github.com/fsantanna/pingus/commit/d0afe53648862643857811d0af8a7a9f60119f6c"><img src="images/link_12.png" alt="X" /></a>].</p>
 <p>As we argue throughout this document, appropriate control-flow mechanisms for reactive applications (e.g., the <code>await</code> and <code>watching</code> statements) help on the structure and composition of code, resulting in considerable gains in productivity.</p>
 <p><a name="finite-state-machines-2"/></p>
 <h3 id="the-bomber-action">1.2) The <em>Bomber</em> Action</h3>
@@ -631,7 +631,7 @@ more natural structured code with sequences, conditionals, and loops
 <b><font size="-1" color="#666666">10:</font></b>      ScreenManager::instance()->push_screen(std::make_shared<StoryScreen>(<...>, m_credits));
 <b><font size="-1" color="#666666">11:</font></b>      <...>
 <b><font size="-1" color="#666666">12:</font></b>  }</code></pre>
-<p>The boolean variable <code>m_credits</code> is passed to the <code>StoryScreen</code> (ln. 10) [<a href="https://github.com/Pingus/pingus/blob/7b255840c201d028fd6b19a2185ccf7df3a2cd6e/src/pingus/screens/story_screen.cpp#L136"><img src="images/link_12.png" alt="X" /></a>] and represents its continuation, i.e., what to do after displaying the story. The <code>StoryScreen</code> forwards the continuation [<a href="https://github.com/Pingus/pingus/blob/7b255840c201d028fd6b19a2185ccf7df3a2cd6e/src/pingus/screens/story_screen.cpp#L143"><img src="images/link_12.png" alt="X" /></a>] to the <code>StoryComponent</code> [<a href="https://github.com/Pingus/pingus/blob/7b255840c201d028fd6b19a2185ccf7df3a2cd6e/src/pingus/screens/story_screen.cpp#L159"><img src="images/link_12.png" alt="X" /></a>]:</p>
+<p>The boolean variable <code>m_credits</code> is passed to the <code>StoryScreen</code> (ln. 10) [<a href="https://github.com/Pingus/pingus/blob/7b255840c201d028fd6b19a2185ccf7df3a2cd6e/src/pingus/screens/story_screen.cpp#L136"><img src="images/link_12.png" alt="X" /></a>] and represents its continuation, i.e., what to do after displaying the story. The <code>StoryScreen</code> forwards the continuation [<a href="https://github.com/Pingus/pingus/blob/7b255840c201d028fd6b19a2185ccf7df3a2cd6e/src/pingus/screens/story_screen.cpp#L143"><img src="images/link_12.png" alt="X" /></a>] to the <code>StoryComponent</code> [[<img src="images/link_12.png" alt="X" />][cpp_story_screen-component]]:</p>
 <pre><code><b><font size="-1" color="#666666"> 1:</font></b>  StoryScreenComponent::StoryScreenComponent (<...>) :
 <b><font size="-1" color="#666666"> 2:</font></b>      m_credits(credits),
 <b><font size="-1" color="#666666"> 3:</font></b>      <...>
@@ -936,7 +936,7 @@ TODO: falar de broadcast (in Ceu: unless it is paused, all receive always)
 <p>The <code>escape</code> statement (ln. 9) aborts the execution block of the instance, removing it from its pool automatically. Hence, a dynamic organism that terminates naturally leaves no traces in the program. The language ensures, at compile time, that there are no possible dangling pointers to organisms (TODO: not discussed here).</p>
 <!--
 Céu distinguishes between *aliases* and *pointers*.
-Aliases are similar to C++ references [[![X]][cpp-reference]], while pointers 
+Aliases are similar to C++ references [[![X]][cpp_reference]], while pointers 
 are the same as in C and C++.
 Aliases respect static scoping rules and can only be bound to variables defined 
 on enclosing (wider) scopes.
@@ -946,7 +946,7 @@ tend to last long and aliases are used extensively in programs.
 
 Note that we can safely pass the `pingus` and the anonymous `PinguHolder` 
 because they are in the same scope.
-[cpp-reference]: https://en.wikipedia.org/wiki/Reference_%28C%2B%2B%29
+[cpp_reference]: https://en.wikipedia.org/wiki/Reference_%28C%2B%2B%29
 
 To complete the previous example, the class `World` also declares a 
 `PinguHolder`:
@@ -993,7 +993,7 @@ the reasoning about the program harder:
   calls to `remove`:
   missing calls to `remove` lead to memory and CPU leaks (see the *lapsed listener* problem below).
 In Céu, entities that coexist with an enclosing class just need to be declared 
-at the top-level block [[![X]][ceu-world-top]]:
+at the top-level block [[![X]][ceu_world_top]]:
 Again, here we never manipulate references to deal with containers, or 
 allocation and deallocation.
 Also, all memory required for static instances is known at compile time.
@@ -1055,7 +1055,7 @@ Also, all memory required for static instances is known at compile time.
 <h4 id="class-configmanager">Class <code>ConfigManager</code></h4>
 <p>The <code>ConfigManager</code> manages all game configuration properties, such as the <em>Mouse Grab</em> option.</p>
 <p>The implementation in C++ [<a href="https://github.com/Pingus/pingus/blob/7b255840c201d028fd6b19a2185ccf7df3a2cd6e/src/pingus/config_manager.cpp#L182"><img src="images/link_12.png" alt="X" /></a>] uses a <code>boost::signal</code> [<a href="http://www.boost.org/doc/libs/1_60_0/doc/html/signals2.html"><img src="images/link_12.png" alt="X" /></a>] which serves the same purpose of internal events in Céu:</p>
-<p><a name="cpp-config-manager"/></p>
+<p><a name="cpp_config-manager"/></p>
 <pre><code><b><font size="-1" color="#666666"> 1:</font></b>  boost::signals2::signal<<b>void</b>(<b>bool</b>)> on_mouse_grab_change;   // definition in `config_manager.h`
 <b><font size="-1" color="#666666"> 2:</font></b>  
 <b><font size="-1" color="#666666"> 3:</font></b>  <b>void</b> ConfigManager::set_mouse_grab (<b>bool</b> v) {
@@ -1077,7 +1077,7 @@ Also, all memory required for static instances is known at compile time.
 <!-- CHECK_BOX -->
 <h4 id="class-checkbox">Class <code>CheckBox</code></h4>
 <p>The <code>CheckBox</code> in C++ [<a href="https://github.com/Pingus/pingus/blob/7b255840c201d028fd6b19a2185ccf7df3a2cd6e/src/pingus/components/choice_box.cpp#L54"><img src="images/link_12.png" alt="X" /></a>] also uses a <code>boost::signal</code> to notify the application on changes:</p>
-<p><a name="cpp-check-box"/></p>
+<p><a name="cpp_check-box"/></p>
 <pre><code><b><font size="-1" color="#666666"> 1:</font></b>  boost::signals2::signal<<b>void</b> (<b>bool</b>)> on_change;   // definition in `check_box.hpp`
 <b><font size="-1" color="#666666"> 2:</font></b>  
 <b><font size="-1" color="#666666"> 3:</font></b>  <b>void</b> CheckBox::set_state (<b>bool</b> is_on, <b>bool</b> send_signal) {
@@ -1136,8 +1136,8 @@ Also, all memory required for static instances is known at compile time.
 <b><font size="-1" color="#666666">25:</font></b>          (*i).disconnect();
 <b><font size="-1" color="#666666">26:</font></b>      }
 <b><font size="-1" color="#666666">27:</font></b>  }</code></pre>
-<p>The constructor binds the signal <code>config_manager.on_mouse_grab_change</code> to the callback method <code>mousegrab_box-&gt;set_state</code> (ln. 10-18), and also the signal <code>mousegrab_box-&gt;on_change</code> to the callback method <code>config_manager.set_mouse_grab</code> (ln. 10-18). This way, every time the <code>ConfigManager</code> signals <code>on_mouse_grab_change</code> (ln. 7 <a href="#cpp-config-manager">up</a>), <code>set_state</code> is implicitly called. The same happens between the signal <code>on_change</code> in the <code>CheckBox</code> and the method <code>set_mouse_grab</code> in the <code>ConfigManager</code> (ln. 3 <a href="#cpp-config-manager">up</a>).</p>
-<p>Note that the signal binding to call <code>CheckBox::set_state</code> (ln. 12) receives a fixed <code>false</code> as the last argument to prevent infinite execution (ln. 3 <a href="#cpp-check-box">up</a>).</p>
+<p>The constructor binds the signal <code>config_manager.on_mouse_grab_change</code> to the callback method <code>mousegrab_box-&gt;set_state</code> (ln. 10-18), and also the signal <code>mousegrab_box-&gt;on_change</code> to the callback method <code>config_manager.set_mouse_grab</code> (ln. 10-18). This way, every time the <code>ConfigManager</code> signals <code>on_mouse_grab_change</code> (ln. 7 <a href="#cpp_config-manager">up</a>), <code>set_state</code> is implicitly called. The same happens between the signal <code>on_change</code> in the <code>CheckBox</code> and the method <code>set_mouse_grab</code> in the <code>ConfigManager</code> (ln. 3 <a href="#cpp_config-manager">up</a>).</p>
+<p>Note that the signal binding to call <code>CheckBox::set_state</code> (ln. 12) receives a fixed <code>false</code> as the last argument to prevent infinite execution (ln. 3 <a href="#cpp_check-box">up</a>).</p>
 <p>The destructor (ln. 23-27) has to break the connections when the <em>Option</em> screen terminates.</p>
 <p>The implementation in Céu [<a href="https://github.com/fsantanna/pingus/blob/ceu/ceu/pingus/screens/option_menu.ceu#L26"><img src="images/link_12.png" alt="X" /></a>] connects the two events as follows:</p>
 <pre><code><b><font size="-1" color="#666666"> 1:</font></b>  class OptionMenu <b>with</b>
@@ -1228,7 +1228,7 @@ Also, all memory required for static instances is known at compile time.
 <!--
 
 [[![X]][see pausing]]
-[[![X]][cpp-engine]]: removed files
+[[![X]][cpp_engine]]: removed files
 
 ** remove = death
 
@@ -1258,7 +1258,7 @@ doesn't need
 ## The Game Loop
 
 The *game loop* determines the general structure of virtually all games 
-[[![X]][gpp-gameloop]] (Pingus is no different [[![X]][pingus-gameloop]]):
+[[![X]][gpp_gameloop]] (Pingus is no different [[![X]][pingus-gameloop]]):
 
 ```
 while (true)
@@ -1282,8 +1282,8 @@ and control-flow state across consecutive invocations.
 In this sense, they eliminate any vestige of structured programming, becoming 
 *our generation's goto* [[![X]][goto]].
 
-[gpp-gameloop]: http://gameprogrammingpatterns.com/game-loop.html
-[pingus-gameloop]: https://github.com/Pingus/pingus/blob/7b255840c201d028fd6b19a2185ccf7df3a2cd6e/src/engine/screen/screen_manager.cpp#L172
+[gpp_gameloop]: http://gameprogrammingpatterns.com/game-loop.html
+[pingus_gameloop]: https://github.com/Pingus/pingus/blob/7b255840c201d028fd6b19a2185ccf7df3a2cd6e/src/engine/screen/screen_manager.cpp#L172
 [goto]: http://tirania.org/blog/archive/2013/Aug-15.html
 
 
