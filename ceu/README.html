@@ -206,7 +206,7 @@ if it enables our state-intensive code to scale to many threads, it’s still a 
 Claim: Transactions are the only plausible solution to concurrent mutable state
 -->
 <p>The main motivation for rewriting Pingus to Céu is to advocate its programming model as an expressive alternative for writing the game logic. In Pingus, the game logic accounts for almost half the size of the codebase (18173 from 39362 LoC, or 46%). <code>TODO: total rewritten, gains in %</code></p>
-<p>Our approach was to identify <em>control-flow behaviors</em> in the game that cross successive reactions to events. As an example, detecting a double mouse click in the game consists of the first click, followed by a maximum amount of time, followed by a second click. Our hypothesis is that, in C++, these implementations involve callbacks manipulating state variables explicitly. We then rewrite these behaviors in Céu, using appropriate structured constructs. More concretely, we identify control-flow behaviors by inspecting the code looking for class members with &quot;suspicious names&quot; (e.g., <a href="https://github.com/Pingus/pingus/blob/v0.7.6/src/pingus/components/action_button.hpp#L36"><code>pressed</code></a>, <a href="https://github.com/Pingus/pingus/blob/v0.7.6/src/pingus/actions/bomber.hpp#L31"><code>particle_thrown</code></a>, <a href="https://github.com/Pingus/pingus/blob/v0.7.6/src/pingus/actions/bridger.hpp#L30"><code>mode</code></a>, or <a href="https://github.com/Pingus/pingus/blob/v0.7.6/src/pingus/actions/digger.hpp#L32"><code>delay_count</code></a>). Good chances are that variables with identifiers resembling verbs, status, or counters encode some form of control-flow progression that cross multiple callback invocations.</p>
+<p>Our approach was to identify <em>control-flow behaviors</em> in the game that cross successive reactions to events. As an example, detecting a double mouse click in the game consists of the first click, followed by a maximum amount of time, followed by a second click. Our hypothesis is that, in C++, these implementations involve callbacks manipulating state variables explicitly. We then rewrite these behaviors in Céu, using appropriate structured constructs. More concretely, we identify control-flow behaviors by inspecting the code looking for class members with &quot;suspicious names&quot; (e.g., <a href="https://github.com/Pingus/pingus/blob/7b255840c201d028fd6b19a2185ccf7df3a2cd6e/src/pingus/components/action_button.hpp#L36"><code>pressed</code></a>, <a href="https://github.com/Pingus/pingus/blob/7b255840c201d028fd6b19a2185ccf7df3a2cd6e/src/pingus/actions/bomber.hpp#L31"><code>particle_thrown</code></a>, <a href="https://github.com/Pingus/pingus/blob/7b255840c201d028fd6b19a2185ccf7df3a2cd6e/src/pingus/actions/bridger.hpp#L30"><code>mode</code></a>, or <a href="https://github.com/Pingus/pingus/blob/7b255840c201d028fd6b19a2185ccf7df3a2cd6e/src/pingus/actions/digger.hpp#L32"><code>delay_count</code></a>). Good chances are that variables with identifiers resembling verbs, status, or counters encode some form of control-flow progression that cross multiple callback invocations.</p>
 <!--
 , and redirect the instantiation and event dispatching to the new 
 class.
@@ -217,7 +217,7 @@ until we complete the rewriting process.
 <p>During the course of the rewriting process, and following the process described above, we could extract more abstract behaviors that likely apply to other games. We identified eight control-flow patterns in Pingus which we discuss further along with in-depth examples:</p>
 <p><a name="finite-state-machines"/></p>
 <ol style="list-style-type: decimal">
-<li><a href="#finite-state-machines"><strong>Finite State Machines</strong></a>: State machines describe the behavior of entities by mapping event occurrences to transitions between states triggering appropriate actions.
+<li><a href="#finite-state-machines"><strong>Finite State Machines</strong></a>: State machines describe the behavior of entities by mapping event occurrences to transitions between states that trigger appropriate actions.
 <ul>
 <li>[ <a href="#finite-state-machines-1">case 1</a> | <a href="#finite-state-machines-2">case 2</a> | <a href="#finite-state-machines-summary">summary</a> ]</li>
 </ul></li>
@@ -320,20 +320,23 @@ TODO: state vars, code reduction para cada case
 -->
 <p><a name="finite-state-machines"/></p>
 <h2 id="finite-state-machines">1) Finite State Machines</h2>
-<p>State machines describe the behavior of game entities by mapping event occurrences to transitions between states and triggering appropriate actions. <!--
+<p>State machines describe the behavior of entities by mapping event occurrences to transitions between states that trigger appropriate actions.</p>
+<!--
 The double click behavior for the *Armageddon button* is an example of a simple 
 state machine.
 TODO: Case 3: Sprite Animations
---></p>
+-->
 <p><a name="finite-state-machines-1"/></p>
-<h3 id="case-study-the-armageddon-double-click">1.1) Case Study: The <em>Armageddon</em> Double Click</h3>
-<p>Let's consider the case of handling double clicks in the game.</p>
+<h3 id="the-armageddon-button-double-click">1.1) The <em>Armageddon Button</em> Double Click</h3>
+<!--
+Let's consider the case of handling double clicks in the game.
+-->
 <div class="images">
 <img src="images/double-click-opt.gif" width="350"/> <br> <a href="images/double-click-opt.gif"> Figure 3</a>: Double click detection
 </div>
-<p>In Pingus, double clicking the <em>Armageddon button</em> literally explodes all pingus (Figure 3).</p>
+<p>In Pingus, double clicking the <em>Armageddon button</em> at the bottom right of the screen literally explodes all pingus (Figure 3).</p>
 <!-- CPP-ARMAGEDDON -->
-<p>The code in C++ implements the class <code>ArmageddonButton</code> [<a href="https://github.com/Pingus/pingus/blob/v0.7.6/src/pingus/components/action_button.cpp#L24"><img src="images/link_12.png" alt="X" /></a>] with methods for rendering the button and handling its events. Here, we focus on detecting the double click, hiding unrelated parts with <code>&lt;...&gt;</code>:</p>
+<p>The code in C++ implements the class <code>ArmageddonButton</code> [<a href="https://github.com/Pingus/pingus/blob/7b255840c201d028fd6b19a2185ccf7df3a2cd6e/src/pingus/components/action_button.cpp#L24"><img src="images/link_12.png" alt="X" /></a>] with methods for rendering the button and handling its events. Here, we focus on detecting the double click, hiding unrelated parts with <code>&lt;...&gt;</code>:</p>
 <pre><code><b><font size="-1" color="#666666"> 1:</font></b>  ArmageddonButton::ArmageddonButton(<...>):
 <b><font size="-1" color="#666666"> 2:</font></b>      RectComponent(<...>),
 <b><font size="-1" color="#666666"> 3:</font></b>      <...>
@@ -375,7 +378,7 @@ TODO: Case 3: Sprite Animations
 </div>
 <p>The class first initializes the variable <code>pressed</code> to track the first click (ln. 4,33). It also initializes the variable <code>press_time</code> to count the time since the first click (ln. 5,18). If another click occurs within 1 second, the class signals the double click to the application (ln. 31). Otherwise, the <code>pressed</code> and <code>press_time</code> state variables are reset (ln. 20-21).</p>
 <p>Figure 4 illustrates how we can model the double-click behavior as a state machine. The circles represent the state of the variables in the class, while the arrows represent callback reactions that manipulate the state.</p>
-<p>Note how the accesses to these state variables are spread across the entire class. For instance, the distance between the initialization of <code>pressed</code> (ln. 4) and the last access to it (ln. 33) is over 40 lines in the original file [<a href="https://github.com/Pingus/pingus/blob/v0.7.6/src/pingus/components/action_button.cpp#L33-#L90"><img src="images/link_12.png" alt="X" /></a>]. Arguably, this dispersion of code across methods makes the understanding and maintenance of the double-click behavior more difficult. Also, even though the state variables are private, unrelated methods such as <code>draw</code> (ln. 11-13) can potentially access it.</p>
+<p>Note how the accesses to these state variables are spread across the entire class. For instance, the distance between the initialization of <code>pressed</code> (ln. 4) and the last access to it (ln. 33) is over 40 lines in the original file [<a href="https://github.com/Pingus/pingus/blob/7b255840c201d028fd6b19a2185ccf7df3a2cd6e/src/pingus/components/action_button.cpp#L33-#L90"><img src="images/link_12.png" alt="X" /></a>]. Arguably, this dispersion of code across methods makes the understanding and maintenance of the double-click behavior more difficult. Also, even though the state variables are private, unrelated methods such as <code>draw</code> (ln. 11-13) can potentially access it.</p>
 <p>Because callbacks are short lived, the only way they can affect each other is by manipulating persisting member variables in the object. These <em>state variables</em> retain their values across multiple invocations and serve as a control mechanism across reaction to external events. As an example, callbacks <code>on_click</code> and <code>update</code> react independently but must agree on a common protocol to detect the double click:</p>
 <ul>
 <li>Callback <code>on_click</code> writes to <code>pressed</code> in the first click (ln. 30), and checks its state in further clicks (ln. 33).</li>
@@ -403,7 +406,7 @@ TODO: Case 3: Sprite Animations
 <p>Note how double click detection in Céu doesn't require state variables and is entirely self-contained in the <code>loop</code> body (ln. 6-12). Furthermore, these 7 lines of code <strong>only</strong> detects a double click, leaving the actual effect to happen outside the loop (ln. 14).</p>
 <p>As we argue throughout this document, appropriate control-flow mechanisms for reactive applications (e.g., <code>await</code> and <code>watching</code>) helps on the structure and composition of code, resulting in considerable gains in productivity.</p>
 <p><a name="finite-state-machines-2"/></p>
-<h3 id="case-study-the-bomber-action">1.2) Case Study: The <em>Bomber</em> Action</h3>
+<h3 id="the-bomber-action">1.2) The <em>Bomber</em> Action</h3>
 <div class="images">
 <img src="images/bomber-opt.gif" width="350"/> <br> <a href="images/bomber-opt.gif"> Figure 5</a>: The <em>Bomber</em> action
 </div>
@@ -420,7 +423,7 @@ TODO: Case 3: Sprite Animations
 <li>Last frame: kills the pingu.</li>
 </ol>
 <p><em>(Open <a href="https://youtu.be/QLXIT59il6o?t=306">this video</a> to listen to the sound effects.)</em></p>
-<p>The code in C++ defines the class <code>Bomber</code> [<a href="https://github.com/Pingus/pingus/blob/v0.7.6/src/pingus/actions/bomber.cpp"><img src="images/link_12.png" alt="X" /></a>] with callbacks <code>draw</code> and <code>update</code> to manage the state machine:</p>
+<p>The code in C++ defines the class <code>Bomber</code> [<a href="https://github.com/Pingus/pingus/blob/7b255840c201d028fd6b19a2185ccf7df3a2cd6e/src/pingus/actions/bomber.cpp"><img src="images/link_12.png" alt="X" /></a>] with callbacks <code>draw</code> and <code>update</code> to manage the state machine:</p>
 <pre><code><b><font size="-1" color="#666666"> 1:</font></b>  Bomber::Bomber (Pingu* p) :
 <b><font size="-1" color="#666666"> 2:</font></b>      <...>
 <b><font size="-1" color="#666666"> 3:</font></b>      sprite(),                   // bomber sprite
@@ -536,13 +539,13 @@ state passes to the current state what will be the next state.
 more natural structured code with sequences, conditionals, and loops
 -->
 <p><a name="continuation-passing-1"/></p>
-<h3 id="case-study-advancing-pages-in-the-story-screen">2.1) Case Study: Advancing Pages in the <em>Story</em> Screen</h3>
+<h3 id="advancing-pages-in-the-story-screen">2.1) Advancing Pages in the <em>Story</em> Screen</h3>
 <div class="images">
 <img src="images/story-anim.gif" width="350"/> <br> <a href="images/story-anim.gif"> Figure 7</a>: The <em>Story</em> screen
 </div>
 <p>The clickable <em>blue dots</em> in the world map of Pingus transit to ambience story screens about the game (Figure 7). Inside each page, the words of the story appear incrementally over time. A first click in the button <code>&gt;&gt;&gt;</code> fast forwards the words to show the full page. A second click advances to the next page, until the story terminates. If the page completes before a click (due to the time elapsing), a first click advances to the next page.</p>
 <!-- CPP-STORY-PAGES -->
-<p>The code in C++ defines the class <code>StoryScreenComponent</code> [<a href="https://github.com/Pingus/pingus/blob/v0.7.6/src/pingus/screens/story_screen.cpp#L159"><img src="images/link_12.png" alt="X" /></a>] uses the method <code>next_text</code>, which is a callback from clicks in <code>&gt;&gt;&gt;</code>:</p>
+<p>The code in C++ defines the class <code>StoryScreenComponent</code> [<a href="https://github.com/Pingus/pingus/blob/7b255840c201d028fd6b19a2185ccf7df3a2cd6e/src/pingus/screens/story_screen.cpp#L159"><img src="images/link_12.png" alt="X" /></a>] uses the method <code>next_text</code>, which is a callback from clicks in <code>&gt;&gt;&gt;</code>:</p>
 <pre><code><b><font size="-1" color="#666666"> 1:</font></b>  StoryScreenComponent::StoryScreenComponent (<...>) :
 <b><font size="-1" color="#666666"> 2:</font></b>      <...>
 <b><font size="-1" color="#666666"> 3:</font></b>  {
@@ -602,13 +605,13 @@ more natural structured code with sequences, conditionals, and loops
 <b><font size="-1" color="#666666">18:</font></b>  <b>end</b></code></pre>
 <p>For the sequential navigation from page to page, we use a direct loop (ln. 8-17) instead of an explicit continuation state variable. While the text advances in an inner loop (hidden in ln. 13), we watch the <code>next_text</code> event that fast forwards it. The inner loop may also eventually terminate with the time elapsing normally. To go to the next page, we simply <code>await next_text</code> again in sequence (ln. 15). Note that we don't need a variable (such as <code>displayed</code> in C++) to switch between the states &quot;advancing text&quot; or &quot;advancing pages&quot; which are not mixed in the source code.</p>
 <p><a name="continuation-passing-2"/></p>
-<h3 id="case-study-transition-to-the-credits-screen-in-the-story-screen">2.2) Case Study: Transition to the <em>Credits</em> Screen in the <em>Story</em> Screen</h3>
+<h3 id="transition-to-the-credits-screen-in-the-story-screen">2.2) Transition to the <em>Credits</em> Screen in the <em>Story</em> Screen</h3>
 <div class="images">
 <img src="images/credits-anim.gif" width="350"/> <br> <a href="images/credits-anim.gif"> Figure 9</a>: Transition from <em>Story</em> to <em>Credits</em> screen
 </div>
 <p>The world map has clickable story dots for both introductory and ending stories. For introductory stories, the game returns to the world map after displaying the pages. For ending stories, the game also displays a <em>Credits</em> screen before returning to the world map (Figure 9).</p>
 <!-- CPP-STORY-CREDITS -->
-<p>The <code>StoryDot</code> in C++ [<a href="https://github.com/Pingus/pingus/blob/v0.7.6/src/pingus/worldmap/story_dot.cpp#L31"><img src="images/link_12.png" alt="X" /></a>] reads the level file to check whether the story should, after termination, display the <em>Credits</em> screen or not:</p>
+<p>The <code>StoryDot</code> in C++ [<a href="https://github.com/Pingus/pingus/blob/7b255840c201d028fd6b19a2185ccf7df3a2cd6e/src/pingus/worldmap/story_dot.cpp#L31"><img src="images/link_12.png" alt="X" /></a>] reads the level file to check whether the story should, after termination, display the <em>Credits</em> screen or not:</p>
 <pre><code><b><font size="-1" color="#666666"> 1:</font></b>  StoryDot::StoryDot(const FileReader& reader) :
 <b><font size="-1" color="#666666"> 2:</font></b>      m_credits(<b>false</b>),                           // by default, don't display
 <b><font size="-1" color="#666666"> 3:</font></b>  {
@@ -621,7 +624,7 @@ more natural structured code with sequences, conditionals, and loops
 <b><font size="-1" color="#666666">10:</font></b>      ScreenManager::instance()->push_screen(std::make_shared<StoryScreen>(<...>, m_credits));
 <b><font size="-1" color="#666666">11:</font></b>      <...>
 <b><font size="-1" color="#666666">12:</font></b>  }</code></pre>
-<p>The boolean variable <code>m_credits</code> is passed to the <code>StoryScreen</code> (ln. 10) [<a href="https://github.com/Pingus/pingus/blob/v0.7.6/src/pingus/screens/story_screen.cpp#L136"><img src="images/link_12.png" alt="X" /></a>] and represents its continuation, i.e., what to do after displaying the story. The <code>StoryScreen</code> forwards the continuation [<a href="https://github.com/Pingus/pingus/blob/v0.7.6/src/pingus/screens/story_screen.cpp#L143"><img src="images/link_12.png" alt="X" /></a>] to the <code>StoryComponent</code> [<a href="https://github.com/Pingus/pingus/blob/v0.7.6/src/pingus/screens/story_screen.cpp#L159"><img src="images/link_12.png" alt="X" /></a>]:</p>
+<p>The boolean variable <code>m_credits</code> is passed to the <code>StoryScreen</code> (ln. 10) [<a href="https://github.com/Pingus/pingus/blob/7b255840c201d028fd6b19a2185ccf7df3a2cd6e/src/pingus/screens/story_screen.cpp#L136"><img src="images/link_12.png" alt="X" /></a>] and represents its continuation, i.e., what to do after displaying the story. The <code>StoryScreen</code> forwards the continuation [<a href="https://github.com/Pingus/pingus/blob/7b255840c201d028fd6b19a2185ccf7df3a2cd6e/src/pingus/screens/story_screen.cpp#L143"><img src="images/link_12.png" alt="X" /></a>] to the <code>StoryComponent</code> [<a href="https://github.com/Pingus/pingus/blob/7b255840c201d028fd6b19a2185ccf7df3a2cd6e/src/pingus/screens/story_screen.cpp#L159"><img src="images/link_12.png" alt="X" /></a>]:</p>
 <pre><code><b><font size="-1" color="#666666"> 1:</font></b>  StoryScreenComponent::StoryScreenComponent (<...>) :
 <b><font size="-1" color="#666666"> 2:</font></b>      m_credits(credits),
 <b><font size="-1" color="#666666"> 3:</font></b>      <...>
@@ -726,9 +729,9 @@ TODO: falar de broadcast (in Ceu: unless it is paused, all receive always)
     the buttons.
 -->
 <p><a name="dispatching-hierarchies-1"/></p>
-<h3 id="case-study-bomber-draw-and-update-callbacks">3.1) Case Study: Bomber <code>draw</code> and <code>update</code> callbacks</h3>
+<h3 id="bomber-draw-and-update-callbacks">3.1) Bomber <code>draw</code> and <code>update</code> callbacks</h3>
 <!-- CPP-BOMBER-SPRITE -->
-<p>Let's dig into the <code>Bomber</code> animation class in C++ [<a href="https://github.com/Pingus/pingus/blob/v0.7.6/src/pingus/actions/bomber.cpp"><img src="images/link_12.png" alt="X" /></a>], focusing on the <code>sprite</code> member, and the <code>update</code> and <code>draw</code> callback methods:</p>
+<p>Let's dig into the <code>Bomber</code> animation class in C++ [<a href="https://github.com/Pingus/pingus/blob/7b255840c201d028fd6b19a2185ccf7df3a2cd6e/src/pingus/actions/bomber.cpp"><img src="images/link_12.png" alt="X" /></a>], focusing on the <code>sprite</code> member, and the <code>update</code> and <code>draw</code> callback methods:</p>
 <pre><code><b><font size="-1" color="#666666"> 1:</font></b>  <b>class</b> Bomber : public PinguAction
 <b><font size="-1" color="#666666"> 2:</font></b>  {
 <b><font size="-1" color="#666666"> 3:</font></b>      <...>
@@ -751,20 +754,20 @@ TODO: falar de broadcast (in Ceu: unless it is paused, all receive always)
 <b><font size="-1" color="#666666">20:</font></b>      <...>
 <b><font size="-1" color="#666666">21:</font></b>      gc.color().draw(sprite, <...>);
 <b><font size="-1" color="#666666">22:</font></b>  }</code></pre>
-<p>The class loads the <code>sprite</code> in the constructor (ln. 11) and continually redirects <code>update</code> and <code>draw</code> to it (ln. 15-17 and 19-22). The <code>Sprite</code> class knows how to update [<a href="https://github.com/Pingus/pingus/blob/v0.7.6/src/engine/display/sprite_impl.cpp#L112"><img src="images/link_12.png" alt="X" /></a>] and render [<a href="https://github.com/Pingus/pingus/blob/v0.7.6/src/engine/display/sprite_impl.cpp#L140"><img src="images/link_12.png" alt="X" /></a>] itself.</p>
+<p>The class loads the <code>sprite</code> in the constructor (ln. 11) and continually redirects <code>update</code> and <code>draw</code> to it (ln. 15-17 and 19-22). The <code>Sprite</code> class knows how to update [<a href="https://github.com/Pingus/pingus/blob/7b255840c201d028fd6b19a2185ccf7df3a2cd6e/src/engine/display/sprite_impl.cpp#L112"><img src="images/link_12.png" alt="X" /></a>] and render [<a href="https://github.com/Pingus/pingus/blob/7b255840c201d028fd6b19a2185ccf7df3a2cd6e/src/engine/display/sprite_impl.cpp#L140"><img src="images/link_12.png" alt="X" /></a>] itself.</p>
 <div class="images">
 <img src="images/hierarchy.png" width="550"/> <br> <a href="images/hierarchy.png"> Figure 11</a>: Dispatching chain for <code>update</code>
 </div>
 <p>However, we have to follow a long chain of 7 dispatches (Figure 11) to understand how the <code>update</code> and <code>draw</code> callbacks flow from the original environment stimulus down to the sprite:</p>
 <ol style="list-style-type: decimal">
-<li><code>ScreenManager::display</code> [<a href="https://github.com/Pingus/pingus/blob/v0.7.6/src/engine/screen/screen_manager.cpp#L164"><img src="images/link_12.png" alt="X" /></a>] (the game loop) calls <code>this-&gt;update</code> [<a href="https://github.com/Pingus/pingus/blob/v0.7.6/src/engine/screen/screen_manager.cpp#L218"><img src="images/link_12.png" alt="X" /></a>] (in the same class).</li>
-<li><code>ScreenManager::update</code> [<a href="https://github.com/Pingus/pingus/blob/v0.7.6/src/engine/screen/screen_manager.cpp#L235"><img src="images/link_12.png" alt="X" /></a>] calls <code>last_screen-&gt;update</code> [<a href="https://github.com/Pingus/pingus/blob/v0.7.6/src/engine/screen/screen_manager.cpp#L258"><img src="images/link_12.png" alt="X" /></a>] (the active screen).</li>
-<li><code>GameSession::update</code> [<a href="https://github.com/Pingus/pingus/blob/v0.7.6/src/pingus/screens/game_session.cpp#L195"><img src="images/link_12.png" alt="X" /></a>] (the gameplay screen) calls <code>world-&gt;update</code> [<a href="https://github.com/Pingus/pingus/blob/v0.7.6/src/pingus/server.cpp#L103"><img src="images/link_12.png" alt="X" /></a>]. (with all game objects).</li>
-<li><code>World::update</code> [<a href="https://github.com/Pingus/pingus/blob/v0.7.6/src/pingus/world.cpp#L146"><img src="images/link_12.png" alt="X" /></a>] calls <code>obj-&gt;update</code> [<a href="https://github.com/Pingus/pingus/blob/v0.7.6/src/pingus/world.cpp#L183"><img src="images/link_12.png" alt="X" /></a>] (for each object in the world).</li>
-<li><code>PinguHolder::update</code> [<a href="https://github.com/Pingus/pingus/blob/v0.7.6/src/pingus/pingu_holder.cpp#L89"><img src="images/link_12.png" alt="X" /></a>] (child of <code>World</code>) calls <code>pingu-&gt;update</code> [<a href="https://github.com/Pingus/pingus/blob/v0.7.6/src/pingus/pingu_holder.cpp#L95"><img src="images/link_12.png" alt="X" /></a>] (for each pingu alive).</li>
-<li><code>Pingu::update</code> [<a href="https://github.com/Pingus/pingus/blob/v0.7.6/src/pingus/pingu.cpp#L311"><img src="images/link_12.png" alt="X" /></a>] calls <code>action-&gt;update</code> [<a href="https://github.com/Pingus/pingus/blob/v0.7.6/src/pingus/pingu.cpp#L339"><img src="images/link_12.png" alt="X" /></a>] (for the active pingu action).</li>
-<li><code>Bomber::update</code> [<a href="https://github.com/Pingus/pingus/blob/v0.7.6/src/pingus/actions/bomber.cpp#L58"><img src="images/link_12.png" alt="X" /></a>] calls <code>sprite.update</code> [<a href="https://github.com/Pingus/pingus/blob/v0.7.6/src/pingus/actions/bomber.cpp#L60"><img src="images/link_12.png" alt="X" /></a>.]</li>
-<li><code>Sprite::update</code> [<a href="https://github.com/Pingus/pingus/blob/v0.7.6/src/engine/display/sprite_impl.cpp#L112"><img src="images/link_12.png" alt="X" /></a>] finally updates the animation frames.</li>
+<li><code>ScreenManager::display</code> [<a href="https://github.com/Pingus/pingus/blob/7b255840c201d028fd6b19a2185ccf7df3a2cd6e/src/engine/screen/screen_manager.cpp#L164"><img src="images/link_12.png" alt="X" /></a>] (the game loop) calls <code>this-&gt;update</code> [<a href="https://github.com/Pingus/pingus/blob/7b255840c201d028fd6b19a2185ccf7df3a2cd6e/src/engine/screen/screen_manager.cpp#L218"><img src="images/link_12.png" alt="X" /></a>] (in the same class).</li>
+<li><code>ScreenManager::update</code> [<a href="https://github.com/Pingus/pingus/blob/7b255840c201d028fd6b19a2185ccf7df3a2cd6e/src/engine/screen/screen_manager.cpp#L235"><img src="images/link_12.png" alt="X" /></a>] calls <code>last_screen-&gt;update</code> [<a href="https://github.com/Pingus/pingus/blob/7b255840c201d028fd6b19a2185ccf7df3a2cd6e/src/engine/screen/screen_manager.cpp#L258"><img src="images/link_12.png" alt="X" /></a>] (the active screen).</li>
+<li><code>GameSession::update</code> [<a href="https://github.com/Pingus/pingus/blob/7b255840c201d028fd6b19a2185ccf7df3a2cd6e/src/pingus/screens/game_session.cpp#L195"><img src="images/link_12.png" alt="X" /></a>] (the gameplay screen) calls <code>world-&gt;update</code> [<a href="https://github.com/Pingus/pingus/blob/7b255840c201d028fd6b19a2185ccf7df3a2cd6e/src/pingus/server.cpp#L103"><img src="images/link_12.png" alt="X" /></a>]. (with all game objects).</li>
+<li><code>World::update</code> [<a href="https://github.com/Pingus/pingus/blob/7b255840c201d028fd6b19a2185ccf7df3a2cd6e/src/pingus/world.cpp#L146"><img src="images/link_12.png" alt="X" /></a>] calls <code>obj-&gt;update</code> [<a href="https://github.com/Pingus/pingus/blob/7b255840c201d028fd6b19a2185ccf7df3a2cd6e/src/pingus/world.cpp#L183"><img src="images/link_12.png" alt="X" /></a>] (for each object in the world).</li>
+<li><code>PinguHolder::update</code> [<a href="https://github.com/Pingus/pingus/blob/7b255840c201d028fd6b19a2185ccf7df3a2cd6e/src/pingus/pingu_holder.cpp#L89"><img src="images/link_12.png" alt="X" /></a>] (child of <code>World</code>) calls <code>pingu-&gt;update</code> [<a href="https://github.com/Pingus/pingus/blob/7b255840c201d028fd6b19a2185ccf7df3a2cd6e/src/pingus/pingu_holder.cpp#L95"><img src="images/link_12.png" alt="X" /></a>] (for each pingu alive).</li>
+<li><code>Pingu::update</code> [<a href="https://github.com/Pingus/pingus/blob/7b255840c201d028fd6b19a2185ccf7df3a2cd6e/src/pingus/pingu.cpp#L311"><img src="images/link_12.png" alt="X" /></a>] calls <code>action-&gt;update</code> [<a href="https://github.com/Pingus/pingus/blob/7b255840c201d028fd6b19a2185ccf7df3a2cd6e/src/pingus/pingu.cpp#L339"><img src="images/link_12.png" alt="X" /></a>] (for the active pingu action).</li>
+<li><code>Bomber::update</code> [<a href="https://github.com/Pingus/pingus/blob/7b255840c201d028fd6b19a2185ccf7df3a2cd6e/src/pingus/actions/bomber.cpp#L58"><img src="images/link_12.png" alt="X" /></a>] calls <code>sprite.update</code> [<a href="https://github.com/Pingus/pingus/blob/7b255840c201d028fd6b19a2185ccf7df3a2cd6e/src/pingus/actions/bomber.cpp#L60"><img src="images/link_12.png" alt="X" /></a>.]</li>
+<li><code>Sprite::update</code> [<a href="https://github.com/Pingus/pingus/blob/7b255840c201d028fd6b19a2185ccf7df3a2cd6e/src/engine/display/sprite_impl.cpp#L112"><img src="images/link_12.png" alt="X" /></a>] finally updates the animation frames.</li>
 </ol>
 <p>Note that each dispatching step has a reason to exist:</p>
 <ul>
@@ -802,7 +805,7 @@ TODO: falar de broadcast (in Ceu: unless it is paused, all receive always)
 <b><font size="-1" color="#666666">12:</font></b>          <b>end</b>
 <b><font size="-1" color="#666666">13:</font></b>          <...>
 <b><font size="-1" color="#666666">14:</font></b>  <b>end</b></code></pre>
-<p>We enclose the declaration with an explicit block (ln. 9-12) that restricts its lifespan to a single occurrence of <code>WORLD_UPDATE</code> (ln. 11). When the block terminates, the organism goes out of scope and its execution body aborts automatically, effectively removing it from the screen. Note here that we never manipulate references to the <code>Sprite</code>, which is declared anonymous with the placeholder <code>_</code>. In constrast, the animation in C++ requires to explicitly check the state variable <code>gfx_exploded</code> and forward the <code>draw</code> method down to the child sprite <code>explo_surf</code> [<a href="https://github.com/Pingus/pingus/blob/v0.7.6/src/pingus/actions/bomber.cpp#L50"><img src="images/link_12.png" alt="X" /></a>].</p>
+<p>We enclose the declaration with an explicit block (ln. 9-12) that restricts its lifespan to a single occurrence of <code>WORLD_UPDATE</code> (ln. 11). When the block terminates, the organism goes out of scope and its execution body aborts automatically, effectively removing it from the screen. Note here that we never manipulate references to the <code>Sprite</code>, which is declared anonymous with the placeholder <code>_</code>. In constrast, the animation in C++ requires to explicitly check the state variable <code>gfx_exploded</code> and forward the <code>draw</code> method down to the child sprite <code>explo_surf</code> [<a href="https://github.com/Pingus/pingus/blob/7b255840c201d028fd6b19a2185ccf7df3a2cd6e/src/pingus/actions/bomber.cpp#L50"><img src="images/link_12.png" alt="X" /></a>].</p>
 <!-- CEU-vs-CPP-BOMBER-SPRITE -->
 <p><a name="dispatching-hierarchies-summary"/> <br/></p>
 <div class="summary">
@@ -820,9 +823,9 @@ TODO: falar de broadcast (in Ceu: unless it is paused, all receive always)
 <p>Similarly to <em>dispatching hierarchies</em>, some entities control the lifespan of other child entities, resulting in dynamic and explicit allocation and deallocation of objects.</p>
 <p>However, it is actually common to have children with a static lifespan which are known at compile time.</p>
 <p><a name="lifespan-hierarchies-1"/></p>
-<h3 id="case-study-game-ui-widgets">4.1) Case Study: Game UI Widgets</h3>
+<h3 id="game-ui-widgets">4.1) Game UI Widgets</h3>
 <!-- CPP-CONTAINER -->
-<p>Most UI widgets in the <code>GameSession</code> screen class are static and coexist with it, i.e., they are added in the constructor and are never removed explicitly [<a href="https://github.com/Pingus/pingus/blob/v0.7.6/src/pingus/screens/game_session.cpp#L76"><img src="images/link_12.png" alt="X" /></a>]:</p>
+<p>Most UI widgets in the <code>GameSession</code> screen class are static and coexist with it, i.e., they are added in the constructor and are never removed explicitly [<a href="https://github.com/Pingus/pingus/blob/7b255840c201d028fd6b19a2185ccf7df3a2cd6e/src/pingus/screens/game_session.cpp#L76"><img src="images/link_12.png" alt="X" /></a>]:</p>
 <pre><code><b><font size="-1" color="#666666"> 1:</font></b>  GameSession::GameSession(<...>) :
 <b><font size="-1" color="#666666"> 2:</font></b>      <...>
 <b><font size="-1" color="#666666"> 3:</font></b>  {
@@ -836,7 +839,7 @@ TODO: falar de broadcast (in Ceu: unless it is paused, all receive always)
 <b><font size="-1" color="#666666">11:</font></b>      gui_manager->add(small_map);                //    hierarchy
 <b><font size="-1" color="#666666">12:</font></b>      <...>
 <b><font size="-1" color="#666666">13:</font></b>  }</code></pre>
-<p>Even so, the <code>add</code> method expects only dynamically allocated children because they are automatically deallocated inside the container destructor [<a href="https://github.com/Pingus/pingus/blob/v0.7.6/src/engine/gui/group_component.cpp#L37"><img src="images/link_12.png" alt="X" /></a>].</p>
+<p>Even so, the <code>add</code> method expects only dynamically allocated children because they are automatically deallocated inside the container destructor [<a href="https://github.com/Pingus/pingus/blob/7b255840c201d028fd6b19a2185ccf7df3a2cd6e/src/engine/gui/group_component.cpp#L37"><img src="images/link_12.png" alt="X" /></a>].</p>
 <p>The dynamic nature of containers in C++ demand extra caution:</p>
 <ul>
 <li>When containers are part of a dispatching chain, it gets even harder to track what objects are dispatched: one has to &quot;simulate&quot; the program execution and track calls to <code>add</code> and <code>remove</code>.</li>
@@ -861,13 +864,13 @@ TODO: falar de broadcast (in Ceu: unless it is paused, all receive always)
 <b><font size="-1" color="#666666">11:</font></b>  <b>end</b></code></pre>
 <p>Again, here we never manipulate references to deal with containers, or allocation and deallocation. Also, all memory required for static instances is known at compile time.</p>
 <p><a name="lifespan-hierarchies-2"/></p>
-<h3 id="case-study-the-pingus-container">4.2) Case Study: The Pingus Container</h3>
+<h3 id="the-pingus-container">4.2) The Pingus Container</h3>
 <!-- CPP-CONTAINER-DYNAMIC -->
 <p>In C++, for entities with a dynamic lifespan, we need to <code>add</code> and <code>remove</code> them explicitly from the container.</p>
 <div class="images">
 <img src="images/pingus_create_die-anim.gif" width="400"/> <br> <a href="images/pingus_create_die-anim.gif"> Figure 14</a>: Creation and death of pingus
 </div>
-<p>As an example, pingus are dynamic entities created periodically and destroyed under certain conditions (e.g., Figure 14, when falling from a high altitude [<a href="https://github.com/Pingus/pingus/blob/v0.7.6/src/pingus/actions/splashed.cpp#L48"><img src="images/link_12.png" alt="X" /></a>]):</p>
+<p>As an example, pingus are dynamic entities created periodically and destroyed under certain conditions (e.g., Figure 14, when falling from a high altitude [<a href="https://github.com/Pingus/pingus/blob/7b255840c201d028fd6b19a2185ccf7df3a2cd6e/src/pingus/actions/splashed.cpp#L48"><img src="images/link_12.png" alt="X" /></a>]):</p>
 <pre><code><b><font size="-1" color="#666666"> 1:</font></b>  Pingu* PinguHolder::create_pingu (<...>) {
 <b><font size="-1" color="#666666"> 2:</font></b>      <...>
 <b><font size="-1" color="#666666"> 3:</font></b>      Pingu* pingu = <b>new</b> Pingu (<...>);
@@ -995,7 +998,7 @@ Also, all memory required for static instances is known at compile time.
 <h2 id="signaling-mechanisms">5) Signaling Mechanisms</h2>
 <p>Entities often need to communicate explicitly through a signaling mechanism, especially if there is no hierarchy relationship between them.</p>
 <p><a name="signaling-1"/></p>
-<h3 id="case-study-global-keys-and-the-options-menu">5.1) Case Study: Global Keys and the Options Menu</h3>
+<h3 id="global-keys-and-the-options-menu">5.1) Global Keys and the Options Menu</h3>
 <div class="images">
 <img src="images/options-anim-opt.gif" width="350"/> <br> <a href="images/options-anim-opt.gif"> Figure 16</a>: The <em>Mouse Grab</em> configuration option.
 </div>
@@ -1044,7 +1047,7 @@ Also, all memory required for static instances is known at compile time.
 <!-- CONFIG_MANAGER -->
 <h4 id="class-configmanager">Class <code>ConfigManager</code></h4>
 <p>The <code>ConfigManager</code> manages all game configuration properties, such as the <em>Mouse Grab</em> option.</p>
-<p>The implementation in C++ [<a href="https://github.com/Pingus/pingus/blob/v0.7.6/src/pingus/config_manager.cpp#L182"><img src="images/link_12.png" alt="X" /></a>] uses a <code>boost::signal</code> [<a href="http://www.boost.org/doc/libs/1_60_0/doc/html/signals2.html"><img src="images/link_12.png" alt="X" /></a>] which serves the same purpose of internal events in Céu:</p>
+<p>The implementation in C++ [<a href="https://github.com/Pingus/pingus/blob/7b255840c201d028fd6b19a2185ccf7df3a2cd6e/src/pingus/config_manager.cpp#L182"><img src="images/link_12.png" alt="X" /></a>] uses a <code>boost::signal</code> [<a href="http://www.boost.org/doc/libs/1_60_0/doc/html/signals2.html"><img src="images/link_12.png" alt="X" /></a>] which serves the same purpose of internal events in Céu:</p>
 <p><a name="cpp-config-manager"/></p>
 <pre><code><b><font size="-1" color="#666666"> 1:</font></b>  boost::signals2::signal<<b>void</b>(<b>bool</b>)> on_mouse_grab_change;   // definition in `config_manager.h`
 <b><font size="-1" color="#666666"> 2:</font></b>  
@@ -1066,7 +1069,7 @@ Also, all memory required for static instances is known at compile time.
 <b><font size="-1" color="#666666"> 7:</font></b>  <b>end</b></code></pre>
 <!-- CHECK_BOX -->
 <h4 id="class-checkbox">Class <code>CheckBox</code></h4>
-<p>The <code>CheckBox</code> in C++ [<a href="https://github.com/Pingus/pingus/blob/v0.7.6/src/pingus/components/choice_box.cpp#L54"><img src="images/link_12.png" alt="X" /></a>] also uses a <code>boost::signal</code> to notify the application on changes:</p>
+<p>The <code>CheckBox</code> in C++ [<a href="https://github.com/Pingus/pingus/blob/7b255840c201d028fd6b19a2185ccf7df3a2cd6e/src/pingus/components/choice_box.cpp#L54"><img src="images/link_12.png" alt="X" /></a>] also uses a <code>boost::signal</code> to notify the application on changes:</p>
 <p><a name="cpp-check-box"/></p>
 <pre><code><b><font size="-1" color="#666666"> 1:</font></b>  boost::signals2::signal<<b>void</b> (<b>bool</b>)> on_change;   // definition in `check_box.hpp`
 <b><font size="-1" color="#666666"> 2:</font></b>  
@@ -1098,7 +1101,7 @@ Also, all memory required for static instances is known at compile time.
 <!-- OPTION_MENU -->
 <h4 id="class-optionmenu">Class <code>OptionMenu</code></h4>
 <p>The <code>OptionMenu</code> closes the loop between the signals in <code>ConfigManager</code> and <code>CheckBox</code>.</p>
-<p>The implementation in C++ [<a href="https://github.com/Pingus/pingus/blob/v0.7.6/src/pingus/screens/option_menu.cpp#L79"><img src="images/link_12.png" alt="X" /></a>] connects the two signals as follows:</p>
+<p>The implementation in C++ [<a href="https://github.com/Pingus/pingus/blob/7b255840c201d028fd6b19a2185ccf7df3a2cd6e/src/pingus/screens/option_menu.cpp#L79"><img src="images/link_12.png" alt="X" /></a>] connects the two signals as follows:</p>
 <pre><code><b><font size="-1" color="#666666"> 1:</font></b>  <b>typedef</b> std::vector<boost::signals2::connection> Connections;   // definition in `option_menu.hpp`
 <b><font size="-1" color="#666666"> 2:</font></b>  Connections connections;                                        // definition in `option_menu.hpp`
 <b><font size="-1" color="#666666"> 3:</font></b>  
@@ -1273,7 +1276,7 @@ In this sense, they eliminate any vestige of structured programming, becoming
 *our generation's goto* [[![X]][goto]].
 
 [gpp-gameloop]: http://gameprogrammingpatterns.com/game-loop.html
-[pingus-gameloop]: https://github.com/Pingus/pingus/blob/v0.7.6/src/engine/screen/screen_manager.cpp#L172
+[pingus-gameloop]: https://github.com/Pingus/pingus/blob/7b255840c201d028fd6b19a2185ccf7df3a2cd6e/src/engine/screen/screen_manager.cpp#L172
 [goto]: http://tirania.org/blog/archive/2013/Aug-15.html
 
 
@@ -1290,7 +1293,7 @@ In this sense, they eliminate any vestige of structured programming, becoming
 
 The game loop:
 `ScreenManager::display`
-https://github.com/fsantanna/pingus/blob/v0.7.6/src/engine/screen/screen_manager.cpp#L164
+https://github.com/fsantanna/pingus/blob/7b255840c201d028fd6b19a2185ccf7df3a2cd6e/src/engine/screen/screen_manager.cpp#L164
 
 ```
 void ScreenManager::display() {

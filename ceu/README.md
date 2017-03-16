@@ -402,10 +402,10 @@ Good chances are that variables with identifiers resembling verbs, status, or
 counters encode some form of control-flow progression that cross multiple 
 callback invocations.
 
-[state-pressed]: https://github.com/Pingus/pingus/blob/v0.7.6/src/pingus/components/action_button.hpp#L36
-[state-particle-thrown]: https://github.com/Pingus/pingus/blob/v0.7.6/src/pingus/actions/bomber.hpp#L31
-[state-mode]: https://github.com/Pingus/pingus/blob/v0.7.6/src/pingus/actions/bridger.hpp#L30
-[state-delay-count]: https://github.com/Pingus/pingus/blob/v0.7.6/src/pingus/actions/digger.hpp#L32
+[state-pressed]: https://github.com/Pingus/pingus/blob/7b255840c201d028fd6b19a2185ccf7df3a2cd6e/src/pingus/components/action_button.hpp#L36
+[state-particle-thrown]: https://github.com/Pingus/pingus/blob/7b255840c201d028fd6b19a2185ccf7df3a2cd6e/src/pingus/actions/bomber.hpp#L31
+[state-mode]: https://github.com/Pingus/pingus/blob/7b255840c201d028fd6b19a2185ccf7df3a2cd6e/src/pingus/actions/bridger.hpp#L30
+[state-delay-count]: https://github.com/Pingus/pingus/blob/7b255840c201d028fd6b19a2185ccf7df3a2cd6e/src/pingus/actions/digger.hpp#L32
 
 <!--
 , and redirect the instantiation and event dispatching to the new 
@@ -429,7 +429,7 @@ along with in-depth examples:
 
 1. [**Finite State Machines**](#finite-state-machines):
     State machines describe the behavior of entities by mapping event 
-    occurrences to transitions between states triggering appropriate actions.
+    occurrences to transitions between states that trigger appropriate actions.
     * [ [case 1](#finite-state-machines-1) |
         [case 2](#finite-state-machines-2) |
         [summary](#finite-state-machines-summary) ]
@@ -557,8 +557,9 @@ TODO: state vars, code reduction para cada case
 ## Finite State Machines
 ]]
 
-State machines describe the behavior of game entities by mapping event 
-occurrences to transitions between states and triggering appropriate actions.
+State machines describe the behavior of entities by mapping event 
+occurrences to transitions between states that trigger appropriate actions.
+
 <!--
 The double click behavior for the *Armageddon button* is an example of a simple 
 state machine.
@@ -568,17 +569,19 @@ TODO: Case 3: Sprite Animations
 <a name="finite-state-machines-1"/>
 
 @SEC[[
-### Case Study: The *Armageddon* Double Click
+### The *Armageddon Button* Double Click
 ]]
 
+<!--
 Let's consider the case of handling double clicks in the game.
+-->
 
 @FIG_NEW(double-click-opt.gif,
          Double click detection,
          350)
 
-In Pingus, double clicking the *Armageddon button* literally explodes all 
-pingus (@FIG_REF[[double-click-opt.gif]]).
+In Pingus, double clicking the *Armageddon button* at the bottom right of the
+screen literally explodes all pingus (@FIG_REF[[double-click-opt.gif]]).
 
 <!-- CPP-ARMAGEDDON -->
 
@@ -729,14 +732,14 @@ As we argue throughout this document, appropriate control-flow mechanisms for
 reactive applications (e.g., `await` and `watching`) helps on the structure and 
 composition of code, resulting in considerable gains in productivity.
 
-[cpp-armageddon]: https://github.com/Pingus/pingus/blob/v0.7.6/src/pingus/components/action_button.cpp#L24 
-[cpp-armageddon-2]: https://github.com/Pingus/pingus/blob/v0.7.6/src/pingus/components/action_button.cpp#L33-#L90
+[cpp-armageddon]: https://github.com/Pingus/pingus/blob/7b255840c201d028fd6b19a2185ccf7df3a2cd6e/src/pingus/components/action_button.cpp#L24 
+[cpp-armageddon-2]: https://github.com/Pingus/pingus/blob/7b255840c201d028fd6b19a2185ccf7df3a2cd6e/src/pingus/components/action_button.cpp#L33-#L90
 [ceu-armageddon]: https://github.com/fsantanna/pingus/blob/ceu/ceu/pingus/components/action_button.ceu#L6
 
 <a name="finite-state-machines-2"/>
 
 @SEC[[
-### Case Study: The *Bomber* Action
+### The *Bomber* Action
 ]]
 
 @FIG_NEW(bomber-opt.gif,
@@ -914,7 +917,7 @@ explicit state machines in C++:
   improving code encapsulation.
 </div>
 
-[cpp-bomber]: https://github.com/Pingus/pingus/blob/v0.7.6/src/pingus/actions/bomber.cpp
+[cpp-bomber]: https://github.com/Pingus/pingus/blob/7b255840c201d028fd6b19a2185ccf7df3a2cd6e/src/pingus/actions/bomber.cpp
 [ceu-bomber]: https://github.com/fsantanna/pingus/blob/ceu/ceu/pingus/actions/bomber.ceu
 
 <a name="continuation-passing"/>
@@ -944,7 +947,7 @@ more natural structured code with sequences, conditionals, and loops
 <a name="continuation-passing-1"/>
 
 @SEC[[
-### Case Study: Advancing Pages in the *Story* Screen
+### Advancing Pages in the *Story* Screen
 ]]
 
 @FIG_NEW(story-anim.gif,
@@ -1060,7 +1063,7 @@ the source code.
 <a name="continuation-passing-2"/>
 
 @SEC[[
-### Case Study: Transition to the *Credits* Screen in the *Story* Screen
+### Transition to the *Credits* Screen in the *Story* Screen
 ]]
 
 @FIG_NEW(credits-anim.gif,
@@ -1240,11 +1243,11 @@ continuation-passing style of C++:
   classes).
 </div>
 
-[cpp-story-screen]:https://github.com/Pingus/pingus/blob/v0.7.6/src/pingus/screens/story_screen.cpp#L136
-[cpp-story-screen-component]:https://github.com/Pingus/pingus/blob/v0.7.6/src/pingus/screens/story_screen.cpp#L159
-[cpp-story-screen-forward]:https://github.com/Pingus/pingus/blob/v0.7.6/src/pingus/screens/story_screen.cpp#L143
-[cpp-story-dot]:https://github.com/Pingus/pingus/blob/v0.7.6/src/pingus/worldmap/story_dot.cpp#L31
-[cpp-story-pages]:https://github.com/Pingus/pingus/blob/v0.7.6/src/pingus/screens/story_screen.cpp#L159
+[cpp-story-screen]:https://github.com/Pingus/pingus/blob/7b255840c201d028fd6b19a2185ccf7df3a2cd6e/src/pingus/screens/story_screen.cpp#L136
+[cpp-story-screen-component]:https://github.com/Pingus/pingus/blob/7b255840c201d028fd6b19a2185ccf7df3a2cd6e/src/pingus/screens/story_screen.cpp#L159
+[cpp-story-screen-forward]:https://github.com/Pingus/pingus/blob/7b255840c201d028fd6b19a2185ccf7df3a2cd6e/src/pingus/screens/story_screen.cpp#L143
+[cpp-story-dot]:https://github.com/Pingus/pingus/blob/7b255840c201d028fd6b19a2185ccf7df3a2cd6e/src/pingus/worldmap/story_dot.cpp#L31
+[cpp-story-pages]:https://github.com/Pingus/pingus/blob/7b255840c201d028fd6b19a2185ccf7df3a2cd6e/src/pingus/screens/story_screen.cpp#L159
 
 [ceu-story-screen]:https://github.com/fsantanna/pingus/blob/ceu/ceu/pingus/screens/story_screen.ceu#L14
 [ceu-story-pages]:https://github.com/fsantanna/pingus/blob/ceu/ceu/pingus/screens/story_screen.ceu#L14
@@ -1281,7 +1284,7 @@ TODO: falar de broadcast (in Ceu: unless it is paused, all receive always)
 <a name="dispatching-hierarchies-1"/>
 
 @SEC[[
-### Case Study: Bomber `draw` and `update` callbacks
+### Bomber `draw` and `update` callbacks
 ]]
 
 <!-- CPP-BOMBER-SPRITE -->
@@ -1320,8 +1323,8 @@ redirects `update` and `draw` to it (ln. @N(update_1)-@N(update_2) and
 The `Sprite` class knows how to update [[![X]][cpp-sprite-update]] and render 
 [[![X]][cpp-sprite-render]] itself.
 
-[cpp-sprite-update]: https://github.com/Pingus/pingus/blob/v0.7.6/src/engine/display/sprite_impl.cpp#L112
-[cpp-sprite-render]: https://github.com/Pingus/pingus/blob/v0.7.6/src/engine/display/sprite_impl.cpp#L140
+[cpp-sprite-update]: https://github.com/Pingus/pingus/blob/7b255840c201d028fd6b19a2185ccf7df3a2cd6e/src/engine/display/sprite_impl.cpp#L112
+[cpp-sprite-render]: https://github.com/Pingus/pingus/blob/7b255840c201d028fd6b19a2185ccf7df3a2cd6e/src/engine/display/sprite_impl.cpp#L140
 
 @FIG_NEW(hierarchy.png,
          Dispatching chain for `update`,
@@ -1464,24 +1467,24 @@ the reasoning about the program harder:
 
 <!--* TODO: efficiency?-->
 
-[cpp-screenmanager-11]: https://github.com/Pingus/pingus/blob/v0.7.6/src/engine/screen/screen_manager.cpp#L164
-[cpp-screenmanager-12]: https://github.com/Pingus/pingus/blob/v0.7.6/src/engine/screen/screen_manager.cpp#L218
-[cpp-screenmanager-21]: https://github.com/Pingus/pingus/blob/v0.7.6/src/engine/screen/screen_manager.cpp#L235
-[cpp-screenmanager-22]: https://github.com/Pingus/pingus/blob/v0.7.6/src/engine/screen/screen_manager.cpp#L258
-[cpp-gamesession-1]: https://github.com/Pingus/pingus/blob/v0.7.6/src/pingus/screens/game_session.cpp#L195
-[cpp-gamesession-2]: https://github.com/Pingus/pingus/blob/v0.7.6/src/pingus/server.cpp#L103 
-[cpp-groupcomponent-1]: https://github.com/Pingus/pingus/blob/v0.7.6/src/engine/gui/group_component.cpp#L58
-[cpp-groupcomponent-2]: https://github.com/Pingus/pingus/blob/v0.7.6/src/engine/gui/group_component.cpp#L63
-[cpp-world-1]: https://github.com/Pingus/pingus/blob/v0.7.6/src/pingus/world.cpp#L146
-[cpp-world-2]: https://github.com/Pingus/pingus/blob/v0.7.6/src/pingus/world.cpp#L183
-[cpp-pinguholder-1]: https://github.com/Pingus/pingus/blob/v0.7.6/src/pingus/pingu_holder.cpp#L89
-[cpp-pinguholder-2]: https://github.com/Pingus/pingus/blob/v0.7.6/src/pingus/pingu_holder.cpp#L95
-[cpp-pingu-1]: https://github.com/Pingus/pingus/blob/v0.7.6/src/pingus/pingu.cpp#L311
-[cpp-pingu-2]: https://github.com/Pingus/pingus/blob/v0.7.6/src/pingus/pingu.cpp#L339
-[cpp-bomber-1]: https://github.com/Pingus/pingus/blob/v0.7.6/src/pingus/actions/bomber.cpp#L58
-[cpp-bomber-2]: https://github.com/Pingus/pingus/blob/v0.7.6/src/pingus/actions/bomber.cpp#L60
-[cpp-sprite-1]: https://github.com/Pingus/pingus/blob/v0.7.6/src/engine/display/sprite_impl.cpp#L112
-[cpp-bomber-explo]: https://github.com/Pingus/pingus/blob/v0.7.6/src/pingus/actions/bomber.cpp#L50
+[cpp-screenmanager-11]: https://github.com/Pingus/pingus/blob/7b255840c201d028fd6b19a2185ccf7df3a2cd6e/src/engine/screen/screen_manager.cpp#L164
+[cpp-screenmanager-12]: https://github.com/Pingus/pingus/blob/7b255840c201d028fd6b19a2185ccf7df3a2cd6e/src/engine/screen/screen_manager.cpp#L218
+[cpp-screenmanager-21]: https://github.com/Pingus/pingus/blob/7b255840c201d028fd6b19a2185ccf7df3a2cd6e/src/engine/screen/screen_manager.cpp#L235
+[cpp-screenmanager-22]: https://github.com/Pingus/pingus/blob/7b255840c201d028fd6b19a2185ccf7df3a2cd6e/src/engine/screen/screen_manager.cpp#L258
+[cpp-gamesession-1]: https://github.com/Pingus/pingus/blob/7b255840c201d028fd6b19a2185ccf7df3a2cd6e/src/pingus/screens/game_session.cpp#L195
+[cpp-gamesession-2]: https://github.com/Pingus/pingus/blob/7b255840c201d028fd6b19a2185ccf7df3a2cd6e/src/pingus/server.cpp#L103 
+[cpp-groupcomponent-1]: https://github.com/Pingus/pingus/blob/7b255840c201d028fd6b19a2185ccf7df3a2cd6e/src/engine/gui/group_component.cpp#L58
+[cpp-groupcomponent-2]: https://github.com/Pingus/pingus/blob/7b255840c201d028fd6b19a2185ccf7df3a2cd6e/src/engine/gui/group_component.cpp#L63
+[cpp-world-1]: https://github.com/Pingus/pingus/blob/7b255840c201d028fd6b19a2185ccf7df3a2cd6e/src/pingus/world.cpp#L146
+[cpp-world-2]: https://github.com/Pingus/pingus/blob/7b255840c201d028fd6b19a2185ccf7df3a2cd6e/src/pingus/world.cpp#L183
+[cpp-pinguholder-1]: https://github.com/Pingus/pingus/blob/7b255840c201d028fd6b19a2185ccf7df3a2cd6e/src/pingus/pingu_holder.cpp#L89
+[cpp-pinguholder-2]: https://github.com/Pingus/pingus/blob/7b255840c201d028fd6b19a2185ccf7df3a2cd6e/src/pingus/pingu_holder.cpp#L95
+[cpp-pingu-1]: https://github.com/Pingus/pingus/blob/7b255840c201d028fd6b19a2185ccf7df3a2cd6e/src/pingus/pingu.cpp#L311
+[cpp-pingu-2]: https://github.com/Pingus/pingus/blob/7b255840c201d028fd6b19a2185ccf7df3a2cd6e/src/pingus/pingu.cpp#L339
+[cpp-bomber-1]: https://github.com/Pingus/pingus/blob/7b255840c201d028fd6b19a2185ccf7df3a2cd6e/src/pingus/actions/bomber.cpp#L58
+[cpp-bomber-2]: https://github.com/Pingus/pingus/blob/7b255840c201d028fd6b19a2185ccf7df3a2cd6e/src/pingus/actions/bomber.cpp#L60
+[cpp-sprite-1]: https://github.com/Pingus/pingus/blob/7b255840c201d028fd6b19a2185ccf7df3a2cd6e/src/engine/display/sprite_impl.cpp#L112
+[cpp-bomber-explo]: https://github.com/Pingus/pingus/blob/7b255840c201d028fd6b19a2185ccf7df3a2cd6e/src/pingus/actions/bomber.cpp#L50
 
 <a name="lifespan-hierarchies"/>
 
@@ -1499,7 +1502,7 @@ are known at compile time.
 <a name="lifespan-hierarchies-1"/>
 
 @SEC[[
-### Case Study: Game UI Widgets
+### Game UI Widgets
 ]]
 
 <!-- CPP-CONTAINER -->
@@ -1528,7 +1531,7 @@ Even so, the `add` method expects only dynamically allocated children because
 they are automatically deallocated inside the container destructor 
 [[![X]][cpp-groupcomponent-delete]].
 
-[cpp-groupcomponent-delete]: https://github.com/Pingus/pingus/blob/v0.7.6/src/engine/gui/group_component.cpp#L37
+[cpp-groupcomponent-delete]: https://github.com/Pingus/pingus/blob/7b255840c201d028fd6b19a2185ccf7df3a2cd6e/src/engine/gui/group_component.cpp#L37
 
 The dynamic nature of containers in C++ demand extra caution:
 
@@ -1572,7 +1575,7 @@ Also, all memory required for static instances is known at compile time.
 <a name="lifespan-hierarchies-2"/>
 
 @SEC[[
-### Case Study: The Pingus Container
+### The Pingus Container
 ]]
 
 <!-- CPP-CONTAINER-DYNAMIC -->
@@ -1774,8 +1777,8 @@ Also, all memory required for static instances is known at compile time.
 -->
 </div>
 
-[cpp-gamesession-containers]: https://github.com/Pingus/pingus/blob/v0.7.6/src/pingus/screens/game_session.cpp#L76
-[cpp-pingu-dead]:https://github.com/Pingus/pingus/blob/v0.7.6/src/pingus/actions/splashed.cpp#L48
+[cpp-gamesession-containers]: https://github.com/Pingus/pingus/blob/7b255840c201d028fd6b19a2185ccf7df3a2cd6e/src/pingus/screens/game_session.cpp#L76
+[cpp-pingu-dead]:https://github.com/Pingus/pingus/blob/7b255840c201d028fd6b19a2185ccf7df3a2cd6e/src/pingus/actions/splashed.cpp#L48
 [gpp-lapsed-listener]: http://gameprogrammingpatterns.com/observer.html#don't-worry,-i've-got-a-gc
 
 [ceu-sprite-update]: https://github.com/fsantanna/pingus/blob/ceu/ceu/engine/display/sprite.ceu#L109
@@ -1803,7 +1806,7 @@ especially if there is no hierarchy relationship between them.
 <a name="signaling-1"/>
 
 @SEC[[
-### Case Study: Global Keys and the Options Menu
+### Global Keys and the Options Menu
 ]]
 
 @FIG_NEW(options-anim-opt.gif,
@@ -2111,13 +2114,13 @@ Boost signals of C++:
 </div>
 
 [boost-signal]:http://www.boost.org/doc/libs/1_60_0/doc/html/signals2.html
-[cpp-global_event]:https://github.com/Pingus/pingus/blob/v0.7.6/src/pingus/global_event.cpp#L34
+[cpp-global_event]:https://github.com/Pingus/pingus/blob/7b255840c201d028fd6b19a2185ccf7df3a2cd6e/src/pingus/global_event.cpp#L34
 [ceu-global_event]:https://github.com/fsantanna/pingus/blob/ceu/ceu/pingus/global_event.ceu#L4
-[cpp-config_manager]:https://github.com/Pingus/pingus/blob/v0.7.6/src/pingus/config_manager.cpp#L182
+[cpp-config_manager]:https://github.com/Pingus/pingus/blob/7b255840c201d028fd6b19a2185ccf7df3a2cd6e/src/pingus/config_manager.cpp#L182
 [ceu-config_manager]:https://github.com/fsantanna/pingus/blob/ceu/ceu/pingus/config_manager.ceu#L4
-[cpp-option_menu]:https://github.com/Pingus/pingus/blob/v0.7.6/src/pingus/screens/option_menu.cpp#L79
+[cpp-option_menu]:https://github.com/Pingus/pingus/blob/7b255840c201d028fd6b19a2185ccf7df3a2cd6e/src/pingus/screens/option_menu.cpp#L79
 [ceu-option_menu]:https://github.com/fsantanna/pingus/blob/ceu/ceu/pingus/screens/option_menu.ceu#L26
-[cpp-check_box]:https://github.com/Pingus/pingus/blob/v0.7.6/src/pingus/components/choice_box.cpp#L54
+[cpp-check_box]:https://github.com/Pingus/pingus/blob/7b255840c201d028fd6b19a2185ccf7df3a2cd6e/src/pingus/components/choice_box.cpp#L54
 [ceu-check_box]:https://github.com/fsantanna/pingus/blob/ceu/ceu/pingus/components/check_box.ceu#L4
 
 <!--
@@ -2254,7 +2257,7 @@ In this sense, they eliminate any vestige of structured programming, becoming
 *our generation's goto* [[![X]][goto]].
 
 [gpp-gameloop]: http://gameprogrammingpatterns.com/game-loop.html
-[pingus-gameloop]: https://github.com/Pingus/pingus/blob/v0.7.6/src/engine/screen/screen_manager.cpp#L172
+[pingus-gameloop]: https://github.com/Pingus/pingus/blob/7b255840c201d028fd6b19a2185ccf7df3a2cd6e/src/engine/screen/screen_manager.cpp#L172
 [goto]: http://tirania.org/blog/archive/2013/Aug-15.html
 
 
@@ -2271,7 +2274,7 @@ In this sense, they eliminate any vestige of structured programming, becoming
 
 The game loop:
 `ScreenManager::display`
-https://github.com/fsantanna/pingus/blob/v0.7.6/src/engine/screen/screen_manager.cpp#L164
+https://github.com/fsantanna/pingus/blob/7b255840c201d028fd6b19a2185ccf7df3a2cd6e/src/engine/screen/screen_manager.cpp#L164
 
 ```
 void ScreenManager::display() {
