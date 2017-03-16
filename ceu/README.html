@@ -409,7 +409,7 @@ occurrences alive (if they don't terminate).
 -->
 <p>The <code>loop</code> (ln. 4-10) awaits the first click (ln. 5) and then, while watching 1 second (ln. 6-9), awaits the second click (ln. 7). If the second click occurs within 1 second, the <code>break</code> terminates the loop (ln. 8) and signals the double click to the application (ln. 12). Otherwise, the <code>watching</code> block as a whole aborts and restarts the loop, falling back to the first click <code>await</code> (ln. 5).</p>
 <p>Note how double click detection in Céu doesn't require any state variables and is entirely self-contained in the <code>loop</code> body (ln. 4-10). Furthermore, these 7 lines of code <strong>only</strong> detect the double click, leaving the actual effect to happen outside the loop (ln. 12).</p>
-<p>The complete implementations for the <em>Armageddon button</em> in C++ and Céu (including redrawing) varies from 47 to 24 lines of code [<a href="https://github.com/fsantanna/pingus/commit/d0afe53648862643857811d0af8a7a9f60119f6c"><img src="images/link_12.png" alt="X" /></a>].</p>
+<p>The complete implementations for the <em>Armageddon button</em> in C++ and Céu (including redrawing) decreases from 47 to 24 lines of code [<a href="https://github.com/fsantanna/pingus/commit/d0afe53648862643857811d0af8a7a9f60119f6c"><img src="images/link_12.png" alt="X" /></a>].</p>
 <p>As we argue throughout this document, appropriate control-flow mechanisms for reactive applications (e.g., the <code>await</code> and <code>watching</code> statements) help on the structure and composition of code, resulting in considerable gains in productivity.</p>
 <p><a name="finite-state-machines-2"/></p>
 <h3 id="the-bomber-action">1.2) The <em>Bomber</em> Action</h3>
@@ -518,6 +518,7 @@ occurrences alive (if they don't terminate).
 <p>The <code>Bomber</code> is a <code>code/await</code> abstraction in Céu (ln. 1-31), which is similar to a co-routine: a function that retains state (variables and program counter) across reactions to events (i.e., across <code>await</code> statements). The pingu movement and sprite animation are separated into two other isolated abstractions (ln. 4,6).</p>
 <p>The code tracks the animation abstraction (ln. 7-27), performing the last action on termination (ln. 30). As soon as the animation starts, the code performs the first action (ln. 8). The intermediate actions are performed when the corresponding conditions occur (ln. 12,16,24).</p>
 <p>The <code>do-end</code> block (ln. 19-25), restricts the lifetime of the single-frame explosion sprite (ln. 21): after the next game tick (ln. 24), the block terminates and automatically destroys the spawned abstraction (removing it from the screen).</p>
+<p>The complete implementations for the <em>Bomber</em> action in C++ and Céu decreases from 50 to 19 lines of code [<a href="https://github.com/fsantanna/pingus/commit/8e8cf7ed81427d575975fc7a4da579c7b76219a0"><img src="images/link_12.png" alt="X" /></a>].</p>
 <p><a name="finite-state-machines-summary"/> <br/></p>
 <div class="summary">
 <p><strong>Summary</strong>:</p>

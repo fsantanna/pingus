@@ -723,7 +723,7 @@ Furthermore, these 7 lines of code **only** detect the double click, leaving
 the actual effect to happen outside the loop @NN(emit).
 
 The complete implementations for the *Armageddon button* in C++ and Céu
-(including redrawing) varies from 47 to 24 lines of code
+(including redrawing) decreases from 47 to 24 lines of code
 [[![X]][diff-armageddon]].
 
 As we argue throughout this document, appropriate control-flow mechanisms for 
@@ -905,6 +905,9 @@ explosion sprite @NN(explo): after the next game tick @NN(frame_3), the block
 terminates and automatically destroys the spawned abstraction (removing it from
 the screen).
 
+The complete implementations for the *Bomber* action in C++ and Céu decreases
+from 50 to 19 lines of code [[![X]][diff_bomber]].
+
 <a name="finite-state-machines-summary"/>
 <br/>
 
@@ -920,8 +923,9 @@ explicit state machines in C++:
   improving code encapsulation.
 </div>
 
-[cpp-bomber]: https://github.com/Pingus/pingus/blob/7b255840c201d028fd6b19a2185ccf7df3a2cd6e/src/pingus/actions/bomber.cpp
-[ceu-bomber]: https://github.com/fsantanna/pingus/blob/ceu/ceu/pingus/screens/game/pingu/actions/bomber.ceu
+[cpp-bomber]:  https://github.com/Pingus/pingus/blob/7b255840c201d028fd6b19a2185ccf7df3a2cd6e/src/pingus/actions/bomber.cpp
+[ceu-bomber]:  https://github.com/fsantanna/pingus/blob/ceu/ceu/pingus/screens/game/pingu/actions/bomber.ceu
+[diff_bomber]: https://github.com/fsantanna/pingus/commit/8e8cf7ed81427d575975fc7a4da579c7b76219a0
 
 <a name="continuation-passing"/>
 
