@@ -712,19 +712,23 @@ occurrences alive (if they don't terminate).
 The `loop` @NN(loop_do,-,loop_end) awaits the first click @NN(await_1) and
 then, while watching 1 second @NN(watching_do,-,watching_end), awaits the
 second click @NN(await_2).
-If the second click occurs within 1 second,the `break` terminates the loop
+If the second click occurs within 1 second, the `break` terminates the loop
 @NN(break) and signals the double click to the application @NN(emit).
 Otherwise, the `watching` block as a whole aborts and restarts the loop, 
 falling back to the first click `await` @NN(await_1).
 
-Note how double click detection in Céu doesn't require any state variable and
+Note how double click detection in Céu doesn't require any state variables and
 is entirely self-contained in the `loop` body  @NN(loop_do,-,loop_end).
-Furthermore, these 7 lines of code **only** detects a double click, leaving the 
-actual effect to happen outside the loop @NN(emit).
+Furthermore, these 7 lines of code **only** detect the double click, leaving
+the actual effect to happen outside the loop @NN(emit).
 
 As we argue throughout this document, appropriate control-flow mechanisms for 
-reactive applications (e.g., `await` and `watching`) helps on the structure and 
-composition of code, resulting in considerable gains in productivity.
+reactive applications (e.g., the `await` and `watching` statements) help on the
+structure and composition of code, resulting in considerable gains in
+productivity.
+
+The complete implementation for the buttons in C++ and Céu varies from 47 to 24
+lines of code [[![X]][xxx]].
 
 [cpp-armageddon]: https://github.com/Pingus/pingus/blob/7b255840c201d028fd6b19a2185ccf7df3a2cd6e/src/pingus/components/action_button.cpp#L24 
 [cpp-armageddon-2]: https://github.com/Pingus/pingus/blob/7b255840c201d028fd6b19a2185ccf7df3a2cd6e/src/pingus/components/action_button.cpp#L33-#L90
