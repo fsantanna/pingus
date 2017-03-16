@@ -730,9 +730,10 @@ productivity.
 The complete implementation for the buttons in C++ and Céu varies from 47 to 24
 lines of code [[![X]][xxx]].
 
-[cpp-armageddon]: https://github.com/Pingus/pingus/blob/7b255840c201d028fd6b19a2185ccf7df3a2cd6e/src/pingus/components/action_button.cpp#L24 
+[cpp-armageddon]:   https://github.com/Pingus/pingus/blob/7b255840c201d028fd6b19a2185ccf7df3a2cd6e/src/pingus/components/action_button.cpp#L24 
 [cpp-armageddon-2]: https://github.com/Pingus/pingus/blob/7b255840c201d028fd6b19a2185ccf7df3a2cd6e/src/pingus/components/action_button.cpp#L33-#L90
-[ceu-armageddon]: https://github.com/fsantanna/pingus/blob/ceu/ceu/pingus/screens/game/input.ceu#L107
+[ceu-armageddon]:   https://github.com/fsantanna/pingus/blob/ceu/ceu/pingus/screens/game/input.ceu#L107
+[diff-armageddon]:  https://github.com/fsantanna/pingus/commit/d0afe53648862643857811d0af8a7a9f60119f6c
 
 <a name="finite-state-machines-2"/>
 
