@@ -1,41 +1,24 @@
-ArmageddonButton::ArmageddonButton(Server* s, int x, int y) :
-  RectComponent(Rect(Vector2i(x, y), Size(38, 60))),
-  server(s),
-  background  ("core/buttons/hbuttonbgb"),
-  backgroundhl("core/buttons/hbuttonbg")
-{
-  pressed = false;
-  sprite  = Sprite("core/buttons/armageddon_anim");
-}
-void ArmageddonButton::draw (DrawingContext& gc) {
-  Vector2i pos(rect.left, rect.top);
-  if (server->get_world()->check_armageddon ()) {
-    gc.draw(backgroundhl, pos);
-    gc.draw(sprite, pos);
-  } else {
-    gc.draw(background, pos);
-    sprite.set_frame(7);
-    gc.draw(sprite, pos);
-  }
-}
-void ArmageddonButton::update (float delta) {
-  sprite.update(delta);
-  if (pressed) {
-    press_time += delta;
-    if (press_time > 1.0f) {
-      press_time = 0;
-      pressed = false;
-    }
-  }
-  else {
-    pressed = false;
-    press_time = 0;
-  }
-}
-void ArmageddonButton::on_primary_button_click (int x, int y) {
-  if (pressed) {
-    server->send_armageddon_event();
-  } else {
-    pressed = true;
-  }
-}
+var& RRect rect = spawn RRect(IRRect(Rect(-105+40+40,-5,38,60),
+                                     AnchorXY(AnchorX.Center(), AnchorY.Bottom()),
+                                     &outer.main.rect,
+                                     AnchorXY(AnchorX.Right(), AnchorY.Bottom()),
+                                     _, _));
+var& RectComponent component = spawn RectComponent(&rect.pub);
+spawn Sprite_from_name(&rect.pub, "core/buttons/hbuttonbgb", &outer.main.dt);
+do
+    var&? Sprite_from_name s = spawn Sprite_from_name(&rect.pub, "core/buttons/armageddon_anim", &outer.main.dt);
+    s!.sprite.frame_delay = 0;
+    s!.sprite.frame = 7;
+    loop do
+        await component.component.on_primary_button_pressed;
+        watching 1s do
+            await component.component.on_primary_button_pressed;
+            break;
+        end
+    end
+end
+do
+    spawn Sprite_from_name(&rect.pub, "core/buttons/armageddon_anim", &outer.main.dt);
+    emit outer.game.go_armageddon;
+    await FOREVER;
+end
