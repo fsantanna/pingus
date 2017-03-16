@@ -380,10 +380,10 @@ Let's consider the case of handling double clicks in the game.
 <p>Because callbacks are short lived, the only way they can affect each other is by manipulating persisting member variables in the object. These <em>state variables</em> retain their values across multiple invocations and serve as a control mechanism across reactions to external events. For instance, callbacks <code>on_click</code> and <code>update</code> react independently but must agree on a common protocol to detect the double click:</p>
 <ul>
 <li><code>on_click</code> writes to <code>pressed</code> in the first click (ln. 30), and checks its state in further clicks (ln. 33).</li>
-<li>In the meantime, <code>update</code> also checks for <code>pressed</code> and may reset its state (ln. 17,20).</li>
+<li><code>update</code>, in the meantime, also checks for <code>pressed</code> and may reset its state (ln. 17,20).</li>
 </ul>
 <!-- CEU-ARMAGEDDON -->
-<p>Céu provides structured constructs to deal with events, aiming to eradicate explicit manipulation of state variables for control-flow purposes. The equivalent code in Céu [<a href="https://github.com/fsantanna/pingus/blob/ceu/ceu/pingus/screens/game/input.ceu#L107"><img src="images/link_12.png" alt="X" /></a>] for the double click detection is as follows:</p>
+<p>Céu provides structured constructs to deal with events, aiming to eradicate explicit manipulation of state variables for control-flow purposes. The equivalent code in Céu for the double click detection is as follows [<a href="https://github.com/fsantanna/pingus/blob/ceu/ceu/pingus/screens/game/input.ceu#L107"><img src="images/link_12.png" alt="X" /></a>]:</p>
 <pre><code><b><font size="-1" color="#666666"> 1:</font></b>  <b>do</b>
 <b><font size="-1" color="#666666"> 2:</font></b>      <b>var</b>& RectComponent c = <...>;
 <b><font size="-1" color="#666666"> 3:</font></b>      <...>
@@ -395,7 +395,7 @@ Let's consider the case of handling double clicks in the game.
 <b><font size="-1" color="#666666"> 9:</font></b>          <b>end</b>
 <b><font size="-1" color="#666666">10:</font></b>      <b>end</b>
 <b><font size="-1" color="#666666">11:</font></b>      <...>
-<b><font size="-1" color="#666666">12:</font></b>      <b>emit</b> outer.game.go_armageddon;
+<b><font size="-1" color="#666666">12:</font></b>      <b>emit</b> <b>outer</b>.game.go_armageddon;
 <b><font size="-1" color="#666666">13:</font></b>  <b>end</b></code></pre>
 <!--
 Instead of *objects*, classes in Céu instantiate *organisms* with a body 
@@ -428,8 +428,8 @@ occurrences alive (if they don't terminate).
 <li>Game tick: hides the explosion sprite.</li>
 <li>Last frame: kills the pingu.</li>
 </ol>
-<p><em>(Open <a href="https://youtu.be/QLXIT59il6o?t=306">this video</a> to listen to the sound effects.)</em></p>
-<p>The code in C++ defines the class <code>Bomber</code> [<a href="https://github.com/Pingus/pingus/blob/7b255840c201d028fd6b19a2185ccf7df3a2cd6e/src/pingus/actions/bomber.cpp"><img src="images/link_12.png" alt="X" /></a>] with callbacks <code>draw</code> and <code>update</code> to manage the state machine:</p>
+<p><em>(<a href="https://youtu.be/QLXIT59il6o?t=306">This video</a> plays the sound effects.)</em></p>
+<p>The C++ class <code>Bomber</code> [<a href="https://github.com/Pingus/pingus/blob/7b255840c201d028fd6b19a2185ccf7df3a2cd6e/src/pingus/actions/bomber.cpp"><img src="images/link_12.png" alt="X" /></a>] defines the callbacks <code>draw</code> and <code>update</code> to manage the state machine described above:</p>
 <pre><code><b><font size="-1" color="#666666"> 1:</font></b>  Bomber::Bomber (Pingu* p) :
 <b><font size="-1" color="#666666"> 2:</font></b>      <...>
 <b><font size="-1" color="#666666"> 3:</font></b>      sprite(),                   // bomber sprite
@@ -457,67 +457,67 @@ occurrences alive (if they don't terminate).
 <b><font size="-1" color="#666666">25:</font></b>      // 3. 13th frame: throws particles, destroys the terrain, shows an explosion sprite
 <b><font size="-1" color="#666666">26:</font></b>      <b>if</b> (sprite.get_current_frame()==13 && !particle_thrown) {
 <b><font size="-1" color="#666666">27:</font></b>          particle_thrown = <b>true</b>;
-<b><font size="-1" color="#666666">28:</font></b>          get_world()->get_pingu_particle_holder()->add_particle(pingu->get_x(),
-<b><font size="-1" color="#666666">29:</font></b>                                                                 pingu->get_y()-5);
-<b><font size="-1" color="#666666">30:</font></b>      }
-<b><font size="-1" color="#666666">31:</font></b>      <b>if</b> (sprite.get_current_frame()==13 && !colmap_exploded) {
-<b><font size="-1" color="#666666">32:</font></b>          colmap_exploded = <b>true</b>;
-<b><font size="-1" color="#666666">33:</font></b>          get_world()->remove(bomber_radius, <...>);
-<b><font size="-1" color="#666666">34:</font></b>      }
-<b><font size="-1" color="#666666">35:</font></b>  
-<b><font size="-1" color="#666666">36:</font></b>      // 5. Last frame: kills the Pingu
-<b><font size="-1" color="#666666">37:</font></b>      <b>if</b> (sprite.is_finished ()) {
-<b><font size="-1" color="#666666">38:</font></b>          pingu->set_status(Pingu::PS_DEAD);
-<b><font size="-1" color="#666666">39:</font></b>      }
-<b><font size="-1" color="#666666">40:</font></b>  }
-<b><font size="-1" color="#666666">41:</font></b>  
-<b><font size="-1" color="#666666">42:</font></b>  <b>void</b> Bomber::draw (SceneContext& gc) {
-<b><font size="-1" color="#666666">43:</font></b>      // 3. 13th frame: throws particles, destroys the terrain, shows an explosion sprite
-<b><font size="-1" color="#666666">44:</font></b>      // 4. Game tick: hides the explosion sprite
-<b><font size="-1" color="#666666">45:</font></b>      <b>if</b> (sprite.get_current_frame()==13 && !gfx_exploded) {
-<b><font size="-1" color="#666666">46:</font></b>          gfx_exploded = <b>true</b>;
-<b><font size="-1" color="#666666">47:</font></b>          gc.color().draw (explo_surf, <...>);
-<b><font size="-1" color="#666666">48:</font></b>      }
-<b><font size="-1" color="#666666">49:</font></b>      gc.color().draw(sprite, pingu->get_pos());
-<b><font size="-1" color="#666666">50:</font></b>  }</code></pre>
+<b><font size="-1" color="#666666">28:</font></b>          get_world()->get_pingu_particle_holder()->add_particle(...);
+<b><font size="-1" color="#666666">29:</font></b>      }
+<b><font size="-1" color="#666666">30:</font></b>      <b>if</b> (sprite.get_current_frame()==13 && !colmap_exploded) {
+<b><font size="-1" color="#666666">31:</font></b>          colmap_exploded = <b>true</b>;
+<b><font size="-1" color="#666666">32:</font></b>          get_world()->remove(bomber_radius, <...>);
+<b><font size="-1" color="#666666">33:</font></b>      }
+<b><font size="-1" color="#666666">34:</font></b>  
+<b><font size="-1" color="#666666">35:</font></b>      // 5. Last frame: kills the Pingu
+<b><font size="-1" color="#666666">36:</font></b>      <b>if</b> (sprite.is_finished ()) {
+<b><font size="-1" color="#666666">37:</font></b>          pingu->set_status(Pingu::PS_DEAD);
+<b><font size="-1" color="#666666">38:</font></b>      }
+<b><font size="-1" color="#666666">39:</font></b>  }
+<b><font size="-1" color="#666666">40:</font></b>  
+<b><font size="-1" color="#666666">41:</font></b>  <b>void</b> Bomber::draw (SceneContext& gc) {
+<b><font size="-1" color="#666666">42:</font></b>      // 3. 13th frame: throws particles, destroys the terrain, shows an explosion sprite
+<b><font size="-1" color="#666666">43:</font></b>      // 4. Game tick: hides the explosion sprite
+<b><font size="-1" color="#666666">44:</font></b>      <b>if</b> (sprite.get_current_frame()==13 && !gfx_exploded) {
+<b><font size="-1" color="#666666">45:</font></b>          gfx_exploded = <b>true</b>;
+<b><font size="-1" color="#666666">46:</font></b>          gc.color().draw (explo_surf, <...>);
+<b><font size="-1" color="#666666">47:</font></b>      }
+<b><font size="-1" color="#666666">48:</font></b>      gc.color().draw(sprite, pingu->get_pos());
+<b><font size="-1" color="#666666">49:</font></b>  }</code></pre>
 <!--*-->
-<p>The class defines one state variable for each action to perform (ln. 4-7). The &quot;Oh no!&quot; sound plays as soon as the object starts in <em>state-1</em> (ln. 11). The <code>update</code> callback updates pingu animation and movement every frame regardless of its current state (ln. 16-17). When the animation reaches the 10th frame, it plays the &quot;Bomb!&quot; sound and switches to <em>state-2</em> (ln. 20-23). The state variable <code>sound_played</code> is required because the sprite frame doesn't necessarily advance on every <code>update</code> invocation. The same reasoning and technique applies to the <em>state-3</em> (ln. 26-34 and 45-46). The explosion sprite appears in a single frame in <em>state-4</em> (ln. 47). Finally, the pingu dies after the animation frames terminate (ln. 37-39).</p>
+<p>The class defines one state variable for each action to perform (ln. 4-7). The &quot;Oh no!&quot; sound plays as soon as the object starts in <em>state-1</em> (ln. 11). The <code>update</code> callback updates the pingu animation and movement every frame regardless of its current state (ln. 16-17). When the animation reaches the 10th frame, it plays the &quot;Bomb!&quot; sound and switches to <em>state-2</em> (ln. 20-23). The state variable <code>sound_played</code> is required because the sprite frame doesn't necessarily advance on every <code>update</code> invocation. The same reasoning and technique applies to the <em>state-3</em> (ln. 26-33 and 44-45). The explosion sprite appears in a single frame in <em>state-4</em> (ln. 46). Finally, the pingu dies after the animation frames terminate (ln. 36-38).</p>
 <p>Note that a single numeric state variable would suffice to track the states. Probably, the authors chose to encode each state in an independent boolean variable to rearrange and experiment with them during the development. Still, due to the short-lived nature of callbacks, state variables are unavoidable, and are actually the essence of object-oriented programming (i.e., <em>methods + mutable state</em>).</p>
 <p><a name="bomber"/></p>
-<p>The implementation in Céu doesn't require explicit state variables and reflects the sequential state machine implicitly, as sequential code separated by <code>await</code> statements:</p>
-<pre><code><b><font size="-1" color="#666666"> 1:</font></b>  <b>class</b> Bomber <b>with</b>
-<b><font size="-1" color="#666666"> 2:</font></b>      <...>
-<b><font size="-1" color="#666666"> 3:</font></b>  <b>do</b>
-<b><font size="-1" color="#666666"> 4:</font></b>      <...>
-<b><font size="-1" color="#666666"> 5:</font></b>      <b>var</b> Sprite sprite = <...>;      // bomber sprite
-<b><font size="-1" color="#666666"> 6:</font></b>      <b>par</b> <b>do</b>
-<b><font size="-1" color="#666666"> 7:</font></b>          <...>   // pingu movement
-<b><font size="-1" color="#666666"> 8:</font></b>      <b>with</b>
-<b><font size="-1" color="#666666"> 9:</font></b>          // 1. 0th frame: plays a "Oh no!" sound.
-<b><font size="-1" color="#666666">10:</font></b>          <b>call</b> <b>global</b>:play_sound("ohno", 0.5, 0.0);
-<b><font size="-1" color="#666666">11:</font></b>  
-<b><font size="-1" color="#666666">12:</font></b>          // 2. 10th frame: plays a "Bomb!" sound.
-<b><font size="-1" color="#666666">13:</font></b>          <b>await</b> WORLD_UPDATE <b>until</b> sprite.get_current_frame() == 10;
-<b><font size="-1" color="#666666">14:</font></b>          <b>call</b> <b>global</b>:play_sound("plop", 0.5, 0.0);
-<b><font size="-1" color="#666666">15:</font></b>  
-<b><font size="-1" color="#666666">16:</font></b>          // 3. 13th frame: throws particles, destroys the terrain, shows an explosion sprite
-<b><font size="-1" color="#666666">17:</font></b>          <b>await</b> WORLD_UPDATE <b>until</b> sprite.get_current_frame() == 13;
-<b><font size="-1" color="#666666">18:</font></b>          <b>emit</b> <b>global</b>:go_create_pingu_particles => (<b>this</b>.pingu.get_x(),
-<b><font size="-1" color="#666666">19:</font></b>                                                    <b>this</b>.pingu.get_y()-5);
-<b><font size="-1" color="#666666">20:</font></b>          <b>global</b>:remove(&&_bomber_radius, <...>);
-<b><font size="-1" color="#666666">21:</font></b>          <b>do</b>
-<b><font size="-1" color="#666666">22:</font></b>              <b>var</b> Sprite _ = Sprite.build_name(<...>, &&explo);
+<p>The equivalent code in Céu for the bomber action doesn't require any state variables and reflects the sequential state machine implicitly, as code separated by <code>await</code> statements in direct style [<a href="https://github.com/fsantanna/pingus/blob/ceu/ceu/pingus/screens/game/pingu/actions/bomber.ceu"><img src="images/link_12.png" alt="X" /></a>]:</p>
+<pre><code><b><font size="-1" color="#666666"> 1:</font></b>  <b>code</b>/<b>await</b> Bomber (<b>void</b>) -> _ActionName__Enum
+<b><font size="-1" color="#666666"> 2:</font></b>  <b>do</b>
+<b><font size="-1" color="#666666"> 3:</font></b>      <...>
+<b><font size="-1" color="#666666"> 4:</font></b>      <b>spawn</b> Mover();                          // pingu movement
+<b><font size="-1" color="#666666"> 5:</font></b>  
+<b><font size="-1" color="#666666"> 6:</font></b>      <b>var</b>&? Sprite s = <b>spawn</b> Sprite(<...>);   // bomber animation
+<b><font size="-1" color="#666666"> 7:</font></b>      <b>watching</b> s <b>do</b>
+<b><font size="-1" color="#666666"> 8:</font></b>          // 1. 0th frame: plays a "Oh no!" sound.
+<b><font size="-1" color="#666666"> 9:</font></b>          {Sound::PingusSound::play_sound("ohno", 0.5, 0.0)};
+<b><font size="-1" color="#666666">10:</font></b>  
+<b><font size="-1" color="#666666">11:</font></b>          // 2. 10th frame: plays a "Bomb!" sound.
+<b><font size="-1" color="#666666">12:</font></b>          <b>await</b> <b>outer</b>.game.dt <b>until</b> s!.sprite.frame == 10;
+<b><font size="-1" color="#666666">13:</font></b>          {Sound::PingusSound::play_sound("plop", 0.5, 0.0)};
+<b><font size="-1" color="#666666">14:</font></b>  
+<b><font size="-1" color="#666666">15:</font></b>          // 3. 13th frame: throws particles, destroys the terrain, shows an explosion sprite
+<b><font size="-1" color="#666666">16:</font></b>          <b>await</b> <b>outer</b>.game.dt <b>until</b> s!.sprite.frame == 13;
+<b><font size="-1" color="#666666">17:</font></b>          <b>spawn</b> PinguParticles(<...>) <b>in</b> <b>outer</b>.pingu_particles;
+<b><font size="-1" color="#666666">18:</font></b>          <b>call</b> Game_Remove({&bomber_radius}, <...>);
+<b><font size="-1" color="#666666">19:</font></b>          <b>do</b>
+<b><font size="-1" color="#666666">20:</font></b>              <...>
+<b><font size="-1" color="#666666">21:</font></b>              <b>spawn</b> Sprite(<...>);            // explosion
+<b><font size="-1" color="#666666">22:</font></b>  
 <b><font size="-1" color="#666666">23:</font></b>              // 4. Game tick: hides the explosion sprite
-<b><font size="-1" color="#666666">24:</font></b>              <b>await</b> WORLD_UPDATE;
+<b><font size="-1" color="#666666">24:</font></b>              <b>await</b> <b>outer</b>.game.dt;
 <b><font size="-1" color="#666666">25:</font></b>          <b>end</b>
-<b><font size="-1" color="#666666">26:</font></b>  
-<b><font size="-1" color="#666666">27:</font></b>          // 5. Last frame: kills the pingu
-<b><font size="-1" color="#666666">28:</font></b>          <b>await</b> sprite;
-<b><font size="-1" color="#666666">29:</font></b>          <b>escape</b> {ActionName::DEAD};
-<b><font size="-1" color="#666666">30:</font></b>      <b>end</b>
+<b><font size="-1" color="#666666">26:</font></b>          <b>await</b> FOREVER;
+<b><font size="-1" color="#666666">27:</font></b>      <b>end</b>
+<b><font size="-1" color="#666666">28:</font></b>  
+<b><font size="-1" color="#666666">29:</font></b>      // 5. Last frame: kills the pingu
+<b><font size="-1" color="#666666">30:</font></b>      <b>escape</b> {ActionName::DEAD};
 <b><font size="-1" color="#666666">31:</font></b>  <b>end</b></code></pre>
-<p>The <code>par</code> composition (ln. 6-30) isolates non-interacting behaviors, such as the pingu movement (ln. 7) and animation (ln. 9-29). The animation is a direct sequence of statements that await transition conditions to change behavior.</p>
-<p>Note that we use a local and lexically-scoped organism (to be discussed further [<a href="#dispatching-hierarchies"><img src="images/link_12.png" alt="X" /></a>]) for the temporary single-frame explosion (ln. 21-25). We also use auxiliary signaling mechanisms (to be discussed further [<a href="#signaling-mechanisms"><img src="images/link_12.png" alt="X" /></a>]) to throw pingu particles (ln. 18), to await the termination of the animation (ln. 28), and to notify the application about our own termination.</p>
+<p>The <code>Bomber</code> is a <code>code/await</code> abstraction in Céu (ln. 1-31), which is similar to a co-routine: a function that retains state (variables and program counter) across reactions to events (i.e., across <code>await</code> statements). The pingu movement and sprite animation are separated into two other isolated abstractions (ln. 4,6).</p>
+<p>The code tracks the animation abstraction (ln. 7-27), performing the last action on termination (ln. 30). As soon as the animation starts, the code performs the first action (ln. 8). The intermediate actions are performed when the corresponding conditions occur (ln. 12,16,24).</p>
+<p>The <code>do-end</code> block (ln. 19-25), restricts the lifetime of the single-frame explosion sprite (ln. 21): after the next game tick (ln. 24), the block terminates and automatically destroys the spawned abstraction (removing it from the screen).</p>
 <p><a name="finite-state-machines-summary"/> <br/></p>
 <div class="summary">
 <p><strong>Summary</strong>:</p>
@@ -591,7 +591,7 @@ more natural structured code with sequences, conditionals, and loops
 <p>The variable <code>pages</code> (ln. 4-5, 24-26) is a vector holding each page, but which also encodes <em>continuations</em> for the story progress: each call to <code>next_text</code> that advances the story (ln. 23-32) removes the current page (ln. 24) and sets the next action to perform (i.e., &quot;display a new page&quot;) in the variable <code>current_page</code> (ln. 26). Figure 8 illustrates the state machine for fast-forwarding words (inside the dashed rectangle) and also the continuation mechanism to advance pages. The state variable <code>displayed</code> (ln. 6,15,20,21,27) switches between the behaviors &quot;advancing text&quot; and &quot;advancing pages&quot;, which are both handled inside the method <code>next_text</code>.</p>
 <!-- CEU-STORY-PAGES -->
 <p>The code in Céu [<a href="https://github.com/fsantanna/pingus/blob/ceu/ceu/pingus/screens/story_screen.ceu#L14"><img src="images/link_12.png" alt="X" /></a>] uses the event <code>next_text</code>, which is emitted from clicks in <code>&gt;&gt;&gt;</code>:</p>
-<pre><code><b><font size="-1" color="#666666"> 1:</font></b>  <b>class</b> StoryScreen <b>with</b>
+<pre><code><b><font size="-1" color="#666666"> 1:</font></b>  class StoryScreen <b>with</b>
 <b><font size="-1" color="#666666"> 2:</font></b>      <...>
 <b><font size="-1" color="#666666"> 3:</font></b>  <b>do</b>
 <b><font size="-1" color="#666666"> 4:</font></b>      <b>event</b> <b>void</b> next_text;   // emitted from clicks <b>in</b> `>>>`
@@ -784,9 +784,9 @@ TODO: falar de broadcast (in Ceu: unless it is paused, all receive always)
 <li>Sprites are reusable everywhere, so it is also convenient to decouple them from actions.</li>
 </ul>
 <!-- CEU-BOMBER-SPRITE -->
-<p>Now, consider the <code>Bomber</code> animation in Céu [<a href="https://github.com/fsantanna/pingus/blob/ceu/ceu/pingus/actions/bomber.ceu"><img src="images/link_12.png" alt="X" /></a>]:</p>
-<pre><code><b><font size="-1" color="#666666"> 1:</font></b>  <b>class</b> Bomber <b>with</b>
-<b><font size="-1" color="#666666"> 2:</font></b>      <b>interface</b> IPinguAction;
+<p>Now, consider the <code>Bomber</code> animation in Céu [<a href="https://github.com/fsantanna/pingus/blob/ceu/ceu/pingus/screens/game/pingu/actions/bomber.ceu"><img src="images/link_12.png" alt="X" /></a>]:</p>
+<pre><code><b><font size="-1" color="#666666"> 1:</font></b>  class Bomber <b>with</b>
+<b><font size="-1" color="#666666"> 2:</font></b>      interface IPinguAction;
 <b><font size="-1" color="#666666"> 3:</font></b>  <b>do</b>
 <b><font size="-1" color="#666666"> 4:</font></b>      <b>var</b> Sprite sprite = Sprite.build_name(<...>);
 <b><font size="-1" color="#666666"> 5:</font></b>      <...>
@@ -797,7 +797,7 @@ TODO: falar de broadcast (in Ceu: unless it is paused, all receive always)
 <img src="images/explo.png" width=""/> <br> <a href="images/explo.png"> Figure 12</a>: Explosion sprite for the <code>Bomber</code> animation
 </div>
 <p>Just like standard local variables, we can delimit the scope of organisms through explicit blocks. As an example, the explosion sprite for the <code>Bomber</code> animation above [<a href="#bomber"><img src="images/link_12.png" alt="X" /></a>] reacts and redraws exactly for one occurrence of <code>WORLD_UPDATE</code> (after the 13th animation frame):</p>
-<pre><code><b><font size="-1" color="#666666"> 1:</font></b>  <b>class</b> Bomber <b>with</b>
+<pre><code><b><font size="-1" color="#666666"> 1:</font></b>  class Bomber <b>with</b>
 <b><font size="-1" color="#666666"> 2:</font></b>      <...>
 <b><font size="-1" color="#666666"> 3:</font></b>  <b>do</b>
 <b><font size="-1" color="#666666"> 4:</font></b>      <b>var</b> Sprite sprite = Sprite.build_name(<...>);
@@ -857,7 +857,7 @@ TODO: falar de broadcast (in Ceu: unless it is paused, all receive always)
 </div>
 <!-- CEU-CONTAINER-STATIC -->
 <p>In Céu, entities that coexist with an enclosing class just need to be declared at the top-level block [<a href="https://github.com/fsantanna/pingus/blob/ceu/ceu/pingus/world.ceu#L124"><img src="images/link_12.png" alt="X" /></a>]:</p>
-<pre><code><b><font size="-1" color="#666666"> 1:</font></b>  <b>class</b> World <b>with</b>
+<pre><code><b><font size="-1" color="#666666"> 1:</font></b>  class World <b>with</b>
 <b><font size="-1" color="#666666"> 2:</font></b>      <...>
 <b><font size="-1" color="#666666"> 3:</font></b>  <b>do</b>
 <b><font size="-1" color="#666666"> 4:</font></b>      <...>
@@ -902,14 +902,14 @@ TODO: falar de broadcast (in Ceu: unless it is paused, all receive always)
 <!-- CEU-CONTAINER-DYNAMIC -->
 <p>In Céu, we rely on primitive <code>pool</code> containers of organisms, which are also subject to lexical scope, just like scalar organisms. The statement <code>spawn &lt;T&gt; in &lt;pool&gt;</code> creates an organism of type <code>&lt;T&gt;</code> dynamically, also specifying a <code>&lt;pool&gt;</code> to hold the new instance.</p>
 <p>The <code>PinguHolder</code> class in Céu spawns a new <code>Pingu</code> for every occurrence of the event <code>global:go_create_pingu</code> [<a href="https://github.com/fsantanna/pingus/blob/ceu/ceu/pingus/pingu_holder.ceu#L12"><img src="images/link_12.png" alt="X" /></a>]:</p>
-<pre><code><b><font size="-1" color="#666666"> 1:</font></b>  <b>class</b> PinguHolder <b>with</b>
+<pre><code><b><font size="-1" color="#666666"> 1:</font></b>  class PinguHolder <b>with</b>
 <b><font size="-1" color="#666666"> 2:</font></b>      <...>
 <b><font size="-1" color="#666666"> 3:</font></b>  <b>do</b>
 <b><font size="-1" color="#666666"> 4:</font></b>      <b>pool</b> IPingu[] pingus;
 <b><font size="-1" color="#666666"> 5:</font></b>      <...>
-<b><font size="-1" color="#666666"> 6:</font></b>      <b>every</b> (<...>) <b>in</b> <b>global</b>:go_create_pingu <b>do</b>
+<b><font size="-1" color="#666666"> 6:</font></b>      <b>every</b> (<...>) <b>in</b> global:go_create_pingu <b>do</b>
 <b><font size="-1" color="#666666"> 7:</font></b>          <...>
-<b><font size="-1" color="#666666"> 8:</font></b>          <b>spawn</b> Pingu <b>in</b> <b>this</b>.pingus;
+<b><font size="-1" color="#666666"> 8:</font></b>          <b>spawn</b> Pingu <b>in</b> this.pingus;
 <b><font size="-1" color="#666666"> 9:</font></b>      <b>end</b>
 <b><font size="-1" color="#666666">10:</font></b>  <b>end</b></code></pre>
 <p>The class <code>PinguHolder</code> declares a pool of <code>IPingu</code> [<a href="https://github.com/fsantanna/pingus/blob/ceu/ceu/main.ceu#L95"><img src="images/link_12.png" alt="X" /></a>] identified as <code>pingus</code> (ln. 4). We spawn instances of <code>Pingu</code> [<a href="https://github.com/fsantanna/pingus/blob/ceu/ceu/pingus/pingu.ceu#L54"><img src="images/link_12.png" alt="X" /></a>] (which implements the <code>IPingu</code> interface) on the <code>pingus</code> pool (ln. 8).</p>
@@ -919,13 +919,13 @@ TODO: falar de broadcast (in Ceu: unless it is paused, all receive always)
 </div>
 <p>Lexical scopes handle memory and dispatching automatically for static organisms and pools. However, the lifespan of a dynamic organism does not necessarily match the lifespan of its corresponding pool (Figure 15). When the execution block of a dynamic organism terminates, which characterizes its <em>natural termination</em>, the organism is automatically removed its pool. Therefore, dynamic organisms don't require any extra bookkeeping related to containers.</p>
 <p>In Céu, going back to the case of removing a pingu from the game, we just need to terminate its execution block according to the appropriate conditions [<a href="https://github.com/fsantanna/pingus/blob/ceu/ceu/pingus/pingu.ceu#L83"><img src="images/link_12.png" alt="X" /></a>]:</p>
-<pre><code><b><font size="-1" color="#666666"> 1:</font></b>  <b>class</b> Pingu <b>with</b>
+<pre><code><b><font size="-1" color="#666666"> 1:</font></b>  class Pingu <b>with</b>
 <b><font size="-1" color="#666666"> 2:</font></b>      <...>
 <b><font size="-1" color="#666666"> 3:</font></b>  <b>do</b>
 <b><font size="-1" color="#666666"> 4:</font></b>      <...>
 <b><font size="-1" color="#666666"> 5:</font></b>      <b>loop</b> <b>do</b>
 <b><font size="-1" color="#666666"> 6:</font></b>          <b>await</b> WORLD_UPDATE;
-<b><font size="-1" color="#666666"> 7:</font></b>          <b>if</b> <b>this</b>.rel_getpixel(0,-1) == {Groundtype::GP_OUTOFSCREEN} <b>then</b>
+<b><font size="-1" color="#666666"> 7:</font></b>          <b>if</b> this.rel_getpixel(0,-1) == {Groundtype::GP_OUTOFSCREEN} <b>then</b>
 <b><font size="-1" color="#666666"> 8:</font></b>              <...>
 <b><font size="-1" color="#666666"> 9:</font></b>              <b>escape</b> _PS_DEAD;
 <b><font size="-1" color="#666666">10:</font></b>          <b>end</b>
@@ -1035,7 +1035,7 @@ Also, all memory required for static instances is known at compile time.
 <b><font size="-1" color="#666666">10:</font></b>          <...>
 <b><font size="-1" color="#666666">11:</font></b>      }
 <b><font size="-1" color="#666666">12:</font></b>  }</code></pre>
-<pre><code><b><font size="-1" color="#666666"> 1:</font></b>  <b>class</b> GlobalEvent <b>with</b>
+<pre><code><b><font size="-1" color="#666666"> 1:</font></b>  class GlobalEvent <b>with</b>
 <b><font size="-1" color="#666666"> 2:</font></b>      <...>
 <b><font size="-1" color="#666666"> 3:</font></b>  <b>do</b>
 <b><font size="-1" color="#666666"> 4:</font></b>      <b>every</b> e <b>in</b> SDL_KEYDOWN <b>do</b>
@@ -1066,10 +1066,10 @@ Also, all memory required for static instances is known at compile time.
 <b><font size="-1" color="#666666"> 9:</font></b>  }</code></pre>
 <p>Once the <code>GlobalEvent</code> detects a key press, it calls <code>set_mouse_grab</code> (ln. 3) which broadcasts the signal <code>on_mouse_grab_change</code> (ln. 7). The <code>if</code> enclosing the signal emission (ln. 5-8) breaks the dependency cycle of Figure 17 to avoid an infinite execution loop.</p>
 <p>In Céu, since the class <code>GlobalEvent</code> already broadcasts the event <code>ConfigManager::go_mouse_grab</code>, the <code>ConfigManager</code> [<a href="https://github.com/fsantanna/pingus/blob/ceu/ceu/pingus/config_manager.ceu#L4"><img src="images/link_12.png" alt="X" /></a>] just needs to react to it continuously to perform the <em>grab</em> effect:</p>
-<pre><code><b><font size="-1" color="#666666"> 1:</font></b>  <b>class</b> ConfigManager <b>with</b>
+<pre><code><b><font size="-1" color="#666666"> 1:</font></b>  class ConfigManager <b>with</b>
 <b><font size="-1" color="#666666"> 2:</font></b>      <b>event</b> <b>bool</b> go_mouse_grab;
 <b><font size="-1" color="#666666"> 3:</font></b>  <b>do</b>
-<b><font size="-1" color="#666666"> 4:</font></b>      <b>every</b> v <b>in</b> <b>this</b>.go_mouse_grab <b>do</b>
+<b><font size="-1" color="#666666"> 4:</font></b>      <b>every</b> v <b>in</b> this.go_mouse_grab <b>do</b>
 <b><font size="-1" color="#666666"> 5:</font></b>          <...>   // the actual "grab" effect
 <b><font size="-1" color="#666666"> 6:</font></b>      <b>end</b>
 <b><font size="-1" color="#666666"> 7:</font></b>  <b>end</b></code></pre>
@@ -1087,19 +1087,19 @@ Also, all memory required for static instances is known at compile time.
 <b><font size="-1" color="#666666"> 8:</font></b>  }</code></pre>
 <p>Again, the <code>if</code> enclosing the signal emission (ln. 5-7) breaks the dependency cycle of Figure 17.</p>
 <p>The <code>CheckBox</code> in Céu [<a href="https://github.com/fsantanna/pingus/blob/ceu/ceu/pingus/components/check_box.ceu#L4"><img src="images/link_12.png" alt="X" /></a>] exposes the event <code>go_click</code> for notifications in both directions, i.e., from the class to the application and <em>vice versa</em>:</p>
-<pre><code><b><font size="-1" color="#666666"> 1:</font></b>  <b>class</b> CheckBox <b>with</b>
+<pre><code><b><font size="-1" color="#666666"> 1:</font></b>  class CheckBox <b>with</b>
 <b><font size="-1" color="#666666"> 2:</font></b>      <...>
 <b><font size="-1" color="#666666"> 3:</font></b>      <b>event</b> <b>bool</b> go_click;
 <b><font size="-1" color="#666666"> 4:</font></b>  <b>do</b>
 <b><font size="-1" color="#666666"> 5:</font></b>      <...>
 <b><font size="-1" color="#666666"> 6:</font></b>      <b>par</b> <b>do</b>
 <b><font size="-1" color="#666666"> 7:</font></b>          <b>every</b> component.on_primary_button_pressed <b>do</b>
-<b><font size="-1" color="#666666"> 8:</font></b>              <b>emit</b> go_click => <b>not</b> <b>this</b>.is_on;
+<b><font size="-1" color="#666666"> 8:</font></b>              <b>emit</b> go_click => <b>not</b> this.is_on;
 <b><font size="-1" color="#666666"> 9:</font></b>          <b>end</b>
 <b><font size="-1" color="#666666">10:</font></b>      <b>with</b>
 <b><font size="-1" color="#666666">11:</font></b>          <b>loop</b> <b>do</b>
 <b><font size="-1" color="#666666">12:</font></b>              <...>   // switches the check box state
-<b><font size="-1" color="#666666">13:</font></b>              <b>this</b>.is_on = <b>await</b> <b>this</b>.go_click;
+<b><font size="-1" color="#666666">13:</font></b>              this.is_on = <b>await</b> this.go_click;
 <b><font size="-1" color="#666666">14:</font></b>          <b>end</b>
 <b><font size="-1" color="#666666">15:</font></b>      <b>end</b>
 <b><font size="-1" color="#666666">16:</font></b>  <b>end</b></code></pre>
@@ -1139,7 +1139,7 @@ Also, all memory required for static instances is known at compile time.
 <p>Note that the signal binding to call <code>CheckBox::set_state</code> (ln. 12) receives a fixed <code>false</code> as the last argument to prevent infinite execution (ln. 3 <a href="#cpp-check-box">up</a>).</p>
 <p>The destructor (ln. 23-27) has to break the connections when the <em>Option</em> screen terminates.</p>
 <p>The implementation in Céu [<a href="https://github.com/fsantanna/pingus/blob/ceu/ceu/pingus/screens/option_menu.ceu#L26"><img src="images/link_12.png" alt="X" /></a>] connects the two events as follows:</p>
-<pre><code><b><font size="-1" color="#666666"> 1:</font></b>  <b>class</b> OptionMenu <b>with</b>
+<pre><code><b><font size="-1" color="#666666"> 1:</font></b>  class OptionMenu <b>with</b>
 <b><font size="-1" color="#666666"> 2:</font></b>      <...>
 <b><font size="-1" color="#666666"> 3:</font></b>  <b>do</b>
 <b><font size="-1" color="#666666"> 4:</font></b>      <...>

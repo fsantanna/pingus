@@ -76,13 +76,13 @@ local KEYS = {
         'new', 'switch', 'typedef', 'for', 'break', 'float',
     },
     CEU = {
-        'class', 'else', 'return', 'if',
-        'bool', 'this', 'false', 'true', 'void', 'int',
-        'do', 'end', 'loop', 'escape', 'then', 'global', 'with', 'watching',
+        'code', 'else', 'return', 'if',
+        'bool', 'outer', 'false', 'true', 'void', 'int',
+        'do', 'end', 'loop', 'escape', 'then', 'with', 'watching',
         'await', 'emit',
         'par', 'par/or', 'par/and', 'call',
         'var', 'event', 'in', 'or',
-        'and', 'interface', 'until', 'pool',
+        'and', 'until', 'pool',
         'every', 'spawn', 'break', 'not',
     },
 }
@@ -672,15 +672,15 @@ agree on a common protocol to detect the double click:
 
 * `on_click` writes to `pressed` in the first click @NN(pressed_3), and checks
   its state in further clicks @NN(pressed_2).
-* In the meantime, `update` also checks for `pressed` and may reset its state
+* `update`, in the meantime, also checks for `pressed` and may reset its state
   @NN(pressed_4,,reset_1).
 
 <!-- CEU-ARMAGEDDON -->
 
 Céu provides structured constructs to deal with events, aiming to eradicate
 explicit manipulation of state variables for control-flow purposes.
-The equivalent code in Céu [[![X]][ceu-armageddon]] for the double click
-detection is as follows:
+The equivalent code in Céu for the double click
+detection is as follows [[![X]][ceu-armageddon]]:
 
 @CODE_LINES[[language=CEU,
 do                                      @do
@@ -763,12 +763,12 @@ animation with actions associated to specific frames as follows:
 4. Game tick:  hides the explosion sprite.
 5. Last frame: kills the pingu.
 
-*(Open [this video][youtube-bomber] to listen to the sound effects.)*
+*([This video][youtube-bomber] plays the sound effects.)*
 
 [youtube-bomber]: https://youtu.be/QLXIT59il6o?t=306
 
-The code in C++ defines the class `Bomber` [[![X]][cpp-bomber]] with callbacks 
-`draw` and `update` to manage the state machine:
+The C++ class `Bomber` [[![X]][cpp-bomber]] defines the callbacks `draw` and
+`update` to manage the state machine described above:
 
 @CODE_LINES[[language=CPP,
 Bomber::Bomber (Pingu* p) :
@@ -798,8 +798,7 @@ void Bomber::update ()
     // 3. 13th frame: throws particles, destroys the terrain, shows an explosion sprite
     if (sprite.get_current_frame()==13 && !particle_thrown) {   @state_3_1
         particle_thrown = true;
-        get_world()->get_pingu_particle_holder()->add_particle(pingu->get_x(),
-                                                               pingu->get_y()-5);
+        get_world()->get_pingu_particle_holder()->add_particle(...);
     }
     if (sprite.get_current_frame()==13 && !colmap_exploded) {
         colmap_exploded = true;
@@ -829,7 +828,7 @@ The class defines one state variable for each action to perform
 @NN(def_1,-,def_2).
 The "Oh no!" sound plays as soon as the object starts in *state-1* 
 @NN(sound_ohno).
-The `update` callback updates pingu animation and movement every frame 
+The `update` callback updates the pingu animation and movement every frame 
 regardless of its current state @NN(update_1,-,update_2).
 When the animation reaches the 10th frame, it plays the "Bomb!" sound and 
 switches to *state-2* @NN(sound_bomb_1,-,sound_bomb_2).
@@ -850,57 +849,61 @@ unavoidable, and are actually the essence of object-oriented programming
 
 <a name="bomber"/>
 
-The implementation in Céu doesn't require explicit state variables and reflects 
-the sequential state machine implicitly, as sequential code separated by 
-`await` statements:
+The equivalent code in Céu for the bomber action doesn't require any state
+variables and reflects the sequential state machine implicitly, as code
+separated by `await` statements in direct style [[![X]][ceu-bomber]]:
 
 @CODE_LINES[[language=CEU,
-class Bomber with
-    <...>
+code/await Bomber (void) -> _ActionName__Enum                       @bomber-1
 do
     <...>
-    var Sprite sprite = <...>;      // bomber sprite
-    par do                                                          @par_do
-        <...>   // pingu movement                                   @move
-    with
+    spawn Mover();                          // pingu movement       @move
+
+    var&? Sprite s = spawn Sprite(<...>);   // bomber animation     @sprite
+    watching s do                                                   @watch-1
         // 1. 0th frame: plays a "Oh no!" sound.                    @anim_1
-        call global:play_sound("ohno", 0.5, 0.0);
+        {Sound::PingusSound::play_sound("ohno", 0.5, 0.0)};
 
         // 2. 10th frame: plays a "Bomb!" sound.
-        await WORLD_UPDATE until sprite.get_current_frame() == 10;
-        call global:play_sound("plop", 0.5, 0.0);
+        await outer.game.dt until s!.sprite.frame == 10;            @frame_1
+        {Sound::PingusSound::play_sound("plop", 0.5, 0.0)};
 
         // 3. 13th frame: throws particles, destroys the terrain, shows an explosion sprite
-        await WORLD_UPDATE until sprite.get_current_frame() == 13;
-        emit global:go_create_pingu_particles => (this.pingu.get_x(), @particles
-                                                  this.pingu.get_y()-5);
-        global:remove(&&_bomber_radius, <...>);
+        await outer.game.dt until s!.sprite.frame == 13;            @frame_2
+        spawn PinguParticles(<...>) in outer.pingu_particles;       @particles
+        call Game_Remove({&bomber_radius}, <...>);
         do                                                          @do
-            var Sprite _ = Sprite.build_name(<...>, &&explo);
-            // 4. Game tick: hides the explosion sprite
-            await WORLD_UPDATE;
-        end                                                         @end
+            <...>
+            spawn Sprite(<...>);            // explosion            @explo
 
-        // 5. Last frame: kills the pingu
-        await sprite;                                               @await
-        escape {ActionName::DEAD};                                  @anim_2
-    end                                                             @par_end
-end
+            // 4. Game tick: hides the explosion sprite
+            await outer.game.dt;                                    @frame_3
+        end                                                         @end
+        await FOREVER;
+    end                                                             @watch-2
+
+    // 5. Last frame: kills the pingu
+    escape {ActionName::DEAD};                                      @anim_2
+end                                                                 @bomber-2
 ]]
 
-The `par` composition @NN(par_do,-,par_end) isolates non-interacting behaviors, 
-such as the pingu movement @NN(move) and animation @NN(anim_1,-,anim_2).
-The animation is a direct sequence of statements that await transition 
-conditions to change behavior.
+The `Bomber` is a `code/await` abstraction in Céu @NN(bomber-1,-,bomber-2),
+which is similar to a co-routine: a function that retains state (variables and
+program counter) across reactions to events (i.e., across `await` statements).
+The pingu movement and sprite animation are separated into two other isolated
+abstractions @NN(move,,sprite).
 
-Note that we use a local and lexically-scoped organism
-(to be discussed further [[![X]](#dispatching-hierarchies)])
-for the temporary single-frame explosion @NN(do,-,end).
-We also use auxiliary signaling mechanisms
-(to be discussed further [[![X]](#signaling-mechanisms)])
-to throw pingu particles @NN(particles),
-to await the termination of the animation @NN(await), and
-to notify the application about our own termination.
+The code tracks the animation abstraction @NN(watch-1,-,watch-2), performing
+the last action on termination @NN(anim_2).
+As soon as the animation starts, the code performs the first action
+@NN(anim_1).
+The intermediate actions are performed when the corresponding conditions occur
+(ln. @N(frame_1),@N(frame_2),@N(frame_3)).
+
+The `do-end` block @NN(do,-,end), restricts the lifetime of the single-frame
+explosion sprite @NN(explo): after the next game tick @NN(frame_3), the block
+terminates and automatically destroys the spawned abstraction (removing it from
+the screen).
 
 <a name="finite-state-machines-summary"/>
 <br/>
@@ -918,7 +921,7 @@ explicit state machines in C++:
 </div>
 
 [cpp-bomber]: https://github.com/Pingus/pingus/blob/7b255840c201d028fd6b19a2185ccf7df3a2cd6e/src/pingus/actions/bomber.cpp
-[ceu-bomber]: https://github.com/fsantanna/pingus/blob/ceu/ceu/pingus/actions/bomber.ceu
+[ceu-bomber]: https://github.com/fsantanna/pingus/blob/ceu/ceu/pingus/screens/game/pingu/actions/bomber.ceu
 
 <a name="continuation-passing"/>
 
