@@ -582,10 +582,9 @@ screen literally explodes all pingus (@FIG_REF[[double-click-opt.gif]]).
 
 <!-- CPP-ARMAGEDDON -->
 
-The code in C++ implements the class `ArmageddonButton` 
-[[![X]][cpp-armageddon]] with methods for rendering the button and handling its 
-events.
-Here, we focus on detecting the double click, hiding unrelated parts with 
+The C++ class `ArmageddonButton` [[![X]][cpp-armageddon]] implements
+methods for rendering the button and handling events.
+Here, we focus on the double click detection, hiding unrelated parts with 
 `<...>`:
 
 @CODE_LINES[[language=CPP,
@@ -607,7 +606,7 @@ void ArmageddonButton::update (float delta) {   @update_1
     <...>
     if (pressed) {                              @pressed_4
         press_time += delta;                    @press_time_2
-        if (press_time > 1.0f) {
+        if (press_time > 1.0f) {                @check
             pressed = false;    // giving up, 1st click was     @reset_1
             press_time = 0;     //            too long ago      @reset_2
         }
@@ -626,16 +625,14 @@ void ArmageddonButton::on_click (<...>) {       @on_click_1
 }                                               @on_click_2
 ]]
 
-The `update` @NN(update_1,-,update_2) and `on_click` 
-@NN(on_click_1,-,on_click_2)
-are the relevant methods of the class and are examples of *short-lived 
-callbacks*, which are pieces of code that execute in reaction to external input 
-events.
-The callback `on_click` reacts to mouse clicks detected by the base class 
-`RectComponent` @NN(base_class), while `update` continuously reacts to the 
-passage of time.
-Callbacks must be short lived because they should react to input as fast as 
-possible to keep the game with real-time responsiveness.
+The methods `update` @NN(update_1,-,update_2) and `on_click` 
+@NN(on_click_1,-,on_click_2) are examples of *short-lived callbacks*, which are
+pieces of code that execute in reaction to external input events.
+The callback `on_click` reacts to mouse clicks detected by the button base
+class `RectComponent` @NN(base_class), while the callback `update` continuously
+reacts to the passage of time.
+Callbacks are short lived because they must react to input as fast as possible
+to keep the game with real-time responsiveness.
 
 @FIG_NEW(double-click.png,
          State machine for the *Armageddon* double click,
@@ -645,8 +642,8 @@ The class first initializes the variable `pressed` to track the first click
 @NN(pressed_1,,pressed_2).
 It also initializes the variable `press_time` to count the time since the first 
 click @NN(press_time_1,,press_time_2).
-If another click occurs within 1 second, the class signals the double click to 
-the application @NN(armageddon).
+If another click occurs within 1 second @NN(check), the class signals the
+double click to the application @NN(armageddon).
 Otherwise, the `pressed` and `press_time` state variables are reset 
 @NN(reset_1,-,reset_2).
 
@@ -655,33 +652,33 @@ behavior as a state machine.
 The circles represent the state of the variables in the class, while the arrows 
 represent callback reactions that manipulate the state.
 
-Note how the accesses to these state variables are spread across the entire 
-class.
+Note in the source code how the accesses to these state variables are spread
+across the entire class.
 For instance, the distance between the initialization of `pressed` 
 @NN(pressed_1) and the last access to it @NN(pressed_2) is over 40 lines in the 
 original file [[![X]][cpp-armageddon-2]].
 Arguably, this dispersion of code across methods makes the understanding and 
 maintenance of the double-click behavior more difficult.
 Also, even though the state variables are private, unrelated methods such as 
-`draw` @NN(draw_1,-,draw_2) can potentially access it.
+`draw`, which is defined in middle of the class @NN(draw_1,-,draw_2), can
+potentially access them.
 
 Because callbacks are short lived, the only way they can affect each other is 
 by manipulating persisting member variables in the object.
 These *state variables* retain their values across multiple invocations and 
-serve as a control mechanism across reaction to external events.
-As an example, callbacks `on_click` and `update` react independently but must 
+serve as a control mechanism across reactions to external events.
+For instance, callbacks `on_click` and `update` react independently but must 
 agree on a common protocol to detect the double click:
 
-* Callback `on_click` writes to `pressed` in the first click @NN(pressed_3), 
-  and checks its state in further clicks @NN(pressed_2).
-* In the meantime, callback `update` also checks for `pressed` and may reset 
-  its state @NN(pressed_4,,reset_1).
+* `on_click` writes to `pressed` in the first click @NN(pressed_3), and checks
+  its state in further clicks @NN(pressed_2).
+* In the meantime, `update` also checks for `pressed` and may reset its state
+  @NN(pressed_4,,reset_1).
 
 <!-- CEU-ARMAGEDDON -->
 
-Using an antagonistic approach, Céu provides structured constructs to deal with 
-events, aiming to eradicate explicit manipulation of state variables for 
-control-flow purposes.
+Céu provides structured constructs to deal with events, aiming to eradicate
+explicit manipulation of state variables for control-flow purposes.
 The equivalent code in Céu defines the class `ArmageddonButton` 
 [[![X]][ceu-armageddon]] as follows:
 
