@@ -45,7 +45,6 @@
 </head>
 <body>
 
-
 @[[
 FIG_COUNT = 0
 
@@ -242,7 +241,7 @@ TODO:
 ## Introduction
 
 This report documents the process of rewriting the video game
-Pingus [[![X]][pingus-1] from C++ to Céu [[![X]][ceu-1],[![X]][ceu-2]].
+Pingus [[![X]][pingus-1]] from C++ to Céu [[![X]][ceu-1],[![X]][ceu-2]].
 
 [pingus-1]: http://pingus.seul.org/
 [ceu-1]:    http://ceu-lang.org/
@@ -257,7 +256,7 @@ Pingus [[![X]][pingus-1] from C++ to Céu [[![X]][ceu-1],[![X]][ceu-2]].
          Pingus gameplay,
          350)
 
-Pingus is an open-source [![X]][pingus-2]] clone of
+Pingus is an open-source [[![X]][pingus-2]] clone of
 Lemmings [[![X]][lemmings]], a puzzle-platformer video game.      
 The objective of the game is to guide a group of penguins through a number of
 obstacles towards a designated exit [[![X]][pingus-3]].
@@ -377,9 +376,9 @@ if it enables our state-intensive code to scale to many threads, it’s still a 
 Claim: Transactions are the only plausible solution to concurrent mutable state
 -->
 
-The main motivation for rewriting Pingus to Céu is to advocate its
-programming model as an expressive alternative for writing the game
-logic.
+The main motivation for rewriting Pingus to Céu is to suggest structured
+synchronous reactive programming as an expressive alternative for writing
+video games.
 In Pingus, the game logic accounts for almost half the size of the codebase
 (18173 from 39362 LoC, or 46%).
 `TODO: total rewritten, gains in %`
@@ -547,8 +546,6 @@ Alexander Tkachov
 
 TODO: Selected Code Snippets
 TODO: state vars, code reduction para cada case
-
--------------------------------------------------------------------------------
 -->
 
 <a name="finite-state-machines"/>
