@@ -679,27 +679,26 @@ agree on a common protocol to detect the double click:
 
 Céu provides structured constructs to deal with events, aiming to eradicate
 explicit manipulation of state variables for control-flow purposes.
-The equivalent code in Céu defines the class `ArmageddonButton` 
-[[![X]][ceu-armageddon]] as follows:
+The equivalent code in Céu [[![X]][ceu-armageddon]] for the double click
+detection is as follows:
 
 @CODE_LINES[[language=CEU,
-class ArmageddonButton with
+do                                      @do
+    var& RectComponent c = <...>;
     <...>
-do                                       @do
-    var RectComponent component = <...>;
+    loop do                             @loop_do
+        await c.component.on_click;     @await_1
+        watching 1s do                  @watching_do
+            await c.component.on_click; @await_2
+            break;                      @break
+        end                             @watching_end
+    end                                 @loop_end
     <...>
-    loop do                              @loop_do
-        await component.on_click;        @await_1
-        watching 1s do                   @watching_do
-            await component.on_click;    @await_2
-            break;                       @break
-        end                              @watching_end
-    end                                  @loop_end
-    <...>
-    emit global:go_armageddon;           @emit
-end                                      @end
+    emit outer.game.go_armageddon;      @emit
+end                                     @end
 ]]
 
+<!--
 Instead of *objects*, classes in Céu instantiate *organisms* with a body 
 declaration @NN(do,-,end) that starts to execute automatically.
 Unlike objects, an organism is a reactive entity that executes concurrently 
@@ -708,17 +707,18 @@ Organisms react to external events sequentially, one after the other, resulting
 in deterministic programs.
 Unlike callbacks, organism bodies keep the execution context across event 
 occurrences alive (if they don't terminate).
+-->
 
-The double click detection is a `loop` @NN(loop_do,-,loop_end) that awaits the 
-first click @NN(await_1) and then, watching 1 second 
-@NN(watching_do,-,watching_end), awaits the second click @NN(await_2).
-If the second click occurs within 1 second, we `break` the loop @NN(break) and 
-signal the double click to the application @NN(emit).
+The `loop` @NN(loop_do,-,loop_end) awaits the first click @NN(await_1) and
+then, while watching 1 second @NN(watching_do,-,watching_end), awaits the
+second click @NN(await_2).
+If the second click occurs within 1 second,the `break` terminates the loop
+@NN(break) and signals the double click to the application @NN(emit).
 Otherwise, the `watching` block as a whole aborts and restarts the loop, 
 falling back to the first click `await` @NN(await_1).
 
-Note how double click detection in Céu doesn't require state variables and is 
-entirely self-contained in the `loop` body  @NN(loop_do,-,loop_end).
+Note how double click detection in Céu doesn't require any state variable and
+is entirely self-contained in the `loop` body  @NN(loop_do,-,loop_end).
 Furthermore, these 7 lines of code **only** detects a double click, leaving the 
 actual effect to happen outside the loop @NN(emit).
 
@@ -728,7 +728,7 @@ composition of code, resulting in considerable gains in productivity.
 
 [cpp-armageddon]: https://github.com/Pingus/pingus/blob/7b255840c201d028fd6b19a2185ccf7df3a2cd6e/src/pingus/components/action_button.cpp#L24 
 [cpp-armageddon-2]: https://github.com/Pingus/pingus/blob/7b255840c201d028fd6b19a2185ccf7df3a2cd6e/src/pingus/components/action_button.cpp#L33-#L90
-[ceu-armageddon]: https://github.com/fsantanna/pingus/blob/ceu/ceu/pingus/components/action_button.ceu#L6
+[ceu-armageddon]: https://github.com/fsantanna/pingus/blob/ceu/ceu/pingus/screens/game/input.ceu#L107
 
 <a name="finite-state-machines-2"/>
 
