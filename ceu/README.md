@@ -1,6 +1,6 @@
 <head>
-<title>Structured Synchronous Reactive Programming for Game Development:
-       On Rewriting Pingus from C++ to Céu</title>
+<title>Structured Synchronous Reactive Programming for Game Development ---
+       Case Study: On Rewriting Pingus from C++ to Céu</title>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
 <style>
     body {
@@ -309,14 +309,14 @@ Total Physical Source Lines of Code (SLOC) = 39,975
 -->
 
 Céu is a programming language that aims to offer a higher-level and safer
-alternative to C/C++ with the following characteristics:
+alternative to C/C++ with the characteristics that follow:
 
-- *Reactive:* code executes in reactions to events
+- *Reactive:* code executes in reactions to events.
 - *Synchronous:* reactions run to completion, i.e., there's no implicit
-  preemption or real parallelism (avoiding locks, queues, etc)
+  preemption or real parallelism.
 - *Structured:* programs use structured control mechanisms, such as `await` (to
   suspend a line of execution), and `par` (to combine multiple awaiting lines
-  of execution)
+  of execution).
 
 Structured programming eliminates the *callback hell* [[![X]][callback-hell]],
 letting programmers write code in direct/sequential style.
@@ -330,7 +330,7 @@ safely released.
          350)
 
 According to Tim Sweeney (of Unreal Engine fame) [[![X]][sweeney]], about half
-of the development complexity in games resides in *simulation*
+the complexity in game development resides in *simulation*
 (aka *game logic*), but which accounts for only 10% of the CPU budget.
 <!-- the way entities interact in real time -->
 The high development costs contrasting with the low impact on performance
@@ -377,27 +377,29 @@ Claim: Transactions are the only plausible solution to concurrent mutable state
 -->
 
 The main motivation for rewriting Pingus to Céu is to suggest structured
-synchronous reactive programming as an expressive alternative for writing
-video games.
-In Pingus, the game logic accounts for almost half the size of the codebase
-(18173 from 39362 LoC, or 46%).
+synchronous reactive programming as an expressive alternative in video game
+development.
+In Pingus, the game logic also accounts for almost half the size of the
+codebase (18173 from 39362 LoC, or 46%).
 `TODO: total rewritten, gains in %`
 
-Our approach was to identify *control-flow behaviors* in the game that cross
-successive reactions to events.
+During the rewrite process, our approach was to identify
+*control-flow behaviors* in the game that cross successive reactions to events.
 As an example, detecting a double mouse click in the game consists of the first
 click, followed by a maximum amount of time, followed by a second click.
-Our hypothesis is that, in C++, these implementations involve callbacks 
+Therefore, the behavior depends on different events (clicks and timers) that
+have to occur in a particular order.
+Our hypothesis is that in C++ these implementations involve callbacks 
 manipulating state variables explicitly.
 We then rewrite these behaviors in Céu, using appropriate structured 
 constructs.
-More concretely, we identify control-flow behaviors by inspecting the code
-looking for class members with "suspicious names" (e.g.,
+More concretely, we identify control-flow behaviors in C++ by looking for class
+members with "suspicious names" (e.g.,
 [`pressed`][state-pressed],
 [`particle_thrown`][state-particle-thrown],
 [`mode`][state-mode], or
 [`delay_count`][state-delay-count]).
-Good chances are that variables with identifiers resembling verbs, status, or 
+Good chances are that variables with identifiers resembling verbs, statuses, or 
 counters encode some form of control-flow progression that cross multiple 
 callback invocations.
 
@@ -413,16 +415,11 @@ The remaining classes in C++ should interoperate with the new classes in Céu
 until we complete the rewriting process.
 -->
 
-Note that we only touch classes that deal with events, as Céu is actually less 
-expressive than C++ for pure data manipulation.
-Therefore, we also rely on the seamless integration between Céu and C/C++ to
-take advantage of the existing code base and libraries.
-
 During the course of the rewriting process, and following the process described
 above, we could extract more abstract behaviors that likely apply to other
 games.
-We identified eight control-flow patterns in Pingus which we discuss further 
-along with in-depth examples:
+We identified eight control-flow patterns in Pingus which we discuss with
+in-depth examples:
 
 <a name="finite-state-machines"/>
 
@@ -441,13 +438,13 @@ along with in-depth examples:
         [summary](#continuation-passing-summary) ]
 
 3. [**Dispatching Hierarchies**](#dispatching-hierarchies):
-    Entities typically form a dispatching hierarchy so that a container entity
+    Entities typically form a dispatching hierarchy in which a container entity
     that receives a stimulus automatically forwards it to its managed children.
     * [ [case 1](#dispatching-hierarchies-1) |
         [summary](#dispatching-hierarchies-summary) ]
 
 4. [**Lifespan Hierarchies**](#lifespan-hierarchies):
-    Entities typically form a lifespan hierarchy so that a terminating
+    Entities typically form a lifespan hierarchy in which a terminating
     container entity automatically destroys its managed children.
     * [ [case 1](#lifespan-hierarchies-1) |
         [case 2](#lifespan-hierarchies-2) |
@@ -483,9 +480,15 @@ Our hypothesis is that other games manifesting these patterns also use some
 form of explicit state which are likely subject to the same rewriting process.
 -->
 Overall, we believe that most difficulties in implementing control behavior in 
-game logic is not inherent to this domain, but result of accidental complexity
-due to the lack of structured abstractions and appropriate concurrency models
-to handle event-based applications.
+game logic is not inherent to this domain, but a result of accidental
+complexity due to the lack of structured abstractions and an appropriate
+concurrency model to handle event-based applications.
+
+Note that we only touch classes that deal with events, as Céu is actually less 
+expressive than C++ for pure data manipulation (game preferences, graph
+algorithms, etc).
+Therefore, we also rely on the seamless integration between Céu and C/C++ to
+take advantage of the existing code base and libraries.
 
 <!--
 ## Why rewriting Pingus to Céu?
@@ -583,46 +586,46 @@ screen literally explodes all pingus (@FIG_REF[[double-click-opt.gif]]).
 <!-- CPP-ARMAGEDDON -->
 
 The C++ class `ArmageddonButton` [[![X]][cpp_armageddon]] implements
-methods for rendering the button and handling events.
+methods for rendering the button and handling mouse and keyboard events.
 Here, we focus on the double click detection, hiding unrelated parts with 
 `<...>`:
 
 @CODE_LINES[[language=CPP,
 ArmageddonButton::ArmageddonButton(<...>):
-    RectComponent(<...>),                       @base_class
+    RectComponent(<...>),                                   @base_class
     <...>
-    pressed(false); // initial button state             @pressed_1
-    press_time();   // how long since the 1st click?    @press_time_1
+    pressed(false); // button state: initially not pressed  @pressed_1
+    press_time();   // how long since the 1st click?        @press_time_1
     <...>
 {
     <...>
 }
 
-void ArmageddonButton::draw (<...>) {           @draw_1
+void ArmageddonButton::draw (<...>) {                       @draw_1
     <...>
-}                                               @draw_2
+}                                                           @draw_2
 
-void ArmageddonButton::update (float delta) {   @update_1
+void ArmageddonButton::update (float delta) {               @update_1
     <...>
-    if (pressed) {                              @pressed_4
-        press_time += delta;                    @press_time_2
-        if (press_time > 1.0f) {                @check
-            pressed = false;    // giving up, 1st click was     @reset_1
-            press_time = 0;     //            too long ago      @reset_2
+    if (pressed) {                                          @pressed_4
+        press_time += delta;                                @press_time_2
+        if (press_time > 1.0f) {                            @check
+            pressed = false;    // giving up, 1st click was @reset_1
+            press_time = 0;     //            too long ago  @reset_2
         }
     } else {
         <...>
         press_time = 0;
     }
-}                                               @update_2
+}                                                           @update_2
 
-void ArmageddonButton::on_click (<...>) {       @on_click_1
-    if (pressed) {                              @pressed_3
-        server->send_armageddon_event();        @armageddon
+void ArmageddonButton::on_click (<...>) {                   @on_click_1
+    if (pressed) {                                          @pressed_3
+        server->send_armageddon_event();                    @armageddon
     } else {
-        pressed = true;                         @pressed_2
+        pressed = true;                                     @pressed_2
     }
-}                                               @on_click_2
+}                                                           @on_click_2
 ]]
 
 The methods `update` @NN(update_1,-,update_2) and `on_click` 
@@ -652,7 +655,7 @@ behavior as a state machine.
 The circles represent the state of the variables in the class, while the arrows 
 represent callback reactions that manipulate the state.
 
-Note in the source code how the accesses to these state variables are spread
+Note in the source code how the accesses to the state variables are spread
 across the entire class.
 For instance, the distance between the initialization of `pressed` 
 @NN(pressed_1) and the last access to it @NN(pressed_2) is over 40 lines in the 
@@ -663,23 +666,25 @@ Also, even though the state variables are private, unrelated methods such as
 `draw`, which is defined in middle of the class @NN(draw_1,-,draw_2), can
 potentially access them.
 
+<!--
 Because callbacks are short lived, the only way they can affect each other is 
 by manipulating persisting member variables in the object.
 These *state variables* retain their values across multiple invocations and 
 serve as a control mechanism across reactions to external events.
-For instance, callbacks `on_click` and `update` react independently but must 
+For instance, the callbacks `on_click` and `update` react independently but must 
 agree on a common protocol to detect the double click:
 
 * `on_click` writes to `pressed` in the first click @NN(pressed_3), and checks
   its state in further clicks @NN(pressed_2).
 * `update`, in the meantime, also checks for `pressed` and may reset its state
   @NN(pressed_4,,reset_1).
+-->
 
 <!-- CEU-ARMAGEDDON -->
 
 Céu provides structured constructs to deal with events, aiming to eradicate
 explicit manipulation of state variables for control-flow purposes.
-The equivalent code in Céu for the double click
+The equivalent code in Céu for the double-click
 detection is as follows [[![X]][ceu_armageddon]]:
 
 @CODE_LINES[[language=CEU,
@@ -723,13 +728,14 @@ Furthermore, these 7 lines of code **only** detect the double click, leaving
 the actual effect to happen outside the loop @NN(emit).
 
 The complete implementations for the *Armageddon* button in C++ and Céu
-(including redrawing) decreases from 47 to 24 lines of code
-[[![X]][diff_armageddon]].
+decreased from 47 to 24 lines of code [[![X]][diff_armageddon]].
 
+<!--
 As we argue throughout this document, appropriate control-flow mechanisms for 
 reactive applications (e.g., the `await` and `watching` statements) help on the
 structure and composition of code, resulting in considerable gains in
 productivity.
+-->
 
 [cpp_armageddon]:   https://github.com/Pingus/pingus/blob/7b255840c201d028fd6b19a2185ccf7df3a2cd6e/src/pingus/components/action_button.cpp#L24 
 [cpp_armageddon_2]: https://github.com/Pingus/pingus/blob/7b255840c201d028fd6b19a2185ccf7df3a2cd6e/src/pingus/components/action_button.cpp#L33-#L90
@@ -753,8 +759,9 @@ also destroying the terrain under its radius (@FIG_REF[[bomber-opt.gif]]).
          State machine for the *Bomber* animation,
          550)
 
-A sequential state machine (@FIG_REF[[state-anim/state-anim.gif]]) models the 
-animation with actions associated to specific frames as follows:
+We can model the explosion animation with a sequential state machine
+(@FIG_REF[[state-anim/state-anim.gif]]) with actions associated to specific
+frames as follows:
 
 1. 0th frame:  plays a "Oh no!" sound.
 2. 10th frame: plays a "Bomb!" sound.
@@ -773,7 +780,7 @@ The C++ class `Bomber` [[![X]][cpp_bomber]] defines the callbacks `draw` and
 @CODE_LINES[[language=CPP,
 Bomber::Bomber (Pingu* p) :
     <...>
-    sprite(),                   // bomber sprite
+    sprite(<...>),              // bomber sprite
     sound_played(false),        // tracks state 2               @def_1
     particle_thrown(false),     // tracks state 3
     colmap_exploded(false),     // tracks state 3
@@ -840,26 +847,26 @@ The explosion sprite appears in a single frame in *state-4* @NN(state_4).
 Finally, the pingu dies after the animation frames terminate 
 @NN(die_1,-,die_2).
 
-Note that a single numeric state variable would suffice to track the states.
-Probably, the authors chose to encode each state in an independent boolean 
+Even though a single numeric state variable would suffice to track the states,
+the authors probably chose to encode each state in an independent boolean 
 variable to rearrange and experiment with them during the development.
 Still, due to the short-lived nature of callbacks, state variables are 
-unavoidable, and are actually the essence of object-oriented programming
+unavoidable and are actually the essence of object-oriented programming
 (i.e., *methods + mutable state*).
 
 <a name="bomber"/>
 
-The equivalent code in Céu for the bomber action doesn't require any state
-variables and reflects the sequential state machine implicitly, as code
+The equivalent code in Céu for the *Bomber* action doesn't require any state
+variables and reflects the sequential state machine implicitly, as statements
 separated by `await` statements in direct style [[![X]][ceu_bomber]]:
 
 @CODE_LINES[[language=CEU,
-code/await Bomber (void) -> _ActionName__Enum                       @bomber-1
+code/await Bomber (void) -> _ActionName__Enum
 do
     <...>
-    spawn Mover();                          // pingu movement       @move
+    spawn Mover();                          // spawn the pingu movement to execute in the "background"      @move
 
-    var&? Sprite s = spawn Sprite(<...>);   // bomber animation     @sprite
+    var&? Sprite s = spawn Sprite(<...>);   // spawn the bomber animation to execute in the "background"    @sprite
     watching s do                                                   @watch-1
         // 1. 0th frame: plays a "Oh no!" sound.                    @anim_1
         {Sound::PingusSound::play_sound("ohno", 0.5, 0.0)};
@@ -884,14 +891,15 @@ do
 
     // 5. Last frame: kills the pingu
     escape {ActionName::DEAD};                                      @anim_2
-end                                                                 @bomber-2
+end
 ]]
 
-The `Bomber` is a `code/await` abstraction in Céu @NN(bomber-1,-,bomber-2),
-which is similar to a co-routine: a function that retains state (variables and
-program counter) across reactions to events (i.e., across `await` statements).
-The pingu movement and sprite animation are separated into two other isolated
-abstractions @NN(move,,sprite).
+The `Bomber` is a `code/await` abstraction of Céu,
+which is similar to a co-routine: a function that retains state, such as local
+variables and the program counter, across reactions to events (i.e., across
+`await` statements).
+The pingu movement and sprite animation are isolated in two other abstractions
+to execute in separate through the `spawn` primitive @NN(move,,sprite).
 
 The code tracks the animation abstraction @NN(watch-1,-,watch-2), performing
 the last action on termination @NN(anim_2).
@@ -905,7 +913,7 @@ explosion sprite @NN(explo): after the next game tick @NN(frame_3), the block
 terminates and automatically destroys the spawned abstraction (removing it from
 the screen).
 
-The complete implementations for the *Bomber* action in C++ and Céu decreases
+The complete implementations for the *Bomber* action in C++ and Céu decreased
 from 50 to 19 lines of code [[![X]][diff_bomber]].
 
 <a name="finite-state-machines-summary"/>
@@ -1066,6 +1074,9 @@ To go to the next page, we simply `await next_text` again in sequence
 Note that we don't need a variable (such as `displayed` in C++) to switch 
 between the states "advancing text" or "advancing pages" which are not mixed in 
 the source code.
+
+The complete implementations for the *Story* screen in C++ and Céu decreased
+from 125 to 111 lines of code [[![X]][TODO]].
 
 <a name="continuation-passing-2"/>
 
