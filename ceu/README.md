@@ -585,16 +585,15 @@ screen literally explodes all pingus (@FIG_REF[[double-click-opt.gif]]).
 <!-- CPP-ARMAGEDDON -->
 
 The C++ class `ArmageddonButton` [[![X]][cpp_armageddon]] implements
-methods for rendering the button and handling mouse and keyboard events.
+methods for rendering the button and handling mouse and timer events.
 Here, we focus on the double click detection, hiding unrelated parts with 
 `<...>`:
 
 @CODE_LINES[[language=CPP,
 ArmageddonButton::ArmageddonButton(<...>):
     RectComponent(<...>),                                   @base_class
-    <...>
     pressed(false); // button state: initially not pressed  @pressed_1
-    press_time();   // how long since the 1st click?        @press_time_1
+    press_time(0);  // how long since the 1st click?        @press_time_1
     <...>
 {
     <...>
@@ -629,12 +628,12 @@ void ArmageddonButton::on_click (<...>) {                   @on_click_1
 
 The methods `update` @NN(update_1,-,update_2) and `on_click` 
 @NN(on_click_1,-,on_click_2) are examples of *short-lived callbacks*, which are
-pieces of code that execute in reaction to external input events.
+pieces of code that execute atomically in reaction to external input events.
 The callback `on_click` reacts to mouse clicks detected by the button base
 class `RectComponent` @NN(base_class), while the callback `update` continuously
 reacts to the passage of time.
 Callbacks are short lived because they must react to input as fast as possible
-to keep the game with real-time responsiveness.
+to let other callbacks execute, keeping the game with real-time responsiveness.
 
 @FIG_NEW(double-click.png,
          State machine for the *Armageddon* double click,
@@ -652,9 +651,9 @@ Otherwise, the `pressed` and `press_time` state variables are reset
 @FIG_REF[[double-click.png]] illustrates how we can model the double-click 
 behavior as a state machine.
 The circles represent the state of the variables in the class, while the arrows 
-represent callback reactions that manipulate the state.
+represent the callbacks manipulating state.
 
-Note in the source code how the accesses to the state variables are spread
+Note in the code how the accesses to the state variables are spread
 across the entire class.
 For instance, the distance between the initialization of `pressed` 
 @NN(pressed_1) and the last access to it @NN(pressed_2) is over 40 lines in the 
@@ -688,7 +687,7 @@ detection is as follows [[![X]][ceu_armageddon]]:
 
 @CODE_LINES[[language=CEU,
 do                                      @do
-    var& RectComponent c = <...>;
+    var& RectComponent c = <...>;       // (the symbol `&` denotes an alias declaration)
     <...>
     loop do                             @loop_do
         await c.component.on_click;     @await_1
@@ -713,21 +712,21 @@ Unlike callbacks, organism bodies keep the execution context across event
 occurrences alive (if they don't terminate).
 -->
 
-The `loop` @NN(loop_do,-,loop_end) awaits the first click @NN(await_1) and
-then, while watching 1 second @NN(watching_do,-,watching_end), awaits the
+The loop detection @NN(loop_do,-,loop_end) awaits the first click @NN(await_1)
+and then, while watching 1 second @NN(watching_do,-,watching_end), awaits the
 second click @NN(await_2).
 If the second click occurs within 1 second, the `break` terminates the loop
-@NN(break) and signals the double click to the application @NN(emit).
+@NN(break) and the `emit` signals the double click to the application @NN(emit).
 Otherwise, the `watching` block as a whole aborts and restarts the loop, 
 falling back to the first click `await` @NN(await_1).
 
-Note how double click detection in Céu doesn't require any state variables and
-is entirely self-contained in the `loop` body  @NN(loop_do,-,loop_end).
+Double click detection in Céu doesn't require any state variables and is
+entirely self-contained in the `loop` body  @NN(loop_do,-,loop_end).
 Furthermore, these 7 lines of code **only** detect the double click, leaving
 the actual effect to happen outside the loop @NN(emit).
 
-The complete implementations for the *Armageddon* button in C++ and Céu
-decreased from 47 to 24 lines of code [[![X]][diff_armageddon]].
+The complete implementations for the *Armageddon* button in C++ and Céu are 47
+and 24 lines of code, respectively [[![X]][diff_armageddon]].
 
 <!--
 As we argue throughout this document, appropriate control-flow mechanisms for 
@@ -769,7 +768,7 @@ frames as follows:
 4. Game tick:  hides the explosion sprite.
 5. Last frame: kills the pingu.
 
-*([This video][youtube_bomber] plays the sound effects.)*
+*([This video][youtube_bomber] presents the sound effects.)*
 
 [youtube_bomber]: https://youtu.be/QLXIT59il6o?t=306
 
@@ -792,7 +791,7 @@ Bomber::Bomber (Pingu* p) :
 
 void Bomber::update ()
 {
-    sprite.update ();                                           @update_1
+    sprite.update();                                            @update_1
     <...>   // pingu movement                                   @update_2
 
     // 2. 10th frame: plays a "Bomb!" sound.
@@ -822,7 +821,7 @@ void Bomber::draw (SceneContext& gc) {
     // 4. Game tick: hides the explosion sprite
     if (sprite.get_current_frame()==13 && !gfx_exploded) {      @state_3_3
         gfx_exploded = true;                                    @state_3_4
-        gc.color().draw (explo_surf, <...>);                    @state_4
+        gc.color().draw(explo_surf, <...>);                     @state_4
     }
     gc.color().draw(sprite, pingu->get_pos());
 }
@@ -846,9 +845,9 @@ The explosion sprite appears in a single frame in *state-4* @NN(state_4).
 Finally, the pingu dies after the animation frames terminate 
 @NN(die_1,-,die_2).
 
-Even though a single numeric state variable would suffice to track the states,
-the authors probably chose to encode each state in an independent boolean 
-variable to rearrange and experiment with them during the development.
+Even though a single numeric state variable suffices to track the states, the
+original authors probably chose to encode each state in an independent boolean 
+variable to rearrange and experiment with them during development.
 Still, due to the short-lived nature of callbacks, state variables are 
 unavoidable and are actually the essence of object-oriented programming
 (i.e., *methods + mutable state*).
@@ -856,8 +855,8 @@ unavoidable and are actually the essence of object-oriented programming
 <a name="bomber"/>
 
 The equivalent code in Céu for the *Bomber* action doesn't require any state
-variables and reflects the sequential state machine implicitly, as statements
-separated by `await` statements in direct style [[![X]][ceu_bomber]]:
+variables and reflects the sequential state machine implicitly, using `await`
+statements to separate the actions in direct style [[![X]][ceu_bomber]]:
 
 @CODE_LINES[[language=CEU,
 code/await Bomber (void) -> _ActionName__Enum
@@ -898,7 +897,7 @@ which is similar to a co-routine: a function that retains state, such as local
 variables and the program counter, across reactions to events (i.e., across
 `await` statements).
 The pingu movement and sprite animation are isolated in two other abstractions
-to execute in separate through the `spawn` primitive @NN(move,,sprite).
+and execute in separate through the `spawn` primitive @NN(move,,sprite).
 
 The code tracks the animation abstraction @NN(watch-1,-,watch-2), performing
 the last action on termination @NN(anim_2).
@@ -912,8 +911,8 @@ explosion sprite @NN(explo): after the next game tick @NN(frame_3), the block
 terminates and automatically destroys the spawned abstraction (removing it from
 the screen).
 
-The complete implementations for the *Bomber* action in C++ and Céu decreased
-from 50 to 19 lines of code [[![X]][diff_bomber]].
+The complete implementations for the *Bomber* action in C++ and Céu are 50 and
+19 lines of code, respectively [[![X]][diff_bomber]].
 
 <a name="finite-state-machines-summary"/>
 <br/>
@@ -922,7 +921,7 @@ from 50 to 19 lines of code [[![X]][diff_bomber]].
 **Summary**:
 
 Implicit state machines in Céu provide some advantages in comparison to 
-explicit state machines in C++:
+explicit state machines:
 
 * They encode all states with direct sequential code, not requiring state
   variables.
@@ -1249,7 +1248,7 @@ TODO:
 **Summary**:
 
 The direct style of Céu has some advantages in comparison to the 
-continuation-passing style of C++:
+continuation-passing style:
 
 * It uses structured control flow (i.e., sequences and loops) instead of 
   explicit data structures (e.g., stacks) or continuation variables.
