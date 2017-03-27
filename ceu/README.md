@@ -415,10 +415,16 @@ The remaining classes in C++ should interoperate with the new classes in Céu
 until we complete the rewriting process.
 -->
 
+Note that we only touch code that deals with events, as Céu is actually less 
+expressive than C++ for pure data manipulation (e.g., game preferences, graph
+algorithms, etc).
+Therefore, we also rely on the seamless integration between Céu and C/C++ to
+take advantage of the existing code base and libraries.
+
 We selected `TODO` game behaviors and describe their implementations in C++ and
 Céu.
-We categorize these examples in more abstract control-flow patterns that
-likely apply to other games:
+As an afterthought, we categorized these examples in more abstract control-flow
+patterns that likely apply to other games:
 
 <a name="finite-state-machines"/>
 
@@ -482,12 +488,6 @@ Overall, we believe that most difficulties in implementing control behavior in
 game logic is not inherent to this domain, but a result of accidental
 complexity due to the lack of structured abstractions and an appropriate
 concurrency model to handle event-based applications.
-
-Note that we only touch classes that deal with events, as Céu is actually less 
-expressive than C++ for pure data manipulation (game preferences, graph
-algorithms, etc).
-Therefore, we also rely on the seamless integration between Céu and C/C++ to
-take advantage of the existing code base and libraries.
 
 <!--
 ## Why rewriting Pingus to Céu?
