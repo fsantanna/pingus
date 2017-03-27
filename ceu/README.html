@@ -334,49 +334,48 @@ Let's consider the case of handling double clicks in the game.
 </div>
 <p>In Pingus, double clicking the <em>Armageddon</em> button at the bottom right of the screen literally explodes all pingus (Figure 3).</p>
 <!-- CPP-ARMAGEDDON -->
-<p>The C++ class <code>ArmageddonButton</code> [<a href="https://github.com/Pingus/pingus/blob/7b255840c201d028fd6b19a2185ccf7df3a2cd6e/src/pingus/components/action_button.cpp#L24"><img src="images/link_12.png" alt="X" /></a>] implements methods for rendering the button and handling mouse and keyboard events. Here, we focus on the double click detection, hiding unrelated parts with <code>&lt;...&gt;</code>:</p>
+<p>The C++ class <code>ArmageddonButton</code> [<a href="https://github.com/Pingus/pingus/blob/7b255840c201d028fd6b19a2185ccf7df3a2cd6e/src/pingus/components/action_button.cpp#L24"><img src="images/link_12.png" alt="X" /></a>] implements methods for rendering the button and handling mouse and timer events. Here, we focus on the double click detection, hiding unrelated parts with <code>&lt;...&gt;</code>:</p>
 <pre><code><b><font size="-1" color="#666666"> 1:</font></b>  ArmageddonButton::ArmageddonButton(<...>):
 <b><font size="-1" color="#666666"> 2:</font></b>      RectComponent(<...>),
-<b><font size="-1" color="#666666"> 3:</font></b>      <...>
-<b><font size="-1" color="#666666"> 4:</font></b>      pressed(<b>false</b>); // button state: initially not pressed
-<b><font size="-1" color="#666666"> 5:</font></b>      press_time();   // how long since the 1st click?
-<b><font size="-1" color="#666666"> 6:</font></b>      <...>
-<b><font size="-1" color="#666666"> 7:</font></b>  {
-<b><font size="-1" color="#666666"> 8:</font></b>      <...>
-<b><font size="-1" color="#666666"> 9:</font></b>  }
-<b><font size="-1" color="#666666">10:</font></b>  
-<b><font size="-1" color="#666666">11:</font></b>  <b>void</b> ArmageddonButton::draw (<...>) {
-<b><font size="-1" color="#666666">12:</font></b>      <...>
-<b><font size="-1" color="#666666">13:</font></b>  }
-<b><font size="-1" color="#666666">14:</font></b>  
-<b><font size="-1" color="#666666">15:</font></b>  <b>void</b> ArmageddonButton::update (<b>float</b> delta) {
-<b><font size="-1" color="#666666">16:</font></b>      <...>
-<b><font size="-1" color="#666666">17:</font></b>      <b>if</b> (pressed) {
-<b><font size="-1" color="#666666">18:</font></b>          press_time += delta;
-<b><font size="-1" color="#666666">19:</font></b>          <b>if</b> (press_time > 1.0f) {
-<b><font size="-1" color="#666666">20:</font></b>              pressed = <b>false</b>;    // giving up, 1st click was
-<b><font size="-1" color="#666666">21:</font></b>              press_time = 0;     //            too long ago
-<b><font size="-1" color="#666666">22:</font></b>          }
-<b><font size="-1" color="#666666">23:</font></b>      } <b>else</b> {
-<b><font size="-1" color="#666666">24:</font></b>          <...>
-<b><font size="-1" color="#666666">25:</font></b>          press_time = 0;
-<b><font size="-1" color="#666666">26:</font></b>      }
-<b><font size="-1" color="#666666">27:</font></b>  }
-<b><font size="-1" color="#666666">28:</font></b>  
-<b><font size="-1" color="#666666">29:</font></b>  <b>void</b> ArmageddonButton::on_click (<...>) {
-<b><font size="-1" color="#666666">30:</font></b>      <b>if</b> (pressed) {
-<b><font size="-1" color="#666666">31:</font></b>          server->send_armageddon_event();
-<b><font size="-1" color="#666666">32:</font></b>      } <b>else</b> {
-<b><font size="-1" color="#666666">33:</font></b>          pressed = <b>true</b>;
-<b><font size="-1" color="#666666">34:</font></b>      }
-<b><font size="-1" color="#666666">35:</font></b>  }</code></pre>
-<p>The methods <code>update</code> (ln. 15-27) and <code>on_click</code> (ln. 29-35) are examples of <em>short-lived callbacks</em>, which are pieces of code that execute in reaction to external input events. The callback <code>on_click</code> reacts to mouse clicks detected by the button base class <code>RectComponent</code> (ln. 2), while the callback <code>update</code> continuously reacts to the passage of time. Callbacks are short lived because they must react to input as fast as possible to keep the game with real-time responsiveness.</p>
+<b><font size="-1" color="#666666"> 3:</font></b>      pressed(<b>false</b>); // button state: initially not pressed
+<b><font size="-1" color="#666666"> 4:</font></b>      press_time(0);  // how long since the 1st click?
+<b><font size="-1" color="#666666"> 5:</font></b>      <...>
+<b><font size="-1" color="#666666"> 6:</font></b>  {
+<b><font size="-1" color="#666666"> 7:</font></b>      <...>
+<b><font size="-1" color="#666666"> 8:</font></b>  }
+<b><font size="-1" color="#666666"> 9:</font></b>  
+<b><font size="-1" color="#666666">10:</font></b>  <b>void</b> ArmageddonButton::draw (<...>) {
+<b><font size="-1" color="#666666">11:</font></b>      <...>
+<b><font size="-1" color="#666666">12:</font></b>  }
+<b><font size="-1" color="#666666">13:</font></b>  
+<b><font size="-1" color="#666666">14:</font></b>  <b>void</b> ArmageddonButton::update (<b>float</b> delta) {
+<b><font size="-1" color="#666666">15:</font></b>      <...>
+<b><font size="-1" color="#666666">16:</font></b>      <b>if</b> (pressed) {
+<b><font size="-1" color="#666666">17:</font></b>          press_time += delta;
+<b><font size="-1" color="#666666">18:</font></b>          <b>if</b> (press_time > 1.0f) {
+<b><font size="-1" color="#666666">19:</font></b>              pressed = <b>false</b>;    // giving up, 1st click was
+<b><font size="-1" color="#666666">20:</font></b>              press_time = 0;     //            too long ago
+<b><font size="-1" color="#666666">21:</font></b>          }
+<b><font size="-1" color="#666666">22:</font></b>      } <b>else</b> {
+<b><font size="-1" color="#666666">23:</font></b>          <...>
+<b><font size="-1" color="#666666">24:</font></b>          press_time = 0;
+<b><font size="-1" color="#666666">25:</font></b>      }
+<b><font size="-1" color="#666666">26:</font></b>  }
+<b><font size="-1" color="#666666">27:</font></b>  
+<b><font size="-1" color="#666666">28:</font></b>  <b>void</b> ArmageddonButton::on_click (<...>) {
+<b><font size="-1" color="#666666">29:</font></b>      <b>if</b> (pressed) {
+<b><font size="-1" color="#666666">30:</font></b>          server->send_armageddon_event();
+<b><font size="-1" color="#666666">31:</font></b>      } <b>else</b> {
+<b><font size="-1" color="#666666">32:</font></b>          pressed = <b>true</b>;
+<b><font size="-1" color="#666666">33:</font></b>      }
+<b><font size="-1" color="#666666">34:</font></b>  }</code></pre>
+<p>The methods <code>update</code> (ln. 14-26) and <code>on_click</code> (ln. 28-34) are examples of <em>short-lived callbacks</em>, which are pieces of code that execute atomically in reaction to external input events. The callback <code>on_click</code> reacts to mouse clicks detected by the button base class <code>RectComponent</code> (ln. 2), while the callback <code>update</code> continuously reacts to the passage of time. Callbacks are short lived because they must react to input as fast as possible to let other callbacks execute, keeping the game with real-time responsiveness.</p>
 <div class="images">
 <img src="images/double-click.png" width="550"/> <br> <a href="images/double-click.png"> Figure 4</a>: State machine for the <em>Armageddon</em> double click
 </div>
-<p>The class first initializes the variable <code>pressed</code> to track the first click (ln. 4,33). It also initializes the variable <code>press_time</code> to count the time since the first click (ln. 5,18). If another click occurs within 1 second (ln. 19), the class signals the double click to the application (ln. 31). Otherwise, the <code>pressed</code> and <code>press_time</code> state variables are reset (ln. 20-21).</p>
-<p>Figure 4 illustrates how we can model the double-click behavior as a state machine. The circles represent the state of the variables in the class, while the arrows represent callback reactions that manipulate the state.</p>
-<p>Note in the source code how the accesses to the state variables are spread across the entire class. For instance, the distance between the initialization of <code>pressed</code> (ln. 4) and the last access to it (ln. 33) is over 40 lines in the original file [<a href="https://github.com/Pingus/pingus/blob/7b255840c201d028fd6b19a2185ccf7df3a2cd6e/src/pingus/components/action_button.cpp#L33-#L90"><img src="images/link_12.png" alt="X" /></a>]. Arguably, this dispersion of code across methods makes the understanding and maintenance of the double-click behavior more difficult. Also, even though the state variables are private, unrelated methods such as <code>draw</code>, which is defined in middle of the class (ln. 11-13), can potentially access them.</p>
+<p>The class first initializes the variable <code>pressed</code> to track the first click (ln. 3,32). It also initializes the variable <code>press_time</code> to count the time since the first click (ln. 4,17). If another click occurs within 1 second (ln. 18), the class signals the double click to the application (ln. 30). Otherwise, the <code>pressed</code> and <code>press_time</code> state variables are reset (ln. 19-20).</p>
+<p>Figure 4 illustrates how we can model the double-click behavior as a state machine. The circles represent the state of the variables in the class, while the arrows represent the callbacks manipulating state.</p>
+<p>Note in the code how the accesses to the state variables are spread across the entire class. For instance, the distance between the initialization of <code>pressed</code> (ln. 3) and the last access to it (ln. 32) is over 40 lines in the original file [<a href="https://github.com/Pingus/pingus/blob/7b255840c201d028fd6b19a2185ccf7df3a2cd6e/src/pingus/components/action_button.cpp#L33-#L90"><img src="images/link_12.png" alt="X" /></a>]. Arguably, this dispersion of code across methods makes the understanding and maintenance of the double-click behavior more difficult. Also, even though the state variables are private, unrelated methods such as <code>draw</code>, which is defined in middle of the class (ln. 10-12), can potentially access them.</p>
 <!--
 Because callbacks are short lived, the only way they can affect each other is 
 by manipulating persisting member variables in the object.
@@ -385,15 +384,15 @@ serve as a control mechanism across reactions to external events.
 For instance, the callbacks `on_click` and `update` react independently but must 
 agree on a common protocol to detect the double click:
 
-* `on_click` writes to `pressed` in the first click (ln. 30), and checks
-  its state in further clicks (ln. 33).
+* `on_click` writes to `pressed` in the first click (ln. 29), and checks
+  its state in further clicks (ln. 32).
 * `update`, in the meantime, also checks for `pressed` and may reset its state
-  (ln. 17,20).
+  (ln. 16,19).
 -->
 <!-- CEU-ARMAGEDDON -->
 <p>Céu provides structured constructs to deal with events, aiming to eradicate explicit manipulation of state variables for control-flow purposes. The equivalent code in Céu for the double-click detection is as follows [<a href="https://github.com/fsantanna/pingus/blob/ceu/ceu/pingus/screens/game/input.ceu#L107"><img src="images/link_12.png" alt="X" /></a>]:</p>
 <pre><code><b><font size="-1" color="#666666"> 1:</font></b>  <b>do</b>
-<b><font size="-1" color="#666666"> 2:</font></b>      <b>var</b>& RectComponent c = <...>;
+<b><font size="-1" color="#666666"> 2:</font></b>      <b>var</b>& RectComponent c = <...>;       // (the symbol `&` denotes an alias declaration)
 <b><font size="-1" color="#666666"> 3:</font></b>      <...>
 <b><font size="-1" color="#666666"> 4:</font></b>      <b>loop</b> <b>do</b>
 <b><font size="-1" color="#666666"> 5:</font></b>          <b>await</b> c.component.on_click;
@@ -415,9 +414,9 @@ in deterministic programs.
 Unlike callbacks, organism bodies keep the execution context across event 
 occurrences alive (if they don't terminate).
 -->
-<p>The <code>loop</code> (ln. 4-10) awaits the first click (ln. 5) and then, while watching 1 second (ln. 6-9), awaits the second click (ln. 7). If the second click occurs within 1 second, the <code>break</code> terminates the loop (ln. 8) and signals the double click to the application (ln. 12). Otherwise, the <code>watching</code> block as a whole aborts and restarts the loop, falling back to the first click <code>await</code> (ln. 5).</p>
-<p>Note how double click detection in Céu doesn't require any state variables and is entirely self-contained in the <code>loop</code> body (ln. 4-10). Furthermore, these 7 lines of code <strong>only</strong> detect the double click, leaving the actual effect to happen outside the loop (ln. 12).</p>
-<p>The complete implementations for the <em>Armageddon</em> button in C++ and Céu decreased from 47 to 24 lines of code [<a href="https://github.com/fsantanna/pingus/commit/d0afe53648862643857811d0af8a7a9f60119f6c"><img src="images/link_12.png" alt="X" /></a>].</p>
+<p>The loop detection (ln. 4-10) awaits the first click (ln. 5) and then, while watching 1 second (ln. 6-9), awaits the second click (ln. 7). If the second click occurs within 1 second, the <code>break</code> terminates the loop (ln. 8) and the <code>emit</code> signals the double click to the application (ln. 12). Otherwise, the <code>watching</code> block as a whole aborts and restarts the loop, falling back to the first click <code>await</code> (ln. 5).</p>
+<p>Double click detection in Céu doesn't require any state variables and is entirely self-contained in the <code>loop</code> body (ln. 4-10). Furthermore, these 7 lines of code <strong>only</strong> detect the double click, leaving the actual effect to happen outside the loop (ln. 12).</p>
+<p>The complete implementations for the <em>Armageddon</em> button in C++ and Céu are 47 and 24 lines of code, respectively [<a href="https://github.com/fsantanna/pingus/commit/d0afe53648862643857811d0af8a7a9f60119f6c"><img src="images/link_12.png" alt="X" /></a>].</p>
 <!--
 As we argue throughout this document, appropriate control-flow mechanisms for 
 reactive applications (e.g., the `await` and `watching` statements) help on the
@@ -441,7 +440,7 @@ productivity.
 <li>Game tick: hides the explosion sprite.</li>
 <li>Last frame: kills the pingu.</li>
 </ol>
-<p><em>(<a href="https://youtu.be/QLXIT59il6o?t=306">This video</a> plays the sound effects.)</em></p>
+<p><em>(<a href="https://youtu.be/QLXIT59il6o?t=306">This video</a> presents the sound effects.)</em></p>
 <p>The C++ class <code>Bomber</code> [<a href="https://github.com/Pingus/pingus/blob/7b255840c201d028fd6b19a2185ccf7df3a2cd6e/src/pingus/actions/bomber.cpp"><img src="images/link_12.png" alt="X" /></a>] defines the callbacks <code>draw</code> and <code>update</code> to manage the state machine described above:</p>
 <pre><code><b><font size="-1" color="#666666"> 1:</font></b>  Bomber::Bomber (Pingu* p) :
 <b><font size="-1" color="#666666"> 2:</font></b>      <...>
@@ -458,7 +457,7 @@ productivity.
 <b><font size="-1" color="#666666">13:</font></b>  
 <b><font size="-1" color="#666666">14:</font></b>  <b>void</b> Bomber::update ()
 <b><font size="-1" color="#666666">15:</font></b>  {
-<b><font size="-1" color="#666666">16:</font></b>      sprite.update ();
+<b><font size="-1" color="#666666">16:</font></b>      sprite.update();
 <b><font size="-1" color="#666666">17:</font></b>      <...>   // pingu movement
 <b><font size="-1" color="#666666">18:</font></b>  
 <b><font size="-1" color="#666666">19:</font></b>      // 2. 10th frame: plays a "Bomb!" sound.
@@ -488,15 +487,15 @@ productivity.
 <b><font size="-1" color="#666666">43:</font></b>      // 4. Game tick: hides the explosion sprite
 <b><font size="-1" color="#666666">44:</font></b>      <b>if</b> (sprite.get_current_frame()==13 && !gfx_exploded) {
 <b><font size="-1" color="#666666">45:</font></b>          gfx_exploded = <b>true</b>;
-<b><font size="-1" color="#666666">46:</font></b>          gc.color().draw (explo_surf, <...>);
+<b><font size="-1" color="#666666">46:</font></b>          gc.color().draw(explo_surf, <...>);
 <b><font size="-1" color="#666666">47:</font></b>      }
 <b><font size="-1" color="#666666">48:</font></b>      gc.color().draw(sprite, pingu->get_pos());
 <b><font size="-1" color="#666666">49:</font></b>  }</code></pre>
 <!--*-->
 <p>The class defines one state variable for each action to perform (ln. 4-7). The &quot;Oh no!&quot; sound plays as soon as the object starts in <em>state-1</em> (ln. 11). The <code>update</code> callback updates the pingu animation and movement every frame regardless of its current state (ln. 16-17). When the animation reaches the 10th frame, it plays the &quot;Bomb!&quot; sound and switches to <em>state-2</em> (ln. 20-23). The state variable <code>sound_played</code> is required because the sprite frame doesn't necessarily advance on every <code>update</code> invocation. The same reasoning and technique applies to the <em>state-3</em> (ln. 26-33 and 44-45). The explosion sprite appears in a single frame in <em>state-4</em> (ln. 46). Finally, the pingu dies after the animation frames terminate (ln. 36-38).</p>
-<p>Even though a single numeric state variable would suffice to track the states, the authors probably chose to encode each state in an independent boolean variable to rearrange and experiment with them during the development. Still, due to the short-lived nature of callbacks, state variables are unavoidable and are actually the essence of object-oriented programming (i.e., <em>methods + mutable state</em>).</p>
+<p>Even though a single numeric state variable suffices to track the states, the original authors probably chose to encode each state in an independent boolean variable to rearrange and experiment with them during development. Still, due to the short-lived nature of callbacks, state variables are unavoidable and are actually the essence of object-oriented programming (i.e., <em>methods + mutable state</em>).</p>
 <p><a name="bomber"/></p>
-<p>The equivalent code in Céu for the <em>Bomber</em> action doesn't require any state variables and reflects the sequential state machine implicitly, as statements separated by <code>await</code> statements in direct style [<a href="https://github.com/fsantanna/pingus/blob/ceu/ceu/pingus/screens/game/pingu/actions/bomber.ceu"><img src="images/link_12.png" alt="X" /></a>]:</p>
+<p>The equivalent code in Céu for the <em>Bomber</em> action doesn't require any state variables and reflects the sequential state machine implicitly, using <code>await</code> statements to separate the actions in direct style [<a href="https://github.com/fsantanna/pingus/blob/ceu/ceu/pingus/screens/game/pingu/actions/bomber.ceu"><img src="images/link_12.png" alt="X" /></a>]:</p>
 <pre><code><b><font size="-1" color="#666666"> 1:</font></b>  <b>code</b>/<b>await</b> Bomber (<b>void</b>) -> _ActionName__Enum
 <b><font size="-1" color="#666666"> 2:</font></b>  <b>do</b>
 <b><font size="-1" color="#666666"> 3:</font></b>      <...>
@@ -528,14 +527,14 @@ productivity.
 <b><font size="-1" color="#666666">29:</font></b>      // 5. Last frame: kills the pingu
 <b><font size="-1" color="#666666">30:</font></b>      <b>escape</b> {ActionName::DEAD};
 <b><font size="-1" color="#666666">31:</font></b>  <b>end</b></code></pre>
-<p>The <code>Bomber</code> is a <code>code/await</code> abstraction of Céu, which is similar to a co-routine: a function that retains state, such as local variables and the program counter, across reactions to events (i.e., across <code>await</code> statements). The pingu movement and sprite animation are isolated in two other abstractions to execute in separate through the <code>spawn</code> primitive (ln. 4,6).</p>
+<p>The <code>Bomber</code> is a <code>code/await</code> abstraction of Céu, which is similar to a co-routine: a function that retains state, such as local variables and the program counter, across reactions to events (i.e., across <code>await</code> statements). The pingu movement and sprite animation are isolated in two other abstractions and execute in separate through the <code>spawn</code> primitive (ln. 4,6).</p>
 <p>The code tracks the animation abstraction (ln. 7-27), performing the last action on termination (ln. 30). As soon as the animation starts, the code performs the first action (ln. 8). The intermediate actions are performed when the corresponding conditions occur (ln. 12,16,24).</p>
 <p>The <code>do-end</code> block (ln. 19-25), restricts the lifetime of the single-frame explosion sprite (ln. 21): after the next game tick (ln. 24), the block terminates and automatically destroys the spawned abstraction (removing it from the screen).</p>
-<p>The complete implementations for the <em>Bomber</em> action in C++ and Céu decreased from 50 to 19 lines of code [<a href="https://github.com/fsantanna/pingus/commit/8e8cf7ed81427d575975fc7a4da579c7b76219a0"><img src="images/link_12.png" alt="X" /></a>].</p>
+<p>The complete implementations for the <em>Bomber</em> action in C++ and Céu are 50 and 19 lines of code, respectively [<a href="https://github.com/fsantanna/pingus/commit/8e8cf7ed81427d575975fc7a4da579c7b76219a0"><img src="images/link_12.png" alt="X" /></a>].</p>
 <p><a name="finite-state-machines-summary"/> <br/></p>
 <div class="summary">
 <p><strong>Summary</strong>:</p>
-<p>Implicit state machines in Céu provide some advantages in comparison to explicit state machines in C++:</p>
+<p>Implicit state machines in Céu provide some advantages in comparison to explicit state machines:</p>
 <ul>
 <li>They encode all states with direct sequential code, not requiring state variables.</li>
 <li>They handle all states (and only them) in the same contiguous block, improving code encapsulation.</li>
@@ -563,9 +562,9 @@ more natural structured code with sequences, conditionals, and loops
 <div class="images">
 <img src="images/story-anim.gif" width="350"/> <br> <a href="images/story-anim.gif"> Figure 7</a>: The <em>Story</em> screen
 </div>
-<p>The clickable <em>blue dots</em> in the world map of Pingus transit to ambience story screens about the game (Figure 7). Inside each page, the words of the story appear incrementally over time. A first click in the button <code>&gt;&gt;&gt;</code> fast forwards the words to show the full page. A second click advances to the next page, until the story terminates. If the page completes before a click (due to the time elapsing), a first click advances to the next page.</p>
+<p>The clickable <em>blue dots</em> in the world map of Pingus transit to ambience story screens (Figure 7). A story is composed of multiple pages and inside each page, the words of the story appear incrementally over time. A first click in the button <code>&gt;&gt;&gt;</code> fast forwards the words to show the full page. A second click advances to the next page, until the story terminates. If the page completes before a click (due to the time elapsing), a first click advances to the next page.</p>
 <!-- CPP-STORY-PAGES -->
-<p>The code in C++ defines the class <code>StoryScreenComponent</code> [<a href="https://github.com/Pingus/pingus/blob/7b255840c201d028fd6b19a2185ccf7df3a2cd6e/src/pingus/screens/story_screen.cpp#L159"><img src="images/link_12.png" alt="X" /></a>] uses the method <code>next_text</code>, which is a callback from clicks in <code>&gt;&gt;&gt;</code>:</p>
+<p>The code in C++ defines the class <code>StoryScreenComponent</code> [<a href="https://github.com/Pingus/pingus/blob/7b255840c201d028fd6b19a2185ccf7df3a2cd6e/src/pingus/screens/story_screen.cpp#L158"><img src="images/link_12.png" alt="X" /></a>] with the method <code>next_text</code>, which is a callback from clicks in <code>&gt;&gt;&gt;</code>:</p>
 <pre><code><b><font size="-1" color="#666666"> 1:</font></b>  StoryScreenComponent::StoryScreenComponent (<...>) :
 <b><font size="-1" color="#666666"> 2:</font></b>      <...>
 <b><font size="-1" color="#666666"> 3:</font></b>  {
@@ -579,7 +578,7 @@ more natural structured code with sequences, conditionals, and loops
 <b><font size="-1" color="#666666">11:</font></b>  
 <b><font size="-1" color="#666666">12:</font></b>  <b>void</b> StoryScreenComponent::update (<...>) {
 <b><font size="-1" color="#666666">13:</font></b>      <...>
-<b><font size="-1" color="#666666">14:</font></b>      <b>if</b> (<...>) {
+<b><font size="-1" color="#666666">14:</font></b>      <b>if</b> (<all-words-appearing>) {
 <b><font size="-1" color="#666666">15:</font></b>          displayed = <b>true</b>;
 <b><font size="-1" color="#666666">16:</font></b>      }
 <b><font size="-1" color="#666666">17:</font></b>  }
@@ -602,29 +601,28 @@ more natural structured code with sequences, conditionals, and loops
 <div class="images">
 <img src="images/story.png" width="550"/> <br> <a href="images/story.png"> Figure 8</a>: State machine for the <em>Story</em> screen
 </div>
-<p>The variable <code>pages</code> (ln. 4-5, 24-26) is a vector holding each page, but which also encodes <em>continuations</em> for the story progress: each call to <code>next_text</code> that advances the story (ln. 23-32) removes the current page (ln. 24) and sets the next action to perform (i.e., &quot;display a new page&quot;) in the variable <code>current_page</code> (ln. 26). Figure 8 illustrates the state machine for fast-forwarding words (inside the dashed rectangle) and also the continuation mechanism to advance pages. The state variable <code>displayed</code> (ln. 6,15,20,21,27) switches between the behaviors &quot;advancing text&quot; and &quot;advancing pages&quot;, which are both handled inside the method <code>next_text</code>.</p>
+<p>The variable <code>pages</code> (ln. 4-5, 24-26) is a vector holding each page, but which also encodes <em>continuations</em> for the story progress: each call to <code>next_text</code> that advances the story (ln. 23-32) removes the current page (ln. 24) and sets the next action to perform (i.e., &quot;display a new page&quot;) in the variable <code>current_page</code> (ln. 26). Figure 8 illustrates a state machine for fast-forwarding words (inside the dashed rectangle) and also the continuation mechanism to advance pages. The state variable <code>displayed</code> (ln. 6,15,20,21,27) switches between the behaviors &quot;advancing text&quot; and &quot;advancing pages&quot;, which are both handled inside the method <code>next_text</code>.</p>
 <!-- CEU-STORY-PAGES -->
-<p>The code in Céu [<a href="https://github.com/fsantanna/pingus/blob/ceu/ceu/pingus/screens/story_screen.ceu#L14"><img src="images/link_12.png" alt="X" /></a>] uses the event <code>next_text</code>, which is emitted from clicks in <code>&gt;&gt;&gt;</code>:</p>
-<pre><code><b><font size="-1" color="#666666"> 1:</font></b>  class StoryScreen <b>with</b>
+<p>The code in Céu [<a href="https://github.com/fsantanna/pingus/blob/ceu/ceu/pingus/screens/story.ceu#L60-L112"><img src="images/link_12.png" alt="X" /></a>] uses the event <code>next_text</code>, which is emitted from clicks in <code>&gt;&gt;&gt;</code>:</p>
+<pre><code><b><font size="-1" color="#666666"> 1:</font></b>  <b>code</b>/<b>await</b> Story (<b>void</b>) -> <b>bool</b> <b>do</b>
 <b><font size="-1" color="#666666"> 2:</font></b>      <...>
-<b><font size="-1" color="#666666"> 3:</font></b>  <b>do</b>
-<b><font size="-1" color="#666666"> 4:</font></b>      <b>event</b> <b>void</b> next_text;   // emitted from clicks <b>in</b> `>>>`
-<b><font size="-1" color="#666666"> 5:</font></b>  
-<b><font size="-1" color="#666666"> 6:</font></b>      _pages = <...>          // same as <b>in</b> C++
-<b><font size="-1" color="#666666"> 7:</font></b>  
-<b><font size="-1" color="#666666"> 8:</font></b>      <b>loop</b> i <b>in</b> _pages.size() <b>do</b>
-<b><font size="-1" color="#666666"> 9:</font></b>          <b>par</b>/<b>or</b> <b>do</b>
-<b><font size="-1" color="#666666">10:</font></b>              <...>           // <b>loop</b> to redraw current _pages[i]
-<b><font size="-1" color="#666666">11:</font></b>          <b>with</b>
-<b><font size="-1" color="#666666">12:</font></b>              <b>watching</b> next_text <b>do</b>
-<b><font size="-1" color="#666666">13:</font></b>                  <...>       // <b>loop</b> to advance text over time
-<b><font size="-1" color="#666666">14:</font></b>              <b>end</b>
-<b><font size="-1" color="#666666">15:</font></b>              <b>await</b> next_text;
-<b><font size="-1" color="#666666">16:</font></b>          <b>end</b>
-<b><font size="-1" color="#666666">17:</font></b>      <b>end</b>
-<b><font size="-1" color="#666666">18:</font></b>  <b>end</b></code></pre>
-<p>For the sequential navigation from page to page, we use a direct loop (ln. 8-17) instead of an explicit continuation state variable. While the text advances in an inner loop (hidden in ln. 13), we watch the <code>next_text</code> event that fast forwards it. The inner loop may also eventually terminate with the time elapsing normally. To go to the next page, we simply <code>await next_text</code> again in sequence (ln. 15). Note that we don't need a variable (such as <code>displayed</code> in C++) to switch between the states &quot;advancing text&quot; or &quot;advancing pages&quot; which are not mixed in the source code.</p>
+<b><font size="-1" color="#666666"> 3:</font></b>      <b>event</b> <b>void</b> next_text;   // emitted from clicks <b>in</b> `>>>`
+<b><font size="-1" color="#666666"> 4:</font></b>  
+<b><font size="-1" color="#666666"> 5:</font></b>      { pages = <...>; }      // same as <b>in</b> C++
+<b><font size="-1" color="#666666"> 6:</font></b>      <b>loop</b> i <b>in</b> [0 <- {pages.size()}[ <b>do</b>
+<b><font size="-1" color="#666666"> 7:</font></b>          <b>par</b>/<b>or</b> <b>do</b>
+<b><font size="-1" color="#666666"> 8:</font></b>              <b>watching</b> next_text <b>do</b>
+<b><font size="-1" color="#666666"> 9:</font></b>                  <...>       // <b>loop</b> to advance text over time
+<b><font size="-1" color="#666666">10:</font></b>              <b>end</b>
+<b><font size="-1" color="#666666">11:</font></b>              <b>await</b> next_text;
+<b><font size="-1" color="#666666">12:</font></b>          <b>with</b>
+<b><font size="-1" color="#666666">13:</font></b>              <...>           // <b>loop</b> to redraw current _pages[i]
+<b><font size="-1" color="#666666">14:</font></b>          <b>end</b>
+<b><font size="-1" color="#666666">15:</font></b>      <b>end</b>
+<b><font size="-1" color="#666666">16:</font></b>  <b>end</b></code></pre>
+<p>The sequential navigation from page to page uses a direct loop (ln. 6-15) instead of an explicit continuation state variable. While the text advances in an inner loop (hidden in ln. 9), we watch the <code>next_text</code> event that fast forwards it. The inner loop may also eventually terminate with the time elapsing normally. This way, we don't need a variable (such as <code>displayed</code> in C++) to switch between the states &quot;advancing text&quot; and &quot;advancing pages&quot;. <!-- which are not mixed in the source code. --> The <code>await next_text</code> in sequence (ln. 11) is the condition to advance to the next page.</p>
 <p>The complete implementations for the <em>Story</em> screen in C++ and Céu decreased from 125 to 111 lines of code [[<img src="images/link_12.png" alt="X" />][TODO]].</p>
+<p>The complete implementations for the <em>Story</em> screen in C++ and Céu are 125 and 111 lines of code, respectively [<a href="https://github.com/fsantanna/pingus/commit/d0afe53648862643857811d0af8a7a9f60119f6c"><img src="images/link_12.png" alt="X" /></a>].</p>
 <p><a name="continuation-passing-2"/></p>
 <h3 id="transition-to-the-credits-screen-in-the-story-screen">2.2) Transition to the <em>Credits</em> Screen in the <em>Story</em> Screen</h3>
 <div class="images">
@@ -723,7 +721,7 @@ TODO:
 <p><a name="continuation-passing-summary"/> <br/></p>
 <div class="summary">
 <p><strong>Summary</strong>:</p>
-<p>The direct style of Céu has some advantages in comparison to the continuation-passing style of C++:</p>
+<p>The direct style of Céu has some advantages in comparison to the continuation-passing style:</p>
 <ul>
 <li>It uses structured control flow (i.e., sequences and loops) instead of explicit data structures (e.g., stacks) or continuation variables.</li>
 <li>The activities are decoupled from one another, i.e., they do not hold references to one another.</li>

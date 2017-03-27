@@ -968,8 +968,9 @@ more natural structured code with sequences, conditionals, and loops
          350)
 
 The clickable *blue dots* in the world map of Pingus transit to ambience story 
-screens about the game (@FIG_REF[[story-anim.gif]]).
-Inside each page, the words of the story appear incrementally over time.
+screens (@FIG_REF[[story-anim.gif]]).
+A story is composed of multiple pages and inside each page, the words of the
+story appear incrementally over time.
 A first click in the button `>>>` fast forwards the words to show the full 
 page.
 A second click advances to the next page, until the story terminates.
@@ -979,7 +980,7 @@ advances to the next page.
 <!-- CPP-STORY-PAGES -->
 
 The code in C++ defines the class `StoryScreenComponent` 
-[[![X]][cpp_story_screen_component]] uses the method `next_text`, which is a 
+[[![X]][cpp_story_screen_component]] with the method `next_text`, which is a 
 callback from clicks in `>>>`:
 
 @CODE_LINES[[language=CPP,
@@ -996,7 +997,7 @@ StoryScreenComponent::StoryScreenComponent (<...>) :
 
 void StoryScreenComponent::update (<...>) {
     <...>
-    if (<...>) {
+    if (<all-words-appearing>) {
         displayed = true;                       @dsp_11
     }
 }
@@ -1028,7 +1029,7 @@ story progress:
 each call to `next_text` that advances the story @NN(adv_1,-,adv_2) removes the 
 current page @NN(pages_3) and sets the next action to perform (i.e., "display a 
 new page") in the variable `current_page` @NN(pages_4).
-@FIG_REF[[story.png]] illustrates the state machine for fast-forwarding words 
+@FIG_REF[[story.png]] illustrates a state machine for fast-forwarding words 
 (inside the dashed rectangle) and also the continuation mechanism to advance 
 pages.
 The state variable `displayed`
@@ -1038,43 +1039,46 @@ are both handled inside the method `next_text`.
 
 <!-- CEU-STORY-PAGES -->
 
-The code in Céu [[![X]][ceu_story_pages]] uses the event `next_text`, which is 
+The code in Céu [[![X]][ceu_story]] uses the event `next_text`, which is 
 emitted from clicks in `>>>`:
 
 @CODE_LINES[[language=CEU,
-class StoryScreen with
+code/await Story (void) -> bool do
     <...>
-do
     event void next_text;   // emitted from clicks in `>>>`
 
-    _pages = <...>          // same as in C++
-
-    loop i in _pages.size() do                              @loop_do
+    { pages = <...>; }      // same as in C++
+    loop i in [0 <- {pages.size()}[ do                      @loop_do
         par/or do
-            <...>           // loop to redraw current _pages[i]
-        with
             watching next_text do
                 <...>       // loop to advance text over time   @advance
             end
             await next_text;                                @await
+        with
+            <...>           // loop to redraw current _pages[i]
         end
     end                                                     @loop_end
 end
 ]]
 
-For the sequential navigation from page to page, we use a direct loop 
+The sequential navigation from page to page uses a direct loop 
 @NN(loop_do,-,loop_end) instead of an explicit continuation state variable.
 While the text advances in an inner loop (hidden in ln. @N(advance)), we watch 
 the `next_text` event that fast forwards it.
 The inner loop may also eventually terminate with the time elapsing normally.
-To go to the next page, we simply `await next_text` again in sequence 
-@NN(await).
-Note that we don't need a variable (such as `displayed` in C++) to switch 
-between the states "advancing text" or "advancing pages" which are not mixed in 
-the source code.
+This way, we don't need a variable (such as `displayed` in C++) to switch 
+between the states "advancing text" and "advancing pages".
+<!-- which are not mixed in the source code. -->
+The `await next_text` in sequence @NN(await) is the condition to advance to the
+next page.
 
 The complete implementations for the *Story* screen in C++ and Céu decreased
 from 125 to 111 lines of code [[![X]][TODO]].
+
+The complete implementations for the *Story* screen in C++ and Céu are 125
+and 111 lines of code, respectively [[![X]][diff_story]].
+
+[diff_story]:  https://github.com/fsantanna/pingus/commit/d0afe53648862643857811d0af8a7a9f60119f6c
 
 <a name="continuation-passing-2"/>
 
@@ -1260,13 +1264,12 @@ continuation-passing style:
 </div>
 
 [cpp_story_screen]:https://github.com/Pingus/pingus/blob/7b255840c201d028fd6b19a2185ccf7df3a2cd6e/src/pingus/screens/story_screen.cpp#L136
-[cpp_story_screen_component]:https://github.com/Pingus/pingus/blob/7b255840c201d028fd6b19a2185ccf7df3a2cd6e/src/pingus/screens/story_screen.cpp#L159
+[cpp_story_screen_component]:https://github.com/Pingus/pingus/blob/7b255840c201d028fd6b19a2185ccf7df3a2cd6e/src/pingus/screens/story_screen.cpp#L158
 [cpp_story_screen_forward]:https://github.com/Pingus/pingus/blob/7b255840c201d028fd6b19a2185ccf7df3a2cd6e/src/pingus/screens/story_screen.cpp#L143
 [cpp_story_dot]:https://github.com/Pingus/pingus/blob/7b255840c201d028fd6b19a2185ccf7df3a2cd6e/src/pingus/worldmap/story_dot.cpp#L31
 [cpp_story_pages]:https://github.com/Pingus/pingus/blob/7b255840c201d028fd6b19a2185ccf7df3a2cd6e/src/pingus/screens/story_screen.cpp#L159
 
-[ceu_story_screen]:https://github.com/fsantanna/pingus/blob/ceu/ceu/pingus/screens/story_screen.ceu#L14
-[ceu_story_pages]:https://github.com/fsantanna/pingus/blob/ceu/ceu/pingus/screens/story_screen.ceu#L14
+[ceu_story]:https://github.com/fsantanna/pingus/blob/ceu/ceu/pingus/screens/story.ceu#L60-L112
 
 [wiki_style_direct]:       https://en.wikipedia.org/wiki/Direct_style
 [wiki_style_continuation]: https://en.wikipedia.org/wiki/Continuation-passing_style
