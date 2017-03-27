@@ -98,7 +98,7 @@ TODO:
     - parallel, synchronous-run-to-completion
     - not a loop+queue
 -->
-<h1 id="structured-synchronous-reactive-programming-for-game-development-on-rewriting-pingus-from-c-to-céu">Structured Synchronous Reactive Programming for Game Development: On Rewriting Pingus from C++ to Céu</h1>
+<h1 id="structured-synchronous-reactive-programming-for-game-development-----case-study-on-rewriting-pingus-from-c-to-céu">Structured Synchronous Reactive Programming for Game Development --- Case Study: On Rewriting Pingus from C++ to Céu</h1>
 <!--
 * [What](#what-is-this-all-about),
   [Why](#why-rewrite-pingus-to-céu),
@@ -160,11 +160,11 @@ Total Physical Source Lines of Code (SLOC) = 39,975
 -->
 <p>Céu is a programming language that aims to offer a higher-level and safer alternative to C/C++ with the characteristics that follow:</p>
 <ul>
-<li><em>Reactive:</em> code executes in reactions to events.</li>
-<li><em>Synchronous:</em> reactions run to completion, i.e., there's no implicit preemption or real parallelism.</li>
-<li><em>Structured:</em> programs use structured control mechanisms, such as <code>await</code> (to suspend a line of execution), and <code>par</code> (to combine multiple awaiting lines of execution).</li>
+<li><em>Reactive:</em> code only executes in reactions to events.</li>
+<li><em>Structured:</em> programs use structured control mechanisms, such as <code>await</code> (to suspend a line of execution), and <code>par</code> (to combine multiple lines of execution).</li>
+<li><em>Synchronous:</em> reactions run atomically and to completion on each line of execution, i.e., there's no implicit preemption or real parallelism.</li>
 </ul>
-<p>Structured programming eliminates the <em>callback hell</em> [<a href="http://callbackhell.com/"><img src="images/link_12.png" alt="X" /></a>], letting programmers write code in direct/sequential style. In addition, when a line of execution is aborted, all allocated resources are safely released.</p>
+<p>Structured programming eliminates the <em>callback hell</em> [<a href="http://callbackhell.com/"><img src="images/link_12.png" alt="X" /></a>], letting programmers write code in direct/sequential style in multiple lines of execution. In addition, when a line of execution is aborted, all allocated resources inside it are safely released.</p>
 <div class="images">
 <img src="images/sweeney.png" width="350"/> <br> <a href="images/sweeney.png"> Figure 2</a>: Three &quot;kinds&quot; of code
 </div>
@@ -205,15 +205,15 @@ if it enables our state-intensive code to scale to many threads, it’s still a 
 
 Claim: Transactions are the only plausible solution to concurrent mutable state
 -->
-<p>The main motivation for rewriting Pingus to Céu is to suggest structured synchronous reactive programming as an expressive alternative in video game development. In Pingus, the game logic also accounts for almost half the size of the codebase (18173 from 39362 LoC, or 46%). <code>TODO: total rewritten, gains in %</code></p>
-<p>During the rewrite process, our approach was to identify <em>control-flow behaviors</em> in the game that cross successive reactions to events. As an example, detecting a double mouse click in the game consists of the first click, followed by a maximum amount of time, followed by a second click. Therefore, the behavior depends on different events (clicks and timers) that have to occur in a particular order. Our hypothesis is that in C++ these implementations involve callbacks manipulating state variables explicitly. We then rewrite these behaviors in Céu, using appropriate structured constructs. More concretely, we identify control-flow behaviors in C++ by looking for class members with &quot;suspicious names&quot; (e.g., <a href="https://github.com/Pingus/pingus/blob/7b255840c201d028fd6b19a2185ccf7df3a2cd6e/src/pingus/components/action_button.hpp#L36"><code>pressed</code></a>, <a href="https://github.com/Pingus/pingus/blob/7b255840c201d028fd6b19a2185ccf7df3a2cd6e/src/pingus/actions/bomber.hpp#L31"><code>particle_thrown</code></a>, <a href="https://github.com/Pingus/pingus/blob/7b255840c201d028fd6b19a2185ccf7df3a2cd6e/src/pingus/actions/bridger.hpp#L30"><code>mode</code></a>, or <a href="https://github.com/Pingus/pingus/blob/7b255840c201d028fd6b19a2185ccf7df3a2cd6e/src/pingus/actions/digger.hpp#L32"><code>delay_count</code></a>). Good chances are that variables with identifiers resembling verbs, statuses, or counters encode some form of control-flow progression that cross multiple callback invocations.</p>
+<p>The main motivation for rewriting Pingus to Céu is to suggest structured synchronous reactive programming as an expressive and productive alternative for the game logic development. In Pingus, the game logic also accounts for almost half the size of the codebase (18173 from 39362 LoC, or 46%). <code>TODO: total rewritten, gains in %</code></p>
+<p>The rewriting process consisted of identifying a set of callbacks implementing a <em>control-flow behavior</em> in the game and translating them to Céu using appropriate structured constructs. As an example, a double mouse click consists of the first click, followed by a maximum amount of time, followed by a second click. This behavior depends on different event (clicks and timers) that have to occur in a particular order. In C++, the implementation involves callbacks crossing successive reactions to events manipulating state variables explicitly More concretely, we could identify control-flow behaviors in C++ by looking for class members with identifiers resembling verbs, statuses, or counters (e.g., <a href="https://github.com/Pingus/pingus/blob/7b255840c201d028fd6b19a2185ccf7df3a2cd6e/src/pingus/components/action_button.hpp#L36"><code>pressed</code></a>, <a href="https://github.com/Pingus/pingus/blob/7b255840c201d028fd6b19a2185ccf7df3a2cd6e/src/pingus/actions/bomber.hpp#L31"><code>particle_thrown</code></a>, <a href="https://github.com/Pingus/pingus/blob/7b255840c201d028fd6b19a2185ccf7df3a2cd6e/src/pingus/actions/bridger.hpp#L30"><code>mode</code></a>, or <a href="https://github.com/Pingus/pingus/blob/7b255840c201d028fd6b19a2185ccf7df3a2cd6e/src/pingus/actions/digger.hpp#L32"><code>delay_count</code></a>). Good chances are that variables with &quot;suspicious names&quot; encode some form of control-flow progression that cross multiple callback invocations.</p>
 <!--
 , and redirect the instantiation and event dispatching to the new 
 class.
 The remaining classes in C++ should interoperate with the new classes in Céu 
 until we complete the rewriting process.
 -->
-<p>During the course of the rewriting process, and following the process described above, we could extract more abstract behaviors that likely apply to other games. We identified eight control-flow patterns in Pingus which we discuss with in-depth examples:</p>
+<p>We selected <code>TODO</code> game behaviors and describe their implementations in C++ and Céu. We categorize these examples in more abstract control-flow patterns that likely apply to other games:</p>
 <p><a name="finite-state-machines"/></p>
 <ol style="list-style-type: decimal">
 <li><a href="#finite-state-machines"><strong>Finite State Machines</strong></a>: State machines describe the behavior of entities by mapping event occurrences to transitions between states that trigger appropriate actions.
