@@ -1072,25 +1072,22 @@ between the states "advancing text" and "advancing pages".
 The `await next_text` in sequence @NN(await) is the condition to advance to the
 next page.
 
-The complete implementations for the *Story* screen in C++ and Céu decreased
-from 125 to 111 lines of code [[![X]][TODO]].
-
 The complete implementations for the *Story* screen in C++ and Céu are 125
 and 111 lines of code, respectively [[![X]][diff_story]].
 
-[diff_story]:  https://github.com/fsantanna/pingus/commit/d0afe53648862643857811d0af8a7a9f60119f6c
+[diff_story]: https://github.com/fsantanna/pingus/commit/1e17519467c8b0c3d616f0452966b6f5357ccd34
 
 <a name="continuation-passing-2"/>
 
 @SEC[[
-### Transition to the *Credits* Screen in the *Story* Screen
+### Transition to the *Credits* Screen from the *Story* Screen
 ]]
 
 @FIG_NEW(credits-anim.gif,
          Transition from *Story* to *Credits* screen,
          350)
 
-The world map has clickable story dots for both introductory and ending 
+The world map has clickable blue dots for both introductory and ending 
 stories.
 For introductory stories, the game returns to the world map after displaying 
 the pages.
@@ -1119,10 +1116,11 @@ void StoryDot::on_click() {
 ]]
 
 The boolean variable `m_credits` is passed to the `StoryScreen` @NN(call)
-[[![X]][cpp_story_screen]] and represents its continuation, i.e., what to do 
-after displaying the story.
-The `StoryScreen` forwards the continuation [[![X]][cpp_story_screen_forward]] 
-to the `StoryComponent` [[![X]][cpp_story_screen-component]]:
+[[![X]][cpp_story_screen]] and represents the screen continuation, i.e., what
+to do after displaying the story.
+The `StoryScreen` then forwards the continuation [[![X]][cpp_story_screen_forward]] 
+to the `StoryComponent` [[![X]][cpp_story_screen_component]] discussed in the
+previous section:
 
 @CODE_LINES[[language=CPP,
 StoryScreenComponent::StoryScreenComponent (<...>) :
@@ -1152,30 +1150,32 @@ void StoryScreenComponent::next_text() {
 }
 ]]
 
-When the method `next_text` has no pages to display @NN(adv_1,-,adv_2), it 
+When the method `next_text` has no pages left to display @NN(adv_1,-,adv_2), it 
 decides where to go next, depending on the continuation flag `m_credits` 
 @NN(m_credits).
 
 <!-- CEU-STORY-CREDITS -->
 
-In Céu, the flow between the screens to display is a simple sequence of 
-statements:
+In Céu, the flow between the screens to display is a direct sequence of 
+statements [[![X]][ceu_credits]]:
 
 @CODE_LINES[[language=CEU,
 loop do
-    var int ret = do WorldmapScreen;                @call_world
-    if ret==_WORLDMAP_RETURN_STORY_MAP or ret==_WORLDMAP_RETURN_STORY_CREDITS then
-        <...>                                       @story_1
-        var bool is_click = do StoryScreen;         @call_story
-        if is_click and ret==_WORLDMAP_RETURN_STORY_CREDITS then @check
-            do Credits;                             @call_credits
-        end                                         @story_2
+    var int ret = await Worldmap();                                 @call_world
+    if ret=={WORLDMAP_RETURN_STORY_MAP} or ret=={WORLDMAP_RETURN_STORY_CREDITS} then
+        <...>                                                       @story_1
+        var bool is_click = await Story();                          @call_story
+        if is_click and ret=={WORLDMAP_RETURN_STORY_CREDITS} then   @check
+            <...>
+            await Credits();                                        @call_credits
+        end                                                         @story_2
     else
         <...>
     end
 end
 ]]
 
+<!--
 <div class="box">
 **The `do` notation**:
 
@@ -1201,39 +1201,37 @@ started organism executes.
 The code in sequence (marked as `<...>`) only executes after the organism 
 terminates.
 </div>
+-->
 
-We first "call" a `WorldmapScreen` organism @NN(call_world), which exhibits the 
-map and let the player interact until it clicks in a dot.
-If the player selects a story dot @NN(story_1,-,story_2), we "call" the story 
-@NN(call_story) and also await its termination.
-Finally, we check the return values @NN(check) to display the `Credits` 
+We first invoke the `Worldmap`, which exhibits the map and let
+the player interact with it until a dot is clicked @NN(call_world).
+If the player selects a story dot @NN(story_1,-,story_2), we invoke the `Story`
+and await its termination @NN(call_story).
+Finally, we check the returned values @NN(check) to display the `Credits` 
 @NN(call_credits).
+The enclosing loop restores the `Worldmap` and repeats the process.
 
 @FIG_NEW(continuation.png,
          Continuation [C++] vs Direct [Céu] Styles,
          500)
 
-@FIG_REF[[continuation.png]] depicts the *continuation-passing style* of C++ 
-and *direct style* of Céu for the screen transitions:
+@FIG_REF[[continuation.png]] illustrates the *continuation-passing style* of
+C++ and the *direct style* of Céu for screen transitions:
 
 1. `Main Loop` => `Worldmap`:
-    C++ uses an explicit stack to push the *World Map* screen;
-    Céu calls the *World Map* screen (with the `do` notation), expecting a 
-    return
-    value;
+    C++ uses an explicit stack to push the `Worldmap` screen;
+    Céu invokes the `WorldMap` screen expecting a return value;
 2. `Worldmap` (*blue dot click*) => `Story`:
-    C++ `StoryDot` pushes the *Story* screen forward, also passing the 
-    continuation flag;
-    Céu gets the return value of the `Worldmap` (i.e., if it should display the 
-    `Credits`) and calls the *Story* screen.
+    C++ pushes the `Story` screen passing the continuation flag;
+    Céu stores the `Worldmap` return value and invokes the `Story` screen.
 3. `Story` => `Credits`:
-    C++ `Story` replaces the current screen with the *Credits* screen.
-    Céu calls the *Credits* screen after the `do Story` returns.
+    C++ replaces the curren `Story` screen with the `Credits` screen.
+    Céu invokes the `Credits` screen after the `await Story` returns.
 4. `Credits` => `Worldmap`:
-    C++ pops the *Credits* screen, going back to the *World Map* screen.
+    C++ pops the `Credits` screen, going back to the `Worldmap` screen.
     Céu uses an enclosing `loop` to restart the process.
 
-In contrast to C++, the screens Céu are decoupled and only the `Main Loop` 
+In contrast with C++, the screens in Céu are decoupled and only the `Main Loop` 
 touches them:
 the `Worldmap` has no references to `Story`,
 which has no references to `Credits`.
@@ -1256,11 +1254,10 @@ continuation-passing style:
 
 * It uses structured control flow (i.e., sequences and loops) instead of 
   explicit data structures (e.g., stacks) or continuation variables.
-* The activities are decoupled from one another, i.e., they do not hold 
-  references to one another.
+* The activities are decoupled and do not hold references to one another.
 * A single parent class describes the flow between the activities in a 
-  self-contained block of code (instead of being spread among the activity
-  classes).
+  self-contained block of code.
+    <!-- (instead of being spread among the activity classes). -->
 </div>
 
 [cpp_story_screen]:https://github.com/Pingus/pingus/blob/7b255840c201d028fd6b19a2185ccf7df3a2cd6e/src/pingus/screens/story_screen.cpp#L136
@@ -1270,6 +1267,7 @@ continuation-passing style:
 [cpp_story_pages]:https://github.com/Pingus/pingus/blob/7b255840c201d028fd6b19a2185ccf7df3a2cd6e/src/pingus/screens/story_screen.cpp#L159
 
 [ceu_story]:https://github.com/fsantanna/pingus/blob/ceu/ceu/pingus/screens/story.ceu#L60-L112
+[ceu_credits]: https://github.com/fsantanna/pingus/blob/ceu/ceu/pingus/screens/worldmap/worldmap.ceu#L99-L122
 
 [wiki_style_direct]:       https://en.wikipedia.org/wiki/Direct_style
 [wiki_style_continuation]: https://en.wikipedia.org/wiki/Continuation-passing_style
@@ -1308,8 +1306,8 @@ TODO: falar de broadcast (in Ceu: unless it is paused, all receive always)
 
 <!-- CPP-BOMBER-SPRITE -->
 
-Let's dig into the `Bomber` animation class in C++ [[![X]][cpp_bomber]], 
-focusing on the `sprite` member, and the `update` and `draw` callback methods:
+The C++ `Bomber` class [[![X]][cpp_bomber]] declares a `sprite` member to
+handle its animation frames:
 
 @CODE_LINES[[language=CPP,
 class Bomber : public PinguAction
@@ -1336,12 +1334,13 @@ void Bomber::draw (SceneContext& gc) {      @draw_1
 }                                           @draw_2
 ]]
 
-The class loads the `sprite` in the constructor @NN(load) and continually 
-redirects `update` and `draw` to it (ln. @N(update_1)-@N(update_2) and 
-@N(draw_1)-@N(draw_2)).
-The `Sprite` class knows how to update [[![X]][cpp_sprite_update]] and render 
-[[![X]][cpp_sprite_render]] itself.
+The `Sprite` class is part of the game engine and knows how to update
+[[![X]][cpp_sprite_update]] and render [[![X]][cpp_sprite_render]] itself.
+However, the `Bomber` still has to respond to `update` and `draw` request from
+the game and forward them to the sprite
+(ln. @N(update_1)-@N(update_2) and @N(draw_1)-@N(draw_2)).
 
+[cpp_sprite]: https://github.com/Pingus/pingus/blob/7b255840c201d028fd6b19a2185ccf7df3a2cd6e/src/engine/display/sprite_impl.cpp
 [cpp_sprite_update]: https://github.com/Pingus/pingus/blob/7b255840c201d028fd6b19a2185ccf7df3a2cd6e/src/engine/display/sprite_impl.cpp#L112
 [cpp_sprite_render]: https://github.com/Pingus/pingus/blob/7b255840c201d028fd6b19a2185ccf7df3a2cd6e/src/engine/display/sprite_impl.cpp#L140
 
@@ -1349,81 +1348,81 @@ The `Sprite` class knows how to update [[![X]][cpp_sprite_update]] and render
          Dispatching chain for `update`,
          550)
 
-However, we have to follow a long chain of 7 dispatches
-(@FIG_REF[[hierarchy.png]]) to understand how the `update` and `draw` callbacks 
-flow from the original environment stimulus down to the sprite:
+To understand how the `update` callback flows from the original environment
+stimulus from the game down to the sprite, we need to follow a long chain of 7
+method dispatches (@FIG_REF[[hierarchy.png]]):
 
-1. `ScreenManager::display` [[![X]][cpp_screenmanager_11]]
-        (the game loop)
-   calls
-   `this->update` [[![X]][cpp_screenmanager_12]]
-        (in the same class).
+1. `ScreenManager::display` [[![X]][cpp_screenmanager_11]] in the main game
+    loop
+        calls
+    `update` [[![X]][cpp_screenmanager_12]].
 2. `ScreenManager::update` [[![X]][cpp_screenmanager_21]]
-   calls
-   `last_screen->update` [[![X]][cpp_screenmanager_22]]
-        (the active screen).
+        calls
+   `last_screen->update` [[![X]][cpp_screenmanager_22]] for the active game
+    screen (a `GameSession` instance considering an active `Bomber`).
 3. `GameSession::update` [[![X]][cpp_gamesession_1]]
-        (the gameplay screen)
-   calls
-   `world->update` [[![X]][cpp_gamesession_2]].
-        (with all game objects).
+        calls
+    `world->update` [[![X]][cpp_gamesession_2]].
 4. `World::update` [[![X]][cpp_world_1]]
-   calls
-   `obj->update` [[![X]][cpp_world_2]]
-        (for each object in the world).
+        calls
+    `obj->update` [[![X]][cpp_world_2]] for each object in the world.
 5. `PinguHolder::update` [[![X]][cpp_pinguholder_1]]
-        (child of `World`)
-   calls
-   `pingu->update` [[![X]][cpp_pinguholder_2]]
-        (for each pingu alive).
+        calls
+    `pingu->update` [[![X]][cpp_pinguholder_2]] for each pingu alive.
 6. `Pingu::update` [[![X]][cpp_pingu_1]]
-   calls
-   `action->update` [[![X]][cpp_pingu_2]]
-        (for the active pingu action).
+        calls
+    `action->update` [[![X]][cpp_pingu_2]] for the active pingu action.
 7. `Bomber::update` [[![X]][cpp_bomber_1]]
-   calls
-   `sprite.update` [[![X]][cpp_bomber_2].]
+        calls
+    `sprite.update` [[![X]][cpp_bomber_2]].
 8. `Sprite::update` [[![X]][cpp_sprite_1]]
-   finally updates the animation frames.
+    finally updates the animation frame.
 
-Note that each dispatching step has a reason to exist:
+Nonetheless, each dispatching step is necessary considering the game
+architecture:
 
-* In a single assignment to `last_screen`, we can easily deactivate the current 
-  screen and redirect all dispatches to a new screen.
+* With a single assignment to `last_screen`, we can easily deactivate the
+  current screen and redirect all dispatches to a new screen.
 * The `World` class manages and dispatches events to all game entities with a 
-  common interface (i.e., `WorldObj`), which are loaded dynamically from an external
-  level file (e.g., all pingus and traps).
-* As it is common to iterate only over the pingus (vs. all world objects), it 
-  is convenient to manage all pingus in a `PinguHolder`.
-* As pingus change between actions during lifetime, decoupling them from 
-  actions with a level of indirection is also convenient.
-* Sprites are reusable everywhere, so it is also convenient to decouple them
+  common interface (i.e., `WorldObj` [[![X]][cpp_worldobj]]), such as all
+  pingus and traps.
+* Since it is common to iterate only over the pingus (vs. all world objects),
+  it is convenient to manage all pingus in a `PinguHolder` container.
+* Since a single pingu can change between actions during lifetime, it is also
+  convenient to decouple it from actions with a level of indirection through
+  the `action` member.
+* Sprites are part of the game engine and are reusable everywhere (e.g., UI
+  buttons, world objects, etc.), so it is also convenient to decouple them
   from actions.
+
+The `draw` callback flows through the same dispatching hierarchy until reaching
+the `Sprite` class.
 
 <!-- CEU-BOMBER-SPRITE -->
 
 Now, consider the `Bomber` animation in Céu [[![X]][ceu_bomber]]:
 
 @CODE_LINES[[language=CEU,
-class Bomber with
-    interface IPinguAction;
-do
-    var Sprite sprite = Sprite.build_name(<...>);   @dcl
+code/await Bomber (void) -> _ActionName__Enum do
+    <...>
+    var&? Sprite sprite = spawn Sprite(<...>);  @dcl
     <...>
 end
 ]]
 
 As mentioned before, organisms in Céu are active entities and can react 
 directly to the environment.
-As soon as we declare the `Sprite` organism @NN(dcl), its execution body starts 
-automatically, bypassing the program hierarchy and reacting directly to the 
-external events `WORLD_UPDATE` [[![X]][ceu_sprite_update]] and `REDRAW` 
-[[![X]][ceu_sprite_redraw]].
 
-On the one hand, the radical decoupling between the program hierarchy and 
-external reactions completely eliminates dispatching chains.
-For instance, we removed from the engine most of the boilerplate related to 
-dispatching `draw`, `update`, and other callbacks ([[![X]][TODO]]).
+The `Bomber` body spawns a `Sprite` instance @NN(dcl), which can react directly
+to external `update` [[![X]][ceu_sprite_update]] and `draw`
+[[![X]][ceu_sprite_redraw]] events, bypassing the program hierarchy entirely.
+
+The radical decoupling between the program hierarchy and external reactions
+completely eliminates dispatching chains.
+For instance, we removed from the game engine most of the boilerplate related
+to event dispatching ([[![X]][TODO]]).
+
+<!--
 On the other hand, now that organisms themselves decide whether or not to react 
 to external input, we support that lexical scopes should control their life 
 cycles.
@@ -1464,6 +1463,7 @@ declared anonymous with the placeholder `_`.
 In constrast, the animation in C++ requires to explicitly check the state 
 variable `gfx_exploded` and forward the `draw` method down to the child sprite 
 `explo_surf` [[![X]][cpp_bomber_explo]].
+-->
 
 <!-- CEU-vs-CPP-BOMBER-SPRITE -->
 
@@ -1473,21 +1473,23 @@ variable `gfx_exploded` and forward the `draw` method down to the child sprite
 <div class="summary">
 **Summary**:
 
-Overall, passive objects of C++ impose a dispatching architecture that makes 
-the reasoning about the program harder:
+Passive objects subjected to a hierarchy require a dispatching architecture
+that makes the reasoning about the program harder:
 
-* The full dispatching chain goes through dozen of files
-  (note that we omitted class hierarchies from the discussion).
-* The dispatching path interleaves between classes specific to the game and 
+* The full dispatching chain may go through dozen of files.
+  <!--(note that we omitted class hierarchies from the discussion).-->
+* The dispatching chain may interleave between classes specific to the game and 
   also classes from the game engine (possibly third-party classes).
-* The actual objects in the hierarchy are often dynamically allocated, 
+<!--
+* The actual objects in the hierarchy are often dynamically allocated,
   specially for entities held in class containers.
+-->
 </div>
 
 <!--* TODO: efficiency?-->
 
 [cpp_screenmanager_11]: https://github.com/Pingus/pingus/blob/7b255840c201d028fd6b19a2185ccf7df3a2cd6e/src/engine/screen/screen_manager.cpp#L164
-[cpp_screenmanager_12]: https://github.com/Pingus/pingus/blob/7b255840c201d028fd6b19a2185ccf7df3a2cd6e/src/engine/screen/screen_manager.cpp#L218
+[cpp_screenmanager_12]: https://github.com/Pingus/pingus/blob/7b255840c201d028fd6b19a2185ccf7df3a2cd6e/src/engine/screen/screen_manager.cpp#L217
 [cpp_screenmanager_21]: https://github.com/Pingus/pingus/blob/7b255840c201d028fd6b19a2185ccf7df3a2cd6e/src/engine/screen/screen_manager.cpp#L235
 [cpp_screenmanager_22]: https://github.com/Pingus/pingus/blob/7b255840c201d028fd6b19a2185ccf7df3a2cd6e/src/engine/screen/screen_manager.cpp#L258
 [cpp_gamesession_1]: https://github.com/Pingus/pingus/blob/7b255840c201d028fd6b19a2185ccf7df3a2cd6e/src/pingus/screens/game_session.cpp#L195
@@ -1503,6 +1505,7 @@ the reasoning about the program harder:
 [cpp_bomber_1]: https://github.com/Pingus/pingus/blob/7b255840c201d028fd6b19a2185ccf7df3a2cd6e/src/pingus/actions/bomber.cpp#L58
 [cpp_bomber_2]: https://github.com/Pingus/pingus/blob/7b255840c201d028fd6b19a2185ccf7df3a2cd6e/src/pingus/actions/bomber.cpp#L60
 [cpp_sprite_1]: https://github.com/Pingus/pingus/blob/7b255840c201d028fd6b19a2185ccf7df3a2cd6e/src/engine/display/sprite_impl.cpp#L112
+[cpp_worldobj]: https://github.com/Pingus/pingus/blob/7b255840c201d028fd6b19a2185ccf7df3a2cd6e/src/pingus/worldobj.hpp#L34
 [cpp_bomber_explo]: https://github.com/Pingus/pingus/blob/7b255840c201d028fd6b19a2185ccf7df3a2cd6e/src/pingus/actions/bomber.cpp#L50
 
 <a name="lifespan-hierarchies"/>
@@ -1800,8 +1803,8 @@ Also, all memory required for static instances is known at compile time.
 [cpp_pingu_dead]:https://github.com/Pingus/pingus/blob/7b255840c201d028fd6b19a2185ccf7df3a2cd6e/src/pingus/actions/splashed.cpp#L48
 [gpp_lapsed_listener]: http://gameprogrammingpatterns.com/observer.html#don't-worry,-i've-got-a-gc
 
-[ceu_sprite_update]: https://github.com/fsantanna/pingus/blob/ceu/ceu/engine/display/sprite.ceu#L109
-[ceu_sprite_redraw]: https://github.com/fsantanna/pingus/blob/ceu/ceu/engine/display/sprite.ceu#L138
+[ceu_sprite_update]: https://github.com/fsantanna/pingus/blob/ceu/ceu/engine/display/sprite.ceu#L71
+[ceu_sprite_redraw]: https://github.com/fsantanna/pingus/blob/ceu/ceu/engine/display/sprite.ceu#L94
 [ceu_world_top]: https://github.com/fsantanna/pingus/blob/ceu/ceu/pingus/world.ceu#L124
 
 [ceu_pinguholder_every]: https://github.com/fsantanna/pingus/blob/ceu/ceu/pingus/pingu_holder.ceu#L12
