@@ -908,7 +908,7 @@ The intermediate actions are performed when the corresponding conditions occur
 
 <a name="bomber_explo"/>
 
-The `do-end` block @NN(do,-,end), restricts the lifetime of the single-frame
+The `do-end` block @NN(do,-,end), restricts the lifespan of the single-frame
 explosion sprite @NN(explo): after the next game tick @NN(frame_3), the block
 terminates and automatically destroys the spawned abstraction (removing it from
 the screen).
@@ -1407,7 +1407,7 @@ the `Sprite` class.
 
 <!-- CEU-BOMBER-SPRITE -->
 
-Now, consider the `Bomber` animation in Céu [[![X]][ceu_bomber]]:
+The `Bomber` action in Céu spawns a `Sprite` animation [[![X]][ceu_bomber]]:
 
 @CODE_LINES[[language=CEU,
 code/await Bomber (void) -> _ActionName__Enum do
@@ -1417,12 +1417,9 @@ code/await Bomber (void) -> _ActionName__Enum do
 end
 ]]
 
-As mentioned before, organisms in Céu are active entities and can react 
-directly to the environment.
-
-The `Bomber` body spawns a `Sprite` instance @NN(dcl), which can react directly
-to external `update` [[![X]][ceu_sprite_update]] and `draw`
-[[![X]][ceu_sprite_redraw]] events, bypassing the program hierarchy entirely.
+The `Sprite` instance @NN(dcl) can react directly to external `update`
+[[![X]][ceu_sprite_update]] and `draw` [[![X]][ceu_sprite_redraw]] events,
+bypassing the program hierarchy entirely.
 
 The radical decoupling between the program hierarchy and external reactions
 completely eliminates dispatching chains.
@@ -1495,6 +1492,10 @@ that makes the reasoning about the program harder:
 * The actual objects in the hierarchy are often dynamically allocated,
   specially for entities held in class containers.
 -->
+
+Abstractions in Céu can react directly to the environment, not depending on
+hierarchies spread across multiple files.
+
 </div>
 
 <!--* TODO: efficiency?-->
@@ -1551,7 +1552,7 @@ are known at compile time.
 
 In the `GameSession` screen class, the UI widgets such as the buttons, pingus
 counter, and small map (@FIG_REF(game-session-arrows.png)) coexist with the
-screen during its whole lifetime:
+screen during its whole lifespan:
 
 @CODE_LINES[[language=CPP,
 GameSession::GameSession(<...>) :
@@ -1572,7 +1573,7 @@ GameSession::GameSession(<...>) :
 The widgets are created in the constructor, added to a UI container, and are
 never removed explicitly [[![X]][cpp_gamesession_containers]].
 This implies that the widgets could be top-level automatic (non-dynamic)
-members, which would match the coexisting lifetime intent better.
+members, which would match the coexisting lifespan intent better.
 
 However, the class uses the container to automate `draw` and `update`
 dispatching as discussed in the previous section.
@@ -1610,7 +1611,7 @@ code/await Game (void) do
 end
 ]]
 
-Lexical lifetime never requires containers, allocation and deallocation, or
+Lexical lifespan never requires containers, allocation and deallocation, or
 manipulating references explicitly.
 In addition, all required memory is known at compile time.
 
@@ -1632,7 +1633,7 @@ end
 ]]
 
 The [*Bomber* state machine](#bomber_explo) also takes advantage of lexical
-scope to delimit the lifetime of the explosion sprite to a single frame.
+scope to delimit the lifespan of the explosion sprite to a single frame.
 
 <a name="lifespan-hierarchies-2"/>
 
@@ -1811,7 +1812,15 @@ end
 <div class="summary">
 **Summary**:
 
-`TODO: dynamic vs static`
+Lexical lifespan for static instances and natural termination for dynamic
+instances provide some advantages in comparison to lifespan hierarchies through
+containers:
+
+- Lexical scope makes an abstraction lifespan explicit in the source code.
+- The memory for static instances is known at compile time.
+- Natural termination makes an instance innocuous and, hence, susceptible to
+  immediate reclamation.
+- Containers require explicit manipulation of pointers/references.
 
 <!--
 Overall, passive objects of C++ impose a dispatching architecture that makes 

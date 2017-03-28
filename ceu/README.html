@@ -530,7 +530,7 @@ productivity.
 <p>The <code>Bomber</code> is a <code>code/await</code> abstraction of Céu, which is similar to a co-routine: a function that retains state, such as local variables and the program counter, across reactions to events (i.e., across <code>await</code> statements). The pingu movement and sprite animation are isolated in two other abstractions and execute in separate through the <code>spawn</code> primitive (ln. 4,6).</p>
 <p>The code tracks the animation abstraction (ln. 7-27), performing the last action on termination (ln. 30). As soon as the animation starts, the code performs the first action (ln. 8). The intermediate actions are performed when the corresponding conditions occur (ln. 12,16,24).</p>
 <p><a name="bomber_explo"/></p>
-<p>The <code>do-end</code> block (ln. 19-25), restricts the lifetime of the single-frame explosion sprite (ln. 21): after the next game tick (ln. 24), the block terminates and automatically destroys the spawned abstraction (removing it from the screen).</p>
+<p>The <code>do-end</code> block (ln. 19-25), restricts the lifespan of the single-frame explosion sprite (ln. 21): after the next game tick (ln. 24), the block terminates and automatically destroys the spawned abstraction (removing it from the screen).</p>
 <p>The complete implementations for the <em>Bomber</em> action in C++ and Céu are 50 and 19 lines of code, respectively [<a href="https://github.com/fsantanna/pingus/commit/8e8cf7ed81427d575975fc7a4da579c7b76219a0"><img src="images/link_12.png" alt="X" /></a>].</p>
 <p><a name="finite-state-machines-summary"/> <br/></p>
 <div class="summary">
@@ -812,14 +812,13 @@ TODO: falar de broadcast (in Ceu: unless it is paused, all receive always)
 </ul>
 <p>The <code>draw</code> callback flows through the same dispatching hierarchy until reaching the <code>Sprite</code> class.</p>
 <!-- CEU-BOMBER-SPRITE -->
-<p>Now, consider the <code>Bomber</code> animation in Céu [<a href="https://github.com/fsantanna/pingus/blob/ceu/ceu/pingus/screens/game/pingu/actions/bomber.ceu"><img src="images/link_12.png" alt="X" /></a>]:</p>
+<p>The <code>Bomber</code> action in Céu spawns a <code>Sprite</code> animation [<a href="https://github.com/fsantanna/pingus/blob/ceu/ceu/pingus/screens/game/pingu/actions/bomber.ceu"><img src="images/link_12.png" alt="X" /></a>]:</p>
 <pre><code><b><font size="-1" color="#666666"> 1:</font></b>  <b>code</b>/<b>await</b> Bomber (<b>void</b>) -> _ActionName__Enum <b>do</b>
 <b><font size="-1" color="#666666"> 2:</font></b>      <...>
 <b><font size="-1" color="#666666"> 3:</font></b>      <b>var</b>&? Sprite sprite = <b>spawn</b> Sprite(<...>);
 <b><font size="-1" color="#666666"> 4:</font></b>      <...>
 <b><font size="-1" color="#666666"> 5:</font></b>  <b>end</b></code></pre>
-<p>As mentioned before, organisms in Céu are active entities and can react directly to the environment.</p>
-<p>The <code>Bomber</code> body spawns a <code>Sprite</code> instance (ln. 3), which can react directly to external <code>update</code> [<a href="https://github.com/fsantanna/pingus/blob/ceu/ceu/engine/display/sprite.ceu#L71"><img src="images/link_12.png" alt="X" /></a>] and <code>draw</code> [<a href="https://github.com/fsantanna/pingus/blob/ceu/ceu/engine/display/sprite.ceu#L94"><img src="images/link_12.png" alt="X" /></a>] events, bypassing the program hierarchy entirely.</p>
+<p>The <code>Sprite</code> instance (ln. 3) can react directly to external <code>update</code> [<a href="https://github.com/fsantanna/pingus/blob/ceu/ceu/engine/display/sprite.ceu#L71"><img src="images/link_12.png" alt="X" /></a>] and <code>draw</code> [<a href="https://github.com/fsantanna/pingus/blob/ceu/ceu/engine/display/sprite.ceu#L94"><img src="images/link_12.png" alt="X" /></a>] events, bypassing the program hierarchy entirely.</p>
 <p>The radical decoupling between the program hierarchy and external reactions completely eliminates dispatching chains. For instance, we removed from the game engine most of the boilerplate related to event dispatching ([[<img src="images/link_12.png" alt="X" />][TODO]]).</p>
 <!--
 On the other hand, now that organisms themselves decide whether or not to react 
@@ -879,6 +878,7 @@ variable `gfx_exploded` and forward the `draw` method down to the child sprite
   specially for entities held in class containers.
 --></li>
 </ul>
+<p>Abstractions in Céu can react directly to the environment, not depending on hierarchies spread across multiple files.</p>
 </div>
 <!--* TODO: efficiency?-->
 <p><a name="lifespan-hierarchies"/></p>
@@ -898,7 +898,7 @@ are known at compile time.
 <div class="images">
 <img src="images/game-session-arrows.png" width="300"/> <br> <a href="images/game-session-arrows.png"> Figure 13</a>: UI children with static lifespan
 </div>
-<p>In the <code>GameSession</code> screen class, the UI widgets such as the buttons, pingus counter, and small map (Figure 13) coexist with the screen during its whole lifetime:</p>
+<p>In the <code>GameSession</code> screen class, the UI widgets such as the buttons, pingus counter, and small map (Figure 13) coexist with the screen during its whole lifespan:</p>
 <pre><code><b><font size="-1" color="#666666"> 1:</font></b>  GameSession::GameSession(<...>) :
 <b><font size="-1" color="#666666"> 2:</font></b>      <...>
 <b><font size="-1" color="#666666"> 3:</font></b>  {
@@ -912,7 +912,7 @@ are known at compile time.
 <b><font size="-1" color="#666666">11:</font></b>      gui_manager->add(small_map);                //    hierarchy
 <b><font size="-1" color="#666666">12:</font></b>      <...>
 <b><font size="-1" color="#666666">13:</font></b>  }</code></pre>
-<p>The widgets are created in the constructor, added to a UI container, and are never removed explicitly [<a href="https://github.com/Pingus/pingus/blob/7b255840c201d028fd6b19a2185ccf7df3a2cd6e/src/pingus/screens/game_session.cpp#L76"><img src="images/link_12.png" alt="X" /></a>]. This implies that the widgets could be top-level automatic (non-dynamic) members, which would match the coexisting lifetime intent better.</p>
+<p>The widgets are created in the constructor, added to a UI container, and are never removed explicitly [<a href="https://github.com/Pingus/pingus/blob/7b255840c201d028fd6b19a2185ccf7df3a2cd6e/src/pingus/screens/game_session.cpp#L76"><img src="images/link_12.png" alt="X" /></a>]. This implies that the widgets could be top-level automatic (non-dynamic) members, which would match the coexisting lifespan intent better.</p>
 <p>However, the class uses the container to automate <code>draw</code> and <code>update</code> dispatching as discussed in the previous section. The container <code>add</code> method expects only dynamically allocated children because they are automatically deallocated inside the container destructor [<a href="https://github.com/Pingus/pingus/blob/7b255840c201d028fd6b19a2185ccf7df3a2cd6e/src/engine/gui/group_component.cpp#L37"><img src="images/link_12.png" alt="X" /></a>].</p>
 <p>The dynamic nature of containers in C++ demand extra caution:</p>
 <ul>
@@ -929,7 +929,7 @@ are known at compile time.
 <b><font size="-1" color="#666666"> 5:</font></b>      <b>spawn</b> SmallMap(<...>);
 <b><font size="-1" color="#666666"> 6:</font></b>      <...>                       // other coexisting functionality
 <b><font size="-1" color="#666666"> 7:</font></b>  <b>end</b></code></pre>
-<p>Lexical lifetime never requires containers, allocation and deallocation, or manipulating references explicitly. In addition, all required memory is known at compile time.</p>
+<p>Lexical lifespan never requires containers, allocation and deallocation, or manipulating references explicitly. In addition, all required memory is known at compile time.</p>
 <p>The actual code in the repository [<a href="https://github.com/fsantanna/pingus/blob/ceu/ceu/pingus/screens/game/game.ceu#L198"><img src="images/link_12.png" alt="X" /></a>] is equivalent to the code above with abstractions, but inlines all functionality in parallel:</p>
 <pre><code><b><font size="-1" color="#666666"> 1:</font></b>  <b>par</b> <b>do</b>
 <b><font size="-1" color="#666666"> 2:</font></b>      <...>                           // other coexisting funcionality
@@ -942,7 +942,7 @@ are known at compile time.
 <b><font size="-1" color="#666666"> 9:</font></b>  <b>with</b>
 <b><font size="-1" color="#666666">10:</font></b>      <...>                           // other coexisting funcionality
 <b><font size="-1" color="#666666">11:</font></b>  <b>end</b></code></pre>
-<p>The <a href="#bomber_explo"><em>Bomber</em> state machine</a> also takes advantage of lexical scope to delimit the lifetime of the explosion sprite to a single frame.</p>
+<p>The <a href="#bomber_explo"><em>Bomber</em> state machine</a> also takes advantage of lexical scope to delimit the lifespan of the explosion sprite to a single frame.</p>
 <p><a name="lifespan-hierarchies-2"/></p>
 <h3 id="the-pingus-container">4.2) The Pingus Container</h3>
 <!-- CPP-CONTAINER-DYNAMIC -->
@@ -1054,7 +1054,13 @@ end
 <p><a name="lifespan-hierarchies-summary"/> <br/></p>
 <div class="summary">
 <p><strong>Summary</strong>:</p>
-<p><code>TODO: dynamic vs static</code></p>
+<p>Lexical lifespan for static instances and natural termination for dynamic instances provide some advantages in comparison to lifespan hierarchies through containers:</p>
+<ul>
+<li>Lexical scope makes an abstraction lifespan explicit in the source code.</li>
+<li>The memory for static instances is known at compile time.</li>
+<li>Natural termination makes an instance innocuous and, hence, susceptible to immediate reclamation.</li>
+<li>Containers require explicit manipulation of pointers/references.</li>
+</ul>
 <!--
 Overall, passive objects of C++ impose a dispatching architecture that makes 
 the reasoning about the program harder:
