@@ -542,7 +542,7 @@ productivity.
 </div>
 <p><a name="continuation-passing"/></p>
 <h2 id="continuation-passing">2) Continuation Passing</h2>
-<p>The completion of a long-lasting activity in a game may have a continuation, i.e., some action to execute next.</p>
+<p>The completion of a long-lasting activity may carry a continuation, i.e., some action to execute next.</p>
 <!--
 If the execution flow is dynamic, the program has to tell the activity where to 
 go when it completes.
@@ -739,7 +739,11 @@ TODO:
 </div>
 <p><a name="dispatching-hierarchies"/></p>
 <h2 id="dispatching-hierarchies">3) Dispatching Hierarchies</h2>
-<p>Some entities in games manage other child entities, resulting in dispatching hierarchies for event forwarding.</p>
+<p>Entities typically form a dispatching hierarchy in which a container entity that receives a stimulus automatically forwards it to its managed children.</p>
+<!--
+Some entities in games manage other child entities, resulting in dispatching 
+hierarchies for event forwarding.
+-->
 <!--
 It is common to broadcast notifications so that active objects can react to 
 them.
@@ -860,6 +864,9 @@ variable `gfx_exploded` and forward the `draw` method down to the child sprite
 `explo_surf` [[![X]][cpp_bomber_explo]].
 -->
 <!-- CEU-vs-CPP-BOMBER-SPRITE -->
+<!--
+`TODO: SDL_RESIZE`
+-->
 <p><a name="dispatching-hierarchies-summary"/> <br/></p>
 <div class="summary">
 <p><strong>Summary</strong>:</p>
@@ -875,7 +882,12 @@ variable `gfx_exploded` and forward the `draw` method down to the child sprite
 <!--* TODO: efficiency?-->
 <p><a name="lifespan-hierarchies"/></p>
 <h2 id="lifespan-hierarchies">4) Lifespan Hierarchies</h2>
-<p>Similarly to <em>dispatching hierarchies</em>, some entities control the lifespan of other child entities, resulting in dynamic and explicit allocation and deallocation of objects.</p>
+<p>Entities typically form a lifespan hierarchy in which a terminating container entity automatically destroys its managed children.</p>
+<!--
+Similarly to *dispatching hierarchies*, some entities control the lifespan of 
+other child entities, resulting in dynamic and explicit allocation and 
+deallocation of objects.
+-->
 <p>However, it is actually common to have children with a static lifespan which are known at compile time.</p>
 <p><a name="lifespan-hierarchies-1"/></p>
 <h3 id="game-ui-widgets">4.1) Game UI Widgets</h3>

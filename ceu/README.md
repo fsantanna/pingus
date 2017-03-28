@@ -939,8 +939,8 @@ explicit state machines:
 ## Continuation Passing
 ]]
 
-The completion of a long-lasting activity in a game may have a continuation, 
-i.e., some action to execute next.
+The completion of a long-lasting activity may carry a continuation, i.e.,
+some action to execute next.
 
 <!--
 If the execution flow is dynamic, the program has to tell the activity where to 
@@ -1278,8 +1278,13 @@ continuation-passing style:
 ## Dispatching Hierarchies
 ]]
 
+Entities typically form a dispatching hierarchy in which a container entity
+that receives a stimulus automatically forwards it to its managed children.
+
+<!--
 Some entities in games manage other child entities, resulting in dispatching 
 hierarchies for event forwarding.
+-->
 
 <!--
 It is common to broadcast notifications so that active objects can react to 
@@ -1467,6 +1472,10 @@ variable `gfx_exploded` and forward the `draw` method down to the child sprite
 
 <!-- CEU-vs-CPP-BOMBER-SPRITE -->
 
+<!--
+`TODO: SDL_RESIZE`
+-->
+
 <a name="dispatching-hierarchies-summary"/>
 <br/>
 
@@ -1514,9 +1523,14 @@ that makes the reasoning about the program harder:
 ## Lifespan Hierarchies
 ]]
 
+Entities typically form a lifespan hierarchy in which a terminating
+container entity automatically destroys its managed children.
+
+<!--
 Similarly to *dispatching hierarchies*, some entities control the lifespan of 
 other child entities, resulting in dynamic and explicit allocation and 
 deallocation of objects.
+-->
 
 However, it is actually common to have children with a static lifespan which 
 are known at compile time.
@@ -1822,8 +1836,8 @@ Also, all memory required for static instances is known at compile time.
 ## Signaling Mechanisms
 ]]
 
-Entities often need to communicate explicitly through a signaling mechanism, 
-especially if there is no hierarchy relationship between them.
+Entities often need to communicate explicitly through a signaling 
+mechanism, especially if there is no hierarchy relationship between them.
 
 <a name="signaling-1"/>
 
