@@ -529,6 +529,7 @@ productivity.
 <b><font size="-1" color="#666666">31:</font></b>  <b>end</b></code></pre>
 <p>The <code>Bomber</code> is a <code>code/await</code> abstraction of Céu, which is similar to a co-routine: a function that retains state, such as local variables and the program counter, across reactions to events (i.e., across <code>await</code> statements). The pingu movement and sprite animation are isolated in two other abstractions and execute in separate through the <code>spawn</code> primitive (ln. 4,6).</p>
 <p>The code tracks the animation abstraction (ln. 7-27), performing the last action on termination (ln. 30). As soon as the animation starts, the code performs the first action (ln. 8). The intermediate actions are performed when the corresponding conditions occur (ln. 12,16,24).</p>
+<p><a name="bomber_explo"/></p>
 <p>The <code>do-end</code> block (ln. 19-25), restricts the lifetime of the single-frame explosion sprite (ln. 21): after the next game tick (ln. 24), the block terminates and automatically destroys the spawned abstraction (removing it from the screen).</p>
 <p>The complete implementations for the <em>Bomber</em> action in C++ and Céu are 50 and 19 lines of code, respectively [<a href="https://github.com/fsantanna/pingus/commit/8e8cf7ed81427d575975fc7a4da579c7b76219a0"><img src="images/link_12.png" alt="X" /></a>].</p>
 <p><a name="finite-state-machines-summary"/> <br/></p>
@@ -887,12 +888,17 @@ variable `gfx_exploded` and forward the `draw` method down to the child sprite
 Similarly to *dispatching hierarchies*, some entities control the lifespan of 
 other child entities, resulting in dynamic and explicit allocation and 
 deallocation of objects.
+
+However, it is actually common to have children with a static lifespan which 
+are known at compile time.
 -->
-<p>However, it is actually common to have children with a static lifespan which are known at compile time.</p>
 <p><a name="lifespan-hierarchies-1"/></p>
 <h3 id="game-ui-widgets">4.1) Game UI Widgets</h3>
 <!-- CPP-CONTAINER -->
-<p>Most UI widgets in the <code>GameSession</code> screen class are static and coexist with it, i.e., they are added in the constructor and are never removed explicitly [<a href="https://github.com/Pingus/pingus/blob/7b255840c201d028fd6b19a2185ccf7df3a2cd6e/src/pingus/screens/game_session.cpp#L76"><img src="images/link_12.png" alt="X" /></a>]:</p>
+<div class="images">
+<img src="images/game-session-arrows.png" width="300"/> <br> <a href="images/game-session-arrows.png"> Figure 13</a>: UI children with static lifespan
+</div>
+<p>In the <code>GameSession</code> screen class, the UI widgets such as the buttons, pingus counter, and small map (Figure 13) coexist with the screen during its whole lifetime:</p>
 <pre><code><b><font size="-1" color="#666666"> 1:</font></b>  GameSession::GameSession(<...>) :
 <b><font size="-1" color="#666666"> 2:</font></b>      <...>
 <b><font size="-1" color="#666666"> 3:</font></b>  {
@@ -906,95 +912,104 @@ deallocation of objects.
 <b><font size="-1" color="#666666">11:</font></b>      gui_manager->add(small_map);                //    hierarchy
 <b><font size="-1" color="#666666">12:</font></b>      <...>
 <b><font size="-1" color="#666666">13:</font></b>  }</code></pre>
-<p>Even so, the <code>add</code> method expects only dynamically allocated children because they are automatically deallocated inside the container destructor [<a href="https://github.com/Pingus/pingus/blob/7b255840c201d028fd6b19a2185ccf7df3a2cd6e/src/engine/gui/group_component.cpp#L37"><img src="images/link_12.png" alt="X" /></a>].</p>
+<p>The widgets are created in the constructor, added to a UI container, and are never removed explicitly [<a href="https://github.com/Pingus/pingus/blob/7b255840c201d028fd6b19a2185ccf7df3a2cd6e/src/pingus/screens/game_session.cpp#L76"><img src="images/link_12.png" alt="X" /></a>]. This implies that the widgets could be top-level automatic (non-dynamic) members, which would match the coexisting lifetime intent better.</p>
+<p>However, the class uses the container to automate <code>draw</code> and <code>update</code> dispatching as discussed in the previous section. The container <code>add</code> method expects only dynamically allocated children because they are automatically deallocated inside the container destructor [<a href="https://github.com/Pingus/pingus/blob/7b255840c201d028fd6b19a2185ccf7df3a2cd6e/src/engine/gui/group_component.cpp#L37"><img src="images/link_12.png" alt="X" /></a>].</p>
 <p>The dynamic nature of containers in C++ demand extra caution:</p>
 <ul>
-<li>When containers are part of a dispatching chain, it gets even harder to track what objects are dispatched: one has to &quot;simulate&quot; the program execution and track calls to <code>add</code> and <code>remove</code>.</li>
-<li>For objects with dynamic lifespan, calls to <code>add</code> must always have matching calls to <code>remove</code>: missing calls to <code>remove</code> lead to memory and CPU leaks (see the <em>lapsed listener</em> problem below).</li>
+<li>When containers are part of a dispatching chain, it gets even harder to track which objects are dispatched: one has to &quot;simulate&quot; the program execution and track calls to <code>add</code> and <code>remove</code>.</li>
+<li>For objects with dynamic lifespan, calls to <code>add</code> must always have matching calls to <code>remove</code>: missing calls to <code>remove</code> lead to memory and CPU leaks (see the <em>lapsed listener</em> problem in the next section).</li>
 </ul>
 <!-- CPP-CONTAINER-STATIC -->
-<div class="images">
-<img src="images/game-session-arrows.png" width="300"/> <br> <a href="images/game-session-arrows.png"> Figure 13</a>: UI children with static lifespan
-</div>
 <!-- CEU-CONTAINER-STATIC -->
-<p>In Céu, entities that coexist with an enclosing class just need to be declared at the top-level block [<a href="https://github.com/fsantanna/pingus/blob/ceu/ceu/pingus/world.ceu#L124"><img src="images/link_12.png" alt="X" /></a>]:</p>
-<pre><code><b><font size="-1" color="#666666"> 1:</font></b>  class World <b>with</b>
-<b><font size="-1" color="#666666"> 2:</font></b>      <...>
-<b><font size="-1" color="#666666"> 3:</font></b>  <b>do</b>
-<b><font size="-1" color="#666666"> 4:</font></b>      <...>
-<b><font size="-1" color="#666666"> 5:</font></b>      <b>var</b> CPingusCounter pcounter = <...>;        // always active <b>and</b>
-<b><font size="-1" color="#666666"> 6:</font></b>      <b>var</b> ButtonPanel button_panel;               // reacting directly without
-<b><font size="-1" color="#666666"> 7:</font></b>      <b>var</b> SmallMap smallmap <b>with</b>                  // a dispatching hierarchy
-<b><font size="-1" color="#666666"> 8:</font></b>          <...>
-<b><font size="-1" color="#666666"> 9:</font></b>      <b>end</b>;
-<b><font size="-1" color="#666666">10:</font></b>      <...>
+<p>In Céu, entities that coexist just need to be created in the same lexical block:</p>
+<pre><code><b><font size="-1" color="#666666"> 1:</font></b>  <b>code</b>/<b>await</b> Game (<b>void</b>) <b>do</b>
+<b><font size="-1" color="#666666"> 2:</font></b>      <...>                       // other coexisting functionality
+<b><font size="-1" color="#666666"> 3:</font></b>      <b>spawn</b> ButtonPanel(<...>);
+<b><font size="-1" color="#666666"> 4:</font></b>      <b>spawn</b> PingusCounter(<...>);
+<b><font size="-1" color="#666666"> 5:</font></b>      <b>spawn</b> SmallMap(<...>);
+<b><font size="-1" color="#666666"> 6:</font></b>      <...>                       // other coexisting functionality
+<b><font size="-1" color="#666666"> 7:</font></b>  <b>end</b></code></pre>
+<p>Lexical lifetime never requires containers, allocation and deallocation, or manipulating references explicitly. In addition, all required memory is known at compile time.</p>
+<p>The actual code in the repository [<a href="https://github.com/fsantanna/pingus/blob/ceu/ceu/pingus/screens/game/game.ceu#L198"><img src="images/link_12.png" alt="X" /></a>] is equivalent to the code above with abstractions, but inlines all functionality in parallel:</p>
+<pre><code><b><font size="-1" color="#666666"> 1:</font></b>  <b>par</b> <b>do</b>
+<b><font size="-1" color="#666666"> 2:</font></b>      <...>                           // other coexisting funcionality
+<b><font size="-1" color="#666666"> 3:</font></b>  <b>with</b>
+<b><font size="-1" color="#666666"> 4:</font></b>      #include "button_panel.ceu"     // inlined <b>code</b> for the pannel
+<b><font size="-1" color="#666666"> 5:</font></b>  <b>with</b>
+<b><font size="-1" color="#666666"> 6:</font></b>      #include "pingus_counter.ceu"   // inlined <b>code</b> for the counter
+<b><font size="-1" color="#666666"> 7:</font></b>  <b>with</b>
+<b><font size="-1" color="#666666"> 8:</font></b>      #include "small_map.ceu"        // inlined <b>code</b> for the map
+<b><font size="-1" color="#666666"> 9:</font></b>  <b>with</b>
+<b><font size="-1" color="#666666">10:</font></b>      <...>                           // other coexisting funcionality
 <b><font size="-1" color="#666666">11:</font></b>  <b>end</b></code></pre>
-<p>Again, here we never manipulate references to deal with containers, or allocation and deallocation. Also, all memory required for static instances is known at compile time.</p>
+<p>The <a href="#bomber_explo"><em>Bomber</em> state machine</a> also takes advantage of lexical scope to delimit the lifetime of the explosion sprite to a single frame.</p>
 <p><a name="lifespan-hierarchies-2"/></p>
 <h3 id="the-pingus-container">4.2) The Pingus Container</h3>
 <!-- CPP-CONTAINER-DYNAMIC -->
-<p>In C++, for entities with a dynamic lifespan, we need to <code>add</code> and <code>remove</code> them explicitly from the container.</p>
 <div class="images">
 <img src="images/pingus_create_die-anim.gif" width="400"/> <br> <a href="images/pingus_create_die-anim.gif"> Figure 14</a>: Creation and death of pingus
 </div>
-<p>As an example, pingus are dynamic entities created periodically and destroyed under certain conditions (e.g., Figure 14, when falling from a high altitude [<a href="https://github.com/Pingus/pingus/blob/7b255840c201d028fd6b19a2185ccf7df3a2cd6e/src/pingus/actions/splashed.cpp#L48"><img src="images/link_12.png" alt="X" /></a>]):</p>
+<p>A pingu is a dynamic entity created periodically and destroyed under certain conditions, such as falling from a high altitude [<a href="https://github.com/Pingus/pingus/blob/7b255840c201d028fd6b19a2185ccf7df3a2cd6e/src/pingus/actions/splashed.cpp#L48"><img src="images/link_12.png" alt="X" /></a>] (Figure 14).</p>
+<p>The C++ class <code>PinguHolder</code> is a container that holds all pingus alive:</p>
 <pre><code><b><font size="-1" color="#666666"> 1:</font></b>  Pingu* PinguHolder::create_pingu (<...>) {
 <b><font size="-1" color="#666666"> 2:</font></b>      <...>
 <b><font size="-1" color="#666666"> 3:</font></b>      Pingu* pingu = <b>new</b> Pingu (<...>);
-<b><font size="-1" color="#666666"> 4:</font></b>      <...>
-<b><font size="-1" color="#666666"> 5:</font></b>      pingus.push_back(pingu);
-<b><font size="-1" color="#666666"> 6:</font></b>      <...>
-<b><font size="-1" color="#666666"> 7:</font></b>      <b>return</b> pingu;
-<b><font size="-1" color="#666666"> 8:</font></b>  }
-<b><font size="-1" color="#666666"> 9:</font></b>  
-<b><font size="-1" color="#666666">10:</font></b>  <b>void</b> PinguHolder::update() {
-<b><font size="-1" color="#666666">11:</font></b>      <...>
-<b><font size="-1" color="#666666">12:</font></b>      <b>while</b>(pingu != pingus.end()) {
-<b><font size="-1" color="#666666">13:</font></b>          (*pingu)->update();
-<b><font size="-1" color="#666666">14:</font></b>          <b>if</b> ((*pingu)->get_status() == Pingu::PS_DEAD) {
-<b><font size="-1" color="#666666">15:</font></b>              pingu = pingus.erase(pingu);
-<b><font size="-1" color="#666666">16:</font></b>          }
-<b><font size="-1" color="#666666">17:</font></b>          <...>
-<b><font size="-1" color="#666666">18:</font></b>          ++pingu;
-<b><font size="-1" color="#666666">19:</font></b>      }
-<b><font size="-1" color="#666666">20:</font></b>  }</code></pre>
-<p><code>PinguHolder::create_pingu</code> (ln. 1-8) creates a new <code>Pingu</code> periodically, adding it to the <code>pingus</code> container (ln. 5). <code>PinguHolder::update</code> (ln. 10-20) checks all pingus every frame, removing those with the <code>Pingu::PS_DEAD</code> status (ln. 14-16): Without the <code>erase</code> call, a dead pingu would keep consuming memory and CPU time, i.e., it would remain in the <code>pingus</code> vector and be updated every frame (ln. 13).</p>
-<p>This problem is known as the <em>lapsed listener</em> [<a href="http://gameprogrammingpatterns.com/observer.html#don&#39;t-worry,-i&#39;ve-got-a-gc"><img src="images/link_12.png" alt="X" /></a>] and is not restricted to languages without garbage collection. Typically, a container holds a strong reference to a child (sometimes the only reference to it), and a collector cannot magically detect it as garbage.</p>
-<!-- CEU-CONTAINER-DYNAMIC -->
-<p>In Céu, we rely on primitive <code>pool</code> containers of organisms, which are also subject to lexical scope, just like scalar organisms. The statement <code>spawn &lt;T&gt; in &lt;pool&gt;</code> creates an organism of type <code>&lt;T&gt;</code> dynamically, also specifying a <code>&lt;pool&gt;</code> to hold the new instance.</p>
-<p>The <code>PinguHolder</code> class in Céu spawns a new <code>Pingu</code> for every occurrence of the event <code>global:go_create_pingu</code> [<a href="https://github.com/fsantanna/pingus/blob/ceu/ceu/pingus/pingu_holder.ceu#L12"><img src="images/link_12.png" alt="X" /></a>]:</p>
-<pre><code><b><font size="-1" color="#666666"> 1:</font></b>  class PinguHolder <b>with</b>
-<b><font size="-1" color="#666666"> 2:</font></b>      <...>
-<b><font size="-1" color="#666666"> 3:</font></b>  <b>do</b>
-<b><font size="-1" color="#666666"> 4:</font></b>      <b>pool</b> IPingu[] pingus;
+<b><font size="-1" color="#666666"> 4:</font></b>      pingus.push_back(pingu);
 <b><font size="-1" color="#666666"> 5:</font></b>      <...>
-<b><font size="-1" color="#666666"> 6:</font></b>      <b>every</b> (<...>) <b>in</b> global:go_create_pingu <b>do</b>
-<b><font size="-1" color="#666666"> 7:</font></b>          <...>
-<b><font size="-1" color="#666666"> 8:</font></b>          <b>spawn</b> Pingu <b>in</b> this.pingus;
+<b><font size="-1" color="#666666"> 6:</font></b>  }
+<b><font size="-1" color="#666666"> 7:</font></b>  
+<b><font size="-1" color="#666666"> 8:</font></b>  <b>void</b> PinguHolder::update() {
+<b><font size="-1" color="#666666"> 9:</font></b>      <...>
+<b><font size="-1" color="#666666">10:</font></b>      <b>while</b>(pingu != pingus.end()) {
+<b><font size="-1" color="#666666">11:</font></b>          (*pingu)->update();
+<b><font size="-1" color="#666666">12:</font></b>          <b>if</b> ((*pingu)->get_status() == Pingu::PS_DEAD) {
+<b><font size="-1" color="#666666">13:</font></b>              pingu = pingus.erase(pingu);
+<b><font size="-1" color="#666666">14:</font></b>          }
+<b><font size="-1" color="#666666">15:</font></b>          <...>
+<b><font size="-1" color="#666666">16:</font></b>          ++pingu;
+<b><font size="-1" color="#666666">17:</font></b>      }
+<b><font size="-1" color="#666666">18:</font></b>  }</code></pre>
+<p>The method <code>PinguHolder::create_pingu</code> (ln. 1-6) is called periodically to create a new <code>Pingu</code> and add it to the <code>pingus</code> collection (ln. 3-4). The method <code>PinguHolder::update</code> (ln. 8-18) checks all pingus every frame, removing those with the status <code>Pingu::PS_DEAD</code> (ln. 12-14).</p>
+<p>Entities with dynamic lifespan in C++ require explicit <code>add</code> and <code>remove</code> calls associated to a container. Without the <code>erase</code> call above (ln. 13), a dead pingu would remain in the collection being updated every frame (ln. 11). Since the <code>redraw</code> behavior for a dead pingu is innocuous, the death would go unnoticed and the program would keep consuming memory and CPU time. This problem is known as the <em>lapsed listener</em> [<a href="http://gameprogrammingpatterns.com/observer.html#don&#39;t-worry,-i&#39;ve-got-a-gc"><img src="images/link_12.png" alt="X" /></a>] and also occurs in languages with garbage collection: A container typically holds a strong reference to a child (sometimes the only reference to it), and a collector cannot magically detect it as garbage.</p>
+<!-- CEU-CONTAINER-DYNAMIC -->
+<p>Céu supports <code>pool</code> declarations to hold dynamic abstraction instances. Additionally, the <code>spawn</code> statement can specify a pool identifier to associate the new instance with a pool.</p>
+<p>The game screen spawns a new <code>Pingu</code> on every invocation of <code>Pingu_Spawn</code> [<a href="https://github.com/fsantanna/pingus/blob/ceu/ceu/pingus/screens/game/game.ceu#L163"><img src="images/link_12.png" alt="X" /></a>]:</p>
+<pre><code><b><font size="-1" color="#666666"> 1:</font></b>  <b>code</b>/<b>await</b> Game (<b>void</b>) <b>do</b>
+<b><font size="-1" color="#666666"> 2:</font></b>      <...>
+<b><font size="-1" color="#666666"> 3:</font></b>      <b>pool</b>[] Pingu pingus;
+<b><font size="-1" color="#666666"> 4:</font></b>      <b>code</b>/<b>await</b> Pingu_Spawn (<...>) <b>do</b>
+<b><font size="-1" color="#666666"> 5:</font></b>          <...>
+<b><font size="-1" color="#666666"> 6:</font></b>          <b>spawn</b> Pingu(<...>) <b>in</b> <b>outer</b>.pingus;
+<b><font size="-1" color="#666666"> 7:</font></b>      <b>end</b>
+<b><font size="-1" color="#666666"> 8:</font></b>  <b>end</b></code></pre>
+<p>The <code>spawn</code> statement (ln. 6) specifies the pool declared at the top-level block of the game screen (ln. 3). Since pools are also subject to lexical scope, the lifespan of all dynamically allocated pingus is constrained to the game screen.</p>
+<!--
+Therefore, if the top-level block of `PinguHolder` goes out of scope 
+(ln. 1-8), the execution of all pingus is aborted and they are 
+automatically reclaimed from memory.
+The same happens if the block containing the instance of `PinguHolder` goes out 
+of scope [[![X]][ceu_world_pinguholder]] (and so on, up to the outermost block 
+of the program [[![X]][ceu_main_outermost]]).
+-->
+<div class="images">
+<img src="images/pool.png" width="400"/> <br> <a href="images/pool.png"> Figure 15</a>: Lifespan of dynamic instances
+</div>
+<p>Lexical scopes handle memory and event dispatching automatically for static instances and pools. However, the lifespan of a dynamic instance does not necessarily match the lifespan of its associated pool (Figure 15). In Céu, when the execution block of a dynamic instance terminates, which characterizes its <em>natural termination</em>, the instance is automatically removed from its pool. Therefore, dynamic instances don't require any extra bookkeeping related to containers.</p>
+<p>To remove a pingu from the game in Céu, we just need to terminate its execution block according to the appropriate conditions [<a href="https://github.com/fsantanna/pingus/blob/ceu/ceu/pingus/screens/game/pingu/pingu.ceu#L98"><img src="images/link_12.png" alt="X" /></a>]:</p>
+<pre><code><b><font size="-1" color="#666666"> 1:</font></b>  <b>code</b>/<b>await</b> Pingu (<...>) <b>do</b>
+<b><font size="-1" color="#666666"> 2:</font></b>      <...>
+<b><font size="-1" color="#666666"> 3:</font></b>      <b>loop</b> <b>do</b>
+<b><font size="-1" color="#666666"> 4:</font></b>          <b>await</b> <b>outer</b>.game.dt;
+<b><font size="-1" color="#666666"> 5:</font></b>          <b>if</b> <b>call</b> Pingu_Rel_Getpixel(0,-1) == {Groundtype::GP_OUTOFSCREEN} <b>then</b>
+<b><font size="-1" color="#666666"> 6:</font></b>              <...>
+<b><font size="-1" color="#666666"> 7:</font></b>              <b>escape</b> {PS_DEAD};
+<b><font size="-1" color="#666666"> 8:</font></b>          <b>end</b>
 <b><font size="-1" color="#666666"> 9:</font></b>      <b>end</b>
 <b><font size="-1" color="#666666">10:</font></b>  <b>end</b></code></pre>
-<p>The class <code>PinguHolder</code> declares a pool of <code>IPingu</code> [<a href="https://github.com/fsantanna/pingus/blob/ceu/ceu/main.ceu#L95"><img src="images/link_12.png" alt="X" /></a>] identified as <code>pingus</code> (ln. 4). We spawn instances of <code>Pingu</code> [<a href="https://github.com/fsantanna/pingus/blob/ceu/ceu/pingus/pingu.ceu#L54"><img src="images/link_12.png" alt="X" /></a>] (which implements the <code>IPingu</code> interface) on the <code>pingus</code> pool (ln. 8).</p>
-<p>The scope of the <code>pingus</code> pool constrains the lifespan of all pingus dynamically created in reaction to <code>go_create_pingu</code>. Therefore, if the top-level block of <code>PinguHolder</code> goes out of scope (ln. 3-10), the execution of all pingus is aborted and they are automatically reclaimed from memory. The same happens if the block containing the instance of <code>PinguHolder</code> goes out of scope [<a href="https://github.com/fsantanna/pingus/blob/ceu/ceu/pingus/world.ceu#L116"><img src="images/link_12.png" alt="X" /></a>] (and so on, up to the outermost block of the program [<a href="https://github.com/fsantanna/pingus/blob/ceu/ceu/main.ceu#L249"><img src="images/link_12.png" alt="X" /></a>]).</p>
-<div class="images">
-<img src="images/pool.png" width="400"/> <br> <a href="images/pool.png"> Figure 15</a>: Lifespan of dynamic organisms
-</div>
-<p>Lexical scopes handle memory and dispatching automatically for static organisms and pools. However, the lifespan of a dynamic organism does not necessarily match the lifespan of its corresponding pool (Figure 15). When the execution block of a dynamic organism terminates, which characterizes its <em>natural termination</em>, the organism is automatically removed its pool. Therefore, dynamic organisms don't require any extra bookkeeping related to containers.</p>
-<p>In Céu, going back to the case of removing a pingu from the game, we just need to terminate its execution block according to the appropriate conditions [<a href="https://github.com/fsantanna/pingus/blob/ceu/ceu/pingus/pingu.ceu#L83"><img src="images/link_12.png" alt="X" /></a>]:</p>
-<pre><code><b><font size="-1" color="#666666"> 1:</font></b>  class Pingu <b>with</b>
-<b><font size="-1" color="#666666"> 2:</font></b>      <...>
-<b><font size="-1" color="#666666"> 3:</font></b>  <b>do</b>
-<b><font size="-1" color="#666666"> 4:</font></b>      <...>
-<b><font size="-1" color="#666666"> 5:</font></b>      <b>loop</b> <b>do</b>
-<b><font size="-1" color="#666666"> 6:</font></b>          <b>await</b> WORLD_UPDATE;
-<b><font size="-1" color="#666666"> 7:</font></b>          <b>if</b> this.rel_getpixel(0,-1) == {Groundtype::GP_OUTOFSCREEN} <b>then</b>
-<b><font size="-1" color="#666666"> 8:</font></b>              <...>
-<b><font size="-1" color="#666666"> 9:</font></b>              <b>escape</b> _PS_DEAD;
-<b><font size="-1" color="#666666">10:</font></b>          <b>end</b>
-<b><font size="-1" color="#666666">11:</font></b>          <...>
-<b><font size="-1" color="#666666">12:</font></b>      <b>end</b>
-<b><font size="-1" color="#666666">13:</font></b>  <b>end</b></code></pre>
-<p>The <code>escape</code> statement (ln. 9) aborts the execution block of the instance, removing it from its pool automatically. Hence, a dynamic organism that terminates naturally leaves no traces in the program. The language ensures, at compile time, that there are no possible dangling pointers to organisms (TODO: not discussed here).</p>
+<p>The <code>escape</code> statement (ln. 7) aborts the execution block of the <code>Pingu</code> instance, removing it from its associated pool automatically. Hence, a dynamic instance that terminates naturally leaves no traces in the program.</p>
 <!--
+The language ensures, at compile time, that there are no possible dangling 
+pointers to organisms (TODO: not discussed here).
 Céu distinguishes between *aliases* and *pointers*.
 Aliases are similar to C++ references [[![X]][cpp_reference]], while pointers 
 are the same as in C and C++.
