@@ -150,7 +150,7 @@ end
 SECS = {}
 
 function SEC (str)
-    local ln, hs, tit = string.match(str, '(\n*)(#*) (.*)')
+    local id, ln, hs, tit = string.match(str, '([^\n]*),(\n*)(#*) (.*)')
     local n = string.len(hs) - 1
     if n > #SECS then
         SECS[#SECS+1] = 0
@@ -161,7 +161,14 @@ function SEC (str)
         end
     end
     SECS[#SECS] = SECS[#SECS] + 1
-    return ln..hs..' '..table.concat(SECS,'.')..') '..tit
+    local num = table.concat(SECS,'.')
+    SECS[id] = num
+    return '<a name="'..id..'"/>\n\n'..
+            ln..hs..' '..num..') '..tit
+end
+
+function SEC_REF (id)
+    return '<a href="#'..id..'"> Section '..assert(SECS[id], 'section not found: '..id)..'</a>'
 end
 
 ]]
@@ -557,9 +564,7 @@ TODO: Selected Code Snippets
 TODO: state vars, code reduction para cada case
 -->
 
-<a name="finite-state-machines"/>
-
-@SEC[[
+@SEC[[finite-state-machines,
 ## Finite State Machines
 ]]
 
@@ -572,9 +577,7 @@ state machine.
 TODO: Case 3: Sprite Animations
 -->
 
-<a name="finite-state-machines-1"/>
-
-@SEC[[
+@SEC[[finite-state-machines-1,
 ### The *Armageddon* Button Double Click
 ]]
 
@@ -751,9 +754,7 @@ productivity.
 [ceu_armageddon]:   https://github.com/fsantanna/pingus/blob/ceu/ceu/pingus/screens/game/input.ceu#L107
 [diff_armageddon]:  https://github.com/fsantanna/pingus/commit/d0afe53648862643857811d0af8a7a9f60119f6c
 
-<a name="finite-state-machines-2"/>
-
-@SEC[[
+@SEC[[finite-state-machines-2,
 ### The *Bomber* Action
 ]]
 
@@ -952,9 +953,7 @@ explicit state machines:
 [ceu_bomber]:  https://github.com/fsantanna/pingus/blob/ceu/ceu/pingus/screens/game/pingu/actions/bomber.ceu
 [diff_bomber]: https://github.com/fsantanna/pingus/commit/8e8cf7ed81427d575975fc7a4da579c7b76219a0
 
-<a name="continuation-passing"/>
-
-@SEC[[
+@SEC[[continuation-passing,
 ## Continuation Passing
 ]]
 
@@ -976,9 +975,7 @@ state passes to the current state what will be the next state.
 more natural structured code with sequences, conditionals, and loops
 -->
 
-<a name="continuation-passing-1"/>
-
-@SEC[[
+@SEC[[continuation-passing-1,
 ### Advancing Pages in the *Story* Screen
 ]]
 
@@ -1101,9 +1098,7 @@ and 111 lines of code, respectively [[![X]][diff_story]].
 
 [diff_story]: https://github.com/fsantanna/pingus/commit/1e17519467c8b0c3d616f0452966b6f5357ccd34
 
-<a name="continuation-passing-2"/>
-
-@SEC[[
+@SEC[[continuation-passing-2,
 ### Transition to the *Credits* Screen from the *Story* Screen
 ]]
 
@@ -1145,8 +1140,8 @@ The boolean variable `m_credits` is passed to the `StoryScreen` @NN(call)
 [[![X]][cpp_story_screen]] and represents the screen continuation, i.e., what
 to do after displaying the story.
 The `StoryScreen` then forwards the continuation [[![X]][cpp_story_screen_forward]] 
-to the `StoryComponent` [[![X]][cpp_story_screen_component]] discussed in the
-previous section:
+to the `StoryComponent` [[![X]][cpp_story_screen_component]] discussed in
+@SEC_REF[[continuation-passing-1]]:
 
 @CODE_LINES[[language=CPP,
 StoryScreenComponent::StoryScreenComponent (<...>) :
@@ -1302,9 +1297,7 @@ continuation-passing style:
 [wiki_style_direct]:       https://en.wikipedia.org/wiki/Direct_style
 [wiki_style_continuation]: https://en.wikipedia.org/wiki/Continuation-passing_style
 
-<a name="dispatching-hierarchies"/>
-
-@SEC[[
+@SEC[[dispatching-hierarchies,
 ## Dispatching Hierarchies
 ]]
 
@@ -1333,9 +1326,7 @@ TODO: falar de broadcast (in Ceu: unless it is paused, all receive always)
     the buttons.
 -->
 
-<a name="dispatching-hierarchies-1"/>
-
-@SEC[[
+@SEC[[dispatching-hierarchies-1,
 ### Bomber `draw` and `update` callbacks
 ]]
 
@@ -1552,9 +1543,7 @@ hierarchies spread across multiple files.
 [cpp_worldobj]: https://github.com/Pingus/pingus/blob/7b255840c201d028fd6b19a2185ccf7df3a2cd6e/src/pingus/worldobj.hpp#L34
 [cpp_bomber_explo]: https://github.com/Pingus/pingus/blob/7b255840c201d028fd6b19a2185ccf7df3a2cd6e/src/pingus/actions/bomber.cpp#L50
 
-<a name="lifespan-hierarchies"/>
-
-@SEC[[
+@SEC[[lifespan-hierarchies,
 ## Lifespan Hierarchies
 ]]
 
@@ -1570,9 +1559,7 @@ However, it is actually common to have children with a static lifespan which
 are known at compile time.
 -->
 
-<a name="lifespan-hierarchies-1"/>
-
-@SEC[[
+@SEC[[lifespan-hierarchies-1,
 ### Game UI Widgets
 ]]
 
@@ -1610,7 +1597,7 @@ This implies that the widgets could be top-level automatic (non-dynamic)
 members, which would match the coexisting lifespan intent better.
 
 However, the class uses the container to automate `draw` and `update`
-dispatching as discussed in the previous section.
+dispatching as discussed in @SEC_REF[[dispatching-hierarchies-1]].
 The container `add` method expects only dynamically allocated children
 because they are automatically deallocated inside the container destructor 
 [[![X]][cpp_groupcomponent_delete]].
@@ -1624,7 +1611,7 @@ The dynamic nature of containers in C++ demand extra caution:
 * For objects with dynamic lifespan, calls to `add` must always have matching 
   calls to `remove`:
   missing calls to `remove` lead to memory and CPU leaks (see the
-  *lapsed listener* problem in the next section).
+  *lapsed listener* problem in SEC_REF[[lifespan-hierarchies-2]]).
 
 [cpp_groupcomponent_delete]: https://github.com/Pingus/pingus/blob/7b255840c201d028fd6b19a2185ccf7df3a2cd6e/src/engine/gui/group_component.cpp#L37
 
@@ -1671,9 +1658,7 @@ end
 The [*Bomber* state machine](#bomber_explo) also takes advantage of lexical
 scope to delimit the lifespan of the explosion sprite to a single frame.
 
-<a name="lifespan-hierarchies-2"/>
-
-@SEC[[
+@SEC[[lifespan-hierarchies-2,
 ### The Pingus Container
 ]]
 
@@ -1901,18 +1886,14 @@ Also, all memory required for static instances is known at compile time.
 
 [ceu_main_outermost]: https://github.com/fsantanna/pingus/blob/ceu/ceu/main.ceu#L249
 
-<a name="signaling"/>
-
-@SEC[[
+@SEC[[signaling,
 ## Signaling Mechanisms
 ]]
 
 Entities often need to communicate explicitly through a signaling 
 mechanism, especially if there is no hierarchy relationship between them.
 
-<a name="signaling_1"/>
-
-@SEC[[
+@SEC[[signaling_1,
 ### Pausing the World
 ]]
 
@@ -1923,30 +1904,30 @@ mechanism, especially if there is no hierarchy relationship between them.
 A click in the *Pause* button at the bottom right of the screen pauses all
 world objects, such as the clouds and pingus, but not other elements, such as
 the *Armageddon* button animation (@FIG_REF[[pause-anim-opt.gif]]).
-The button indicates the pause state with a different background and is also
-affected when the player presses `p` on the keyboard.
+The button indicates its state with different backgrounds and is also affected
+when the player presses `P` on the keyboard.
 
 #### C++
 
-In C++, the class `PauseButton` [[![X]][cpp_pausebutton]] handles clicks to
-toggle the game pause state and also checks the state when redrawing itself:
+In C++, the class `PauseButton` [[![X]][cpp_pausebutton]] handles mouse clicks
+to toggle the world pause state which is checked when redrawing the button:
 
 @CODE_LINES[[language=CPP,
 PauseButton::PauseButton(GameSession s, <...>):
     RectComponent(<...>),
     session(s),
-    background("core/buttons/hbuttonbgb"),
-    backgroundhl("core/buttons/hbuttonbg"),
+    background("core/buttons/hbuttonbgb"),          @spr_1
+    backgroundhl("core/buttons/hbuttonbg"),         @spr_2
     <...>
 {
     <...>
 }
 
-void PauseButton::on_click (<...>) {
+void PauseButton::on_click (<...>) {                @click_1
     session->set_pause(!session->get_pause());
-}
+}                                                   @click_2
 
-void PauseButton::draw (<...>) {
+void PauseButton::draw (<...>) {                    @draw_1
     <...>
     if (session->get_pause()) {
         gc.draw(backgroundhl, <...>);
@@ -1954,11 +1935,17 @@ void PauseButton::draw (<...>) {
         gc.draw(background, <...>);
     }
     <...>
-}
+}                                                   @draw_2
 ]]
 
+The mouse callback `on_click` @NN(click_1,-,click_2) toggles the world pause
+state.
+Depending on the current state, the method `draw` @NN(draw_1,-,draw_2) chooses
+the appropriate background sprite loaded in the class constructor
+@NN(spr_1,-,spr_2).
+
 The class `GameSession` [[![X]][cpp_gamesession]] handles keyboard presses and
-applies the pause state to the game:
+applies the pause state to the world:
 
 @CODE_LINES[[language=CPP,
 void GameSession::on_pause_press () {
@@ -1975,15 +1962,22 @@ void GameSession::update_server (<...>) {
 }
 ]]
 
-The call to the world `update` @NN(update) only applies if the game is not
+The call to the world `update` @NN(update) only applies if the world is not
 paused @NN(pause).
-Since the `update` propagates through the world hierarchy, skipping the call
-makes the world to pause.
+Since `update` methods propagate throughout the world hierarchy, skipping the
+call to the root method effectively pauses the world.
 
 #### Céu
 
-In Céu, the button the event `go_pause_toggle` as a signalling mechanism
-[[![X]][ceu_input_ui]]:
+As discussed in @SEC_REF[[dispatching-hierarchies-1]], entities in Céu
+do not update through dispatching hierarchies, but directly in reaction to
+events.
+This way, the pausing technique applied to the implementation in C++ is not
+effective.
+
+
+In Céu, the button communicates with the rest of the application through the
+event `go_pause_toggle` [[![X]][ceu_input_ui]]:
 
 @CODE_LINES[[language=CEU,
 <...>
@@ -2005,9 +1999,9 @@ end
 <...>
 ]]
 
-The button toggles between showing the dark @NN(but_11,-,but_12) and light
+The button toggles between showing the light @NN(but_11,-,but_12) and dark
 @NN(but_21,-,but_22) backgrounds.
-The background changes when the the button is clicked @NN(clk_1,,clk_2) or
+The background changes when the button is clicked @NN(clk_1,,clk_2) or
 when `go_pause_toggle` is emitted from a keyboard press @NN(but_11,,but_21).
 The button also broadcasts `go_pause_toggle` whenever it is clicked
 @NN(emt_1,,emt_2).
@@ -2021,39 +2015,45 @@ event void go_pause_toggle;
 spawn do
     var bool is_paused = false;
     par do
+        every go_pause_toggle do            @tog_1
+            is_paused = not is_paused;
+        end                                 @tog_2
+    with
         every outer.main.dt do              @dt1
             <...>
-            if not is_paused then
+            if not is_paused then           @chk_1
                 emit outer.game.dt(<...>);  @dt
-            end
+            end                             @chk_2
         end                                 @dt2
         <...>
-    with
-        every go_pause_toggle do
-            is_paused = not is_paused;
-        end
     end
 end
 <...>
 ]]
 
+Whenever `go_pause_toggle` occurs, the local state variable `is_paused`
+is toggled @NN(tog_1,-,tog_2).
+Also, whenever `main.dt` occurs @NN(dt1,-,dt2), `game.dt` is emitted only if
+the world is not paused @NN(chk_1,-,chk_2).
 World entities react to `game.dt`, while all other entities react to `main.dt`.
-If the game is paused, `game.dt` is not emitted @NN(dt) and no world entity
-updates.
-The `Sprite` abstraction receives a reference to use as its update event
-[[![X]][ceu_sprite]]:
+
+Since all world entities are `Sprite` instances, the abstraction interface
+receives a reference to use as its update event [[![X]][ceu_sprite]].
+On creation, world and non-world sprites pass distinct events, e.g.:
 
 * The *Bomber* action uses `game.dt` [[![X]][ceu_bomber_sprite]], since it is a
-  world entity.
+   world entity.
 * The *Armageddon* button uses `main.dt` [[![X]][ceu_armageddon_sprite]], since
   it should not pause with the world entities.
+
+#### Discussion
+
+Events decouple .
 
 Using events helps on decoupling the button and pause as well as not using the
 dispatching hierarchy.
 
-<a name="signaling_2"/>
-
-@SEC[[
+@SEC[[signaling_2,
 ### Global Keys and the Options Menu
 ]]
 
@@ -2342,7 +2342,7 @@ Boost signals:
 <!--
 <a name="wall-clock-timers"/>
 
-@SEC[[
+SEC[[
 ## Wall-Clock Timers
 ]]
 
@@ -2361,7 +2361,7 @@ Boost signals:
 
 <a name="pausing"/>
 
-@SEC[[
+SEC[[
 ## Pausing
 ]]
 
@@ -2381,7 +2381,7 @@ Boost signals:
 
 <a name="resource-acquisition-and-release"/>
 
-@SEC[[
+SEC[[
 ## Resource Acquisition and Release
 ]]
 
