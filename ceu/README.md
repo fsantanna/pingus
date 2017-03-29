@@ -76,7 +76,7 @@ local KEYS = {
         'new', 'switch', 'typedef', 'for', 'break', 'float',
     },
     CEU = {
-        'code', 'else', 'return', 'if',
+        'code', 'else', 'return', 'if', 'data', 'as',
         'bool', 'outer', 'false', 'true', 'void', 'int',
         'do', 'end', 'loop', 'escape', 'then', 'with', 'watching',
         'await', 'emit',
@@ -461,6 +461,7 @@ patterns that likely apply to other games:
     Entities often need to communicate explicitly through a signaling 
     mechanism, especially if there is no hierarchy relationship between them.
     * [ [case 1](#signaling-1) |
+        [case 2](#signaling-2) |
         [summary](#signaling-summary) ]
 
 <!-- TODO: pause -->
@@ -475,21 +476,17 @@ patterns that likely apply to other games:
 6. [**Pausing**](#pausing):
     Pausing allows parts of the game to temporarily stop reacting to incoming
     events.
-    * [ [summary](#pausing-summary) ]
-
-<!-- TODO: pause button -->
+    <!-- * [ [summary](#pausing-summary) ] -->
+    * `TODO`
 
 7. [**Resource Acquisition and Release**](#resource-acquisition-and-release):
     External resources, such as configuration files and saved games,
-    must be acquired and properly released.
-    * [ [summary](#resource-acquisition-and-release-summary) ]
+    must be acquired and safely released.
+    <!-- * [ [summary](#resource-acquisition-and-release-summary) ] -->
+    * `TODO`
 
-<!-- TODO: are these terms and explanations symmetric? -->
-
-<!--
-Our hypothesis is that other games manifesting these patterns also use some
-form of explicit state which are likely subject to the same rewriting process.
--->
+Other games manifesting these patterns also use some form of explicit state
+which are likely subject to the same rewriting process.
 Overall, we believe that most difficulties in implementing control behavior in 
 game logic is not inherent to this domain, but a result of accidental
 complexity due to the lack of structured abstractions and an appropriate
@@ -2094,9 +2091,7 @@ The `OptionMenu` [[![X]][ceu_option_menu]] connects the two events as
 follows:
 
 @CODE_LINES[[language=CEU,reset=false,
-class OptionMenu with
-    <...>
-do
+code/await OptionMenu <...> do
     <...>
     var& CheckBox b2 = <...>;
     spawn do
@@ -2127,6 +2122,122 @@ Note that the implementation in Céu does not check event emits to break the
 dependency cycle and prevent infinite execution.
 Due to the [stack-based execution for internal events][ceu_stack] in Céu,
 programs with mutually-dependent events cannot create infinite execution loops.
+
+<a name="signaling-2"/>
+
+@SEC[[
+### Pausing the World
+]]
+
+@FIG_NEW(pause-anim-opt.gif,
+         Pausing the world.,
+         350)
+
+In Pingus, clicking the *Pause* button at the bottom right of the screen
+pauses *only* world objects, such as the clouds and all pingus, but not other
+elements, such as the *Armageddon* button animation
+(@FIG_REF[[pause-anim-opt.gif]]).
+The button indicates the pause state with a different background and is also
+affected when the player presses `p` on the keyboard.
+
+The class `PauseButton` of C++ handle clicks to toggle the game pause state and
+also checks the state when redrawing itself:
+
+@CODE_LINES[[language=CPP,
+PauseButton::PauseButton(GameSession s, <...>):
+    RectComponent(<...>),
+    session(s),
+    background("core/buttons/hbuttonbgb"),
+    backgroundhl("core/buttons/hbuttonbg"),
+    <...>
+{
+    <...>
+}
+
+void PauseButton::on_click (<...>) {
+    session->set_pause(!session->get_pause());
+}
+
+void PauseButton::draw (<...>) {
+    <...>
+    if (session->get_pause()) {
+        gc.draw(backgroundhl, <...>);
+    } else {
+        gc.draw(background, <...>);
+    }
+    <...>
+}
+]]
+
+The class `GameSession` xxx for keyboard and
+
+@CODE_LINES[[language=CPP,
+void GameSession::on_pause_press () {
+    set_pause(!get_pause());
+}
+
+void GameSession::update_server (<...>) {
+    <...>
+    if (!get_pause()) {
+        <...>
+        server->update();
+    }
+    <...>
+}
+]]
+
+@CODE_LINES[[language=CEU,
+event void go_pause_toggle;
+
+par do
+    var bool is_paused = false;
+    par do
+        loop do
+            var int dt = await outer.main.dt;
+            <...>
+            if not is_paused then
+                emit outer.game.dt(<...>);
+            end
+        end
+        <...>
+    with
+        loop do
+            but = await ON_BUTTON_PRESSED;
+            if but:name == {Input::PAUSE_BUTTON} then
+                emit go_pause_toggle;
+            end
+            <...>
+        end
+    with
+        every go_pause_toggle do
+            is_paused = not is_paused;
+        end
+    end
+with
+    <...>
+    var& RectComponent c = spawn RectComponent(<...>);
+    spawn do
+        loop do
+            watching go_pause_toggle do
+                spawn Sprite_from_name(&rect.pub, "core/buttons/hbuttonbgb", &outer.main.dt);
+                await c.component.on_primary_button_pressed;
+                emit go_pause_toggle;
+            end
+            watching go_pause_toggle do
+                spawn Sprite_from_name(&rect.pub, "core/buttons/hbuttonbg", &outer.main.dt);
+                await c.component.on_primary_button_pressed;
+                emit go_pause_toggle;
+            end
+        end
+    end
+    spawn Sprite_from_name(&rect.pub, "core/buttons/pause", &outer.main.dt);
+    await FOREVER;
+end
+
+
+]]
+
+
 
 <a name="signaling-summary"/>
 <br/>
@@ -2174,7 +2285,6 @@ Boost signals:
 <div class="summary">
 **Summary**:
 </div>
--->
 
 <a name="pausing"/>
 
@@ -2182,14 +2292,12 @@ Boost signals:
 ## Pausing
 ]]
 
-<!--
 6. **Pausing**
     Pausing allows parts of the game to temporarily suspend execution or
     reactions to incoming events.
 
     In Pingus, the player can press a button in the screen to toggle between 
     pause and resume.
--->
 
 <a name="pausing-summary"/>
 <br/>
@@ -2204,13 +2312,11 @@ Boost signals:
 ## Resource Acquisition and Release
 ]]
 
-<!--
 7. **Resource Acquisition and Release**
     External resources, such as configuration files and saved games,
     must be acquired and properly released.
 
     TODO
--->
 
 <a name="resource-acquisition-and-release-summary"/>
 <br/>
@@ -2219,7 +2325,6 @@ Boost signals:
 **Summary**:
 </div>
 
-<!--
 # Quantitative Analysis
 
 ## Code Size

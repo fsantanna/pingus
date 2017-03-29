@@ -238,7 +238,7 @@ until we complete the rewriting process.
 </ul></li>
 <li><a href="#signaling"><strong>Signaling</strong></a>: Entities often need to communicate explicitly through a signaling mechanism, especially if there is no hierarchy relationship between them.
 <ul>
-<li>[ <a href="#signaling-1">case 1</a> | <a href="#signaling-summary">summary</a> ]</li>
+<li>[ <a href="#signaling-1">case 1</a> | <a href="#signaling-2">case 2</a> | <a href="#signaling-summary">summary</a> ]</li>
 </ul></li>
 </ol>
 <!-- TODO: pause -->
@@ -249,24 +249,16 @@ until we complete the rewriting process.
     * [ [summary](#wall-clock-timers-summary) ]
 -->
 <ol start="6" style="list-style-type: decimal">
-<li><a href="#pausing"><strong>Pausing</strong></a>: Pausing allows parts of the game to temporarily stop reacting to incoming events.
+<li><a href="#pausing"><strong>Pausing</strong></a>: Pausing allows parts of the game to temporarily stop reacting to incoming events. <!-- * [ [summary](#pausing-summary) ] -->
 <ul>
-<li>[ <a href="#pausing-summary">summary</a> ]</li>
+<li><code>TODO</code></li>
+</ul></li>
+<li><a href="#resource-acquisition-and-release"><strong>Resource Acquisition and Release</strong></a>: External resources, such as configuration files and saved games, must be acquired and safely released. <!-- * [ [summary](#resource-acquisition-and-release-summary) ] -->
+<ul>
+<li><code>TODO</code></li>
 </ul></li>
 </ol>
-<!-- TODO: pause button -->
-<ol start="7" style="list-style-type: decimal">
-<li><a href="#resource-acquisition-and-release"><strong>Resource Acquisition and Release</strong></a>: External resources, such as configuration files and saved games, must be acquired and properly released.
-<ul>
-<li>[ <a href="#resource-acquisition-and-release-summary">summary</a> ]</li>
-</ul></li>
-</ol>
-<!-- TODO: are these terms and explanations symmetric? -->
-<!--
-Our hypothesis is that other games manifesting these patterns also use some
-form of explicit state which are likely subject to the same rewriting process.
--->
-<p>Overall, we believe that most difficulties in implementing control behavior in game logic is not inherent to this domain, but a result of accidental complexity due to the lack of structured abstractions and an appropriate concurrency model to handle event-based applications.</p>
+<p>Other games manifesting these patterns also use some form of explicit state which are likely subject to the same rewriting process. Overall, we believe that most difficulties in implementing control behavior in game logic is not inherent to this domain, but a result of accidental complexity due to the lack of structured abstractions and an appropriate concurrency model to handle event-based applications.</p>
 <!--
 ## Why rewriting Pingus to Céu?
 
@@ -616,7 +608,7 @@ more natural structured code with sequences, conditionals, and loops
 <b><font size="-1" color="#666666"> 2:</font></b>      <...>
 <b><font size="-1" color="#666666"> 3:</font></b>      <b>event</b> <b>void</b> next_text;   // emitted from clicks <b>in</b> `>>>`
 <b><font size="-1" color="#666666"> 4:</font></b>  
-<b><font size="-1" color="#666666"> 5:</font></b>      { pages = <...>; }      // same as <b>in</b> C++
+<b><font size="-1" color="#666666"> 5:</font></b>      { pages = <...>; }      // same <b>as</b> <b>in</b> C++
 <b><font size="-1" color="#666666"> 6:</font></b>      <b>loop</b> i <b>in</b> [0 <- {pages.size()}[ <b>do</b>
 <b><font size="-1" color="#666666"> 7:</font></b>          <b>par</b>/<b>or</b> <b>do</b>
 <b><font size="-1" color="#666666"> 8:</font></b>              <b>watching</b> next_text <b>do</b>
@@ -1179,16 +1171,16 @@ Also, all memory required for static instances is known at compile time.
 <b><font size="-1" color="#666666"> 4:</font></b>          <b>var</b> _u8&& keystate = _SDL_GetKeyState(null);
 <b><font size="-1" color="#666666"> 5:</font></b>          <...>
 <b><font size="-1" color="#666666"> 6:</font></b>          <b>if</b> e:keysym.sym == {SDLK_g} <b>then</b>
-<b><font size="-1" color="#666666"> 7:</font></b>              <b>if</b> ((keystate[{SDLK_LCTRL}] as <b>bool</b>) <b>or</b> (keystate[{SDLK_RCTRL}] as <b>bool</b>)) <b>then</b>
+<b><font size="-1" color="#666666"> 7:</font></b>              <b>if</b> ((keystate[{SDLK_LCTRL}] <b>as</b> <b>bool</b>) <b>or</b> (keystate[{SDLK_RCTRL}] <b>as</b> <b>bool</b>)) <b>then</b>
 <b><font size="-1" color="#666666"> 8:</font></b>                  <b>emit</b> config_manager.go_mouse_grab(
-<b><font size="-1" color="#666666"> 9:</font></b>                          <b>not</b> ({config_manager.get_mouse_grab()} as <b>bool</b>));
+<b><font size="-1" color="#666666"> 9:</font></b>                          <b>not</b> ({config_manager.get_mouse_grab()} <b>as</b> <b>bool</b>));
 <b><font size="-1" color="#666666">10:</font></b>              <b>end</b>
 <b><font size="-1" color="#666666">11:</font></b>          <b>end</b>
 <b><font size="-1" color="#666666">12:</font></b>          <...>
 <b><font size="-1" color="#666666">13:</font></b>      <b>end</b>
 <b><font size="-1" color="#666666">14:</font></b>  <b>end</b></code></pre>
 <p>The configuration manager [<a href="https://github.com/fsantanna/pingus/blob/ceu/ceu/pingus/config_manager.ceu#L4"><img src="images/link_12.png" alt="X" /></a>] just needs to react to <code>go_mouse_grab</code> continuously to perform the <em>grab</em> effect:</p>
-<pre><code><b><font size="-1" color="#666666"> 1:</font></b>  data ConfigManager <b>with</b>
+<pre><code><b><font size="-1" color="#666666"> 1:</font></b>  <b>data</b> ConfigManager <b>with</b>
 <b><font size="-1" color="#666666"> 2:</font></b>      <b>event</b> <b>bool</b> go_mouse_grab;
 <b><font size="-1" color="#666666"> 3:</font></b>  <b>end</b>
 <b><font size="-1" color="#666666"> 4:</font></b>  <b>var</b> ConfigManager config_manager = val ConfigManager(_);
@@ -1200,7 +1192,7 @@ Also, all memory required for static instances is known at compile time.
 <b><font size="-1" color="#666666">10:</font></b>      <b>end</b>
 <b><font size="-1" color="#666666">11:</font></b>  <b>end</b></code></pre>
 <p>The <code>CheckBox</code> [<a href="https://github.com/fsantanna/pingus/blob/ceu/ceu/pingus/screens/options/check_box.ceu"><img src="images/link_12.png" alt="X" /></a>] exposes the event <code>go_click</code> for notifications in both directions, i.e., from the class to the application and <em>vice versa</em>:</p>
-<pre><code><b><font size="-1" color="#666666"> 1:</font></b>  data ICheckBox <b>with</b>
+<pre><code><b><font size="-1" color="#666666"> 1:</font></b>  <b>data</b> ICheckBox <b>with</b>
 <b><font size="-1" color="#666666"> 2:</font></b>      <b>var</b>   <b>bool</b> is_on;
 <b><font size="-1" color="#666666"> 3:</font></b>      <b>event</b> <b>bool</b> go_click;
 <b><font size="-1" color="#666666"> 4:</font></b>  <b>end</b>
@@ -1221,29 +1213,118 @@ Also, all memory required for static instances is known at compile time.
 <b><font size="-1" color="#666666">19:</font></b>  <b>end</b></code></pre>
 <p>The class reacts to external clicks continuously (ln. 10-12) to broadcast the event <code>go_click</code> (ln. 11). It also react continuously to <code>go_click</code> in another line of execution (ln. 14-17), which awakes from notifications from the first line of execution or from the application.</p>
 <p>The <code>OptionMenu</code> [<a href="https://github.com/fsantanna/pingus/blob/ceu/ceu/pingus/screens/options/options.ceu#L23"><img src="images/link_12.png" alt="X" /></a>] connects the two events as follows:</p>
-<pre><code><b><font size="-1" color="#666666"> 1:</font></b>  class OptionMenu <b>with</b>
+<pre><code><b><font size="-1" color="#666666"> 1:</font></b>  <b>code</b>/<b>await</b> OptionMenu <...> <b>do</b>
 <b><font size="-1" color="#666666"> 2:</font></b>      <...>
-<b><font size="-1" color="#666666"> 3:</font></b>  <b>do</b>
-<b><font size="-1" color="#666666"> 4:</font></b>      <...>
-<b><font size="-1" color="#666666"> 5:</font></b>      <b>var</b>& CheckBox b2 = <...>;
-<b><font size="-1" color="#666666"> 6:</font></b>      <b>spawn</b> <b>do</b>
-<b><font size="-1" color="#666666"> 7:</font></b>          <b>par</b> <b>do</b>
-<b><font size="-1" color="#666666"> 8:</font></b>              <b>var</b> <b>bool</b> v;
-<b><font size="-1" color="#666666"> 9:</font></b>              <b>every</b> v <b>in</b> <b>outer</b>.config_manager.go_mouse_grab <b>do</b>
-<b><font size="-1" color="#666666">10:</font></b>                  <b>emit</b> b2.checkbox.go_click(v);
-<b><font size="-1" color="#666666">11:</font></b>              <b>end</b>
-<b><font size="-1" color="#666666">12:</font></b>          <b>with</b>
-<b><font size="-1" color="#666666">13:</font></b>              <b>var</b> <b>bool</b> v;
-<b><font size="-1" color="#666666">14:</font></b>              <b>every</b> v <b>in</b> b2.checkbox.go_click <b>do</b>
-<b><font size="-1" color="#666666">15:</font></b>                  <b>emit</b> <b>outer</b>.config_manager.go_mouse_grab(v);
-<b><font size="-1" color="#666666">16:</font></b>              <b>end</b>
-<b><font size="-1" color="#666666">17:</font></b>          <b>end</b>
-<b><font size="-1" color="#666666">18:</font></b>      <b>end</b>
-<b><font size="-1" color="#666666">19:</font></b>      <...>
-<b><font size="-1" color="#666666">20:</font></b>  <b>end</b></code></pre>
-<p>The two loops in parallel handle the connections in opposite directions: from the configuration manager to the check box (ln. 9-11); and from the check box to the configuration manager (ln. 14-16).</p>
+<b><font size="-1" color="#666666"> 3:</font></b>      <b>var</b>& CheckBox b2 = <...>;
+<b><font size="-1" color="#666666"> 4:</font></b>      <b>spawn</b> <b>do</b>
+<b><font size="-1" color="#666666"> 5:</font></b>          <b>par</b> <b>do</b>
+<b><font size="-1" color="#666666"> 6:</font></b>              <b>var</b> <b>bool</b> v;
+<b><font size="-1" color="#666666"> 7:</font></b>              <b>every</b> v <b>in</b> <b>outer</b>.config_manager.go_mouse_grab <b>do</b>
+<b><font size="-1" color="#666666"> 8:</font></b>                  <b>emit</b> b2.checkbox.go_click(v);
+<b><font size="-1" color="#666666"> 9:</font></b>              <b>end</b>
+<b><font size="-1" color="#666666">10:</font></b>          <b>with</b>
+<b><font size="-1" color="#666666">11:</font></b>              <b>var</b> <b>bool</b> v;
+<b><font size="-1" color="#666666">12:</font></b>              <b>every</b> v <b>in</b> b2.checkbox.go_click <b>do</b>
+<b><font size="-1" color="#666666">13:</font></b>                  <b>emit</b> <b>outer</b>.config_manager.go_mouse_grab(v);
+<b><font size="-1" color="#666666">14:</font></b>              <b>end</b>
+<b><font size="-1" color="#666666">15:</font></b>          <b>end</b>
+<b><font size="-1" color="#666666">16:</font></b>      <b>end</b>
+<b><font size="-1" color="#666666">17:</font></b>      <...>
+<b><font size="-1" color="#666666">18:</font></b>  <b>end</b></code></pre>
+<p>The two loops in parallel handle the connections in opposite directions: from the configuration manager to the check box (ln. 7-9); and from the check box to the configuration manager (ln. 12-14).</p>
 <p>When the <em>Option</em> screen terminates, the connections break automatically.</p>
 <p>Note that the implementation in Céu does not check event emits to break the dependency cycle and prevent infinite execution. Due to the <a href="http://fsantanna.github.io/ceu/out/manual/v0.20/#internal-reactions">stack-based execution for internal events</a> in Céu, programs with mutually-dependent events cannot create infinite execution loops.</p>
+<p><a name="signaling-2"/></p>
+<h3 id="pausing-the-world">5.2) Pausing the World</h3>
+<div class="images">
+<img src="images/pause-anim-opt.gif" width="350"/> <br> <a href="images/pause-anim-opt.gif"> Figure 18</a>: Pausing the world.
+</div>
+<p>In Pingus, clicking the <em>Pause</em> button at the bottom right of the screen pauses <em>only</em> world objects, such as the clouds and all pingus, but not other elements, such as the <em>Armageddon</em> button animation (Figure 18). The button indicates the pause state with a different background and is also affected when the player presses <code>p</code> on the keyboard.</p>
+<p>The class <code>PauseButton</code> of C++ handle clicks to toggle the game pause state and also checks the state when redrawing itself:</p>
+<pre><code><b><font size="-1" color="#666666"> 1:</font></b>  PauseButton::PauseButton(GameSession s, <...>):
+<b><font size="-1" color="#666666"> 2:</font></b>      RectComponent(<...>),
+<b><font size="-1" color="#666666"> 3:</font></b>      session(s),
+<b><font size="-1" color="#666666"> 4:</font></b>      background("core/buttons/hbuttonbgb"),
+<b><font size="-1" color="#666666"> 5:</font></b>      backgroundhl("core/buttons/hbuttonbg"),
+<b><font size="-1" color="#666666"> 6:</font></b>      <...>
+<b><font size="-1" color="#666666"> 7:</font></b>  {
+<b><font size="-1" color="#666666"> 8:</font></b>      <...>
+<b><font size="-1" color="#666666"> 9:</font></b>  }
+<b><font size="-1" color="#666666">10:</font></b>  
+<b><font size="-1" color="#666666">11:</font></b>  <b>void</b> PauseButton::on_click (<...>) {
+<b><font size="-1" color="#666666">12:</font></b>      session->set_pause(!session->get_pause());
+<b><font size="-1" color="#666666">13:</font></b>  }
+<b><font size="-1" color="#666666">14:</font></b>  
+<b><font size="-1" color="#666666">15:</font></b>  <b>void</b> PauseButton::draw (<...>) {
+<b><font size="-1" color="#666666">16:</font></b>      <...>
+<b><font size="-1" color="#666666">17:</font></b>      <b>if</b> (session->get_pause()) {
+<b><font size="-1" color="#666666">18:</font></b>          gc.draw(backgroundhl, <...>);
+<b><font size="-1" color="#666666">19:</font></b>      } <b>else</b> {
+<b><font size="-1" color="#666666">20:</font></b>          gc.draw(background, <...>);
+<b><font size="-1" color="#666666">21:</font></b>      }
+<b><font size="-1" color="#666666">22:</font></b>      <...>
+<b><font size="-1" color="#666666">23:</font></b>  }</code></pre>
+<p>The class <code>GameSession</code> xxx for keyboard and</p>
+<pre><code><b><font size="-1" color="#666666"> 1:</font></b>  <b>void</b> GameSession::on_pause_press () {
+<b><font size="-1" color="#666666"> 2:</font></b>      set_pause(!get_pause());
+<b><font size="-1" color="#666666"> 3:</font></b>  }
+<b><font size="-1" color="#666666"> 4:</font></b>  
+<b><font size="-1" color="#666666"> 5:</font></b>  <b>void</b> GameSession::update_server (<...>) {
+<b><font size="-1" color="#666666"> 6:</font></b>      <...>
+<b><font size="-1" color="#666666"> 7:</font></b>      <b>if</b> (!get_pause()) {
+<b><font size="-1" color="#666666"> 8:</font></b>          <...>
+<b><font size="-1" color="#666666"> 9:</font></b>          server->update();
+<b><font size="-1" color="#666666">10:</font></b>      }
+<b><font size="-1" color="#666666">11:</font></b>      <...>
+<b><font size="-1" color="#666666">12:</font></b>  }</code></pre>
+<pre><code><b><font size="-1" color="#666666"> 1:</font></b>  <b>event</b> <b>void</b> go_pause_toggle;
+<b><font size="-1" color="#666666"> 2:</font></b>  
+<b><font size="-1" color="#666666"> 3:</font></b>  <b>par</b> <b>do</b>
+<b><font size="-1" color="#666666"> 4:</font></b>      <b>var</b> <b>bool</b> is_paused = <b>false</b>;
+<b><font size="-1" color="#666666"> 5:</font></b>      <b>par</b> <b>do</b>
+<b><font size="-1" color="#666666"> 6:</font></b>          <b>loop</b> <b>do</b>
+<b><font size="-1" color="#666666"> 7:</font></b>              <b>var</b> <b>int</b> dt = <b>await</b> <b>outer</b>.main.dt;
+<b><font size="-1" color="#666666"> 8:</font></b>              <...>
+<b><font size="-1" color="#666666"> 9:</font></b>              <b>if</b> <b>not</b> is_paused <b>then</b>
+<b><font size="-1" color="#666666">10:</font></b>                  <b>emit</b> <b>outer</b>.game.dt(<...>);
+<b><font size="-1" color="#666666">11:</font></b>              <b>end</b>
+<b><font size="-1" color="#666666">12:</font></b>          <b>end</b>
+<b><font size="-1" color="#666666">13:</font></b>          <...>
+<b><font size="-1" color="#666666">14:</font></b>      <b>with</b>
+<b><font size="-1" color="#666666">15:</font></b>          <b>loop</b> <b>do</b>
+<b><font size="-1" color="#666666">16:</font></b>              but = <b>await</b> ON_BUTTON_PRESSED;
+<b><font size="-1" color="#666666">17:</font></b>              <b>if</b> but:name == {Input::PAUSE_BUTTON} <b>then</b>
+<b><font size="-1" color="#666666">18:</font></b>                  <b>emit</b> go_pause_toggle;
+<b><font size="-1" color="#666666">19:</font></b>              <b>end</b>
+<b><font size="-1" color="#666666">20:</font></b>              <...>
+<b><font size="-1" color="#666666">21:</font></b>          <b>end</b>
+<b><font size="-1" color="#666666">22:</font></b>      <b>with</b>
+<b><font size="-1" color="#666666">23:</font></b>          <b>every</b> go_pause_toggle <b>do</b>
+<b><font size="-1" color="#666666">24:</font></b>              is_paused = <b>not</b> is_paused;
+<b><font size="-1" color="#666666">25:</font></b>          <b>end</b>
+<b><font size="-1" color="#666666">26:</font></b>      <b>end</b>
+<b><font size="-1" color="#666666">27:</font></b>  <b>with</b>
+<b><font size="-1" color="#666666">28:</font></b>      <...>
+<b><font size="-1" color="#666666">29:</font></b>      <b>var</b>& RectComponent c = <b>spawn</b> RectComponent(<...>);
+<b><font size="-1" color="#666666">30:</font></b>      <b>spawn</b> <b>do</b>
+<b><font size="-1" color="#666666">31:</font></b>          <b>loop</b> <b>do</b>
+<b><font size="-1" color="#666666">32:</font></b>              <b>watching</b> go_pause_toggle <b>do</b>
+<b><font size="-1" color="#666666">33:</font></b>                  <b>spawn</b> Sprite_from_name(&rect.pub, "core/buttons/hbuttonbgb", &<b>outer</b>.main.dt);
+<b><font size="-1" color="#666666">34:</font></b>                  <b>await</b> c.component.on_primary_button_pressed;
+<b><font size="-1" color="#666666">35:</font></b>                  <b>emit</b> go_pause_toggle;
+<b><font size="-1" color="#666666">36:</font></b>              <b>end</b>
+<b><font size="-1" color="#666666">37:</font></b>              <b>watching</b> go_pause_toggle <b>do</b>
+<b><font size="-1" color="#666666">38:</font></b>                  <b>spawn</b> Sprite_from_name(&rect.pub, "core/buttons/hbuttonbg", &<b>outer</b>.main.dt);
+<b><font size="-1" color="#666666">39:</font></b>                  <b>await</b> c.component.on_primary_button_pressed;
+<b><font size="-1" color="#666666">40:</font></b>                  <b>emit</b> go_pause_toggle;
+<b><font size="-1" color="#666666">41:</font></b>              <b>end</b>
+<b><font size="-1" color="#666666">42:</font></b>          <b>end</b>
+<b><font size="-1" color="#666666">43:</font></b>      <b>end</b>
+<b><font size="-1" color="#666666">44:</font></b>      <b>spawn</b> Sprite_from_name(&rect.pub, "core/buttons/pause", &<b>outer</b>.main.dt);
+<b><font size="-1" color="#666666">45:</font></b>      <b>await</b> FOREVER;
+<b><font size="-1" color="#666666">46:</font></b>  <b>end</b>
+<b><font size="-1" color="#666666">47:</font></b>  
+<b><font size="-1" color="#666666">48:</font></b>  </code></pre>
 <p><a name="signaling-summary"/> <br/></p>
 <div class="summary">
 <p><strong>Summary</strong>:</p>
@@ -1273,35 +1354,46 @@ Also, all memory required for static instances is known at compile time.
 <div class="summary">
 **Summary**:
 </div>
--->
-<p><a name="pausing"/></p>
-<h2 id="pausing">7) Pausing</h2>
-<!--
+
+<a name="pausing"/>
+
+
+## 7) Pausing
+
+
 6. **Pausing**
     Pausing allows parts of the game to temporarily suspend execution or
     reactions to incoming events.
 
     In Pingus, the player can press a button in the screen to toggle between 
     pause and resume.
--->
-<p><a name="pausing-summary"/> <br/></p>
+
+<a name="pausing-summary"/>
+<br/>
+
 <div class="summary">
-<p><strong>Summary</strong>:</p>
+**Summary**:
 </div>
-<p><a name="resource-acquisition-and-release"/></p>
-<h2 id="resource-acquisition-and-release">8) Resource Acquisition and Release</h2>
-<!--
+
+<a name="resource-acquisition-and-release"/>
+
+
+## 8) Resource Acquisition and Release
+
+
 7. **Resource Acquisition and Release**
     External resources, such as configuration files and saved games,
     must be acquired and properly released.
 
     TODO
--->
-<p><a name="resource-acquisition-and-release-summary"/> <br/></p>
+
+<a name="resource-acquisition-and-release-summary"/>
+<br/>
+
 <div class="summary">
-<p><strong>Summary</strong>:</p>
+**Summary**:
 </div>
-<!--
+
 # Quantitative Analysis
 
 ## Code Size
