@@ -19,6 +19,7 @@ Structured Synchronous Reactive Programming for Game Development --- Case Study:
     }
     div.images {
         float: right;
+        clear: right;
         background-color: #ffffff;
         border: 1px solid black;
         padding: 10px;
@@ -333,7 +334,7 @@ Let's consider the case of handling double clicks in the game.
 <div class="images">
 <img src="images/double-click-opt.gif" width="350"/> <br> <a href="images/double-click-opt.gif"> Figure 3</a>: Double click detection
 </div>
-<p>In Pingus, double clicking the <em>Armageddon</em> button at the bottom right of the screen literally explodes all pingus (Figure 3).</p>
+<p>A double click in the <em>Armageddon</em> button at the bottom right of the screen literally explodes all pingus (Figure 3).</p>
 <!-- CPP-ARMAGEDDON -->
 <h4 id="c">C++</h4>
 <p>In C++, the class <code>ArmageddonButton</code> [<a href="https://github.com/Pingus/pingus/blob/7b255840c201d028fd6b19a2185ccf7df3a2cd6e/src/pingus/components/action_button.cpp#L24"><img src="images/link_12.png" alt="X" /></a>] implements methods for rendering the button and handling mouse and timer events. Here, we focus on the double click detection, hiding unrelated parts with <code>&lt;...&gt;</code>:</p>
@@ -1114,7 +1115,7 @@ Also, all memory required for static instances is known at compile time.
 <div class="images">
 <img src="images/pause-anim-opt.gif" width="350"/> <br> <a href="images/pause-anim-opt.gif"> Figure 16</a>: Pausing the world.
 </div>
-<p>In Pingus, clicking the <em>Pause</em> button at the bottom right of the screen pauses <em>only</em> world objects, such as the clouds and all pingus, but not other elements, such as the <em>Armageddon</em> button animation (Figure 16). The button indicates the pause state with a different background and is also affected when the player presses <code>p</code> on the keyboard.</p>
+<p>A click in the <em>Pause</em> button at the bottom right of the screen pauses all world objects, such as the clouds and pingus, but not other elements, such as the <em>Armageddon</em> button animation (Figure 16). The button indicates the pause state with a different background and is also affected when the player presses <code>p</code> on the keyboard.</p>
 <h4 id="c-7">C++</h4>
 <p>In C++, the class <code>PauseButton</code> [<a href="https://github.com/Pingus/pingus/blob/7b255840c201d028fd6b19a2185ccf7df3a2cd6e/src/pingus/components/action_button.cpp#L135"><img src="images/link_12.png" alt="X" /></a>] handles clicks to toggle the game pause state and also checks the state when redrawing itself:</p>
 <pre><code><b><font size="-1" color="#666666"> 1:</font></b>  PauseButton::PauseButton(GameSession s, <...>):
@@ -1205,9 +1206,9 @@ Also, all memory required for static instances is known at compile time.
 <div class="images">
 <img src="images/options-anim-opt.gif" width="350"/> <br> <a href="images/options-anim-opt.gif"> Figure 17</a>: The <em>Mouse Grab</em> configuration option.
 </div>
-<p>In Pingus, the <em>Mouse Grab</em> option restricts the mouse movement to the game window boudaries (Figure 17). The option can be set anywhere in the game by pressing <em>Ctrl-G</em>. In addition, the <em>Options</em> menu has a check box to toggle the <em>Mouse Grab</em> option with mouse clicks while still responding to <em>Ctrl-G</em> presses.</p>
+<p>The <em>Mouse Grab</em> option restricts the mouse movement to the game window boundaries (Figure 17). The option can be set anywhere in the game by pressing <em>Ctrl-G</em>. In addition, the <em>Options</em> menu has a check box to toggle the <em>Mouse Grab</em> option with mouse clicks while still responding to <em>Ctrl-G</em> presses.</p>
 <div class="images">
-<img src="images/events.png" width="450"/> <br> <a href="images/events.png"> Figure 18</a>: Mutual dependecy between TODO
+<img src="images/events.png" width="450"/> <br> <a href="images/events.png"> Figure 18</a>: Mutual dependecy between signals.
 </div>
 <p>The implementations in C++ and Céu use a signalling mechanism to connect the key presses, the check box, and a configuration manager that applies the appropriate side effects in the game (i.e., restrict the mouse movement). Figure 18 illustrates how the mutual notifications create a dependency cycle between the configuration manager and the check box.</p>
 <!-- CPP-GRAB -->

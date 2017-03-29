@@ -18,6 +18,7 @@
     }
     div.images {
         float: right;
+        clear: right;
         background-color: #ffffff;
         border: 1px solid black;
         padding: 10px;
@@ -585,8 +586,8 @@ Let's consider the case of handling double clicks in the game.
          Double click detection,
          350)
 
-In Pingus, double clicking the *Armageddon* button at the bottom right of the
-screen literally explodes all pingus (@FIG_REF[[double-click-opt.gif]]).
+A double click in the *Armageddon* button at the bottom right of the screen
+literally explodes all pingus (@FIG_REF[[double-click-opt.gif]]).
 
 <!-- CPP-ARMAGEDDON -->
 
@@ -1919,10 +1920,9 @@ mechanism, especially if there is no hierarchy relationship between them.
          Pausing the world.,
          350)
 
-In Pingus, clicking the *Pause* button at the bottom right of the screen
-pauses *only* world objects, such as the clouds and all pingus, but not other
-elements, such as the *Armageddon* button animation
-(@FIG_REF[[pause-anim-opt.gif]]).
+A click in the *Pause* button at the bottom right of the screen pauses all
+world objects, such as the clouds and pingus, but not other elements, such as
+the *Armageddon* button animation (@FIG_REF[[pause-anim-opt.gif]]).
 The button indicates the pause state with a different background and is also
 affected when the player presses `p` on the keyboard.
 
@@ -2061,14 +2061,14 @@ dispatching hierarchy.
          The *Mouse Grab* configuration option.,
          350)
 
-In Pingus, the *Mouse Grab* option restricts the mouse movement to the game 
-window boudaries (@FIG_REF[[options-anim-opt.gif]]).
+The *Mouse Grab* option restricts the mouse movement to the game window
+boundaries (@FIG_REF[[options-anim-opt.gif]]).
 The option can be set anywhere in the game by pressing *Ctrl-G*.
 In addition, the *Options* menu has a check box to toggle the *Mouse Grab*
 option with mouse clicks while still responding to *Ctrl-G* presses.
 
 @FIG_NEW(events.png,
-         Mutual dependecy between TODO,
+         Mutual dependecy between signals.,
          450)
 
 The implementations in C++ and Céu use a signalling mechanism to connect the
