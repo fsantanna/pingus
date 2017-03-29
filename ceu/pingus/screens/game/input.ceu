@@ -163,27 +163,15 @@ with                                                        // UI
 
         spawn do
             loop do
-                var bool from_out = true;
-                do
+                watching go_pause_toggle do
                     spawn Sprite_from_name(&rect.pub, "core/buttons/hbuttonbgb", &outer.main.dt);
-                    par/or do
-                        await go_pause_toggle until from_out;
-                    with
-                        await component.component.on_primary_button_pressed;
-                        from_out = false;
-                        emit go_pause_toggle;
-                    end
+                    await component.component.on_primary_button_pressed;
+                    emit go_pause_toggle;
                 end
-                do
+                watching go_pause_toggle do
                     spawn Sprite_from_name(&rect.pub, "core/buttons/hbuttonbg", &outer.main.dt);
-                    from_out = true;
-                    par/or do
-                        await go_pause_toggle until from_out;
-                    with
-                        await component.component.on_primary_button_pressed;
-                        from_out = false;
-                        emit go_pause_toggle;
-                    end
+                    await component.component.on_primary_button_pressed;
+                    emit go_pause_toggle;
                 end
             end
         end
