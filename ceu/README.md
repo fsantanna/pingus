@@ -587,7 +587,9 @@ screen literally explodes all pingus (@FIG_REF[[double-click-opt.gif]]).
 
 <!-- CPP-ARMAGEDDON -->
 
-The C++ class `ArmageddonButton` [[![X]][cpp_armageddon]] implements
+#### C++
+
+In C++, the class `ArmageddonButton` [[![X]][cpp_armageddon]] implements
 methods for rendering the button and handling mouse and timer events.
 Here, we focus on the double click detection, hiding unrelated parts with 
 `<...>`:
@@ -683,6 +685,8 @@ agree on a common protocol to detect the double click:
 
 <!-- CEU-ARMAGEDDON -->
 
+#### Céu
+
 Céu provides structured constructs to deal with events, aiming to eradicate
 explicit manipulation of state variables for control-flow purposes.
 The equivalent code in Céu for the double-click
@@ -728,10 +732,10 @@ entirely self-contained in the `loop` body  @NN(loop_do,-,loop_end).
 Furthermore, these 7 lines of code **only** detect the double click, leaving
 the actual effect to happen outside the loop @NN(emit).
 
+<!--
 The complete implementations for the *Armageddon* button in C++ and Céu are 47
 and 24 lines of code, respectively [[![X]][diff_armageddon]].
 
-<!--
 As we argue throughout this document, appropriate control-flow mechanisms for 
 reactive applications (e.g., the `await` and `watching` statements) help on the
 structure and composition of code, resulting in considerable gains in
@@ -775,8 +779,10 @@ frames as follows:
 
 [youtube_bomber]: https://youtu.be/QLXIT59il6o?t=306
 
-The C++ class `Bomber` [[![X]][cpp_bomber]] defines the callbacks `draw` and
-`update` to manage the state machine described above:
+#### C++
+
+In C++, the class `Bomber` [[![X]][cpp_bomber]] defines the callbacks `draw`
+and `update` to manage the state machine described above:
 
 @CODE_LINES[[language=CPP,
 Bomber::Bomber (Pingu* p) :
@@ -857,7 +863,9 @@ unavoidable and are actually the essence of object-oriented programming
 
 <a name="bomber"/>
 
-The equivalent code in Céu for the *Bomber* action doesn't require any state
+#### Céu
+
+The equivalent code for the *Bomber* action in Céu doesn't require any state
 variables and reflects the sequential state machine implicitly, using `await`
 statements to separate the actions in direct style [[![X]][ceu_bomber]]:
 
@@ -916,8 +924,10 @@ explosion sprite @NN(explo): after the next game tick @NN(frame_3), the block
 terminates and automatically destroys the spawned abstraction (removing it from
 the screen).
 
+<!--
 The complete implementations for the *Bomber* action in C++ and Céu are 50 and
 19 lines of code, respectively [[![X]][diff_bomber]].
+-->
 
 <a name="finite-state-machines-summary"/>
 <br/>
@@ -984,9 +994,10 @@ advances to the next page.
 
 <!-- CPP-STORY-PAGES -->
 
-The code in C++ defines the class `StoryScreenComponent` 
-[[![X]][cpp_story_screen_component]] with the method `next_text`, which is a 
-callback from clicks in `>>>`:
+#### C++
+
+In C++, the class `StoryScreenComponent` [[![X]][cpp_story_screen_component]]
+implements the method `next_text`, which is a callback for clicks in `>>>`:
 
 @CODE_LINES[[language=CPP,
 StoryScreenComponent::StoryScreenComponent (<...>) :
@@ -1044,6 +1055,8 @@ are both handled inside the method `next_text`.
 
 <!-- CEU-STORY-PAGES -->
 
+#### Céu
+
 The code in Céu [[![X]][ceu_story]] uses the event `next_text`, which is 
 emitted from clicks in `>>>`:
 
@@ -1077,8 +1090,10 @@ between the states "advancing text" and "advancing pages".
 The `await next_text` in sequence @NN(await) is the condition to advance to the
 next page.
 
+<!--
 The complete implementations for the *Story* screen in C++ and Céu are 125
 and 111 lines of code, respectively [[![X]][diff_story]].
+-->
 
 [diff_story]: https://github.com/fsantanna/pingus/commit/1e17519467c8b0c3d616f0452966b6f5357ccd34
 
@@ -1101,9 +1116,11 @@ to the world map (@FIG_REF[[credits-anim.gif]]).
 
 <!-- CPP-STORY-CREDITS -->
 
-The `StoryDot` in C++ [[![X]][cpp_story_dot]] reads the level file to check 
-whether the story should, after termination, display the *Credits* screen or 
-not:
+#### C++
+
+In C++, the class `StoryDot` [[![X]][cpp_story_dot]] reads the level file to
+check whether the story should, after termination, display the *Credits* screen
+or not:
 
 @CODE_LINES[[language=CPP,
 StoryDot::StoryDot(const FileReader& reader) :
@@ -1161,6 +1178,8 @@ decides where to go next, depending on the continuation flag `m_credits`
 
 <!-- CEU-STORY-CREDITS -->
 
+#### Céu
+
 In Céu, the flow between the screens to display is a direct sequence of 
 statements [[![X]][ceu_credits]]:
 
@@ -1215,6 +1234,8 @@ and await its termination @NN(call_story).
 Finally, we check the returned values @NN(check) to display the `Credits` 
 @NN(call_credits).
 The enclosing loop restores the `Worldmap` and repeats the process.
+
+#### Discussion
 
 @FIG_NEW(continuation.png,
          Continuation [C++] vs Direct [Céu] Styles,
@@ -1316,7 +1337,9 @@ TODO: falar de broadcast (in Ceu: unless it is paused, all receive always)
 
 <!-- CPP-BOMBER-SPRITE -->
 
-The C++ `Bomber` class [[![X]][cpp_bomber]] declares a `sprite` member to
+#### C++
+
+In C++, the class `Bomber` [[![X]][cpp_bomber]] declares a `sprite` member to
 handle its animation frames:
 
 @CODE_LINES[[language=CPP,
@@ -1410,7 +1433,9 @@ the `Sprite` class.
 
 <!-- CEU-BOMBER-SPRITE -->
 
-The `Bomber` action in Céu spawns a `Sprite` animation [[![X]][ceu_bomber]]:
+#### Céu
+
+In Céu, the `Bomber` action spawns a `Sprite` animation [[![X]][ceu_bomber]]:
 
 @CODE_LINES[[language=CEU,
 code/await Bomber (void) -> _ActionName__Enum do
@@ -1549,13 +1574,15 @@ are known at compile time.
 
 <!-- CPP-CONTAINER -->
 
+#### C++
+
 @FIG_NEW(game-session-arrows.png,
          UI children with static lifespan,
          300)
 
-In the `GameSession` screen class, the UI widgets such as the buttons, pingus
-counter, and small map (@FIG_REF(game-session-arrows.png)) coexist with the
-screen during its whole lifespan:
+In C++, the class `GameSession` makes the UI widgets, such as the buttons,
+pingus counter, and small map (@FIG_REF(game-session-arrows.png)) to coexist
+with the game screen during its whole lifespan:
 
 @CODE_LINES[[language=CPP,
 GameSession::GameSession(<...>) :
@@ -1601,7 +1628,9 @@ The dynamic nature of containers in C++ demand extra caution:
 
 <!-- CEU-CONTAINER-STATIC -->
 
-In Céu, entities that coexist just need to be created in the same lexical
+#### Céu
+
+In Céu, entities that coexist just have to be created in the same lexical
 block:
 
 @CODE_LINES[[language=CEU,
@@ -1644,8 +1673,6 @@ scope to delimit the lifespan of the explosion sprite to a single frame.
 ### The Pingus Container
 ]]
 
-<!-- CPP-CONTAINER-DYNAMIC -->
-
 @FIG_NEW(pingus_create_die-anim.gif,
          Creation and death of pingus,
          400)
@@ -1654,7 +1681,11 @@ A pingu is a dynamic entity created periodically and destroyed under certain
 conditions, such as falling from a high altitude [[![X]][cpp_pingu_dead]]
 (@FIG_REF(pingus_create_die-anim.gif)).
 
-The C++ class `PinguHolder` is a container that holds all pingus alive:
+<!-- CPP-CONTAINER-DYNAMIC -->
+
+#### C++
+
+In C++, the class `PinguHolder` is a container that holds all alive pingus:
 
 @CODE_LINES[[language=CPP,
 Pingu* PinguHolder::create_pingu (<...>) {              @create_1
@@ -1696,6 +1727,8 @@ A container typically holds a strong reference to a child (sometimes the only
 reference to it), and a collector cannot magically detect it as garbage.
 
 <!-- CEU-CONTAINER-DYNAMIC -->
+
+#### Céu
 
 Céu supports `pool` declarations to hold dynamic abstraction instances.
 Additionally, the `spawn` statement can specify a pool identifier to associate
@@ -1901,7 +1934,9 @@ dependency cycle between the configuration manager and the check box.
 
 <!-- CPP-GRAB -->
 
-The class `GlobalEvent` in C++ [[![X]][cpp_global_event]] detects *Ctrl-G*
+#### C++
+
+In C++, the class `GlobalEvent` [[![X]][cpp_global_event]] detects *Ctrl-G*
 presses and invokes the callback `config_manager.set_mouse_grab`:
 
 @CODE_LINES[[language=CPP,
@@ -2015,6 +2050,8 @@ The destructor @NN(destr_1,-,destr_2) breaks the connections when the *Option*
 screen terminates.
 
 <!-- CEU-GRAB -->
+
+#### Céu
 
 Céu supports *internal events* as a signalling mechanism between lines of
 execution.
@@ -2140,8 +2177,10 @@ elements, such as the *Armageddon* button animation
 The button indicates the pause state with a different background and is also
 affected when the player presses `p` on the keyboard.
 
-The class `PauseButton` of C++ handle clicks to toggle the game pause state and
-also checks the state when redrawing itself:
+#### C++
+
+In C++, the class `PauseButton` [[![X]][cpp_pausebutton]] handles clicks to
+toggle the game pause state and also checks the state when redrawing itself:
 
 @CODE_LINES[[language=CPP,
 PauseButton::PauseButton(GameSession s, <...>):
@@ -2169,7 +2208,8 @@ void PauseButton::draw (<...>) {
 }
 ]]
 
-The class `GameSession` xxx for keyboard and
+The class `GameSession` [[![X]][cpp_gamesession]] handles keyboard presses and
+applies the pause state to the game:
 
 @CODE_LINES[[language=CPP,
 void GameSession::on_pause_press () {
@@ -2178,66 +2218,89 @@ void GameSession::on_pause_press () {
 
 void GameSession::update_server (<...>) {
     <...>
-    if (!get_pause()) {
+    if (!get_pause()) {     @pause
         <...>
-        server->update();
+        server->update();   @update
     }
     <...>
 }
 ]]
 
+The call to the world `update` @NN(update) only applies if the game is not
+paused @NN(pause).
+Since the `update` propagates through the world hierarchy, skipping the call
+makes the world to pause.
+
+#### Céu
+
+In Céu, the button the event `go_pause_toggle` as a signalling mechanism
+[[![X]][ceu_input_ui]]:
+
+@CODE_LINES[[language=CEU,
+<...>
+var& RectComponent c = spawn RectComponent(<...>);
+spawn do
+    loop do
+        watching go_pause_toggle do     @but_11
+            spawn Sprite(<...>, "core/buttons/hbuttonbgb");
+            await c.component.on_click; @clk_1
+            emit go_pause_toggle;       @emt_1
+        end                             @but_12
+        watching go_pause_toggle do     @but_21
+            spawn Sprite(<...>, "core/buttons/hbuttonbg");
+            await c.component.on_click; @clk_2
+            emit go_pause_toggle;       @emt_2
+        end                             @but_22
+    end
+end
+<...>
+]]
+
+The button toggles between showing the dark @NN(but_11,-,but_12) and light
+@NN(but_21,-,but_22) backgrounds.
+The background changes when the the button is clicked @NN(clk_1,,clk_2) or
+when `go_pause_toggle` is emitted from a keyboard press @NN(but_11,,but_21).
+The button also broadcasts `go_pause_toggle` whenever it is clicked
+@NN(emt_1,,emt_2).
+
+The pause mechanism relies on two update events, `main.dt` and `game.dt`,
+for the main application and game world, respectively [[![X]][ceu_input_evt]]:
+
 @CODE_LINES[[language=CEU,
 event void go_pause_toggle;
-
-par do
+<...>
+spawn do
     var bool is_paused = false;
     par do
-        loop do
-            var int dt = await outer.main.dt;
+        every outer.main.dt do              @dt1
             <...>
             if not is_paused then
-                emit outer.game.dt(<...>);
+                emit outer.game.dt(<...>);  @dt
             end
-        end
+        end                                 @dt2
         <...>
-    with
-        loop do
-            but = await ON_BUTTON_PRESSED;
-            if but:name == {Input::PAUSE_BUTTON} then
-                emit go_pause_toggle;
-            end
-            <...>
-        end
     with
         every go_pause_toggle do
             is_paused = not is_paused;
         end
     end
-with
-    <...>
-    var& RectComponent c = spawn RectComponent(<...>);
-    spawn do
-        loop do
-            watching go_pause_toggle do
-                spawn Sprite_from_name(&rect.pub, "core/buttons/hbuttonbgb", &outer.main.dt);
-                await c.component.on_primary_button_pressed;
-                emit go_pause_toggle;
-            end
-            watching go_pause_toggle do
-                spawn Sprite_from_name(&rect.pub, "core/buttons/hbuttonbg", &outer.main.dt);
-                await c.component.on_primary_button_pressed;
-                emit go_pause_toggle;
-            end
-        end
-    end
-    spawn Sprite_from_name(&rect.pub, "core/buttons/pause", &outer.main.dt);
-    await FOREVER;
 end
-
-
+<...>
 ]]
 
+World entities react to `game.dt`, while all other entities react to `main.dt`.
+If the game is paused, `game.dt` is not emitted @NN(dt) and no world entity
+updates.
+The `Sprite` abstraction receives a reference to use as its update event
+[[![X]][ceu_sprite]]:
 
+* The *Bomber* action uses `game.dt` [[![X]][ceu_bomber_sprite]], since it is a
+  world entity.
+* The *Armageddon* button uses `main.dt` [[![X]][ceu_armageddon_sprite]], since
+  it should not pause with the world entities.
+
+Using events helps on decoupling the button and pause as well as not using the
+dispatching hierarchy.
 
 <a name="signaling-summary"/>
 <br/>
@@ -2265,6 +2328,13 @@ Boost signals:
 [ceu_check_box]: https://github.com/fsantanna/pingus/blob/ceu/ceu/pingus/screens/options/check_box.ceu
 [ceu_stack]: http://fsantanna.github.io/ceu/out/manual/v0.20/#internal-reactions
 
+[cpp_pausebutton]: https://github.com/Pingus/pingus/blob/7b255840c201d028fd6b19a2185ccf7df3a2cd6e/src/pingus/components/action_button.cpp#L135
+[cpp_gamesession]: https://github.com/Pingus/pingus/blob/7b255840c201d028fd6b19a2185ccf7df3a2cd6e/src/pingus/screens/game_session.cpp#L159
+[ceu_input_ui]: https://github.com/fsantanna/pingus/blob/ceu/ceu/pingus/screens/game/input.ceu#L162
+[ceu_input_evt]: https://github.com/fsantanna/pingus/blob/ceu/ceu/pingus/screens/game/input.ceu#L17
+[ceu_sprite]: https://github.com/fsantanna/pingus/blob/ceu/ceu/engine/display/sprite.ceu#L20
+[ceu_bomber_sprite]: https://github.com/fsantanna/pingus/blob/ceu/ceu/pingus/screens/game/pingu/actions/bomber.ceu#L22
+[ceu_armageddon_sprite]: https://github.com/fsantanna/pingus/blob/ceu/ceu/pingus/screens/game/input.ceu#L117
 
 <!--
 <a name="wall-clock-timers"/>
