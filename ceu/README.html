@@ -205,7 +205,8 @@ if it enables our state-intensive code to scale to many threads, it’s still a 
 
 Claim: Transactions are the only plausible solution to concurrent mutable state
 -->
-<p>The main motivation for rewriting Pingus to Céu is to suggest structured synchronous reactive programming as an expressive and productive alternative for the game logic development. In Pingus, the game logic also accounts for almost half the size of the codebase (18173 from 39362 LoC, or 46%). <code>TODO: total rewritten, gains in %</code></p>
+<p>The main motivation for rewriting Pingus to Céu is to suggest structured synchronous reactive programming as an expressive and productive alternative for the game logic development. In Pingus, the game logic also accounts for almost half the size of the codebase (18173 from 39362 LoC, or 46%).</p>
+<p><code>TODO: total rewritten, gains in %</code></p>
 <p>The rewriting process consisted of identifying a set of callbacks implementing a <em>control-flow behavior</em> in the game and translating them to Céu using appropriate structured constructs. As an example, a double mouse click consists of the first click, followed by a maximum amount of time, followed by a second click. This behavior depends on different event (clicks and timers) that have to occur in a particular order. In C++, the implementation involves callbacks crossing successive reactions to events manipulating state variables explicitly More concretely, we could identify control-flow behaviors in C++ by looking for class members with identifiers resembling verbs, statuses, or counters (e.g., <a href="https://github.com/Pingus/pingus/blob/7b255840c201d028fd6b19a2185ccf7df3a2cd6e/src/pingus/components/action_button.hpp#L36"><code>pressed</code></a>, <a href="https://github.com/Pingus/pingus/blob/7b255840c201d028fd6b19a2185ccf7df3a2cd6e/src/pingus/actions/bomber.hpp#L31"><code>particle_thrown</code></a>, <a href="https://github.com/Pingus/pingus/blob/7b255840c201d028fd6b19a2185ccf7df3a2cd6e/src/pingus/actions/bridger.hpp#L30"><code>mode</code></a>, or <a href="https://github.com/Pingus/pingus/blob/7b255840c201d028fd6b19a2185ccf7df3a2cd6e/src/pingus/actions/digger.hpp#L32"><code>delay_count</code></a>). Good chances are that variables with &quot;suspicious names&quot; encode some form of control-flow progression that cross multiple callback invocations.</p>
 <!--
 , and redirect the instantiation and event dispatching to the new 
@@ -238,7 +239,7 @@ until we complete the rewriting process.
 </ul></li>
 <li><a href="#signaling"><strong>Signaling</strong></a>: Entities often need to communicate explicitly through a signaling mechanism, especially if there is no hierarchy relationship between them.
 <ul>
-<li>[ <a href="#signaling-1">case 1</a> | <a href="#signaling-2">case 2</a> | <a href="#signaling-summary">summary</a> ]</li>
+<li>[ <a href="#signaling_1">case 1</a> | <a href="#signaling_2">case 2</a> | <a href="#signaling-summary">summary</a> ]</li>
 </ul></li>
 </ol>
 <!-- TODO: pause -->
@@ -258,7 +259,8 @@ until we complete the rewriting process.
 <li><code>TODO</code></li>
 </ul></li>
 </ol>
-<p>Other games manifesting these patterns also use some form of explicit state which are likely subject to the same rewriting process. Overall, we believe that most difficulties in implementing control behavior in game logic is not inherent to this domain, but a result of accidental complexity due to the lack of structured abstractions and an appropriate concurrency model to handle event-based applications.</p>
+<p>Other games manifesting these patterns also use some form of explicit state which are likely subject to the same rewriting process. <!-- TODO: The patterns are not entirely orthogonal --></p>
+<p>Overall, we believe that most difficulties in implementing control behavior in game logic is not inherent to this domain, but a result of accidental complexity due to the lack of structured abstractions and an appropriate concurrency model to handle event-based applications.</p>
 <!--
 ## Why rewriting Pingus to Céu?
 
@@ -1107,18 +1109,109 @@ Also, all memory required for static instances is known at compile time.
 <p><a name="signaling"/></p>
 <h2 id="signaling-mechanisms">5) Signaling Mechanisms</h2>
 <p>Entities often need to communicate explicitly through a signaling mechanism, especially if there is no hierarchy relationship between them.</p>
-<p><a name="signaling-1"/></p>
-<h3 id="global-keys-and-the-options-menu">5.1) Global Keys and the Options Menu</h3>
+<p><a name="signaling_1"/></p>
+<h3 id="pausing-the-world">5.1) Pausing the World</h3>
 <div class="images">
-<img src="images/options-anim-opt.gif" width="350"/> <br> <a href="images/options-anim-opt.gif"> Figure 16</a>: The <em>Mouse Grab</em> configuration option.
+<img src="images/pause-anim-opt.gif" width="350"/> <br> <a href="images/pause-anim-opt.gif"> Figure 16</a>: Pausing the world.
 </div>
-<p>In Pingus, the <em>Mouse Grab</em> option restricts the mouse movement to the game window boudaries (Figure 16). The option can be set anywhere in the game by pressing <em>Ctrl-G</em>. In addition, the <em>Options</em> menu has a check box to toggle the <em>Mouse Grab</em> option with mouse clicks while still responding to <em>Ctrl-G</em> presses.</p>
-<div class="images">
-<img src="images/events.png" width="450"/> <br> <a href="images/events.png"> Figure 17</a>: Mutual dependecy between TODO
-</div>
-<p>The implementations in C++ and Céu use a signalling mechanism to connect the key presses, the check box, and a configuration manager that applies the appropriate side effects in the game (i.e., restrict the mouse movement). Figure 17 illustrates how the mutual notifications create a dependency cycle between the configuration manager and the check box.</p>
-<!-- CPP-GRAB -->
+<p>In Pingus, clicking the <em>Pause</em> button at the bottom right of the screen pauses <em>only</em> world objects, such as the clouds and all pingus, but not other elements, such as the <em>Armageddon</em> button animation (Figure 16). The button indicates the pause state with a different background and is also affected when the player presses <code>p</code> on the keyboard.</p>
 <h4 id="c-7">C++</h4>
+<p>In C++, the class <code>PauseButton</code> [<a href="https://github.com/Pingus/pingus/blob/7b255840c201d028fd6b19a2185ccf7df3a2cd6e/src/pingus/components/action_button.cpp#L135"><img src="images/link_12.png" alt="X" /></a>] handles clicks to toggle the game pause state and also checks the state when redrawing itself:</p>
+<pre><code><b><font size="-1" color="#666666"> 1:</font></b>  PauseButton::PauseButton(GameSession s, <...>):
+<b><font size="-1" color="#666666"> 2:</font></b>      RectComponent(<...>),
+<b><font size="-1" color="#666666"> 3:</font></b>      session(s),
+<b><font size="-1" color="#666666"> 4:</font></b>      background("core/buttons/hbuttonbgb"),
+<b><font size="-1" color="#666666"> 5:</font></b>      backgroundhl("core/buttons/hbuttonbg"),
+<b><font size="-1" color="#666666"> 6:</font></b>      <...>
+<b><font size="-1" color="#666666"> 7:</font></b>  {
+<b><font size="-1" color="#666666"> 8:</font></b>      <...>
+<b><font size="-1" color="#666666"> 9:</font></b>  }
+<b><font size="-1" color="#666666">10:</font></b>  
+<b><font size="-1" color="#666666">11:</font></b>  <b>void</b> PauseButton::on_click (<...>) {
+<b><font size="-1" color="#666666">12:</font></b>      session->set_pause(!session->get_pause());
+<b><font size="-1" color="#666666">13:</font></b>  }
+<b><font size="-1" color="#666666">14:</font></b>  
+<b><font size="-1" color="#666666">15:</font></b>  <b>void</b> PauseButton::draw (<...>) {
+<b><font size="-1" color="#666666">16:</font></b>      <...>
+<b><font size="-1" color="#666666">17:</font></b>      <b>if</b> (session->get_pause()) {
+<b><font size="-1" color="#666666">18:</font></b>          gc.draw(backgroundhl, <...>);
+<b><font size="-1" color="#666666">19:</font></b>      } <b>else</b> {
+<b><font size="-1" color="#666666">20:</font></b>          gc.draw(background, <...>);
+<b><font size="-1" color="#666666">21:</font></b>      }
+<b><font size="-1" color="#666666">22:</font></b>      <...>
+<b><font size="-1" color="#666666">23:</font></b>  }</code></pre>
+<p>The class <code>GameSession</code> [<a href="https://github.com/Pingus/pingus/blob/7b255840c201d028fd6b19a2185ccf7df3a2cd6e/src/pingus/screens/game_session.cpp#L159"><img src="images/link_12.png" alt="X" /></a>] handles keyboard presses and applies the pause state to the game:</p>
+<pre><code><b><font size="-1" color="#666666"> 1:</font></b>  <b>void</b> GameSession::on_pause_press () {
+<b><font size="-1" color="#666666"> 2:</font></b>      set_pause(!get_pause());
+<b><font size="-1" color="#666666"> 3:</font></b>  }
+<b><font size="-1" color="#666666"> 4:</font></b>  
+<b><font size="-1" color="#666666"> 5:</font></b>  <b>void</b> GameSession::update_server (<...>) {
+<b><font size="-1" color="#666666"> 6:</font></b>      <...>
+<b><font size="-1" color="#666666"> 7:</font></b>      <b>if</b> (!get_pause()) {
+<b><font size="-1" color="#666666"> 8:</font></b>          <...>
+<b><font size="-1" color="#666666"> 9:</font></b>          server->update();
+<b><font size="-1" color="#666666">10:</font></b>      }
+<b><font size="-1" color="#666666">11:</font></b>      <...>
+<b><font size="-1" color="#666666">12:</font></b>  }</code></pre>
+<p>The call to the world <code>update</code> (ln. 9) only applies if the game is not paused (ln. 7). Since the <code>update</code> propagates through the world hierarchy, skipping the call makes the world to pause.</p>
+<h4 id="céu-7">Céu</h4>
+<p>In Céu, the button the event <code>go_pause_toggle</code> as a signalling mechanism [<a href="https://github.com/fsantanna/pingus/blob/ceu/ceu/pingus/screens/game/input.ceu#L162"><img src="images/link_12.png" alt="X" /></a>]:</p>
+<pre><code><b><font size="-1" color="#666666"> 1:</font></b>  <...>
+<b><font size="-1" color="#666666"> 2:</font></b>  <b>var</b>& RectComponent c = <b>spawn</b> RectComponent(<...>);
+<b><font size="-1" color="#666666"> 3:</font></b>  <b>spawn</b> <b>do</b>
+<b><font size="-1" color="#666666"> 4:</font></b>      <b>loop</b> <b>do</b>
+<b><font size="-1" color="#666666"> 5:</font></b>          <b>watching</b> go_pause_toggle <b>do</b>
+<b><font size="-1" color="#666666"> 6:</font></b>              <b>spawn</b> Sprite(<...>, "core/buttons/hbuttonbgb");
+<b><font size="-1" color="#666666"> 7:</font></b>              <b>await</b> c.component.on_click;
+<b><font size="-1" color="#666666"> 8:</font></b>              <b>emit</b> go_pause_toggle;
+<b><font size="-1" color="#666666"> 9:</font></b>          <b>end</b>
+<b><font size="-1" color="#666666">10:</font></b>          <b>watching</b> go_pause_toggle <b>do</b>
+<b><font size="-1" color="#666666">11:</font></b>              <b>spawn</b> Sprite(<...>, "core/buttons/hbuttonbg");
+<b><font size="-1" color="#666666">12:</font></b>              <b>await</b> c.component.on_click;
+<b><font size="-1" color="#666666">13:</font></b>              <b>emit</b> go_pause_toggle;
+<b><font size="-1" color="#666666">14:</font></b>          <b>end</b>
+<b><font size="-1" color="#666666">15:</font></b>      <b>end</b>
+<b><font size="-1" color="#666666">16:</font></b>  <b>end</b>
+<b><font size="-1" color="#666666">17:</font></b>  <...></code></pre>
+<p>The button toggles between showing the dark (ln. 5-9) and light (ln. 10-14) backgrounds. The background changes when the the button is clicked (ln. 7,12) or when <code>go_pause_toggle</code> is emitted from a keyboard press (ln. 5,10). The button also broadcasts <code>go_pause_toggle</code> whenever it is clicked (ln. 8,13).</p>
+<p>The pause mechanism relies on two update events, <code>main.dt</code> and <code>game.dt</code>, for the main application and game world, respectively [<a href="https://github.com/fsantanna/pingus/blob/ceu/ceu/pingus/screens/game/input.ceu#L17"><img src="images/link_12.png" alt="X" /></a>]:</p>
+<pre><code><b><font size="-1" color="#666666"> 1:</font></b>  <b>event</b> <b>void</b> go_pause_toggle;
+<b><font size="-1" color="#666666"> 2:</font></b>  <...>
+<b><font size="-1" color="#666666"> 3:</font></b>  <b>spawn</b> <b>do</b>
+<b><font size="-1" color="#666666"> 4:</font></b>      <b>var</b> <b>bool</b> is_paused = <b>false</b>;
+<b><font size="-1" color="#666666"> 5:</font></b>      <b>par</b> <b>do</b>
+<b><font size="-1" color="#666666"> 6:</font></b>          <b>every</b> <b>outer</b>.main.dt <b>do</b>
+<b><font size="-1" color="#666666"> 7:</font></b>              <...>
+<b><font size="-1" color="#666666"> 8:</font></b>              <b>if</b> <b>not</b> is_paused <b>then</b>
+<b><font size="-1" color="#666666"> 9:</font></b>                  <b>emit</b> <b>outer</b>.game.dt(<...>);
+<b><font size="-1" color="#666666">10:</font></b>              <b>end</b>
+<b><font size="-1" color="#666666">11:</font></b>          <b>end</b>
+<b><font size="-1" color="#666666">12:</font></b>          <...>
+<b><font size="-1" color="#666666">13:</font></b>      <b>with</b>
+<b><font size="-1" color="#666666">14:</font></b>          <b>every</b> go_pause_toggle <b>do</b>
+<b><font size="-1" color="#666666">15:</font></b>              is_paused = <b>not</b> is_paused;
+<b><font size="-1" color="#666666">16:</font></b>          <b>end</b>
+<b><font size="-1" color="#666666">17:</font></b>      <b>end</b>
+<b><font size="-1" color="#666666">18:</font></b>  <b>end</b>
+<b><font size="-1" color="#666666">19:</font></b>  <...></code></pre>
+<p>World entities react to <code>game.dt</code>, while all other entities react to <code>main.dt</code>. If the game is paused, <code>game.dt</code> is not emitted (ln. 9) and no world entity updates. The <code>Sprite</code> abstraction receives a reference to use as its update event [<a href="https://github.com/fsantanna/pingus/blob/ceu/ceu/engine/display/sprite.ceu#L20"><img src="images/link_12.png" alt="X" /></a>]:</p>
+<ul>
+<li>The <em>Bomber</em> action uses <code>game.dt</code> [<a href="https://github.com/fsantanna/pingus/blob/ceu/ceu/pingus/screens/game/pingu/actions/bomber.ceu#L22"><img src="images/link_12.png" alt="X" /></a>], since it is a world entity.</li>
+<li>The <em>Armageddon</em> button uses <code>main.dt</code> [<a href="https://github.com/fsantanna/pingus/blob/ceu/ceu/pingus/screens/game/input.ceu#L117"><img src="images/link_12.png" alt="X" /></a>], since it should not pause with the world entities.</li>
+</ul>
+<p>Using events helps on decoupling the button and pause as well as not using the dispatching hierarchy.</p>
+<p><a name="signaling_2"/></p>
+<h3 id="global-keys-and-the-options-menu">5.2) Global Keys and the Options Menu</h3>
+<div class="images">
+<img src="images/options-anim-opt.gif" width="350"/> <br> <a href="images/options-anim-opt.gif"> Figure 17</a>: The <em>Mouse Grab</em> configuration option.
+</div>
+<p>In Pingus, the <em>Mouse Grab</em> option restricts the mouse movement to the game window boudaries (Figure 17). The option can be set anywhere in the game by pressing <em>Ctrl-G</em>. In addition, the <em>Options</em> menu has a check box to toggle the <em>Mouse Grab</em> option with mouse clicks while still responding to <em>Ctrl-G</em> presses.</p>
+<div class="images">
+<img src="images/events.png" width="450"/> <br> <a href="images/events.png"> Figure 18</a>: Mutual dependecy between TODO
+</div>
+<p>The implementations in C++ and Céu use a signalling mechanism to connect the key presses, the check box, and a configuration manager that applies the appropriate side effects in the game (i.e., restrict the mouse movement). Figure 18 illustrates how the mutual notifications create a dependency cycle between the configuration manager and the check box.</p>
+<!-- CPP-GRAB -->
+<h4 id="c-8">C++</h4>
 <p>In C++, the class <code>GlobalEvent</code> [<a href="https://github.com/Pingus/pingus/blob/7b255840c201d028fd6b19a2185ccf7df3a2cd6e/src/pingus/global_event.cpp#L34"><img src="images/link_12.png" alt="X" /></a>] detects <em>Ctrl-G</em> presses and invokes the callback <code>config_manager.set_mouse_grab</code>:</p>
 <pre><code><b><font size="-1" color="#666666"> 1:</font></b>  <b>void</b> GlobalEvent::on_button_press (<...>) {
 <b><font size="-1" color="#666666"> 2:</font></b>      <...>
@@ -1143,7 +1236,7 @@ Also, all memory required for static instances is known at compile time.
 <b><font size="-1" color="#666666"> 7:</font></b>          on_mouse_grab_change(v);
 <b><font size="-1" color="#666666"> 8:</font></b>      }
 <b><font size="-1" color="#666666"> 9:</font></b>  }</code></pre>
-<p>The <code>if</code> enclosing the signal emission (ln. 5-8) breaks the dependency cycle of Figure 17 and prevents the infinite execution loop.</p>
+<p>The <code>if</code> enclosing the signal emission (ln. 5-8) breaks the dependency cycle of Figure 18 and prevents the infinite execution loop.</p>
 <p>The class <code>CheckBox</code> [<a href="https://github.com/Pingus/pingus/blob/7b255840c201d028fd6b19a2185ccf7df3a2cd6e/src/pingus/components/choice_box.cpp#L54"><img src="images/link_12.png" alt="X" /></a>] also uses a <code>boost::signal</code> to notify the application on changes:</p>
 <p><a name="cpp_check-box"/></p>
 <pre><code><b><font size="-1" color="#666666"> 1:</font></b>  boost::signals2::signal<<b>void</b> (<b>bool</b>)> on_change;   // definition in `check_box.hpp`
@@ -1154,7 +1247,7 @@ Also, all memory required for static instances is known at compile time.
 <b><font size="-1" color="#666666"> 6:</font></b>          on_change(is_on);
 <b><font size="-1" color="#666666"> 7:</font></b>      }
 <b><font size="-1" color="#666666"> 8:</font></b>  }</code></pre>
-<p>Again, the <code>if</code> enclosing the signal emission (ln. 5-7) breaks the dependency cycle of Figure 17.</p>
+<p>Again, the <code>if</code> enclosing the signal emission (ln. 5-7) breaks the dependency cycle of Figure 18.</p>
 <p>The class <code>OptionMenu</code> [<a href="https://github.com/Pingus/pingus/blob/7b255840c201d028fd6b19a2185ccf7df3a2cd6e/src/pingus/screens/option_menu.cpp#L79"><img src="images/link_12.png" alt="X" /></a>] creates the dependency loop by connecting the two signals:</p>
 <pre><code><b><font size="-1" color="#666666"> 1:</font></b>  <b>typedef</b> std::vector<boost::signals2::connection> Connections;   // definition in `option_menu.hpp`
 <b><font size="-1" color="#666666"> 2:</font></b>  Connections connections;                                        // definition in `option_menu.hpp`
@@ -1188,7 +1281,7 @@ Also, all memory required for static instances is known at compile time.
 <p>Note that the signal binding to call <code>CheckBox::set_state</code> (ln. 12) receives a fixed value <code>false</code> as the last argument to prevent infinite execution (ln. 3 <a href="#cpp_check-box">up</a>).</p>
 <p>The destructor (ln. 24-28) breaks the connections when the <em>Option</em> screen terminates.</p>
 <!-- CEU-GRAB -->
-<h4 id="céu-7">Céu</h4>
+<h4 id="céu-8">Céu</h4>
 <p>Céu supports <em>internal events</em> as a signalling mechanism between lines of execution. A <em>Ctrl-G</em> key press broadcasts the internal event <code>config_manager.go_mouse_grab</code> to the application [<a href="https://github.com/fsantanna/pingus/blob/ceu/ceu/pingus/global_event.ceu"><img src="images/link_12.png" alt="X" /></a>]:</p>
 <pre><code><b><font size="-1" color="#666666"> 1:</font></b>  <b>spawn</b> <b>do</b>
 <b><font size="-1" color="#666666"> 2:</font></b>      <b>var</b> _SDL_KeyboardEvent&& e;
@@ -1259,97 +1352,6 @@ Also, all memory required for static instances is known at compile time.
 <p>The two loops in parallel handle the connections in opposite directions: from the configuration manager to the check box (ln. 7-9); and from the check box to the configuration manager (ln. 12-14).</p>
 <p>When the <em>Option</em> screen terminates, the connections break automatically.</p>
 <p>Note that the implementation in Céu does not check event emits to break the dependency cycle and prevent infinite execution. Due to the <a href="http://fsantanna.github.io/ceu/out/manual/v0.20/#internal-reactions">stack-based execution for internal events</a> in Céu, programs with mutually-dependent events cannot create infinite execution loops.</p>
-<p><a name="signaling-2"/></p>
-<h3 id="pausing-the-world">5.2) Pausing the World</h3>
-<div class="images">
-<img src="images/pause-anim-opt.gif" width="350"/> <br> <a href="images/pause-anim-opt.gif"> Figure 18</a>: Pausing the world.
-</div>
-<p>In Pingus, clicking the <em>Pause</em> button at the bottom right of the screen pauses <em>only</em> world objects, such as the clouds and all pingus, but not other elements, such as the <em>Armageddon</em> button animation (Figure 18). The button indicates the pause state with a different background and is also affected when the player presses <code>p</code> on the keyboard.</p>
-<h4 id="c-8">C++</h4>
-<p>In C++, the class <code>PauseButton</code> [<a href="https://github.com/Pingus/pingus/blob/7b255840c201d028fd6b19a2185ccf7df3a2cd6e/src/pingus/components/action_button.cpp#L135"><img src="images/link_12.png" alt="X" /></a>] handles clicks to toggle the game pause state and also checks the state when redrawing itself:</p>
-<pre><code><b><font size="-1" color="#666666"> 1:</font></b>  PauseButton::PauseButton(GameSession s, <...>):
-<b><font size="-1" color="#666666"> 2:</font></b>      RectComponent(<...>),
-<b><font size="-1" color="#666666"> 3:</font></b>      session(s),
-<b><font size="-1" color="#666666"> 4:</font></b>      background("core/buttons/hbuttonbgb"),
-<b><font size="-1" color="#666666"> 5:</font></b>      backgroundhl("core/buttons/hbuttonbg"),
-<b><font size="-1" color="#666666"> 6:</font></b>      <...>
-<b><font size="-1" color="#666666"> 7:</font></b>  {
-<b><font size="-1" color="#666666"> 8:</font></b>      <...>
-<b><font size="-1" color="#666666"> 9:</font></b>  }
-<b><font size="-1" color="#666666">10:</font></b>  
-<b><font size="-1" color="#666666">11:</font></b>  <b>void</b> PauseButton::on_click (<...>) {
-<b><font size="-1" color="#666666">12:</font></b>      session->set_pause(!session->get_pause());
-<b><font size="-1" color="#666666">13:</font></b>  }
-<b><font size="-1" color="#666666">14:</font></b>  
-<b><font size="-1" color="#666666">15:</font></b>  <b>void</b> PauseButton::draw (<...>) {
-<b><font size="-1" color="#666666">16:</font></b>      <...>
-<b><font size="-1" color="#666666">17:</font></b>      <b>if</b> (session->get_pause()) {
-<b><font size="-1" color="#666666">18:</font></b>          gc.draw(backgroundhl, <...>);
-<b><font size="-1" color="#666666">19:</font></b>      } <b>else</b> {
-<b><font size="-1" color="#666666">20:</font></b>          gc.draw(background, <...>);
-<b><font size="-1" color="#666666">21:</font></b>      }
-<b><font size="-1" color="#666666">22:</font></b>      <...>
-<b><font size="-1" color="#666666">23:</font></b>  }</code></pre>
-<p>The class <code>GameSession</code> [<a href="https://github.com/Pingus/pingus/blob/7b255840c201d028fd6b19a2185ccf7df3a2cd6e/src/pingus/screens/game_session.cpp#L159"><img src="images/link_12.png" alt="X" /></a>] handles keyboard presses and applies the pause state to the game:</p>
-<pre><code><b><font size="-1" color="#666666"> 1:</font></b>  <b>void</b> GameSession::on_pause_press () {
-<b><font size="-1" color="#666666"> 2:</font></b>      set_pause(!get_pause());
-<b><font size="-1" color="#666666"> 3:</font></b>  }
-<b><font size="-1" color="#666666"> 4:</font></b>  
-<b><font size="-1" color="#666666"> 5:</font></b>  <b>void</b> GameSession::update_server (<...>) {
-<b><font size="-1" color="#666666"> 6:</font></b>      <...>
-<b><font size="-1" color="#666666"> 7:</font></b>      <b>if</b> (!get_pause()) {
-<b><font size="-1" color="#666666"> 8:</font></b>          <...>
-<b><font size="-1" color="#666666"> 9:</font></b>          server->update();
-<b><font size="-1" color="#666666">10:</font></b>      }
-<b><font size="-1" color="#666666">11:</font></b>      <...>
-<b><font size="-1" color="#666666">12:</font></b>  }</code></pre>
-<p>The call to the world <code>update</code> (ln. 9) only applies if the game is not paused (ln. 7). Since the <code>update</code> propagates through the world hierarchy, skipping the call makes the world to pause.</p>
-<h4 id="céu-8">Céu</h4>
-<p>In Céu, the button the event <code>go_pause_toggle</code> as a signalling mechanism [<a href="https://github.com/fsantanna/pingus/blob/ceu/ceu/pingus/screens/game/input.ceu#L162"><img src="images/link_12.png" alt="X" /></a>]:</p>
-<pre><code><b><font size="-1" color="#666666"> 1:</font></b>  <...>
-<b><font size="-1" color="#666666"> 2:</font></b>  <b>var</b>& RectComponent c = <b>spawn</b> RectComponent(<...>);
-<b><font size="-1" color="#666666"> 3:</font></b>  <b>spawn</b> <b>do</b>
-<b><font size="-1" color="#666666"> 4:</font></b>      <b>loop</b> <b>do</b>
-<b><font size="-1" color="#666666"> 5:</font></b>          <b>watching</b> go_pause_toggle <b>do</b>
-<b><font size="-1" color="#666666"> 6:</font></b>              <b>spawn</b> Sprite(<...>, "core/buttons/hbuttonbgb");
-<b><font size="-1" color="#666666"> 7:</font></b>              <b>await</b> c.component.on_click;
-<b><font size="-1" color="#666666"> 8:</font></b>              <b>emit</b> go_pause_toggle;
-<b><font size="-1" color="#666666"> 9:</font></b>          <b>end</b>
-<b><font size="-1" color="#666666">10:</font></b>          <b>watching</b> go_pause_toggle <b>do</b>
-<b><font size="-1" color="#666666">11:</font></b>              <b>spawn</b> Sprite(<...>, "core/buttons/hbuttonbg");
-<b><font size="-1" color="#666666">12:</font></b>              <b>await</b> c.component.on_click;
-<b><font size="-1" color="#666666">13:</font></b>              <b>emit</b> go_pause_toggle;
-<b><font size="-1" color="#666666">14:</font></b>          <b>end</b>
-<b><font size="-1" color="#666666">15:</font></b>      <b>end</b>
-<b><font size="-1" color="#666666">16:</font></b>  <b>end</b>
-<b><font size="-1" color="#666666">17:</font></b>  <...></code></pre>
-<p>The button toggles between showing the dark (ln. 5-9) and light (ln. 10-14) backgrounds. The background changes when the the button is clicked (ln. 7,12) or when <code>go_pause_toggle</code> is emitted from a keyboard press (ln. 5,10). The button also broadcasts <code>go_pause_toggle</code> whenever it is clicked (ln. 8,13).</p>
-<p>The pause mechanism relies on two update events, <code>main.dt</code> and <code>game.dt</code>, for the main application and game world, respectively [<a href="https://github.com/fsantanna/pingus/blob/ceu/ceu/pingus/screens/game/input.ceu#L17"><img src="images/link_12.png" alt="X" /></a>]:</p>
-<pre><code><b><font size="-1" color="#666666"> 1:</font></b>  <b>event</b> <b>void</b> go_pause_toggle;
-<b><font size="-1" color="#666666"> 2:</font></b>  <...>
-<b><font size="-1" color="#666666"> 3:</font></b>  <b>spawn</b> <b>do</b>
-<b><font size="-1" color="#666666"> 4:</font></b>      <b>var</b> <b>bool</b> is_paused = <b>false</b>;
-<b><font size="-1" color="#666666"> 5:</font></b>      <b>par</b> <b>do</b>
-<b><font size="-1" color="#666666"> 6:</font></b>          <b>every</b> <b>outer</b>.main.dt <b>do</b>
-<b><font size="-1" color="#666666"> 7:</font></b>              <...>
-<b><font size="-1" color="#666666"> 8:</font></b>              <b>if</b> <b>not</b> is_paused <b>then</b>
-<b><font size="-1" color="#666666"> 9:</font></b>                  <b>emit</b> <b>outer</b>.game.dt(<...>);
-<b><font size="-1" color="#666666">10:</font></b>              <b>end</b>
-<b><font size="-1" color="#666666">11:</font></b>          <b>end</b>
-<b><font size="-1" color="#666666">12:</font></b>          <...>
-<b><font size="-1" color="#666666">13:</font></b>      <b>with</b>
-<b><font size="-1" color="#666666">14:</font></b>          <b>every</b> go_pause_toggle <b>do</b>
-<b><font size="-1" color="#666666">15:</font></b>              is_paused = <b>not</b> is_paused;
-<b><font size="-1" color="#666666">16:</font></b>          <b>end</b>
-<b><font size="-1" color="#666666">17:</font></b>      <b>end</b>
-<b><font size="-1" color="#666666">18:</font></b>  <b>end</b>
-<b><font size="-1" color="#666666">19:</font></b>  <...></code></pre>
-<p>World entities react to <code>game.dt</code>, while all other entities react to <code>main.dt</code>. If the game is paused, <code>game.dt</code> is not emitted (ln. 9) and no world entity updates. The <code>Sprite</code> abstraction receives a reference to use as its update event [<a href="https://github.com/fsantanna/pingus/blob/ceu/ceu/engine/display/sprite.ceu#L20"><img src="images/link_12.png" alt="X" /></a>]:</p>
-<ul>
-<li>The <em>Bomber</em> action uses <code>game.dt</code> [<a href="https://github.com/fsantanna/pingus/blob/ceu/ceu/pingus/screens/game/pingu/actions/bomber.ceu#L22"><img src="images/link_12.png" alt="X" /></a>], since it is a world entity.</li>
-<li><p>The <em>Armageddon</em> button uses <code>main.dt</code> [<a href="https://github.com/fsantanna/pingus/blob/ceu/ceu/pingus/screens/game/input.ceu#L117"><img src="images/link_12.png" alt="X" /></a>], since it should not pause with the world entities.</p></li>
-<li><p>allows to escape the hierarchy</p></li>
-</ul>
 <p><a name="signaling-summary"/> <br/></p>
 <div class="summary">
 <p><strong>Summary</strong>:</p>

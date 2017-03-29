@@ -382,6 +382,7 @@ synchronous reactive programming as an expressive and productive alternative
 for the game logic development.
 In Pingus, the game logic also accounts for almost half the size of the
 codebase (18173 from 39362 LoC, or 46%).
+
 `TODO: total rewritten, gains in %`
 
 The rewriting process consisted of identifying a set of callbacks implementing
@@ -460,8 +461,8 @@ patterns that likely apply to other games:
 5. [**Signaling**](#signaling):
     Entities often need to communicate explicitly through a signaling 
     mechanism, especially if there is no hierarchy relationship between them.
-    * [ [case 1](#signaling-1) |
-        [case 2](#signaling-2) |
+    * [ [case 1](#signaling_1) |
+        [case 2](#signaling_2) |
         [summary](#signaling-summary) ]
 
 <!-- TODO: pause -->
@@ -487,6 +488,8 @@ patterns that likely apply to other games:
 
 Other games manifesting these patterns also use some form of explicit state
 which are likely subject to the same rewriting process.
+<!-- TODO: The patterns are not entirely orthogonal -->
+
 Overall, we believe that most difficulties in implementing control behavior in 
 game logic is not inherent to this domain, but a result of accidental
 complexity due to the lack of structured abstractions and an appropriate
@@ -1906,7 +1909,149 @@ Also, all memory required for static instances is known at compile time.
 Entities often need to communicate explicitly through a signaling 
 mechanism, especially if there is no hierarchy relationship between them.
 
-<a name="signaling-1"/>
+<a name="signaling_1"/>
+
+@SEC[[
+### Pausing the World
+]]
+
+@FIG_NEW(pause-anim-opt.gif,
+         Pausing the world.,
+         350)
+
+In Pingus, clicking the *Pause* button at the bottom right of the screen
+pauses *only* world objects, such as the clouds and all pingus, but not other
+elements, such as the *Armageddon* button animation
+(@FIG_REF[[pause-anim-opt.gif]]).
+The button indicates the pause state with a different background and is also
+affected when the player presses `p` on the keyboard.
+
+#### C++
+
+In C++, the class `PauseButton` [[![X]][cpp_pausebutton]] handles clicks to
+toggle the game pause state and also checks the state when redrawing itself:
+
+@CODE_LINES[[language=CPP,
+PauseButton::PauseButton(GameSession s, <...>):
+    RectComponent(<...>),
+    session(s),
+    background("core/buttons/hbuttonbgb"),
+    backgroundhl("core/buttons/hbuttonbg"),
+    <...>
+{
+    <...>
+}
+
+void PauseButton::on_click (<...>) {
+    session->set_pause(!session->get_pause());
+}
+
+void PauseButton::draw (<...>) {
+    <...>
+    if (session->get_pause()) {
+        gc.draw(backgroundhl, <...>);
+    } else {
+        gc.draw(background, <...>);
+    }
+    <...>
+}
+]]
+
+The class `GameSession` [[![X]][cpp_gamesession]] handles keyboard presses and
+applies the pause state to the game:
+
+@CODE_LINES[[language=CPP,
+void GameSession::on_pause_press () {
+    set_pause(!get_pause());
+}
+
+void GameSession::update_server (<...>) {
+    <...>
+    if (!get_pause()) {     @pause
+        <...>
+        server->update();   @update
+    }
+    <...>
+}
+]]
+
+The call to the world `update` @NN(update) only applies if the game is not
+paused @NN(pause).
+Since the `update` propagates through the world hierarchy, skipping the call
+makes the world to pause.
+
+#### Céu
+
+In Céu, the button the event `go_pause_toggle` as a signalling mechanism
+[[![X]][ceu_input_ui]]:
+
+@CODE_LINES[[language=CEU,
+<...>
+var& RectComponent c = spawn RectComponent(<...>);
+spawn do
+    loop do
+        watching go_pause_toggle do     @but_11
+            spawn Sprite(<...>, "core/buttons/hbuttonbgb");
+            await c.component.on_click; @clk_1
+            emit go_pause_toggle;       @emt_1
+        end                             @but_12
+        watching go_pause_toggle do     @but_21
+            spawn Sprite(<...>, "core/buttons/hbuttonbg");
+            await c.component.on_click; @clk_2
+            emit go_pause_toggle;       @emt_2
+        end                             @but_22
+    end
+end
+<...>
+]]
+
+The button toggles between showing the dark @NN(but_11,-,but_12) and light
+@NN(but_21,-,but_22) backgrounds.
+The background changes when the the button is clicked @NN(clk_1,,clk_2) or
+when `go_pause_toggle` is emitted from a keyboard press @NN(but_11,,but_21).
+The button also broadcasts `go_pause_toggle` whenever it is clicked
+@NN(emt_1,,emt_2).
+
+The pause mechanism relies on two update events, `main.dt` and `game.dt`,
+for the main application and game world, respectively [[![X]][ceu_input_evt]]:
+
+@CODE_LINES[[language=CEU,
+event void go_pause_toggle;
+<...>
+spawn do
+    var bool is_paused = false;
+    par do
+        every outer.main.dt do              @dt1
+            <...>
+            if not is_paused then
+                emit outer.game.dt(<...>);  @dt
+            end
+        end                                 @dt2
+        <...>
+    with
+        every go_pause_toggle do
+            is_paused = not is_paused;
+        end
+    end
+end
+<...>
+]]
+
+World entities react to `game.dt`, while all other entities react to `main.dt`.
+If the game is paused, `game.dt` is not emitted @NN(dt) and no world entity
+updates.
+The `Sprite` abstraction receives a reference to use as its update event
+[[![X]][ceu_sprite]]:
+
+* The *Bomber* action uses `game.dt` [[![X]][ceu_bomber_sprite]], since it is a
+  world entity.
+* The *Armageddon* button uses `main.dt` [[![X]][ceu_armageddon_sprite]], since
+  it should not pause with the world entities.
+
+Using events helps on decoupling the button and pause as well as not using the
+dispatching hierarchy.
+
+<a name="signaling_2"/>
 
 @SEC[[
 ### Global Keys and the Options Menu
@@ -2159,148 +2304,6 @@ Note that the implementation in Céu does not check event emits to break the
 dependency cycle and prevent infinite execution.
 Due to the [stack-based execution for internal events][ceu_stack] in Céu,
 programs with mutually-dependent events cannot create infinite execution loops.
-
-<a name="signaling-2"/>
-
-@SEC[[
-### Pausing the World
-]]
-
-@FIG_NEW(pause-anim-opt.gif,
-         Pausing the world.,
-         350)
-
-In Pingus, clicking the *Pause* button at the bottom right of the screen
-pauses *only* world objects, such as the clouds and all pingus, but not other
-elements, such as the *Armageddon* button animation
-(@FIG_REF[[pause-anim-opt.gif]]).
-The button indicates the pause state with a different background and is also
-affected when the player presses `p` on the keyboard.
-
-#### C++
-
-In C++, the class `PauseButton` [[![X]][cpp_pausebutton]] handles clicks to
-toggle the game pause state and also checks the state when redrawing itself:
-
-@CODE_LINES[[language=CPP,
-PauseButton::PauseButton(GameSession s, <...>):
-    RectComponent(<...>),
-    session(s),
-    background("core/buttons/hbuttonbgb"),
-    backgroundhl("core/buttons/hbuttonbg"),
-    <...>
-{
-    <...>
-}
-
-void PauseButton::on_click (<...>) {
-    session->set_pause(!session->get_pause());
-}
-
-void PauseButton::draw (<...>) {
-    <...>
-    if (session->get_pause()) {
-        gc.draw(backgroundhl, <...>);
-    } else {
-        gc.draw(background, <...>);
-    }
-    <...>
-}
-]]
-
-The class `GameSession` [[![X]][cpp_gamesession]] handles keyboard presses and
-applies the pause state to the game:
-
-@CODE_LINES[[language=CPP,
-void GameSession::on_pause_press () {
-    set_pause(!get_pause());
-}
-
-void GameSession::update_server (<...>) {
-    <...>
-    if (!get_pause()) {     @pause
-        <...>
-        server->update();   @update
-    }
-    <...>
-}
-]]
-
-The call to the world `update` @NN(update) only applies if the game is not
-paused @NN(pause).
-Since the `update` propagates through the world hierarchy, skipping the call
-makes the world to pause.
-
-#### Céu
-
-In Céu, the button the event `go_pause_toggle` as a signalling mechanism
-[[![X]][ceu_input_ui]]:
-
-@CODE_LINES[[language=CEU,
-<...>
-var& RectComponent c = spawn RectComponent(<...>);
-spawn do
-    loop do
-        watching go_pause_toggle do     @but_11
-            spawn Sprite(<...>, "core/buttons/hbuttonbgb");
-            await c.component.on_click; @clk_1
-            emit go_pause_toggle;       @emt_1
-        end                             @but_12
-        watching go_pause_toggle do     @but_21
-            spawn Sprite(<...>, "core/buttons/hbuttonbg");
-            await c.component.on_click; @clk_2
-            emit go_pause_toggle;       @emt_2
-        end                             @but_22
-    end
-end
-<...>
-]]
-
-The button toggles between showing the dark @NN(but_11,-,but_12) and light
-@NN(but_21,-,but_22) backgrounds.
-The background changes when the the button is clicked @NN(clk_1,,clk_2) or
-when `go_pause_toggle` is emitted from a keyboard press @NN(but_11,,but_21).
-The button also broadcasts `go_pause_toggle` whenever it is clicked
-@NN(emt_1,,emt_2).
-
-The pause mechanism relies on two update events, `main.dt` and `game.dt`,
-for the main application and game world, respectively [[![X]][ceu_input_evt]]:
-
-@CODE_LINES[[language=CEU,
-event void go_pause_toggle;
-<...>
-spawn do
-    var bool is_paused = false;
-    par do
-        every outer.main.dt do              @dt1
-            <...>
-            if not is_paused then
-                emit outer.game.dt(<...>);  @dt
-            end
-        end                                 @dt2
-        <...>
-    with
-        every go_pause_toggle do
-            is_paused = not is_paused;
-        end
-    end
-end
-<...>
-]]
-
-World entities react to `game.dt`, while all other entities react to `main.dt`.
-If the game is paused, `game.dt` is not emitted @NN(dt) and no world entity
-updates.
-The `Sprite` abstraction receives a reference to use as its update event
-[[![X]][ceu_sprite]]:
-
-* The *Bomber* action uses `game.dt` [[![X]][ceu_bomber_sprite]], since it is a
-  world entity.
-* The *Armageddon* button uses `main.dt` [[![X]][ceu_armageddon_sprite]], since
-  it should not pause with the world entities.
-
-Using events helps on decoupling the button and pause as well as not using the
-dispatching hierarchy.
 
 <a name="signaling-summary"/>
 <br/>
