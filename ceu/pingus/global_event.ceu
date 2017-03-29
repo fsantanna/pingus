@@ -3,13 +3,10 @@
 #else
 #define _GLOBAL_EVENT_CEU
 
-#include "config_manager.ceu"
-
-class GlobalEvent with
-    var ConfigManager& config_manager;
-do
+spawn do
+    var _SDL_KeyboardEvent&& e;
     every e in SDL_KEYDOWN do
-        var _u8&& keystate = _XXX_PURE(_SDL_GetKeyState(null));
+        var _u8&& keystate = _SDL_GetKeyState(null);
 #if 0
   switch (event.keysym.sym)
   {
@@ -93,10 +90,10 @@ do
       }
       break;
 #endif
-            if e:keysym.sym == _SDLK_g then
-                if (keystate[_SDLK_LCTRL] or keystate[_SDLK_RCTRL]) then
-                    emit config_manager.go_mouse_grab =>
-                            not _config_manager.get_mouse_grab();
+            if e:keysym.sym == {SDLK_g} then
+                if ((keystate[{SDLK_LCTRL}] as bool) or (keystate[{SDLK_RCTRL}] as bool)) then
+                    emit config_manager.go_mouse_grab(
+                            not ({config_manager.get_mouse_grab()} as bool));
                 end
             end
 #if 0

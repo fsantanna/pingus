@@ -234,6 +234,7 @@ var IMain main = val IMain(&r.pub, _,_,_);
 #include "engine/input/sdl_driver.ceu"
 #include "engine/gui/rect_component.ceu"
 #include "pingus/config_manager.ceu"
+#include "pingus/global_event.ceu"
 
 #include "engine/display/surface.ceu"
 #include "engine/display/sprite.ceu"
@@ -271,15 +272,6 @@ end
 #include "pingus/screens/credits.ceu"
 #include "pingus/screens/story.ceu"
 #include "pingus/screens/worldmap/worldmap.ceu"
-
-#if 0
-#include "pingus/global_event.ceu"
-
-var ConfigManager config_manager;
-var GlobalEvent _ with
-    this.config_manager = &config_manager;
-end;
-#endif
 
 event bool go_pause;
 
