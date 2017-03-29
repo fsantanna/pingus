@@ -448,6 +448,8 @@ patterns that likely apply to other games:
     * [ [case 1](#dispatching-hierarchies-1) |
         [summary](#dispatching-hierarchies-summary) ]
 
+<!-- TODO: resize -->
+
 4. [**Lifespan Hierarchies**](#lifespan-hierarchies):
     Entities typically form a lifespan hierarchy in which a terminating
     container entity automatically destroys its managed children.
@@ -461,6 +463,8 @@ patterns that likely apply to other games:
     * [ [case 1](#signaling-1) |
         [summary](#signaling-summary) ]
 
+<!-- TODO: pause -->
+
 <!--
 6. [**Wall-Clock Timers**](#wall-clock-timers):
     Wall-clock timers measure the passage of time from the real world
@@ -472,6 +476,8 @@ patterns that likely apply to other games:
     Pausing allows parts of the game to temporarily stop reacting to incoming
     events.
     * [ [summary](#pausing-summary) ]
+
+<!-- TODO: pause button -->
 
 7. [**Resource Acquisition and Release**](#resource-acquisition-and-release):
     External resources, such as configuration files and saved games,
@@ -1883,61 +1889,23 @@ mechanism, especially if there is no hierarchy relationship between them.
 In Pingus, the *Mouse Grab* option restricts the mouse movement to the game 
 window boudaries (@FIG_REF[[options-anim-opt.gif]]).
 The option can be set anywhere in the game by pressing *Ctrl-G*.
-Also, the *Options* menu has a check box to toggle the *Mouse Grab* option, 
-which has to update automatically on *Ctrl-G* presses.
-
-<!-- SIGNALS vs EVENTS -->
+In addition, the *Options* menu has a check box to toggle the *Mouse Grab*
+option with mouse clicks while still responding to *Ctrl-G* presses.
 
 @FIG_NEW(events.png,
          Mutual dependecy between TODO,
          450)
 
-The implementations in C++ and Céu use a notification mechanism to propagate 
-state changes between the configuration manager (`ConfigManager` class) and the 
-check box component (`CheckBox` class).
+The implementations in C++ and Céu use a signalling mechanism to connect the
+key presses, the check box, and a configuration manager that applies the
+appropriate side effects in the game (i.e., restrict the mouse movement).
 @FIG_REF(events.png) illustrates how the mutual notifications create a 
-dependency cycle between the two classes.
+dependency cycle between the configuration manager and the check box.
 
-In C++, pressing *Ctrl-G* invokes the callback method 
-`ConfigManager::set_mouse_grab`, which broadcasts the signal 
-`ConfigManager::on_mouse_grab_change`, which implicitly invokes the callback 
-method `CheckBox::set_state`.
-Likewise, clicking in the check box invokes the callback method 
-`CheckBox::set_state`, which broadcasts the signal `CheckBox::on_change`, which 
-implicitly invokes the callback method `ConfigManager::set_mouse_grab`.
-As we show further, explicit condition tests in the callback methods break the 
-cycle to avoid infinite execution.
+<!-- CPP-GRAB -->
 
-In Céu, pressing *Ctrl-G* awakes a block of code (equivalent to 
-`ConfigManager::set_mouse_grab`) that broadcasts the internal event 
-`ConfigManager::toggle_grab`, which awakes a block of code that takes the 
-appropriate actions (equivalent to `CheckBox::set_state`).
-Likewise, clicking in the check box awakes a block of code (equivalent to 
-`CheckBox::set_state`) that broadcasts the internal event `CheckBox::go_click`, 
-which awakes a block of code that takes the appropriate actions (equivalent to 
-`ConfigManager::set_mouse_grab`).
-In Céu, programs with mutually-dependent internal events cannot create infinite 
-execution loops.
-
-<div class="box">
-The `event` keyword declares an internal event which applications can `emit` 
-and `await`.
-Internal events are TODO. stack vs queue
-</div>
-
-The classes
-`GlobalEvent`, `ConfigManager`, `CheckBox`, and `OptionMenu`
-interoperate for *Mouse Grab* behavior,
-and we discuss them as follows.
-
-<!-- GLOBAL_EVENT -->
-
-#### Class `GlobalEvent`
-
-The `GlobalEvent` detects events that apply to all game screens, such as 
-pressing *Ctrl-G*.
-The implementations in C++ and Céu are similar, i.e., standard event handling 
-to detect the key press:
+The class `GlobalEvent` in C++ [[![X]][cpp_global_event]] detects *Ctrl-G*
+presses and invokes the callback `config_manager.set_mouse_grab`:
 
 @CODE_LINES[[language=CPP,
 void GlobalEvent::on_button_press (<...>) {
@@ -1954,43 +1922,13 @@ void GlobalEvent::on_button_press (<...>) {
 }
 ]]
 
-@CODE_LINES[[language=CEU,reset=false,
-class GlobalEvent with
-    <...>
-do
-    every e in SDL_KEYDOWN do
-        <...>
-        if e:keysym.sym == _SDLK_g then
-            if (keystate[_SDLK_LCTRL] or keystate[_SDLK_RCTRL]) then
-                emit config_manager:go_mouse_grab =>    @ctrl_g_ceu
-                        not _config_manager.get_mouse_grab();
-            end
-        end
-        <...>
-    end
-end
-]]
-
-As @FIG_REF(events.png) illustrates,
-the implementation in C++ invokes the method `ConfigManager::set_mouse_grab` 
-@NN(ctrl_g_cpp),
-while
-the implementation in Céu broadcasts the event `ConfigManager::go_mouse_grab` 
-@NN(ctrl_g_ceu).
-
-<!-- CONFIG_MANAGER -->
-
-#### Class `ConfigManager`
-
-The `ConfigManager` manages all game configuration properties, such as the 
-*Mouse Grab* option.
-
-The implementation in C++ [[![X]][cpp_config_manager]] uses a `boost::signal` 
-[[![X]][boost_signal]] which serves the same purpose of internal events in Céu:
-
 <a name="cpp_config-manager"/>
 
-@CODE_LINES[[language=CPP,reset=false,
+The class `ConfigManager` [[![X]][cpp_config_manager]] uses a `boost::signal`
+[[![X]][boost_signal]] to notify the application when the new configuration is
+applied:
+
+@CODE_LINES[[language=CPP,
 boost::signals2::signal<void(bool)> on_mouse_grab_change;   // definition in `config_manager.h` @signal_def
 
 void ConfigManager::set_mouse_grab (bool v) {   @set_mouse_grab
@@ -2002,32 +1940,10 @@ void ConfigManager::set_mouse_grab (bool v) {   @set_mouse_grab
 }
 ]]
 
-Once the `GlobalEvent` detects a key press, it calls `set_mouse_grab` 
-@NN(set_mouse_grab) which broadcasts the signal `on_mouse_grab_change` 
-@NN(signal).
 The `if` enclosing the signal emission @NN(if_1,-,if_2) breaks the dependency 
-cycle of @FIG_REF(events.png) to avoid an infinite execution loop.
+cycle of @FIG_REF(events.png) and prevents the infinite execution loop.
 
-In Céu, since the class `GlobalEvent` already broadcasts the event
-`ConfigManager::go_mouse_grab`, the `ConfigManager` 
-[[![X]][ceu_config_manager]] just needs to react to it continuously to perform 
-the *grab* effect:
-
-@CODE_LINES[[language=CEU,reset=false,
-class ConfigManager with
-    event bool go_mouse_grab;
-do
-    every v in this.go_mouse_grab do
-        <...>   // the actual "grab" effect
-    end
-end
-]]
-
-<!-- CHECK_BOX -->
-
-#### Class `CheckBox`
-
-The `CheckBox` in C++ [[![X]][cpp_check_box]] also uses a `boost::signal` to 
+The class `CheckBox` [[![X]][cpp_check_box]] also uses a `boost::signal` to 
 notify the application on changes:
 
 <a name="cpp_check-box"/>
@@ -2046,43 +1962,8 @@ void CheckBox::set_state (bool is_on, bool send_signal) {   @last_argument
 Again, the `if` enclosing the signal emission @NN(if_cb_1,-,if_cb_2) breaks the 
 dependency cycle of @FIG_REF(events.png).
 
-The `CheckBox` in Céu [[![X]][ceu_check_box]] exposes the event `go_click` for 
-notifications in both directions, i.e., from the class to the application and 
-*vice versa*:
-
-@CODE_LINES[[language=CEU,reset=false,
-class CheckBox with
-    <...>
-    event bool go_click;
-do
-    <...>
-    par do
-        every component.on_primary_button_pressed do    @every_1
-            emit go_click => not this.is_on;            @dir_class_app
-        end                                             @every_2
-    with
-        loop do                                         @loop_1
-            <...>   // switches the check box state
-            this.is_on = await this.go_click;           @dir_app_class
-        end                                             @loop_2
-    end
-end
-]]
-
-The class reacts to external clicks continuously @NN(every_1,-,every_2) to 
-broadcast the event `go_click` @NN(dir_class_app).
-It also react continuously to `go_click` in another trail @NN(loop_1,-,loop_2), 
-which awakes from notifications from the first trail or from the application.
-
-<!-- OPTION_MENU -->
-
-#### Class `OptionMenu`
-
-The `OptionMenu` closes the loop between the signals in `ConfigManager` and 
-`CheckBox`.
-
-The implementation in C++ [[![X]][cpp_option_menu]] connects the two signals as 
-follows:
+The class `OptionMenu` [[![X]][cpp_option_menu]] creates the dependency loop by
+connecting the two signals:
 
 @CODE_LINES[[language=CPP,reset=false,
 typedef std::vector<boost::signals2::connection> Connections;   // definition in `option_menu.hpp`
@@ -2097,6 +1978,7 @@ OptionMenu::OptionMenu() :
     connections.push_back(                              @bind_11
         config_manager.on_mouse_grab_change.connect(
             std::bind(&CheckBox::set_state, mousegrab_box, <...>, false); @bind_false
+        )
     );                                                  @bind_12
     connections.push_back(                              @bind_21
         mousegrab_box->on_change.connect(
@@ -2117,11 +1999,11 @@ OptionMenu::~OptionMenu() {     @destr_1
 The constructor binds
 the signal `config_manager.on_mouse_grab_change` to the callback method
            `mousegrab_box->set_state`
-           @NN(bind_11,-,bind_22),
+           @NN(bind_11,-,bind_12),
 and also
 the signal `mousegrab_box->on_change` to the callback method
            `config_manager.set_mouse_grab`
-           @NN(bind_11,-,bind_22).
+           @NN(bind_21,-,bind_22).
 This way, every time the `ConfigManager` signals `on_mouse_grab_change`
 (ln. @N(signal) [up](#cpp_config-manager)), `set_state` is implicitly called.
 The same happens between the signal `on_change` in the `CheckBox` and the 
@@ -2129,13 +2011,86 @@ method `set_mouse_grab` in the `ConfigManager`
 (ln. @N(set_mouse_grab) [up](#cpp_config-manager)).
 
 Note that the signal binding to call `CheckBox::set_state` @NN(bind_false) 
-receives a fixed `false` as the last argument to prevent infinite execution 
-(ln. @N(last_argument) [up](#cpp_check-box)).
+receives a fixed value `false` as the last argument to prevent infinite
+execution (ln. @N(last_argument) [up](#cpp_check-box)).
 
-The destructor @NN(destr_1,-,destr_2) has to break the connections when the *Option*
+The destructor @NN(destr_1,-,destr_2) breaks the connections when the *Option*
 screen terminates.
 
-The implementation in Céu [[![X]][ceu_option_menu]] connects the two events as 
+<!-- CEU-GRAB -->
+
+Céu supports *internal events* as a signalling mechanism between lines of
+execution.
+A *Ctrl-G* key press broadcasts the internal event
+`config_manager.go_mouse_grab` to the application [[![X]][ceu_global_event]]:
+
+@CODE_LINES[[language=CEU,reset=false,
+spawn do
+    var _SDL_KeyboardEvent&& e;
+    every e in SDL_KEYDOWN do
+        var _u8&& keystate = _SDL_GetKeyState(null);
+        <...>
+        if e:keysym.sym == {SDLK_g} then
+            if ((keystate[{SDLK_LCTRL}] as bool) or (keystate[{SDLK_RCTRL}] as bool)) then
+                emit config_manager.go_mouse_grab(    @ctrl_g_ceu
+                        not ({config_manager.get_mouse_grab()} as bool));
+            end
+        end
+        <...>
+    end
+end
+]]
+
+The configuration manager [[![X]][ceu_config_manager]] just needs to react to
+`go_mouse_grab` continuously to perform the *grab* effect:
+
+@CODE_LINES[[language=CEU,reset=false,
+data ConfigManager with
+    event bool go_mouse_grab;
+end
+var ConfigManager config_manager = val ConfigManager(_);
+
+spawn do
+    var bool v;
+    every v in config_manager.go_mouse_grab do
+        <...>   // the actual "grab" effect
+    end
+end
+]]
+
+The `CheckBox` [[![X]][ceu_check_box]] exposes the event `go_click` for 
+notifications in both directions, i.e., from the class to the application and 
+*vice versa*:
+
+@CODE_LINES[[language=CEU,reset=false,
+data ICheckBox with
+    var   bool is_on;
+    event bool go_click;
+end
+
+code/await CheckBox (<...>) -> (var ICheckBox checkbox) -> FOREVER do
+    checkbox = val ICheckBox(<...>);
+    <...>
+    par do
+        every c.component.on_click do                   @every_1
+            emit checkbox.go_click(not checkbox.is_on); @dir_class_app
+        end                                             @every_2
+    with
+        loop do                                         @loop_1
+            <...>   // switches the check box state
+            checkbox.is_on = await checkbox.go_click;   @dir_app_class
+        end                                             @loop_2
+    end
+end
+]]
+
+The class reacts to external clicks continuously @NN(every_1,-,every_2) to 
+broadcast the event `go_click` @NN(dir_class_app).
+It also react continuously to `go_click` in another line of execution
+@NN(loop_1,-,loop_2), which awakes from notifications from the first line of
+execution or from the application.
+
+The `OptionMenu` [[![X]][ceu_option_menu]] connects the two events as 
 follows:
 
 @CODE_LINES[[language=CEU,reset=false,
@@ -2143,27 +2098,35 @@ class OptionMenu with
     <...>
 do
     <...>
-    var CheckBox b2 = <...>;
-    <...>
-    par do
-        every v in config_manager.go_mouse_grab do  @loop_11
-            emit b2.go_click => v;
-        end                                         @loop_12
-    with
-        every v in b2.go_click do                   @loop_21
-            emit config_manager.go_mouse_grab => v;
-        end                                         @loop_22
+    var& CheckBox b2 = <...>;
+    spawn do
+        par do
+            var bool v;
+            every v in outer.config_manager.go_mouse_grab do    @loop_11
+                emit b2.checkbox.go_click(v);
+            end                                                 @loop_12
+        with
+            var bool v;
+            every v in b2.checkbox.go_click do                  @loop_21
+                emit outer.config_manager.go_mouse_grab(v);
+            end                                                 @loop_22
+        end
     end
+    <...>
 end
 ]]
 
-The two loops parallel handle the connections in opposite directions:
-from the `ConfigManager` to the `CheckBox` @NN(loop_11,-,loop_12);
+The two loops in parallel handle the connections in opposite directions:
+from the configuration manager to the check box @NN(loop_11,-,loop_12);
 and
-from the `CheckBox` to the `ConfigManager` @NN(loop_21,-,loop_22).
+from the check box to the configuration manager @NN(loop_21,-,loop_22).
 
-When the *Option* screen terminates, its execution body aborts and the 
-connections break automatically.
+When the *Option* screen terminates, the connections break automatically.
+
+Note that the implementation in Céu does not check event emits to break the
+dependency cycle and prevent infinite execution.
+Due to the [stack-based execution for internal events][ceu_stack] in Céu,
+programs with mutually-dependent events cannot create infinite execution loops.
 
 <a name="signaling-summary"/>
 <br/>
@@ -2172,23 +2135,25 @@ connections break automatically.
 **Summary**:
 
 First-class internal events of Céu provide some advantages in comparison to 
-Boost signals of C++:
+Boost signals:
 
-* They use the same convenient syntax of external events 
-  (e.g., `emit`, `await`, `every`, etc.).
+* They use the same convenient syntax of external events (e.g., `emit`,
+    `await`, `every`, etc.).
 * They never create infinite dependency loops.
 * They do not require explicit unbinding.
 </div>
 
 [boost_signal]:http://www.boost.org/doc/libs/1_60_0/doc/html/signals2.html
 [cpp_global_event]:https://github.com/Pingus/pingus/blob/7b255840c201d028fd6b19a2185ccf7df3a2cd6e/src/pingus/global_event.cpp#L34
-[ceu_global_event]:https://github.com/fsantanna/pingus/blob/ceu/ceu/pingus/global_event.ceu#L4
+[ceu_global_event]:https://github.com/fsantanna/pingus/blob/ceu/ceu/pingus/global_event.ceu
 [cpp_config_manager]:https://github.com/Pingus/pingus/blob/7b255840c201d028fd6b19a2185ccf7df3a2cd6e/src/pingus/config_manager.cpp#L182
 [ceu_config_manager]:https://github.com/fsantanna/pingus/blob/ceu/ceu/pingus/config_manager.ceu#L4
 [cpp_option_menu]:https://github.com/Pingus/pingus/blob/7b255840c201d028fd6b19a2185ccf7df3a2cd6e/src/pingus/screens/option_menu.cpp#L79
-[ceu_option_menu]:https://github.com/fsantanna/pingus/blob/ceu/ceu/pingus/screens/option_menu.ceu#L26
+[ceu_option_menu]:https://github.com/fsantanna/pingus/blob/ceu/ceu/pingus/screens/options/options.ceu#L23
 [cpp_check_box]:https://github.com/Pingus/pingus/blob/7b255840c201d028fd6b19a2185ccf7df3a2cd6e/src/pingus/components/choice_box.cpp#L54
-[ceu_check_box]:https://github.com/fsantanna/pingus/blob/ceu/ceu/pingus/components/check_box.ceu#L4
+[ceu_check_box]: https://github.com/fsantanna/pingus/blob/ceu/ceu/pingus/screens/options/check_box.ceu
+[ceu_stack]: http://fsantanna.github.io/ceu/out/manual/v0.20/#internal-reactions
+
 
 <!--
 <a name="wall-clock-timers"/>

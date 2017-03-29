@@ -229,6 +229,9 @@ until we complete the rewriting process.
 <ul>
 <li>[ <a href="#dispatching-hierarchies-1">case 1</a> | <a href="#dispatching-hierarchies-summary">summary</a> ]</li>
 </ul></li>
+</ol>
+<!-- TODO: resize -->
+<ol start="4" style="list-style-type: decimal">
 <li><a href="#lifespan-hierarchies"><strong>Lifespan Hierarchies</strong></a>: Entities typically form a lifespan hierarchy in which a terminating container entity automatically destroys its managed children.
 <ul>
 <li>[ <a href="#lifespan-hierarchies-1">case 1</a> | <a href="#lifespan-hierarchies-2">case 2</a> | <a href="#lifespan-hierarchies-summary">summary</a> ]</li>
@@ -238,6 +241,7 @@ until we complete the rewriting process.
 <li>[ <a href="#signaling-1">case 1</a> | <a href="#signaling-summary">summary</a> ]</li>
 </ul></li>
 </ol>
+<!-- TODO: pause -->
 <!--
 6. [**Wall-Clock Timers**](#wall-clock-timers):
     Wall-clock timers measure the passage of time from the real world
@@ -249,6 +253,9 @@ until we complete the rewriting process.
 <ul>
 <li>[ <a href="#pausing-summary">summary</a> ]</li>
 </ul></li>
+</ol>
+<!-- TODO: pause button -->
+<ol start="7" style="list-style-type: decimal">
 <li><a href="#resource-acquisition-and-release"><strong>Resource Acquisition and Release</strong></a>: External resources, such as configuration files and saved games, must be acquired and properly released.
 <ul>
 <li>[ <a href="#resource-acquisition-and-release-summary">summary</a> ]</li>
@@ -1090,21 +1097,13 @@ Also, all memory required for static instances is known at compile time.
 <div class="images">
 <img src="images/options-anim-opt.gif" width="350"/> <br> <a href="images/options-anim-opt.gif"> Figure 16</a>: The <em>Mouse Grab</em> configuration option.
 </div>
-<p>In Pingus, the <em>Mouse Grab</em> option restricts the mouse movement to the game window boudaries (Figure 16). The option can be set anywhere in the game by pressing <em>Ctrl-G</em>. Also, the <em>Options</em> menu has a check box to toggle the <em>Mouse Grab</em> option, which has to update automatically on <em>Ctrl-G</em> presses.</p>
-<!-- SIGNALS vs EVENTS -->
+<p>In Pingus, the <em>Mouse Grab</em> option restricts the mouse movement to the game window boudaries (Figure 16). The option can be set anywhere in the game by pressing <em>Ctrl-G</em>. In addition, the <em>Options</em> menu has a check box to toggle the <em>Mouse Grab</em> option with mouse clicks while still responding to <em>Ctrl-G</em> presses.</p>
 <div class="images">
 <img src="images/events.png" width="450"/> <br> <a href="images/events.png"> Figure 17</a>: Mutual dependecy between TODO
 </div>
-<p>The implementations in C++ and Céu use a notification mechanism to propagate state changes between the configuration manager (<code>ConfigManager</code> class) and the check box component (<code>CheckBox</code> class). Figure 17 illustrates how the mutual notifications create a dependency cycle between the two classes.</p>
-<p>In C++, pressing <em>Ctrl-G</em> invokes the callback method <code>ConfigManager::set_mouse_grab</code>, which broadcasts the signal <code>ConfigManager::on_mouse_grab_change</code>, which implicitly invokes the callback method <code>CheckBox::set_state</code>. Likewise, clicking in the check box invokes the callback method <code>CheckBox::set_state</code>, which broadcasts the signal <code>CheckBox::on_change</code>, which implicitly invokes the callback method <code>ConfigManager::set_mouse_grab</code>. As we show further, explicit condition tests in the callback methods break the cycle to avoid infinite execution.</p>
-<p>In Céu, pressing <em>Ctrl-G</em> awakes a block of code (equivalent to <code>ConfigManager::set_mouse_grab</code>) that broadcasts the internal event <code>ConfigManager::toggle_grab</code>, which awakes a block of code that takes the appropriate actions (equivalent to <code>CheckBox::set_state</code>). Likewise, clicking in the check box awakes a block of code (equivalent to <code>CheckBox::set_state</code>) that broadcasts the internal event <code>CheckBox::go_click</code>, which awakes a block of code that takes the appropriate actions (equivalent to <code>ConfigManager::set_mouse_grab</code>). In Céu, programs with mutually-dependent internal events cannot create infinite execution loops.</p>
-<div class="box">
-<p>The <code>event</code> keyword declares an internal event which applications can <code>emit</code> and <code>await</code>. Internal events are TODO. stack vs queue</p>
-</div>
-<p>The classes <code>GlobalEvent</code>, <code>ConfigManager</code>, <code>CheckBox</code>, and <code>OptionMenu</code> interoperate for <em>Mouse Grab</em> behavior, and we discuss them as follows.</p>
-<!-- GLOBAL_EVENT -->
-<h4 id="class-globalevent">Class <code>GlobalEvent</code></h4>
-<p>The <code>GlobalEvent</code> detects events that apply to all game screens, such as pressing <em>Ctrl-G</em>. The implementations in C++ and Céu are similar, i.e., standard event handling to detect the key press:</p>
+<p>The implementations in C++ and Céu use a signalling mechanism to connect the key presses, the check box, and a configuration manager that applies the appropriate side effects in the game (i.e., restrict the mouse movement). Figure 17 illustrates how the mutual notifications create a dependency cycle between the configuration manager and the check box.</p>
+<!-- CPP-GRAB -->
+<p>The class <code>GlobalEvent</code> in C++ [<a href="https://github.com/Pingus/pingus/blob/7b255840c201d028fd6b19a2185ccf7df3a2cd6e/src/pingus/global_event.cpp#L34"><img src="images/link_12.png" alt="X" /></a>] detects <em>Ctrl-G</em> presses and invokes the callback <code>config_manager.set_mouse_grab</code>:</p>
 <pre><code><b><font size="-1" color="#666666"> 1:</font></b>  <b>void</b> GlobalEvent::on_button_press (<...>) {
 <b><font size="-1" color="#666666"> 2:</font></b>      <...>
 <b><font size="-1" color="#666666"> 3:</font></b>      <b>switch</b> (event.keysym.sym) {
@@ -1117,26 +1116,8 @@ Also, all memory required for static instances is known at compile time.
 <b><font size="-1" color="#666666">10:</font></b>          <...>
 <b><font size="-1" color="#666666">11:</font></b>      }
 <b><font size="-1" color="#666666">12:</font></b>  }</code></pre>
-<pre><code><b><font size="-1" color="#666666"> 1:</font></b>  class GlobalEvent <b>with</b>
-<b><font size="-1" color="#666666"> 2:</font></b>      <...>
-<b><font size="-1" color="#666666"> 3:</font></b>  <b>do</b>
-<b><font size="-1" color="#666666"> 4:</font></b>      <b>every</b> e <b>in</b> SDL_KEYDOWN <b>do</b>
-<b><font size="-1" color="#666666"> 5:</font></b>          <...>
-<b><font size="-1" color="#666666"> 6:</font></b>          <b>if</b> e:keysym.sym == _SDLK_g <b>then</b>
-<b><font size="-1" color="#666666"> 7:</font></b>              <b>if</b> (keystate[_SDLK_LCTRL] <b>or</b> keystate[_SDLK_RCTRL]) <b>then</b>
-<b><font size="-1" color="#666666"> 8:</font></b>                  <b>emit</b> config_manager:go_mouse_grab =>
-<b><font size="-1" color="#666666"> 9:</font></b>                          <b>not</b> _config_manager.get_mouse_grab();
-<b><font size="-1" color="#666666">10:</font></b>              <b>end</b>
-<b><font size="-1" color="#666666">11:</font></b>          <b>end</b>
-<b><font size="-1" color="#666666">12:</font></b>          <...>
-<b><font size="-1" color="#666666">13:</font></b>      <b>end</b>
-<b><font size="-1" color="#666666">14:</font></b>  <b>end</b></code></pre>
-<p>As Figure 17 illustrates, the implementation in C++ invokes the method <code>ConfigManager::set_mouse_grab</code> (ln. 6), while the implementation in Céu broadcasts the event <code>ConfigManager::go_mouse_grab</code> (ln. 8).</p>
-<!-- CONFIG_MANAGER -->
-<h4 id="class-configmanager">Class <code>ConfigManager</code></h4>
-<p>The <code>ConfigManager</code> manages all game configuration properties, such as the <em>Mouse Grab</em> option.</p>
-<p>The implementation in C++ [<a href="https://github.com/Pingus/pingus/blob/7b255840c201d028fd6b19a2185ccf7df3a2cd6e/src/pingus/config_manager.cpp#L182"><img src="images/link_12.png" alt="X" /></a>] uses a <code>boost::signal</code> [<a href="http://www.boost.org/doc/libs/1_60_0/doc/html/signals2.html"><img src="images/link_12.png" alt="X" /></a>] which serves the same purpose of internal events in Céu:</p>
 <p><a name="cpp_config-manager"/></p>
+<p>The class <code>ConfigManager</code> [<a href="https://github.com/Pingus/pingus/blob/7b255840c201d028fd6b19a2185ccf7df3a2cd6e/src/pingus/config_manager.cpp#L182"><img src="images/link_12.png" alt="X" /></a>] uses a <code>boost::signal</code> [<a href="http://www.boost.org/doc/libs/1_60_0/doc/html/signals2.html"><img src="images/link_12.png" alt="X" /></a>] to notify the application when the new configuration is applied:</p>
 <pre><code><b><font size="-1" color="#666666"> 1:</font></b>  boost::signals2::signal<<b>void</b>(<b>bool</b>)> on_mouse_grab_change;   // definition in `config_manager.h`
 <b><font size="-1" color="#666666"> 2:</font></b>  
 <b><font size="-1" color="#666666"> 3:</font></b>  <b>void</b> ConfigManager::set_mouse_grab (<b>bool</b> v) {
@@ -1146,18 +1127,8 @@ Also, all memory required for static instances is known at compile time.
 <b><font size="-1" color="#666666"> 7:</font></b>          on_mouse_grab_change(v);
 <b><font size="-1" color="#666666"> 8:</font></b>      }
 <b><font size="-1" color="#666666"> 9:</font></b>  }</code></pre>
-<p>Once the <code>GlobalEvent</code> detects a key press, it calls <code>set_mouse_grab</code> (ln. 3) which broadcasts the signal <code>on_mouse_grab_change</code> (ln. 7). The <code>if</code> enclosing the signal emission (ln. 5-8) breaks the dependency cycle of Figure 17 to avoid an infinite execution loop.</p>
-<p>In Céu, since the class <code>GlobalEvent</code> already broadcasts the event <code>ConfigManager::go_mouse_grab</code>, the <code>ConfigManager</code> [<a href="https://github.com/fsantanna/pingus/blob/ceu/ceu/pingus/config_manager.ceu#L4"><img src="images/link_12.png" alt="X" /></a>] just needs to react to it continuously to perform the <em>grab</em> effect:</p>
-<pre><code><b><font size="-1" color="#666666"> 1:</font></b>  class ConfigManager <b>with</b>
-<b><font size="-1" color="#666666"> 2:</font></b>      <b>event</b> <b>bool</b> go_mouse_grab;
-<b><font size="-1" color="#666666"> 3:</font></b>  <b>do</b>
-<b><font size="-1" color="#666666"> 4:</font></b>      <b>every</b> v <b>in</b> this.go_mouse_grab <b>do</b>
-<b><font size="-1" color="#666666"> 5:</font></b>          <...>   // the actual "grab" effect
-<b><font size="-1" color="#666666"> 6:</font></b>      <b>end</b>
-<b><font size="-1" color="#666666"> 7:</font></b>  <b>end</b></code></pre>
-<!-- CHECK_BOX -->
-<h4 id="class-checkbox">Class <code>CheckBox</code></h4>
-<p>The <code>CheckBox</code> in C++ [<a href="https://github.com/Pingus/pingus/blob/7b255840c201d028fd6b19a2185ccf7df3a2cd6e/src/pingus/components/choice_box.cpp#L54"><img src="images/link_12.png" alt="X" /></a>] also uses a <code>boost::signal</code> to notify the application on changes:</p>
+<p>The <code>if</code> enclosing the signal emission (ln. 5-8) breaks the dependency cycle of Figure 17 and prevents the infinite execution loop.</p>
+<p>The class <code>CheckBox</code> [<a href="https://github.com/Pingus/pingus/blob/7b255840c201d028fd6b19a2185ccf7df3a2cd6e/src/pingus/components/choice_box.cpp#L54"><img src="images/link_12.png" alt="X" /></a>] also uses a <code>boost::signal</code> to notify the application on changes:</p>
 <p><a name="cpp_check-box"/></p>
 <pre><code><b><font size="-1" color="#666666"> 1:</font></b>  boost::signals2::signal<<b>void</b> (<b>bool</b>)> on_change;   // definition in `check_box.hpp`
 <b><font size="-1" color="#666666"> 2:</font></b>  
@@ -1168,28 +1139,7 @@ Also, all memory required for static instances is known at compile time.
 <b><font size="-1" color="#666666"> 7:</font></b>      }
 <b><font size="-1" color="#666666"> 8:</font></b>  }</code></pre>
 <p>Again, the <code>if</code> enclosing the signal emission (ln. 5-7) breaks the dependency cycle of Figure 17.</p>
-<p>The <code>CheckBox</code> in Céu [<a href="https://github.com/fsantanna/pingus/blob/ceu/ceu/pingus/components/check_box.ceu#L4"><img src="images/link_12.png" alt="X" /></a>] exposes the event <code>go_click</code> for notifications in both directions, i.e., from the class to the application and <em>vice versa</em>:</p>
-<pre><code><b><font size="-1" color="#666666"> 1:</font></b>  class CheckBox <b>with</b>
-<b><font size="-1" color="#666666"> 2:</font></b>      <...>
-<b><font size="-1" color="#666666"> 3:</font></b>      <b>event</b> <b>bool</b> go_click;
-<b><font size="-1" color="#666666"> 4:</font></b>  <b>do</b>
-<b><font size="-1" color="#666666"> 5:</font></b>      <...>
-<b><font size="-1" color="#666666"> 6:</font></b>      <b>par</b> <b>do</b>
-<b><font size="-1" color="#666666"> 7:</font></b>          <b>every</b> component.on_primary_button_pressed <b>do</b>
-<b><font size="-1" color="#666666"> 8:</font></b>              <b>emit</b> go_click => <b>not</b> this.is_on;
-<b><font size="-1" color="#666666"> 9:</font></b>          <b>end</b>
-<b><font size="-1" color="#666666">10:</font></b>      <b>with</b>
-<b><font size="-1" color="#666666">11:</font></b>          <b>loop</b> <b>do</b>
-<b><font size="-1" color="#666666">12:</font></b>              <...>   // switches the check box state
-<b><font size="-1" color="#666666">13:</font></b>              this.is_on = <b>await</b> this.go_click;
-<b><font size="-1" color="#666666">14:</font></b>          <b>end</b>
-<b><font size="-1" color="#666666">15:</font></b>      <b>end</b>
-<b><font size="-1" color="#666666">16:</font></b>  <b>end</b></code></pre>
-<p>The class reacts to external clicks continuously (ln. 7-9) to broadcast the event <code>go_click</code> (ln. 8). It also react continuously to <code>go_click</code> in another trail (ln. 11-14), which awakes from notifications from the first trail or from the application.</p>
-<!-- OPTION_MENU -->
-<h4 id="class-optionmenu">Class <code>OptionMenu</code></h4>
-<p>The <code>OptionMenu</code> closes the loop between the signals in <code>ConfigManager</code> and <code>CheckBox</code>.</p>
-<p>The implementation in C++ [<a href="https://github.com/Pingus/pingus/blob/7b255840c201d028fd6b19a2185ccf7df3a2cd6e/src/pingus/screens/option_menu.cpp#L79"><img src="images/link_12.png" alt="X" /></a>] connects the two signals as follows:</p>
+<p>The class <code>OptionMenu</code> [<a href="https://github.com/Pingus/pingus/blob/7b255840c201d028fd6b19a2185ccf7df3a2cd6e/src/pingus/screens/option_menu.cpp#L79"><img src="images/link_12.png" alt="X" /></a>] creates the dependency loop by connecting the two signals:</p>
 <pre><code><b><font size="-1" color="#666666"> 1:</font></b>  <b>typedef</b> std::vector<boost::signals2::connection> Connections;   // definition in `option_menu.hpp`
 <b><font size="-1" color="#666666"> 2:</font></b>  Connections connections;                                        // definition in `option_menu.hpp`
 <b><font size="-1" color="#666666"> 3:</font></b>  
@@ -1202,47 +1152,102 @@ Also, all memory required for static instances is known at compile time.
 <b><font size="-1" color="#666666">10:</font></b>      connections.push_back(
 <b><font size="-1" color="#666666">11:</font></b>          config_manager.on_mouse_grab_change.connect(
 <b><font size="-1" color="#666666">12:</font></b>              std::bind(&CheckBox::set_state, mousegrab_box, <...>, <b>false</b>);
-<b><font size="-1" color="#666666">13:</font></b>      );
-<b><font size="-1" color="#666666">14:</font></b>      connections.push_back(
-<b><font size="-1" color="#666666">15:</font></b>          mousegrab_box->on_change.connect(
-<b><font size="-1" color="#666666">16:</font></b>              std::bind(&ConfigManager::set_mouse_grab, &config_manager, <...>);
-<b><font size="-1" color="#666666">17:</font></b>          )
-<b><font size="-1" color="#666666">18:</font></b>      );
-<b><font size="-1" color="#666666">19:</font></b>      <...>
-<b><font size="-1" color="#666666">20:</font></b>  
-<b><font size="-1" color="#666666">21:</font></b>  }
-<b><font size="-1" color="#666666">22:</font></b>  
-<b><font size="-1" color="#666666">23:</font></b>  OptionMenu::~OptionMenu() {
-<b><font size="-1" color="#666666">24:</font></b>      <b>for</b> (Connections::iterator i=connections.begin(); i!=connections.end(); ++i) {
-<b><font size="-1" color="#666666">25:</font></b>          (*i).disconnect();
-<b><font size="-1" color="#666666">26:</font></b>      }
-<b><font size="-1" color="#666666">27:</font></b>  }</code></pre>
-<p>The constructor binds the signal <code>config_manager.on_mouse_grab_change</code> to the callback method <code>mousegrab_box-&gt;set_state</code> (ln. 10-18), and also the signal <code>mousegrab_box-&gt;on_change</code> to the callback method <code>config_manager.set_mouse_grab</code> (ln. 10-18). This way, every time the <code>ConfigManager</code> signals <code>on_mouse_grab_change</code> (ln. 7 <a href="#cpp_config-manager">up</a>), <code>set_state</code> is implicitly called. The same happens between the signal <code>on_change</code> in the <code>CheckBox</code> and the method <code>set_mouse_grab</code> in the <code>ConfigManager</code> (ln. 3 <a href="#cpp_config-manager">up</a>).</p>
-<p>Note that the signal binding to call <code>CheckBox::set_state</code> (ln. 12) receives a fixed <code>false</code> as the last argument to prevent infinite execution (ln. 3 <a href="#cpp_check-box">up</a>).</p>
-<p>The destructor (ln. 23-27) has to break the connections when the <em>Option</em> screen terminates.</p>
-<p>The implementation in Céu [<a href="https://github.com/fsantanna/pingus/blob/ceu/ceu/pingus/screens/option_menu.ceu#L26"><img src="images/link_12.png" alt="X" /></a>] connects the two events as follows:</p>
+<b><font size="-1" color="#666666">13:</font></b>          )
+<b><font size="-1" color="#666666">14:</font></b>      );
+<b><font size="-1" color="#666666">15:</font></b>      connections.push_back(
+<b><font size="-1" color="#666666">16:</font></b>          mousegrab_box->on_change.connect(
+<b><font size="-1" color="#666666">17:</font></b>              std::bind(&ConfigManager::set_mouse_grab, &config_manager, <...>);
+<b><font size="-1" color="#666666">18:</font></b>          )
+<b><font size="-1" color="#666666">19:</font></b>      );
+<b><font size="-1" color="#666666">20:</font></b>      <...>
+<b><font size="-1" color="#666666">21:</font></b>  
+<b><font size="-1" color="#666666">22:</font></b>  }
+<b><font size="-1" color="#666666">23:</font></b>  
+<b><font size="-1" color="#666666">24:</font></b>  OptionMenu::~OptionMenu() {
+<b><font size="-1" color="#666666">25:</font></b>      <b>for</b> (Connections::iterator i=connections.begin(); i!=connections.end(); ++i) {
+<b><font size="-1" color="#666666">26:</font></b>          (*i).disconnect();
+<b><font size="-1" color="#666666">27:</font></b>      }
+<b><font size="-1" color="#666666">28:</font></b>  }</code></pre>
+<p>The constructor binds the signal <code>config_manager.on_mouse_grab_change</code> to the callback method <code>mousegrab_box-&gt;set_state</code> (ln. 10-14), and also the signal <code>mousegrab_box-&gt;on_change</code> to the callback method <code>config_manager.set_mouse_grab</code> (ln. 15-19). This way, every time the <code>ConfigManager</code> signals <code>on_mouse_grab_change</code> (ln. 7 <a href="#cpp_config-manager">up</a>), <code>set_state</code> is implicitly called. The same happens between the signal <code>on_change</code> in the <code>CheckBox</code> and the method <code>set_mouse_grab</code> in the <code>ConfigManager</code> (ln. 3 <a href="#cpp_config-manager">up</a>).</p>
+<p>Note that the signal binding to call <code>CheckBox::set_state</code> (ln. 12) receives a fixed value <code>false</code> as the last argument to prevent infinite execution (ln. 3 <a href="#cpp_check-box">up</a>).</p>
+<p>The destructor (ln. 24-28) breaks the connections when the <em>Option</em> screen terminates.</p>
+<!-- CEU-GRAB -->
+<p>Céu supports <em>internal events</em> as a signalling mechanism between lines of execution. A <em>Ctrl-G</em> key press broadcasts the internal event <code>config_manager.go_mouse_grab</code> to the application [<a href="https://github.com/fsantanna/pingus/blob/ceu/ceu/pingus/global_event.ceu"><img src="images/link_12.png" alt="X" /></a>]:</p>
+<pre><code><b><font size="-1" color="#666666"> 1:</font></b>  <b>spawn</b> <b>do</b>
+<b><font size="-1" color="#666666"> 2:</font></b>      <b>var</b> _SDL_KeyboardEvent&& e;
+<b><font size="-1" color="#666666"> 3:</font></b>      <b>every</b> e <b>in</b> SDL_KEYDOWN <b>do</b>
+<b><font size="-1" color="#666666"> 4:</font></b>          <b>var</b> _u8&& keystate = _SDL_GetKeyState(null);
+<b><font size="-1" color="#666666"> 5:</font></b>          <...>
+<b><font size="-1" color="#666666"> 6:</font></b>          <b>if</b> e:keysym.sym == {SDLK_g} <b>then</b>
+<b><font size="-1" color="#666666"> 7:</font></b>              <b>if</b> ((keystate[{SDLK_LCTRL}] as <b>bool</b>) <b>or</b> (keystate[{SDLK_RCTRL}] as <b>bool</b>)) <b>then</b>
+<b><font size="-1" color="#666666"> 8:</font></b>                  <b>emit</b> config_manager.go_mouse_grab(
+<b><font size="-1" color="#666666"> 9:</font></b>                          <b>not</b> ({config_manager.get_mouse_grab()} as <b>bool</b>));
+<b><font size="-1" color="#666666">10:</font></b>              <b>end</b>
+<b><font size="-1" color="#666666">11:</font></b>          <b>end</b>
+<b><font size="-1" color="#666666">12:</font></b>          <...>
+<b><font size="-1" color="#666666">13:</font></b>      <b>end</b>
+<b><font size="-1" color="#666666">14:</font></b>  <b>end</b></code></pre>
+<p>The configuration manager [<a href="https://github.com/fsantanna/pingus/blob/ceu/ceu/pingus/config_manager.ceu#L4"><img src="images/link_12.png" alt="X" /></a>] just needs to react to <code>go_mouse_grab</code> continuously to perform the <em>grab</em> effect:</p>
+<pre><code><b><font size="-1" color="#666666"> 1:</font></b>  data ConfigManager <b>with</b>
+<b><font size="-1" color="#666666"> 2:</font></b>      <b>event</b> <b>bool</b> go_mouse_grab;
+<b><font size="-1" color="#666666"> 3:</font></b>  <b>end</b>
+<b><font size="-1" color="#666666"> 4:</font></b>  <b>var</b> ConfigManager config_manager = val ConfigManager(_);
+<b><font size="-1" color="#666666"> 5:</font></b>  
+<b><font size="-1" color="#666666"> 6:</font></b>  <b>spawn</b> <b>do</b>
+<b><font size="-1" color="#666666"> 7:</font></b>      <b>var</b> <b>bool</b> v;
+<b><font size="-1" color="#666666"> 8:</font></b>      <b>every</b> v <b>in</b> config_manager.go_mouse_grab <b>do</b>
+<b><font size="-1" color="#666666"> 9:</font></b>          <...>   // the actual "grab" effect
+<b><font size="-1" color="#666666">10:</font></b>      <b>end</b>
+<b><font size="-1" color="#666666">11:</font></b>  <b>end</b></code></pre>
+<p>The <code>CheckBox</code> [<a href="https://github.com/fsantanna/pingus/blob/ceu/ceu/pingus/screens/options/check_box.ceu"><img src="images/link_12.png" alt="X" /></a>] exposes the event <code>go_click</code> for notifications in both directions, i.e., from the class to the application and <em>vice versa</em>:</p>
+<pre><code><b><font size="-1" color="#666666"> 1:</font></b>  data ICheckBox <b>with</b>
+<b><font size="-1" color="#666666"> 2:</font></b>      <b>var</b>   <b>bool</b> is_on;
+<b><font size="-1" color="#666666"> 3:</font></b>      <b>event</b> <b>bool</b> go_click;
+<b><font size="-1" color="#666666"> 4:</font></b>  <b>end</b>
+<b><font size="-1" color="#666666"> 5:</font></b>  
+<b><font size="-1" color="#666666"> 6:</font></b>  <b>code</b>/<b>await</b> CheckBox (<...>) -> (<b>var</b> ICheckBox checkbox) -> FOREVER <b>do</b>
+<b><font size="-1" color="#666666"> 7:</font></b>      checkbox = val ICheckBox(<...>);
+<b><font size="-1" color="#666666"> 8:</font></b>      <...>
+<b><font size="-1" color="#666666"> 9:</font></b>      <b>par</b> <b>do</b>
+<b><font size="-1" color="#666666">10:</font></b>          <b>every</b> c.component.on_click <b>do</b>
+<b><font size="-1" color="#666666">11:</font></b>              <b>emit</b> checkbox.go_click(<b>not</b> checkbox.is_on);
+<b><font size="-1" color="#666666">12:</font></b>          <b>end</b>
+<b><font size="-1" color="#666666">13:</font></b>      <b>with</b>
+<b><font size="-1" color="#666666">14:</font></b>          <b>loop</b> <b>do</b>
+<b><font size="-1" color="#666666">15:</font></b>              <...>   // switches the check box state
+<b><font size="-1" color="#666666">16:</font></b>              checkbox.is_on = <b>await</b> checkbox.go_click;
+<b><font size="-1" color="#666666">17:</font></b>          <b>end</b>
+<b><font size="-1" color="#666666">18:</font></b>      <b>end</b>
+<b><font size="-1" color="#666666">19:</font></b>  <b>end</b></code></pre>
+<p>The class reacts to external clicks continuously (ln. 10-12) to broadcast the event <code>go_click</code> (ln. 11). It also react continuously to <code>go_click</code> in another line of execution (ln. 14-17), which awakes from notifications from the first line of execution or from the application.</p>
+<p>The <code>OptionMenu</code> [<a href="https://github.com/fsantanna/pingus/blob/ceu/ceu/pingus/screens/options/options.ceu#L23"><img src="images/link_12.png" alt="X" /></a>] connects the two events as follows:</p>
 <pre><code><b><font size="-1" color="#666666"> 1:</font></b>  class OptionMenu <b>with</b>
 <b><font size="-1" color="#666666"> 2:</font></b>      <...>
 <b><font size="-1" color="#666666"> 3:</font></b>  <b>do</b>
 <b><font size="-1" color="#666666"> 4:</font></b>      <...>
-<b><font size="-1" color="#666666"> 5:</font></b>      <b>var</b> CheckBox b2 = <...>;
-<b><font size="-1" color="#666666"> 6:</font></b>      <...>
-<b><font size="-1" color="#666666"> 7:</font></b>      <b>par</b> <b>do</b>
-<b><font size="-1" color="#666666"> 8:</font></b>          <b>every</b> v <b>in</b> config_manager.go_mouse_grab <b>do</b>
-<b><font size="-1" color="#666666"> 9:</font></b>              <b>emit</b> b2.go_click => v;
-<b><font size="-1" color="#666666">10:</font></b>          <b>end</b>
-<b><font size="-1" color="#666666">11:</font></b>      <b>with</b>
-<b><font size="-1" color="#666666">12:</font></b>          <b>every</b> v <b>in</b> b2.go_click <b>do</b>
-<b><font size="-1" color="#666666">13:</font></b>              <b>emit</b> config_manager.go_mouse_grab => v;
-<b><font size="-1" color="#666666">14:</font></b>          <b>end</b>
-<b><font size="-1" color="#666666">15:</font></b>      <b>end</b>
-<b><font size="-1" color="#666666">16:</font></b>  <b>end</b></code></pre>
-<p>The two loops parallel handle the connections in opposite directions: from the <code>ConfigManager</code> to the <code>CheckBox</code> (ln. 8-10); and from the <code>CheckBox</code> to the <code>ConfigManager</code> (ln. 12-14).</p>
-<p>When the <em>Option</em> screen terminates, its execution body aborts and the connections break automatically.</p>
+<b><font size="-1" color="#666666"> 5:</font></b>      <b>var</b>& CheckBox b2 = <...>;
+<b><font size="-1" color="#666666"> 6:</font></b>      <b>spawn</b> <b>do</b>
+<b><font size="-1" color="#666666"> 7:</font></b>          <b>par</b> <b>do</b>
+<b><font size="-1" color="#666666"> 8:</font></b>              <b>var</b> <b>bool</b> v;
+<b><font size="-1" color="#666666"> 9:</font></b>              <b>every</b> v <b>in</b> <b>outer</b>.config_manager.go_mouse_grab <b>do</b>
+<b><font size="-1" color="#666666">10:</font></b>                  <b>emit</b> b2.checkbox.go_click(v);
+<b><font size="-1" color="#666666">11:</font></b>              <b>end</b>
+<b><font size="-1" color="#666666">12:</font></b>          <b>with</b>
+<b><font size="-1" color="#666666">13:</font></b>              <b>var</b> <b>bool</b> v;
+<b><font size="-1" color="#666666">14:</font></b>              <b>every</b> v <b>in</b> b2.checkbox.go_click <b>do</b>
+<b><font size="-1" color="#666666">15:</font></b>                  <b>emit</b> <b>outer</b>.config_manager.go_mouse_grab(v);
+<b><font size="-1" color="#666666">16:</font></b>              <b>end</b>
+<b><font size="-1" color="#666666">17:</font></b>          <b>end</b>
+<b><font size="-1" color="#666666">18:</font></b>      <b>end</b>
+<b><font size="-1" color="#666666">19:</font></b>      <...>
+<b><font size="-1" color="#666666">20:</font></b>  <b>end</b></code></pre>
+<p>The two loops in parallel handle the connections in opposite directions: from the configuration manager to the check box (ln. 9-11); and from the check box to the configuration manager (ln. 14-16).</p>
+<p>When the <em>Option</em> screen terminates, the connections break automatically.</p>
+<p>Note that the implementation in Céu does not check event emits to break the dependency cycle and prevent infinite execution. Due to the <a href="http://fsantanna.github.io/ceu/out/manual/v0.20/#internal-reactions">stack-based execution for internal events</a> in Céu, programs with mutually-dependent events cannot create infinite execution loops.</p>
 <p><a name="signaling-summary"/> <br/></p>
 <div class="summary">
 <p><strong>Summary</strong>:</p>
-<p>First-class internal events of Céu provide some advantages in comparison to Boost signals of C++:</p>
+<p>First-class internal events of Céu provide some advantages in comparison to Boost signals:</p>
 <ul>
 <li>They use the same convenient syntax of external events (e.g., <code>emit</code>, <code>await</code>, <code>every</code>, etc.).</li>
 <li>They never create infinite dependency loops.</li>
