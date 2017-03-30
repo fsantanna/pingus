@@ -942,13 +942,13 @@ explicit state machines:
 * They handle all states (and only them) in the same contiguous block,
   improving code encapsulation.
 
-Pingus supports 16 actions in the game, including the *Bomber*.
-5 of them (`Bomber`, `Bridger`, `Drown`, `Exiter`, and `Splashed`) implement
-some form of state machine and are 43% smaller in Céu (206 vs 117 lines of
-code).
+Pingus supports 16 actions in the game, including the *Bomber*:
+5 of them <!--(`Bomber`, `Bridger`, `Drown`, `Exiter`, and `Splashed`)-->
+implement some form of state machine and are 43% smaller in Céu (206 vs 117
+lines of code).
 Considering the other 11 actions, the reduction is under 5% only (447 vs 424
 lines of code).
-This a asymmetry illustrates how expressive describing state machines in direct
+This asymmetry illustrates how expressive describing state machines in direct
 style can be.
 
 <!--
@@ -2073,7 +2073,7 @@ mechanism, especially if there is no hierarchy relationship between them.
 
 @FIG_NEW(pause-anim-opt.gif,
          Pausing the world.,
-         350)
+         250)
 
 A click in the *Pause* button at the bottom right of the screen pauses all
 world objects, such as the clouds and pingus, but not other elements, such as

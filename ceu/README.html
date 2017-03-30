@@ -546,7 +546,7 @@ productivity.
 <li>They encode all states with direct sequential code, not requiring state variables.</li>
 <li>They handle all states (and only them) in the same contiguous block, improving code encapsulation.</li>
 </ul>
-<p>Pingus supports 16 actions in the game, including the <em>Bomber</em>. 5 of them (<code>Bomber</code>, <code>Bridger</code>, <code>Drown</code>, <code>Exiter</code>, and <code>Splashed</code>) implement some form of state machine and are 43% smaller in Céu (206 vs 117 lines of code). Considering the other 11 actions, the reduction is under 5% only (447 vs 424 lines of code). This a asymmetry illustrates how expressive describing state machines in direct style can be.</p>
+<p>Pingus supports 16 actions in the game, including the <em>Bomber</em>: 5 of them <!--(`Bomber`, `Bridger`, `Drown`, `Exiter`, and `Splashed`)--> implement some form of state machine and are 43% smaller in Céu (206 vs 117 lines of code). Considering the other 11 actions, the reduction is under 5% only (447 vs 424 lines of code). This asymmetry illustrates how expressive describing state machines in direct style can be.</p>
 <!--
 The complete implementations for the *Bomber* action in C++ and Céu are 50 and
 19 lines of code, respectively [[![X]][diff_bomber]].
@@ -1267,7 +1267,7 @@ Also, all memory required for static instances is known at compile time.
 <p><a name="signaling_1"/></p>
 <h3 id="pausing-the-world">5.1) Pausing the World</h3>
 <div class="images">
-<img src="images/pause-anim-opt.gif" width="350"/> <br> <a href="images/pause-anim-opt.gif"> Figure 16</a>: Pausing the world.
+<img src="images/pause-anim-opt.gif" width="250"/> <br> <a href="images/pause-anim-opt.gif"> Figure 16</a>: Pausing the world.
 </div>
 <p>A click in the <em>Pause</em> button at the bottom right of the screen pauses all world objects, such as the clouds and pingus, but not other elements, such as the <em>Armageddon</em> button animation (Figure 16). The button indicates its state with different backgrounds and is also affected when the player presses <code>P</code> on the keyboard.</p>
 <h4 id="c-7">C++</h4>
