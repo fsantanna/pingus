@@ -455,8 +455,8 @@ likely apply to other games:
     Entities typically form a dispatching hierarchy in which a container entity
     that receives a stimulus automatically forwards it to its managed children.
     * [ [case 1](#dispatching-hierarchies-1) |
-        [`TODO-resize`](#dispatching_hierarchies_2) |
-        [summary](#dispatching-hierarchies-summary) ]
+        <!-- [`TODO-resize`](#dispatching_hierarchies_2) | -->
+        [summary](#dispatching_hierarchies_summary) ]
 
 4. [**Lifespan Hierarchies**](#lifespan-hierarchies):
     Entities typically form a lifespan hierarchy in which a terminating
@@ -1500,7 +1500,7 @@ variable `gfx_exploded` and forward the `draw` method down to the child sprite
 `TODO: SDL_RESIZE`
 -->
 
-<a name="dispatching-hierarchies-summary"/>
+<a name="dispatching_hierarchies_summary"/>
 <br/>
 
 <div class="summary">
@@ -1521,6 +1521,143 @@ that makes the reasoning about the program harder:
 Abstractions in Céu can react directly to the environment, not depending on
 hierarchies spread across multiple files.
 
+In C++, the update subsystem touches 39 files with around 100 lines of code
+just to forward `update` methods through the dispatching hierarchy
+(e.g., class `GroupComponent` [[![X]][cpp_groupcomponent_update]]).
+For the drawing subsystem, 50 files with around 300 lines of code
+(e.g., class `ArmageddonButton` [[![X]][cpp_armageddon_draw]]).
+The implementation in C++ also relies on dispatching hierarchy for `resize`
+callbacks, touching 12 files with around 100 lines of code
+(e.g., class `StartScreen` [[![X]][cpp_startscreen_resize]]).
+Most of this code is eliminated in Céu.
+
+<!--
+Many of these files mix dispatching with state manipulation,
+In Céu, forwarding is eliminated
+forwarding disapper, ex...
+state disappear but are simplified and moved into the control flow
+-->
+
+<!--
+    RESIZE
+    engine/screen            3
+    engine/display          13
+    engine/screen_manager    4
+    engine/gui_screen        4
+    pingus/pingus_menu       9
+    pingus/level_menu       10
+    pingus/result_screen    12
+    pingus/option_menu      21
+    pingus/game_session     11
+    pingus/story_screen      7
+    pingus/start_screen      5
+    pingus/worldmap_screen   4
+                            ==
+                        12  103
+
+    DRAW
+    engine/gui_screen        5
+    engine/surface_button    9
+    engine/group_component   5
+    pingus/layer_manager     5-2
+    pingus/story_screen      4
+    pingus/start_screen      3+3+1
+    pingus/pingus_counter    3-2
+    pingus/button_panel      8
+    pingus/smallmap          1
+    pingus/check_box         5
+    pingus/menu_button       6
+    pingus/choice_box        5
+    pingus/action_button     11+9+9
+    pingus/pingu_holder      7
+    pingus/world             3
+    pingus/capture_rectangle 14
+    pingus/smoke_partile     11
+    pingus/pingu_partile     7
+    pingus/pingu             1
+    pingus/level_menu        1+7+15+1
+    pingus/result_screen     1+1+1
+    pingus/worldmap/
+        story_dot            3+1
+        level_dot           17
+        worldmap_screen      2
+        worldmap             6
+        pingus              16
+    actions/
+        basher               3
+        blocker              3
+        boarder              3
+        bomber               6
+        bridger             12
+        climber              3
+        digger               3
+        drown                3
+        exiter               3
+        faller               7
+        floater              3
+        jumper               3
+        miner                3
+        slider               3
+        smashed              3
+        splashed             3
+        waiter               3
+        walker               6
+    worldobjs/
+        exit                 4
+        guillotine          11
+        hotspot              3
+        entrance             5
+        smasher              3
+        spike                5
+                            ==
+                        50  307
+
+    UPDATE
+    engine/gui_manager       3
+    engine/group_component   7
+    engine/screen_manager    2
+    engine/gui_screen        4
+    pingus/layer_manager     5
+    pingus/pingus_menu       3
+    pingus/game_session      1+1
+    pingus/smallmap          3
+    pingus/button_panel      5
+    pingus/action_button     1
+    pingus/server            4
+    pingus/layer_manager     5
+    pingus/pingu_holder      1
+    pingus/world             3
+    pingus/state_sprite      5
+    pingus/pingu             1
+    worldmap/
+        worldmap_scrren      1
+        worldmap             5
+        pingus              11
+    actions/
+        basher               1
+        blocker              1
+        bomber               2
+        bridger             10
+        climber              1
+        digger               1
+        drown                1
+        exiter               1
+        faller               6
+        floater              1
+        miner                1
+        slider               3
+        smashed              1
+        splashed             1
+        waiter               1
+        walker               2
+    worldobjs/
+        exit                 1
+        guillotine           3
+        hotspot              3
+        spike                3
+                            ==
+                        39  115
+-->
 </div>
 
 <!--* TODO: efficiency?-->
@@ -1544,6 +1681,10 @@ hierarchies spread across multiple files.
 [cpp_sprite_1]: https://github.com/Pingus/pingus/blob/7b255840c201d028fd6b19a2185ccf7df3a2cd6e/src/engine/display/sprite_impl.cpp#L112
 [cpp_worldobj]: https://github.com/Pingus/pingus/blob/7b255840c201d028fd6b19a2185ccf7df3a2cd6e/src/pingus/worldobj.hpp#L34
 [cpp_bomber_explo]: https://github.com/Pingus/pingus/blob/7b255840c201d028fd6b19a2185ccf7df3a2cd6e/src/pingus/actions/bomber.cpp#L50
+
+[cpp_groupcomponent_update]: https://github.com/Pingus/pingus/blob/7b255840c201d028fd6b19a2185ccf7df3a2cd6e/src/engine/gui/group_component.cpp#L58
+[cpp_armageddon_draw]: https://github.com/Pingus/pingus/blob/7b255840c201d028fd6b19a2185ccf7df3a2cd6e/src/pingus/components/action_button.cpp#L42
+[cpp_startscreen_resize]: https://github.com/Pingus/pingus/blob/7b255840c201d028fd6b19a2185ccf7df3a2cd6e/src/pingus/components/action_button.cpp#L42
 
 @SEC[[lifespan-hierarchies,
 ## Lifespan Hierarchies
