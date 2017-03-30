@@ -1,0 +1,24 @@
+code/await MenuButton (var int x, var int y, var _char_const_ptr text, var _char_const_ptr hint) -> (event void ok_clicked) -> FOREVER do
+    var& RRect r1 = spawn RRect(IRRect(Rect(x,y, _,_), AnchorXY(AnchorX.Center(), AnchorY.Center()), &outer.main.rect, AnchorXY(AnchorX.Center(), AnchorY.Center()), _, _));
+    var&? Sprite_from_name bg = spawn Sprite_from_name(&r1.pub, "core/menu/menuitem", &outer.main.dt);
+    var& RectComponent component = spawn RectComponent(&r1.pub);
+    par do
+        every component.component.on_click do
+            emit ok_clicked;
+        end
+    with
+        loop do
+            await component.component.on_pointer_enter;
+            {Sound::PingusSound::play_sound ("tick");};
+            do
+                spawn Sprite_from_name(&r1.pub, "core/menu/menuitem_highlight", &outer.main.dt);
+                await component.component.on_pointer_leave;
+            end
+        end
+    with
+        every outer.main.redraw do
+            call {Fonts::chalk_large}.render( {origin_top_center}, r1.pub.abs.x + r1.pub.abs.w/2, r1.pub.abs.y + r1.pub.abs.h/2 - 28, text, *{Display::s_framebuffer});
+        end
+    end
+end
+

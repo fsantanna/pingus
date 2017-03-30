@@ -1,0 +1,77 @@
+code/await PingusMenuBackground (void) -> FOREVER do
+    var float x1 = 0;
+    var float y1 = 0;
+    var float x2 = 0;
+    var float y2 = 150;
+    var float x3 = 0;
+    var float y3 = 200;
+    var float x4 = 0;
+    var float y4 = 429;
+    var float x5 = 0;
+    var float y5 = 500;
+    var& Surface_from_name s1 = spawn Surface_from_name("core/menu/layer1",_);
+    var& Surface_from_name s2 = spawn Surface_from_name("core/menu/layer2",_);
+    var& Surface_from_name s3 = spawn Surface_from_name("core/menu/layer3",_);
+    var& Surface_from_name s4 = spawn Surface_from_name("core/menu/layer4",_);
+    var& Surface_from_name s5 = spawn Surface_from_name("core/menu/layer5",_);
+    par do
+        var int v;
+        every v in outer.main.dt do
+            var float dt = (v as float)/1000;
+            x1 = {Math::mod}(x1+ 12*dt, outer.main.rect.abs.w);
+            x2 = {Math::mod}(x2+ 25*dt, outer.main.rect.abs.w);
+            x3 = {Math::mod}(x3+ 50*dt, outer.main.rect.abs.w);
+            x4 = {Math::mod}(x4+100*dt, outer.main.rect.abs.w);
+            x5 = {Math::mod}(x5+200*dt, outer.main.rect.abs.w);
+        end
+    with
+        every outer.main.redraw do
+            call {Display::s_framebuffer}:draw_surface( s1.surface.framebuffer, _Vector2i(x1, y1));
+            call {Display::s_framebuffer}:draw_surface( s1.surface.framebuffer, _Vector2i(x1-outer.main.rect.abs.w, y1));
+            call {Display::s_framebuffer}:draw_surface( s2.surface.framebuffer, _Vector2i(x2, y2));
+            call {Display::s_framebuffer}:draw_surface( s2.surface.framebuffer, _Vector2i(x2-outer.main.rect.abs.w, y2));
+            call {Display::s_framebuffer}:draw_surface( s3.surface.framebuffer, _Vector2i(x3, y3));
+            call {Display::s_framebuffer}:draw_surface( s3.surface.framebuffer, _Vector2i(x3-outer.main.rect.abs.w, y3));
+            call {Display::s_framebuffer}:draw_surface( s4.surface.framebuffer, _Vector2i(x4, y4));
+            call {Display::s_framebuffer}:draw_surface( s4.surface.framebuffer, _Vector2i(x4-outer.main.rect.abs.w, y4));
+            call {Display::s_framebuffer}:draw_surface( s5.surface.framebuffer, _Vector2i(x5, y5));
+            call {Display::s_framebuffer}:draw_surface( s5.surface.framebuffer, _Vector2i(x5-outer.main.rect.abs.w, y5));
+        end
+    end
+end
+code/await PingusMenu (void) -> int do
+    spawn PingusMenuBackground();
+    var& RRect rect = spawn RRect(IRRect(Rect(0,20, _,_), AnchorXY(AnchorX.Center(), AnchorY.Top()), &outer.main.rect, AnchorXY(AnchorX.Center(), AnchorY.Top()), _,_));
+     var&? Sprite_from_name logo = spawn Sprite_from_name(&rect.pub,"core/misc/logo",&outer.main.dt);
+    {Sound::PingusSound::play_music("pingus-1.it");};
+    var& MenuButton b_story     = spawn MenuButton(-125, -20, "Story",     "");
+    var& MenuButton b_editor    = spawn MenuButton( 125, -20, "Editor",    "");
+    var& MenuButton b_levelsets = spawn MenuButton(-125,  50, "Levelsets", "");
+    var& MenuButton b_options   = spawn MenuButton( 125,  50, "Options",   "");
+    var& MenuButton b_exit      = spawn MenuButton(   0, 120, "Exit",      "");
+    par do
+        await b_story.ok_clicked;
+        escape {PINGUSMENU_STORY};
+    with
+        await b_editor.ok_clicked;
+        {Sound::PingusSound::stop_music();};
+        escape {PINGUSMENU_EDITOR};
+    with
+        loop do
+            await b_options.ok_clicked;
+            emit outer.main.go_options;     // this will pause me
+        end
+    with
+        await b_levelsets.ok_clicked;
+        escape {PINGUSMENU_LEVELSETS};
+    with
+        await b_exit.ok_clicked;
+        escape {PINGUSMENU_EXIT};
+    with
+        every outer.main.redraw do
+            call {Fonts::pingus_small}.render( _origin_top_left, outer.main.rect.abs.w/2 - 400 + 25, outer.main.rect.abs.h   - 140, { "Pingus " VERSION " - Copyright (C) 1998-2011 Ingo Ruhnke <grumbelATgmail.com>\n" "See the file AUTHORS for a complete list of contributors.\n" "Pingus comes with ABSOLUTELY NO WARRANTY. This is free software, and you are\n" "welcome to redistribute it under certain conditions; see the file COPYING for details.\n" }, *{Display::s_framebuffer});
+            call {Display::s_framebuffer}:draw_rect( _Rect(0, outer.main.rect.abs.h - 26, outer.main.rect.abs.w, outer.main.rect.abs.h), _Color(0, 0, 0, 255));
+            call {Fonts::pingus_small}.render( _origin_top_center, outer.main.rect.abs.w/2, outer.main.rect.abs.h - {Fonts::pingus_small.get_height()} - 8, "..:: Ctrl-g: mouse grab   ::   F10: fps counter   ::   F11: fullscreen   ::   F12: screenshot ::..", *{Display::s_framebuffer});
+        end
+    end
+end
