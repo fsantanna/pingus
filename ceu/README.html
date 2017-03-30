@@ -546,10 +546,38 @@ productivity.
 <li>They encode all states with direct sequential code, not requiring state variables.</li>
 <li>They handle all states (and only them) in the same contiguous block, improving code encapsulation.</li>
 </ul>
-<p><code>TODO: other uses, LoCs</code></p>
+<p>Pingus supports 16 actions in the game, including the <em>Bomber</em>. 5 of them (<code>Bomber</code>, <code>Bridger</code>, <code>Drown</code>, <code>Exiter</code>, and <code>Splashed</code>) implement some form of state machine and are 43% smaller in Céu (206 vs 117 lines of code). Considering the other 11 actions, the reduction is under 5% only (447 vs 424 lines of code). This a asymmetry illustrates how expressive describing state machines in direct style can be.</p>
 <!--
 The complete implementations for the *Bomber* action in C++ and Céu are 50 and
 19 lines of code, respectively [[![X]][diff_bomber]].
+
+           C++     CEU
+Basher      72      74      i%3, i%2, no gains in LoC, C++ mix
+Blocker     35      29      draw/update
+Bomber      50      23      draw/update, 4-var
+Bridger    100      75      draw/update, 2-var
+Climber     28      26      draw/update
+Digger      45      43      draw/update
+Drown       15       6      draw/update, finished
+Exiter      22       7      draw/update, finished, 1-var
+Faller      60      52      draw/update, mover, seq
+Floater     17      14      draw/update
+Jumper      21      22      draw/update
+Miner       43      44      draw/update
+Slider      31      31      draw/update
+Splashed    19       6      draw/update, finisher, 1-var
+Waiter      17      12      draw/update
+Walker      78      77      draw/update
+    16     653     541      83%
+     5     206     117      57%
+    11     447     424      95%
+
+Entrance    72      61      draw/update
+Exit        36      40      draw/update
+Guillotine  51      39      draw/update, finished
+Hotspot     14      12      draw/update
+Smasher     62      62      draw/update
+Spike       35      27      draw/update, killing
 -->
 </div>
 <p><a name="continuation-passing"/></p>
@@ -839,8 +867,7 @@ TODO: falar de broadcast (in Ceu: unless it is paused, all receive always)
 <b><font size="-1" color="#666666"> 3:</font></b>      <b>var</b>&? Sprite sprite = <b>spawn</b> Sprite(<...>);
 <b><font size="-1" color="#666666"> 4:</font></b>      <...>
 <b><font size="-1" color="#666666"> 5:</font></b>  <b>end</b></code></pre>
-<p>The <code>Sprite</code> instance (ln. 3) can react directly to external <code>update</code> [<a href="https://github.com/fsantanna/pingus/blob/ceu/ceu/engine/display/sprite.ceu#L71"><img src="images/link_12.png" alt="X" /></a>] and <code>draw</code> [<a href="https://github.com/fsantanna/pingus/blob/ceu/ceu/engine/display/sprite.ceu#L94"><img src="images/link_12.png" alt="X" /></a>] events, bypassing the program hierarchy entirely.</p>
-<p>The radical decoupling between the program hierarchy and external reactions completely eliminates dispatching chains.</p>
+<p>The <code>Sprite</code> instance (ln. 3) can react directly to external <code>update</code> [<a href="https://github.com/fsantanna/pingus/blob/ceu/ceu/engine/display/sprite.ceu#L71"><img src="images/link_12.png" alt="X" /></a>] and <code>draw</code> [<a href="https://github.com/fsantanna/pingus/blob/ceu/ceu/engine/display/sprite.ceu#L94"><img src="images/link_12.png" alt="X" /></a>] events, bypassing the program hierarchy entirely. The radical decoupling between the program hierarchy and external reactions completely eliminates dispatching chains.</p>
 <!--
 For instance, we removed from the game engine most of the boilerplate related
 to event dispatching ([[![X]][TODO]]).

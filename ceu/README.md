@@ -942,11 +942,46 @@ explicit state machines:
 * They handle all states (and only them) in the same contiguous block,
   improving code encapsulation.
 
-`TODO: other uses, LoCs`
+Pingus supports 16 actions in the game, including the *Bomber*.
+5 of them (`Bomber`, `Bridger`, `Drown`, `Exiter`, and `Splashed`) implement
+some form of state machine and are 43% smaller in Céu (206 vs 117 lines of
+code).
+Considering the other 11 actions, the reduction is under 5% only (447 vs 424
+lines of code).
+This a asymmetry illustrates how expressive describing state machines in direct
+style can be.
 
 <!--
 The complete implementations for the *Bomber* action in C++ and Céu are 50 and
 19 lines of code, respectively [[![X]][diff_bomber]].
+
+           C++     CEU
+Basher      72      74      i%3, i%2, no gains in LoC, C++ mix
+Blocker     35      29      draw/update
+Bomber      50      23      draw/update, 4-var
+Bridger    100      75      draw/update, 2-var
+Climber     28      26      draw/update
+Digger      45      43      draw/update
+Drown       15       6      draw/update, finished
+Exiter      22       7      draw/update, finished, 1-var
+Faller      60      52      draw/update, mover, seq
+Floater     17      14      draw/update
+Jumper      21      22      draw/update
+Miner       43      44      draw/update
+Slider      31      31      draw/update
+Splashed    19       6      draw/update, finisher, 1-var
+Waiter      17      12      draw/update
+Walker      78      77      draw/update
+    16     653     541      83%
+     5     206     117      57%
+    11     447     424      95%
+
+Entrance    72      61      draw/update
+Exit        36      40      draw/update
+Guillotine  51      39      draw/update, finished
+Hotspot     14      12      draw/update
+Smasher     62      62      draw/update
+Spike       35      27      draw/update, killing
 -->
 
 </div>
@@ -1445,7 +1480,6 @@ end
 The `Sprite` instance @NN(dcl) can react directly to external `update`
 [[![X]][ceu_sprite_update]] and `draw` [[![X]][ceu_sprite_redraw]] events,
 bypassing the program hierarchy entirely.
-
 The radical decoupling between the program hierarchy and external reactions
 completely eliminates dispatching chains.
 
