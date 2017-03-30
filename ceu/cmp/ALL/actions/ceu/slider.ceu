@@ -1,0 +1,31 @@
+code/await Slider (void) -> _ActionName__Enum do
+    vector[] byte left  = [] .. "pingus/player" .. (call Pingu_Get_Owner_Str() as _char&&) .. "/slider/left";
+    vector[] byte right = [] .. "pingus/player" .. (call Pingu_Get_Owner_Str() as _char&&) .. "/slider/right";
+    spawn RightLeftSprites(&outer.pingu.rect, &outer.pingu.direction, &left, &left, &right, &outer.game.dt);
+    var float speed = SLIDER_SPEED;
+    loop do
+        await outer.game.dt;
+        loop/SLIDER_SPEED _ in [0 -> (speed as int)[ do
+            if call Pingu_Rel_Getpixel(1,0) != {Groundtype::GP_NOTHING} then
+                break;
+            end
+            outer.pingu.rect.off.x = outer.pingu.rect.off.x + (outer.pingu.direction as int);
+            emit outer.pingu.rect.changed;
+            if (call Pingu_Rel_Getpixel(0,-1) == {Groundtype::GP_NOTHING}) then
+                if speed <= 5 then
+                    speed = 5;
+                end
+                if (outer.pingu.direction == {RIGHT}) then
+                    outer.pingu.velocity.x = outer.pingu.velocity.x + speed;
+                else
+                    outer.pingu.velocity.x = outer.pingu.velocity.x - speed;
+                end
+                escape {ActionName::FALLER};
+            end
+            speed = speed - 7*0.025;
+            if (speed < 1) then
+                escape {ActionName::WALKER};
+            end
+        end
+    end
+end

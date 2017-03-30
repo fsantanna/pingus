@@ -1,0 +1,75 @@
+code/await Bridger (void) -> _ActionName__Enum do
+    var int bricks = {BRIDGER_MAX_BRICKS};
+    vector[] byte name = [] .. "Bridger (" ..  (({StringUtil::to_string}(bricks).c_str()) as _char&&) ..  ")";
+    var int i;
+    loop i in [1 -> {BRIDGER_MAX_BRICKS}] do
+        do/_
+            vector[] byte left  = [] .. "pingus/player" .. (call Pingu_Get_Owner_Str() as _char&&) .. "/bridger/left";
+            vector[] byte right = [] .. "pingus/player" .. (call Pingu_Get_Owner_Str() as _char&&) .. "/bridger/right";
+            var&? RightLeftSprites builds = spawn RightLeftSprites(&outer.pingu.rect, &outer.pingu.direction, &left, &left, &right, &outer.game.dt);
+            var&? Sprite_from_name s;
+            loop s in builds!.sprites do
+                break;
+            end
+            await outer.game.dt until s!.sprite.frame == 7;
+            if call Brick_Placement_Allowed() then
+                call Place_A_Brick(); // me.bricks--;
+            else
+                call Pingu_Toggle_Direction();
+                escape {ActionName::WALKER};
+            end
+            await builds;
+        end
+        if i == {BRIDGER_MAX_BRICKS} then
+            escape {ActionName::WAITER};
+        end
+        do/_
+            vector[] byte left  = [] .. "pingus/player" .. (call Pingu_Get_Owner_Str() as _char&&) .. "/bridger_walk/left";
+            vector[] byte right = [] .. "pingus/player" .. (call Pingu_Get_Owner_Str() as _char&&) .. "/bridger_walk/right";
+            await RightLeftSprites(&outer.pingu.rect, &outer.pingu.direction, &left, &left, &right, &outer.game.dt);
+            if not call Way_Is_Free() then
+                call Pingu_Toggle_Direction();
+                escape {ActionName::WALKER};
+            end
+            call Walk_One_Step_Up();
+        end
+    end
+    escape {ActionName::WALKER};
+    code/tight Way_Is_Free (void) -> bool do
+        var bool way_free = true;
+        var int x_inc;
+        loop x_inc in [1 -> 4] do
+            if call Pingu_Rel_Getpixel(x_inc, 2) != {Groundtype::GP_NOTHING} or call Pingu_Head_Collision_On_Walk(x_inc, 2) then
+                way_free = false;
+                break;
+            end
+        end
+        escape way_free;
+    end
+    code/tight Brick_Placement_Allowed (void) -> bool do
+        escape not call Pingu_Head_Collision_On_Walk(0, 2);
+    end
+    code/tight Place_A_Brick (void) -> void do
+        outer.bricks = outer.bricks - 1;
+        outer.pingu.name = [] .. "Bridger (" ..  ({StringUtil::to_string}(outer.bricks).c_str()) as _char&& ..  ")";
+        if outer.bricks < 4 then
+            { Sound::PingusSound::play_sound("ting"); };
+        end
+        {
+            static CollisionMask brick_l("other/brick_left");
+            static CollisionMask brick_r("other/brick_right");
+        };
+        if outer.pingu.direction == {RIGHT} then
+            call Game_Put({&brick_r}, outer.pingu.rect.off.x + 10 - {brick_r.get_width()}, outer.pingu.rect.off.y, {Groundtype::GP_BRIDGE}
+            );
+        else
+            call Game_Put({&brick_l}, outer.pingu.rect.off.x - 10, outer.pingu.rect.off.y, {Groundtype::GP_BRIDGE}
+            );
+        end
+    end
+    code/tight Walk_One_Step_Up (void) -> void do
+        outer.pingu.rect.off.x = outer.pingu.rect.off.x + (4*(outer.pingu.direction as int));
+        outer.pingu.rect.off.y = outer.pingu.rect.off.y - 2;
+        emit outer.pingu.rect.changed;
+    end
+end

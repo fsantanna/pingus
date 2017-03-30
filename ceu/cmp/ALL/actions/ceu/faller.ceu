@@ -1,0 +1,52 @@
+code/await Faller (void) -> _ActionName__Enum do
+    par do
+        loop do
+            await outer.game.dt;
+            if (outer.pingu.velocity.y > 5.0) then
+                var _ActionName__Enum fall_action = outer.fall_action;
+                if fall_action != {ActionName::NONE} then
+                    escape fall_action;
+                end
+            end
+            outer.pingu.velocity.y = outer.pingu.velocity.y + outer.game.gravity;
+        end
+    with
+        var& Mover mover = spawn Mover();
+        loop do
+            await mover.ok_collided;
+await outer.game.dt;
+            if call Pingu_Rel_Getpixel(0,-1) == {Groundtype::GP_NOTHING} and call Pingu_Rel_Getpixel(0,-2) == {Groundtype::GP_NOTHING} and call Pingu_Rel_Getpixel(0,-3) == {Groundtype::GP_NOTHING} and call Pingu_Rel_Getpixel(1, 0) != {Groundtype::GP_NOTHING} and call Pingu_Rel_Getpixel(1, 0) != {Groundtype::GP_BRIDGE} then
+                outer.pingu.velocity.x = -(outer.pingu.velocity.x / 3.0);
+                if (outer.pingu.velocity.x > 0.0) then
+                    outer.pingu.direction = {RIGHT};
+                else
+                    outer.pingu.direction = {LEFT};
+                end
+            else/if (outer.pingu.velocity.y > 0.0) then
+                if outer.pingu.previous_action == {ActionName::BLOCKER} then
+                    escape {ActionName::BLOCKER};
+                else
+                    escape {ActionName::WALKER};
+                end
+            else // if (velocity.y < 0.0f)
+                outer.pingu.velocity.y = 0;
+                outer.pingu.velocity.x = (outer.pingu.velocity.x / 3.0);
+            end
+        end
+    with
+        do
+            vector[] byte left  = [] .. "pingus/player" .. call Pingu_Get_Owner_Str() as _char&& .. "/faller/left";
+            vector[] byte right = [] .. "pingus/player" .. call Pingu_Get_Owner_Str() as _char&& .. "/faller/right";
+            spawn RightLeftSprites(&outer.pingu.rect, &outer.pingu.direction, &left, &left, &right, &outer.game.dt);
+            await outer.game.dt until call Is_Tumbling();
+        end
+        do
+            vector[] byte left  = [] .. "pingus/player" .. call Pingu_Get_Owner_Str() as _char&& .. "/tumbler/left";
+            vector[] byte right = [] .. "pingus/player" .. call Pingu_Get_Owner_Str() as _char&& .. "/tumbler/right";
+            await RightLeftSprites(&outer.pingu.rect, &outer.pingu.direction, &left, &left, &right, &outer.game.dt);
+        end
+    end
+    code/tight Is_Tumbling (void) -> bool do
+        escape {Math::abs(@outer.pingu.velocity.x) > deadly_velocity || Math::abs(@outer.pingu.velocity.y) > deadly_velocity} as bool;
+    end
+end

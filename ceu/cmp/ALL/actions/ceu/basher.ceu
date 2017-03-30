@@ -1,0 +1,74 @@
+code/await Basher (void) -> _ActionName__Enum do
+    vector[] byte left  = [] .. "pingus/player" .. (call Pingu_Get_Owner_Str() as _char&&) .. "/basher/left";
+    vector[] byte right = [] .. "pingus/player" .. (call Pingu_Get_Owner_Str() as _char&&) .. "/basher/right";
+    var&? RightLeftSprites sprites = spawn RightLeftSprites(&outer.pingu.rect, &outer.pingu.direction, &left, &left, &right, &outer.game.dt);
+    var int? bash_reach; // set in bash
+    call Bash();
+    var bool is_first_bash = true;
+    var int i;
+    loop i do
+        await outer.game.dt;
+        await outer.game.dt;
+        await outer.game.dt;
+        if not call Walk_Forward() then
+            escape {ActionName::FALLER};
+        end
+        if call Pingu_Rel_Getpixel(0,-1) != {Groundtype::GP_NOTHING} then
+            if call Pingu_Rel_Getpixel(0,0) == {Groundtype::GP_SOLID} or call Pingu_Rel_Getpixel(0,{pingu_height}) == {Groundtype::GP_SOLID} then
+                { Sound::PingusSound::play_sound("chink"); };
+                call Pingu_Toggle_Direction();
+                escape {ActionName::WALKER};
+            else/if is_first_bash or call Have_Something_To_Dig() then
+                is_first_bash = false;
+                if i%2 == 1 then
+                    call Bash();
+                end
+            else
+                var&? Sprite_from_name s;
+                loop s in sprites!.sprites do
+                    break;
+                end
+                if ((s!.sprite.frame as float) / (call Get_Frame_Count(&s!.sprite))) > 0.6 then
+                    escape {ActionName::WALKER};
+                end
+            end
+        end
+    end
+    code/tight Bash (void) -> void do
+        { static CollisionMask bash_radius( "pingus/common/bash_radius_gfx", "pingus/common/bash_radius"); };
+        outer.bash_reach = {bash_radius.get_width()};
+        call Game_Remove({&bash_radius}, outer.pingu.rect.off.x - {bash_radius.get_width() / 2}, outer.pingu.rect.off.y - {bash_radius.get_height()} + 1);
+    end
+    code/tight Walk_Forward (void) -> bool do
+        var int y_inc = do
+            var int i;
+            loop i in [0 -> BASHER_MAX_STEPS_DOWN] do
+                if call Pingu_Rel_Getpixel(0,-i-1) != {Groundtype::GP_NOTHING} then
+                    escape -i;
+                end
+            end
+            escape -BASHER_MAX_STEPS_DOWN-1;
+        end;
+        if y_inc < -BASHER_MAX_STEPS_DOWN then
+            escape false;
+        else
+            outer.pingu.rect.off.x = outer.pingu.rect.off.x + (outer.pingu.direction as int);
+            outer.pingu.rect.off.y = outer.pingu.rect.off.y - y_inc;
+            emit outer.pingu.rect.changed;
+        end
+        escape true;
+    end
+    code/tight Have_Something_To_Dig (void) -> bool do
+        var int x;
+        loop x in [0 -> outer.bash_reach!] do
+            var int y;
+            loop y in [BASHER_MIN_BASH_HEIGHT -> BASHER_MAX_BASH_HEIGHT] do
+                if call Pingu_Rel_Getpixel(x, y) == {Groundtype::GP_GROUND} then
+                    _log_debug("Basher: Found something to dig...");
+                    escape true;
+                end
+            end
+        end
+        escape false;
+    end
+end

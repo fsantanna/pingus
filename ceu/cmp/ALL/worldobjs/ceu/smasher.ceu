@@ -1,0 +1,62 @@
+code/await Smasher (void) -> FOREVER do
+    { WORLDOBJ_FACTORY_READER.read_vector("position", p); }
+    var Vector2i pst = val Vector2i({p.x}, {p.y});
+    do
+        {
+            DO
+                CollisionMask buf("traps/smasher_cmap");
+        }
+        call Game_Put({&buf}, pst.x, pst.y, {Groundtype::GP_SOLID});
+        {
+            END
+        }
+    end
+    var& RRect rect = spawn RRect(IRRect(Rect(pst.x,pst.y,_,_), AnchorXY(AnchorX.Left(), AnchorY.Top()), &outer.game.offset, AnchorXY(AnchorX.Center(), AnchorY.Center()), _, _));
+    loop do
+        var int ok = do
+            var&? Sprite_from_name sprite = spawn Sprite_from_name(&rect.pub,"traps/smasher",&outer.game.dt);
+            sprite!.sprite.frame_delay = 0;
+            loop do
+                await outer.game.dt;
+                var&? Pingu pingu;
+                loop pingu in outer.pingus do
+                    if ((pingu!.pingu.direction == {LEFT}    and pingu!.pingu.rect.off.x > pst.x + 65 and pingu!.pingu.rect.off.x < pst.x + 85) or (pingu!.pingu.direction == {RIGHT}    and pingu!.pingu.rect.off.x > pst.x + 190 and pingu!.pingu.rect.off.x < pst.x + 210)) then
+                        if (pingu!.pingu.current_action != {ActionName::SPLASHED}) then
+                            escape 1;
+                        end
+                    end
+                end
+            end
+        end;
+        do
+            var&? Sprite_from_name sprite = spawn Sprite_from_name(&rect.pub,"traps/smasher",&outer.game.dt);
+            do
+                var int i;
+                loop i in [0 -> 6[ do
+                    await outer.game.dt;
+                    sprite!.sprite.frame = i;
+                end
+            end
+            call {Sound::PingusSound::play_sound}("tenton");
+            do
+                var int i;
+                loop i in [0 -> 20[ do
+                    spawn SmokeParticle(pst.x + 20 + (_rand() % 260), pst.y + 180, {Math::frand()-0.5f}, {Math::frand()-0.5f}) in outer.smoke_particles;
+                end
+            end
+            var&? Pingu pingu;
+            loop pingu in outer.pingus do
+                if (call pingu!.Pingu_Is_Inside((pst.x +  30), (pst.y +  90), (pst.x + 250), (pst.y + 190))) then
+                    emit pingu!.pingu.go_action({ActionName::SPLASHED});
+                end
+            end
+            do
+                var int i;
+                loop i in [0 <- 5] do
+                    await outer.game.dt;
+                    sprite!.sprite.frame = i;
+                end
+            end
+        end
+    end
+end

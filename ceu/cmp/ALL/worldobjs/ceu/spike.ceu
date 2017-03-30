@@ -1,0 +1,27 @@
+code/await Spike (void) -> FOREVER
+do
+    { WORLDOBJ_FACTORY_READER.read_vector("position", p); }
+    var Vector2i pst = val Vector2i({p.x}, {p.y});
+    loop do
+        loop do
+            await outer.game.dt;
+            var&? Pingu p;
+            loop p in outer.pingus do
+                if (p!.pingu.rect.off.x > pst.x+16-5 and p!.pingu.rect.off.x < pst.x+16+5 and p!.pingu.rect.off.y > pst.y      and p!.pingu.rect.off.y < pst.y + 32) then
+                    var& RRect rect = spawn RRect(IRRect(Rect(pst.x,pst.y,_,_), AnchorXY(AnchorX.Left(), AnchorY.Top()), &outer.game.offset, AnchorXY(AnchorX.Center(), AnchorY.Center()), _, _));
+                    var&? Sprite_from_name s = spawn Sprite_from_name(&rect.pub, "traps/spike", &outer.game.dt);
+                    watching s, p do
+                        loop do
+                            await outer.game.dt;
+                            if (s!.sprite.frame == 3 and p!.pingu.rect.off.x > pst.x+16-12 and p!.pingu.rect.off.x < pst.x+16+12 and p!.pingu.rect.off.y > pst.y       and p!.pingu.rect.off.y < pst.y+32) then
+                                break;
+                            end
+                        end
+                        emit p!.pingu.go_action({ActionName::DEAD});
+                        await FOREVER;
+                    end
+                end
+            end
+        end
+    end
+end

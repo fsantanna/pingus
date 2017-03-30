@@ -1,0 +1,29 @@
+code/await Blocker (void) -> _ActionName__Enum do
+    vector[] byte left  = [] .. "pingus/player" .. (call Pingu_Get_Owner_Str() as _char&&) .. "/blocker/left";
+    vector[] byte right = [] .. "pingus/player" .. (call Pingu_Get_Owner_Str() as _char&&) .. "/blocker/right";
+    spawn RightLeftSprites(&outer.pingu.rect, &outer.pingu.direction, &left, &left, &right, &outer.game.dt);
+    loop do
+        await outer.game.dt;
+        if not call Standing_On_Ground() then
+            escape {ActionName::FALLER};
+        end
+        var&? Pingu p;
+        loop p in outer.pingus do
+            call Catch_Pingu(&p!.pingu);
+        end
+    end
+    code/tight Standing_On_Ground (void) -> bool do
+        escape (call Pingu_Rel_Getpixel(0,-1) != {Groundtype::GP_NOTHING});
+    end
+    code/tight Catch_Pingu (var& IPingu target) -> void do
+        if &&target != &&outer.pingu then
+            if ( target.rect.off.x > outer.pingu.rect.off.x-16 and  target.rect.off.x < outer.pingu.rect.off.x+16 and  target.rect.off.y > outer.pingu.rect.off.y-32 and  target.rect.off.y < outer.pingu.rect.off.y+5 ) then
+                if (target.rect.off.x > outer.pingu.rect.off.x) then
+                    target.direction = {RIGHT};
+                else
+                    target.direction = {LEFT};
+                end
+            end
+        end
+    end
+end

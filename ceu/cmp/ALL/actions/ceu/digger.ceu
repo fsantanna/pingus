@@ -1,0 +1,43 @@
+code/await Digger (void) -> _ActionName__Enum do
+    vector[] byte str = [] .. "pingus/player" .. (call Pingu_Get_Owner_Str() as _char&&) .. "/digger/left";
+    spawn Sprite_from_name(&outer.pingu.rect, &&str[0] as _char&&, &outer.game.dt);
+    var int i;
+    loop i do
+        await outer.game.dt;
+        if not call Have_Something_To_Dig() then
+            call Dig(true);
+            escape {ActionName::WALKER};
+        else/if i%4 == 0 then
+            call Dig(false);
+        end
+    end
+    code/tight Have_Something_To_Dig (void) -> bool do
+        if call Pingu_Rel_Getpixel(0,-1) == {Groundtype::GP_NOTHING} then
+            escape false;
+        else/if call Pingu_Rel_Getpixel(0,-1) == {Groundtype::GP_SOLID} then
+            call { Sound::PingusSound::play_sound }("chink");
+            escape false;
+        else
+            escape true;
+        end
+    end
+    code/tight Dig (var bool final) -> void do
+        {
+            static CollisionMask digger_radius( "pingus/common/digger_radius_gfx", "pingus/common/digger_radius"
+            );
+            static CollisionMask digger_radius_final( "pingus/common/digger_radius_final_gfx", "pingus/common/digger_radius_final_gfx"
+            );
+        };
+        if not final then
+            call Game_Remove({&digger_radius},
+                             outer.pingu.rect.off.x - {digger_radius.get_width()}/2,
+                             outer.pingu.rect.off.y - {digger_radius.get_height()} + 2);
+        else
+            call Game_Remove({&digger_radius_final},
+                             outer.pingu.rect.off.x - {digger_radius.get_width()}/2,
+                             outer.pingu.rect.off.y - {digger_radius.get_height()} + 2);
+        end
+        outer.pingu.rect.off.y = outer.pingu.rect.off.y + 1;
+        emit outer.pingu.rect.changed;
+    end
+end

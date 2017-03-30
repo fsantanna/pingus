@@ -1,0 +1,6 @@
+code/await Splashed (void) -> _ActionName__Enum do
+    call {Sound::PingusSound::play_sound}("splash", 0.5, 0.0);
+    vector[] byte str = [] .. "pingus/player" .. call Pingu_Get_Owner_Str() as _char&& .. "/splat";
+    await Sprite_from_name(&outer.pingu.rect, &&str[0] as _char_const_ptr, &outer.game.dt);
+    escape {ActionName::DEAD};
+end

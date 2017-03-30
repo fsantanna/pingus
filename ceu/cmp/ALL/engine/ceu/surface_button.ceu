@@ -1,0 +1,33 @@
+#ifdef _SURFACE_BUTTON_CEU
+#error multiple include
+#else
+#define _SURFACE_BUTTON_CEU
+
+code/await SurfaceButton (var& IRRect rect,
+                          var _char_const_ptr button,
+                          var _char_const_ptr button_pressed,
+                          var _char_const_ptr button_over)
+                            -> (var& IRectComponent component)
+                                -> FOREVER
+do
+    var& RectComponent component_ = spawn RectComponent(&rect);
+    component = &component_.component;
+    loop do
+        do
+            spawn Sprite_from_name(&rect, button, &outer.main.dt);
+            await component.on_pointer_enter;
+        end
+        watching component.on_pointer_leave do
+            loop do
+                do
+                    spawn Sprite_from_name(&rect, button_over, &outer.main.dt);
+                    await component.on_primary_button_pressed;
+                end
+                spawn Sprite_from_name(&rect, button_pressed, &outer.main.dt);
+                await ON_PRIMARY_BUTTON_RELEASED;
+            end
+        end
+    end
+end
+
+#endif

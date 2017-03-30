@@ -1,0 +1,6 @@
+code/await Drown (void) -> _ActionName__Enum do
+    vector[] byte left  = [] .. "pingus/player" .. (call Pingu_Get_Owner_Str() as _char&&) .. "/drownfall/left";
+    vector[] byte right = [] .. "pingus/player" .. (call Pingu_Get_Owner_Str() as _char&&) .. "/drownfall/right";
+    await RightLeftSprites(&outer.pingu.rect, &outer.pingu.direction, &left, &left, &right, &outer.game.dt);
+    escape {ActionName::DEAD};
+end

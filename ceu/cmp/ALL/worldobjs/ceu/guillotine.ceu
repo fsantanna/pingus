@@ -1,0 +1,39 @@
+code/await Guillotine (void) -> FOREVER
+do
+    { WORLDOBJ_FACTORY_READER.read_vector("position", p); }
+    var Vector2i pst = val Vector2i({p.x},{p.y});
+    var& RRect r = spawn RRect(IRRect(Rect(pst.x,pst.y,_,_), AnchorXY(AnchorX.Left(), AnchorY.Top()), &outer.game.offset, AnchorXY(AnchorX.Center(), AnchorY.Center()), _, _));
+    loop do
+        spawn Sprite_from_name(&r.pub, "traps/guillotineidle", &outer.game.dt);
+        var s8 dir = do
+            loop do
+                await outer.game.dt;
+                var&? Pingu p;
+                loop p in outer.pingus do
+                    if call p!.Pingu_Is_Inside(pst.x+38, pst.y+90, pst.x+42, pst.y+98) then
+                        var s8 dir = p!.pingu.direction;
+                        emit p!.pingu.go_action({ActionName::DEAD});
+                        escape dir;
+                    end
+                end
+            end
+        end;
+        do
+            var _char&& name = do
+                if dir == {LEFT} then
+                    escape "traps/guillotinekill/left";
+                else
+                    escape "traps/guillotinekill/right";
+                end
+            end;
+            var&? Sprite_from_name s = spawn Sprite_from_name(&r.pub, name, &outer.game.dt);
+            watching s do
+                every outer.game.dt do
+                    if s!.sprite.frame == 7 then
+                        call {Sound::PingusSound::play_sound}("splash", 0.5, 0.0);
+                    end
+                end
+            end
+        end
+    end
+end

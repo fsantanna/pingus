@@ -1,0 +1,22 @@
+code/await Jumper (void) -> _ActionName__Enum do
+    vector[] byte left  = [] .. "pingus/player" .. (call Pingu_Get_Owner_Str() as _char&&) .. "/jumper/left";
+    vector[] byte right = [] .. "pingus/player" .. (call Pingu_Get_Owner_Str() as _char&&) .. "/jumper/right";
+    var&? RightLeftSprites sprites = spawn RightLeftSprites(&outer.pingu.rect, &outer.pingu.direction, &left, &left, &right, &outer.game.dt);
+    await outer.game.dt;
+    if outer.pingu.previous_action == {ActionName::CLIMBER} then
+        call Pingu_Toggle_Direction();
+    end
+    var float dy = -4.58;
+    var float dx = do
+        if outer.pingu.direction == {LEFT} then
+            escape -4.58;
+        else
+            escape  4.58;
+        end
+    end;
+    outer.pingu.velocity.x = outer.pingu.velocity.x + dx;
+    outer.pingu.velocity.y = outer.pingu.velocity.y + dy;
+    outer.pingu.rect.off.y = outer.pingu.rect.off.y - 1;
+    emit outer.pingu.rect.changed;
+    escape {ActionName::FALLER};
+end

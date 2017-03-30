@@ -1,0 +1,23 @@
+code/await Bomber (void) -> _ActionName__Enum do
+    vector[] byte bomber = [] .. "pingus/player" .. (call Pingu_Get_Owner_Str() as _char&&) .. "/bomber/left";
+    { static CollisionMask bomber_radius( "other/bomber_radius_gfx", "other/bomber_radius"); };
+    call {Sound::PingusSound::play_sound}("ohno", 0.5, 0.0);
+    var&? Sprite_from_name sprite = spawn Sprite_from_name(&outer.pingu.rect, &&bomber[0] as _char&&, &outer.game.dt);
+    watching sprite do
+        spawn Mover();
+        await outer.game.dt until sprite!.sprite.frame == 10;
+        call {Sound::PingusSound::play_sound}("plop", 0.5, 0.0);
+        await outer.game.dt until sprite!.sprite.frame == 13;
+        var int i;
+        loop i in [0 -> 50[ do
+            spawn PinguParticle(outer.pingu.rect.off.x,outer.pingu.rect.off.y-5) in outer.pingu_particles;
+        end
+        call Game_Remove({&bomber_radius}, outer.pingu.rect.off.x - {bomber_radius.get_width()/2}, outer.pingu.rect.off.y - {bomber_radius.get_width()/2} - 16); 
+        do
+            vector[] byte explo = [] .. "pingus/player" .. (call Pingu_Get_Owner_Str() as _char&&) .. "/explo";
+            spawn Sprite_from_name(&outer.pingu.rect, &&explo[0] as _char&&, &outer.game.dt);
+            await outer.game.dt;
+        end
+    end
+    escape {ActionName::DEAD};
+end

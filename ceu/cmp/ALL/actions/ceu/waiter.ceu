@@ -1,0 +1,12 @@
+code/await Waiter (void) -> _ActionName__Enum do
+    vector[] byte str = [] .. "pingus/player" .. (call Pingu_Get_Owner_Str() as _char&&) .. "/waiter/left";
+    spawn Sprite_from_name(&outer.pingu.rect, &&str[0] as _char&&, &outer.game.dt);
+    var float countdown = 2.0;
+    loop do
+        await outer.game.dt;
+        if countdown < 0 then
+            escape {ActionName::WALKER};
+        end
+        countdown = countdown - 0.025;
+    end
+end

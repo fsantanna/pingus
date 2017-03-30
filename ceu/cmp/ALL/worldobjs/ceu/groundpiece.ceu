@@ -1,0 +1,45 @@
+#ifdef _GROUNDPIECE_CEU
+#error multiple include
+#else
+#define _GROUNDPIECE_CEU
+
+code/await Groundpiece (void) -> FOREVER do
+    {{
+        static Vector3f p;
+        WORLDOBJ_FACTORY_READER.read_vector("position", p);
+
+        static ResDescriptor desc;
+        WORLDOBJ_FACTORY_READER.read_desc("surface", desc);
+
+        Groundtype::GPType gptype = Groundtype::GP_GROUND;
+        WORLDOBJ_FACTORY_READER.read_enum("type", gptype, &Groundtype::string_to_type);
+        CollisionMask mask(desc);
+
+        // FIXME: overdrawing of bridges and similar things aren't handled here
+        if (gptype == Groundtype::GP_REMOVE) {
+            @(call Game_Remove({&mask}, {p.x} as int, {p.y} as int));
+        } else {
+            @call Game_Put({&mask}, {p.x} as int, {p.y} as int, {gptype});
+        }
+    }}
+    await FOREVER;
+
+#if 0
+    /* PUBLIC */
+    function (void)       =>float     get_z_pos;
+    function (_Vector3f&&)=>void      set_pos;
+    function (void)       =>_Vector3f get_pos;
+
+    function (void)=>float get_z_pos do
+        return this.pos.z;
+    end
+    function (_Vector3f&& p)=>void set_pos do
+        this.pos = Vector3f(p:x, p:y, p:z);
+    end
+    function (void)=>_Vector3f get_pos do
+        return _Vector3f(this.pos.x, this.pos.y, this.pos.z);
+    end
+#endif
+end
+
+#endif

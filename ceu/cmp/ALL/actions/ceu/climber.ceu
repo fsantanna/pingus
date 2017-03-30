@@ -1,0 +1,26 @@
+code/await Climber (void) -> _ActionName__Enum do
+    vector[] byte left  = [] .. "pingus/player" .. (call Pingu_Get_Owner_Str() as _char&&) .. "/climber/left";
+    vector[] byte right = [] .. "pingus/player" .. (call Pingu_Get_Owner_Str() as _char&&) .. "/climber/right";
+    spawn RightLeftSprites(&outer.pingu.rect, &outer.pingu.direction, &left, &left, &right, &outer.game.dt);
+    loop do
+        await outer.game.dt;
+        if (call Pingu_Rel_Getpixel(0,1) == {Groundtype::GP_NOTHING} or call Pingu_Rel_Getpixel(0,1) == {Groundtype::GP_BRIDGE}) then
+            if (call Pingu_Rel_Getpixel(1,1) != {Groundtype::GP_NOTHING}) then
+                outer.pingu.rect.off.y = outer.pingu.rect.off.y - 1;
+                emit outer.pingu.rect.changed;
+            else/if (call Pingu_Rel_Getpixel(1,1) ==  {Groundtype::GP_NOTHING}) then
+                if (not call Pingu_Head_Collision_On_Walk(outer.pingu.direction as int,1)) then
+                    outer.pingu.rect.off.x = outer.pingu.rect.off.x + (outer.pingu.direction as int);
+                    outer.pingu.rect.off.y = outer.pingu.rect.off.y - 1;
+                    emit outer.pingu.rect.changed;
+                else
+                    call Pingu_Toggle_Direction();
+                end
+                escape {ActionName::WALKER};
+            end
+        else
+            call Pingu_Toggle_Direction();
+            escape {ActionName::WALKER};
+        end
+    end
+end

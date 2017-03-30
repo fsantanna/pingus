@@ -1,0 +1,165 @@
+#ifdef _SURFACEBACKGROUND_CEU
+#error multiple include
+#else
+#define _SURFACEBACKGROUND_CEU
+
+code/await SurfaceBackground (void) -> FOREVER
+do
+    var float para_x = 0.5;
+    var float para_y = 0.5;
+
+    /* Position of the background, only the z_pos is really used. */
+    var Vector3f pst;
+
+    /* The amount of pixel the background is scrolled each frame in x
+            direction. */
+    var float scroll_x = 0;
+
+    /* The amount of pixel the background is scrolled each frame in x
+            direction. */
+    var float scroll_y = 0;
+
+    /* fill_rect() components
+            An fill_rect() can be drawn over the background, the following
+            for components are passed to the fill_rect() call. */
+    var Color color = val Color(0,0,0,0);
+
+    /* Stretch the background to the full screen size in x direction */
+    var bool stretch_x = false;
+
+    /* Stretch the background to the full screen size in x direction */
+    var bool stretch_y = false;
+
+    /* If streched in x or y direction keep the aspect ratio */
+    var bool keep_aspect = false;
+
+    /* The horizontal scrolling speed in pixels per tick */
+    var float scroll_ox = 0;
+
+    /* The vertical scrolling speed in pixels per tick */
+    var float scroll_oy = 0;
+
+    //do
+        { static Vector3f p; };
+        if {WORLDOBJ_FACTORY_READER.read_vector("position",p)} as bool then
+            pst = val Vector3f({p.x},{p.y},{p.z});
+        else
+            pst = val Vector3f(0,0,-150);
+        end
+
+        { static Color c; };
+        if ({WORLDOBJ_FACTORY_READER.read_colori("colori",c) ||
+            WORLDOBJ_FACTORY_READER.read_colorf("color",c)}) as bool
+        then
+            color = val Color({c.r}, {c.g}, {c.b}, {c.a});
+        end
+
+        {
+            WORLDOBJ_FACTORY_READER.read_float("para-x", @para_x);
+            WORLDOBJ_FACTORY_READER.read_float("para-y", @para_y);
+
+            WORLDOBJ_FACTORY_READER.read_float("scroll-x", @scroll_x);
+            WORLDOBJ_FACTORY_READER.read_float("scroll-y", @scroll_y);
+
+            WORLDOBJ_FACTORY_READER.read_bool("stretch-x", @stretch_x);
+            WORLDOBJ_FACTORY_READER.read_bool("stretch-y", @stretch_y);
+
+            WORLDOBJ_FACTORY_READER.read_bool("keep-aspect", @keep_aspect);
+        }
+
+        //_assert((not stretch_x) and (not stretch_y) and (color.a == 0));
+    //end
+
+    /* Background image */
+    // FIXME: would be nice to allow surface manipulation with
+    // animated sprites, but it's not that easy to do
+    {
+        static ResDescriptor desc;
+        WORLDOBJ_FACTORY_READER.read_desc("surface", desc);
+    }
+    var& Surface_from_desc bg =
+        spawn Surface_from_desc({Resource::load_sprite_desc(desc.res_name)}, _);
+
+    var int w = bg.surface.framebuffer.get_width();
+    var int h = bg.surface.framebuffer.get_height();
+
+    par do
+        every outer.game.dt do
+            if {globals::static_graphics} as bool then
+                continue;
+            end
+            //this.bg_sprite.update();
+
+            if scroll_x != 0 then
+                scroll_ox = scroll_ox + scroll_x;
+                if (scroll_ox > w) then
+                    scroll_ox = scroll_ox - w;
+                else/if (-scroll_ox > w) then
+                    scroll_ox = scroll_ox + w;
+                end
+            end
+
+            if scroll_y != 0 then
+                scroll_oy = scroll_oy + scroll_y;
+                if (scroll_oy > h) then
+                    scroll_oy = scroll_oy - h;
+                else/if (-scroll_oy > h) then
+                    scroll_oy = scroll_oy + h;
+                end
+            end
+        end
+    with
+        every outer.main.redraw do
+            var int start_x = ((-outer.game.offset.abs.x * para_x) + scroll_ox) as int;
+            var int start_y = ((-outer.game.offset.abs.y * para_y) + scroll_oy) as int;
+
+            if (start_x > 0) then
+                start_x = (start_x % w) - w;
+            end
+
+            if (start_y > 0) then
+                start_y = (start_y % h) - h;
+            end
+
+            var int y = start_y;
+            var int i;
+            loop i do
+                var int yy = y + outer.game.offset.abs.y;
+                if yy >= outer.main.rect.abs.h then
+                    break;
+                end
+
+                var int x = start_x;
+                var int j;
+                loop j do
+                    var int xx = x + outer.game.offset.abs.x;
+                    if xx >= outer.main.rect.abs.w then
+                        break;
+                    end
+                    call {Display::s_framebuffer}:draw_surface(
+                        bg.surface.framebuffer,
+                        _Vector2i(xx,yy)
+                    );
+                    x = x + w;
+                end
+                y = y + h;
+            end
+        end
+    end
+
+    /* PUBLIC */
+
+#if 0
+    function (void)=>float get_z_pos do
+        return this.pos.z;
+    end
+    function (_Vector3f&& p)=>void set_pos do
+        this.pos = Vector3f(p:x, p:y, p:z);
+    end
+    function (void)=>_Vector3f get_pos do
+        return _Vector3f(this.pos.x, this.pos.y, this.pos.z);
+    end
+#endif
+end
+
+#endif

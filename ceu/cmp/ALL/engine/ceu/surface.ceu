@@ -1,0 +1,88 @@
+#ifdef _SURFACE_CEU
+#error multiple include
+#else
+#define _SURFACE_CEU
+
+data Surface with
+    var& _FramebufferSurface    framebuffer;
+    var& _SpriteDescription_ptr desc;
+end
+
+#if 0
+code/await Surface_from_sdl (var _Surface&& sdl) ->
+                                (var& Surface surface) ->
+                                    FOREVER
+do
+    var&? _FramebufferSurface framebuffer =
+        &{new FramebufferSurface}({new SDLFramebufferSurfaceImpl}(sdl:get_surface()))
+            finalize (framebuffer) with
+                _delete(&&framebuffer!);
+            end;
+
+    var Surface surface_ = val Surface(&framebuffer!);
+    surface = &surface_;
+
+    await FOREVER;
+end
+#endif
+
+code/await Surface_from_desc (var _SpriteDescription_ptr   desc,
+                              var _ResourceModifier__Enum? mod)
+                                -> (var Surface surface)
+                                    -> FOREVER
+do
+    var _ResourceModifier__Enum mod_;
+    if mod? then
+        mod_ = mod!;
+    else
+        mod_ = {ResourceModifier::ROT0};
+    end
+
+    {
+        // FIXME: Implement proper cache
+        static FramebufferSurface* sfc;
+        try
+        {
+            Surface surface(@(desc:filename));
+            if (@(mod_) != ResourceModifier::ROT0)
+            {
+                surface = surface.mod(@(mod_));
+            }
+            sfc = new FramebufferSurface(new SDLFramebufferSurfaceImpl(surface.get_surface()));
+        }
+        catch(const std::exception& err)
+        {
+            // return a dummy surface for cases where the image file can't be found
+            //log_error("%1%", err.what());
+            Surface surface(Pathname("images/core/misc/404.png", Pathname::DATA_PATH));
+            sfc = new FramebufferSurface(new SDLFramebufferSurfaceImpl(surface.get_surface()));
+        }
+    }
+
+    var& _FramebufferSurface framebuffer = &_ID({sfc})
+        finalize (framebuffer) with
+            _delete(&&framebuffer);
+        end;
+
+    surface = val Surface(&framebuffer, &desc);
+
+    await FOREVER;
+end
+
+code/await Surface_from_name (var _char_const_ptr name,
+                              var _ResourceModifier__Enum? mod)
+                                -> (var& Surface surface)
+                                    -> FOREVER
+do
+    var _SpriteDescription_ptr desc = _Resource__load_sprite_desc(name);
+    if desc == null then
+        desc = _Resource__load_sprite_desc("core/misc/404");
+    end
+    _assert(desc != null);
+
+    var& Surface_from_desc sfc = spawn Surface_from_desc(desc,mod);
+    surface = &sfc.surface;
+    await FOREVER;
+end
+
+#endif

@@ -1,0 +1,12 @@
+code/await Hotspot (var Vector2i pst_offset) -> FOREVER do
+    var float para = 0;
+    {
+        WORLDOBJ_FACTORY_READER.read_vector("position", p);
+        WORLDOBJ_FACTORY_READER.read_float("parallax", @para);
+        WORLDOBJ_FACTORY_READER.read_desc("surface", desc);
+    }
+    var Vector2i pst = val Vector2i(pst_offset.x+{p.x}, pst_offset.y+{p.y});
+    var& RRect r = spawn RRect(IRRect(Rect(pst.x,pst.y,_,_), AnchorXY(AnchorX.Left(), AnchorY.Top()), &outer.game.offset, AnchorXY(AnchorX.Center(), AnchorY.Center()), _, _));
+    spawn Sprite_from_desc(&r.pub, {Resource::load_sprite_desc(desc.res_name)}, &outer.game.dt);
+    await FOREVER;
+end

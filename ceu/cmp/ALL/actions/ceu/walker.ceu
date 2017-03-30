@@ -1,0 +1,77 @@
+code/await Walker (void) -> _ActionName__Enum do
+    vector[] byte left1  = [] .. "pingus/player" .. (call Pingu_Get_Owner_Str() as _char&&) .. "/walker/left";
+    vector[] byte right1 = [] .. "pingus/player" .. (call Pingu_Get_Owner_Str() as _char&&) .. "/walker/right";
+    spawn RightLeftSprites(&outer.pingu.rect, &outer.pingu.direction, &left1, &left1, &right1, &outer.game.dt);
+    var Vector3f v = val Vector3f(0, 0, 0);
+    call Pingu_Set_Velocity(v);
+    par do
+        await outer.game.dt
+        until (outer.fall_action == {ActionName::FLOATER});
+        vector[] byte left2  = [] .. "other/floaterlayer/left";
+        vector[] byte right2 = [] .. "other/floaterlayer/right";
+        spawn RightLeftSprites(&outer.pingu.rect, &outer.pingu.direction, &left2, &left2, &right2, &outer.game.dt);
+        await FOREVER;
+    with
+        loop do
+            await outer.game.dt;
+            var int old_x = outer.pingu.rect.off.x;
+            var int old_y = outer.pingu.rect.off.y;
+            if call Pingu_Rel_Getpixel(0,-1) == {Groundtype::GP_NOTHING} then
+                var int i = _;
+                var bool? found_ground = do
+                    loop i in [-4 <- -2] do
+                        if not (call Pingu_Rel_Getpixel(0,i) == {Groundtype::GP_NOTHING}) then
+                            escape true;
+                        end
+                    end
+                end;
+                if found_ground? then
+                    outer.pingu.rect.off.y = outer.pingu.rect.off.y - i;
+                    emit outer.pingu.rect.changed;
+                else
+                    escape {ActionName::FALLER};
+                end
+            end
+            if call Pingu_Rel_Getpixel(1, 0) == {Groundtype::GP_BRIDGE} and not call Pingu_Head_Collision_On_Walk(1, 1) then // bridge
+                outer.pingu.rect.off.x = outer.pingu.rect.off.x + (outer.pingu.direction as int);
+                outer.pingu.rect.off.y = outer.pingu.rect.off.y - 1; // pingus 'float' through bridges
+                emit outer.pingu.rect.changed;
+            else
+                var int possible_y_step = 0;
+                var bool found_next_step = false;
+                var int y_inc;
+                loop y_inc in [-WALKER_MAX_STEPS -> +WALKER_MAX_STEPS] do
+                    if (call Pingu_Rel_Getpixel(1, y_inc)=={Groundtype::GP_NOTHING} or call Pingu_Rel_Getpixel(1, y_inc)=={Groundtype::GP_BRIDGE}) and call Pingu_Rel_Getpixel(1, y_inc - 1) != {Groundtype::GP_NOTHING} then
+                        found_next_step = true;
+                        possible_y_step = y_inc;
+                    end
+                end
+                if found_next_step then
+                    outer.pingu.rect.off.x = outer.pingu.rect.off.x + (outer.pingu.direction as int);
+                    outer.pingu.rect.off.y = outer.pingu.rect.off.y - possible_y_step;
+                    emit outer.pingu.rect.changed;
+                else
+                    if call Pingu_Rel_Getpixel(1,0) != {Groundtype::GP_NOTHING} then
+                        var _ActionName__Enum wall_action = outer.wall_action;
+                        if wall_action != {ActionName::NONE} then
+                            _log_debug("Pingu: We are in front of a wall, setting persistant action");
+                            escape wall_action;
+                        end
+                        call Pingu_Toggle_Direction();
+                    else
+                        outer.pingu.rect.off.x = outer.pingu.rect.off.x + (outer.pingu.direction as int);
+                        emit outer.pingu.rect.changed;
+                        escape {ActionName::FALLER};
+                    end
+                end
+                if call Pingu_Head_Collision_On_Walk(0, 0) then
+                    _log_debug("Pingu: Head collision");
+                    call Pingu_Toggle_Direction();
+                    outer.pingu.rect.off.x = old_x;
+                    outer.pingu.rect.off.y = old_y;
+                    emit outer.pingu.rect.changed;
+                end
+            end
+        end
+    end
+end
