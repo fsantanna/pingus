@@ -1,0 +1,15 @@
+code/await Groundpiece (void) -> FOREVER do
+    {{
+        WORLDOBJ_FACTORY_READER.read_vector("position", p);
+        WORLDOBJ_FACTORY_READER.read_desc("surface", desc);
+        Groundtype::GPType gptype = Groundtype::GP_GROUND;
+        WORLDOBJ_FACTORY_READER.read_enum("type", gptype, &Groundtype::string_to_type);
+        CollisionMask mask(desc);
+        if (gptype == Groundtype::GP_REMOVE) {
+            @(call Game_Remove({&mask}, {p.x} as int, {p.y} as int));
+        } else {
+            @call Game_Put({&mask}, {p.x} as int, {p.y} as int, {gptype});
+        }
+    }}
+    await FOREVER;
+end

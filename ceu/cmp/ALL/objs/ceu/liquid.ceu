@@ -1,0 +1,27 @@
+code/await Liquid (void) -> FOREVER do
+    {
+        WORLDOBJ_FACTORY_READER.read_vector("position", p);
+        WORLDOBJ_FACTORY_READER.read_desc("surface", desc);
+        WORLDOBJ_FACTORY_READER.read_int("repeat", width);
+    }
+    var& RRect rect = spawn RRect(IRRect(Rect({p.x},{p.y}, 0,0), AnchorXY(AnchorX.Left(), AnchorY.Top()), &outer.game.offset, AnchorXY(AnchorX.Center(), AnchorY.Center()), _, _));
+    var&? Sprite_from_desc sprite = spawn Sprite_from_desc(&rect.pub, {Resource::load_sprite_desc(desc.res_name)}, &outer.game.dt);
+    var int width = {width} * sprite!.sprite.frame_size.width;
+    do
+        { static CollisionMask mask("liquids/water_cmap"); };
+        var int i;
+        loop i in [0 -> width[ do
+            call Game_Put({&mask}, rect.pub.off.x+i, rect.pub.off.y, {Groundtype::GP_WATER});
+        end
+    end
+    every outer.main.redraw do
+        var int x = rect.pub.abs.x;
+        loop do
+            if x >= rect.pub.abs.x+width then
+                break;
+            end
+            x = x + sprite!.sprite.frame_size.width;
+            call sprite!.Draw(x, rect.pub.abs.y);
+        end
+    end
+end

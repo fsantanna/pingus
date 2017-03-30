@@ -1,52 +1,24 @@
-#ifdef _WORLDOBJ_FACTORY_CEU
-#error multiple include
-#else
-#define _WORLDOBJ_FACTORY_CEU
-
-#include "surface_background.ceu"
-#include "entrance.ceu"
-#include "exit.ceu"
-#include "groundpiece.ceu"
-#include "guillotine.ceu"
-#include "hotspot.ceu"
-#include "liquid.ceu"
-#include "smasher.ceu"
-#include "spike.ceu"
-#if 0
-#include "worldobjs/laser_exit.ceu"
-#endif
-
-// TODO: use spawn directly instead of ceu_sys_go
-//          - requires flatmap or traverse
-
 native/pre do
     static std::vector<std::pair<FileReader,Vector3f>> WORLDOBJ_FACTORY_VECTOR;
     static FileReader                                  WORLDOBJ_FACTORY_READER;
     Vector3f WORLDOBJ_FACTORY_pos = Vector3f(0,0,0);
-
     void WORLDOBJ_FACTORY_create (const FileReader& reader) {
-        if (reader.get_name()=="prefab")
-        {
+        if (reader.get_name()=="prefab") {
             std::string name;
             reader.read_string("name", name);
-
             Vector3f pos;
             reader.read_vector("position", pos);
             WORLDOBJ_FACTORY_pos += pos;
-
             PrefabFile prefab = PrefabFile::from_resource(name);
             FileReader overrides;
             reader.read_section("overrides", overrides);
-
             const std::vector<FileReader>& objects = prefab.get_objects();
             for(auto it = objects.begin(); it != objects.end(); ++it) {
                 OverrideFileReader override_reader(*it, overrides);
                 WORLDOBJ_FACTORY_create(override_reader);
             }
             WORLDOBJ_FACTORY_pos -= pos;
-        }
-        else if (reader.get_name()=="group")
-        {
+        } else if (reader.get_name()=="group") {
             FileReader objects = reader.read_section("objects");
             std::vector<FileReader> sections = objects.get_sections();
             for(auto it = sections.begin(); it != sections.end(); ++it) {
@@ -57,33 +29,27 @@ native/pre do
         }
     }
 end
-
 pool[] Entrance   entrances;
 pool[] Smasher    smashers;
 pool[] Guillotine guillotines;
 pool[] Spike      spikes;
-
 do
     var usize i;
     loop i in [0 -> outer.game.plf.get_objects().size()[ do
         {WORLDOBJ_FACTORY_create(@outer.game.plf.get_objects().at(i));}
     end
 end
-
 do finalize with
     {WORLDOBJ_FACTORY_VECTOR.clear();}
 end
-
 do
     var usize i;
     loop i in [0 -> {WORLDOBJ_FACTORY_VECTOR.size()}[ do
         {
             WORLDOBJ_FACTORY_READER = WORLDOBJ_FACTORY_VECTOR.at(@i).first;
-            static Vector3f p;
             WORLDOBJ_FACTORY_READER.read_vector("position", p);
         };
-        var Vector2i pst_offset = val Vector2i({WORLDOBJ_FACTORY_VECTOR}.at(i).second.x,
-                                               {WORLDOBJ_FACTORY_VECTOR}.at(i).second.y);
+        var Vector2i pst_offset = val Vector2i({WORLDOBJ_FACTORY_VECTOR}.at(i).second.x, {WORLDOBJ_FACTORY_VECTOR}.at(i).second.y);
         #define id_ {WORLDOBJ_FACTORY_VECTOR}.at(i).first.get_name()
         if id_ == "surface-background" then
             spawn SurfaceBackground() in outer.layer_bg_0;
@@ -103,13 +69,6 @@ do
             spawn Exit() in outer.layer_bg_1;
         else/if id_ == "guillotine" then
             spawn Guillotine() in guillotines;
-#if 0
-        else/if id_ == "laser_exit" then
-            spawn LaserExit with
-                this.pingus = &outer.pingus;
-                this.reader = reader_;
-            end;
-#endif
         else/if id_ == "smasher" then
             spawn Smasher() in smashers;
         else/if id_ == "spike" then
@@ -117,9 +76,7 @@ do
         end
     end
 end
-
 do
-    // FIXME: Workaround for lack of start-pos
     var Vector2i pos_start = val Vector2i(0,0);
     var int num_entrances = 0;
     var& Entrance e;
@@ -128,29 +85,13 @@ do
         pos_start.x = pos_start.x + (e.pst.x as int);
         pos_start.y = pos_start.y + (e.pst.y as int);
     end
-
     if (num_entrances > 0) then
         pos_start.x = pos_start.x / num_entrances;
         pos_start.y = pos_start.y / num_entrances;
         pos_start.y = pos_start.y + 100;
     end
-
     outer.game.offset.off.x = -pos_start.x;
     outer.game.offset.off.y = -pos_start.y;
     emit outer.game.offset.changed;
 end
-
 await FOREVER;
-
-#if 0
-    {
-        static const std::vector<FileReader>& objects =
-            THIS(CEU_World)->plf->get_objects();
-        for (std::vector<FileReader>::const_iterator i = objects.begin();
-             i != objects.end ();
-             ++i)
-            WorldObjFactory::instance()->create(*i);
-    };
-#endif
-
-#endif
