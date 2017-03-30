@@ -1,0 +1,63 @@
+vector[] byte return_filename;
+code/await Worldmap (void) -> int do
+    par do
+        var int ret = do ()
+            #include "aux.ceu"
+        end;
+        escape ret;
+    with
+        var& RRect close_r = spawn RRect(IRRect(Rect(0,-2, _,_), AnchorXY(AnchorX.Left(), AnchorY.Bottom()), &outer.main.rect, AnchorXY(AnchorX.Left(), AnchorY.Bottom()), _, _));
+        var& SurfaceButton close = spawn SurfaceButton(&close_r.pub, "core/worldmap/leave_button_normal", "core/worldmap/leave_button_pressed", "core/worldmap/leave_button_hover");
+        par do
+            every outer.main.redraw do
+                call {Fonts::chalk_small}.render( _origin_top_center, 44, outer.main.rect.abs.h-25, __("Leave?"), *{Display::s_framebuffer});
+            end
+        with
+            every close.component.on_pointer_enter do
+                call {Sound::PingusSound::play_sound}("tick");
+            end
+        with
+            await close.component.on_click;
+            escape {WORLDMAP_RETURN_EXIT};
+        end
+    with
+        loop do
+            var _Input__ButtonEvent&& but = await ON_BUTTON_PRESSED;
+            if but:name == {Input::ESCAPE_BUTTON} then
+                escape {WORLDMAP_RETURN_EXIT};
+            end
+        end
+    end
+end
+code/await Worldmap_Loop (void) -> void do
+    {
+        story_seen = false;
+        StatManager::instance()->get_bool("tutorial-startstory-seen", story_seen);
+    }
+    if {!story_seen} as bool then
+        {
+            StatManager::instance()->set_bool("tutorial-startstory-seen", true); // FIXME: Hardcoding tutorial is evil
+            reader = FileReader::parse(Pathname("stories/tutorial_intro.story", Pathname::DATA_PATH));
+        }
+        await Story();
+    end
+    loop do
+        var int ret = await Worldmap();
+        if ret=={WORLDMAP_RETURN_STORY_MAP} or ret=={WORLDMAP_RETURN_STORY_CREDITS} then
+            { reader = FileReader::parse(Pathname(@(&&outer.return_filename[0] as _char&&), Pathname::DATA_PATH)); }
+            var bool is_click = await Story();
+            if is_click and ret=={WORLDMAP_RETURN_STORY_CREDITS} then
+                { filename_credits = Pathname("credits/pingus.credits",Pathname::DATA_PATH); }
+                await Credits();
+            end
+        else/if ret == {WORLDMAP_RETURN_LEVEL} then
+            { plf = PLFResMgr::load_plf(std::string(@(&&outer.return_filename[0] as _char&&))); }
+            var& _PingusLevel plf    = &_ID({&plf})    finalize (plf) with end;
+            var& _Result      result = &_ID({&result}) finalize (result) with end;
+            await Start_Game_Result_Loop(&plf, &result);
+        else
+            _ceu_dbg_assert(ret == {WORLDMAP_RETURN_EXIT});
+            escape;
+        end
+    end
+end

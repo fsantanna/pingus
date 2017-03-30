@@ -1,0 +1,40 @@
+code/await SliderBox (var& IRRect rect, var int max, var int current) -> (event int go) -> FOREVER do
+    var& RectComponent component = spawn RectComponent(&rect);
+    par do
+        var int x=0;
+        var int y=0;
+        loop do
+            (x,y) = await component.component.on_primary_button_pressed;
+            watching ON_PRIMARY_BUTTON_RELEASED do
+                loop do
+                    var int old = current;
+                    x = x - (rect.abs.x as int);
+                    current = (max*x / (rect.abs.w-12)) as int;
+                    current = {Math::clamp}(0, current, max);
+                    if current != old then
+                        emit go(current*5); // scale to [0,100]
+                    end
+                    (x,y) = await ON_POINTER_MOVE;
+                end
+            end
+        end
+    with
+        every outer.main.redraw do
+            if {globals::developer_mode} as bool then
+                call {Display::s_framebuffer}:draw_rect( _Rect(rect.abs.x,rect.abs.w,rect.abs.y,rect.abs.h), _Color(0,255,255));
+            end
+            if current == 0 then
+                call {Fonts::chalk_normal}.render( _origin_top_center, rect.abs.x + rect.abs.w/2, rect.abs.y, "off", *{Display::s_framebuffer});
+            else
+                var int i;
+                loop i in [0->max[ do
+                    if i < current then
+                        call {Fonts::chalk_normal}.render( _origin_top_left, rect.abs.x + i*(rect.abs.w-12)/max + 6, rect.abs.y, "|", *{Display::s_framebuffer});
+                    end
+                end
+            end
+            call {Fonts::chalk_normal}.render( _origin_top_left, rect.abs.x, rect.abs.y, "[", *{Display::s_framebuffer});
+            call {Fonts::chalk_normal}.render( _origin_top_right, rect.abs.x+rect.abs.w, rect.abs.y, "]", *{Display::s_framebuffer});
+        end
+    end
+end

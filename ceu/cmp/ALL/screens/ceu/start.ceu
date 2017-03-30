@@ -1,0 +1,58 @@
+{ str = StringFormat::break_line(@(outer.plf).get_description(), 800-200, Fonts::chalk_normal); }
+vector[] byte description = [] .. ({str.c_str()} as _char&&);
+spawn Wood();
+var& RRect rect = spawn RRect(IRRect(Rect(0,0, _,_), AnchorXY(AnchorX.Center(), AnchorY.Center()), &outer.main.rect, AnchorXY(AnchorX.Center(), AnchorY.Center()), _, _));
+spawn Sprite_from_name(&rect.pub, "core/menu/blackboard", &outer.main.dt);
+var& RRect r1 = spawn RRect(IRRect(Rect(-50,-60, _,_), AnchorXY(AnchorX.Right(), AnchorY.Bottom()), &rect.pub, AnchorXY(AnchorX.Right(), AnchorY.Bottom()), _, _));
+var& SurfaceButton start = spawn SurfaceButton(&r1.pub, "core/start/ok", "core/start/ok_clicked", "core/start/ok_hover");
+var& RRect cancel_r = spawn RRect(IRRect(Rect(70,-2, _,_), AnchorXY(AnchorX.Left(), AnchorY.Bottom()), &rect.pub, AnchorXY(AnchorX.Left(), AnchorY.Bottom()), _, _));
+var& SurfaceButton cancel = spawn SurfaceButton(&cancel_r.pub, "core/start/back", "core/start/back_clicked", "core/start/back_hover");
+par do
+    every cancel.component.on_pointer_enter do
+        call {Sound::PingusSound::play_sound}("tick");
+    end
+with
+    await cancel.component.on_click;
+    escape false;
+with
+    every start.component.on_pointer_enter do
+        call {Sound::PingusSound::play_sound}("tick");
+    end
+with
+    await start.component.on_click;
+    call {Sound::PingusSound::play_sound}("yipee");
+    escape true;
+with
+    loop do
+        var _Input__ButtonEvent&& but = await ON_BUTTON_PRESSED;
+        if but:name == {Input::PAUSE_BUTTON} then
+            escape true;
+        else/if but:name == {Input::FAST_FORWARD_BUTTON} then
+            escape true;
+        else/if but:name == {Input::ESCAPE_BUTTON} then
+            escape false;
+        end
+    end
+with
+    every outer.main.redraw do
+        call {Fonts::chalk_large}.render( _origin_top_center, rect.pub.abs.x+rect.pub.abs.w/2, rect.pub.abs.y+50, __(outer.plf.get_levelname()), *{Display::s_framebuffer});
+        call ({Fonts::chalk_normal}.render as /nohold)( _origin_top_left, rect.pub.abs.x+70, rect.pub.abs.y+110, &&description[0] as _char&&, *{Display::s_framebuffer});
+        call {Fonts::chalk_normal}.render( _origin_top_center, r1.pub.abs.x+r1.pub.abs.w/2, r1.pub.abs.y-20, __("Play"), *{Display::s_framebuffer});
+        call {Fonts::chalk_normal}.render( _origin_top_center, cancel_r.pub.abs.x+cancel_r.pub.abs.w/2, cancel_r.pub.abs.y, __("Back"), *{Display::s_framebuffer});
+        var int xl = rect.pub.abs.x + 220;
+        var int xr = rect.pub.abs.x + rect.pub.abs.w - 220;
+        var int y  = rect.pub.abs.y + rect.pub.abs.h - 160;
+        call {Fonts::chalk_normal}.render( _origin_top_left, xl, y, __("Number of Pingus: "), *{Display::s_framebuffer});
+        call {Fonts::chalk_normal}.render( _origin_top_right, xr, y, {StringUtil::to_string}(outer.plf.get_number_of_pingus()), *{Display::s_framebuffer});
+        y = y+30;
+        call {Fonts::chalk_normal}.render( _origin_top_left, xl, y, __("Number to Save: "), *{Display::s_framebuffer});
+        call {Fonts::chalk_normal}.render( _origin_top_right, xr, y, {StringUtil::to_string}(outer.plf.get_number_to_save()), *{Display::s_framebuffer});
+        y = y+30;
+        call {Fonts::chalk_normal}.render( _origin_top_left, xl, y, __("Time: "), *{Display::s_framebuffer});
+        call {Fonts::chalk_normal}.render( _origin_top_right, xr, y, {GameTime::ticks_to_realtime_string}(outer.plf.get_time()), *{Display::s_framebuffer});
+        call {Fonts::chalk_small}.render( _origin_top_center, rect.pub.abs.x + rect.pub.abs.w/2, rect.pub.abs.y + rect.pub.abs.h - 60, __("Author: ") + outer.plf.get_author(), *{Display::s_framebuffer});
+        if {globals::developer_mode} as bool then
+            call {Fonts::chalk_small}.render( _origin_top_center, outer.main.rect.abs.x + outer.main.rect.abs.w/2, outer.main.rect.abs.y + outer.main.rect.abs.h - 30, outer.plf.get_resname(), *{Display::s_framebuffer});
+        end
+    end
+end

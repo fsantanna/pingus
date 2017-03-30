@@ -1,0 +1,180 @@
+code/await Mouse (var& IRRect rect, var& EDot e) -> FOREVER do
+    code/tight Is_Inside (var int x, var int y) -> bool do
+        var float dx = outer.rect.abs.x - x;
+        var float dy = outer.rect.abs.y - y;
+        escape {Math::sqrt}(dx*dx + dy*dy) < 30;
+    end
+    par do
+        var bool is_on = false;
+        var int x;
+        var int y;
+        every (x,y) in ON_POINTER_MOVE do
+            var bool v = call Is_Inside(x,y);
+            if v != is_on then
+                is_on = v;
+                emit e.out(not v);
+            end
+        end
+    with
+        var int x;
+        var int y;
+        every (x,y) in ON_PRIMARY_BUTTON_PRESSED do
+            if call Is_Inside(x,y) then
+                emit e.fst;
+            end
+        end
+    with
+        var int x;
+        var int y;
+        every (x,y) in ON_SECONDARY_BUTTON_PRESSED do
+            if call Is_Inside(x,y) then
+                emit e.snd;
+            end
+        end
+    end
+end
+code/await StoryDot (void) -> FOREVER do
+    {
+        reader = file_reader->read_section("dot");
+        reader.read_vector("position", pst);
+        reader.read_string("name",     name);
+        ceu_dbg_assert(!name.empty());
+    };
+    var int id = {path_graph->lookup_node(name)};
+    {
+        file_reader->read_string("name",  m_name);
+        file_reader->read_string("story", m_story);
+        m_credits = false;
+        file_reader->read_bool  ("credits", m_credits);
+    };
+    var bool show_credits = {m_credits} as bool;
+    vector[] byte m_name   = [] .. {m_name.c_str()} as _char&&;
+    vector[] byte filename = [] .. {m_story.c_str()} as _char&&;
+    var& RRect r = spawn RRect(IRRect(Rect({pst.x},{pst.y}, _,_), AnchorXY(AnchorX.Center(), AnchorY.Center()), &outer.offset, AnchorXY(AnchorX.Center(), AnchorY.Center()), _, _));
+    spawn Sprite_from_name(&r.pub, "core/worldmap/story_dot", &outer.main.dt);
+    var EDot e2 = _;
+    spawn Mouse(&r.pub, &e2);
+    var bool v = await e2.out until v==false;
+    pause/if e2.out do
+        spawn Sprite_from_name(&r.pub, "core/worldmap/story_dot_highlight", &outer.main.dt);
+        par do
+            every outer.main.redraw do
+                call {Fonts::pingus_small}.render( {origin_top_center}, r.pub.abs.x+r.pub.abs.w/2, r.pub.abs.y-44, __(&&m_name[0] as _char&&), *{Display::s_framebuffer});
+            end
+        with
+            every e2.fst do
+                if {globals::developer_mode} as bool then
+                    _log_info("Worldmap: Clicked on: %1%", &&filename[0] as _char&&);
+                end
+                if id == outer.pingus.node then
+                    if {globals::developer_mode} as bool then
+                        _log_info("Worldmap: Pingu is on node, issue on_click()");
+                    end
+                    outer.return_filename = [] .. filename;
+                    if show_credits then
+                        emit outer.ok_escape({WORLDMAP_RETURN_STORY_CREDITS});
+                    else
+                        emit outer.ok_escape({WORLDMAP_RETURN_STORY_MAP});
+                    end
+                else
+                    call {StatManager::instance()}:set_string( {worldmap.get_short_name() + "-current-node"}, {path_graph->lookup_node(@id)});
+                    emit outer.pingus.go_walking(id);
+                end
+            end
+        with
+            every e2.snd do
+                if {globals::developer_mode} as bool then
+                    emit outer.pingus.go_directly(id);
+                end
+            end
+        end
+    end
+end
+code/await LevelDot (void) -> FOREVER
+do
+    {
+        reader = file_reader->read_section("dot");
+        reader.read_vector("position", pst);
+        reader.read_string("name",     name);
+        file_reader->read_string("levelname", resname);
+        plf = PLFResMgr::load_plf(resname);
+    }
+    var int id = {path_graph->lookup_node(name)};
+    vector[] byte res_name = [] .. {resname.c_str()} as _char&&;
+    vector[] byte lvl_name = [] .. {plf.get_levelname().c_str()} as _char&&;
+    vector[] byte filename = [] .. res_name;
+    var int status = {Savegame::NONE};
+    { savegame = SavegameManager::instance()->get(resname); }
+    if {savegame != NULL} as bool then
+        status = {savegame->get_status()};
+    end
+    var& RRect r = spawn RRect(IRRect(Rect({pst.x},{pst.y}, _,_), AnchorXY(AnchorX.Center(), AnchorY.Center()), &outer.offset, AnchorXY(AnchorX.Center(), AnchorY.Center()), _, _));
+    var EDot e2 = _;
+    spawn Mouse(&r.pub, &e2);
+    par do
+        if status=={Savegame::FINISHED} or status=={Savegame::ACCESSIBLE} then
+            if status == {Savegame::FINISHED} then
+                spawn Sprite_from_name(&r.pub, "core/worldmap/dot_green", &outer.main.dt);
+                var bool v = await e2.out until v==false;
+                pause/if e2.out do
+                    spawn Sprite_from_name(&r.pub, "core/worldmap/dot_green_hl", &outer.main.dt);
+                    await FOREVER;
+                end
+            else
+                spawn Sprite_from_name(&r.pub, "core/worldmap/dot_red", &outer.main.dt);
+                var bool v = await e2.out until v==false;
+                pause/if e2.out do
+                    spawn Sprite_from_name(&r.pub, "core/worldmap/dot_red_hl", &outer.main.dt);
+                    await FOREVER;
+                end
+                await FOREVER;
+            end
+        else
+            spawn Sprite_from_name(&r.pub, "core/worldmap/dot_invalid", &outer.main.dt);
+            await FOREVER;
+        end
+    with
+        var bool v = await e2.out until v==false;
+        pause/if e2.out do
+            par do
+                every outer.main.redraw do
+                    if status == {Savegame::NONE} then
+                        call {Fonts::pingus_small}.render( _origin_top_center, r.pub.abs.x+r.pub.abs.w/2, r.pub.abs.y-44, __("???"), *{Display::s_framebuffer});
+                    else
+                        call {Fonts::pingus_small}.render( _origin_top_center, r.pub.abs.x+r.pub.abs.w/2, r.pub.abs.y-44, __(&&lvl_name[0] as _char&&), *{Display::s_framebuffer});
+                    end
+                    if {globals::developer_mode} as bool then
+                        call {Fonts::pingus_small}.render( _origin_top_center, r.pub.abs.x+r.pub.abs.w/2, r.pub.abs.y-70, __(&&res_name[0] as _char&&), *{Display::s_framebuffer});
+                    end
+                end
+            with
+                every e2.fst do
+                    if {globals::developer_mode} as bool then
+                        _log_info("Worldmap: Clicked on: %1%", &&filename[0] as _char&&);
+                    end
+                    if id == outer.pingus.node then
+                        if {globals::developer_mode} as bool then
+                            _log_info("Worldmap: Pingu is on node, issue on_click()");
+                        end
+                        outer.return_filename = [] .. filename;
+                        emit outer.ok_escape({WORLDMAP_RETURN_LEVEL});
+                        _ceu_dbg_assert(0);
+                    else
+                        if status == {Savegame::NONE} then
+                            call {Sound::PingusSound::play_sound}("chink");
+                        else
+                            call {StatManager::instance()}:set_string( {worldmap.get_short_name() + "-current-node"}, {path_graph->lookup_node(@id)});
+                            emit outer.pingus.go_walking(id);
+                        end
+                    end
+                end
+            with
+                every e2.snd do
+                    if {globals::developer_mode} as bool then
+                        emit outer.pingus.go_directly(id);
+                    end
+                end
+            end
+        end
+    end
+end

@@ -1,0 +1,95 @@
+native/pre do
+    void ButtonPanel_load_actions (void) {
+        ButtonPanel_actions = GLOBAL_ACTIONHOLDER->get_available_actions();
+        std::sort(ButtonPanel_actions.begin(), ButtonPanel_actions.end());
+    }
+end
+code/await Button (var    int i, var    _ActionName__Enum id_me, var&   int n, event& int e) -> FOREVER do
+    var int y = i*38 - ({ButtonPanel_actions.size()}*38/2);
+    var& RRect r1 = spawn RRect(IRRect(Rect(0,y,60,38), AnchorXY(AnchorX.Left(), AnchorY.Center()), &outer.main.rect, AnchorXY(AnchorX.Left(), AnchorY.Center()), _, _));
+    var& RectComponent component = spawn RectComponent(&r1.pub);
+    vector[] byte name = [] .. "pingus/player0/" ..  ({ActionName::to_string}(id_me).c_str()) as _char&& .. "/right";
+    par do
+        var& RRect r2 = spawn RRect(IRRect(Rect(3,-3,_,_), AnchorXY(AnchorX.Left(), AnchorY.Center()), &r1.pub, AnchorXY(AnchorX.Left(), AnchorY.Center()), _, _));
+        if i == 0 then
+            spawn Sprite_from_name(&r1.pub, "core/buttons/buttonbackgroundhl", &outer.main.dt);
+            var&? Sprite_from_name s = spawn Sprite_from_name(&r2.pub, &&name[0] as _char&&, &outer.main.dt);
+            s!.sprite.is_loop = true;
+            outer.game.action_next = id_me;
+            await e;
+        end
+        loop do
+            do
+                spawn Sprite_from_name(&r1.pub, "core/buttons/buttonbackground", &outer.main.dt);
+                var&? Sprite_from_name s = spawn Sprite_from_name(&r2.pub, &&name[0] as _char&&, &outer.main.dt);
+                s!.sprite.frame_delay = 0;
+                par/or do
+                    await component.component.on_primary_button_pressed;
+                with
+                    var int ii = await e until ii==i;
+                end
+                outer.game.action_next = id_me;
+                n = i;
+                emit e(i);
+            end
+            do
+                spawn Sprite_from_name(&r1.pub, "core/buttons/buttonbackgroundhl", &outer.main.dt);
+                var&? Sprite_from_name s = spawn Sprite_from_name(&r2.pub, &&name[0] as _char&&, &outer.main.dt);
+                s!.sprite.is_loop = true;
+                await e;
+            end
+        end
+    with
+        every outer.main.redraw do
+            if {globals::developer_mode} as bool then
+                {
+                    out.str("");
+                    out.clear();
+                    std::string str = StringUtil::to_string(GLOBAL_ACTIONHOLDER->get_available(@id_me));
+                    out << GLOBAL_ACTIONHOLDER->get_available(@id_me) << " / " << GLOBAL_ACTIONHOLDER->get_used(@id_me);
+                };
+                call {Fonts::pingus_small}.render( {origin_center_left}, r1.pub.abs.x+r1.pub.abs.w-20, r1.pub.abs.y+r1.pub.abs.h/2, {out.str().c_str()}, *{Display::s_framebuffer});
+            else
+                call {Fonts::pingus_small}.render( {origin_center_right}, r1.pub.abs.x+r1.pub.abs.w-5, r1.pub.abs.y+r1.pub.abs.h/2, {StringUtil::to_string(GLOBAL_ACTIONHOLDER->get_available(@id_me))}, *{Display::s_framebuffer});
+            end
+        end
+    with
+        loop do
+            await component.component.on_pointer_enter;
+            watching component.component.on_pointer_leave do
+                every outer.main.redraw do
+                    call {Fonts::pingus_small}.render( {origin_center_left}, r1.pub.abs.x+r1.pub.abs.w+5, r1.pub.abs.y+r1.pub.abs.h/2, {ActionName::to_screenname}(id_me), *{Display::s_framebuffer});
+                end
+            end
+        end
+    end
+end
+{ ButtonPanel_load_actions(); }
+var   int max = {ButtonPanel_actions.size()};
+var   int n = 0;
+event int e;
+pool[] Button buts;
+var int i;
+loop i in [0 -> max[ do
+    spawn Button(i, {ButtonPanel_actions[@i]}, &n, &e) in buts;
+end
+var _Input__ButtonEvent&& but;
+every but in ON_BUTTON_PRESSED do
+    var int inc = 0;
+    if but:name >= {Input::ACTION_1_BUTTON} and but:name <= {Input::ACTION_10_BUTTON} then
+        emit e(but:name - {Input::ACTION_1_BUTTON});
+    else
+        if but:name == {Input::ACTION_DOWN_BUTTON} then
+            inc = 1;
+        else/if but:name == {Input::ACTION_UP_BUTTON} then
+            inc = -1;
+        end
+        if inc != 0 then
+            n = (n+inc) % max;
+            if n < 0 then
+                n = n + max;
+            end
+            emit e(n);
+        end
+    end
+end

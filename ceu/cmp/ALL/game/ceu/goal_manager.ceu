@@ -1,0 +1,24 @@
+var int time = outer.game.plf.get_time();
+var bool in_armageddon = false;
+spawn do
+    await outer.game.go_armageddon;
+    in_armageddon = true;
+    await FOREVER;
+end
+loop do
+    await outer.main.dt;
+    if outer.game.counter.number_of_allowed==outer.game.counter.number_of_released and outer.game.counter.number_of_alive==0 then
+        //goal = GT_NO_PINGUS_IN_WORLD;
+        break;
+    end
+    if outer.game.counter.number_of_alive==0 and in_armageddon then
+        //goal = GT_ARMAGEDDON;
+        break;
+    end
+    if time!=-1 and time<=outer.game.game_time then
+        //goal = GT_OUT_OF_TIME;
+        break;
+    end
+end
+var int exit_time = outer.game.game_time + 125;
+await outer.main.dt until exit_time < outer.game.game_time;

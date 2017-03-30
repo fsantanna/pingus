@@ -1,0 +1,77 @@
+var uint colmap_serial = 0;
+var& _Surface canvas = &{new Surface}(outer.game.rect_smallmap.abs.w, outer.game.rect_smallmap.abs.h)
+    finalize (canvas) with
+        _delete(&&canvas);
+    end;
+code/tight Update_Surface (void) -> void do
+    var _CollisionMap_ptr colmap = call Game_Get_Colmap();
+    outer.colmap_serial = colmap:get_serial();
+    outer.canvas._lock();
+    var _u8_ptr cbuffer = outer.canvas.get_data();
+    var int cmap_width  = colmap:get_width();
+    var int cmap_height = colmap:get_height();
+    var int width  = outer.canvas.get_width();
+    var int height = outer.canvas.get_height();
+    var int pitch  = outer.canvas.get_pitch();
+    _assert(width < cmap_width and height < cmap_height);
+    var int red   = 0;
+    var int green = 1;
+    var int blue  = 2;
+    var int alpha = 3;
+    var int y;
+    loop y in [0 -> height[ do
+        var int x;
+        loop x in [0 -> width[ do
+            var int i = y * pitch + 4 * x;
+            var int v = (colmap:getpixel_fast(x * cmap_width  / width, y * cmap_height / height));
+            if v == {Groundtype::GP_NOTHING} then
+                cbuffer[i + red]   = 0;
+                cbuffer[i + green] = 0;
+                cbuffer[i + blue]  = 0;
+                cbuffer[i + alpha] = 255;
+            else/if v == {Groundtype::GP_BRIDGE} then
+                cbuffer[i + red]   =     0;
+                cbuffer[i + green] = 255;
+                cbuffer[i + blue]  = 100;
+                cbuffer[i + alpha] = 255;
+            else/if v == {Groundtype::GP_SOLID} then
+                cbuffer[i + red]   = 100;
+                cbuffer[i + green] = 100;
+                cbuffer[i + blue]  = 125;
+                cbuffer[i + alpha] = 255;
+            else/if v=={Groundtype::GP_WATER} or v=={Groundtype::GP_LAVA} then
+                cbuffer[i + red]   = 0;
+                cbuffer[i + green] = 0;
+                cbuffer[i + blue]  = 200;
+                cbuffer[i + alpha] = 255;
+            else
+                cbuffer[i + red]   = 200;
+                cbuffer[i + green] = 200;
+                cbuffer[i + blue]  = 200;
+                cbuffer[i + alpha] = 255;
+            end
+        end
+    end
+    outer.canvas.unlock();
+end
+var float smallmap_update_time = 1.0;
+loop do
+    var float update_count = 0;
+    var _CollisionMap&& colmap = call Game_Get_Colmap();
+    //if (colmap_serial != colmap:get_serial()) then
+        call Update_Surface();
+    //end
+    { SMALLMAP_IMAGE_sfc = Display::get_framebuffer()->create_surface(@canvas.clone()); }
+    spawn do
+        every outer.main.redraw do
+            { Display::s_framebuffer->draw_surface(SMALLMAP_IMAGE_sfc, Vector2i(@outer.game.rect_smallmap.abs.x, @outer.game.rect_smallmap.abs.y)); }
+        end
+    end
+    loop do
+        var int dt = await outer.main.dt;
+        update_count = update_count + (dt as float)/1000;
+        if update_count > smallmap_update_time then
+            break;
+        end
+    end
+end

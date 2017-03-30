@@ -1,0 +1,110 @@
+var s8 direction = {NONE};
+var& RRect r = spawn RRect(IRRect(Rect(outer.pst.x,outer.pst.y, _,_), AnchorXY(AnchorX.Center(), AnchorY.Bottom()), &outer.offset, AnchorXY(AnchorX.Center(), AnchorY.Center()), _, _));
+spawn do
+    var int x;
+    var int y;
+    every (x,y) in outer.set_pst do
+        r.pub.off.x = x;
+        r.pub.off.y = y;
+        emit r.pub.changed;
+    end
+end
+code/await MovePath (var& float cur) -> void do
+    var float velocity = 70;
+    var float prv_x = outer.pst.x;
+    var float prv_y = outer.pst.y;
+    loop do
+        var int dt = await outer.main.dt;
+        cur = cur + velocity * (dt as float)/1000;
+        if cur > {edge_path.length()} then
+            break; // target reached
+        end
+        var float cur_x = {edge_path.at(@cur).x};
+        var float cur_y = {edge_path.at(@cur).y};
+        emit outer.set_pst(cur_x as int, cur_y as int);
+        var float dir = ({Math::atan2}(prv_x-cur_x, -(prv_y-cur_y)) / {Math::pi}*180) + 180;
+        if dir>=0 and dir<180 then
+            outer.direction = {RIGHT};
+        else
+            outer.direction = {LEFT};
+        end
+        prv_x = cur_x;
+        prv_y = cur_y;
+    end
+end
+vector[] byte none  = [].."core/worldmap/pingus_standing";
+vector[] byte left  = [].."core/worldmap/pingus/left";
+vector[] byte right = [].."core/worldmap/pingus/right";
+var&? RightLeftSprites sprites = spawn RightLeftSprites(&r.pub, &direction, &none, &left, &right, &outer.main.dt);
+loop do
+    direction = {NONE};
+    par/or do
+        var _WorldmapNS__NodeId target = await pingus.go_directly;
+        emit outer.set_pst({path_graph->get_dot(@target)->get_pos().x}, {path_graph->get_dot(@target)->get_pos().y});
+        pingus.node = target;
+    with
+        var _WorldmapNS__NodeId target = await pingus.go_walking;
+        var float cur_position = 0;
+        var int   cur_length   = 0;
+        var _WorldmapNS__NodeId cur_node = pingus.node;
+        loop do
+            {
+                res = (path_graph->get_path(@cur_node, @target));
+                node_path = res.path;
+            };
+            var _WorldmapNS__NodeId src = {node_path.back()};
+            {node_path.pop_back();}
+            var _WorldmapNS__NodeId dst = {node_path.back()};
+            {node_path.pop_back();}
+            var _WorldmapNS__NodeId? target_ =
+                watching pingus.go_walking do
+                    var& RRect r = spawn RRect(IRRect(Rect({path_graph->get_dot(@target)->get_pos().x}, {path_graph->get_dot(@target)->get_pos().y}, _,_), AnchorXY(AnchorX.Center(), AnchorY.Bottom()), &outer.offset, AnchorXY(AnchorX.Center(), AnchorY.Center()), _, _));
+                    spawn Sprite_from_name(&r.pub, "core/worldmap/arrow", &outer.main.dt);
+                    var int i;
+                    loop i do
+                        {
+                            edge_path.clear();
+                            partial_path = path_graph->graph.resolve_edge(@src,@dst).data;
+                            edge_path.push_back(path_graph->graph.resolve_node(@src).data->get_pos());
+                            edge_path.reverse_insert(*partial_path);
+                            edge_path.push_back(path_graph->graph.resolve_node(@dst).data->get_pos());
+                        }
+                        cur_length = {edge_path.length()};
+                        pingus.node = {WorldmapNS__NoNode};
+                        await MovePath(&cur_position);
+                        cur_position = 0;
+                        cur_node = dst;
+                        pingus.node = dst;
+                        if {node_path.empty()} as bool then
+                            break;
+                        else
+                            src = dst;
+                            dst = {node_path.back()};
+                            {node_path.pop_back();}
+                        end
+                    end
+                    break; // moved and finished normally
+                end;
+            target = target_!;
+            if target == dst then
+                // nothing to do
+            else/if target == src then
+                cur_node = dst;
+                cur_position = cur_length - cur_position;
+            else
+                {
+                    node_path1 = path_graph->get_path(@src, @target);
+                    node_path2 = path_graph->get_path(@dst, @target);
+                };
+                if ({node_path1.cost}+cur_position < {node_path2.cost}+(cur_length-cur_position)) then
+                    {node_path = node_path1.path;}
+                    cur_node = dst;
+                    cur_position = cur_length - cur_position;
+                    {node_path.insert(node_path.begin(), @dst);}
+                else
+                    {node_path = node_path2.path;}
+                end
+            end
+        end
+    end
+end

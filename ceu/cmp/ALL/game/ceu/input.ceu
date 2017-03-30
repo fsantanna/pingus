@@ -1,0 +1,141 @@
+event void go_pause_toggle;
+event bool go_forward;
+par do                                                      // INPUT
+    var bool is_paused         = false;
+    var bool is_fast_forwarded = false;
+    var bool do_single_step    = false;
+    par do
+        var int world_delay = 0; // the world is initially on time
+        loop do
+            var int dt = await outer.main.dt;
+            var int time_passed = dt + world_delay;
+            var int update_time = {globals::game_speed};
+            var int world_updates = 0;
+            loop do
+                if ((world_updates+1)*update_time > time_passed) then
+                    break;
+                end
+                if (not is_paused) or do_single_step then
+                    do_single_step = false;
+                    if is_fast_forwarded then
+                        var int i;
+                        loop i in [0 -> {globals::fast_forward_time_scale}[ do
+                            emit outer.game.dt(33);
+                        end
+                    else
+                        emit outer.game.dt(33);
+                    end
+                end
+                world_updates = world_updates + 1;
+            end
+            world_delay = time_passed - (world_updates*update_time);
+        end
+    with
+        loop do
+            var _Input__ButtonEvent&& but = await ON_BUTTON_PRESSED;
+            if but:name == {Input::PAUSE_BUTTON} then
+                emit go_pause_toggle;
+            else/if but:name == {Input::SINGLE_STEP_BUTTON} then
+                if not is_paused then
+                    emit go_pause_toggle;
+                end
+                do_single_step = true;
+            else/if but:name == {Input::FAST_FORWARD_BUTTON} then
+                emit go_forward(true);
+            else/if but:name == {Input::ARMAGEDDON_BUTTON} then
+                emit outer.game.go_armageddon;
+            else/if but:name == {Input::ESCAPE_BUTTON} then
+                break;
+            end
+        end
+    with
+        var _Input__ButtonEvent&& but;
+        every but in ON_BUTTON_RELEASED do
+            if but:name == {Input::FAST_FORWARD_BUTTON} then
+                emit go_forward(false);
+            end
+        end
+    with
+        every go_pause_toggle do
+            is_paused = not is_paused;
+            emit go_forward(false);
+        end
+    with
+        var bool v;
+        every v in go_forward do
+            is_fast_forwarded = v;
+            if v==true and is_paused then
+                emit go_pause_toggle;
+            end
+        end
+    end
+with                                                        // UI
+    par do                                                      // ARMAGEDDON
+        var& RRect rect = spawn RRect(IRRect(Rect(-105+40+40,-5,38,60), AnchorXY(AnchorX.Center(), AnchorY.Bottom()), &outer.main.rect, AnchorXY(AnchorX.Right(), AnchorY.Bottom()), _, _));
+        var& RectComponent component = spawn RectComponent(&rect.pub);
+        spawn Sprite_from_name(&rect.pub, "core/buttons/hbuttonbgb", &outer.main.dt);
+        do
+            var&? Sprite_from_name s = spawn Sprite_from_name(&rect.pub, "core/buttons/armageddon_anim", &outer.main.dt);
+            s!.sprite.frame_delay = 0;
+            s!.sprite.frame = 7;
+            loop do
+                await component.component.on_primary_button_pressed;
+                watching 1s do
+                    await component.component.on_primary_button_pressed;
+                    break;
+                end
+            end
+        end
+        do
+            spawn Sprite_from_name(&rect.pub, "core/buttons/armageddon_anim", &outer.main.dt);
+            emit outer.game.go_armageddon;
+            await FOREVER;
+        end
+    with                                                        // FORWARD
+        var& RRect rect = spawn RRect(IRRect(Rect(-105+40,-5,38,60), AnchorXY(AnchorX.Center(), AnchorY.Bottom()), &outer.main.rect, AnchorXY(AnchorX.Right(), AnchorY.Bottom()), _, _));
+        var& RectComponent component = spawn RectComponent(&rect.pub);
+        spawn do
+            loop do
+                do
+                    spawn Sprite_from_name(&rect.pub, "core/buttons/hbuttonbgb", &outer.main.dt);
+                    par/or do
+                        var bool v = await go_forward until v;
+                    with
+                        await component.component.on_primary_button_pressed;
+                        emit go_forward(true);
+                    end
+                end
+                do
+                    spawn Sprite_from_name(&rect.pub, "core/buttons/hbuttonbg", &outer.main.dt);
+                    par/or do
+                        var bool v = await go_forward until (not v);
+                    with
+                        await component.component.on_primary_button_released;
+                        emit go_forward(false);
+                    end
+                end
+            end
+        end
+        spawn Sprite_from_name(&rect.pub, "core/buttons/fast_forward", &outer.main.dt);
+        await FOREVER;
+    with                                                        // PAUSE
+        var& RRect rect = spawn RRect(IRRect(Rect(-105,-5,38,60), AnchorXY(AnchorX.Center(), AnchorY.Bottom()), &outer.main.rect, AnchorXY(AnchorX.Right(), AnchorY.Bottom()), _, _));
+        var& RectComponent component = spawn RectComponent(&rect.pub);
+        spawn do
+            loop do
+                watching go_pause_toggle do
+                    spawn Sprite_from_name(&rect.pub, "core/buttons/hbuttonbgb", &outer.main.dt);
+                    await component.component.on_primary_button_pressed;
+                    emit go_pause_toggle;
+                end
+                watching go_pause_toggle do
+                    spawn Sprite_from_name(&rect.pub, "core/buttons/hbuttonbg", &outer.main.dt);
+                    await component.component.on_primary_button_pressed;
+                    emit go_pause_toggle;
+                end
+            end
+        end
+        spawn Sprite_from_name(&rect.pub, "core/buttons/pause", &outer.main.dt);
+        await FOREVER;
+    end
+end

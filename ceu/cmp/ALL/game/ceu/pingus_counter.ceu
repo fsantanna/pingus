@@ -1,0 +1,7 @@
+var& RRect rect = spawn RRect(IRRect(Rect(0,0,_,_), AnchorXY(AnchorX.Center(), AnchorY.Top()), &outer.main.rect, AnchorXY(AnchorX.Center(), AnchorY.Top()), _, _));
+spawn Sprite_from_name(&rect.pub, "core/buttons/info", &outer.main.dt);
+every outer.main.redraw do
+    vector[128] byte str = [];
+    _snprintf(&&str[0] as _char&&, 128, __("Released:%3d/%d   Out:%3d   Saved:%3d/%d").c_str(), outer.game.counter.number_of_released, outer.game.counter.number_of_allowed, outer.game.counter.number_of_alive, outer.game.counter.number_of_exited, outer.game.counter.number_to_save);
+    call {Fonts::pingus_small_fixnum}.render( _origin_top_center, rect.pub.abs.x + rect.pub.abs.w/2, -2, &&str[0] as _char_const_ptr, *{Display::s_framebuffer});
+end

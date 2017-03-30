@@ -1,0 +1,123 @@
+var bool has_succeeded = outer.result.success() as bool;
+var int n_killed = outer.result.killed;
+{ static std::string RESULT_SCREEN_time_str; };
+if outer.result.max_time == -1 then
+    {RESULT_SCREEN_time_str = "-";}
+else
+    {RESULT_SCREEN_time_str = GameTime::ticks_to_realtime_string(std::max(0, @outer.result.max_time - @outer.result.used_time));}
+end
+{ str = _(@outer.result.plf.get_levelname()); }
+vector[] byte level_name = [] .. ({str.c_str()} as _char&&);
+vector[] byte message;
+if has_succeeded then
+    if (outer.result.killed == 0 and outer.result.saved == outer.result.total) then
+        message = [] .. "Perfect! You saved everyone possible - great!";
+    else/if (outer.result.killed == 0) then
+        message = [] .. "No-one got killed, pretty good work.";
+    else/if (outer.result.saved == outer.result.needed) then
+        message = [] .. "You saved exactly what you needed - you made it, but\nmaybe you can do better?";
+    else/if (outer.result.killed >= 5) then
+        message = [] .. "Not everybody was saved, but still good work!";
+    else
+        message = [] .. "What can I say, you made it - congratulations!";
+    end
+else
+    if (outer.result.killed == outer.result.total) then
+        message = [] .. "You killed everybody, not good.";
+    else/if (outer.result.saved == 0) then
+        message = [] .. "No-one got saved - I know you can do better.";
+    else/if (outer.result.saved > 0) then
+        message = [] .. "You didn't save enough, but you saved a few.  Next\ntime you might do better.";
+    else/if (outer.result.saved + 1 >= outer.result.needed) then
+        message = [] .. "Only one more and you would have made it - try again!";
+    else/if (outer.result.saved + 5 >= outer.result.needed) then
+        message = [] .. "Only a handful more and you would have made it - try again!";
+    else
+        message = [] .. "Better luck next time!";
+    end
+end
+vector[] byte saved_needed = [] ..  ({StringUtil::to_string((int)@outer.result.saved)}.c_str() as _char&&) .. [{'/'}] ..  ({StringUtil::to_string((int)@outer.result.needed)}.c_str() as _char&&);
+spawn Wood();
+var& RRect rect = spawn RRect(IRRect(Rect(0,0, _,_), AnchorXY(AnchorX.Center(), AnchorY.Center()), &outer.main.rect, AnchorXY(AnchorX.Center(), AnchorY.Center()), _, _));
+spawn Sprite_from_name(&rect.pub, "core/menu/blackboard", &outer.main.dt);
+var& RRect r1 = spawn RRect(IRRect(Rect(-50,-60, _,_), AnchorXY(AnchorX.Right(), AnchorY.Bottom()), &rect.pub, AnchorXY(AnchorX.Right(), AnchorY.Bottom()), _, _));
+var&? SurfaceButton ok = spawn SurfaceButton(&r1.pub, "core/start/ok", "core/start/ok_clicked", "core/start/ok_hover");
+var& RRect abort_r = spawn RRect(IRRect(Rect(70,-2, _,_), AnchorXY(AnchorX.Left(), AnchorY.Bottom()), &rect.pub, AnchorXY(AnchorX.Left(), AnchorY.Bottom()), _, _));
+var&? SurfaceButton abort = spawn SurfaceButton(&abort_r.pub, "core/start/back", "core/start/back_clicked", "core/start/back_hover");
+var& RRect retry_r = spawn RRect(IRRect(Rect(-50,-60, _,_), AnchorXY(AnchorX.Right(), AnchorY.Bottom()), &rect.pub, AnchorXY(AnchorX.Right(), AnchorY.Bottom()), _, _));
+var&? SurfaceButton retry = spawn SurfaceButton(&retry_r.pub, "core/start/ok", "core/start/ok_clicked", "core/start/ok_hover");
+par do
+    every abort!.component.on_pointer_enter do
+        call {Sound::PingusSound::play_sound}("tick");
+    end
+with
+    await abort!.component.on_click;
+    escape false;
+with
+    every retry!.component.on_pointer_enter do
+        call {Sound::PingusSound::play_sound}("tick");
+    end
+with
+    await retry!.component.on_click;
+    escape true;
+with
+    every ok!.component.on_pointer_enter do
+        call {Sound::PingusSound::play_sound}("tick");
+    end
+with
+    await ok!.component.on_click;
+    call {Sound::PingusSound::play_sound}("yipee");
+    escape false;
+with
+    if has_succeeded then
+        kill abort;
+        kill retry;
+        {Sound::PingusSound::play_music("success_1.it", 1.f, false);};
+    else
+        kill ok;
+        {Sound::PingusSound::play_music("pingus-2.it", 1.f, false);};
+    end
+with
+    loop do
+        var _Input__ButtonEvent&& but = await ON_BUTTON_PRESSED;
+        if but:name == {Input::PAUSE_BUTTON} then
+            escape (not has_succeeded);
+        else/if but:name == {Input::FAST_FORWARD_BUTTON} then
+            escape (not has_succeeded);
+        else/if but:name == {Input::ESCAPE_BUTTON} then
+            escape false;
+        end
+    end
+with
+    every outer.main.redraw do
+        do
+            var int left_x  = outer.main.rect.abs.w/2 - 150;
+            var int right_x = outer.main.rect.abs.w/2 + 150;
+            var int y = outer.main.rect.abs.h/2 + 40;
+            if not has_succeeded then
+                call {Fonts::chalk_normal}.render( _origin_top_center, abort_r.pub.abs.x+abort_r.pub.abs.w/2, abort_r.pub.abs.y-4, __("Give Up"), *{Display::s_framebuffer});
+                call {Fonts::chalk_normal}.render( _origin_top_center, retry_r.pub.abs.x+retry_r.pub.abs.w/2, retry_r.pub.abs.y-24, __("Retry"), *{Display::s_framebuffer});
+            end
+            call ({Fonts::chalk_large}.render as /nohold)( _origin_top_center, outer.main.rect.abs.w/2, outer.main.rect.abs.h/2-200, &&level_name[0] as _char&&, *{Display::s_framebuffer}); 
+            if has_succeeded then
+                call {Fonts::chalk_large}.render( _origin_top_center, outer.main.rect.abs.w/2, outer.main.rect.abs.h/2-140, __("Success!"), *{Display::s_framebuffer});
+            else
+                call {Fonts::chalk_large}.render( _origin_top_center, outer.main.rect.abs.w/2, outer.main.rect.abs.h/2-140, __("Failure!"), *{Display::s_framebuffer});
+            end
+            call ({Fonts::chalk_normal}.render as /nohold)( _origin_top_center, outer.main.rect.abs.w/2, outer.main.rect.abs.h/2-70, &&message[0] as _char&&, *{Display::s_framebuffer});
+        end
+        do
+            var int left_x  = outer.main.rect.abs.w/2 - 100;
+            var int right_x = outer.main.rect.abs.w/2 + 100;
+            var int y = outer.main.rect.abs.h/2 + 10;
+            call {Fonts::chalk_normal}.render( _origin_top_left, left_x, y, __("Saved: "), *{Display::s_framebuffer});
+            call ({Fonts::chalk_normal}.render as /nohold)( _origin_top_right, right_x, y, &&saved_needed[0] as _char&&, *{Display::s_framebuffer});
+            y = y + 30;
+            call {Fonts::chalk_normal}.render( _origin_top_left, left_x, y, __("Died: "), *{Display::s_framebuffer});
+            call {Fonts::chalk_normal}.render( _origin_top_right, right_x, y, {StringUtil::to_string}(n_killed), *{Display::s_framebuffer});
+            y = y + 30;
+            call {Fonts::chalk_normal}.render( _origin_top_left, left_x, y, __("Time left: "), *{Display::s_framebuffer});
+            call {Fonts::chalk_normal}.render( _origin_top_right, right_x, y, {RESULT_SCREEN_time_str}, *{Display::s_framebuffer});
+        end
+    end
+end

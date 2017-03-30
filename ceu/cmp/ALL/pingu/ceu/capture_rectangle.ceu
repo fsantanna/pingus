@@ -1,0 +1,47 @@
+loop do
+    await outer.pingu.go_toggle_capture;
+    watching outer.pingu.go_toggle_capture do
+        par do
+            if {ActionName::CATCHABLE}[outer.pingu.current_action] as bool then
+                var& RRect r1 = spawn RRect(IRRect(Rect(0,0, _,_), AnchorXY(AnchorX.Center(), AnchorY.Center()), &outer.pingu.rect, AnchorXY(AnchorX.Center(), AnchorY.Center()), _, _));
+                var _char&& name1 = do
+                    if {ActionName::CHANGE_ALLOWED}[outer.pingu.current_action][outer.game.action_next] as bool then
+                        escape "game/cursors/capgood";
+                    else
+                        escape "game/cursors/capbad";
+                    end
+                end;
+                spawn Sprite_from_name(&r1.pub, name1, &outer.main.dt);
+                var& RRect r2 = spawn RRect(IRRect(Rect(0,0, _,_), AnchorXY(AnchorX.Center(), AnchorY.Center()), &outer.pingu.rect, AnchorXY(AnchorX.Center(), AnchorY.Center()), _, _));
+                var _char&& name2 = do
+                    if outer.pingu.direction == {LEFT} then
+                        escape "game/cursors/arrow_left";
+                    else
+                        escape "game/cursors/arrow_right";
+                    end
+                end;
+                spawn Sprite_from_name(&r2.pub, name2, &outer.main.dt);
+                await FOREVER;
+            end
+        with
+            every outer.main.redraw do
+                if {ActionName::CATCHABLE}[outer.pingu.current_action] as bool then
+                    vector[] byte action_str = [] .. outer.pingu.name;
+                    if outer.wall_action != {ActionName::NONE} or outer.fall_action != {ActionName::NONE} then
+                        action_str = action_str .. [{'['}];
+                        if outer.wall_action != {ActionName::NONE} then
+                            var byte c = {ActionName::PERSISTENT_CHAR}[outer.wall_action];
+                            action_str = action_str .. [c];
+                        end
+                        if outer.fall_action != {ActionName::NONE} then
+                            var byte c = {ActionName::PERSISTENT_CHAR}[outer.fall_action];
+                            action_str = action_str .. [c];
+                        end
+                        action_str = action_str .. [{']'}];
+                    end
+                    call ({Fonts::courier_small}.render as /nohold)( {origin_top_center}, outer.pingu.rect.abs.x + outer.pingu.rect.abs.w/2, outer.pingu.rect.abs.y - 30, &&action_str[0] as _char&&, *{Display::s_framebuffer});
+                end
+            end
+        end
+    end
+end

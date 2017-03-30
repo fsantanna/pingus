@@ -1,0 +1,90 @@
+var Position mouse = val Position(0,0);
+spawn do
+    var int x;
+    var int y;
+    every (x,y) in ON_POINTER_MOVE do
+        mouse.x = x;
+        mouse.y = y;
+    end
+end
+par do
+    var int x;
+    var int y;
+    every (x,y) in ON_PRIMARY_BUTTON_PRESSED do
+        var float min_dist = 500.0;
+        var bool? check;
+        var&? Pingu pingu = do
+            var&? Pingu p;
+            loop p in outer.pingus do
+                if (call p!.Pingu_Is_Over(mouse.x,mouse.y)) then
+                    var float dist = call p!.Pingu_Dist(mouse.x,mouse.y);
+                    if (dist < min_dist) then
+                        min_dist = dist;
+                        check = call p!.Pingu_Check_Action(outer.game.action_next);
+                        escape &p;
+                    end
+                end
+            end
+        end;
+        if pingu? and check! then
+            if {GLOBAL_ACTIONHOLDER->pop_action(@outer.game.action_next)} as bool then
+                emit pingu!.pingu.go_action(outer.game.action_next);
+            end
+        end
+    end
+with
+    loop do
+        var int y;
+        var int x;
+        (x,y) = await ON_SECONDARY_BUTTON_PRESSED;
+        watching ON_SECONDARY_BUTTON_RELEASED do
+            par do
+                every outer.main.dt do
+                    var int dx = x - mouse.x;
+                    var int dy = y - mouse.y;
+                    if {globals::drag_drop_scrolling} as bool then
+                        outer.game.offset.off.x = outer.game.offset.off.x - dx;
+                        outer.game.offset.off.y = outer.game.offset.off.y - dy;
+                    else
+                        outer.game.offset.off.x = outer.game.offset.off.x + ((dx*0.2) as int);
+                        outer.game.offset.off.y = outer.game.offset.off.y + ((dy*0.2) as int);
+                    end
+                    emit outer.game.offset.changed;
+                end
+            with
+                every outer.main.redraw do
+                    if {globals::drag_drop_scrolling} as bool then
+                        continue;
+                    end
+                    call {Display::s_framebuffer}:draw_line( POS2VEC(mouse), _Vector2i(x, y-15), _Color(0, 255, 0));
+                    call {Display::s_framebuffer}:draw_line( POS2VEC(mouse), _Vector2i(x, y+15), _Color(0, 0, 255));
+                    call {Display::s_framebuffer}:draw_line( POS2VEC(mouse), _Vector2i(x+15, y), _Color(0, 255, 255));
+                    call {Display::s_framebuffer}:draw_line( POS2VEC(mouse), _Vector2i(x-15, y), _Color(255, 255, 0));
+                    call {Display::s_framebuffer}:draw_line( POS2VEC(mouse), _Vector2i(x, y), _Color(255, 0, 0));
+                end
+            end
+        end
+    end
+with
+    do ()
+        #include "capture_rectangle.ceu"
+    end
+with
+    var int dt;
+    every dt in outer.main.dt do
+        if {globals::auto_scrolling && (Display::is_fullscreen() || SDL_WM_GrabInput(SDL_GRAB_QUERY)==SDL_GRAB_ON)} as bool then
+            var int scroll_speed = (dt * 0.8) as int;
+            if (mouse.x < 10) then
+                outer.game.offset.off.x = outer.game.offset.off.x + scroll_speed;
+            else/if (mouse.x > outer.main.rect.abs.w - 10) then
+                outer.game.offset.off.x = outer.game.offset.off.x - scroll_speed;
+            end
+            if (mouse.y < 10) then
+                outer.game.offset.off.y = outer.game.offset.off.y + scroll_speed;
+            else/if (mouse.y > outer.main.rect.abs.h - 10) then
+                outer.game.offset.off.y = outer.game.offset.off.y - scroll_speed;
+            end
+            emit outer.game.offset.changed;
+        end
+    end
+end

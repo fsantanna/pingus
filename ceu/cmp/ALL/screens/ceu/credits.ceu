@@ -1,0 +1,107 @@
+code/await Credits (void) -> void
+do
+    do finalize with
+        call {StatManager::instance()->set_bool}("credits-seen", true);
+    end
+    {
+        static std::vector<std::string> credits;
+        static int end_offset = -static_cast<float>(@outer.main.rect.abs.h)/2 - 50; // screen height + grace time
+        {
+            std::ifstream in(filename_credits.get_sys_path());
+            if (!in) {
+                log_error("couldn't open %1%", filename_credits);
+                std::ostringstream out;
+                out << "couldn't open " << filename_credits;
+                credits.push_back(out.str());
+            } else {
+                std::string line;
+                while(std::getline(in, line))
+                    credits.push_back(line);
+            }
+        }
+        for (std::vector<std::string>::iterator i = credits.begin(); i != credits.end(); ++i) {
+            switch ((*i)[0]) {
+                case '-':
+                    end_offset += static_cast<float>(Fonts::chalk_normal.get_height() + 5);
+                    break;
+                case '_':
+                    end_offset += static_cast<float>(Fonts::chalk_large.get_height() + 5);
+                    break;
+                case 'n':
+                    end_offset += 50;
+                    break;
+                default:
+                    log_error("Credits: Syntax error: Unknown format: '%1%'", (*i)[0]);
+                    break;
+            }
+        }
+        end_offset = -end_offset;
+    };
+    spawn Wood();
+    var& RRect rect = spawn RRect(IRRect(Rect(0,0, _,_), AnchorXY(AnchorX.Center(), AnchorY.Center()), &outer.main.rect, AnchorXY(AnchorX.Center(), AnchorY.Center()), _, _));
+    spawn Sprite_from_name(&rect.pub, "core/menu/blackboard", &outer.main.dt);
+    var& RRect r1 = spawn RRect(IRRect(Rect(0,-20, _,_), AnchorXY(AnchorX.Center(), AnchorY.Center()), &rect.pub, AnchorXY(AnchorX.Center(), AnchorY.Center()), _, _));
+    spawn Sprite_from_name(&r1.pub, "core/misc/creditpingu", &outer.main.dt);
+    var& RRect r2 = spawn RRect(IRRect(Rect(-50,-60, _,_), AnchorXY(AnchorX.Right(), AnchorY.Bottom()), &rect.pub, AnchorXY(AnchorX.Right(), AnchorY.Bottom()), _, _));
+    var& SurfaceButton ok = spawn SurfaceButton(&r2.pub, "core/start/ok", "core/start/ok_clicked", "core/start/ok_hover");
+    var bool is_fast_scrolling = false;
+    var float offset = outer.main.rect.abs.h - 50;
+    par do
+        await ok.component.on_click;
+        call {Sound::PingusSound::play_sound}("yipee");
+        escape;
+    with
+        every ok.component.on_pointer_enter do
+            call {Sound::PingusSound::play_sound}("tick");
+        end
+    with
+        loop do
+            var _Input__ButtonEvent&& but = await ON_BUTTON_PRESSED;
+            if but:name == {Input::FAST_FORWARD_BUTTON} then
+                is_fast_scrolling = not is_fast_scrolling;
+            else/if but:name == {Input::ESCAPE_BUTTON} then
+                escape;
+            end
+        end
+    with
+        loop do
+            var int dt = await outer.main.dt;
+            if is_fast_scrolling then
+                offset = offset - dt*0.45;
+            else
+                offset = offset - dt*0.035;
+            end
+            if offset < {end_offset} then
+                break;
+            end
+        end
+        await FOREVER;
+    with
+        every outer.main.redraw do
+            var int xc = outer.main.rect.abs.w / 2;
+            var int yc = outer.main.rect.abs.h / 2;
+           var int yof = 0;
+            {
+                static std::vector<std::string>::iterator i;
+                i = credits.begin();
+            };
+            loop do
+                if {i == credits.end()} as bool then
+                    break;
+                end
+                if {(*i)[0] == '-'} as bool then
+                    call {Fonts::chalk_normal}.render( _origin_top_center, xc, (offset + yof), {i->substr(1)}, *{Display::s_framebuffer});
+                    yof = yof + {Fonts::chalk_normal}.get_height() + 5;
+                else/if {(*i)[0] == '_'} as bool then
+                    call {Fonts::chalk_large}.render( _origin_top_center, xc, (offset + yof), {i->substr(1)}, *{Display::s_framebuffer});
+                    yof = yof + {Fonts::chalk_large}.get_height() + 5;
+                else/if {(*i)[0] == 'n'} as bool then
+                    yof = yof + 50;
+                else
+                    _log_error("Credits: Syntax error: Unknown format: '%1%'", {(*i)[0]});
+                end
+                {i++;};
+            end
+        end
+    end
+end

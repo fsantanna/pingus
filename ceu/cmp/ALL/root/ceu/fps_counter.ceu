@@ -1,0 +1,24 @@
+var int count = 0;
+par do
+    loop do
+        watching 1s do
+            every outer.main.dt do
+                count = count + 1;
+            end
+        end
+        { {
+                str << @(count) << " fps";
+                fps_string = str.str();
+            } };
+        count = 0;
+    end
+with
+    loop do
+        await outer.main.redraw;
+        if {globals::print_fps} != 0 then
+            call {Fonts::pingus_small}.render( _origin_top_center, outer.main.rect.abs.w/2, 35, {fps_string}, *{Display::s_framebuffer});
+            await outer.main.redraw;
+            call {Fonts::pingus_small}.render( _origin_top_center, outer.main.rect.abs.w/2, 35, { "+ " + fps_string + " +"}, *{Display::s_framebuffer});
+        end
+    end
+end

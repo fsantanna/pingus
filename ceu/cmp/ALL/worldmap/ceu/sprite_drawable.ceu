@@ -1,0 +1,24 @@
+code/await SpriteDrawable (void) -> FOREVER
+do
+    {
+        file_reader->read_desc  ("surface", desc);
+        file_reader->read_vector("position", pst);
+        file_reader->read_bool  ("auto-uncover", auto_uncover);
+        spr = Resource::load_sprite_desc(desc.res_name);
+    };
+    var bool auto_uncover = {auto_uncover} as bool;  /// TODO
+    var Vector3f pst = val Vector3f({pst.x},{pst.y},{pst.z});
+    var& Surface_from_desc sfc = spawn Surface_from_desc({spr},_);
+    var int w = sfc.surface.framebuffer.get_width();
+    var int h = sfc.surface.framebuffer.get_height();
+    every outer.main.redraw do
+        if auto_uncover then
+            if (not (outer.pst.x>pst.x and outer.pst.x<(pst.x + w) and outer.pst.y>pst.y and outer.pst.y<(pst.y + h))) then
+                call {Display::s_framebuffer}:draw_surface( sfc.surface.framebuffer, _Vector2i(pst.x+outer.offset.abs.x+outer.offset.abs.w/2, pst.y+outer.offset.abs.y+outer.offset.abs.h/2));
+            end
+        else
+            call {Display::s_framebuffer}:draw_surface( sfc.surface.framebuffer, _Vector2i(pst.x+outer.offset.abs.x+outer.offset.abs.w/2, pst.y+outer.offset.abs.y+outer.offset.abs.h/2)
+            );
+        end
+    end
+end

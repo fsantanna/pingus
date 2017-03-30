@@ -1,0 +1,97 @@
+#define x_collision_decrease 0.3
+#define y_collision_decrease 0.6
+code/await PinguParticle (var int x, var int y) -> void do
+    var int livetime = (50 + _rand()%75);
+    var Vector3f velocity = val Vector3f(({Math::frand}() * 7 - 3.5) as float, ({Math::frand}() * -9)      as float, 0);
+    var& RRect rect = spawn RRect(IRRect(Rect(x,y,_,_), AnchorXY(AnchorX.Left(), AnchorY.Bottom()), &outer.game.offset, AnchorXY(AnchorX.Center(), AnchorY.Center()), _, _));
+    spawn Sprite_from_name(&rect.pub, "particles/pingu_explo", &outer.game.dt);
+    var& IRRect r = &rect.pub;
+    var bool has_pixel = do
+        var _CollisionMap_ptr ptr = call Game_Get_Colmap();
+        escape ptr:getpixel(r.off.x,r.off.y) as bool;
+    end;
+    var int i;
+    loop i in [0 -> livetime[ do
+        await outer.game.dt;
+        var float tmp_x_add = 0.0;
+        var float tmp_y_add = 0.0;
+        velocity.y = velocity.y + outer.game.gravity;
+        if velocity.y > 0 then
+            tmp_y_add = velocity.y;
+            loop do
+                if tmp_y_add < 1.0 then
+                    break;
+                end
+                if has_pixel then
+                    velocity.y = velocity.y * -y_collision_decrease;
+                    tmp_y_add = -tmp_y_add;
+                    r.off.y = r.off.y - 1;
+                    call IRRect_Set(&r);
+                    break;
+                end
+                r.off.y = r.off.y + 1;
+                call IRRect_Set(&r);
+                tmp_y_add = tmp_y_add - 1;
+            end
+            r.off.y = r.off.y + (tmp_y_add as int);
+        else
+            tmp_y_add = velocity.y;
+            loop do
+                if tmp_y_add > -1.0 then
+                    break;
+                end
+                if has_pixel then
+                    velocity.y = velocity.y * -y_collision_decrease;
+                    tmp_y_add = -tmp_y_add;
+                    r.off.y = r.off.y + 1;
+                    call IRRect_Set(&r);
+                    break;
+                end
+                r.off.y = r.off.y - 1;
+                call IRRect_Set(&r);
+                tmp_y_add = tmp_y_add + 1;
+            end
+            r.off.y = r.off.y + (tmp_y_add as int);
+            call IRRect_Set(&r);
+        end
+        if velocity.x > 0 then
+            tmp_x_add = velocity.x;
+            loop do
+                if tmp_x_add < 1.0 then
+                    break;
+                end
+                if has_pixel then
+                    velocity.x = velocity.x * -x_collision_decrease;
+                    tmp_x_add = -tmp_x_add;
+                    r.off.x = r.off.x - 1;
+                    call IRRect_Set(&r);
+                    break;
+                end
+                r.off.x = r.off.x + 1;
+                call IRRect_Set(&r);
+                tmp_x_add = tmp_x_add - 1;
+            end
+            r.off.x = r.off.x + (tmp_x_add as int);
+            call IRRect_Set(&r);
+        else
+            tmp_x_add = velocity.x;
+            loop do
+                if tmp_x_add > -1.0 then
+                    break;
+                end
+                if has_pixel then
+                    velocity.x = velocity.x * -x_collision_decrease;
+                    tmp_x_add = -tmp_x_add;
+                    r.off.x = r.off.x + 1;
+                    call IRRect_Set(&r);
+                    break;
+                end
+                r.off.x = r.off.x - 1;
+                call IRRect_Set(&r);
+                tmp_x_add = tmp_x_add + 1;
+            end
+            r.off.x = r.off.x + (tmp_x_add as int);
+            call IRRect_Set(&r);
+        end
+    end
+end

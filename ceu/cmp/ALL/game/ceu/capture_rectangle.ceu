@@ -1,0 +1,30 @@
+var&? Pingu old;
+loop do
+    await outer.main.dt;
+    var float min_dist = 500.0;
+    var&? Pingu nxt;
+    var&? Pingu p;
+    loop p in outer.pingus do
+        if call p!.Pingu_Is_Over(outer.mouse.x,outer.mouse.y) then
+            var float dist = call p!.Pingu_Dist(outer.mouse.x, outer.mouse.y);
+            if dist < min_dist then
+                min_dist = dist;
+                nxt = &p;
+            end
+        end
+    end
+    if nxt? then
+        if old? then
+            if (&&nxt! != &&old!) then
+                emit old!.pingu.go_toggle_capture;
+                emit nxt!.pingu.go_toggle_capture;
+            end
+        else
+            emit nxt!.pingu.go_toggle_capture;
+        end
+        old = &nxt;
+    else/if old? then
+        emit old!.pingu.go_toggle_capture;
+        old = nil;
+    end
+end

@@ -1,0 +1,262 @@
+code/await OptionMenu (void) -> void do
+    spawn Wood();
+    var& RRect r = spawn RRect(IRRect(Rect(0,0,_,_), AnchorXY(AnchorX.Center(), AnchorY.Center()), &outer.main.rect, AnchorXY(AnchorX.Center(), AnchorY.Center()), _, _));
+    spawn Sprite_from_name(&r.pub, "core/menu/blackboard", &outer.main.dt);
+    var int yy_ = 135;
+    var& RRect r11 = spawn RRect(IRRect(Rect(50,yy_,32,32), AnchorXY(AnchorX.Left(), AnchorY.Center()), &r.pub, AnchorXY(AnchorX.Left(), AnchorY.Top()), _, _));
+    var& RRect r12 = spawn RRect(IRRect(Rect(50+40,yy_,32,32), AnchorXY(AnchorX.Left(), AnchorY.Center()), &r.pub, AnchorXY(AnchorX.Left(), AnchorY.Top()), _, _));
+    var& CheckBox b1 = spawn CheckBox(&r11.pub, (_config_manager.get_fullscreen() as bool));
+    spawn Label("Fullscreen", &r12.pub);
+    spawn do
+        var bool v;
+        every v in b1.checkbox.go_click do
+            _config_manager.set_fullscreen(v);
+        end
+    end
+    yy_ = yy_ + 32;
+    var& RRect r21 = spawn RRect(IRRect(Rect(50,yy_,32,32), AnchorXY(AnchorX.Left(), AnchorY.Center()), &r.pub, AnchorXY(AnchorX.Left(), AnchorY.Top()), _, _));
+    var& RRect r22 = spawn RRect(IRRect(Rect(50+40,yy_,32,32), AnchorXY(AnchorX.Left(), AnchorY.Center()), &r.pub, AnchorXY(AnchorX.Left(), AnchorY.Top()), _, _));
+    var& CheckBox b2 = spawn CheckBox(&r21.pub, (_config_manager.get_mouse_grab() as bool));
+    spawn Label("Mouse Grab", &r22.pub);
+    spawn do
+        par do
+            var bool v;
+            every v in outer.config_manager.go_mouse_grab do
+                emit b2.checkbox.go_click(v);
+            end
+        with
+            var bool v;
+            every v in b2.checkbox.go_click do
+                emit outer.config_manager.go_mouse_grab(v);
+            end
+        end
+    end
+    yy_ = yy_ + 32;
+    yy_ = yy_ + 32;
+    var& RRect r31 = spawn RRect(IRRect(Rect(50,yy_,32,32), AnchorXY(AnchorX.Left(), AnchorY.Center()), &r.pub, AnchorXY(AnchorX.Left(), AnchorY.Top()), _, _));
+    var& RRect r32 = spawn RRect(IRRect(Rect(50+40,yy_,32,32), AnchorXY(AnchorX.Left(), AnchorY.Center()), &r.pub, AnchorXY(AnchorX.Left(), AnchorY.Top()), _, _));
+    var& CheckBox b3 = spawn CheckBox(&r31.pub, (_config_manager.get_software_cursor() as bool));
+    spawn Label("Software Cursor", &r32.pub);
+    spawn do
+        var bool v;
+        every v in b3.checkbox.go_click do
+            _config_manager.set_software_cursor(v);
+        end
+    end
+    yy_ = yy_ + 32;
+    var& RRect r41 = spawn RRect(IRRect(Rect(50,yy_,32,32), AnchorXY(AnchorX.Left(), AnchorY.Center()), &r.pub, AnchorXY(AnchorX.Left(), AnchorY.Top()), _, _));
+    var& RRect r42 = spawn RRect(IRRect(Rect(50+40,yy_,32,32), AnchorXY(AnchorX.Left(), AnchorY.Center()), &r.pub, AnchorXY(AnchorX.Left(), AnchorY.Top()), _, _));
+    var& CheckBox b4 = spawn CheckBox(&r41.pub, (_config_manager.get_auto_scrolling() as bool));
+    spawn Label("Autoscrolling", &r42.pub);
+    spawn do
+        var bool v;
+        every v in b4.checkbox.go_click do
+            _config_manager.set_auto_scrolling(v);
+        end
+    end
+    yy_ = yy_ + 32;
+    var& RRect r51 = spawn RRect(IRRect(Rect(50,yy_,32,32), AnchorXY(AnchorX.Left(), AnchorY.Center()), &r.pub, AnchorXY(AnchorX.Left(), AnchorY.Top()), _, _));
+    var& RRect r52 = spawn RRect(IRRect(Rect(50+40,yy_,32,32), AnchorXY(AnchorX.Left(), AnchorY.Center()), &r.pub, AnchorXY(AnchorX.Left(), AnchorY.Top()), _, _));
+    var& CheckBox b5 = spawn CheckBox(&r51.pub, (_config_manager.get_drag_drop_scrolling() as bool));
+    spawn Label("Drag&Drop Scrolling", &r52.pub);
+    spawn do
+        var bool v;
+        every v in b5.checkbox.go_click do
+            _config_manager.set_drag_drop_scrolling(v);
+        end
+    end
+    yy_ = yy_ + 32;
+    yy_ = yy_ + 32;
+    var& RRect r61 = spawn RRect(IRRect(Rect(50,yy_,32,32), AnchorXY(AnchorX.Left(), AnchorY.Center()), &r.pub, AnchorXY(AnchorX.Left(), AnchorY.Top()), _, _));
+    var& RRect r62 = spawn RRect(IRRect(Rect(50+40,yy_,32,32), AnchorXY(AnchorX.Left(), AnchorY.Center()), &r.pub, AnchorXY(AnchorX.Left(), AnchorY.Top()), _, _));
+    var& CheckBox b6 = spawn CheckBox(&r61.pub, (_config_manager.get_print_fps() as bool));
+    spawn Label("Print FPS", &r62.pub);
+    spawn do
+        var bool v;
+        every v in b6.checkbox.go_click do
+            _config_manager.set_print_fps(v);
+        end
+    end
+    yy_ = 135;
+    var& RRect r71 = spawn RRect(IRRect(Rect(365,yy_,140,32), AnchorXY(AnchorX.Left(), AnchorY.Center()), &r.pub, AnchorXY(AnchorX.Left(), AnchorY.Top()), _, _));
+    var& RRect r72 = spawn RRect(IRRect(Rect(365+135,yy_,180,32), AnchorXY(AnchorX.Left(), AnchorY.Center()), &r.pub, AnchorXY(AnchorX.Left(), AnchorY.Top()), _, _));
+    spawn Label("Resolution:", &r71.pub);
+    pool[] ChoiceItem its1;
+    var    IChoiceBox cb1 = val IChoiceBox(_,_,_);
+    {
+        static std::vector<Size> resolutions = Display::get_fullscreen_video_modes();
+        static Size fullscreen = config_manager.get_fullscreen_resolution();
+        static auto it1 = resolutions.begin();
+        it1 = resolutions.begin();
+    };
+    cb1.current = {resolutions.size()} - 1;
+    do
+        var int i;
+        loop i do
+            if {it1} == {resolutions.end()} then
+                break;
+            end
+            var _char_const_ptr str1 = _;
+            {
+                {
+                    std::ostringstream ostr;
+                    ostr << it1->width << "x" << it1->height;
+                    @str1 = ostr.str().c_str();
+                }
+            };
+            spawn ChoiceItem(&r72.pub, str1, i, &cb1) in its1;
+            if {fullscreen} == {*it1} then
+                cb1.current = {it1 - resolutions.begin()};
+            end
+            {it1++;};
+        end
+    end
+    spawn ChoiceBox(&r72.pub, &its1, &cb1);
+    spawn do
+        every cb1.go do
+            { static Size size_; };
+            if _sscanf(&&cb1.value[0] as _char_const_ptr, "%dx%d", {&size_.width}, {&size_.height}) != 2 then
+                _log_error("failed to parse: %1%", &&cb1.value[0] as _char_const_ptr);
+            else
+                _config_manager.set_fullscreen_resolution({size_});
+            end
+        end
+    end
+    yy_ = yy_ + 32;
+    var& RRect r81 = spawn RRect(IRRect(Rect(365,yy_,140,32), AnchorXY(AnchorX.Left(), AnchorY.Center()), &r.pub, AnchorXY(AnchorX.Left(), AnchorY.Top()), _, _));
+    var& RRect r82 = spawn RRect(IRRect(Rect(365+135,yy_,180,32), AnchorXY(AnchorX.Left(), AnchorY.Center()), &r.pub, AnchorXY(AnchorX.Left(), AnchorY.Top()), _, _));
+    spawn Label("Renderer:", &r81.pub);
+    pool[] ChoiceItem its2;
+    var    IChoiceBox cb2 = val IChoiceBox(_,_,_);
+    if _config_manager.get_renderer() == {SDL_FRAMEBUFFER} then
+        cb2.current = 0;
+    else/if _config_manager.get_renderer() == {DELTA_FRAMEBUFFER} then
+        cb2.current = 1;
+#ifdef HAVE_OPENGL
+    else/if _config_manager.get_renderer() == {OPENGL_FRAMEBUFFER} then
+        cb2.current = 2;
+#endif
+    else
+        cb2.current = -1;
+        _ceu_dbg_assert({!"unknown renderer type"});
+    end
+    spawn ChoiceItem(&r82.pub, "sdl",    0, &cb2) in its2;
+    spawn ChoiceItem(&r82.pub, "delta",  1, &cb2) in its2;
+#ifdef HAVE_OPENGL
+    spawn ChoiceItem(&r82.pub, "opengl", 2, &cb2) in its2;
+#endif
+    spawn ChoiceBox(&r82.pub, &its2, &cb2);
+    spawn do
+        every cb2.go do
+            _config_manager.set_renderer( _framebuffer_type_from_string(&&cb2.value[0] as _char_const_ptr));
+        end
+    end
+    yy_ = yy_ + 32;
+    yy_ = yy_ + 32;
+    var& RRect r91 = spawn RRect(IRRect(Rect(365,yy_,140,32), AnchorXY(AnchorX.Left(), AnchorY.Center()), &r.pub, AnchorXY(AnchorX.Left(), AnchorY.Top()), _, _));
+    var& RRect r92 = spawn RRect(IRRect(Rect(365+135,yy_,180,32), AnchorXY(AnchorX.Left(), AnchorY.Center()), &r.pub, AnchorXY(AnchorX.Left(), AnchorY.Top()), _, _));
+    spawn Label("Language:", &r91.pub);
+    pool[] ChoiceItem its3;
+    var    IChoiceBox cb3 = val IChoiceBox(_,_,_);
+    {
+        static std::set<tinygettext::Language> languages =
+            dictionary_manager.get_languages();
+        languages.insert(tinygettext::Language::from_name("en"));
+        static std::vector<tinygettext::Language> langs(languages.begin(), languages.end());
+        std::sort(langs.begin(), langs.end(), LanguageSorter());
+        static auto it3 = langs.begin();
+        it3 = langs.begin();
+    };
+    do
+        var int i;
+        loop i do
+            if {it3} == {langs.end()} then
+                break;
+            end
+            { str3 = it3->get_name().c_str(); }
+            spawn ChoiceItem(&r92.pub, {str3}, i, &cb3) in its3;
+            { m_language_map[str3] = *it3; }
+            if {dictionary_manager.get_language()} == {*it3} then
+                cb3.current = {it3 - langs.begin()};
+            end
+            {it3++;};
+        end
+    end
+    spawn ChoiceBox(&r92.pub, &its3, &cb3);
+    spawn do
+        every cb3.go do
+            {
+                static auto it = m_language_map.find(@(&&cb3.value[0] as _char&&));
+                it = m_language_map.find(@(&&cb3.value[0] as _char&&));
+            }
+            if {it} == {m_language_map.end()} then
+                _log_error("unknown language: %1%", &&cb3.value[0]);
+            else
+                {
+                    m_language = it->second;
+                    config_manager.set_language(it->second);
+                }
+            end
+        end
+    end
+    yy_ = yy_ + 32;
+    yy_ = yy_ + 32;
+    var& RRect ra1 = spawn RRect(IRRect(Rect(365,yy_,140,32), AnchorXY(AnchorX.Left(), AnchorY.Center()), &r.pub, AnchorXY(AnchorX.Left(), AnchorY.Top()), _, _));
+    var& RRect ra2 = spawn RRect(IRRect(Rect(365+135,yy_,180,32), AnchorXY(AnchorX.Left(), AnchorY.Center()), &r.pub, AnchorXY(AnchorX.Left(), AnchorY.Top()), _, _));
+    spawn Label("Master Volume:", &ra1.pub);
+    var& SliderBox box4 = spawn SliderBox(&ra2.pub, 25, _config_manager.get_master_volume());
+    spawn do
+        var int v;
+        every v in box4.go do
+            _config_manager.set_master_volume(v);
+        end
+    end
+    yy_ = yy_ + 32;
+    var& RRect rb1 = spawn RRect(IRRect(Rect(365,yy_,140,32), AnchorXY(AnchorX.Left(), AnchorY.Center()), &r.pub, AnchorXY(AnchorX.Left(), AnchorY.Top()), _, _));
+    var& RRect rb2 = spawn RRect(IRRect(Rect(365+135,yy_,180,32), AnchorXY(AnchorX.Left(), AnchorY.Center()), &r.pub, AnchorXY(AnchorX.Left(), AnchorY.Top()), _, _));
+    spawn Label("Sound Volume:", &rb1.pub);
+    var& SliderBox box5 = spawn SliderBox(&rb2.pub, 25, _config_manager.get_sound_volume());
+    spawn do
+        var int v;
+        every v in box5.go do
+            _config_manager.set_sound_volume(v);
+        end
+    end
+    yy_ = yy_ + 32;
+    var& RRect rc1 = spawn RRect(IRRect(Rect(365,yy_,140,32), AnchorXY(AnchorX.Left(), AnchorY.Center()), &r.pub, AnchorXY(AnchorX.Left(), AnchorY.Top()), _, _));
+    var& RRect rc2 = spawn RRect(IRRect(Rect(365+135,yy_,180,32), AnchorXY(AnchorX.Left(), AnchorY.Center()), &r.pub, AnchorXY(AnchorX.Left(), AnchorY.Top()), _, _));
+    spawn Label("Music Volume:", &rc1.pub);
+    var& SliderBox box6 = spawn SliderBox(&rc2.pub, 25, _config_manager.get_music_volume());
+    spawn do
+        var int v;
+        every v in box6.go do
+            _config_manager.set_music_volume(v);
+        end
+    end
+    var& RRect rd = spawn RRect(IRRect(Rect(-50,-50,_,_), AnchorXY(AnchorX.Right(), AnchorY.Bottom()), &r.pub, AnchorXY(AnchorX.Right(), AnchorY.Bottom()), _, _));
+    var& SurfaceButton button = spawn SurfaceButton(&rd.pub, "core/start/ok", "core/start/ok_clicked", "core/start/ok_hover");
+    par/or do
+        every button.component.on_pointer_enter do
+            call {Sound::PingusSound::play_sound}("tick");
+        end
+    with
+        await button.component.on_click;
+        call {Sound::PingusSound::play_sound}("yipee");
+    with
+        var _Input__ButtonEvent&& but =
+            await ON_BUTTON_PRESSED
+            until but:name  == {Input::ESCAPE_BUTTON};
+    with
+        every outer.main.redraw do
+            call {Fonts::chalk_large}.render( _origin_top_center, r.pub.abs.x + r.pub.abs.w/2, r.pub.abs.y + 40, __("Option Menu"), *{Display::s_framebuffer});
+            call {Fonts::chalk_normal}.render( {origin_bottom_center}, rd.pub.abs.x + rd.pub.abs.w/2, rd.pub.abs.y, __("Close"), *{Display::s_framebuffer});
+            call {Fonts::chalk_normal}.render( {origin_bottom_left}, r.pub.abs.x + 45, r.pub.abs.y + r.pub.abs.h - 60, __("Some options require a restart of the game to take effect."), *{Display::s_framebuffer});
+        end
+    end
+    { {
+            Pathname cfg_filename(System::get_userdir() + "config",
+                                  Pathname::SYSTEM_PATH);
+            log_info("saving configuration: %1%", cfg_filename);
+            config_manager.get_options().save(cfg_filename);
+        } };
+end

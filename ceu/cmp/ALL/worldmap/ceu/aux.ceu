@@ -1,0 +1,182 @@
+native/pre do
+    struct unlock_nodes {
+      void operator()(WorldmapNS::Node<WorldmapNS::Dot*>& node) {
+        if (node.data->finished()) {
+          for (std::vector<WorldmapNS::EdgeId>::iterator i = node.next.begin(); i != node.next.end(); ++i) {
+            WorldmapNS::Edge<WorldmapNS::Path*>& edge = path_graph->graph.resolve_edge(*i);
+            path_graph->graph.resolve_node(edge.source).data->unlock();
+            path_graph->graph.resolve_node(edge.destination).data->unlock();
+          }
+        }
+      }
+    };
+end
+{
+    worldmap = PingusWorldmap(filename);
+    path_graph_reader = worldmap.get_graph();
+    path_graph.reset(new WorldmapNS::PathGraph(path_graph_reader));
+    path_graph->graph.for_each_node(unlock_nodes(path_graph.get()));
+    Sound::PingusSound::play_music(worldmap.get_music());
+    static WorldmapNS__NodeId id;
+    id = path_graph->lookup_node(worldmap.get_default_node());
+    static std::string node_name;
+    if (StatManager::instance()->get_string(worldmap.get_short_name() + "-current-node", node_name)) { // Just in case that level doesn't exist, look it up.
+        id = path_graph->lookup_node(node_name);
+    }
+}
+event (int,int) set_pst;
+var Vector2i pst = val Vector2i({path_graph->get_dot(id)->get_pos().x}, {path_graph->get_dot(id)->get_pos().y}); 
+var& RRect r = spawn RRect(IRRect(Rect(0,0,outer.main.rect.abs.w,outer.main.rect.abs.w), AnchorXY(AnchorX.Center(), AnchorY.Center()), &outer.main.rect, AnchorXY(AnchorX.Center(), AnchorY.Center()), _,_));
+var& IRRect offset = &r.pub;
+spawn do
+    every outer.main.rect.changed do
+        r.pub.off.w = outer.main.rect.abs.w;
+        r.pub.off.h = outer.main.rect.abs.h;
+        emit set_pst(pst.x, pst.y); // emits r.pub.changed
+    end
+end
+code/tight Get_Offset (void)-> Vector2i do
+    var int x = 0;
+    do
+        var int min;
+        var int max;
+        var int width  = {worldmap.get_width()};
+        if width >= outer.main.rect.abs.w then
+            min = outer.main.rect.abs.w/2;
+            max = width - outer.main.rect.abs.w/2;
+        else
+            min = width - outer.main.rect.abs.w/2;
+            max = outer.main.rect.abs.w/2;
+        end
+        x = {Math::clamp}(min, outer.pst.x, max);
+    end
+    var int y = 0;
+    do
+        var int min;
+        var int max;
+        var int height = {worldmap.get_height()};
+        if height >= outer.main.rect.abs.h then
+            min = outer.main.rect.abs.h/2;
+            max = height - outer.main.rect.abs.h/2;
+        else
+            min = height - outer.main.rect.abs.h/2;
+            max = outer.main.rect.abs.h/2;
+        end
+        y = {Math::clamp}(min, outer.pst.y, max);
+    end
+    var Vector2i ret = val Vector2i(-x,-y);
+    escape ret;
+end
+spawn do
+    var int x;
+    var int y;
+    every (x,y) in set_pst do
+        pst.x = x;
+        pst.y = y;
+        var Vector2i off = call Get_Offset();
+        offset.off.x = off.x;
+        offset.off.y = off.y;
+        emit offset.changed;
+    end
+end
+emit set_pst(pst.x,pst.y);
+{{
+    WorldmapNS::LevelDot* leveldot = dynamic_cast<WorldmapNS::LevelDot*>(path_graph->get_dot(id));
+    if (leveldot) {
+        leveldot->unlock();
+    }
+}}
+par do
+    { static FileReader* file_reader; }
+    #include "sprite_drawable.ceu"
+    pool[] SpriteDrawable draws;
+    {
+        object_reader = worldmap.get_objects();
+        i1 = object_reader.begin();
+    };
+    loop do
+        if {i1 == object_reader.end()} as bool then
+            break;
+        end
+        {
+            DO
+                const FileReader& f = *i1;
+                file_reader = (FileReader*) &f;
+        };
+        spawn SpriteDrawable() in draws;
+        {i1++;}
+        { END }
+    end
+    var IPingus pingus = val IPingus({id},_,_);
+    event int ok_escape;
+    #include "dots.ceu"
+    pool[] StoryDot sds;
+    pool[] LevelDot lds;
+    {
+        static const std::vector<FileReader>& childs = worldmap.get_graph().read_section("nodes").get_sections();
+        static std::vector<FileReader>::const_iterator i2;
+        i2 = childs.begin();
+    };
+    loop do
+        if {i2 == childs.end()} as bool then
+            break;
+        end
+        {
+            DO
+                const FileReader& f = *i2;
+                file_reader = (FileReader*) &f;
+        }
+        if {file_reader->get_name() == "storydot"} as bool then
+            spawn StoryDot() in sds;
+        else/if {file_reader->get_name() == "leveldot"} as bool then
+            spawn LevelDot() in lds;
+        else
+            _ceu_dbg_assert({!"DotFactory: unknown tag: "});// <<  reader.get_name());
+        end
+        {i2++;}
+        { END }
+    end
+    spawn (pingus) do
+        #include "pingus.ceu"
+    end
+    var int to = await ok_escape;
+    escape to;
+with
+    var int x;
+    var int y;
+    every (x,y) in ON_PRIMARY_BUTTON_PRESSED do
+        {
+            static Vector2f click_pos;
+            click_pos = Vector2i(@offset.abs.x+x,@offset.abs.y+y);
+            if (globals::developer_mode) {
+                SExprFileWriter writer(std::cout);
+                writer.begin_section("leveldot");
+                writer.write_string("levelname", "");
+                writer.begin_section("dot");
+                writer.write_string("name", "leveldot_X");
+                writer.write_vector("position", click_pos);
+                writer.end_section();
+                writer.end_section();
+                std::cout << std::endl;
+                std::cout << std::endl;
+            }
+        };
+    end
+with
+    native/pre do
+        struct draw_edges {
+            void operator()(WorldmapNS::Edge<WorldmapNS::Path*>& edge) {
+                WorldmapNS::Dot* src = graph->get_dot(edge.source);
+                WorldmapNS::Dot* dst = graph->get_dot(edge.destination);
+                Display::s_framebuffer->draw_line( Vector2i(off.x+src->get_pos().x, off.y+src->get_pos().y), Vector2i(off.x+dst->get_pos().x, off.y+dst->get_pos().y), Color(255, 255, 255));
+            }
+        };
+    end
+    every outer.main.redraw do
+        if {globals::developer_mode} as bool then
+            {path_graph->graph.for_each_edge( draw_edges(path_graph.get(), Vector2i(@offset.abs.x+@offset.abs.w/2, @offset.abs.y+@offset.abs.h/2)));}
+        end
+    end
+end
+
+#endif

@@ -1,0 +1,10 @@
+var int time_level = outer.game.plf.get_time();
+every outer.main.redraw do
+    if time_level>=0 or ({globals::developer_mode} as bool) then
+        var int time_world = outer.game.game_time;
+        if not ({globals::developer_mode} as bool) then
+            time_world = {std::max}(0, time_level - time_world);
+        end
+        call {Fonts::pingus_small_fixnum}.render( _origin_top_right, outer.main.rect.abs.w - 30, 3, {GameTime::ticks_to_realtime_string}(time_world), *{Display::s_framebuffer});
+    end
+end

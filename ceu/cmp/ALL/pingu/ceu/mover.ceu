@@ -1,0 +1,37 @@
+code/await Mover (void) -> (event& void ok_collided) -> FOREVER do
+    event void ok_collided_;
+    ok_collided = &ok_collided_;
+    every outer.game.dt do
+        var bool collided = false;
+        var Vector3f pst = _;
+        {{
+            Vector3f pst, move;
+            pst.x = @(outer.pingu.rect.off.x);
+            pst.y = @(outer.pingu.rect.off.y);
+            move = Vector3f(@outer.pingu.velocity.x,@outer.pingu.velocity.y,@outer.pingu.velocity.z);
+            Vector3f target_pos = pst + move;
+            Vector3f step_vector = move;
+            int move_length = (int)(move.length());
+            step_vector.normalize();
+            for (int i=0; i<move_length; i++) {
+                @collided = Colliders::PinguCollider()(@outer.gfx_map.get_colmap(), pst, step_vector);
+                pst = pst + step_vector;
+                if (@collided) {
+                    break;
+                }
+            }
+            if (@collided) {
+                pst = pst - step_vector;
+            }
+            @pst.x = pst.x;
+            @pst.y = pst.y;
+            @pst.z = pst.z;
+        }};
+        outer.pingu.rect.off.x = pst.x as int;
+        outer.pingu.rect.off.y = pst.y as int;
+        emit outer.pingu.rect.changed;
+        if collided then
+            emit ok_collided_;
+        end
+    end
+end

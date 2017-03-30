@@ -1,0 +1,110 @@
+pool[] PinguParticle pingu_particles;
+pool[] SmokeParticle smoke_particles;
+code/await Pingu (pool&[] Pingu  pingus, var     uint   id, var     int    owner_id, var     int    x, var     int    y, var     s8?    direction_) -> (var IPingu pingu) -> void do
+    if not direction_? then
+        direction_ = {LEFT};
+    end
+    var& RRect r = spawn RRect(IRRect(Rect(x,y, 32,32), AnchorXY(AnchorX.Center(), AnchorY.Bottom()), &outer.game.offset, AnchorXY(AnchorX.Center(), AnchorY.Center()), _, _));
+    pingu = val IPingu(&r.pub, direction_!, _,_,_,_,_,_);
+    var _ActionName__Enum wall_action = {ActionName::NONE};
+    var _ActionName__Enum fall_action = {ActionName::NONE};
+    spawn () do
+        #include "capture_rectangle.ceu"
+    end
+    var int ret = do
+        event _ActionName__Enum e_set_action;
+        par do
+            loop do
+                await outer.game.dt;
+                if call Pingu_Rel_Getpixel(0,-1) == {Groundtype::GP_OUTOFSCREEN} then
+                    pingu.rect.off.x = (pingu.rect.off.x + (pingu.direction as int));
+                    emit pingu.rect.changed;
+                    escape {PS_DEAD};
+                end
+                if call Pingu_Rel_Getpixel(0,-1) == {Groundtype::GP_WATER} or call Pingu_Rel_Getpixel(0,-1) == {Groundtype::GP_LAVA} then
+                    emit e_set_action({ActionName::DROWN});
+                    break;  // no more checks, will die
+                end
+                if call Pingu_Rel_Getpixel(0,-1) != {Groundtype::GP_NOTHING} and pingu.velocity.y > {deadly_velocity} then
+                    emit e_set_action({ActionName::SPLASHED});
+                    break;  // no more checks, will die
+                end
+            end
+            await FOREVER;
+        with
+            var _ActionName__Enum next_action;
+            every next_action in pingu.go_action do
+                if next_action!={ActionName::EXITER} and next_action!={ActionName::LASERKILL} then
+                end
+                if not call Pingu_Check_Action(next_action) then
+                    continue;
+                end
+                var int mode = {ActionName::ACTIVATION_MODE}[next_action];
+                if mode == {ActionType::INSTANT} then
+                    if next_action != pingu.current_action and
+                       ({ActionName::CHANGE_ALLOWED}
+                            [pingu.current_action][next_action] as bool)
+                    then
+                        emit e_set_action(next_action);
+                    end
+                else/if mode == {ActionType::WALL_TRIGGERED} then
+                    wall_action = next_action;
+                else/if mode == {ActionType::FALL_TRIGGERED} then
+                    fall_action = next_action;
+                end
+            end
+        with
+            loop do
+                var _ActionName__Enum? next_action = _;
+                pingu.name = [] .. {ActionName::to_screenname}(pingu.current_action) as _char&&;
+                par/or do
+                    next_action = await e_set_action;
+                with
+                    if pingu.current_action == {ActionName::NONE} then
+                        await FOREVER;
+                    else/if pingu.current_action == {ActionName::DEAD} then
+                        escape {PS_DEAD};
+                    else/if pingu.current_action == {ActionName::BASHER} then
+                        next_action = await Basher();
+                    else/if pingu.current_action == {ActionName::BLOCKER} then
+                        next_action = await Blocker();
+                    else/if pingu.current_action == {ActionName::BOMBER} then
+                        next_action = await Bomber();
+                    else/if pingu.current_action == {ActionName::BRIDGER} then
+                        next_action = await Bridger();
+                    else/if pingu.current_action == {ActionName::CLIMBER} then
+                        next_action = await Climber();
+                    else/if pingu.current_action == {ActionName::DIGGER} then
+                        next_action = await Digger();
+                    else/if pingu.current_action == {ActionName::DROWN} then
+                        next_action = await Drown();
+                    else/if pingu.current_action == {ActionName::EXITER} then
+                        next_action = await Exiter();
+                        escape {PS_EXITED};
+                    else/if pingu.current_action == {ActionName::FALLER} then
+                        next_action = await Faller();
+                    else/if pingu.current_action == {ActionName::FLOATER} then
+                        next_action = await Floater();
+                    else/if pingu.current_action == {ActionName::JUMPER} then
+                        next_action = await Jumper();
+                    else/if pingu.current_action == {ActionName::MINER} then
+                        next_action = await Miner();
+                    else/if pingu.current_action == {ActionName::SLIDER} then
+                        next_action = await Slider();
+                    else/if pingu.current_action == {ActionName::SPLASHED} then
+                        next_action = await Splashed();
+                    else/if pingu.current_action == {ActionName::WAITER} then
+                        next_action = await Waiter();
+                    else/if pingu.current_action == {ActionName::WALKER} then
+                        next_action = await Walker();
+                    else
+                        await FOREVER;
+                    end
+                end
+                pingu.previous_action = pingu.current_action;
+                pingu.current_action  = next_action!;
+            end
+        end
+    end;
+    call Game_Pingu_Out(ret);
+end

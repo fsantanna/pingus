@@ -1,0 +1,32 @@
+code/await RightLeftSprites (var&      IRRect   rect, var&      s8       direction, vector&[] byte     none, vector&[] byte     left, vector&[] byte     right, event&    int      dt) -> (pool[1] Sprite_from_name sprites) -> void do
+    event void e_change;
+    par do
+        var s8 dir = direction;
+        every dt do
+            if direction != dir then
+                dir = direction;
+                emit e_change;
+            end
+        end
+    with
+        loop do
+            var _char_const_ptr name = do
+                if direction == {NONE} then
+                    escape &&none[0] as _char_const_ptr;
+                else/if direction == {LEFT} then
+                    escape &&left[0] as _char_const_ptr;
+                else
+                    escape &&right[0] as _char_const_ptr;
+                end
+            end;
+            var&? Sprite_from_name s = spawn Sprite_from_name(&rect, name, &dt) in sprites;
+            par/or do
+                await s;
+                escape;
+            with
+                await e_change;
+            end
+            kill s;
+        end
+    end
+end

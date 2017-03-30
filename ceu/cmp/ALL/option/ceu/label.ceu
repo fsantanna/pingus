@@ -1,0 +1,5 @@
+code/await Label (var _char_const_ptr label, var& IRRect rect) -> FOREVER do
+    every outer.main.redraw do
+        call {Fonts::chalk_normal}.render( _origin_top_left, rect.abs.x, rect.abs.y, label, *{Display::s_framebuffer});
+    end
+end
