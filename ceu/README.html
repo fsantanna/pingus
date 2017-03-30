@@ -1157,7 +1157,7 @@ Also, all memory required for static instances is known at compile time.
 <b><font size="-1" color="#666666">12:</font></b>  }</code></pre>
 <p>The call to the world <code>update</code> (ln. 9) only applies if the world is not paused (ln. 7). Since <code>update</code> methods propagate throughout the world hierarchy, skipping the call to the root method effectively pauses the world.</p>
 <h4 id="céu-7">Céu</h4>
-<p>As discussed in <a href="#dispatching-hierarchies-1"> Section 3.1</a>, entities in Céu do not update through dispatching hierarchies, but directly in reaction to events. This way, the pausing technique applied to the implementation in C++ is not effective.</p>
+<p>As discussed in <a href="#dispatching-hierarchies-1"> Section 3.1</a>, entities in Céu do not update through dispatching hierarchies, but instead react directly to events. This way, the pausing technique applied in C++ is not effective to the implementation in Céu.</p>
 <p>In Céu, the button communicates with the rest of the application through the event <code>go_pause_toggle</code> [<a href="https://github.com/fsantanna/pingus/blob/ceu/ceu/pingus/screens/game/input.ceu#L162"><img src="images/link_12.png" alt="X" /></a>]:</p>
 <pre><code><b><font size="-1" color="#666666"> 1:</font></b>  <...>
 <b><font size="-1" color="#666666"> 2:</font></b>  <b>var</b>& RectComponent c = <b>spawn</b> RectComponent(<...>);
@@ -1177,7 +1177,7 @@ Also, all memory required for static instances is known at compile time.
 <b><font size="-1" color="#666666">16:</font></b>  <b>end</b>
 <b><font size="-1" color="#666666">17:</font></b>  <...></code></pre>
 <p>The button toggles between showing the light (ln. 5-9) and dark (ln. 10-14) backgrounds. The background changes when the button is clicked (ln. 7,12) or when <code>go_pause_toggle</code> is emitted from a keyboard press (ln. 5,10). The button also broadcasts <code>go_pause_toggle</code> whenever it is clicked (ln. 8,13).</p>
-<p>The pause mechanism relies on two update events, <code>main.dt</code> and <code>game.dt</code>, for the main application and game world, respectively [<a href="https://github.com/fsantanna/pingus/blob/ceu/ceu/pingus/screens/game/input.ceu#L17"><img src="images/link_12.png" alt="X" /></a>]:</p>
+<p>The pausing mechanism relies on two update events, <code>main.dt</code> and <code>game.dt</code>, for the main application and game world, respectively [<a href="https://github.com/fsantanna/pingus/blob/ceu/ceu/pingus/screens/game/input.ceu#L17"><img src="images/link_12.png" alt="X" /></a>]:</p>
 <pre><code><b><font size="-1" color="#666666"> 1:</font></b>  <b>event</b> <b>void</b> go_pause_toggle;
 <b><font size="-1" color="#666666"> 2:</font></b>  <...>
 <b><font size="-1" color="#666666"> 3:</font></b>  <b>spawn</b> <b>do</b>
@@ -1203,9 +1203,7 @@ Also, all memory required for static instances is known at compile time.
 <li>The <em>Bomber</em> action uses <code>game.dt</code> [<a href="https://github.com/fsantanna/pingus/blob/ceu/ceu/pingus/screens/game/pingu/actions/bomber.ceu#L22"><img src="images/link_12.png" alt="X" /></a>], since it is a world entity.</li>
 <li>The <em>Armageddon</em> button uses <code>main.dt</code> [<a href="https://github.com/fsantanna/pingus/blob/ceu/ceu/pingus/screens/game/input.ceu#L117"><img src="images/link_12.png" alt="X" /></a>], since it should not pause with the world entities.</li>
 </ul>
-<h4 id="discussion-1">Discussion</h4>
-<p>Events decouple .</p>
-<p>Using events helps on decoupling the button and pause as well as not using the dispatching hierarchy.</p>
+<p>This technique contrasts with the implementation in C++, which prevents the <code>update</code> dispatching chain to flow from the world &quot;root&quot; towards the sprite &quot;leaves&quot;. In Céu, the sprite &quot;leaves&quot; execute detached from a hierarchy, but do not update because the event of interest is never generated when paused.</p>
 <p><a name="signaling_2"/></p>
 <h3 id="global-keys-and-the-options-menu">5.2) Global Keys and the Options Menu</h3>
 <div class="images">

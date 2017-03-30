@@ -1970,11 +1970,10 @@ call to the root method effectively pauses the world.
 #### Céu
 
 As discussed in @SEC_REF[[dispatching-hierarchies-1]], entities in Céu
-do not update through dispatching hierarchies, but directly in reaction to
+do not update through dispatching hierarchies, but instead react directly to
 events.
-This way, the pausing technique applied to the implementation in C++ is not
-effective.
-
+This way, the pausing technique applied in C++ is not effective to the
+implementation in Céu.
 
 In Céu, the button communicates with the rest of the application through the
 event `go_pause_toggle` [[![X]][ceu_input_ui]]:
@@ -2006,7 +2005,7 @@ when `go_pause_toggle` is emitted from a keyboard press @NN(but_11,,but_21).
 The button also broadcasts `go_pause_toggle` whenever it is clicked
 @NN(emt_1,,emt_2).
 
-The pause mechanism relies on two update events, `main.dt` and `game.dt`,
+The pausing mechanism relies on two update events, `main.dt` and `game.dt`,
 for the main application and game world, respectively [[![X]][ceu_input_evt]]:
 
 @CODE_LINES[[language=CEU,
@@ -2046,12 +2045,11 @@ On creation, world and non-world sprites pass distinct events, e.g.:
 * The *Armageddon* button uses `main.dt` [[![X]][ceu_armageddon_sprite]], since
   it should not pause with the world entities.
 
-#### Discussion
-
-Events decouple .
-
-Using events helps on decoupling the button and pause as well as not using the
-dispatching hierarchy.
+This technique contrasts with the implementation in C++, which prevents the
+`update` dispatching chain to flow from the world "root" towards the sprite
+"leaves".
+In Céu, the sprite "leaves" execute detached from a hierarchy, but do not
+update because the event of interest is never generated when paused.
 
 @SEC[[signaling_2,
 ### Global Keys and the Options Menu
