@@ -840,8 +840,11 @@ TODO: falar de broadcast (in Ceu: unless it is paused, all receive always)
 <b><font size="-1" color="#666666"> 4:</font></b>      <...>
 <b><font size="-1" color="#666666"> 5:</font></b>  <b>end</b></code></pre>
 <p>The <code>Sprite</code> instance (ln. 3) can react directly to external <code>update</code> [<a href="https://github.com/fsantanna/pingus/blob/ceu/ceu/engine/display/sprite.ceu#L71"><img src="images/link_12.png" alt="X" /></a>] and <code>draw</code> [<a href="https://github.com/fsantanna/pingus/blob/ceu/ceu/engine/display/sprite.ceu#L94"><img src="images/link_12.png" alt="X" /></a>] events, bypassing the program hierarchy entirely.</p>
-<p>The radical decoupling between the program hierarchy and external reactions completely eliminates dispatching chains. For instance, we removed from the game engine most of the boilerplate related to event dispatching ([[<img src="images/link_12.png" alt="X" />][TODO]]).</p>
+<p>The radical decoupling between the program hierarchy and external reactions completely eliminates dispatching chains.</p>
 <!--
+For instance, we removed from the game engine most of the boilerplate related
+to event dispatching ([[![X]][TODO]]).
+
 On the other hand, now that organisms themselves decide whether or not to react 
 to external input, we support that lexical scopes should control their life 
 cycles.
@@ -885,9 +888,6 @@ variable `gfx_exploded` and forward the `draw` method down to the child sprite
 `explo_surf` [[![X]][cpp_bomber_explo]].
 -->
 <!-- CEU-vs-CPP-BOMBER-SPRITE -->
-<!--
-`TODO: SDL_RESIZE`
--->
 <p><a name="dispatching_hierarchies_summary"/> <br/></p>
 <div class="summary">
 <p><strong>Summary</strong>:</p>
@@ -899,8 +899,8 @@ variable `gfx_exploded` and forward the `draw` method down to the child sprite
   specially for entities held in class containers.
 --></li>
 </ul>
-<p>Abstractions in Céu can react directly to the environment, not depending on hierarchies spread across multiple files.</p>
-<p>In C++, the update subsystem touches 39 files with around 100 lines of code just to forward <code>update</code> methods through the dispatching hierarchy (e.g., class <code>GroupComponent</code> [<a href="https://github.com/Pingus/pingus/blob/7b255840c201d028fd6b19a2185ccf7df3a2cd6e/src/engine/gui/group_component.cpp#L58"><img src="images/link_12.png" alt="X" /></a>]). For the drawing subsystem, 50 files with around 300 lines of code (e.g., class <code>ArmageddonButton</code> [<a href="https://github.com/Pingus/pingus/blob/7b255840c201d028fd6b19a2185ccf7df3a2cd6e/src/pingus/components/action_button.cpp#L42"><img src="images/link_12.png" alt="X" /></a>]). The implementation in C++ also relies on dispatching hierarchy for <code>resize</code> callbacks, touching 12 files with around 100 lines of code (e.g., class <code>StartScreen</code> [<a href="https://github.com/Pingus/pingus/blob/7b255840c201d028fd6b19a2185ccf7df3a2cd6e/src/pingus/components/action_button.cpp#L42"><img src="images/link_12.png" alt="X" /></a>]). Most of this code is eliminated in Céu.</p>
+<p>In C++, the update subsystem touches 39 files with around 100 lines of code just to forward <code>update</code> methods through the dispatching hierarchy (e.g., class <code>GroupComponent</code> [<a href="https://github.com/Pingus/pingus/blob/7b255840c201d028fd6b19a2185ccf7df3a2cd6e/src/engine/gui/group_component.cpp#L58"><img src="images/link_12.png" alt="X" /></a>]). For the drawing subsystem, 50 files with around 300 lines of code (e.g., class <code>ArmageddonButton</code> [<a href="https://github.com/Pingus/pingus/blob/7b255840c201d028fd6b19a2185ccf7df3a2cd6e/src/pingus/components/action_button.cpp#L42"><img src="images/link_12.png" alt="X" /></a>]). The implementation in C++ also relies on dispatching hierarchy for <code>resize</code> callbacks, touching 12 files with around 100 lines of code (e.g., class <code>StartScreen</code> [<a href="https://github.com/Pingus/pingus/blob/7b255840c201d028fd6b19a2185ccf7df3a2cd6e/src/pingus/screens/start_screen.cpp#L249"><img src="images/link_12.png" alt="X" /></a>]).</p>
+<p>Most of this code is eliminated in Céu. Abstractions in Céu can react directly to the environment, not depending on hierarchies spread across multiple files.</p>
 <!--
 Many of these files mix dispatching with state manipulation,
 In Céu, forwarding is eliminated

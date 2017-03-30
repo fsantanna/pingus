@@ -1448,10 +1448,11 @@ bypassing the program hierarchy entirely.
 
 The radical decoupling between the program hierarchy and external reactions
 completely eliminates dispatching chains.
+
+<!--
 For instance, we removed from the game engine most of the boilerplate related
 to event dispatching ([[![X]][TODO]]).
 
-<!--
 On the other hand, now that organisms themselves decide whether or not to react 
 to external input, we support that lexical scopes should control their life 
 cycles.
@@ -1496,10 +1497,6 @@ variable `gfx_exploded` and forward the `draw` method down to the child sprite
 
 <!-- CEU-vs-CPP-BOMBER-SPRITE -->
 
-<!--
-`TODO: SDL_RESIZE`
--->
-
 <a name="dispatching_hierarchies_summary"/>
 <br/>
 
@@ -1518,9 +1515,6 @@ that makes the reasoning about the program harder:
   specially for entities held in class containers.
 -->
 
-Abstractions in Céu can react directly to the environment, not depending on
-hierarchies spread across multiple files.
-
 In C++, the update subsystem touches 39 files with around 100 lines of code
 just to forward `update` methods through the dispatching hierarchy
 (e.g., class `GroupComponent` [[![X]][cpp_groupcomponent_update]]).
@@ -1529,7 +1523,10 @@ For the drawing subsystem, 50 files with around 300 lines of code
 The implementation in C++ also relies on dispatching hierarchy for `resize`
 callbacks, touching 12 files with around 100 lines of code
 (e.g., class `StartScreen` [[![X]][cpp_startscreen_resize]]).
+
 Most of this code is eliminated in Céu.
+Abstractions in Céu can react directly to the environment, not depending on
+hierarchies spread across multiple files.
 
 <!--
 Many of these files mix dispatching with state manipulation,
@@ -1684,7 +1681,7 @@ state disappear but are simplified and moved into the control flow
 
 [cpp_groupcomponent_update]: https://github.com/Pingus/pingus/blob/7b255840c201d028fd6b19a2185ccf7df3a2cd6e/src/engine/gui/group_component.cpp#L58
 [cpp_armageddon_draw]: https://github.com/Pingus/pingus/blob/7b255840c201d028fd6b19a2185ccf7df3a2cd6e/src/pingus/components/action_button.cpp#L42
-[cpp_startscreen_resize]: https://github.com/Pingus/pingus/blob/7b255840c201d028fd6b19a2185ccf7df3a2cd6e/src/pingus/components/action_button.cpp#L42
+[cpp_startscreen_resize]: https://github.com/Pingus/pingus/blob/7b255840c201d028fd6b19a2185ccf7df3a2cd6e/src/pingus/screens/start_screen.cpp#L249
 
 @SEC[[lifespan-hierarchies,
 ## Lifespan Hierarchies
