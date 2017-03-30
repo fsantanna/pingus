@@ -216,7 +216,7 @@ The remaining classes in C++ should interoperate with the new classes in Céu
 until we complete the rewriting process.
 -->
 <p>Note that we only touch code that deals with events, as Céu is actually less expressive than C++ for pure data manipulation (e.g., game preferences, graph algorithms, etc). Therefore, we also rely on the seamless integration between Céu and C/C++ to take advantage of the existing code base and libraries.</p>
-<p>We selected <code>TODO</code> game behaviors and describe their implementations in C++ and Céu. As an afterthought, we categorized these examples in more abstract control-flow patterns that likely apply to other games:</p>
+<p>We selected 10 game behaviors and describe their implementations in C++ and Céu. We also categorized these examples in 5 abstract control-flow patterns that likely apply to other games:</p>
 <p><a name="finite-state-machines"/></p>
 <ol style="list-style-type: decimal">
 <li><a href="#finite-state-machines"><strong>Finite State Machines</strong></a>: State machines describe the behavior of entities by mapping event occurrences to transitions between states that trigger appropriate actions.
@@ -229,11 +229,8 @@ until we complete the rewriting process.
 </ul></li>
 <li><a href="#dispatching-hierarchies"><strong>Dispatching Hierarchies</strong></a>: Entities typically form a dispatching hierarchy in which a container entity that receives a stimulus automatically forwards it to its managed children.
 <ul>
-<li>[ <a href="#dispatching-hierarchies-1">case 1</a> | <a href="#dispatching-hierarchies-summary">summary</a> ]</li>
+<li>[ <a href="#dispatching-hierarchies-1">case 1</a> | <a href="#dispatching_hierarchies_2"><code>TODO-resize</code></a> | <a href="#dispatching-hierarchies-summary">summary</a> ]</li>
 </ul></li>
-</ol>
-<!-- TODO: resize -->
-<ol start="4" style="list-style-type: decimal">
 <li><a href="#lifespan-hierarchies"><strong>Lifespan Hierarchies</strong></a>: Entities typically form a lifespan hierarchy in which a terminating container entity automatically destroys its managed children.
 <ul>
 <li>[ <a href="#lifespan-hierarchies-1">case 1</a> | <a href="#lifespan-hierarchies-2">case 2</a> | <a href="#lifespan-hierarchies-summary">summary</a> ]</li>
@@ -249,17 +246,19 @@ until we complete the rewriting process.
     Wall-clock timers measure the passage of time from the real world
     (e.g., *10 seconds*) such as for periodic sampling and timeout watchdogs.
     * [ [summary](#wall-clock-timers-summary) ]
+
+6. [**Pausing**](#pausing):
+    Pausing allows parts of the game to temporarily stop reacting to incoming
+    events.
+    * [ [summary](#pausing-summary) ]
+    * `TODO`
+
+7. [**Resource Acquisition and Release**](#resource-acquisition-and-release):
+    External resources, such as configuration files and saved games,
+    must be acquired and safely released.
+    * [ [summary](#resource-acquisition-and-release-summary) ]
+    * `TODO`
 -->
-<ol start="6" style="list-style-type: decimal">
-<li><a href="#pausing"><strong>Pausing</strong></a>: Pausing allows parts of the game to temporarily stop reacting to incoming events. <!-- * [ [summary](#pausing-summary) ] -->
-<ul>
-<li><code>TODO</code></li>
-</ul></li>
-<li><a href="#resource-acquisition-and-release"><strong>Resource Acquisition and Release</strong></a>: External resources, such as configuration files and saved games, must be acquired and safely released. <!-- * [ [summary](#resource-acquisition-and-release-summary) ] -->
-<ul>
-<li><code>TODO</code></li>
-</ul></li>
-</ol>
 <p>Other games manifesting these patterns also use some form of explicit state which are likely subject to the same rewriting process. <!-- TODO: The patterns are not entirely orthogonal --></p>
 <p>Overall, we believe that most difficulties in implementing control behavior in game logic is not inherent to this domain, but a result of accidental complexity due to the lack of structured abstractions and an appropriate concurrency model to handle event-based applications.</p>
 <!--
@@ -539,10 +538,6 @@ productivity.
 <p>The code tracks the animation abstraction (ln. 7-27), performing the last action on termination (ln. 30). As soon as the animation starts, the code performs the first action (ln. 8). The intermediate actions are performed when the corresponding conditions occur (ln. 12,16,24).</p>
 <p><a name="bomber_explo"/></p>
 <p>The <code>do-end</code> block (ln. 19-25), restricts the lifespan of the single-frame explosion sprite (ln. 21): after the next game tick (ln. 24), the block terminates and automatically destroys the spawned abstraction (removing it from the screen).</p>
-<!--
-The complete implementations for the *Bomber* action in C++ and Céu are 50 and
-19 lines of code, respectively [[![X]][diff_bomber]].
--->
 <p><a name="finite-state-machines-summary"/> <br/></p>
 <div class="summary">
 <p><strong>Summary</strong>:</p>
@@ -551,6 +546,11 @@ The complete implementations for the *Bomber* action in C++ and Céu are 50 and
 <li>They encode all states with direct sequential code, not requiring state variables.</li>
 <li>They handle all states (and only them) in the same contiguous block, improving code encapsulation.</li>
 </ul>
+<p><code>TODO: other uses, LoCs</code></p>
+<!--
+The complete implementations for the *Bomber* action in C++ and Céu are 50 and
+19 lines of code, respectively [[![X]][diff_bomber]].
+-->
 </div>
 <p><a name="continuation-passing"/></p>
 <h2 id="continuation-passing">2) Continuation Passing</h2>
@@ -939,7 +939,7 @@ are known at compile time.
 <p>The dynamic nature of containers in C++ demand extra caution:</p>
 <ul>
 <li>When containers are part of a dispatching chain, it gets even harder to track which objects are dispatched: one has to &quot;simulate&quot; the program execution and track calls to <code>add</code> and <code>remove</code>.</li>
-<li>For objects with dynamic lifespan, calls to <code>add</code> must always have matching calls to <code>remove</code>: missing calls to <code>remove</code> lead to memory and CPU leaks (see the <em>lapsed listener</em> problem in SEC_REF[[lifespan-hierarchies-2]]).</li>
+<li>For objects with dynamic lifespan, calls to <code>add</code> must always have matching calls to <code>remove</code>: missing calls to <code>remove</code> lead to memory and CPU leaks (to be discussed as the <em>lapsed listener</em> problem further). <!--in SEC_REF[[lifespan-hierarchies-2]]--></li>
 </ul>
 <!-- CPP-CONTAINER-STATIC -->
 <!-- CEU-CONTAINER-STATIC -->

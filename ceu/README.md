@@ -430,10 +430,10 @@ algorithms, etc).
 Therefore, we also rely on the seamless integration between Céu and C/C++ to
 take advantage of the existing code base and libraries.
 
-We selected `TODO` game behaviors and describe their implementations in C++ and
+We selected 10 game behaviors and describe their implementations in C++ and
 Céu.
-As an afterthought, we categorized these examples in more abstract control-flow
-patterns that likely apply to other games:
+We also categorized these examples in 5 abstract control-flow patterns that
+likely apply to other games:
 
 <a name="finite-state-machines"/>
 
@@ -455,9 +455,8 @@ patterns that likely apply to other games:
     Entities typically form a dispatching hierarchy in which a container entity
     that receives a stimulus automatically forwards it to its managed children.
     * [ [case 1](#dispatching-hierarchies-1) |
+        [`TODO-resize`](#dispatching_hierarchies_2) |
         [summary](#dispatching-hierarchies-summary) ]
-
-<!-- TODO: resize -->
 
 4. [**Lifespan Hierarchies**](#lifespan-hierarchies):
     Entities typically form a lifespan hierarchy in which a terminating
@@ -480,19 +479,19 @@ patterns that likely apply to other games:
     Wall-clock timers measure the passage of time from the real world
     (e.g., *10 seconds*) such as for periodic sampling and timeout watchdogs.
     * [ [summary](#wall-clock-timers-summary) ]
--->
 
 6. [**Pausing**](#pausing):
     Pausing allows parts of the game to temporarily stop reacting to incoming
     events.
-    <!-- * [ [summary](#pausing-summary) ] -->
+    * [ [summary](#pausing-summary) ]
     * `TODO`
 
 7. [**Resource Acquisition and Release**](#resource-acquisition-and-release):
     External resources, such as configuration files and saved games,
     must be acquired and safely released.
-    <!-- * [ [summary](#resource-acquisition-and-release-summary) ] -->
+    * [ [summary](#resource-acquisition-and-release-summary) ]
     * `TODO`
+-->
 
 Other games manifesting these patterns also use some form of explicit state
 which are likely subject to the same rewriting process.
@@ -929,11 +928,6 @@ explosion sprite @NN(explo): after the next game tick @NN(frame_3), the block
 terminates and automatically destroys the spawned abstraction (removing it from
 the screen).
 
-<!--
-The complete implementations for the *Bomber* action in C++ and Céu are 50 and
-19 lines of code, respectively [[![X]][diff_bomber]].
--->
-
 <a name="finite-state-machines-summary"/>
 <br/>
 
@@ -947,6 +941,14 @@ explicit state machines:
   variables.
 * They handle all states (and only them) in the same contiguous block,
   improving code encapsulation.
+
+`TODO: other uses, LoCs`
+
+<!--
+The complete implementations for the *Bomber* action in C++ and Céu are 50 and
+19 lines of code, respectively [[![X]][diff_bomber]].
+-->
+
 </div>
 
 [cpp_bomber]:  https://github.com/Pingus/pingus/blob/7b255840c201d028fd6b19a2185ccf7df3a2cd6e/src/pingus/actions/bomber.cpp
@@ -1610,8 +1612,8 @@ The dynamic nature of containers in C++ demand extra caution:
   `remove`.
 * For objects with dynamic lifespan, calls to `add` must always have matching 
   calls to `remove`:
-  missing calls to `remove` lead to memory and CPU leaks (see the
-  *lapsed listener* problem in SEC_REF[[lifespan-hierarchies-2]]).
+  missing calls to `remove` lead to memory and CPU leaks (to be discussed as
+  the *lapsed listener* problem further). <!--in SEC_REF[[lifespan-hierarchies-2]]-->
 
 [cpp_groupcomponent_delete]: https://github.com/Pingus/pingus/blob/7b255840c201d028fd6b19a2185ccf7df3a2cd6e/src/engine/gui/group_component.cpp#L37
 
