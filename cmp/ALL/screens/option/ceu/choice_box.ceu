@@ -49,4 +49,3 @@ code/await ChoiceBox (var& IRRect rect, pool&[] ChoiceItem items, var& IChoiceBo
         end
     end
 end
-

@@ -21,4 +21,3 @@ code/await MenuButton (var int x, var int y, var _char_const_ptr text, var _char
         end
     end
 end
-

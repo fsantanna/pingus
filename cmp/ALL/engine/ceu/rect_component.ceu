@@ -1,33 +1,11 @@
-#ifdef _RECT_COMPONENT_CEU
-#error multiple include
-#else
-#define _RECT_COMPONENT_CEU
-
-data IRectComponent with
-    event (int,int) on_primary_button_pressed;
-    event (int,int) on_primary_button_released;
-    event void      on_pointer_enter;
-    event void      on_pointer_leave;
-    event void      on_click;
-end
-
-code/await RectComponent (var& IRRect rect)
-                            -> (var IRectComponent component)
-                                -> FOREVER
-do
+code/await RectComponent (var& IRRect rect) -> (var IRectComponent component) -> FOREVER do
     component = _;
-
     code/tight/recursive Rect_is_at (var int x, var int y) -> bool do
-        escape outer.rect.abs.x<=x and x<=outer.rect.abs.x+outer.rect.abs.w
-           and outer.rect.abs.y<=y and y<=outer.rect.abs.y+outer.rect.abs.h;
+        escape outer.rect.abs.x<=x and x<=outer.rect.abs.x+outer.rect.abs.w and outer.rect.abs.y<=y and y<=outer.rect.abs.y+outer.rect.abs.h;
     end
-
     par do
         loop do
-            var int x;
-            var int y;
-            (x,y) = await ON_PRIMARY_BUTTON_PRESSED
-                    until call/recursive Rect_is_at(x,y);
+            (x,y) = await ON_PRIMARY_BUTTON_PRESSED until call/recursive Rect_is_at(x,y);
             emit component.on_primary_button_pressed(x,y);
             (x,y) = await ON_PRIMARY_BUTTON_RELEASED;
             if call/recursive Rect_is_at(x,y) then
@@ -49,17 +27,5 @@ do
                 end
             end
         end
-#if 0
-    with
-        every outer.main.redraw do
-//_printf("%d,%d // %d,%d\n", rect.abs.x, rect.abs.y, rect.abs.w, rect.abs.h);
-            {Display::s_framebuffer->draw_rect(
-                Rect(@rect.abs.x-2,@rect.abs.y-2,
-                     @rect.abs.x-2+@rect.abs.w+4,@rect.abs.y-2+@rect.abs.h+4),
-                Color(255,255,255));}
-        end
-#endif
     end
 end
-
-#endif

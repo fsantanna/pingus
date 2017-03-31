@@ -1,31 +1,12 @@
-#ifdef _LABEL_BUTTON_CEU
-#error multiple include
-#else
-#define _LABEL_BUTTON_CEU
-
-code/await LabelButton (var& IRRect rect, var _char_const_ptr label)
-                            -> (var& IRectComponent component)
-                                -> FOREVER
-do
+code/await LabelButton (var& IRRect rect, var _char_const_ptr label) -> (var& IRectComponent component) -> FOREVER do
     vector[] byte label_ = [] .. (label as _char&&);
-
     var& RRect r = spawn RRect(rect);
-
     var& RectComponent rc = spawn RectComponent(&r.pub);
     component = &rc.component;
-
     r.pub.off.w = {Fonts::chalk_small.get_width(_(@label))};
     r.pub.off.h = {Fonts::chalk_small.get_height()};
     emit r.pub.changed;
-
     every outer.main.redraw do
-        call ({Fonts::chalk_small}.render as /nohold)(
-            {origin_top_left},
-           r.pub.abs.x, r.pub.abs.y,
-            &&label[0] as _char&&,
-            *{Display::s_framebuffer}
-        );
+        call ({Fonts::chalk_small}.render as /nohold)( {origin_top_left}, r.pub.abs.x, r.pub.abs.y, &&label[0] as _char&&, *{Display::s_framebuffer});
     end
 end
-
-#endif
