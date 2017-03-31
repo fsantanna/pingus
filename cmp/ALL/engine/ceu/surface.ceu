@@ -9,8 +9,7 @@ do
     {
         try {
             Surface surface(@(desc:filename));
-            if (@(mod_) != ResourceModifier::ROT0)
-            {
+            if (@(mod_) != ResourceModifier::ROT0) {
                 surface = surface.mod(@(mod_));
             }
             sfc = new FramebufferSurface(new SDLFramebufferSurfaceImpl(surface.get_surface()));

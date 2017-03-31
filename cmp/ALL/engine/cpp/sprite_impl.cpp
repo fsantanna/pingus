@@ -1,8 +1,7 @@
 FramebufferSurface load_framebuffer_surface(const Pathname& filename, ResourceModifier::Enum modifier) {
   try {
     Surface surface(filename);
-    if (modifier != ResourceModifier::ROT0)
-    {
+    if (modifier != ResourceModifier::ROT0) {
       surface = surface.mod(modifier);
     }
     return Display::get_framebuffer()->create_surface(surface);
