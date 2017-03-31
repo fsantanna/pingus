@@ -2026,7 +2026,8 @@ containers:
   immediate reclamation.
 - Containers require explicit manipulation of pointers/references.
 
-`TODO: particles, action holders, worldmap`
+`TODO: particles, action holders, worldmap, screen_manager`
+`TODO: condensed code: headers, trivial getters/setters, declarations/vars/constants, C++ bloat`
 
 <!--
 Overall, passive objects of C++ impose a dispatching architecture that makes 
