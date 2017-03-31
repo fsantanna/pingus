@@ -463,7 +463,7 @@ likely apply to other games:
     container entity automatically destroys its managed children.
     * [ [case 1](#lifespan-hierarchies-1) |
         [case 2](#lifespan-hierarchies-2) |
-        [summary](#lifespan-hierarchies-summary) ]
+        [summary](#lifespan_hierarchies_summary) ]
 
 5. [**Signaling**](#signaling):
     Entities often need to communicate explicitly through a signaling 
@@ -951,6 +951,8 @@ lines of code).
 This asymmetry illustrates how expressive describing state machines in direct
 style can be.
 
+`TODO: playfield/smallmap scroll, levelset highlight`
+
 <!--
 The complete implementations for the *Bomber* action in C++ and Céu are 50 and
 19 lines of code, respectively [[![X]][diff_bomber]].
@@ -1320,6 +1322,9 @@ continuation-passing style:
 * A single parent class describes the flow between the activities in a 
   self-contained block of code.
     <!-- (instead of being spread among the activity classes). -->
+
+`TODO: worldmap, main, game`
+
 </div>
 
 [cpp_story_screen]:https://github.com/Pingus/pingus/blob/7b255840c201d028fd6b19a2185ccf7df3a2cd6e/src/pingus/screens/story_screen.cpp#L136
@@ -2005,7 +2010,7 @@ end
 ```
 -->
 
-<a name="lifespan-hierarchies-summary"/>
+<a name="lifespan_hierarchies_summary"/>
 <br/>
 
 <div class="summary">
@@ -2020,6 +2025,8 @@ containers:
 - Natural termination makes an instance innocuous and, hence, susceptible to
   immediate reclamation.
 - Containers require explicit manipulation of pointers/references.
+
+`TODO: particles, action holders, worldmap`
 
 <!--
 Overall, passive objects of C++ impose a dispatching architecture that makes 
@@ -2490,6 +2497,9 @@ Boost signals:
     `await`, `every`, etc.).
 * They never create infinite dependency loops.
 * They do not require explicit unbinding.
+
+`TODO: menu widgets`
+
 </div>
 
 [boost_signal]:http://www.boost.org/doc/libs/1_60_0/doc/html/signals2.html

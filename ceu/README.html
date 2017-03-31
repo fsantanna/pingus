@@ -233,7 +233,7 @@ until we complete the rewriting process.
 </ul></li>
 <li><a href="#lifespan-hierarchies"><strong>Lifespan Hierarchies</strong></a>: Entities typically form a lifespan hierarchy in which a terminating container entity automatically destroys its managed children.
 <ul>
-<li>[ <a href="#lifespan-hierarchies-1">case 1</a> | <a href="#lifespan-hierarchies-2">case 2</a> | <a href="#lifespan-hierarchies-summary">summary</a> ]</li>
+<li>[ <a href="#lifespan-hierarchies-1">case 1</a> | <a href="#lifespan-hierarchies-2">case 2</a> | <a href="#lifespan_hierarchies_summary">summary</a> ]</li>
 </ul></li>
 <li><a href="#signaling"><strong>Signaling</strong></a>: Entities often need to communicate explicitly through a signaling mechanism, especially if there is no hierarchy relationship between them.
 <ul>
@@ -547,6 +547,7 @@ productivity.
 <li>They handle all states (and only them) in the same contiguous block, improving code encapsulation.</li>
 </ul>
 <p>Pingus supports 16 actions in the game, including the <em>Bomber</em>: 5 of them <!--(`Bomber`, `Bridger`, `Drown`, `Exiter`, and `Splashed`)--> implement some form of state machine and are 43% smaller in Céu (206 vs 117 lines of code). Considering the other 11 actions, the reduction is under 5% only (447 vs 424 lines of code). This asymmetry illustrates how expressive describing state machines in direct style can be.</p>
+<p><code>TODO: playfield/smallmap scroll, levelset highlight</code></p>
 <!--
 The complete implementations for the *Bomber* action in C++ and Céu are 50 and
 19 lines of code, respectively [[![X]][diff_bomber]].
@@ -784,6 +785,7 @@ TODO:
 <li>The activities are decoupled and do not hold references to one another.</li>
 <li>A single parent class describes the flow between the activities in a self-contained block of code. <!-- (instead of being spread among the activity classes). --></li>
 </ul>
+<p><code>TODO: worldmap, main, game</code></p>
 </div>
 <p><a name="dispatching-hierarchies"/></p>
 <h2 id="dispatching-hierarchies">3) Dispatching Hierarchies</h2>
@@ -1230,7 +1232,7 @@ do
 end
 ```
 -->
-<p><a name="lifespan-hierarchies-summary"/> <br/></p>
+<p><a name="lifespan_hierarchies_summary"/> <br/></p>
 <div class="summary">
 <p><strong>Summary</strong>:</p>
 <p>Lexical lifespan for static instances and natural termination for dynamic instances provide some advantages in comparison to lifespan hierarchies through containers:</p>
@@ -1240,6 +1242,7 @@ end
 <li>Natural termination makes an instance innocuous and, hence, susceptible to immediate reclamation.</li>
 <li>Containers require explicit manipulation of pointers/references.</li>
 </ul>
+<p><code>TODO: particles, action holders, worldmap</code></p>
 <!--
 Overall, passive objects of C++ impose a dispatching architecture that makes 
 the reasoning about the program harder:
@@ -1519,6 +1522,7 @@ Also, all memory required for static instances is known at compile time.
 <li>They never create infinite dependency loops.</li>
 <li>They do not require explicit unbinding.</li>
 </ul>
+<p><code>TODO: menu widgets</code></p>
 </div>
 <!--
 <a name="wall-clock-timers"/>
