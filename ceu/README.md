@@ -391,8 +391,6 @@ for the game logic development.
 In Pingus, the game logic also accounts for almost half the size of the
 codebase (18173 from 39362 LoC, or 46%).
 
-`TODO: total rewritten, gains in %`
-
 The rewriting process consisted of identifying a set of callbacks implementing
 a *control-flow behavior* in the game and translating them to Céu using
 appropriate structured constructs.
@@ -424,11 +422,15 @@ The remaining classes in C++ should interoperate with the new classes in Céu
 until we complete the rewriting process.
 -->
 
+`TODO: total rewritten, gains in %`
+
 Note that we only touch code that deals with events, as Céu is actually less 
 expressive than C++ for pure data manipulation (e.g., game preferences, graph
 algorithms, etc).
 Therefore, we also rely on the seamless integration between Céu and C/C++ to
 take advantage of the existing code base and libraries.
+
+`TODO: collision detection, maps`
 
 We selected 10 game behaviors and describe their implementations in C++ and
 Céu.
@@ -951,7 +953,7 @@ lines of code).
 This asymmetry illustrates how expressive describing state machines in direct
 style can be.
 
-`TODO: playfield/smallmap scroll, levelset highlight`
+`TODO: playfield/smallmap scroll, levelset highlight, fps_counter`
 
 <!--
 The complete implementations for the *Bomber* action in C++ and Céu are 50 and

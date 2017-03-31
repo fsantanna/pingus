@@ -207,7 +207,6 @@ if it enables our state-intensive code to scale to many threads, it’s still a 
 Claim: Transactions are the only plausible solution to concurrent mutable state
 -->
 <p>The main motivation for rewriting Pingus to Céu is to suggest structured synchronous reactive programming as an expressive and productive alternative for the game logic development. In Pingus, the game logic also accounts for almost half the size of the codebase (18173 from 39362 LoC, or 46%).</p>
-<p><code>TODO: total rewritten, gains in %</code></p>
 <p>The rewriting process consisted of identifying a set of callbacks implementing a <em>control-flow behavior</em> in the game and translating them to Céu using appropriate structured constructs. As an example, a double mouse click consists of the first click, followed by a maximum amount of time, followed by a second click. This behavior depends on different event (clicks and timers) that have to occur in a particular order. In C++, the implementation involves callbacks crossing successive reactions to events manipulating state variables explicitly More concretely, we could identify control-flow behaviors in C++ by looking for class members with identifiers resembling verbs, statuses, or counters (e.g., <a href="https://github.com/Pingus/pingus/blob/7b255840c201d028fd6b19a2185ccf7df3a2cd6e/src/pingus/components/action_button.hpp#L36"><code>pressed</code></a>, <a href="https://github.com/Pingus/pingus/blob/7b255840c201d028fd6b19a2185ccf7df3a2cd6e/src/pingus/actions/bomber.hpp#L31"><code>particle_thrown</code></a>, <a href="https://github.com/Pingus/pingus/blob/7b255840c201d028fd6b19a2185ccf7df3a2cd6e/src/pingus/actions/bridger.hpp#L30"><code>mode</code></a>, or <a href="https://github.com/Pingus/pingus/blob/7b255840c201d028fd6b19a2185ccf7df3a2cd6e/src/pingus/actions/digger.hpp#L32"><code>delay_count</code></a>). Good chances are that variables with &quot;suspicious names&quot; encode some form of control-flow progression that cross multiple callback invocations.</p>
 <!--
 , and redirect the instantiation and event dispatching to the new 
@@ -215,7 +214,9 @@ class.
 The remaining classes in C++ should interoperate with the new classes in Céu 
 until we complete the rewriting process.
 -->
+<p><code>TODO: total rewritten, gains in %</code></p>
 <p>Note that we only touch code that deals with events, as Céu is actually less expressive than C++ for pure data manipulation (e.g., game preferences, graph algorithms, etc). Therefore, we also rely on the seamless integration between Céu and C/C++ to take advantage of the existing code base and libraries.</p>
+<p><code>TODO: collision detection, maps</code></p>
 <p>We selected 10 game behaviors and describe their implementations in C++ and Céu. We also categorized these examples in 5 abstract control-flow patterns that likely apply to other games:</p>
 <p><a name="finite-state-machines"/></p>
 <ol style="list-style-type: decimal">
@@ -547,7 +548,7 @@ productivity.
 <li>They handle all states (and only them) in the same contiguous block, improving code encapsulation.</li>
 </ul>
 <p>Pingus supports 16 actions in the game, including the <em>Bomber</em>: 5 of them <!--(`Bomber`, `Bridger`, `Drown`, `Exiter`, and `Splashed`)--> implement some form of state machine and are 43% smaller in Céu (206 vs 117 lines of code). Considering the other 11 actions, the reduction is under 5% only (447 vs 424 lines of code). This asymmetry illustrates how expressive describing state machines in direct style can be.</p>
-<p><code>TODO: playfield/smallmap scroll, levelset highlight</code></p>
+<p><code>TODO: playfield/smallmap scroll, levelset highlight, fps_counter</code></p>
 <!--
 The complete implementations for the *Bomber* action in C++ and Céu are 50 and
 19 lines of code, respectively [[![X]][diff_bomber]].
@@ -1242,7 +1243,7 @@ end
 <li>Natural termination makes an instance innocuous and, hence, susceptible to immediate reclamation.</li>
 <li>Containers require explicit manipulation of pointers/references.</li>
 </ul>
-<p><code>TODO: particles, action holders, worldmap</code></p>
+<p><code>TODO: particles, action holders, worldmap, screen_manager</code> <code>TODO: condensed code: headers, trivial getters/setters, declarations/vars/constants, C++ bloat</code></p>
 <!--
 Overall, passive objects of C++ impose a dispatching architecture that makes 
 the reasoning about the program harder:
