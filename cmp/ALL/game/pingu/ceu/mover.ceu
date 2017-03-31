@@ -3,9 +3,7 @@ code/await Mover (void) -> (event& void ok_collided) -> FOREVER do
     ok_collided = &ok_collided_;
     every outer.game.dt do
         var bool collided = false;
-        var Vector3f pst = _;
         {{
-            Vector3f pst, move;
             pst.x = @(outer.pingu.rect.off.x);
             pst.y = @(outer.pingu.rect.off.y);
             move = Vector3f(@outer.pingu.velocity.x,@outer.pingu.velocity.y,@outer.pingu.velocity.z);

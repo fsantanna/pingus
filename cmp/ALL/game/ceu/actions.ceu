@@ -43,8 +43,6 @@ code/await Button (var    int i, var    _ActionName__Enum id_me, var&   int n, e
         every outer.main.redraw do
             if {globals::developer_mode} as bool then
                 {
-                    out.str("");
-                    out.clear();
                     std::string str = StringUtil::to_string(GLOBAL_ACTIONHOLDER->get_available(@id_me));
                     out << GLOBAL_ACTIONHOLDER->get_available(@id_me) << " / " << GLOBAL_ACTIONHOLDER->get_used(@id_me);
                 };

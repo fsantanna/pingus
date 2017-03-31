@@ -34,12 +34,6 @@ code/await Mouse (var& IRRect rect, var& EDot e) -> FOREVER do
     end
 end
 code/await StoryDot (void) -> FOREVER do
-    {
-        reader = file_reader->read_section("dot");
-        reader.read_vector("position", pst);
-        reader.read_string("name",     name);
-        ceu_dbg_assert(!name.empty());
-    };
     var int id = {path_graph->lookup_node(name)};
     {
         file_reader->read_string("name",  m_name);
@@ -63,13 +57,7 @@ code/await StoryDot (void) -> FOREVER do
             end
         with
             every e2.fst do
-                if {globals::developer_mode} as bool then
-                    _log_info("Worldmap: Clicked on: %1%", &&filename[0] as _char&&);
-                end
                 if id == outer.pingus.node then
-                    if {globals::developer_mode} as bool then
-                        _log_info("Worldmap: Pingu is on node, issue on_click()");
-                    end
                     outer.return_filename = [] .. filename;
                     if show_credits then
                         emit outer.ok_escape({WORLDMAP_RETURN_STORY_CREDITS});
@@ -92,13 +80,6 @@ code/await StoryDot (void) -> FOREVER do
 end
 code/await LevelDot (void) -> FOREVER
 do
-    {
-        reader = file_reader->read_section("dot");
-        reader.read_vector("position", pst);
-        reader.read_string("name",     name);
-        file_reader->read_string("levelname", resname);
-        plf = PLFResMgr::load_plf(resname);
-    }
     var int id = {path_graph->lookup_node(name)};
     vector[] byte res_name = [] .. {resname.c_str()} as _char&&;
     vector[] byte lvl_name = [] .. {plf.get_levelname().c_str()} as _char&&;
@@ -149,16 +130,9 @@ do
                 end
             with
                 every e2.fst do
-                    if {globals::developer_mode} as bool then
-                        _log_info("Worldmap: Clicked on: %1%", &&filename[0] as _char&&);
-                    end
                     if id == outer.pingus.node then
-                        if {globals::developer_mode} as bool then
-                            _log_info("Worldmap: Pingu is on node, issue on_click()");
-                        end
                         outer.return_filename = [] .. filename;
                         emit outer.ok_escape({WORLDMAP_RETURN_LEVEL});
-                        _ceu_dbg_assert(0);
                     else
                         if status == {Savegame::NONE} then
                             call {Sound::PingusSound::play_sound}("chink");

@@ -108,3 +108,38 @@ code/await Pingu (pool&[] Pingu  pingus, var     uint   id, var     int    owner
     end;
     call Game_Pingu_Out(ret);
 end
+code/tight Pingu_Set_Velocity (var Vector3f velocity) -> void do
+    velocity.x = {(float)Math::clamp(-terminal_velocity, @velocity.x, terminal_velocity)};
+    velocity.y = {(float)Math::clamp(-terminal_velocity, @velocity.y, terminal_velocity)};
+    outer.pingu.velocity = velocity;
+end
+code/tight Pingu_Rel_Getpixel (var int x, var int y) -> int do
+    escape outer.gfx_map.get_colmap():getpixel( (outer.pingu.rect.off.x + (x * outer.pingu.direction)), (outer.pingu.rect.off.y - y));
+end
+code/tight Pingu_Head_Collision_On_Walk (var int x, var int y) -> bool do
+    var int pixel = call Pingu_Rel_Getpixel(x, y + {pingu_height});
+    if (     pixel != {Groundtype::GP_NOTHING} and not ((pixel &  {Groundtype::GP_BRIDGE}) as bool)) then
+        escape true;
+    end
+    escape false;
+end
+code/tight Pingu_Check_Action (var _ActionName__Enum new_action) -> bool do
+    var int mode = {ActionName::ACTIVATION_MODE}[new_action];
+    if mode == {ActionType::INSTANT} then
+        escape (new_action!=outer.pingu.current_action) and ({ActionName::CHANGE_ALLOWED}[outer.pingu.current_action][new_action] as bool);
+    else/if mode == {ActionType::WALL_TRIGGERED} then
+        escape (outer.wall_action != new_action);
+    else/if mode == {ActionType::FALL_TRIGGERED} then
+        escape (outer.fall_action != new_action);
+    end
+end
+code/tight Pingu_Is_Over (var int x, var int y) -> bool do
+    escape (outer.pingu.rect.abs.x+32 > x and outer.pingu.rect.abs.x    < x and outer.pingu.rect.abs.y+32 > y and outer.pingu.rect.abs.y    < y);
+end
+code/tight Pingu_Dist (var int x, var int y) -> float do
+    escape {Math::sqrt}(((outer.pingu.rect.abs.x+16 - x) * (outer.pingu.rect.abs.x+16 - x) + (outer.pingu.rect.abs.y+16 - y) * (outer.pingu.rect.abs.y+16 - y)));
+end
+code/tight Pingu_Is_Inside (var int x1, var int y1, var int x2, var int y2) -> bool
+do
+    escape (outer.pingu.rect.off.x > x1 and outer.pingu.rect.off.x < x2 and outer.pingu.rect.off.y > y1 and outer.pingu.rect.off.y < y2);
+end

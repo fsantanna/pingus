@@ -68,17 +68,6 @@ void StartScreenComponent::draw(DrawingContext& gc) {
     gc.print_center(Fonts::chalk_small, Vector2i(gc.get_width()/2, gc.get_height()-50), plf.get_resname());
   }
 }
-const std::string& StartScreenComponent::format_description(int length) {
-  if (description != "") {
-    return description;
-  }
-  description = _(plf.get_description());
-  if (description == "") {
-    return description;
-  }
-  description = StringFormat::break_line(description, length, Fonts::chalk_normal);
-  return description;
-}
 StartScreen::StartScreen(const PingusLevel& arg_plf) :
   plf(arg_plf),
 {
