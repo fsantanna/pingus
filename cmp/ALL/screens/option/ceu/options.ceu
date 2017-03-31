@@ -97,13 +97,10 @@ code/await OptionMenu (void) -> void do
                 break;
             end
             var _char_const_ptr str1 = _;
-            {
-                {
-                    std::ostringstream ostr;
+            { {
                     ostr << it1->width << "x" << it1->height;
                     @str1 = ostr.str().c_str();
-                }
-            };
+                } };
             spawn ChoiceItem(&r72.pub, str1, i, &cb1) in its1;
             if {fullscreen} == {*it1} then
                 cb1.current = {it1 - resolutions.begin()};
@@ -115,11 +112,7 @@ code/await OptionMenu (void) -> void do
     spawn do
         every cb1.go do
             { static Size size_; };
-            if _sscanf(&&cb1.value[0] as _char_const_ptr, "%dx%d", {&size_.width}, {&size_.height}) != 2 then
-                _log_error("failed to parse: %1%", &&cb1.value[0] as _char_const_ptr);
-            else
                 _config_manager.set_fullscreen_resolution({size_});
-            end
         end
     end
     yy_ = yy_ + 32;
@@ -138,7 +131,6 @@ code/await OptionMenu (void) -> void do
 #endif
     else
         cb2.current = -1;
-        _ceu_dbg_assert({!"unknown renderer type"});
     end
     spawn ChoiceItem(&r82.pub, "sdl",    0, &cb2) in its2;
     spawn ChoiceItem(&r82.pub, "delta",  1, &cb2) in its2;
@@ -159,8 +151,7 @@ code/await OptionMenu (void) -> void do
     pool[] ChoiceItem its3;
     var    IChoiceBox cb3 = val IChoiceBox(_,_,_);
     {
-        static std::set<tinygettext::Language> languages =
-            dictionary_manager.get_languages();
+        static std::set<tinygettext::Language> languages = dictionary_manager.get_languages();
         languages.insert(tinygettext::Language::from_name("en"));
         static std::vector<tinygettext::Language> langs(languages.begin(), languages.end());
         std::sort(langs.begin(), langs.end(), LanguageSorter());
@@ -189,9 +180,7 @@ code/await OptionMenu (void) -> void do
                 static auto it = m_language_map.find(@(&&cb3.value[0] as _char&&));
                 it = m_language_map.find(@(&&cb3.value[0] as _char&&));
             }
-            if {it} == {m_language_map.end()} then
-                _log_error("unknown language: %1%", &&cb3.value[0]);
-            else
+            if {it} != {m_language_map.end()} then
                 {
                     m_language = it->second;
                     config_manager.set_language(it->second);
@@ -256,7 +245,6 @@ code/await OptionMenu (void) -> void do
     { {
             Pathname cfg_filename(System::get_userdir() + "config",
                                   Pathname::SYSTEM_PATH);
-            log_info("saving configuration: %1%", cfg_filename);
             config_manager.get_options().save(cfg_filename);
         } };
 end

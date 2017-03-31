@@ -52,7 +52,6 @@ OptionMenu::OptionMenu() :
       renderer_box->set_current_choice(2);
       break;
 #endif
-    default: assert(!"unknown renderer type");
   }
   m_language = dictionary_manager.get_language();
   ChoiceBox* language_box = new ChoiceBox(Rect());
@@ -145,8 +144,6 @@ void OptionMenu::add_item(const std::string& label, GUI::RectComponent* control)
   } else if (dynamic_cast<CheckBox*>(control)) {
     control->set_rect(Rect(Vector2i(rect.left, rect.top), Size(32, 32)));
     label_component->set_rect(Rect(rect.left + 40,  rect.top, rect.right, rect.bottom));
-  } else {
-    assert(!"Unhandled control type");
   }
   gui_manager->add(label_component);
   gui_manager->add(control);
@@ -171,10 +168,8 @@ void OptionMenu::draw_background(DrawingContext& gc)
   gc.print_left(Fonts::chalk_normal, Vector2i(gc.get_width()/2 - 320, gc.get_height()/2 + 200), _("Some options require a restart of the game to take effect."));
 }
 void OptionMenu::on_escape_press() {
-  log_debug("OptionMenu: popping screen");
   ScreenManager::instance()->pop_screen();
   Pathname cfg_filename(System::get_userdir() + "config", Pathname::SYSTEM_PATH);
-  log_info("saving configuration: %1%", cfg_filename);
   config_manager.get_options().save(cfg_filename);
 }
 void OptionMenu::resize(const Size& size_) {
@@ -227,20 +222,14 @@ void OptionMenu::on_music_volume_change(int v) {
 }
 void OptionMenu::on_language_change(const std::string &str) {
   auto it = m_language_map.find(str);
-  if (it == m_language_map.end()) {
-    log_error("unknown language: %1%", str);
-  } else {
+  if (it != m_language_map.end()) {
     m_language = it->second;
     config_manager.set_language(it->second);
   }
 }
 void OptionMenu::on_resolution_change(const std::string& str) {
   Size size_;
-  if (sscanf(str.c_str(), "%dx%d", &size_.width, &size_.height) != 2) {
-    log_error("failed to parse: %1%", str);
-  } else {
     config_manager.set_fullscreen_resolution(size_);
-  }
 }
 void OptionMenu::on_renderer_change(const std::string& str) {
   config_manager.set_renderer(framebuffer_type_from_string(str));

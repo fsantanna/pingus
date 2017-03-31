@@ -16,7 +16,5 @@ Sprite& StateSprite::operator[](int state) {
   Sprites::iterator i = sprites.find(state);
   if (i != sprites.end()) {
     return i->second;
-  } else {
-    raise_exception(std::runtime_error, "StateSprite error: state " << state << " not available");
   }
 }
