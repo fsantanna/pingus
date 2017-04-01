@@ -596,10 +596,17 @@ productivity.
 <li>They encode all states with direct sequential code, not requiring state variables.</li>
 <li>They handle all states (and only them) in the same contiguous block, improving code encapsulation.</li>
 </ul>
-<p><code>TODO</code></p>
-<p><strong>How commom is this control-flow pattern?</strong></p>
-<p><code>TODO: RW</code> Pingus supports 16 actions in the game, including the <em>Bomber</em>: 5 of them <!--(`Bomber`, `Bridger`, `Drown`, `Exiter`, and `Splashed`)--> implement some form of state machine and are 43% smaller in Céu (206 vs 117 lines of code). Considering the other 11 actions, the reduction is under 5% only (447 vs 424 lines of code). This asymmetry illustrates how expressive describing state machines in direct style can be.</p>
-<p><code>TODO: playfield/smallmap scroll, levelset highlight, fps_counter</code></p>
+<p><strong>How common are Finite State Machines?</strong></p>
+<p>Pingus supports 16 actions in the game [<a href="https://github.com/fsantanna/pingus/tree/ceu/ceu/pingus/screens/game/pingu/actions"><img src="images/link_12.png" alt="X" /></a>]: 5 of them implement at least one state machine and are considerable smaller in Céu in terms of LoC:</p>
+<pre><code>    Action          Céu     C++     Explicit State
+    ------------   ----    ----     -----------------
+    Bomber           23      50     4 state variables
+    Bridger          75     100     2 state variables
+    Drown             6      15     1 state variable
+    Exiter            7      22     2 state variables
+    Splashed          6      19     2 state variables</code></pre>
+<p>Considering the other 11 actions, the reduction in LoC is negligible. This asymmetry in the implementation of actions illustrates the gains in expressiveness when describing state machines in direct style.</p>
+<p>Detecting mouse dragging also typically involves state machines. In Pingus, the player can drag the mouse in the scenario [<a href="https://github.com/fsantanna/pingus/blob/ceu/ceu/pingus/screens/game/playfield.ceu#L45"><img src="images/link_12.png" alt="X" /></a>] or in the small map [<a href="https://github.com/fsantanna/pingus/blob/ceu/ceu/pingus/screens/game/smallmap.ceu#L18"><img src="images/link_12.png" alt="X" /></a>] to move the game viewport. State machines also appear in the <em>FPS counter</em> [<a href="https://github.com/fsantanna/pingus/blob/ceu/ceu/pingus/fps_counter.ceu#L12"><img src="images/link_12.png" alt="X" /></a>], UI widgets with visual feedback (e.g., [<a href="https://github.com/fsantanna/pingus/blob/ceu/ceu/pingus/screens/levels/levelsets.ceu#L23"><img src="images/link_12.png" alt="X" /></a>]), among others.</p>
 <!--
 The complete implementations for the *Bomber* action in C++ and Céu are 50 and
 19 lines of code, respectively [[![X]][diff_bomber]].

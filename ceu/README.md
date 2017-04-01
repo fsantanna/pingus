@@ -1020,21 +1020,29 @@ explicit state machines:
 * They handle all states (and only them) in the same contiguous block,
   improving code encapsulation.
 
-`TODO`
+**How common are Finite State Machines?**
 
-**How commom is this control-flow pattern?**
+Pingus supports 16 actions in the game [[![X]][ceu_actions]]:
+5 of them implement at least one state machine and are considerable smaller in
+Céu in terms of LoC:
 
-`TODO: RW`
-Pingus supports 16 actions in the game, including the *Bomber*:
-5 of them <!--(`Bomber`, `Bridger`, `Drown`, `Exiter`, and `Splashed`)-->
-implement some form of state machine and are 43% smaller in Céu (206 vs 117
-lines of code).
-Considering the other 11 actions, the reduction is under 5% only (447 vs 424
-lines of code).
-This asymmetry illustrates how expressive describing state machines in direct
-style can be.
+        Action          Céu     C++     Explicit State
+        ------------   ----    ----     -----------------
+        Bomber           23      50     4 state variables
+        Bridger          75     100     2 state variables
+        Drown             6      15     1 state variable
+        Exiter            7      22     2 state variables
+        Splashed          6      19     2 state variables
 
-`TODO: playfield/smallmap scroll, levelset highlight, fps_counter`
+Considering the other 11 actions, the reduction in LoC is negligible.
+This asymmetry in the implementation of actions illustrates the gains in
+expressiveness when describing state machines in direct style.
+
+Detecting mouse dragging also typically involves state machines.
+In Pingus, the player can drag the mouse in the scenario [[![X]][ceu_drag_1]]
+or in the small map [[![X]][ceu_drag_2]] to move the game viewport.
+State machines also appear in the *FPS counter* [[![X]][ceu_fps]], UI widgets
+with visual feedback (e.g., [[![X]][ceu_uifeedback]]), among others.
 
 <!--
 The complete implementations for the *Bomber* action in C++ and Céu are 50 and
@@ -1074,6 +1082,11 @@ Spike       35      27      draw/update, killing
 [cpp_bomber]:  https://github.com/Pingus/pingus/blob/7b255840c201d028fd6b19a2185ccf7df3a2cd6e/src/pingus/actions/bomber.cpp
 [ceu_bomber]:  https://github.com/fsantanna/pingus/blob/ceu/ceu/pingus/screens/game/pingu/actions/bomber.ceu
 [diff_bomber]: https://github.com/fsantanna/pingus/commit/8e8cf7ed81427d575975fc7a4da579c7b76219a0
+[ceu_actions]: https://github.com/fsantanna/pingus/tree/ceu/ceu/pingus/screens/game/pingu/actions
+[ceu_drag_1]: https://github.com/fsantanna/pingus/blob/ceu/ceu/pingus/screens/game/playfield.ceu#L45
+[ceu_drag_2]: https://github.com/fsantanna/pingus/blob/ceu/ceu/pingus/screens/game/smallmap.ceu#L18
+[ceu_fps]: https://github.com/fsantanna/pingus/blob/ceu/ceu/pingus/fps_counter.ceu#L12
+[ceu_uifeedback]: https://github.com/fsantanna/pingus/blob/ceu/ceu/pingus/screens/levels/levelsets.ceu#L23
 
 @SEC[[continuation-passing,
 ## Continuation Passing
