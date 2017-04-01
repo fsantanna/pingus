@@ -471,7 +471,7 @@ In contrast, the *Option* screen is a simple UI grid with trivial mouse
 interaction.
 
 We selected 9 game behaviors and describe their implementations in C++ and Céu.
-We also categorized these examples in 5 abstract control-flow patterns that
+We also categorized these examples in 5 abstract C++ control-flow patterns that
 likely apply to other games:
 
 <a name="finite-state-machines"/>
@@ -505,8 +505,8 @@ likely apply to other games:
         [summary](#lifespan_hierarchies_summary) ]
 
 5. [**Signaling**](#signaling):
-    Entities often need to communicate explicitly through a signaling 
-    mechanism, especially if there is no hierarchy relationship between them.
+    Entities often need to communicate explicitly through signaling mechanisms,
+    especially if there is no hierarchy relationship between them.
     * [ [case 1](#signaling_1) |
         [case 2](#signaling_2) |
         [summary](#signaling-summary) ]
@@ -1020,6 +1020,10 @@ explicit state machines:
 * They handle all states (and only them) in the same contiguous block,
   improving code encapsulation.
 
+`TODO`
+
+**How commom is this control-flow pattern?**
+
 `TODO: RW`
 Pingus supports 16 actions in the game, including the *Bomber*:
 5 of them <!--(`Bomber`, `Bridger`, `Drown`, `Exiter`, and `Splashed`)-->
@@ -1363,7 +1367,7 @@ The enclosing loop restores the `Worldmap` and repeats the process.
 #### Discussion
 
 @FIG_NEW(continuation.png,
-         Continuation [C++] vs Direct [Céu] Styles,
+         Continuation \[C++\] vs Direct \[Céu\] Styles,
          500)
 
 @FIG_REF[[continuation.png]] illustrates the *continuation-passing style* of
@@ -1469,16 +1473,14 @@ In C++, the class `Bomber` [[![X]][cpp_bomber]] declares a `sprite` member to
 handle its animation frames:
 
 @CODE_LINES[[language=CPP,
-class Bomber : public PinguAction
-{
+class Bomber : public PinguAction {
     <...>
     Sprite sprite;
     void draw (SceneContext& gc);
     void update();
 }
 
-Bomber::Bomber (<...>) : <...>
-{
+Bomber::Bomber (<...>) : <...> {
     sprite.load(<...>);                     @load
     <...>
 }
@@ -1495,7 +1497,7 @@ void Bomber::draw (SceneContext& gc) {      @draw_1
 
 The `Sprite` class is part of the game engine and knows how to update
 [[![X]][cpp_sprite_update]] and render [[![X]][cpp_sprite_render]] itself.
-However, the `Bomber` still has to respond to `update` and `draw` request from
+However, the `Bomber` still has to respond to `update` and `draw` requests from
 the game and forward them to the sprite
 (ln. @N(update_1)-@N(update_2) and @N(draw_1)-@N(draw_2)).
 
@@ -1518,7 +1520,7 @@ method dispatches (@FIG_REF[[hierarchy.png]]):
 2. `ScreenManager::update` [[![X]][cpp_screenmanager_21]]
         calls
    `last_screen->update` [[![X]][cpp_screenmanager_22]] for the active game
-    screen (a `GameSession` instance considering an active `Bomber`).
+    screen (a `GameSession` instance, considering an active `Bomber`).
 3. `GameSession::update` [[![X]][cpp_gamesession_1]]
         calls
     `world->update` [[![X]][cpp_gamesession_2]].
@@ -1537,7 +1539,7 @@ method dispatches (@FIG_REF[[hierarchy.png]]):
 8. `Sprite::update` [[![X]][cpp_sprite_1]]
     finally updates the animation frame.
 
-Nonetheless, each dispatching step is necessary considering the game
+Each dispatching step in the chains is necessary considering the game
 architecture:
 
 * With a single assignment to `last_screen`, we can easily deactivate the
@@ -1546,9 +1548,9 @@ architecture:
   common interface (i.e., `WorldObj` [[![X]][cpp_worldobj]]), such as all
   pingus and traps.
 * Since it is common to iterate only over the pingus (vs. all world objects),
-  it is convenient to manage all pingus in a `PinguHolder` container.
+  it is convenient to manage all pingus within the `PinguHolder` container.
 * Since a single pingu can change between actions during lifetime, it is also
-  convenient to decouple it from actions with a level of indirection through
+  convenient to decouple them with another level of indirection through
   the `action` member.
 * Sprites are part of the game engine and are reusable everywhere (e.g., UI
   buttons, world objects, etc.), so it is also convenient to decouple them
@@ -1561,7 +1563,8 @@ the `Sprite` class.
 
 #### Céu
 
-In Céu, the `Bomber` action spawns a `Sprite` animation [[![X]][ceu_bomber]]:
+In Céu, the `Bomber` action spawns a `Sprite` animation instance
+[[![X]][ceu_bomber]]:
 
 @CODE_LINES[[language=CEU,
 code/await Bomber (void) -> _ActionName__Enum do
@@ -1571,11 +1574,14 @@ code/await Bomber (void) -> _ActionName__Enum do
 end
 ]]
 
-The `Sprite` instance @NN(dcl) can react directly to external `update`
-[[![X]][ceu_sprite_update]] and `draw` [[![X]][ceu_sprite_redraw]] events,
+The `Sprite` instance @NN(dcl) can react directly to external `dt`
+[[![X]][ceu_sprite_update]] and `redraw` [[![X]][ceu_sprite_redraw]] events
+(which are analogous to `update` and `redraw` callbacks, respectively),
 bypassing the program hierarchy entirely.
-The radical decoupling between the program hierarchy and external reactions
-completely eliminates dispatching chains.
+While and *only while* the bomber abstraction is alive, the sprite animation is
+also alive.
+The radical decoupling between the program hierarchy and reactions to events
+eliminates dispatching chains.
 
 <!--
 For instance, we removed from the game engine most of the boilerplate related
@@ -1631,10 +1637,10 @@ variable `gfx_exploded` and forward the `draw` method down to the child sprite
 <div class="summary">
 **Summary**:
 
-Passive objects subjected to a hierarchy require a dispatching architecture
+Passive entities subjected to hierarchies require a dispatching architecture
 that makes the reasoning about the program harder:
 
-* The full dispatching chain may go through dozen of files.
+* The full dispatching chain may go through dozens of files.
   <!--(note that we omitted class hierarchies from the discussion).-->
 * The dispatching chain may interleave between classes specific to the game and 
   also classes from the game engine (possibly third-party classes).
@@ -1648,13 +1654,12 @@ just to forward `update` methods through the dispatching hierarchy
 (e.g., class `GroupComponent` [[![X]][cpp_groupcomponent_update]]).
 For the drawing subsystem, 50 files with around 300 lines of code
 (e.g., class `ArmageddonButton` [[![X]][cpp_armageddon_draw]]).
-The implementation in C++ also relies on dispatching hierarchy for `resize`
+The implementation in C++ also relies on a dispatching hierarchy for `resize`
 callbacks, touching 12 files with around 100 lines of code
 (e.g., class `StartScreen` [[![X]][cpp_startscreen_resize]]).
 
-Most of this code is eliminated in Céu.
-Abstractions in Céu can react directly to the environment, not depending on
-hierarchies spread across multiple files.
+Most of this code is eliminated in Céu since abstractions can react directly to
+the environment, not depending on hierarchies spread across multiple files.
 
 <!--
 Many of these files mix dispatching with state manipulation,
@@ -1839,38 +1844,40 @@ are known at compile time.
          UI children with static lifespan,
          300)
 
-In C++, the class `GameSession` makes the UI widgets, such as the buttons,
-pingus counter, and small map (@FIG_REF(game-session-arrows.png)) to coexist
-with the game screen during its whole lifespan:
+In C++, the class `GameSession` coordinates the UI widgets, such as the
+buttons, pingus counter, and small map (@FIG_REF(game-session-arrows.png)) to
+coexist with the game screen during its whole lifespan
+[[![X]][cpp_gamesession_containers]]:
 
 @CODE_LINES[[language=CPP,
 GameSession::GameSession(<...>) :
     <...>
 {
     <...>
-    button_panel = new ButtonPanel(<...>);      // always active...
+    button_panel = new ButtonPanel(<...>);      // these widgets are always active...   @new_ini
     pcounter     = new PingusCounter(<...>);
-    small_map    = new SmallMap(<...>);
+    small_map    = new SmallMap(<...>);                                                 @new_end
     <...>
-    gui_manager->add(button_panel);             // ...but added dynamically
-    gui_manager->add(pcounter);                 //    to the dispatching
-    gui_manager->add(small_map);                //    hierarchy
+    gui_manager->add(button_panel);             // ...but are added                     @add_ini
+    gui_manager->add(pcounter);                 //    dynamically to the
+    gui_manager->add(small_map);                //    dispatching hierarchy             @add_end
     <...>
 }
 ]]
 
-The widgets are created in the constructor, added to a UI container, and are
-never removed explicitly [[![X]][cpp_gamesession_containers]].
-This implies that the widgets could be top-level automatic (non-dynamic)
-members, which would match the coexisting lifespan intent better.
-
-However, the class uses the container to automate `draw` and `update`
+The widgets are created in the constructor @NN(new_ini,-,new_end), added to a
+UI container @NN(add_ini,-,add_end), and are never removed since they must
+always be visible.
+Arguably, declaring the widgets as top-level automatic (non-dynamic) members
+would match better the intent of making them coexist.
+However, the class needs the container to automate `draw` and `update`
 dispatching as discussed in @SEC_REF[[dispatching-hierarchies-1]].
-The container `add` method expects only dynamically allocated children
+But the container method `add` expects dynamically allocated children **only**
 because they are automatically deallocated inside the container destructor 
 [[![X]][cpp_groupcomponent_delete]].
 
-The dynamic nature of containers in C++ demand extra caution:
+The dynamic nature of containers in C++ demand extra caution from the
+programmer:
 
 * When containers are part of a dispatching chain, it gets even harder to track 
   which objects are dispatched:
@@ -1903,11 +1910,13 @@ end
 ]]
 
 Lexical lifespan never requires containers, allocation and deallocation, or
-manipulating references explicitly.
-In addition, all required memory is known at compile time.
+explicit references.
+In addition, all required memory is known at compile time, similarly to
+stack-allocated local variables.
 
-The actual code in the repository [[![X]][ceu_world_top]] is equivalent to the
-code above with abstractions, but inlines all functionality in parallel:
+Note that the actual code in the repository [[![X]][ceu_world_top]] is
+equivalent to the code using abstraction above, but inlines all functionality
+in parallel:
 
 @CODE_LINES[[language=CEU,
 par do
@@ -1923,8 +1932,9 @@ with
 end
 ]]
 
-The [*Bomber* state machine](#bomber_explo) also takes advantage of lexical
-scope to delimit the lifespan of the explosion sprite to a single frame.
+The [*Bomber* state machine](#bomber_explo) of @SEC_REF(finite-state-machines-2)
+also relies on lexical scope to delimit the lifespan of the explosion sprite to
+a single frame.
 
 @SEC[[lifespan-hierarchies-2,
 ### The Pingus Container
@@ -1942,7 +1952,7 @@ conditions, such as falling from a high altitude [[![X]][cpp_pingu_dead]]
 
 #### C++
 
-In C++, the class `PinguHolder` is a container that holds all alive pingus:
+In C++, the class `PinguHolder` is a container that holds all pingus alive:
 
 @CODE_LINES[[language=CPP,
 Pingu* PinguHolder::create_pingu (<...>) {              @create_1
@@ -1968,15 +1978,14 @@ void PinguHolder::update() {                            @update_1
 The method `PinguHolder::create_pingu` @NN(create_1,-,create_2) is called
 periodically to create a new `Pingu` and add it to the `pingus` collection
 @NN(push_1,-,push_2).
-The method `PinguHolder::update` @NN(update_1,-,update_2) checks all pingus
-every frame, removing those with the status `Pingu::PS_DEAD`
-@NN(dead_1,-,dead_2).
+The method `PinguHolder::update` @NN(update_1,-,update_2) checks the state of
+all pingus every frame, removing those with the dead status @NN(dead_1,-,dead_2).
 
 Entities with dynamic lifespan in C++ require explicit `add` and `remove` calls
 associated to a container.
 Without the `erase` call above @NN(erase), a dead pingu would remain in the
 collection being updated every frame @NN(update).
-Since the `redraw` behavior for a dead pingu is innocuous, the death would go
+Since the `redraw` behavior for a dead pingu is innocuous, the death could go
 unnoticed and the program would keep consuming memory and CPU time.
 This problem is known as the *lapsed listener* [[![X]][gpp_lapsed_listener]] 
 and also occurs in languages with garbage collection:
@@ -1988,7 +1997,7 @@ reference to it), and a collector cannot magically detect it as garbage.
 #### Céu
 
 Céu supports `pool` declarations to hold dynamic abstraction instances.
-Additionally, the `spawn` statement can specify a pool identifier to associate
+Additionally, the `spawn` statement supports a pool identifier to associate
 the new instance with a pool.
 
 The game screen spawns a new `Pingu` on every invocation of `Pingu_Spawn`
@@ -2007,6 +2016,8 @@ end                                         @end
 
 The `spawn` statement @NN(spawn) specifies the pool declared at the top-level
 block of the game screen @NN(pool).
+In this case, the lifespan of the new instance follows the scope of the pool
+instead of the enclosing scope.
 Since pools are also subject to lexical scope, the lifespan of all dynamically
 allocated pingus is constrained to the game screen.
 
@@ -2024,14 +2035,14 @@ of the program [[![X]][ceu_main_outermost]]).
          400)
 
 Lexical scopes handle memory and event dispatching automatically for static
-instances and pools.
-However, the lifespan of a dynamic instance does not necessarily match the 
-lifespan of its associated pool (@FIG_REF[[pool.png]]).
+instances and also for pools.
+However, the lifespan of a dynamic instance does not necessarily have to match
+the lifespan of its associated pool (@FIG_REF[[pool.png]]).
 In Céu, when the execution block of a dynamic instance terminates, which
 characterizes its *natural termination*, the instance is automatically removed
 from its pool.
 Therefore, dynamic instances don't require any extra bookkeeping related to 
-containers.
+containers or explicit deallocation.
 
 To remove a pingu from the game in Céu, we just need to terminate its execution
 block according to the appropriate conditions [[![X]][ceu_pingu_dead]]:
@@ -2117,6 +2128,7 @@ containers:
 
 `TODO: particles, action holders, worldmap, screen_manager`
 `TODO: condensed code: headers, trivial getters/setters, declarations/vars/constants, C++ bloat`
+`TODO: how many await/spawn/include?`
 
 <!--
 Overall, passive objects of C++ impose a dispatching architecture that makes 
@@ -2161,8 +2173,8 @@ Also, all memory required for static instances is known at compile time.
 ## Signaling Mechanisms
 ]]
 
-Entities often need to communicate explicitly through a signaling 
-mechanism, especially if there is no hierarchy relationship between them.
+Entities often need to communicate explicitly through signaling mechanisms,
+especially if there is no hierarchy relationship between them.
 
 @SEC[[signaling_1,
 ### Pausing the World
@@ -2175,8 +2187,8 @@ mechanism, especially if there is no hierarchy relationship between them.
 A click in the *Pause* button at the bottom right of the screen pauses all
 world objects, such as the clouds and pingus, but not other elements, such as
 the *Armageddon* button animation (@FIG_REF[[pause-anim-opt.gif]]).
-The button indicates its state with different backgrounds and is also affected
-when the player presses `P` on the keyboard.
+The *Pause* button is also affected when the player presses `P` on the keyboard
+and indicates its state with light and dark backgrounds.
 
 #### C++
 
@@ -2209,8 +2221,7 @@ void PauseButton::draw (<...>) {                    @draw_1
 }                                                   @draw_2
 ]]
 
-The mouse callback `on_click` @NN(click_1,-,click_2) toggles the world pause
-state.
+The mouse callback `on_click` @NN(click_1,-,click_2) toggles the pause state.
 Depending on the current state, the method `draw` @NN(draw_1,-,draw_2) chooses
 the appropriate background sprite loaded in the class constructor
 @NN(spr_1,-,spr_2).
@@ -2270,14 +2281,14 @@ end
 ]]
 
 The button toggles between showing the light @NN(but_11,-,but_12) and dark
-@NN(but_21,-,but_22) backgrounds.
+@NN(but_21,-,but_22) background sprites based on their lexical scope.
 The background changes when the button is clicked @NN(clk_1,,clk_2) or
 when `go_pause_toggle` is emitted from a keyboard press @NN(but_11,,but_21).
 The button also broadcasts `go_pause_toggle` whenever it is clicked
 @NN(emt_1,,emt_2).
 
-The pausing mechanism relies on two update events, `main.dt` and `game.dt`,
-for the main application and game world, respectively [[![X]][ceu_input_evt]]:
+The pausing mechanism relies on two update events, `game.dt` for the game
+world, and `main.dt` for the rest of the application [[![X]][ceu_input_evt]]:
 
 @CODE_LINES[[language=CEU,
 event void go_pause_toggle;
@@ -2301,26 +2312,27 @@ end
 <...>
 ]]
 
-Whenever `go_pause_toggle` occurs, the local state variable `is_paused`
+Whenever `go_pause_toggle` is emitted, the local state variable `is_paused`
 is toggled @NN(tog_1,-,tog_2).
-Also, whenever `main.dt` occurs @NN(dt1,-,dt2), `game.dt` is emitted only if
-the world is not paused @NN(chk_1,-,chk_2).
-World entities react to `game.dt`, while all other entities react to `main.dt`.
+Also, whenever `main.dt` occurs @NN(dt1,-,dt2), the event `game.dt` is emitted
+only if the world is not paused @NN(chk_1,-,chk_2).
 
+World entities are set to react to `game.dt`, while all other entities are set
+to react to `main.dt`.
 Since all world entities are `Sprite` instances, the abstraction interface
-receives a reference to use as its update event [[![X]][ceu_sprite]].
+receives its update event as a reference [[![X]][ceu_sprite]].
 On creation, world and non-world sprites pass distinct events, e.g.:
 
 * The *Bomber* action uses `game.dt` [[![X]][ceu_bomber_sprite]], since it is a
    world entity.
 * The *Armageddon* button uses `main.dt` [[![X]][ceu_armageddon_sprite]], since
-  it should not pause with the world entities.
+  it should not pause together with the world entities.
 
 This technique contrasts with the implementation in C++, which prevents the
 `update` dispatching chain to flow from the world "root" towards the sprite
 "leaves".
 In Céu, the sprite "leaves" execute detached from a hierarchy, but do not
-update because the event of interest is never generated when paused.
+update because the event of interest is never generated in the paused state.
 
 @SEC[[signaling_2,
 ### Global Keys and the Options Menu
@@ -2387,7 +2399,7 @@ void ConfigManager::set_mouse_grab (bool v) {   @set_mouse_grab
 ]]
 
 The `if` enclosing the signal emission @NN(if_1,-,if_2) breaks the dependency 
-cycle of @FIG_REF(events.png) and prevents the infinite execution loop.
+cycle of @FIG_REF(events.png) and prevents an infinite execution loop.
 
 The class `CheckBox` [[![X]][cpp_check_box]] also uses a `boost::signal` to 
 notify the application on changes:
@@ -2406,13 +2418,13 @@ void CheckBox::set_state (bool is_on, bool send_signal) {   @last_argument
 ]]
 
 Again, the `if` enclosing the signal emission @NN(if_cb_1,-,if_cb_2) breaks the 
-dependency cycle of @FIG_REF(events.png).
+dependency cycle of @FIG_REF(events.png) to avoid infinite execution.
 
 The class `OptionMenu` [[![X]][cpp_option_menu]] creates the dependency loop by
 connecting the two signals:
 
 @CODE_LINES[[language=CPP,reset=false,
-typedef std::vector<boost::signals2::connection> Connections;   // definition in `option_menu.hpp`
+typedef std::vector&lt;boost::signals2::connection&gt; Connections;   // definition in `option_menu.hpp`
 Connections connections;                                        // definition in `option_menu.hpp`
 
 OptionMenu::OptionMenu() :
@@ -2460,8 +2472,8 @@ Note that the signal binding to call `CheckBox::set_state` @NN(bind_false)
 receives a fixed value `false` as the last argument to prevent infinite
 execution (ln. @N(last_argument) [up](#cpp_check-box)).
 
-The destructor @NN(destr_1,-,destr_2) breaks the connections when the *Option*
-screen terminates.
+The destructor @NN(destr_1,-,destr_2) explicitly breaks the connections when
+the *Option* screen terminates.
 
 <!-- CEU-GRAB -->
 
@@ -2507,8 +2519,8 @@ end
 ]]
 
 The `CheckBox` [[![X]][ceu_check_box]] exposes the event `go_click` for 
-notifications in both directions, i.e., from the class to the application and 
-*vice versa*:
+notifications in both directions, i.e., from the abstraction to the application
+and *vice versa*:
 
 @CODE_LINES[[language=CEU,reset=false,
 data ICheckBox with
@@ -2532,9 +2544,9 @@ code/await CheckBox (<...>) -> (var ICheckBox checkbox) -> FOREVER do
 end
 ]]
 
-The class reacts to external clicks continuously @NN(every_1,-,every_2) to 
-broadcast the event `go_click` @NN(dir_class_app).
-It also react continuously to `go_click` in another line of execution
+The abstraction reacts to external clicks continuously @NN(every_1,-,every_2)
+to broadcast the event `go_click` @NN(dir_class_app).
+It also reacts continuously to `go_click` in another line of execution
 @NN(loop_1,-,loop_2), which awakes from notifications from the first line of
 execution or from the application.
 
@@ -2567,12 +2579,13 @@ from the configuration manager to the check box @NN(loop_11,-,loop_12);
 and
 from the check box to the configuration manager @NN(loop_21,-,loop_22).
 
-When the *Option* screen terminates, the connections break automatically.
+When the *Option* screen terminates, the connections break automatically since
+the body is automatically aborted.
 
 Note that the implementation in Céu does not check event emits to break the
 dependency cycle and prevent infinite execution.
 Due to the [stack-based execution for internal events][ceu_stack] in Céu,
-programs with mutually-dependent events cannot create infinite execution loops.
+programs with mutually-dependent events do not create infinite execution loops.
 
 <a name="signaling-summary"/>
 <br/>
