@@ -8,7 +8,6 @@ code/await OptionMenu (void) -> void do
     var& CheckBox b1 = spawn CheckBox(&r11.pub, (_config_manager.get_fullscreen() as bool));
     spawn Label("Fullscreen", &r12.pub);
     spawn do
-        var bool v;
         every v in b1.checkbox.go_click do
             _config_manager.set_fullscreen(v);
         end
@@ -20,25 +19,21 @@ code/await OptionMenu (void) -> void do
     spawn Label("Mouse Grab", &r22.pub);
     spawn do
         par do
-            var bool v;
             every v in outer.config_manager.go_mouse_grab do
                 emit b2.checkbox.go_click(v);
             end
         with
-            var bool v;
             every v in b2.checkbox.go_click do
                 emit outer.config_manager.go_mouse_grab(v);
             end
         end
     end
-    yy_ = yy_ + 32;
-    yy_ = yy_ + 32;
+    yy_ = yy_ + 32; yy_ = yy_ + 32;
     var& RRect r31 = spawn RRect(IRRect(Rect(50,yy_,32,32), AnchorXY(AnchorX.Left(), AnchorY.Center()), &r.pub, AnchorXY(AnchorX.Left(), AnchorY.Top()), _, _));
     var& RRect r32 = spawn RRect(IRRect(Rect(50+40,yy_,32,32), AnchorXY(AnchorX.Left(), AnchorY.Center()), &r.pub, AnchorXY(AnchorX.Left(), AnchorY.Top()), _, _));
     var& CheckBox b3 = spawn CheckBox(&r31.pub, (_config_manager.get_software_cursor() as bool));
     spawn Label("Software Cursor", &r32.pub);
     spawn do
-        var bool v;
         every v in b3.checkbox.go_click do
             _config_manager.set_software_cursor(v);
         end
@@ -49,7 +44,6 @@ code/await OptionMenu (void) -> void do
     var& CheckBox b4 = spawn CheckBox(&r41.pub, (_config_manager.get_auto_scrolling() as bool));
     spawn Label("Autoscrolling", &r42.pub);
     spawn do
-        var bool v;
         every v in b4.checkbox.go_click do
             _config_manager.set_auto_scrolling(v);
         end
@@ -60,19 +54,16 @@ code/await OptionMenu (void) -> void do
     var& CheckBox b5 = spawn CheckBox(&r51.pub, (_config_manager.get_drag_drop_scrolling() as bool));
     spawn Label("Drag&Drop Scrolling", &r52.pub);
     spawn do
-        var bool v;
         every v in b5.checkbox.go_click do
             _config_manager.set_drag_drop_scrolling(v);
         end
     end
-    yy_ = yy_ + 32;
-    yy_ = yy_ + 32;
+    yy_ = yy_ + 32; yy_ = yy_ + 32;
     var& RRect r61 = spawn RRect(IRRect(Rect(50,yy_,32,32), AnchorXY(AnchorX.Left(), AnchorY.Center()), &r.pub, AnchorXY(AnchorX.Left(), AnchorY.Top()), _, _));
     var& RRect r62 = spawn RRect(IRRect(Rect(50+40,yy_,32,32), AnchorXY(AnchorX.Left(), AnchorY.Center()), &r.pub, AnchorXY(AnchorX.Left(), AnchorY.Top()), _, _));
     var& CheckBox b6 = spawn CheckBox(&r61.pub, (_config_manager.get_print_fps() as bool));
     spawn Label("Print FPS", &r62.pub);
     spawn do
-        var bool v;
         every v in b6.checkbox.go_click do
             _config_manager.set_print_fps(v);
         end
@@ -91,12 +82,10 @@ code/await OptionMenu (void) -> void do
     };
     cb1.current = {resolutions.size()} - 1;
     do
-        var int i;
         loop i do
             if {it1} == {resolutions.end()} then
                 break;
             end
-            var _char_const_ptr str1 = _;
             { {
                     ostr << it1->width << "x" << it1->height;
                     @str1 = ostr.str().c_str();
@@ -143,8 +132,7 @@ code/await OptionMenu (void) -> void do
             _config_manager.set_renderer( _framebuffer_type_from_string(&&cb2.value[0] as _char_const_ptr));
         end
     end
-    yy_ = yy_ + 32;
-    yy_ = yy_ + 32;
+    yy_ = yy_ + 32; yy_ = yy_ + 32;
     var& RRect r91 = spawn RRect(IRRect(Rect(365,yy_,140,32), AnchorXY(AnchorX.Left(), AnchorY.Center()), &r.pub, AnchorXY(AnchorX.Left(), AnchorY.Top()), _, _));
     var& RRect r92 = spawn RRect(IRRect(Rect(365+135,yy_,180,32), AnchorXY(AnchorX.Left(), AnchorY.Center()), &r.pub, AnchorXY(AnchorX.Left(), AnchorY.Top()), _, _));
     spawn Label("Language:", &r91.pub);
@@ -159,7 +147,6 @@ code/await OptionMenu (void) -> void do
         it3 = langs.begin();
     };
     do
-        var int i;
         loop i do
             if {it3} == {langs.end()} then
                 break;
@@ -188,14 +175,12 @@ code/await OptionMenu (void) -> void do
             end
         end
     end
-    yy_ = yy_ + 32;
-    yy_ = yy_ + 32;
+    yy_ = yy_ + 32; yy_ = yy_ + 32;
     var& RRect ra1 = spawn RRect(IRRect(Rect(365,yy_,140,32), AnchorXY(AnchorX.Left(), AnchorY.Center()), &r.pub, AnchorXY(AnchorX.Left(), AnchorY.Top()), _, _));
     var& RRect ra2 = spawn RRect(IRRect(Rect(365+135,yy_,180,32), AnchorXY(AnchorX.Left(), AnchorY.Center()), &r.pub, AnchorXY(AnchorX.Left(), AnchorY.Top()), _, _));
     spawn Label("Master Volume:", &ra1.pub);
     var& SliderBox box4 = spawn SliderBox(&ra2.pub, 25, _config_manager.get_master_volume());
     spawn do
-        var int v;
         every v in box4.go do
             _config_manager.set_master_volume(v);
         end
@@ -206,7 +191,6 @@ code/await OptionMenu (void) -> void do
     spawn Label("Sound Volume:", &rb1.pub);
     var& SliderBox box5 = spawn SliderBox(&rb2.pub, 25, _config_manager.get_sound_volume());
     spawn do
-        var int v;
         every v in box5.go do
             _config_manager.set_sound_volume(v);
         end
@@ -217,7 +201,6 @@ code/await OptionMenu (void) -> void do
     spawn Label("Music Volume:", &rc1.pub);
     var& SliderBox box6 = spawn SliderBox(&rc2.pub, 25, _config_manager.get_music_volume());
     spawn do
-        var int v;
         every v in box6.go do
             _config_manager.set_music_volume(v);
         end
@@ -232,9 +215,7 @@ code/await OptionMenu (void) -> void do
         await button.component.on_click;
         call {Sound::PingusSound::play_sound}("yipee");
     with
-        var _Input__ButtonEvent&& but =
-            await ON_BUTTON_PRESSED
-            until but:name  == {Input::ESCAPE_BUTTON};
+        var _Input__ButtonEvent&& but = await ON_BUTTON_PRESSED until but:name  == {Input::ESCAPE_BUTTON};
     with
         every outer.main.redraw do
             call {Fonts::chalk_large}.render( _origin_top_center, r.pub.abs.x + r.pub.abs.w/2, r.pub.abs.y + 40, __("Option Menu"), *{Display::s_framebuffer});

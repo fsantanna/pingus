@@ -19,8 +19,7 @@ OptionMenu::OptionMenu() :
   gui_manager->add(ok_button = new OptionMenuCloseButton(this, Display::get_width()/2 + 245, Display::get_height()/2 + 150));
   x_pos = 0;
   y_pos = 0;
-  ChoiceBox* resolution_box = new ChoiceBox(Rect());
-  {
+  ChoiceBox* resolution_box = new ChoiceBox(Rect()); {
     std::vector<Size> resolutions = Display::get_fullscreen_video_modes();
     Size fullscreen = config_manager.get_fullscreen_resolution();
     int choice = static_cast<int>(resolutions.size()) - 1;
