@@ -273,8 +273,8 @@ obstacles towards a designated exit [[![X]][pingus-3]].
 [pingus-3]: https://www.youtube.com/watch?v=MKrJgIFtJX0
 [lemmings]: https://en.wikipedia.org/wiki/Lemmings_(video_game)  
 
-Pingus is developed in object-oriented C++, the *lingua franca* of game
-development [[![X]][cpp_1]].
+Pingus is developed in standard object-oriented C++, the *lingua franca* of
+game development [[![X]][cpp_1]].
 The codebase is about 40.000 lines of code (LoC) [[![X]][git-1]], divided into the
 engine, level editor, auxiliary libraries, and the game logic itself.
 
@@ -316,7 +316,7 @@ Total Physical Source Lines of Code (SLOC) = 39,975
 ```
 -->
 
-Céu is a programming language that aims to offer a higher-level and safer
+Céu is a programming language that aims to offer a concurrent and expressive
 alternative to C/C++ with the characteristics that follow:
 
 - *Reactive:* code only executes in reactions to events.
@@ -331,6 +331,7 @@ letting programmers write code in direct/sequential style in multiple lines of
 execution.
 In addition, when a line of execution is aborted, all allocated resources
 inside it are safely released.
+`TODO: single threaded, memory`
 
 [callback-hell]: http://callbackhell.com/
 
@@ -458,12 +459,13 @@ implementations:
 
 This report focuses on a qualitative analysis for the programming techniques
 that we applied during the rewriting process.
-Not all techniques result in reduction in LoC, but have other properties such
-as reducing the number of shared variables and dependencies between classes,
-helping on encapsulation and cohesion.
-Nonetheless, the lowest numbers above correlate to the parts of the game logic
-that we consider more susceptible to structured reactive programming.
-For instance, the *pingu* behavior contains complex animations that are
+Not all techniques result in reduction in LoC (especially considering the
+verbose syntax of Céu), but have other properties such as reducing the number
+of shared variables and dependencies between classes, helping on encapsulation
+and cohesion.
+Nonetheless, the lowest ratio numbers above correlate to the parts of the game
+logic that we consider more susceptible to structured reactive programming.
+For instance, the *Pingu* behavior contains complex animations that are
 affected by timers, game rules, and user interaction.
 In contrast, the *Option* screen is a simple UI grid with trivial mouse
 interaction.
@@ -509,8 +511,10 @@ likely apply to other games:
         [case 2](#signaling_2) |
         [summary](#signaling-summary) ]
 
+<!--
 Other games manifesting these patterns likely use some form of explicit state
-that is subject to the same rewriting process.
+subject to the same rewriting process.
+-->
 
 <!--
 6. [**Wall-Clock Timers**](#wall-clock-timers):
@@ -668,8 +672,8 @@ literally explodes all pingus (@FIG_REF[[double-click-opt.gif]]).
 
 In C++, the class `ArmageddonButton` [[![X]][cpp_armageddon]] implements
 methods for rendering the button and handling mouse and timer events.
-Here, we focus on the double click detection, hiding unrelated parts with 
-`<...>`:
+In the code that follows, we focus on the double click detection, hiding
+unrelated parts with `<...>`:
 
 @CODE_LINES[[language=CPP,
 ArmageddonButton::ArmageddonButton(<...>):
@@ -713,7 +717,7 @@ The methods `update` @NN(update_1,-,update_2) and `on_click`
 pieces of code that execute atomically in reaction to external input events.
 The callback `on_click` reacts to mouse clicks detected by the button base
 class `RectComponent` @NN(base_class), while the callback `update` continuously
-reacts to the passage of time.
+reacts to the passage of time frame by frame.
 Callbacks are short lived because they must react to input as fast as possible
 to let other callbacks execute, keeping the game with real-time responsiveness.
 
@@ -725,13 +729,13 @@ The class first initializes the variable `pressed` to track the first click
 @NN(pressed_1,,pressed_2).
 It also initializes the variable `press_time` to count the time since the first 
 click @NN(press_time_1,,press_time_2).
-If another click occurs within 1 second @NN(check), the class signals the
-double click to the application @NN(armageddon).
+If another click occurs within 1 second, the class signals the double click to
+the application @NN(armageddon).
 Otherwise, the `pressed` and `press_time` state variables are reset 
 @NN(reset_1,-,reset_2).
 
 @FIG_REF[[double-click.png]] illustrates how we can model the double-click 
-behavior as a state machine.
+behavior in C++ as a state machine.
 The circles represent the state of the variables in the class, while the arrows 
 represent the callbacks manipulating state.
 
@@ -797,8 +801,8 @@ occurrences alive (if they don't terminate).
 -->
 
 The loop detection @NN(loop_do,-,loop_end) awaits the first click @NN(await_1)
-and then, while watching 1 second @NN(watching_do,-,watching_end), awaits the
-second click @NN(await_2).
+and then, while [watching][ceu_watching] 1 second
+@NN(watching_do,-,watching_end), awaits the second click @NN(await_2).
 If the second click occurs within 1 second, the `break` terminates the loop
 @NN(break) and the `emit` signals the double click to the application @NN(emit).
 Otherwise, the `watching` block as a whole aborts and restarts the loop, 
@@ -823,6 +827,7 @@ productivity.
 [cpp_armageddon_2]: https://github.com/Pingus/pingus/blob/7b255840c201d028fd6b19a2185ccf7df3a2cd6e/src/pingus/components/action_button.cpp#L33-#L90
 [ceu_armageddon]:   https://github.com/fsantanna/pingus/blob/ceu/ceu/pingus/screens/game/input.ceu#L107
 [diff_armageddon]:  https://github.com/fsantanna/pingus/commit/d0afe53648862643857811d0af8a7a9f60119f6c
+[ceu_watching]:     http://fsantanna.github.io/ceu/out/manual/v0.20/statements/#watching
 
 @SEC[[finite-state-machines-2,
 ### The *Bomber* Action
@@ -873,13 +878,12 @@ Bomber::Bomber (Pingu* p) :
     get_world()->play_sound("ohno", pingu->get_pos());          @sound_ohno
 }
 
-void Bomber::update ()
-{
+void Bomber::update () {                                        @update_ini
     sprite.update();                                            @update_1
     <...>   // pingu movement                                   @update_2
 
-    // 2. 10th frame: plays a "Bomb!" sound.
-    if (sprite.get_current_frame()==10 && !sound_played) {      @sound_bomb_1
+    // 2. 10th frame: plays a "Bomb!" sound.                    @sound_bomb_1
+    if (sprite.get_current_frame()==10 && !sound_played) {
         sound_played = true;
         get_world()->play_sound("plop", pingu->get_pos());
     }                                                           @sound_bomb_2
@@ -898,7 +902,7 @@ void Bomber::update ()
     if (sprite.is_finished ()) {                                @die_1
         pingu->set_status(Pingu::PS_DEAD);
     }                                                           @die_2
-}
+}                                                               @update_end
 
 void Bomber::draw (SceneContext& gc) {
     // 3. 13th frame: throws particles, destroys the terrain, shows an explosion sprite
@@ -917,19 +921,21 @@ The class defines one state variable for each action to perform
 @NN(def_1,-,def_2).
 The "Oh no!" sound plays as soon as the object starts in *state-1* 
 @NN(sound_ohno).
-The `update` callback updates the pingu animation and movement every frame 
-regardless of its current state @NN(update_1,-,update_2).
+The `update` callback @NN(update_ini,-,update_end) updates the pingu animation
+and movement every frame regardless of its current state
+@NN(update_1,-,update_2).
 When the animation reaches the 10th frame, it plays the "Bomb!" sound and 
 switches to *state-2* @NN(sound_bomb_1,-,sound_bomb_2).
 The state variable `sound_played` is required because the sprite frame doesn't 
-necessarily advance on every `update` invocation.
+necessarily advance on every `update` invocation (e.g., `update` may execute
+twice while in frame `10`).
 The same reasoning and technique applies to the *state-3*
 (ln. @N(state_3_1)-@N(state_3_2) and @N(state_3_3)-@N(state_3_4)).
 The explosion sprite appears in a single frame in *state-4* @NN(state_4).
 Finally, the pingu dies after the animation frames terminate 
 @NN(die_1,-,die_2).
 
-Even though a single numeric state variable suffices to track the states, the
+Note that a single numeric state variable suffices to track the states, but the
 original authors probably chose to encode each state in an independent boolean 
 variable to rearrange and experiment with them during development.
 Still, due to the short-lived nature of callbacks, state variables are 
@@ -942,7 +948,7 @@ unavoidable and are actually the essence of object-oriented programming
 
 The equivalent code for the *Bomber* action in Céu doesn't require any state
 variables and reflects the sequential state machine implicitly, using `await`
-statements to separate the actions in direct style [[![X]][ceu_bomber]]:
+statements in direct style to separate the actions [[![X]][ceu_bomber]]:
 
 @CODE_LINES[[language=CEU,
 code/await Bomber (void) -> _ActionName__Enum
@@ -984,16 +990,17 @@ variables and the program counter, across reactions to events (i.e., across
 `await` statements).
 The pingu movement and sprite animation are isolated in two other abstractions
 and execute in separate through the `spawn` primitive @NN(move,,sprite).
+The event `game.dt` (ln. @N(frame_1),@N(frame_1),@N(frame_3)) is analogous to
+the `update` callback of C++ and occurs every frame.
 
-The code tracks the animation abstraction @NN(watch-1,-,watch-2), performing
-the last action on termination @NN(anim_2).
+<a name="bomber_explo"/>
+
+The code tracks the animation instance @NN(watch-1,-,watch-2), performing the
+last action on termination @NN(anim_2).
 As soon as the animation starts, the code performs the first action
 @NN(anim_1).
 The intermediate actions are performed when the corresponding conditions occur
 (ln. @N(frame_1),@N(frame_2),@N(frame_3)).
-
-<a name="bomber_explo"/>
-
 The `do-end` block @NN(do,-,end), restricts the lifespan of the single-frame
 explosion sprite @NN(explo): after the next game tick @NN(frame_3), the block
 terminates and automatically destroys the spawned abstraction (removing it from
@@ -1005,7 +1012,7 @@ the screen).
 <div class="summary">
 **Summary**:
 
-Implicit state machines in Céu provide some advantages in comparison to 
+The structured constructs of Céu provide some advantages in comparison to 
 explicit state machines:
 
 * They encode all states with direct sequential code, not requiring state
@@ -1013,6 +1020,7 @@ explicit state machines:
 * They handle all states (and only them) in the same contiguous block,
   improving code encapsulation.
 
+`TODO: RW`
 Pingus supports 16 actions in the game, including the *Bomber*:
 5 of them <!--(`Bomber`, `Bridger`, `Drown`, `Exiter`, and `Splashed`)-->
 implement some form of state machine and are 43% smaller in Céu (206 vs 117
@@ -1095,7 +1103,7 @@ more natural structured code with sequences, conditionals, and loops
 
 The clickable *blue dots* in the world map of Pingus transit to ambience story 
 screens (@FIG_REF[[story-anim.gif]]).
-A story is composed of multiple pages and inside each page, the words of the
+A story is composed of multiple pages and, inside each page, the words of the
 story appear incrementally over time.
 A first click in the button `>>>` fast forwards the words to show the full 
 page.
@@ -1124,7 +1132,7 @@ StoryScreenComponent::StoryScreenComponent (<...>) :
 
 void StoryScreenComponent::update (<...>) {
     <...>
-    if (<all-words-appearing>) {
+    if (&lt;all-words-appearing&gt;) {
         displayed = true;                       @dsp_11
     }
 }
@@ -1156,9 +1164,9 @@ story progress:
 each call to `next_text` that advances the story @NN(adv_1,-,adv_2) removes the 
 current page @NN(pages_3) and sets the next action to perform (i.e., "display a 
 new page") in the variable `current_page` @NN(pages_4).
-@FIG_REF[[story.png]] illustrates a state machine for fast-forwarding words 
-(inside the dashed rectangle) and also the continuation mechanism to advance 
-pages.
+@FIG_REF[[story.png]] illustrates the continuation mechanism to advance 
+pages and also a state machine for fast forwarding words (inside the dashed
+rectangle).
 The state variable `displayed`
 (ln. @N(dsp_1),@N(dsp_11),@N(dsp_2),@N(dsp_3),@N(dsp_4))
 switches between the behaviors "advancing text" and "advancing pages", which 
@@ -1168,8 +1176,8 @@ are both handled inside the method `next_text`.
 
 #### Céu
 
-The code in Céu [[![X]][ceu_story]] uses the event `next_text`, which is 
-emitted from clicks in `>>>`:
+The code in Céu [[![X]][ceu_story]] uses the [internal event][ceu_events]
+`next_text`, which is emitted from clicks in `>>>`:
 
 @CODE_LINES[[language=CEU,
 code/await Story (void) -> bool do
@@ -1177,26 +1185,31 @@ code/await Story (void) -> bool do
     event void next_text;   // emitted from clicks in `>>>`
 
     { pages = <...>; }      // same as in C++
-    loop i in [0 <- {pages.size()}[ do                      @loop_do
+    loop i in [0 <- {pages.size()}[ do                          @loop_do
         par/or do
             watching next_text do
                 <...>       // loop to advance text over time   @advance
             end
-            await next_text;                                @await
+            await next_text;                                    @await
         with
-            <...>           // loop to redraw current _pages[i]
+            <...>           // loop to redraw current _pages[i] @redraw
         end
-    end                                                     @loop_end
+    end                                                         @loop_end
 end
 ]]
 
-The sequential navigation from page to page uses a direct loop 
-@NN(loop_do,-,loop_end) instead of an explicit continuation state variable.
-While the text advances in an inner loop (hidden in ln. @N(advance)), we watch 
-the `next_text` event that fast forwards it.
+The sequential navigation from page to page uses a loop in direct style 
+@NN(loop_do,-,loop_end) instead of explicit state variables for the
+continuation and state machine.
+While the text advances in an encapsulated inner loop (hidden in ln.
+@N(advance)), we watch the `next_text` event that fast forwards it.
 The inner loop may also eventually terminate with the time elapsing normally.
 This way, we don't need a variable (such as `displayed` in C++) to switch 
 between the states "advancing text" and "advancing pages".
+The [`par/or`][ceu_paror] composes the page advance logic to execute in
+parallel with the redrawing code @NN(redraw).
+Whenever the page advances, the redrawing code is automatically aborted
+(due to the `or` modifier).
 <!-- which are not mixed in the source code. -->
 The `await next_text` in sequence @NN(await) is the condition to advance to the
 next page.
@@ -1207,6 +1220,8 @@ and 111 lines of code, respectively [[![X]][diff_story]].
 -->
 
 [diff_story]: https://github.com/fsantanna/pingus/commit/1e17519467c8b0c3d616f0452966b6f5357ccd34
+[ceu_events]: http://fsantanna.github.io/ceu/out/manual/v0.20/storage_entities/#events
+[ceu_paror]: http://fsantanna.github.io/ceu/out/manual/v0.20/#parallel-compositions-and-abortion
 
 @SEC[[continuation-passing-2,
 ### Transition to the *Credits* Screen from the *Story* Screen
@@ -1241,17 +1256,18 @@ StoryDot::StoryDot(const FileReader& reader) :
 
 void StoryDot::on_click() {
     <...>
-    ScreenManager::instance()->push_screen(std::make_shared<StoryScreen>(<...>, m_credits)); @call
+    ScreenManager::instance()->push_screen(&lt;StoryScreen&gt;(<...>, m_credits)); @call
     <...>
 }
 ]]
 
-The boolean variable `m_credits` is passed to the `StoryScreen` @NN(call)
+The boolean variable `m_credits` is passed to the class `StoryScreen` @NN(call)
 [[![X]][cpp_story_screen]] and represents the screen continuation, i.e., what
 to do after displaying the story.
 The `StoryScreen` then forwards the continuation [[![X]][cpp_story_screen_forward]] 
-to the `StoryComponent` [[![X]][cpp_story_screen_component]] discussed in
-@SEC_REF[[continuation-passing-1]]:
+even further to the auxiliary class `StoryScreenComponent`
+[[![X]][cpp_story_screen_component]] (presented in
+@SEC_REF[[continuation-passing-1]]):
 
 @CODE_LINES[[language=CPP,
 StoryScreenComponent::StoryScreenComponent (<...>) :
@@ -1272,7 +1288,7 @@ void StoryScreenComponent::next_text() {
             <...>
         } else {                @adv_1
             if (m_credits) {    @m_credits
-                ScreenManager::instance()->replace_screen(std::make_shared<Credits>(<...>));
+                ScreenManager::instance()->replace_screen(&lt;Credits&gt;(<...>));
             } else {
                 ScreenManager::instance()->pop_screen();
             }
@@ -1336,12 +1352,12 @@ terminates.
 </div>
 -->
 
-We first invoke the `Worldmap`, which exhibits the map and let
-the player interact with it until a dot is clicked @NN(call_world).
+We first invoke the `Worldmap` @NN(call_world), which exhibits the map and let
+the player interact with it until a dot is clicked.
 If the player selects a story dot @NN(story_1,-,story_2), we invoke the `Story`
 and await its termination @NN(call_story).
-Finally, we check the returned values @NN(check) to display the `Credits` 
-@NN(call_credits).
+Finally, we check the returned values @NN(check) to perhaps display the
+`Credits` screen @NN(call_credits).
 The enclosing loop restores the `Worldmap` and repeats the process.
 
 #### Discussion
@@ -1365,6 +1381,8 @@ C++ and the *direct style* of Céu for screen transitions:
 4. `Credits` => `Worldmap`:
     C++ pops the `Credits` screen, going back to the `Worldmap` screen.
     Céu uses an enclosing `loop` to restart the process.
+
+`TODO: lines or links`
 
 In contrast with C++, the screens in Céu are decoupled and only the `Main Loop` 
 touches them:
