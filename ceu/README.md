@@ -456,51 +456,17 @@ implementations:
 
         engine/         173     515     0.34        part that interacts with the game logic
 
-This report focuses on the qualitative analysis of the codebase.
-As we argue, not all code rewriting results in reduction in LoC.
-`TODO`
-Nonetheless, the numbers above indicate the parts of the game logic that are
-more susceptible to structured reactive programming.
-
-<!--
-                    Céu     C++   Céu/C++       Descritpion
-    game/                                       the main gameplay
-      pingu/        884    1111     0.80            pingus
-        ./          343     458     0.75                main functionality
-        actions/    541     653     0.83                actions (bomber, climber, etc)
-    screens/                                        menus and screens
-        others/     762     971     0.78            other menus and screens
-                   ----    ----     ----
-                   1646    2082     0.79
-
-$ cd cmp/ALL
-$ find . -name "*.cpp" | sort | xargs wc
-4650
-$ find . -name "*.ceu" | sort | xargs wc
-3870
-
-$ cd cmp/CPP
-$ sloccount .
-10786
-
-$ cd cmp/CPP (-engine)
-$ sloccount .
-9186
-$ find . -name "*.cpp" | wc
-63
-$ find . -name "*.hpp" | wc
-63
->>> 126
-
-$ cd /official/src/pingus
-$ find . -name "*.cpp" | wc
-134
-$ find . -name "*.hpp" | wc
-138
->>> 272
-$ sloccount .
-18173
--->
+This report focuses on a qualitative analysis for the programming techniques
+that we applied during the rewriting process.
+Not all techniques result in reduction in LoC, but have other properties such
+as reducing the number of shared variables and dependencies between classes,
+helping on encapsulation and cohesion.
+Nonetheless, the lowest numbers above correlate to the parts of the game logic
+that we consider more susceptible to structured reactive programming.
+For instance, the *pingu* behavior contains complex animations that are
+affected by timers, game rules, and user interaction.
+In contrast, the *Option* screen is a simple UI grid with trivial mouse
+interaction.
 
 We selected 9 game behaviors and describe their implementations in C++ and Céu.
 We also categorized these examples in 5 abstract control-flow patterns that
@@ -543,7 +509,8 @@ likely apply to other games:
         [case 2](#signaling_2) |
         [summary](#signaling-summary) ]
 
-<!-- TODO: pause -->
+Other games manifesting these patterns likely use some form of explicit state
+that is subject to the same rewriting process.
 
 <!--
 6. [**Wall-Clock Timers**](#wall-clock-timers):
@@ -564,8 +531,6 @@ likely apply to other games:
     * `TODO`
 -->
 
-Other games manifesting these patterns also use some form of explicit state
-which are likely subject to the same rewriting process.
 <!-- TODO: The patterns are not entirely orthogonal -->
 
 <!--
@@ -594,6 +559,46 @@ to write this report as follows:
   code size, and execution time (e.g., FPS rate)?
 
 ## Control-Flow Patterns in Pingus
+-->
+
+<!--
+                    Céu     C++   Céu/C++       Descritpion
+    game/                                       the main gameplay
+      pingu/        884    1111     0.80            pingus
+        ./          343     458     0.75                main functionality
+        actions/    541     653     0.83                actions (bomber, climber, etc)
+    screens/                                        menus and screens
+        others/     762     971     0.78            other menus and screens
+                   ----    ----     ----
+                   1646    2082     0.79
+
+$ cd cmp/ALL
+$ find . -name "*.cpp" | sort | xargs wc
+4650
+$ find . -name "*.ceu" | sort | xargs wc
+3870
+
+$ cd cmp/CPP
+$ sloccount .
+10786
+
+$ cd cmp/CPP (-engine)
+$ sloccount .
+9186
+$ find . -name "*.cpp" | wc
+63
+$ find . -name "*.hpp" | wc
+63
+>>> 126
+
+$ cd /official/src/pingus
+$ find . -name "*.cpp" | wc
+134
+$ find . -name "*.hpp" | wc
+138
+>>> 272
+$ sloccount .
+18173
 -->
 
 ## Author

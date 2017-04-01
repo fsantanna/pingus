@@ -226,7 +226,78 @@ Claim: Transactions are the only plausible solution to concurrent mutable state
                    3697    4135     0.89
 
     engine/         173     515     0.34        part that interacts with the game logic</code></pre>
-<p>This report focuses on the qualitative analysis of the codebase. As we argue, not all code rewriting results in reduction in LoC. <code>TODO</code> Nonetheless, the numbers above indicate the parts of the game logic that are more susceptible to structured reactive programming.</p>
+<p>This report focuses on a qualitative analysis for the programming techniques that we applied during the rewriting process. Not all techniques result in reduction in LoC, but have other properties such as reducing the number of shared variables and dependencies between classes, helping on encapsulation and cohesion. Nonetheless, the lowest numbers above correlate to the parts of the game logic that we consider more susceptible to structured reactive programming. For instance, the <em>pingu</em> behavior contains complex animations that are affected by timers, game rules, and user interaction. In contrast, the <em>Option</em> screen is a simple UI grid with trivial mouse interaction.</p>
+<p>We selected 9 game behaviors and describe their implementations in C++ and Céu. We also categorized these examples in 5 abstract control-flow patterns that likely apply to other games:</p>
+<p><a name="finite-state-machines"/></p>
+<ol style="list-style-type: decimal">
+<li><a href="#finite-state-machines"><strong>Finite State Machines</strong></a>: State machines describe the behavior of entities by mapping event occurrences to transitions between states that trigger appropriate actions.
+<ul>
+<li>[ <a href="#finite-state-machines-1">case 1</a> | <a href="#finite-state-machines-2">case 2</a> | <a href="#finite-state-machines-summary">summary</a> ]</li>
+</ul></li>
+<li><a href="#continuation-passing"><strong>Continuation Passing</strong></a>: The completion of a long-lasting activity may carry a continuation, i.e., some action to execute next.
+<ul>
+<li>[ <a href="#continuation-passing-1">case 1</a> | <a href="#continuation-passing-2">case 2</a> | <a href="#continuation-passing-summary">summary</a> ]</li>
+</ul></li>
+<li><a href="#dispatching-hierarchies"><strong>Dispatching Hierarchies</strong></a>: Entities typically form a dispatching hierarchy in which a container entity that receives a stimulus automatically forwards it to its managed children.
+<ul>
+<li>[ <a href="#dispatching-hierarchies-1">case 1</a> | <!-- [`TODO-resize`](#dispatching_hierarchies_2) | --> <a href="#dispatching_hierarchies_summary">summary</a> ]</li>
+</ul></li>
+<li><a href="#lifespan-hierarchies"><strong>Lifespan Hierarchies</strong></a>: Entities typically form a lifespan hierarchy in which a terminating container entity automatically destroys its managed children.
+<ul>
+<li>[ <a href="#lifespan-hierarchies-1">case 1</a> | <a href="#lifespan-hierarchies-2">case 2</a> | <a href="#lifespan_hierarchies_summary">summary</a> ]</li>
+</ul></li>
+<li><a href="#signaling"><strong>Signaling</strong></a>: Entities often need to communicate explicitly through a signaling mechanism, especially if there is no hierarchy relationship between them.
+<ul>
+<li>[ <a href="#signaling_1">case 1</a> | <a href="#signaling_2">case 2</a> | <a href="#signaling-summary">summary</a> ]</li>
+</ul></li>
+</ol>
+<p>Other games manifesting these patterns likely use some form of explicit state that is subject to the same rewriting process.</p>
+<!--
+6. [**Wall-Clock Timers**](#wall-clock-timers):
+    Wall-clock timers measure the passage of time from the real world
+    (e.g., *10 seconds*) such as for periodic sampling and timeout watchdogs.
+    * [ [summary](#wall-clock-timers-summary) ]
+
+6. [**Pausing**](#pausing):
+    Pausing allows parts of the game to temporarily stop reacting to incoming
+    events.
+    * [ [summary](#pausing-summary) ]
+    * `TODO`
+
+7. [**Resource Acquisition and Release**](#resource-acquisition-and-release):
+    External resources, such as configuration files and saved games,
+    must be acquired and safely released.
+    * [ [summary](#resource-acquisition-and-release-summary) ]
+    * `TODO`
+-->
+<!-- TODO: The patterns are not entirely orthogonal -->
+<!--
+## Why rewriting Pingus to Céu?
+
+Besides promoting the concurrency model of Céu, we have additional motivations 
+to write this report as follows:
+
+* Expose Céu to a real code base that was neither specified nor implemented by 
+  the designers of the language.
+  Even though video games match the domain of Céu, a real-world project 
+  consists of a range of requirements, forcing us to transpose the "academic
+  fences" of papers (which usually only explore idiomatic code).
+* Exercise the interface between Céu and C/C++.
+  Céu is designed to integrate seamlessly with C.
+  This allowed us to perform a *live rewriting*, i.e., we incrementally rewrote 
+  code from C++ to Céu without breaking the game for long.
+* Serve as a comprehensive guide for developers interested in trying Céu.
+  We provide an in-depth comparison between the original code in C++ and the 
+  equivalent code rewritten to Céu for a number of behaviors in the game.
+* Stress-test the implementation of Céu.
+  Academic artifacts typically do not go beyond working prototypes.
+  We also want Céu to be a robust and practical language for everyday use.
+* Evaluate the performance of Céu.
+  Having C++ as a benchmark, how does Céu compare in terms of memory usage, 
+  code size, and execution time (e.g., FPS rate)?
+
+## Control-Flow Patterns in Pingus
+-->
 <!--
                     Céu     C++   Céu/C++       Descritpion
     game/                                       the main gameplay
@@ -265,77 +336,6 @@ $ find . -name "*.hpp" | wc
 >>> 272
 $ sloccount .
 18173
--->
-<p>We selected 9 game behaviors and describe their implementations in C++ and Céu. We also categorized these examples in 5 abstract control-flow patterns that likely apply to other games:</p>
-<p><a name="finite-state-machines"/></p>
-<ol style="list-style-type: decimal">
-<li><a href="#finite-state-machines"><strong>Finite State Machines</strong></a>: State machines describe the behavior of entities by mapping event occurrences to transitions between states that trigger appropriate actions.
-<ul>
-<li>[ <a href="#finite-state-machines-1">case 1</a> | <a href="#finite-state-machines-2">case 2</a> | <a href="#finite-state-machines-summary">summary</a> ]</li>
-</ul></li>
-<li><a href="#continuation-passing"><strong>Continuation Passing</strong></a>: The completion of a long-lasting activity may carry a continuation, i.e., some action to execute next.
-<ul>
-<li>[ <a href="#continuation-passing-1">case 1</a> | <a href="#continuation-passing-2">case 2</a> | <a href="#continuation-passing-summary">summary</a> ]</li>
-</ul></li>
-<li><a href="#dispatching-hierarchies"><strong>Dispatching Hierarchies</strong></a>: Entities typically form a dispatching hierarchy in which a container entity that receives a stimulus automatically forwards it to its managed children.
-<ul>
-<li>[ <a href="#dispatching-hierarchies-1">case 1</a> | <!-- [`TODO-resize`](#dispatching_hierarchies_2) | --> <a href="#dispatching_hierarchies_summary">summary</a> ]</li>
-</ul></li>
-<li><a href="#lifespan-hierarchies"><strong>Lifespan Hierarchies</strong></a>: Entities typically form a lifespan hierarchy in which a terminating container entity automatically destroys its managed children.
-<ul>
-<li>[ <a href="#lifespan-hierarchies-1">case 1</a> | <a href="#lifespan-hierarchies-2">case 2</a> | <a href="#lifespan_hierarchies_summary">summary</a> ]</li>
-</ul></li>
-<li><a href="#signaling"><strong>Signaling</strong></a>: Entities often need to communicate explicitly through a signaling mechanism, especially if there is no hierarchy relationship between them.
-<ul>
-<li>[ <a href="#signaling_1">case 1</a> | <a href="#signaling_2">case 2</a> | <a href="#signaling-summary">summary</a> ]</li>
-</ul></li>
-</ol>
-<!-- TODO: pause -->
-<!--
-6. [**Wall-Clock Timers**](#wall-clock-timers):
-    Wall-clock timers measure the passage of time from the real world
-    (e.g., *10 seconds*) such as for periodic sampling and timeout watchdogs.
-    * [ [summary](#wall-clock-timers-summary) ]
-
-6. [**Pausing**](#pausing):
-    Pausing allows parts of the game to temporarily stop reacting to incoming
-    events.
-    * [ [summary](#pausing-summary) ]
-    * `TODO`
-
-7. [**Resource Acquisition and Release**](#resource-acquisition-and-release):
-    External resources, such as configuration files and saved games,
-    must be acquired and safely released.
-    * [ [summary](#resource-acquisition-and-release-summary) ]
-    * `TODO`
--->
-<p>Other games manifesting these patterns also use some form of explicit state which are likely subject to the same rewriting process. <!-- TODO: The patterns are not entirely orthogonal --></p>
-<!--
-## Why rewriting Pingus to Céu?
-
-Besides promoting the concurrency model of Céu, we have additional motivations 
-to write this report as follows:
-
-* Expose Céu to a real code base that was neither specified nor implemented by 
-  the designers of the language.
-  Even though video games match the domain of Céu, a real-world project 
-  consists of a range of requirements, forcing us to transpose the "academic
-  fences" of papers (which usually only explore idiomatic code).
-* Exercise the interface between Céu and C/C++.
-  Céu is designed to integrate seamlessly with C.
-  This allowed us to perform a *live rewriting*, i.e., we incrementally rewrote 
-  code from C++ to Céu without breaking the game for long.
-* Serve as a comprehensive guide for developers interested in trying Céu.
-  We provide an in-depth comparison between the original code in C++ and the 
-  equivalent code rewritten to Céu for a number of behaviors in the game.
-* Stress-test the implementation of Céu.
-  Academic artifacts typically do not go beyond working prototypes.
-  We also want Céu to be a robust and practical language for everyday use.
-* Evaluate the performance of Céu.
-  Having C++ as a benchmark, how does Céu compare in terms of memory usage, 
-  code size, and execution time (e.g., FPS rate)?
-
-## Control-Flow Patterns in Pingus
 -->
 <h2 id="author">Author</h2>
 <p>Francisco Sant'Anna</p>
