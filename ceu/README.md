@@ -275,7 +275,7 @@ obstacles towards a designated exit [[![X]][pingus-3]].
 
 Pingus is developed in object-oriented C++, the *lingua franca* of game
 development [[![X]][cpp_1]].
-The codebase is about 40.000 lines of code [[![X]][git-1]], divided into the
+The codebase is about 40.000 lines of code (LoC) [[![X]][git-1]], divided into the
 engine, level editor, auxiliary libraries, and the game logic itself.
 
 [cpp_1]: http://gameprogrammingpatterns.com/introduction.html#about-the-sample-code
@@ -342,9 +342,13 @@ According to Tim Sweeney (of Unreal Engine fame) [[![X]][sweeney]], about half
 the complexity in game development resides in *simulation*
 (aka *game logic*), but which accounts for only 10% of the CPU budget.
 <!-- the way entities interact in real time -->
+The game logic "models the state of the game world as interacting objects
+evolve over time".
 The high development costs contrasting with the low impact on performance
 appeals for alternatives with productivity in mind, especially considering that
 it is the game logic that varies the most between projects.
+Sweeney states that "will gladly sacrifice 10% of our performance for 10%
+higher productivity".
 
 [sweeney]: https://www.cs.princeton.edu/~dpw/popl/06/Tim-POPL.ppt
 
@@ -387,53 +391,118 @@ Claim: Transactions are the only plausible solution to concurrent mutable state
 
 The main motivation for rewriting Pingus to Céu is to suggest structured
 synchronous reactive programming as an expressive and productive alternative
-for the game logic development.
+for game logic development.
 In Pingus, the game logic also accounts for almost half the size of the
 codebase (18173 from 39362 LoC, or 46%).
 
-The rewriting process consisted of identifying a set of callbacks implementing
-a *control-flow behavior* in the game and translating them to Céu using
+The rewriting process consisted of identifying sets of callbacks implementing
+*control-flow behaviors* in the game and translating them to Céu using
 appropriate structured constructs.
 As an example, a double mouse click consists of the first click, followed by a
 maximum amount of time, followed by a second click.
-This behavior depends on different event (clicks and timers) that have to occur
-in a particular order.
-In C++, the implementation involves callbacks crossing successive reactions to
-events manipulating state variables explicitly
+This behavior depends on different events (clicks and timers) that have to
+occur in a particular order.
+In C++, the implementation involves callbacks crossing reactions to successive
+events which manipulate state variables explicitly.
 More concretely, we could identify control-flow behaviors in C++ by looking for
-class members with identifiers resembling verbs, statuses, or counters
+class members with identifiers resembling verbs, statuses, and counters
 (e.g.,
 [`pressed`][state-pressed],
 [`particle_thrown`][state-particle-thrown],
 [`mode`][state-mode], or
 [`delay_count`][state-delay-count]).
-Good chances are that variables with "suspicious names" encode some form of
-control-flow progression that cross multiple callback invocations.
+Good chances are that variables with these "suspicious names" encode some form
+of control-flow progression that cross multiple callback invocations.
 
 [state-pressed]: https://github.com/Pingus/pingus/blob/7b255840c201d028fd6b19a2185ccf7df3a2cd6e/src/pingus/components/action_button.hpp#L36
 [state-particle-thrown]: https://github.com/Pingus/pingus/blob/7b255840c201d028fd6b19a2185ccf7df3a2cd6e/src/pingus/actions/bomber.hpp#L31
 [state-mode]: https://github.com/Pingus/pingus/blob/7b255840c201d028fd6b19a2185ccf7df3a2cd6e/src/pingus/actions/bridger.hpp#L30
 [state-delay-count]: https://github.com/Pingus/pingus/blob/7b255840c201d028fd6b19a2185ccf7df3a2cd6e/src/pingus/actions/digger.hpp#L32
 
+In the end, we touched 126 of the 272 files (46%) which account for 9186 of the
+18173 LoC (51%) comprising the game logic of Pingus [[![X]][cpp_uncompressed]].
+Half of the game logic relates to non-reactive code, such as configurations and
+options, saved games and serialization, maps and levels descriptions, string
+formatting, collision detection, graph algorithms, etc.
+This part remains unchanged and relies on the seamless integration between Céu
+and C/C++.
+From the 9186 touched LoC, we removed all headers, declarations, and other
+innocuous statements, resulting in 4135 dense LoC originally written in C++
+[[![X]][cpp_compressed]].
+We did the same with the implementation in Céu, resulting in 3697 dense LoC
+[[![X]][ceu_compressed]].
+The table that follows summarizes the resulting codebase in the two
+implementations:
+
+[cpp_uncompressed]: https://github.com/fsantanna/pingus/tree/ceu/cmp/CPP
+[cpp_compressed]: https://github.com/fsantanna/pingus/tree/ceu/cmp/ALL
+[ceu_compressed]: https://github.com/fsantanna/pingus/tree/ceu/cmp/ALL
+
+        Path            Céu     C++   Céu/C++       Descritpion
+        ------------   ----    ----     ----        --------------------------------------
+        game/          2064    2268     0.91        the main gameplay
+          ./            710     679     1.05            main functionality
+          objs/         470     478     0.98            world objects (tiles, traps, etc)
+          pingu/        884    1111     0.80            pingus
+            ./          343     458     0.75                main functionality
+            actions/    541     653     0.83                actions (bomber, climber, etc)
+        worldmap/       468     493     0.95        the worldmap
+        screens/       1109    1328     0.84        menus and screens
+            option/     347     357     0.97            option menu
+            others/     762     971     0.78            other menus and screens
+        misc/            56      46     1.22        miscellaneous functionality
+                       ----    ----     ----
+                       3697    4135     0.89
+
+        engine/         173     515     0.34        part that interacts with the game logic
+
+This report focuses on the qualitative analysis of the codebase.
+As we argue, not all code rewriting results in reduction in LoC.
+`TODO`
+Nonetheless, the numbers above indicate the parts of the game logic that are
+more susceptible to structured reactive programming.
+
 <!--
-, and redirect the instantiation and event dispatching to the new 
-class.
-The remaining classes in C++ should interoperate with the new classes in Céu 
-until we complete the rewriting process.
+                    Céu     C++   Céu/C++       Descritpion
+    game/                                       the main gameplay
+      pingu/        884    1111     0.80            pingus
+        ./          343     458     0.75                main functionality
+        actions/    541     653     0.83                actions (bomber, climber, etc)
+    screens/                                        menus and screens
+        others/     762     971     0.78            other menus and screens
+                   ----    ----     ----
+                   1646    2082     0.79
+
+$ cd cmp/ALL
+$ find . -name "*.cpp" | sort | xargs wc
+4650
+$ find . -name "*.ceu" | sort | xargs wc
+3870
+
+$ cd cmp/CPP
+$ sloccount .
+10786
+
+$ cd cmp/CPP (-engine)
+$ sloccount .
+9186
+$ find . -name "*.cpp" | wc
+63
+$ find . -name "*.hpp" | wc
+63
+>>> 126
+
+$ cd /official/src/pingus
+$ find . -name "*.cpp" | wc
+134
+$ find . -name "*.hpp" | wc
+138
+>>> 272
+$ sloccount .
+18173
 -->
 
-`TODO: total rewritten, gains in %`
-
-Note that we only touch code that deals with events, as Céu is actually less 
-expressive than C++ for pure data manipulation (e.g., game preferences, graph
-algorithms, etc).
-Therefore, we also rely on the seamless integration between Céu and C/C++ to
-take advantage of the existing code base and libraries.
-
-`TODO: collision detection, maps`
-
-We selected 10 game behaviors and describe their implementations in C++ and
-Céu.
+We selected 9 game behaviors and describe their implementations in C++ and Céu.
 We also categorized these examples in 5 abstract control-flow patterns that
 likely apply to other games:
 
@@ -498,11 +567,6 @@ likely apply to other games:
 Other games manifesting these patterns also use some form of explicit state
 which are likely subject to the same rewriting process.
 <!-- TODO: The patterns are not entirely orthogonal -->
-
-Overall, we believe that most difficulties in implementing control behavior in 
-game logic is not inherent to this domain, but a result of accidental
-complexity due to the lack of structured abstractions and an appropriate
-concurrency model to handle event-based applications.
 
 <!--
 ## Why rewriting Pingus to Céu?
@@ -3037,3 +3101,10 @@ if (x) {
 ## Conclusion
 
 `TODO`
+
+Overall, we believe that most difficulties in implementing control behavior in 
+game logic is not inherent to this domain, but a result of accidental
+complexity due to the lack of structured abstractions and an appropriate
+concurrency model to handle event-based applications.
+
+
