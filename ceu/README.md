@@ -1046,9 +1046,9 @@ or in the small map [[![X]][ceu_drag_2]] to move the game viewport.
 State machines also appear in the *FPS counter* [[![X]][ceu_fps]], UI widgets
 with visual feedback (e.g., [[![X]][ceu_uifeedback]]), among others.
 
-We found 29 cases in 25 files using structured mechanisms to substitute states
-machine (among the 65 implementation files in Céu).
-They manifest as `await` statements in sequence and aborting constructs such as
+Among the 65 implementation files in Céu, we found 29 cases in 25 files using
+structured mechanisms to substitute states machines.
+They manifest as `await` statements in sequence or aborting constructs such as
 `par/or` and `watching`.
 
 <!--
@@ -1466,18 +1466,20 @@ continuation-passing style:
 
 **How common is Continuation Passing?**
 
-screen transitions, menus, levels
-overall control structure of the game
-state machines are more local
+Continuation passing typically controls the overall structure of the game,
+such as screen transitions in menus and level progressions.
+<!--
+while state machines are more local
+-->
 
-loop that switches between starting screen, gameplay, and result screen
-https://github.com/fsantanna/pingus/blob/ceu/ceu/main.ceu#L248
-
-loop that chooses levelsets, level, and gameplay
-https://github.com/fsantanna/pingus/blob/ceu/ceu/pingus/screens/levels/menu.ceu#L8
-
-`TODO: worldmap, main, game`
-
+Céu uses the direct style techniques in 5 cases involving screen transitions:
+the main menu [[![X]][ceu_cont_3]],
+the level menu [[![X]][ceu_cont_4]],
+the level set menu [[![X]][ceu_cont_2]],
+the world map loop [[![X]][ceu_cont_5]], and
+the gameplay loop [[![X]][ceu_cont_1]].
+It also uses the same technique for the loop that switches the pingu actions
+during gameplay [[![X]][ceu_cont_6]].
 </div>
 
 [cpp_story_screen]:https://github.com/Pingus/pingus/blob/7b255840c201d028fd6b19a2185ccf7df3a2cd6e/src/pingus/screens/story_screen.cpp#L136
@@ -1491,6 +1493,13 @@ https://github.com/fsantanna/pingus/blob/ceu/ceu/pingus/screens/levels/menu.ceu#
 
 [wiki_style_direct]:       https://en.wikipedia.org/wiki/Direct_style
 [wiki_style_continuation]: https://en.wikipedia.org/wiki/Continuation-passing_style
+
+[ceu_cont_1]: https://github.com/fsantanna/pingus/blob/ceu/ceu/main.ceu#L248
+[ceu_cont_2]: https://github.com/fsantanna/pingus/blob/ceu/ceu/main.ceu#L336
+[ceu_cont_3]: https://github.com/fsantanna/pingus/blob/ceu/ceu/main.ceu#L354
+[ceu_cont_4]: https://github.com/fsantanna/pingus/blob/ceu/ceu/pingus/screens/levels/menu.ceu#L8
+[ceu_cont_5]: https://github.com/fsantanna/pingus/blob/ceu/ceu/pingus/screens/worldmap/worldmap.ceu#L98
+[ceu_cont_6]: https://github.com/fsantanna/pingus/blob/ceu/ceu/pingus/screens/game/pingu/pingu.ceu#L144
 
 @SEC[[dispatching-hierarchies,
 ## Dispatching Hierarchies
@@ -1709,11 +1718,14 @@ that makes the reasoning about the program harder:
   specially for entities held in class containers.
 -->
 
+**How common are Dispatching Hierarchies?**
+
 In C++, the update subsystem touches 39 files with around 100 lines of code
 just to forward `update` methods through the dispatching hierarchy
 (e.g., class `GroupComponent` [[![X]][cpp_groupcomponent_update]]).
 For the drawing subsystem, 50 files with around 300 lines of code
 (e.g., class `ArmageddonButton` [[![X]][cpp_armageddon_draw]]).
+
 The implementation in C++ also relies on a dispatching hierarchy for `resize`
 callbacks, touching 12 files with around 100 lines of code
 (e.g., class `StartScreen` [[![X]][cpp_startscreen_resize]]).
