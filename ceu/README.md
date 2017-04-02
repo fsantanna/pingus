@@ -428,8 +428,8 @@ formatting, collision detection, graph algorithms, etc.
 This part remains unchanged and relies on the seamless integration between Céu
 and C/C++.
 From the 9186 touched LoC, we removed all headers, declarations, and other
-innocuous statements, resulting in 4135 dense LoC originally written in C++
-[[![X]][cpp_compressed]].
+innocuous statements, resulting in 70 files with 4135 dense LoC originally
+written in C++ [[![X]][cpp_compressed]].
 We did the same with the implementation in Céu, resulting in 3697 dense LoC
 [[![X]][ceu_compressed]].
 The table that follows summarizes the resulting codebase in the two
@@ -469,6 +469,8 @@ For instance, the *Pingu* behavior contains complex animations that are
 affected by timers, game rules, and user interaction.
 In contrast, the *Option* screen is a simple UI grid with trivial mouse
 interaction.
+
+`TODO: engine`
 
 We selected 9 game behaviors and describe their implementations in C++ and Céu.
 We also categorized these examples in 5 abstract C++ control-flow patterns that
@@ -1044,6 +1046,39 @@ or in the small map [[![X]][ceu_drag_2]] to move the game viewport.
 State machines also appear in the *FPS counter* [[![X]][ceu_fps]], UI widgets
 with visual feedback (e.g., [[![X]][ceu_uifeedback]]), among others.
 
+We found 29 cases in 25 files using structured mechanisms to substitute states
+machine (among the 65 implementation files in Céu).
+They manifest as `await` statements in sequence and aborting constructs such as
+`par/or` and `watching`.
+
+<!--
+actions/    5
+actions     over            watching, await
+actions     select          par/or, await
+button      over/click      await, await
+cap_rect    over            watching, await
+entrance    abort           watching
+entrance    count           await, await
+fps         abort           watching, await
+game        count           await, await
+goal_man    count           await, await
+guillotine  abort           watching, await
+input       double click    watching, await
+input       hold press      watching, await
+input       toggle          par/or, await
+level       over            await, await
+levelset    over            await, await
+main        abort           watching, await
+pingus      abort           watching, await
+playfield   drag            watching, await
+rect_comp   click           await, await
+sfc_but     over            watching, await
+slider      drag            watching, await
+smallmap    drag            watching, await
+spike       abort           watching, await
+story       next_text       par/or, watching, await
+-->
+
 <!--
 The complete implementations for the *Bomber* action in C++ and Céu are 50 and
 19 lines of code, respectively [[![X]][diff_bomber]].
@@ -1428,6 +1463,18 @@ continuation-passing style:
 * A single parent class describes the flow between the activities in a 
   self-contained block of code.
     <!-- (instead of being spread among the activity classes). -->
+
+**How common is Continuation Passing?**
+
+screen transitions, menus, levels
+overall control structure of the game
+state machines are more local
+
+loop that switches between starting screen, gameplay, and result screen
+https://github.com/fsantanna/pingus/blob/ceu/ceu/main.ceu#L248
+
+loop that chooses levelsets, level, and gameplay
+https://github.com/fsantanna/pingus/blob/ceu/ceu/pingus/screens/levels/menu.ceu#L8
 
 `TODO: worldmap, main, game`
 
