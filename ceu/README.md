@@ -514,6 +514,8 @@ likely apply to other games:
 
 ### [Conclusion](#conclusion-1)
 
+### [Author](#author-1)
+
 <!--
 Other games manifesting these patterns likely use some form of explicit state
 subject to the same rewriting process.
@@ -607,24 +609,6 @@ $ find . -name "*.hpp" | wc
 $ sloccount .
 18173
 -->
-
-## Author
-
-Francisco Sant'Anna
-
-* <http://www.ceu-lang.org/chico/>
-* <https://github.com/fsantanna/>
-* [&#64;_fsantanna](https://twitter.com/_fsantanna/)
-
-### Acknowledgments
-
-Leonardo Kaplan
-
-* <https://github.com/leokaplan/>
-
-Alexander Tkachov
-
-* <https://github.com/Tkachov/>
 
 <!--
 ## Related Work
@@ -2996,3 +2980,19 @@ complexity due to the lack of structured abstractions and an appropriate
 concurrency model to handle event-based applications.
 
 [goto]: http://tirania.org/blog/archive/2013/Aug-15.html
+
+-------------------------------------------------------------------------------
+
+## Author
+
+Francisco Sant'Anna
+
+* <http://www.ceu-lang.org/chico/>
+* <https://github.com/fsantanna/>
+* [&#64;_fsantanna](https://twitter.com/_fsantanna/)
+
+### Acknowledgments
+
+[Leonardo Kaplan](https://github.com/leokaplan/) and
+[Alexander Tkachov](https://github.com/Tkachov/)
+for early explorations and prototypes.

@@ -250,6 +250,7 @@ Claim: Transactions are the only plausible solution to concurrent mutable state
 </ul></li>
 </ol>
 <h3 id="conclusion"><a href="#conclusion-1">Conclusion</a></h3>
+<h3 id="author"><a href="#author-1">Author</a></h3>
 <!--
 Other games manifesting these patterns likely use some form of explicit state
 subject to the same rewriting process.
@@ -339,22 +340,6 @@ $ find . -name "*.hpp" | wc
 $ sloccount .
 18173
 -->
-<h2 id="author">Author</h2>
-<p>Francisco Sant'Anna</p>
-<ul>
-<li><a href="http://www.ceu-lang.org/chico/" class="uri">http://www.ceu-lang.org/chico/</a></li>
-<li><a href="https://github.com/fsantanna/" class="uri">https://github.com/fsantanna/</a></li>
-<li><a href="https://twitter.com/_fsantanna/">@_fsantanna</a></li>
-</ul>
-<h3 id="acknowledgments">Acknowledgments</h3>
-<p>Leonardo Kaplan</p>
-<ul>
-<li><a href="https://github.com/leokaplan/" class="uri">https://github.com/leokaplan/</a></li>
-</ul>
-<p>Alexander Tkachov</p>
-<ul>
-<li><a href="https://github.com/Tkachov/" class="uri">https://github.com/Tkachov/</a></li>
-</ul>
 <!--
 ## Related Work
 - super glue, 2012
@@ -1873,3 +1858,13 @@ languages, usually through timer callbacks or ``sleep'' blocking calls.
 <p>We promote the <em>Structured Synchronous Reactive</em> concurrency model supported by the programming language Céu for the development games. We present 9 in-depth use cases apllied to <em>Pingus</em> (an open-source <em>Lemmings</em> clone), categorized in 5 control-flow patterns that likely apply to other games.</p>
 <p>We show how the standard way to program games with objects and callbacks in C++ eliminate any vestige of structured programming, such as support for sequential execution, long-lasting loops, and persisting local variables. In this sense, callbacks actually disrupt structured programming, becoming <a href="http://tirania.org/blog/archive/2013/Aug-15.html">&quot;our generation’s goto&quot;</a> according to Miguel de Icaza.</p>
 <p>Overall, we believe that most difficulties in implementing control behavior in game logic is not inherent to this domain, but a result of accidental complexity due to the lack of structured abstractions and an appropriate concurrency model to handle event-based applications.</p>
+<hr />
+<h2 id="author-1">Author</h2>
+<p>Francisco Sant'Anna</p>
+<ul>
+<li><a href="http://www.ceu-lang.org/chico/" class="uri">http://www.ceu-lang.org/chico/</a></li>
+<li><a href="https://github.com/fsantanna/" class="uri">https://github.com/fsantanna/</a></li>
+<li><a href="https://twitter.com/_fsantanna/">@_fsantanna</a></li>
+</ul>
+<h3 id="acknowledgments">Acknowledgments</h3>
+<p><a href="https://github.com/leokaplan/">Leonardo Kaplan</a> and <a href="https://github.com/Tkachov/">Alexander Tkachov</a> for early explorations and prototypes.</p>
