@@ -35,9 +35,9 @@ clean:
 	rm -f pingus
 	scons -c
 
-doc:
-	lua5.3 ceu/md-macros.lua ceu/README.md > /tmp/README.md
-	pandoc /tmp/README.md > ceu/README.html
+docs:
+	lua5.3 docs/md-macros.lua docs/README.md > /tmp/README.md
+	pandoc /tmp/README.md > docs/README.html
 
 ceu:
 	ceu --pre --pre-args="-I$(CEU_DIR)/include -I./include -I./ceu" \
@@ -104,6 +104,6 @@ install-data:
 install-man:
 	install -D doc/man/pingus.6 "$(DESTDIR)$(MANDIR)/man1/pingus.6"
 
-.PHONY : clean install install-exec install-data install-man ceu doc
+.PHONY : clean install install-exec install-data install-man ceu docs
 
 # EOF #
