@@ -283,7 +283,7 @@ the engine, level editor, auxiliary libraries, and the game logic itself.
     It is the lingua franca of the industry.
     Moreso, the C syntax that C++ is based on is also the basis for Java, C#,
     JavaScript, and many other languages.
-    Even if you don’t know C++, the odds are good you can understand the code
+    Even if you do not know C++, the odds are good you can understand the code
     samples here with a little bit of effort.
 -->
 
@@ -456,22 +456,22 @@ likely apply to other games:
 <a name="finite-state-machines"/>
 
 1. [**Finite State Machines**](#finite-state-machines):
-    State machines describe the behavior of game entities by mapping event 
+    State machines describe the behavior of entities by mapping event
     occurrences to transitions between states that trigger appropriate actions.
     * [ [case 1](#finite_state_machines_1) |
         [case 2](#finite-state-machines-2) |
         [summary](#finite-state-machines-summary) ]
 
 2. [**Continuation Passing**](#continuation-passing):
-    The completion of a long-lasting activity in a game may carry a
-    continuation, i.e., some action to execute next.
+    The completion of a long-lasting activity may carry a continuation, i.e.,
+    some action to execute next.
     * [ [case 1](#continuation-passing-1) |
         [case 2](#continuation-passing-2) |
         [summary](#continuation-passing-summary) ]
 
 3. [**Dispatching Hierarchies**](#dispatching-hierarchies):
-    Entities typically form a dispatching hierarchy in which a container entity
-    that receives a stimulus automatically forwards it to its managed children.
+    Entities typically form a dispatching hierarchy in which a container that
+    receives a stimulus automatically forwards it to its managed children.
     * [ [case 1](#dispatching-hierarchies-1) |
         <!-- [TODO-resize](#dispatching_hierarchies_2) | -->
         [summary](#dispatching_hierarchies_summary) ]
@@ -640,8 +640,8 @@ $ sloccount .
 ## Finite State Machines
 ]]
 
-State machines describe the behavior of game entities by mapping event 
-occurrences to transitions between states that trigger appropriate actions.
+State machines describe the behavior of entities by mapping event occurrences
+to transitions between states that trigger appropriate actions.
 
 <!--
 The double click behavior for the *Armageddon button* is an example of a simple 
@@ -795,7 +795,7 @@ with other organisms.
 Organisms react to external events sequentially, one after the other, resulting 
 in deterministic programs.
 Unlike callbacks, organism bodies keep the execution context across event 
-occurrences alive (if they don't terminate).
+occurrences alive (if they do not terminate).
 -->
 
 The loop detection @NN(loop_do,-,loop_end) awaits the first click @NN(await_1)
@@ -1132,8 +1132,8 @@ Spike       35      27      draw/update, killing
 ## Continuation Passing
 ]]
 
-The completion of a long-lasting activity in a game may carry a continuation,
-i.e., some action to execute next.
+The completion of a long-lasting activity may carry a continuation, i.e., some
+action to execute next.
 
 <!--
 If the execution flow is dynamic, the program has to tell the activity where to 
@@ -1261,7 +1261,7 @@ continuation and state machine.
 While the text advances in an inner loop (hidden in ln.  @N(advance)), we watch
 the `next_text` event that fast forwards it.
 The loop may also eventually terminate with the time elapsing normally.
-This way, we don't need a variable (such as `displayed` in C++) to switch 
+This way, we do not need a variable (such as `displayed` in C++) to switch 
 between the states "advancing text" and "advancing pages".
 The [`par/or`][ceu_paror] makes the page advance logic to execute in
 parallel with the redrawing code @NN(redraw).
@@ -1309,7 +1309,7 @@ or not:
 
 @CODE_LINES[[language=CPP,
 StoryDot::StoryDot(const FileReader& reader) :
-    m_credits(false),                           // by default, don't display
+    m_credits(false),                           // by default, do not display
 {
     <...>
     reader.read_bool("credits", m_credits);     // read from the file
@@ -1521,8 +1521,8 @@ during gameplay [[![X]][ceu_cont_6]].
 ## Dispatching Hierarchies
 ]]
 
-Entities typically form a dispatching hierarchy in which a container entity
-that receives a stimulus automatically forwards it to its managed children.
+Entities typically form a dispatching hierarchy in which a container that
+receives a stimulus automatically forwards it to its managed children.
 
 <!--
 Some entities in games manage other child entities, resulting in dispatching 
@@ -1555,14 +1555,12 @@ TODO: falar de broadcast (in Ceu: unless it is paused, all receive always)
 #### C++
 
 In C++, the class `Bomber` [[![X]][cpp_bomber]] declares a `sprite` member to
-handle its animation frames:
+handle its animation frames (@FIG_REF[[state-anim/state-anim.gif]]):
 
 @CODE_LINES[[language=CPP,
 class Bomber : public PinguAction {
     <...>
     Sprite sprite;
-    void draw (SceneContext& gc);
-    void update();
 }
 
 Bomber::Bomber (<...>) : <...> {
@@ -1605,7 +1603,7 @@ method dispatches (@FIG_REF[[hierarchy.png]]):
 2. `ScreenManager::update` [[![X]][cpp_screenmanager_21]]
         calls
    `last_screen->update` [[![X]][cpp_screenmanager_22]] for the active game
-    screen (a `GameSession` instance, considering an active `Bomber`).
+    screen (a `GameSession` instance, considering the `Bomber`).
 3. `GameSession::update` [[![X]][cpp_gamesession_1]]
         calls
     `world->update` [[![X]][cpp_gamesession_2]].
@@ -1621,22 +1619,21 @@ method dispatches (@FIG_REF[[hierarchy.png]]):
 7. `Bomber::update` [[![X]][cpp_bomber_1]]
         calls
     `sprite.update` [[![X]][cpp_bomber_2]].
-8. `Sprite::update` [[![X]][cpp_sprite_1]]
-    finally updates the animation frame.
+    `Sprite::update` [[![X]][cpp_sprite_1]] finally updates the animation
+    frame.
 
-Each dispatching step in the chains is necessary considering the game
+Each dispatching step in the chain is necessary considering the game
 architecture:
 
 * With a single assignment to `last_screen`, we can easily deactivate the
   current screen and redirect all dispatches to a new screen.
-* The `World` class manages and dispatches events to all game entities with a 
-  common interface (i.e., `WorldObj` [[![X]][cpp_worldobj]]), such as all
-  pingus and traps.
+* The `World` class manages and dispatches events to all game entities, such as
+  all pingus and traps, with a the common interface `WorldObj`
+  [[![X]][cpp_worldobj]].
 * Since it is common to iterate only over the pingus (vs. all world objects),
-  it is convenient to manage all pingus within the `PinguHolder` container.
-* Since a single pingu can change between actions during lifetime, it is also
-  convenient to decouple them with another level of indirection through
-  the `action` member.
+  the container `PinguHolder` manages all pingus.
+* Since a single pingu can change between actions during lifetime, the `action`
+  member decouples them with another level of indirection.
 * Sprites are part of the game engine and are reusable everywhere (e.g., UI
   buttons, world objects, etc.), so it is also convenient to decouple them
   from actions.
@@ -1648,7 +1645,7 @@ the `Sprite` class.
 
 #### Céu
 
-In Céu, the `Bomber` action spawns a `Sprite` animation instance
+In Céu, the `Bomber` action spawns a `Sprite` animation instance on its body
 [[![X]][ceu_bomber]]:
 
 @CODE_LINES[[language=CEU,
@@ -1666,7 +1663,7 @@ bypassing the program hierarchy entirely.
 While and *only while* the bomber abstraction is alive, the sprite animation is
 also alive.
 The radical decoupling between the program hierarchy and reactions to events
-eliminates dispatching chains.
+eliminates dispatching chains entirely.
 
 <!--
 For instance, we removed from the game engine most of the boilerplate related
@@ -1741,7 +1738,6 @@ just to forward `update` methods through the dispatching hierarchy
 (e.g., class `GroupComponent` [[![X]][cpp_groupcomponent_update]]).
 For the drawing subsystem, 50 files with around 300 lines of code
 (e.g., class `ArmageddonButton` [[![X]][cpp_armageddon_draw]]).
-
 The implementation in C++ also relies on dispatching hierarchy for `resize`
 callbacks, touching 12 files with around 100 lines of code
 (e.g., class `StartScreen` [[![X]][cpp_startscreen_resize]]).
@@ -1752,7 +1748,7 @@ the environment, not depending on hierarchies spread across multiple files.
 Note that dispatching hierarchies cross game engine code, suggesting that most
 games use this control-flow pattern heavily.
 In the case of the Pingus engine, we rewrote 9 files from C++ to Céu, reducing
-them from 515 to 173 LoCs, mostly because of dispatching code.
+them from 515 to 173 LoCs, mostly due to dispatching code removal.
 
 <!--
 engine/         173     515     0.34        part that interacts with the game logic
@@ -1963,18 +1959,18 @@ GameSession::GameSession(<...>) :
 The widgets are created in the constructor @NN(new_ini,-,new_end), added to a
 UI container @NN(add_ini,-,add_end), and are never removed since they must
 always be visible.
-Arguably, declaring the widgets as top-level automatic (non-dynamic) members
-would match better the intent of making them coexist.
-However, the class needs the container to automate `draw` and `update`
-dispatching as discussed in @SEC_REF[[dispatching-hierarchies-1]].
-But the container method `add` expects dynamically allocated children **only**
+Arguably, to better express the intent of making them coexist with the game
+screen, the widgets could be declared as top-level automatic (non-dynamic)
+members.
+However, the class uses a container to automate `draw` and `update` dispatching
+to the widgets, as discussed in @SEC_REF[[dispatching-hierarchies-1]].
+In turn, the container method `add` expects dynamically allocated children only
 because they are automatically deallocated inside the container destructor 
 [[![X]][cpp_groupcomponent_delete]].
 
-The dynamic nature of containers in C++ demand extra caution from the
-programmer:
+The dynamic nature of containers in C++ demand extra caution from programmers:
 
-* When containers are part of a dispatching chain, it gets even harder to track 
+* When containers are part of a dispatching chain, it gets even harder to know 
   which objects are dispatched:
   one has to "simulate" the program execution and track calls to `add` and
   `remove`.
@@ -2004,6 +2000,9 @@ code/await Game (void) do
 end
 ]]
 
+Since abstractions can react independently, they do not require a dispatching
+container.
+
 Lexical lifespan never requires containers, allocation and deallocation, or
 explicit references.
 In addition, all required memory is known at compile time, similarly to
@@ -2011,7 +2010,7 @@ stack-allocated local variables.
 
 Note that the actual code in the repository [[![X]][ceu_world_top]] is
 equivalent to the code using abstraction above, but inlines all functionality
-in parallel:
+in parallel since they are instantiated only once:
 
 @CODE_LINES[[language=CEU,
 par do
@@ -2078,15 +2077,15 @@ all pingus on every frame, removing those with the dead status
 @NN(dead_1,-,dead_2).
 
 Entities with dynamic lifespan in C++ require explicit `add` and `remove` calls
-associated to a container.
-Without the `erase` call above @NN(erase), a dead pingu would remain in the
-collection being updated on every frame @NN(update).
+associated to a container @NN(push_2,,erase).
+Without the `erase` call above, a dead pingu would remain in the collection
+with updates on every frame @NN(update).
 Since the `redraw` behavior for a dead pingu is innocuous, the death could go
-unnoticed and the program would keep consuming memory and CPU time.
+unnoticed but the program would keep consuming memory and CPU time.
 This problem is known as the *lapsed listener* [[![X]][gpp_lapsed_listener]] 
 and also occurs in languages with garbage collection:
 A container typically holds a strong reference to a child (sometimes the only 
-reference to it), and a collector cannot magically detect it as garbage.
+reference to it), and the runtime cannot magically detect it as garbage.
 
 <!-- CEU-CONTAINER-DYNAMIC -->
 
@@ -2103,17 +2102,19 @@ The game screen spawns a new `Pingu` on every invocation of `Pingu_Spawn`
 code/await Game (void) do                   @do
     <...>
     pool[] Pingu pingus;                    @pool
-    code/await Pingu_Spawn (<...>) do
+    code/await Pingu_Spawn (<...>) do       @spawn_ini
         <...>
         spawn Pingu(<...>) in outer.pingus; @spawn
-    end
+    end                                     @spawn_end
+    <...>   // code invoking Pingu_Spawn
 end                                         @end
 ]]
 
 The `spawn` statement @NN(spawn) specifies the pool declared at the top-level
 block of the game screen @NN(pool).
-In this case, the lifespan of the new instance follows the scope of the pool
-instead of the enclosing scope.
+In this case, the lifespan of the new instances follows the scope of the pool
+@NN(do,-,end) instead of the `spawn` enclosing scope
+@NN(spawn_ini,-,spawn_end).
 Since pools are also subject to lexical scope, the lifespan of all dynamically
 allocated pingus is constrained to the game screen.
 
@@ -2137,7 +2138,7 @@ the lifespan of its associated pool (@FIG_REF[[pool.png]]).
 In Céu, when the execution block of a dynamic instance terminates, which
 characterizes its *natural termination*, the instance is automatically removed
 from its pool.
-Therefore, dynamic instances don't require any extra bookkeeping related to 
+Therefore, dynamic instances do not require any extra bookkeeping related to 
 containers or explicit deallocation.
 
 To remove a pingu from the game in Céu, we just need to terminate its execution
@@ -2220,7 +2221,8 @@ containers:
 - The memory for static instances is known at compile time.
 - Natural termination makes an instance innocuous and, hence, susceptible to
   immediate reclamation.
-- Containers require explicit manipulation of pointers/references.
+- Abstraction instances (static or dynamic) never require explicit manipulation
+  of pointers/references.
 
 **How common are Lifespan Hierarchies?**
 
@@ -2228,7 +2230,6 @@ All entities in a game have an associated lifespan.
 
 The implementation in Céu has over 200 static instantiations spread across all
 65 files.
-
 For dynamic entities, it defines 23 pools in 10 files, with almost 96
 instantiations across 37 files.
 Pools are used to hold explosion particles, levels and level sets from files,
@@ -2904,11 +2905,11 @@ Garbage collecting resources (file handles, etc):
 
 This is a very different question, because resource freeing has observable 
 consequences beyond performance and memory consumption - unlike garbage 
-collection, which is justified by the realization that if you don't have any 
+collection, which is justified by the realization that if you do not have any 
 pointers to a value in memory, then it can simply dissapear (or not) without 
 observable consequences.
 
-For example, if you have a file handle open for writing, then other applications can't open that file. You want such resource usage to be clear and deterministic, so that files don't just remain open for a random duration depending on the garbage collector's internals.
+For example, if you have a file handle open for writing, then other applications can't open that file. You want such resource usage to be clear and deterministic, so that files do not just remain open for a random duration depending on the garbage collector's internals.
 
 In general, I would not advocate garbage collection of OS resources or any other thing requiring explicit cleanup. For example, I think that Java/C# finalizers are a misguided idea, because they have observable, nondeterministic consequences. That is exactly the sort of feature a high-level, secure language should avoid. The bizarre finalization state diagrams for those languages should be enough to indicate that something is wrong here!
 
