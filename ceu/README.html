@@ -165,7 +165,7 @@ Total Physical Source Lines of Code (SLOC) = 39,975
 <li><em>Structured:</em> programs use structured control mechanisms, such as <code>await</code> (to suspend a line of execution), and <code>par</code> (to combine multiple lines of execution).</li>
 <li><em>Synchronous:</em> reactions run atomically and to completion on each line of execution, i.e., there's no implicit preemption or real parallelism.</li>
 </ul>
-<p>Structured programming eliminates the <em>callback hell</em> [<a href="http://callbackhell.com/"><img src="images/link_12.png" alt="X" /></a>], letting programmers write code in <a href="https://en.wikipedia.org/wiki/Direct_style">direct/sequential style</a> in multiple lines of execution. In addition, when a line of execution is aborted, all allocated resources inside it are safely released. <code>TODO: single threaded, memory</code></p>
+<p>Structured programming eliminates the <em>callback hell</em> [<a href="http://callbackhell.com/"><img src="images/link_12.png" alt="X" /></a>], letting programmers write code in <a href="https://en.wikipedia.org/wiki/Direct_style">direct/sequential style</a> in multiple lines of execution. In addition, when a line of execution is aborted, all allocated resources inside it are safely released. Céu supports logical parallelism with a resource-efficient implementation in terms of memory and CPU usage. The runtime is single threaded and requires no garbage collection.</p>
 <div class="images">
 <img src="images/sweeney.png" width="350"/> <br> <a href="images/sweeney.png"> Figure 2</a>: Three &quot;kinds&quot; of code
 </div>
@@ -223,11 +223,8 @@ Claim: Transactions are the only plausible solution to concurrent mutable state
         others/     762     971     0.78            other menus and screens
     misc/            56      46     1.22        miscellaneous functionality
                    ----    ----     ----
-                   3697    4135     0.89
-
-    engine/         173     515     0.34        part that interacts with the game logic</code></pre>
-<p>This report focuses on a qualitative analysis for the programming techniques that we applied during the rewriting process. Not all techniques result in reduction in LoC (especially considering the verbose syntax of Céu), but have other properties such as reducing the number of shared variables and dependencies between classes, helping on encapsulation and cohesion. Nonetheless, the lowest ratio numbers above correlate to the parts of the game logic that we consider more susceptible to structured reactive programming. For instance, the <em>Pingu</em> behavior contains complex animations that are affected by timers, game rules, and user interaction. In contrast, the <em>Option</em> screen is a simple UI grid with trivial mouse interaction.</p>
-<p><code>TODO: engine</code></p>
+                   3697    4135     0.89</code></pre>
+<p>This report focuses on a qualitative analysis for the programming techniques that we applied during the rewriting process. Not all techniques result in reduction in LoC (especially considering the verbose syntax of Céu), but have other properties such as reducing the number of shared variables and dependencies between classes. <!--, helping on encapsulation and cohesion.--> Nonetheless, the lowest ratio numbers above correlate to the parts of the game logic that we consider more susceptible to structured reactive programming. For instance, the <em>Pingu</em> behavior contains complex animations that are affected by timers, game rules, and user interaction. In contrast, the <em>Option</em> screen is a simple UI grid with trivial mouse interaction.</p>
 <p>We selected 9 game behaviors and describe their implementations in C++ and Céu. We also categorized these examples in 5 abstract C++ control-flow patterns that likely apply to other games:</p>
 <p><a name="finite-state-machines"/></p>
 <ol style="list-style-type: decimal">
@@ -363,6 +360,10 @@ $ sloccount .
 - super glue, 2012
 - patterns,
 - ???
+- async, 2010, full7.pdf
+- animation lang, 2008, 2.pdf
+- sm1, 2006, 6.pdf
+- sm2, 2006, 7.pdf
 
 -------------------------------------------------------------------------------
 
@@ -857,12 +858,11 @@ terminates.
 </div>
 <p>Figure 10 illustrates the <em>continuation-passing style</em> of C++ and the <em>direct style</em> of Céu for screen transitions:</p>
 <ol style="list-style-type: decimal">
-<li><code>Main Loop</code> =&gt; <code>Worldmap</code>: C++ uses an explicit stack to push the <code>Worldmap</code> screen; Céu invokes the <code>WorldMap</code> screen expecting a return value;</li>
-<li><code>Worldmap</code> (<em>blue dot click</em>) =&gt; <code>Story</code>: C++ pushes the <code>Story</code> screen passing the continuation flag; Céu stores the <code>Worldmap</code> return value and invokes the <code>Story</code> screen.</li>
-<li><code>Story</code> =&gt; <code>Credits</code>: C++ replaces the curren <code>Story</code> screen with the <code>Credits</code> screen. Céu invokes the <code>Credits</code> screen after the <code>await Story</code> returns.</li>
-<li><code>Credits</code> =&gt; <code>Worldmap</code>: C++ pops the <code>Credits</code> screen, going back to the <code>Worldmap</code> screen. Céu uses an enclosing <code>loop</code> to restart the process.</li>
+<li><code>Main Loop</code> =&gt; <code>Worldmap</code>: C++ uses an explicit stack to push the <code>Worldmap</code> screen [<a href="https://github.com/Pingus/pingus/blob/7b255840c201d028fd6b19a2185ccf7df3a2cd6e/src/pingus/pingus_main.cpp#L585"><img src="images/link_12.png" alt="X" /></a>]. Céu invokes the <code>WorldMap</code> screen expecting a return value (ln. 2).</li>
+<li><code>Worldmap</code> (<em>blue dot click</em>) =&gt; <code>Story</code>: C++ pushes the <code>Story</code> screen passing the continuation flag (<code>StoryDot</code>, ln. 10). Céu stores the <code>Worldmap</code> return value and invokes the <code>Story</code> screen (ln. 2,5).</li>
+<li><code>Story</code> =&gt; <code>Credits</code>: C++ replaces the curren <code>Story</code> screen with the <code>Credits</code> screen (<code>StoryScreenComponent</code>, ln. 19). Céu invokes the <code>Credits</code> screen after the <code>await Story</code> returns (ln. 8).</li>
+<li><code>Credits</code> =&gt; <code>Worldmap</code>: C++ pops the <code>Credits</code> screen, going back to the <code>Worldmap</code> screen. Céu uses an enclosing <code>loop</code> to restart the process (ln. 1,13).</li>
 </ol>
-<p><code>TODO: lines or links</code></p>
 <p>In contrast with C++, the screens in Céu are decoupled and only the <code>Main Loop</code> touches them: the <code>Worldmap</code> has no references to <code>Story</code>, which has no references to <code>Credits</code>.</p>
 <!--
 TODO:
@@ -1026,9 +1026,12 @@ variable `gfx_exploded` and forward the `draw` method down to the child sprite
 </ul>
 <p><strong>How common are Dispatching Hierarchies?</strong></p>
 <p>In C++, the update subsystem touches 39 files with around 100 lines of code just to forward <code>update</code> methods through the dispatching hierarchy (e.g., class <code>GroupComponent</code> [<a href="https://github.com/Pingus/pingus/blob/7b255840c201d028fd6b19a2185ccf7df3a2cd6e/src/engine/gui/group_component.cpp#L58"><img src="images/link_12.png" alt="X" /></a>]). For the drawing subsystem, 50 files with around 300 lines of code (e.g., class <code>ArmageddonButton</code> [<a href="https://github.com/Pingus/pingus/blob/7b255840c201d028fd6b19a2185ccf7df3a2cd6e/src/pingus/components/action_button.cpp#L42"><img src="images/link_12.png" alt="X" /></a>]).</p>
-<p>The implementation in C++ also relies on a dispatching hierarchy for <code>resize</code> callbacks, touching 12 files with around 100 lines of code (e.g., class <code>StartScreen</code> [<a href="https://github.com/Pingus/pingus/blob/7b255840c201d028fd6b19a2185ccf7df3a2cd6e/src/pingus/screens/start_screen.cpp#L249"><img src="images/link_12.png" alt="X" /></a>]).</p>
+<p>The implementation in C++ also relies on dispatching hierarchy for <code>resize</code> callbacks, touching 12 files with around 100 lines of code (e.g., class <code>StartScreen</code> [<a href="https://github.com/Pingus/pingus/blob/7b255840c201d028fd6b19a2185ccf7df3a2cd6e/src/pingus/screens/start_screen.cpp#L249"><img src="images/link_12.png" alt="X" /></a>]).</p>
 <p>Most of this code is eliminated in Céu since abstractions can react directly to the environment, not depending on hierarchies spread across multiple files.</p>
+<p>Note that dispatching hierarchies cross game engine code, suggesting that most games use this control-flow pattern heavily. In the case of the Pingus engine, we rewrote 9 files from C++ to Céu, reducing them from 515 to 173 LoC, mostly because of dispatching code.</p>
 <!--
+engine/         173     515     0.34        part that interacts with the game logic
+
 Many of these files mix dispatching with state manipulation,
 In Céu, forwarding is eliminated
 forwarding disapper, ex...
