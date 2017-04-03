@@ -1385,7 +1385,7 @@ Also, all memory required for static instances is known at compile time.
 <div class="images">
 <img src="images/pause-anim-opt.gif" width="250"/> <br> <a href="images/pause-anim-opt.gif"> Figure 16</a>: Pausing the world.
 </div>
-<p>A click in the <em>Pause</em> button at the bottom right of the screen pauses all world objects, such as the clouds and pingus, but not other elements, such as the <em>Armageddon</em> button animation (Figure 16). The <em>Pause</em> button is also affected when the player presses <code>P</code> on the keyboard and indicates its state with light and dark backgrounds.</p>
+<p>A click in the <em>Pause</em> button at the bottom right of the screen pauses all world objects, such as the clouds and pingus, but not other elements, such as the <em>Armageddon</em> button animation (Figure 16). The <em>Pause</em> button is also affected when the player presses <code>P</code> on the keyboard and indicates its state with dark and light backgrounds.</p>
 <h4 id="c-7">C++</h4>
 <p>In C++, the class <code>PauseButton</code> [<a href="https://github.com/Pingus/pingus/blob/7b255840c201d028fd6b19a2185ccf7df3a2cd6e/src/pingus/components/action_button.cpp#L135"><img src="images/link_12.png" alt="X" /></a>] handles mouse clicks to toggle the world pause state which is checked when redrawing the button:</p>
 <pre><code><b><font size="-1" color="#666666"> 1:</font></b>  PauseButton::PauseButton(GameSession s, <...>):
@@ -1427,8 +1427,8 @@ Also, all memory required for static instances is known at compile time.
 <b><font size="-1" color="#666666">12:</font></b>  }</code></pre>
 <p>The call to the world <code>update</code> (ln. 9) only applies if the world is not paused (ln. 7). Since <code>update</code> methods propagate throughout the world hierarchy, skipping the call to the root method effectively pauses the world.</p>
 <h4 id="céu-7">Céu</h4>
-<p>As discussed in <a href="#dispatching-hierarchies-1"> Section 3.1</a>, entities in Céu do not update through dispatching hierarchies, but instead react directly to events. This way, the pausing technique applied in C++ is not effective to the implementation in Céu.</p>
-<p>In Céu, the button communicates with the rest of the application through the event <code>go_pause_toggle</code> [<a href="https://github.com/fsantanna/pingus/blob/ceu/ceu/pingus/screens/game/input.ceu#L162"><img src="images/link_12.png" alt="X" /></a>]:</p>
+<p>As discussed in <a href="#dispatching-hierarchies-1"> Section 3.1</a>, entities in Céu do not update through dispatching hierarchies, but instead react directly to events. This way, the pausing technique applied in C++ is not effective in Céu.</p>
+<p>In Céu, the <em>Pause</em> button communicates with the rest of the application through the event <code>go_pause_toggle</code> [<a href="https://github.com/fsantanna/pingus/blob/ceu/ceu/pingus/screens/game/input.ceu#L162"><img src="images/link_12.png" alt="X" /></a>]:</p>
 <pre><code><b><font size="-1" color="#666666"> 1:</font></b>  <...>
 <b><font size="-1" color="#666666"> 2:</font></b>  <b>var</b>& RectComponent c = <b>spawn</b> RectComponent(<...>);
 <b><font size="-1" color="#666666"> 3:</font></b>  <b>spawn</b> <b>do</b>
@@ -1446,7 +1446,7 @@ Also, all memory required for static instances is known at compile time.
 <b><font size="-1" color="#666666">15:</font></b>      <b>end</b>
 <b><font size="-1" color="#666666">16:</font></b>  <b>end</b>
 <b><font size="-1" color="#666666">17:</font></b>  <...></code></pre>
-<p>The button toggles between showing the light (ln. 5-9) and dark (ln. 10-14) background sprites based on their lexical scope. The background changes when the button is clicked (ln. 7,12) or when <code>go_pause_toggle</code> is emitted from a keyboard press (ln. 5,10). The button also broadcasts <code>go_pause_toggle</code> whenever it is clicked (ln. 8,13).</p>
+<p>The button toggles between showing the dark (ln. 10-14) and light (ln. 5-9) background sprites based on their lexical scope. The background changes when the button is clicked (ln. 7,12) or when <code>go_pause_toggle</code> is emitted from a keyboard press (ln. 5,10). The button also broadcasts <code>go_pause_toggle</code> whenever it is clicked (ln. 8,13).</p>
 <p>The pausing mechanism relies on two update events, <code>game.dt</code> for the game world, and <code>main.dt</code> for the rest of the application [<a href="https://github.com/fsantanna/pingus/blob/ceu/ceu/pingus/screens/game/input.ceu#L17"><img src="images/link_12.png" alt="X" /></a>]:</p>
 <pre><code><b><font size="-1" color="#666666"> 1:</font></b>  <b>event</b> <b>void</b> go_pause_toggle;
 <b><font size="-1" color="#666666"> 2:</font></b>  <...>
@@ -1551,12 +1551,12 @@ Also, all memory required for static instances is known at compile time.
 <b><font size="-1" color="#666666">26:</font></b>          (*i).disconnect();
 <b><font size="-1" color="#666666">27:</font></b>      }
 <b><font size="-1" color="#666666">28:</font></b>  }</code></pre>
-<p>The constructor binds the signal <code>config_manager.on_mouse_grab_change</code> to the callback method <code>mousegrab_box-&gt;set_state</code> (ln. 10-14), and also the signal <code>mousegrab_box-&gt;on_change</code> to the callback method <code>config_manager.set_mouse_grab</code> (ln. 15-19). This way, every time the <code>ConfigManager</code> signals <code>on_mouse_grab_change</code> (ln. 7 <a href="#cpp_config-manager">up</a>), <code>set_state</code> is implicitly called. The same happens between the signal <code>on_change</code> in the <code>CheckBox</code> and the method <code>set_mouse_grab</code> in the <code>ConfigManager</code> (ln. 3 <a href="#cpp_config-manager">up</a>).</p>
-<p>Note that the signal binding to call <code>CheckBox::set_state</code> (ln. 12) receives a fixed value <code>false</code> as the last argument to prevent infinite execution (ln. 3 <a href="#cpp_check-box">up</a>).</p>
-<p>The destructor (ln. 24-28) explicitly breaks the connections when the <em>Option</em> screen terminates.</p>
+<p>The constructor binds the signal <code>config_manager.on_mouse_grab_change</code> to the callback method <code>mousegrab_box-&gt;set_state</code> (ln. 10-14), and also the signal <code>mousegrab_box-&gt;on_change</code> to the callback method <code>config_manager.set_mouse_grab</code> (ln. 15-19). This way, every time the <code>ConfigManager</code> signals <code>on_mouse_grab_change</code> (<code>ConfigManager</code>, ln. 7 <a href="#cpp_config-manager">up</a>), <code>set_state</code> is implicitly called. The same happens between the signal <code>on_change</code> in the <code>CheckBox</code> and the method <code>set_mouse_grab</code> in the <code>ConfigManager</code> (<code>ConfigManager</code>, ln. 3 <a href="#cpp_config-manager">up</a>).</p>
+<p>Note that the signal binding to call <code>CheckBox::set_state</code> (ln. 12) receives a fixed value <code>false</code> as the last argument to prevent infinite execution (<code>CheckBox</code>, ln. 3 <a href="#cpp_check-box">up</a>).</p>
+<p>The destructor (ln. 24-28) breaks the connections explicitly when the <em>Option</em> screen terminates.</p>
 <!-- CEU-GRAB -->
 <h4 id="céu-8">Céu</h4>
-<p>Céu supports <em>internal events</em> as a signalling mechanism between lines of execution. A <em>Ctrl-G</em> key press broadcasts the internal event <code>config_manager.go_mouse_grab</code> to the application [<a href="https://github.com/fsantanna/pingus/blob/ceu/ceu/pingus/global_event.ceu"><img src="images/link_12.png" alt="X" /></a>]:</p>
+<p>In Céu, a <em>Ctrl-G</em> key press broadcasts the internal event <code>config_manager.go_mouse_grab</code> to the application [<a href="https://github.com/fsantanna/pingus/blob/ceu/ceu/pingus/global_event.ceu"><img src="images/link_12.png" alt="X" /></a>]:</p>
 <pre><code><b><font size="-1" color="#666666"> 1:</font></b>  <b>spawn</b> <b>do</b>
 <b><font size="-1" color="#666666"> 2:</font></b>      <b>var</b> _SDL_KeyboardEvent&& e;
 <b><font size="-1" color="#666666"> 3:</font></b>      <b>every</b> e <b>in</b> SDL_KEYDOWN <b>do</b>
@@ -1636,8 +1636,8 @@ Also, all memory required for static instances is known at compile time.
 <li>They do not require explicit unbinding.</li>
 </ul>
 <p><strong>How common are Signalling Mechanisms?</strong></p>
-<p>The implementation in Céu uses 39 events internal communication defined in 23 files with over 200 invocations of <code>emit</code> and <code>await</code> spread over 50 files.</p>
-<p>Internal events are used for resizing entities, broadcasting update and draw requests, pausing parts of the game, triggering a new pingu actions, signalling collisions, signalling UI interactions, among many others.</p>
+<p>The implementation in Céu uses 39 events for internal communication defined in 23 files with over 200 invocations of <code>emit</code> and <code>await</code> spread in over 50 files.</p>
+<p>Internal events are used for resizing entities, broadcasting update and draw requests, pausing parts of the game, triggering new pingu actions, signalling collisions, signalling UI interactions, among many others cases.</p>
 </div>
 <!--
 <a name="wall-clock-timers"/>
@@ -1874,8 +1874,8 @@ languages, usually through timer callbacks or ``sleep'' blocking calls.
 -->
 <hr />
 <h2 id="conclusion-1">Conclusion</h2>
-<p>We promote the <em>Structured Synchronous Reactive</em> concurrency model supported by the programming language Céu for the development games. We present 9 in-depth use cases apllied to <em>Pingus</em> (an open-source <em>Lemmings</em> clone), categorized in 5 control-flow patterns that likely apply to other games.</p>
-<p>We show how the standard way to program games with objects and callbacks in C++ eliminate any vestige of structured programming, such as support for sequential execution, long-lasting loops, and persisting local variables. In this sense, callbacks actually disrupt structured programming, becoming <a href="http://tirania.org/blog/archive/2013/Aug-15.html">&quot;our generation’s goto&quot;</a> according to Miguel de Icaza.</p>
+<p>We promote the <em>structured synchronous reactive</em> programming model of Céu for the development of games. We present 9 in-depth use cases apllied to <em>Pingus</em> (an open-source <em>Lemmings</em> clone), categorized in 5 control-flow patterns that likely apply to other games.</p>
+<p>We show how the standard way to program games with objects and callbacks in C++ hinders structured programming techniques, such as support for sequential execution, long-lasting loops, and persisting local variables. In this sense, callbacks actually disrupt structured programming, becoming <a href="http://tirania.org/blog/archive/2013/Aug-15.html">&quot;our generation’s goto&quot;</a> according to Miguel de Icaza.</p>
 <p>Overall, we believe that most difficulties in implementing control behavior in game logic is not inherent to this domain, but a result of accidental complexity due to the lack of structured abstractions and an appropriate concurrency model to handle event-based applications.</p>
 <hr />
 <h2 id="author-1">Author</h2>

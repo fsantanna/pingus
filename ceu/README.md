@@ -2300,7 +2300,7 @@ A click in the *Pause* button at the bottom right of the screen pauses all
 world objects, such as the clouds and pingus, but not other elements, such as
 the *Armageddon* button animation (@FIG_REF[[pause-anim-opt.gif]]).
 The *Pause* button is also affected when the player presses `P` on the keyboard
-and indicates its state with light and dark backgrounds.
+and indicates its state with dark and light backgrounds.
 
 #### C++
 
@@ -2366,11 +2366,10 @@ call to the root method effectively pauses the world.
 As discussed in @SEC_REF[[dispatching-hierarchies-1]], entities in Céu
 do not update through dispatching hierarchies, but instead react directly to
 events.
-This way, the pausing technique applied in C++ is not effective to the
-implementation in Céu.
+This way, the pausing technique applied in C++ is not effective in Céu.
 
-In Céu, the button communicates with the rest of the application through the
-event `go_pause_toggle` [[![X]][ceu_input_ui]]:
+In Céu, the *Pause* button communicates with the rest of the application
+through the event `go_pause_toggle` [[![X]][ceu_input_ui]]:
 
 @CODE_LINES[[language=CEU,
 <...>
@@ -2392,8 +2391,8 @@ end
 <...>
 ]]
 
-The button toggles between showing the light @NN(but_11,-,but_12) and dark
-@NN(but_21,-,but_22) background sprites based on their lexical scope.
+The button toggles between showing the dark @NN(but_21,-,but_22) and light
+@NN(but_11,-,but_12) background sprites based on their lexical scope.
 The background changes when the button is clicked @NN(clk_1,,clk_2) or
 when `go_pause_toggle` is emitted from a keyboard press @NN(but_11,,but_21).
 The button also broadcasts `go_pause_toggle` whenever it is clicked
@@ -2575,25 +2574,24 @@ the signal `mousegrab_box->on_change` to the callback method
            `config_manager.set_mouse_grab`
            @NN(bind_21,-,bind_22).
 This way, every time the `ConfigManager` signals `on_mouse_grab_change`
-(ln. @N(signal) [up](#cpp_config-manager)), `set_state` is implicitly called.
+(`ConfigManager`, ln. @N(signal) [up](#cpp_config-manager)), `set_state` is
+implicitly called.
 The same happens between the signal `on_change` in the `CheckBox` and the 
 method `set_mouse_grab` in the `ConfigManager`
-(ln. @N(set_mouse_grab) [up](#cpp_config-manager)).
+(`ConfigManager`, ln. @N(set_mouse_grab) [up](#cpp_config-manager)).
 
 Note that the signal binding to call `CheckBox::set_state` @NN(bind_false) 
 receives a fixed value `false` as the last argument to prevent infinite
-execution (ln. @N(last_argument) [up](#cpp_check-box)).
+execution (`CheckBox`, ln. @N(last_argument) [up](#cpp_check-box)).
 
-The destructor @NN(destr_1,-,destr_2) explicitly breaks the connections when
+The destructor @NN(destr_1,-,destr_2) breaks the connections explicitly when
 the *Option* screen terminates.
 
 <!-- CEU-GRAB -->
 
 #### Céu
 
-Céu supports *internal events* as a signalling mechanism between lines of
-execution.
-A *Ctrl-G* key press broadcasts the internal event
+In Céu, a *Ctrl-G* key press broadcasts the internal event
 `config_manager.go_mouse_grab` to the application [[![X]][ceu_global_event]]:
 
 @CODE_LINES[[language=CEU,reset=false,
@@ -2715,12 +2713,13 @@ Boost signals:
 
 **How common are Signalling Mechanisms?**
 
-The implementation in Céu uses 39 events internal communication defined in
-23 files with over 200 invocations of `emit` and `await` spread over 50 files.
+The implementation in Céu uses 39 events for internal communication defined in
+23 files with over 200 invocations of `emit` and `await` spread in over 50
+files.
 
 Internal events are used for resizing entities, broadcasting update and draw
-requests, pausing parts of the game, triggering a new pingu actions, signalling
-collisions, signalling UI interactions, among many others.
+requests, pausing parts of the game, triggering new pingu actions, signalling
+collisions, signalling UI interactions, among many others cases.
 </div>
 
 [boost_signal]:http://www.boost.org/doc/libs/1_60_0/doc/html/signals2.html
@@ -2982,15 +2981,15 @@ languages, usually through timer callbacks or ``sleep'' blocking calls.
 
 ## Conclusion
 
-We promote the *Structured Synchronous Reactive* concurrency model supported
-by the programming language Céu for the development games.
+We promote the *structured synchronous reactive* programming model of Céu for
+the development of games.
 We present 9 in-depth use cases apllied to *Pingus* (an open-source *Lemmings*
 clone), categorized in 5 control-flow patterns that likely apply to other
 games.
 
 We show how the standard way to program games with objects and callbacks in C++
-eliminate any vestige of structured programming, such as support for
-sequential execution, long-lasting loops, and persisting local variables.
+hinders structured programming techniques, such as support for sequential
+execution, long-lasting loops, and persisting local variables.
 In this sense, callbacks actually disrupt structured programming, becoming
 ["our generation’s goto"][goto] according to Miguel de Icaza.
 
