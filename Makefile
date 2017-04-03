@@ -36,8 +36,8 @@ clean:
 	scons -c
 
 docs:
-	lua5.3 docs/md-macros.lua docs/README.md > /tmp/README.md
-	pandoc /tmp/README.md > docs/README.html
+	lua5.3 docs/md-macros.lua docs/index.md > /tmp/index.md
+	pandoc /tmp/index.md > docs/index.html
 
 ceu:
 	ceu --pre --pre-args="-I$(CEU_DIR)/include -I./include -I./ceu" \
