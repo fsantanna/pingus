@@ -427,9 +427,9 @@ options, saved games and serialization, maps and levels descriptions, string
 formatting, collision detection, graph algorithms, etc.
 This part remains unchanged and relies on the seamless integration between Céu
 and C/C++.
-From the 9186 touched LoC, we removed all headers, declarations, and other
-innocuous statements, resulting in 70 files with 4135 dense LoC originally
-written in C++ [[![X]][cpp_compressed]].
+From the 9186 touched LoC, we removed all headers, declarations, trivial
+getters & setters, and other innocuous statements, resulting in 70 files with
+4135 dense LoC originally written in C++ [[![X]][cpp_compressed]].
 We did the same with the implementation in Céu, resulting in 3697 dense LoC
 [[![X]][ceu_compressed]].
 The table that follows summarizes the resulting codebase in the two
@@ -2198,9 +2198,22 @@ containers:
   immediate reclamation.
 - Containers require explicit manipulation of pointers/references.
 
-`TODO: particles, action holders, worldmap, screen_manager`
-`TODO: condensed code: headers, trivial getters/setters, declarations/vars/constants, C++ bloat`
-`TODO: how many await/spawn/include?`
+**How common are Lifespan Hierarchies?**
+
+All entities in a game have an associated lifespan.
+The implementation in Céu has over 200 static instantiations spread across all
+65 files.
+For dynamic entities, it defines 23 pools in 10 files, with almost 96
+instantiations across 37 files.
+Pools are used to hold explosion particles, levels and level sets from files,
+gameplay & worldmap objects, and UI widgets.
+
+<!--
+await Code: 38
+spawn Code: 263
+spawn in: 96 uses in 37 files
+pool:     23 uses in 10 files
+-->
 
 <!--
 Overall, passive objects of C++ impose a dispatching architecture that makes 
