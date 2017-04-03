@@ -275,8 +275,8 @@ obstacles towards a designated exit [[![X]][pingus-3]].
 
 Pingus is developed in standard object-oriented C++, the *lingua franca* of
 game development [[![X]][cpp_1]].
-The codebase is about 40.000 lines of code (LoC) [[![X]][git-1]], divided into the
-engine, level editor, auxiliary libraries, and the game logic itself.
+The codebase is about 40.000 lines of code (LoC) [[![X]][git-1]], divided into
+the engine, level editor, auxiliary libraries, and the game logic itself.
 
 [cpp_1]: http://gameprogrammingpatterns.com/introduction.html#about-the-sample-code
 <!--
@@ -327,13 +327,14 @@ alternative to C/C++ with the characteristics that follow:
   execution, i.e., there's no implicit preemption or real parallelism.
 
 Structured programming eliminates the *callback hell* [[![X]][callback-hell]],
-letting programmers write code in direct/sequential style in multiple lines of
-execution.
+letting programmers write code in [direct/sequential style][direct-style] in
+multiple lines of execution.
 In addition, when a line of execution is aborted, all allocated resources
 inside it are safely released.
 `TODO: single threaded, memory`
 
 [callback-hell]: http://callbackhell.com/
+[direct-style]:  https://en.wikipedia.org/wiki/Direct_style
 
 @FIG_NEW(sweeney.png,
          Three "kinds" of code,
@@ -496,7 +497,7 @@ likely apply to other games:
     Entities typically form a dispatching hierarchy in which a container entity
     that receives a stimulus automatically forwards it to its managed children.
     * [ [case 1](#dispatching-hierarchies-1) |
-        <!-- [`TODO-resize`](#dispatching_hierarchies_2) | -->
+        <!-- [TODO-resize](#dispatching_hierarchies_2) | -->
         [summary](#dispatching_hierarchies_summary) ]
 
 4. [**Lifespan Hierarchies**](#lifespan-hierarchies):
@@ -506,12 +507,14 @@ likely apply to other games:
         [case 2](#lifespan-hierarchies-2) |
         [summary](#lifespan_hierarchies_summary) ]
 
-5. [**Signaling**](#signaling):
+5. [**Signaling Mechanisms**](#signaling):
     Entities often need to communicate explicitly through signaling mechanisms,
     especially if there is no hierarchy relationship between them.
     * [ [case 1](#signaling_1) |
         [case 2](#signaling_2) |
         [summary](#signaling-summary) ]
+
+### [Conclusion](#conclusion-1)
 
 <!--
 Other games manifesting these patterns likely use some form of explicit state
@@ -528,13 +531,13 @@ subject to the same rewriting process.
     Pausing allows parts of the game to temporarily stop reacting to incoming
     events.
     * [ [summary](#pausing-summary) ]
-    * `TODO`
+    * TODO
 
 7. [**Resource Acquisition and Release**](#resource-acquisition-and-release):
     External resources, such as configuration files and saved games,
     must be acquired and safely released.
     * [ [summary](#resource-acquisition-and-release-summary) ]
-    * `TODO`
+    * TODO
 -->
 
 <!-- TODO: The patterns are not entirely orthogonal -->
@@ -625,6 +628,12 @@ Alexander Tkachov
 
 * <https://github.com/Tkachov/>
 
+<!--
+## Related Work
+- super glue, 2012
+- patterns,
+- ???
+
 -------------------------------------------------------------------------------
 
 <!--
@@ -635,9 +644,6 @@ Alexander Tkachov
     - not all changes delete code
     - more intereseted in changes that remove global rearrange
         - expressiveness
-
-TODO: Selected Code Snippets
-TODO: state vars, code reduction para cada case
 -->
 
 @SEC[[finite-state-machines,
@@ -2201,8 +2207,10 @@ containers:
 **How common are Lifespan Hierarchies?**
 
 All entities in a game have an associated lifespan.
+
 The implementation in Céu has over 200 static instantiations spread across all
 65 files.
+
 For dynamic entities, it defines 23 pools in 10 files, with almost 96
 instantiations across 37 files.
 Pools are used to hold explosion particles, levels and level sets from files,
@@ -2686,8 +2694,14 @@ Boost signals:
 * They never create infinite dependency loops.
 * They do not require explicit unbinding.
 
-`TODO: menu widgets`
+**How common are Signalling Mechanisms?**
 
+The implementation in Céu uses 39 events internal communication defined in
+23 files with over 200 invocations of `emit` and `await` spread over 50 files.
+
+Internal events are used for resizing entities, broadcasting update and draw
+requests, pausing parts of the game, triggering a new pingu actions, signalling
+collisions, signalling UI interactions, among many others.
 </div>
 
 [boost_signal]:http://www.boost.org/doc/libs/1_60_0/doc/html/signals2.html
@@ -2781,33 +2795,13 @@ SEC[[
 
 <!--
 
-[[![X]][see pausing]]
-[[![X]][cpp_engine]]: removed files
-
-** remove = death
-
-* tracking: follow the source code
-    ** execution order, redraw, sort
-
-composition over inheritance
-
-
-doesn't need
-
-- tradeoff here is clear
-    - indirect reaction + dynamic scope
-    vs
-    - direct reaction + lexical scope
-
-- class hier and dispatch hier
-
-- no lapsed listener
+- tracking: follow the source code
+    - execution order, redraw, sort
+- composition over inheritance
 - no dynamic allocation or GC
 - static reasoning
-- inheritance vs composition
 - no hier b/c orgs can react directly to the env
-    + lexical scope
-- animation w/ the dispatch path
+    - lexical scope
 
 ## The Game Loop
 
@@ -2880,7 +2874,6 @@ void ScreenManager::display() {
 
 ## Céu
 
-<!-
 - control
     = Accidental complexity
 - not pure functions
@@ -2912,11 +2905,8 @@ Memory management and resource management is not the same. Resources other than 
 I will say it again, because no one seemed to notice it: could it be that there exists a "calculus" for resource management?
 By Achilleas Margaritis at Fri, 2006-02-03 11:46 | login or register to post comment
 
-->
-
 ## Idioms
 
-<!-
 All patterns relate to event handling and control flow in games, and we argue 
 how Céu offers more appropriate abstractions than existing languages.
 
@@ -2930,12 +2920,6 @@ maintenance scalability problems (AKA the *state explosion phenomena*).
     The more XXX, the more states to track, state explosion.
     The machine transits from state to state
 
-, as we encode the fact
-
- It can change from one state to another when initiated by a triggering event 
-or condition; this is called a transition.
-    - state machines vs await
-
 Map the whole behavior into a single number is a problem.
     - hierarchical machines can help, but still has this mapping property
         - locally unscallabe
@@ -2943,43 +2927,6 @@ Map the whole behavior into a single number is a problem.
         - explicit state machines vs implicit
         - incremental implementation requires global changes
             - in ceu, its just compositions
-
-### Hierarchies
-
-    - class hierarchies/dispatching vs await
-    - difficult to track origin
-        - has to traverse the whole hierarchy
-    - used in pause
-    - not class hier
-    - flat dispatching (diagrama mostrando os dois)
-
- (e.g., a key press or expiring timer)
-    - class hierarchies/dispatching vs await
-    - lexical scope
-    - visitor pattern
-
-    - new /delete
-
-### Continuations
-
-    - CPS vs return continue
-        - screen trasnitions
-        - story screen advancing
-        - story screen -> credits screen
-        - WM pingu path traversal
-        - worse w/o closures
-    Typically, screen transitions are not static
-
-### Signaling Between Entities
-
-    - signaling/f pointer vs events
-        - option save on click
-        - global events double direction
-            - key/mouse-but events
-                - sendo que but tem que ficar highlight ou nao
-        - verificar caso do option_menu
-            - configuracao pode ser alterada por fora?
-        - worse w/o closures
 
 ### Wall-Clock Timers
     - wall-clock time
@@ -3009,223 +2956,28 @@ languages, usually through timer callbacks or ``sleep'' blocking calls.
         - C libraries
         - static memory
         - control safety
-    = WHY NOT
-        - functional, immutability
-        - type safety
-        - generic code
-        - tooling
     = BOUNS: Lua
-->
-
-## The Code Base
-
-Pingus has a code base around 40k lines of code (LoC):
-
-    > cd pingus/src/
-    > sloccount .
-    ...
-    SLOC	Directory	SLOC-by-Language (Sorted)
-    18173   pingus          cpp=18173
-    10073   engine          cpp=10073
-    6532    editor          cpp=6532
-    2771    util            cpp=2771
-    1138    math            cpp=1138
-    679     lisp            cpp=679
-    365     win32           ansic=365
-    248     macosx          objc=248
-    7       top_dir         cpp=7
-
-The code base includes a game engine, utilities, level editor, platform stubs, 
-and the game logic.
-Most of the porting process centered around the `engine` and `pingus` 
-directory, as we did not port the level editor:
-
-SLOC	Directory	SLOC-by-Language (Sorted)
-6844    top_dir         cpp=6844
-3045    screens         cpp=3045
-2354    worldmap        cpp=2354
-2118    worldobjs       cpp=2118
-1838    actions         cpp=1838
-1338    components      cpp=1338
-531     particles       cpp=531
-64      colliders       cpp=64
-41      movers          cpp=41
-
-SLOC	Directory	SLOC-by-Language (Sorted)
-4666    display         cpp=4666
-3617    input           cpp=3617
-621     gui             cpp=621
-603     screen          cpp=603
-410     sound           cpp=410
-109     resource        cpp=109
-47      system          cpp=47
-
-<!-
-Most of
-
- `engine/`, a level `editor/`
-
-
-
-Total Physical Source Lines of Code (SLOC) = 39,986
-
-The next Mainstream Programming Language, slides for his invited talk at POPL 2006
-Video game programming has a
-entities have a high degree of interdependence
-current abstractions impose a high degree of accidental complexity
-
-More concretely
-
-- BUG: a cada reinicio, o dobro de pingus sao criados
-- BUG: is_world=false in sprite.ceu
-- BUG: cliques nos pingus
-- BUG: bg do pingu counter fixo
-- BUG: small map esta atras da agua embaixo do level snow20
-- BUG: queda do pingu saindo da entrada esta levemente desalinhado
-- BUG: glitch periodico no smallmap relacionado ao RENDER
-- BUG: pequeno glitch no smallmap no inicio da fase
-- BUG: procurar /// TODO: w/o me.ceu this function becomes @rec
-- z-order front entrance snow-tutorial
-- TODO: pos_offset em todos os objs em factory
-- front entrance atras do pingu
-- color.a em surface_background.ceu
-- idle laser_exit
-- EXIT/LASER_EXIT pega somente 1 de cada vez
-    - verificar se o loop nao deveria pegar varios
-- cache de sprites ou performance inviavel
-- EXITER/LASERKILL in pingu.ceu
-- BUG: climber center
-- global:world.pingus vai simplificar min.ceu
-- bug do WORLD_UPDATE necessario
-- pingu! = <...>
-- world! = <...>
-- countdown action disable from the original??
-- walker behind all
-- bridger offset
-- rename SpritePingus => Sprite
-- testar climber, wall-mode-activation
-- testar previous action: Climber->Jumper->direction-change/Blocker->Faller->Blocker
-- SDL_DT p/ pingus/actions/sprites
-->
-
-
-<!-
-# PORTING
-
-```
-native/pre do
-    ##include "../src/engine/display/sprite.hpp"
-end
-native @plain _SpriteImpl;
-
-input _SpriteImpl&& SPRITE_IMPL_NEW;
-input _SpriteImpl&& SPRITE_IMPL_DELETE;
-
-class SpriteImpl with
-    var _SpriteImpl& me;
-do
-    par/or do
-        var _SpriteImpl&& me_ = await SPRITE_IMPL_DELETE
-                                until me_ == &&this.me;
-    with
-        <...>
-    end
-end
-
-class SpriteImplFactory with
-do
-    every me_ in SPRITE_IMPL_NEW do
-        spawn SpriteImpl with
-            this.me = &_XXX_PTR2REF(me_);
-        end;
-    end
-end
-
-var SpriteImplFactory _;
-```
-
-# RESULTS
-
-```
-## CPP
-
-> cd /tmp/cmp/cpp/
-> sloccount .
-    2087
-> cd /tmp/cmp/
-> sloccount all.cpp
-    1611
-> cd /tmp/cmp/
-> wc all.cpp
-    2370
-
-## CEU
-
-> wc all.ceu
-    1476
-
-## ALL_CLEAR.CPP
-
-- namespaces
-- comments
-- blank lines
-- includes
-- one-line empty methods
-
--
-void
-Basher::update ()
-{
-    ...
-}
-
-void Basher::update () {
-    ...
-}
--
-if (x)
-{
-    ...
-}
-else
-{
-    ...
-}
-if (x)
-    ...
-else
-    ...
-
-if (x) {
-    ...
-} else {
-    ...
-}
-
-======
-
-- native
-- #ifdef FILE
-- defines
-- interfaces/class with ... do
--
-{
-    tp C;
-}
-==>
-{ tp C; }
-
 -->
 
 -------------------------------------------------------------------------------
 
 ## Conclusion
 
-`TODO`
+We promote the *Structured Synchronous Reactive* concurrency model supported
+by the programming language Céu for the development games.
+We present 9 in-depth use cases apllied to *Pingus* (an open-source *Lemmings*
+clone), categorized in 5 control-flow patterns that likely apply to other
+games.
+
+We show how the standard way to program games with objects and callbacks in C++
+eliminate any vestige of structured programming, such as support for
+sequential execution, long-lasting loops, and persisting local variables.
+In this sense, callbacks actually disrupt structured programming, becoming
+["our generation’s goto"][goto] according to Miguel de Icaza.
 
 Overall, we believe that most difficulties in implementing control behavior in 
 game logic is not inherent to this domain, but a result of accidental
 complexity due to the lack of structured abstractions and an appropriate
 concurrency model to handle event-based applications.
 
-
+[goto]: http://tirania.org/blog/archive/2013/Aug-15.html
