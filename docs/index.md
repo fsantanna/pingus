@@ -248,8 +248,10 @@ TODO:
 
 ## Introduction
 
+<!--
 This report documents the process of rewriting the video game
 Pingus from C++ to Céu.
+-->
 
 <!--
 <img src="images/pingus-1.png" align="right" width="400"/>
@@ -276,7 +278,7 @@ The codebase is about 40.000 lines of code (LoCs) [[![X]][git-1]], divided into
 the engine, level editor, auxiliary libraries, and the game logic itself.
 
 [cpp_1]: http://gameprogrammingpatterns.com/introduction.html#about-the-sample-code
-[git-1]: https://github.com/Pingus/pingus/commit/7b255840c201d028fd6b19a2185ccf7df3a2cd6e
+[git-1]: https://github.com/Pingus/pingus/tree/7b255840c201d028fd6b19a2185ccf7df3a2cd6e/src
 <!--
     I chose C++ for a couple of reasons. First, it’s the most popular language
     for commercially shipped games.
@@ -406,11 +408,11 @@ options, saved games and serialization, maps and levels descriptions, string
 formatting, collision detection, graph algorithms, etc.
 This part remains unchanged and relies on the seamless integration between Céu
 and C/C++ to remain usable.
-From the 9186 touched LoCs, we removed all headers, declarations, trivial
+From the 9.186 touched LoCs, we removed all headers, declarations, trivial
 getters & setters, and other innocuous statements, resulting in 70
-implementation files with 4135 dense LoCs originally written in C++
+implementation files with 4.135 dense LoCs originally written in C++
 [[![X]][cpp_compressed]].
-We did the same with the implementation in Céu, resulting in 3697 dense LoCs
+We did the same with the implementation in Céu, resulting in 3.697 dense LoCs
 [[![X]][ceu_compressed]].
 The table that follows summarizes the condensed codebase in the two
 implementations:
@@ -2729,7 +2731,7 @@ collisions, signalling UI interactions, among many others cases.
 [ceu_config_manager]:https://github.com/fsantanna/pingus/blob/ceu/ceu/pingus/config_manager.ceu#L4
 [cpp_option_menu]:https://github.com/Pingus/pingus/blob/7b255840c201d028fd6b19a2185ccf7df3a2cd6e/src/pingus/screens/option_menu.cpp#L79
 [ceu_option_menu]:https://github.com/fsantanna/pingus/blob/ceu/ceu/pingus/screens/options/options.ceu#L23
-[cpp_check_box]:https://github.com/Pingus/pingus/blob/7b255840c201d028fd6b19a2185ccf7df3a2cd6e/src/pingus/components/choice_box.cpp#L54
+[cpp_check_box]:https://github.com/Pingus/pingus/blob/7b255840c201d028fd6b19a2185ccf7df3a2cd6e/src/pingus/components/check_box.cpp
 [ceu_check_box]: https://github.com/fsantanna/pingus/blob/ceu/ceu/pingus/screens/options/check_box.ceu
 [ceu_stack]: http://fsantanna.github.io/ceu/out/manual/v0.20/#internal-reactions
 
