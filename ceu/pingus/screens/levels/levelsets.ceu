@@ -123,24 +123,24 @@ code/await Levelsets (void) -> int do
             pool[] Levelset sets;
             var IRRect r = val IRRect(Rect(44,155, 680-90,LEVELSET_ITEM_HEIGHT-1),
                                       AnchorXY(AnchorX.Left(), AnchorY.Center()),
-                                      &ui!.rect,
+                                      &ui.rect,
                                       AnchorXY(AnchorX.Left(), AnchorY.Top()),
                                       _, _);
             var int i;
             loop i in [0 -> {levelsets.size()}[ do
-                spawn Levelset(&ui!.ui, i, &r) in sets;
+                spawn Levelset(&ui.ui, i, &r) in sets;
                 r.off.y = r.off.y + LEVELSET_ITEM_HEIGHT;
             end
 
             par do
-                var int v = await ui!.ui.ok;
+                var int v = await ui.ui.ok;
                 escape v;   // always >= 0
             with
                 every outer.main.redraw do
                     call {Fonts::chalk_large}.render(
                         _origin_top_center,
-                        ui!.rect.abs.x + ui!.rect.abs.w/2,
-                        ui!.rect.abs.y + 40,
+                        ui.rect.abs.x + ui.rect.abs.w/2,
+                        ui.rect.abs.y + 40,
                         __("Levelsets"),
                         *{Display::s_framebuffer}
                     );

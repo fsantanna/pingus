@@ -27,12 +27,12 @@ do
         /* UPDATE */
 
         // SOUND
-        await outer.game.dt until sprite!.sprite.frame == 10;
+        await outer.game.dt until sprite.sprite.frame == 10;
         call {Sound::PingusSound::play_sound}("plop", 0.5, 0.0);
 
         // PARTICLES, TERRAIN, EXPLOSION
 
-        await outer.game.dt until sprite!.sprite.frame == 13;
+        await outer.game.dt until sprite.sprite.frame == 13;
         var int i;
         loop i in [0 -> 50[ do
             spawn PinguParticle(outer.pingu.rect.off.x,outer.pingu.rect.off.y-5) in outer.pingu_particles;

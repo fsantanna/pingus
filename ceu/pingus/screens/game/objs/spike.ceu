@@ -30,16 +30,16 @@ do
                     watching s, p do
                         loop do
                             await outer.game.dt;
-                            if (s!.sprite.frame == 3 and
-                                p!.pingu.rect.off.x > pst.x+16-12 and
-                                p!.pingu.rect.off.x < pst.x+16+12 and
-                                p!.pingu.rect.off.y > pst.y       and
-                                p!.pingu.rect.off.y < pst.y+32)
+                            if (s.sprite.frame == 3 and
+                                p.pingu.rect.off.x > pst.x+16-12 and
+                                p.pingu.rect.off.x < pst.x+16+12 and
+                                p.pingu.rect.off.y > pst.y       and
+                                p.pingu.rect.off.y < pst.y+32)
                             then
                                 break;
                             end
                         end
-                        emit p!.pingu.go_action({ActionName::DEAD});
+                        emit p.pingu.go_action({ActionName::DEAD});
                         await FOREVER;
                     end
                 end

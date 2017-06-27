@@ -122,7 +122,7 @@ do
     var& Surface sfc = &sfc_from_desc.surface;
     var&? Sprite_from_sfc s = spawn Sprite_from_sfc(&rect, &sfc, &dt);
     watching s do
-        sprite = &s!.sprite;
+        sprite = &s.sprite;
         await FOREVER;
     end
 
@@ -150,7 +150,7 @@ do
     var& Surface sfc = &sfc_from_name.surface;
     var&? Sprite_from_sfc s = spawn Sprite_from_sfc(&rect, &sfc, &dt);
     watching s do
-        sprite = &s!.sprite;
+        sprite = &s.sprite;
         await FOREVER;
     end
 end

@@ -40,7 +40,7 @@ native/nohold
     _SDL_GetKeyState,
     _XXX_NOHOLD,
     _delete, _log_error, _log_info, _log_debug, __,
-    _ID, _snprintf,
+    _ID,
 ;
 
 native/pure

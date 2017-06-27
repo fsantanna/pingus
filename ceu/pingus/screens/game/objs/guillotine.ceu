@@ -44,7 +44,7 @@ do
             var&? Sprite_from_name s = spawn Sprite_from_name(&r.pub, name, &outer.game.dt);
             watching s do
                 every outer.game.dt do
-                    if s!.sprite.frame == 7 then
+                    if s.sprite.frame == 7 then
 #if 0
                         {
                             static Vector3f pst;

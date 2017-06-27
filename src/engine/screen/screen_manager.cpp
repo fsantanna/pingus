@@ -45,7 +45,7 @@ ScreenManager::~ScreenManager() {
 }
 
 static int is_terminating = 0;
-tceu_callback_ret ceu_callback (int cmd, tceu_callback_arg p1, tceu_callback_arg p2) {
+tceu_callback_ret ceu_callback_pingus (int cmd, tceu_callback_arg p1, tceu_callback_arg p2, const char* file, u32 line) {
     tceu_callback_ret ret = { .is_handled=1 };
     switch (cmd) {
         case CEU_CALLBACK_TERMINATING:
@@ -86,7 +86,8 @@ ScreenManager::display(CommandLineOptions* cmd_options)
   Uint32 last_ticks = SDL_GetTicks();
   float previous_frame_time;
 
-  ceu_start();
+  tceu_callback cb = { &ceu_callback_pingus, NULL };
+  ceu_start(&cb, 0, NULL);
   ceu_input(CEU_INPUT_MAIN, &cmd_options);
 
   while (!is_terminating)

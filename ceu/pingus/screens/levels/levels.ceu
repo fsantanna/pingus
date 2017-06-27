@@ -243,14 +243,14 @@ do
             }
             var& RRect r1 = spawn RRect(IRRect(Rect(100,85, _,_),
                                                AnchorXY(AnchorX.Center(), AnchorY.Center()),
-                                               &ui!.rect,
+                                               &ui.rect,
                                                AnchorXY(AnchorX.Left(), AnchorY.Top()),
                                                _, _));
             spawn Sprite_from_name(&r1.pub, {str.c_str()}, &outer.main.dt);
 
             var& RRect r2 = spawn RRect(IRRect(Rect(-100,85, _,_),
                                                AnchorXY(AnchorX.Center(), AnchorY.Center()),
-                                               &ui!.rect,
+                                               &ui.rect,
                                                AnchorXY(AnchorX.Right(), AnchorY.Top()),
                                                _, _));
             spawn Sprite_from_name(&r2.pub, {str.c_str()}, &outer.main.dt);
@@ -259,25 +259,25 @@ do
 
             var IRRect r = val IRRect(Rect(44,155, 680-90,LEVEL_ITEM_HEIGHT-1),
                                       AnchorXY(AnchorX.Left(), AnchorY.Center()),
-                                      &ui!.rect,
+                                      &ui.rect,
                                       AnchorXY(AnchorX.Left(), AnchorY.Top()),
                                       _, _);
 
             var int i;
             loop i in [0->levelset.get_level_count() as int[ do
-                spawn Level(&levelset, &ui!.ui, i, &r) in levels;
+                spawn Level(&levelset, &ui.ui, i, &r) in levels;
                 r.off.y = r.off.y + LEVEL_ITEM_HEIGHT;
             end
 
             par do
-                var int v = await ui!.ui.ok;
+                var int v = await ui.ui.ok;
                 escape v;   // always >= 0
             with
                 every outer.main.redraw do
                     call {Fonts::chalk_large}.render(
                         _origin_top_center,
-                        ui!.rect.abs.x + ui!.rect.abs.w/2,
-                        ui!.rect.abs.y + 40,
+                        ui.rect.abs.x + ui.rect.abs.w/2,
+                        ui.rect.abs.y + 40,
                         __(levelset.get_title()),
                         *{Display::s_framebuffer}
                     );
