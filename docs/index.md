@@ -312,7 +312,7 @@ terms of memory and CPU usage.
 The runtime is single threaded and the language requires no garbage collection.
 
 [ceu_1]:    http://ceu-lang.org/
-[ceu_2]:    https://github.com/fsantanna/ceu/
+[ceu_2]:    https://github.com/ceu-lang/ceu/
 [callback-hell]: http://callbackhell.com/
 [direct-style]:  https://en.wikipedia.org/wiki/Direct_style
 
@@ -827,7 +827,7 @@ productivity.
 [cpp_armageddon_2]: https://github.com/Pingus/pingus/blob/7b255840c201d028fd6b19a2185ccf7df3a2cd6e/src/pingus/components/action_button.cpp#L33-#L90
 [ceu_armageddon]:   https://github.com/fsantanna/pingus/blob/ceu/ceu/pingus/screens/game/input.ceu#L107
 [diff_armageddon]:  https://github.com/fsantanna/pingus/commit/d0afe53648862643857811d0af8a7a9f60119f6c
-[ceu_watching]:     http://fsantanna.github.io/ceu/out/manual/v0.20/statements/#watching
+[ceu_watching]:     http://ceu-lang.github.io/ceu/out/manual/v0.20/statements/#watching
 
 @SEC[[finite-state-machines-2,
 ### The *Bomber* Action
@@ -1283,8 +1283,8 @@ and 111 lines of code, respectively [[![X]][diff_story]].
 -->
 
 [diff_story]: https://github.com/fsantanna/pingus/commit/1e17519467c8b0c3d616f0452966b6f5357ccd34
-[ceu_events]: http://fsantanna.github.io/ceu/out/manual/v0.20/storage_entities/#events
-[ceu_paror]: http://fsantanna.github.io/ceu/out/manual/v0.20/#parallel-compositions-and-abortion
+[ceu_events]: http://ceu-lang.github.io/ceu/out/manual/v0.20/storage_entities/#events
+[ceu_paror]: http://ceu-lang.github.io/ceu/out/manual/v0.20/#parallel-compositions-and-abortion
 
 @SEC[[continuation-passing-2,
 ### Transition to the *Credits* Screen from the *Story* Screen
@@ -2733,7 +2733,7 @@ collisions, signalling UI interactions, among many others cases.
 [ceu_option_menu]:https://github.com/fsantanna/pingus/blob/ceu/ceu/pingus/screens/options/options.ceu#L23
 [cpp_check_box]:https://github.com/Pingus/pingus/blob/7b255840c201d028fd6b19a2185ccf7df3a2cd6e/src/pingus/components/check_box.cpp
 [ceu_check_box]: https://github.com/fsantanna/pingus/blob/ceu/ceu/pingus/screens/options/check_box.ceu
-[ceu_stack]: http://fsantanna.github.io/ceu/out/manual/v0.20/#internal-reactions
+[ceu_stack]: http://ceu-lang.github.io/ceu/out/manual/v0.20/#internal-reactions
 
 [cpp_pausebutton]: https://github.com/Pingus/pingus/blob/7b255840c201d028fd6b19a2185ccf7df3a2cd6e/src/pingus/components/action_button.cpp#L135
 [cpp_gamesession]: https://github.com/Pingus/pingus/blob/7b255840c201d028fd6b19a2185ccf7df3a2cd6e/src/pingus/screens/game_session.cpp#L159
